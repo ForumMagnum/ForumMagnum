@@ -64,9 +64,9 @@ Vulcan.checkForMissingValues = async () => {
   }
 }
 
-function countRowsNeedingAutofill(collection, fieldsWithAutofill)
+function countRowsNeedingAutofill(collection, fieldsWithAutofill: Array<string>)
 {
   return collection.find({
-    $or: _.map(fieldsWithAutofill, fieldName => ({[fieldName]: null}))
+    $or: _.map(fieldsWithAutofill, (fieldName: string) => ({[fieldName]: null}))
   }).count();
 }

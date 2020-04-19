@@ -46,7 +46,7 @@ async function getSubscribedUsers({
   collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
-  userIsDefaultSubscribed?: null|((u:any)=>boolean),
+  userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
 }) {
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
   const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
@@ -61,10 +61,10 @@ async function getSubscribedUsers({
     potentiallyDefaultSubscribedUserIds = _.filter(potentiallyDefaultSubscribedUserIds, id=>!(id in explicitlySubscribedUsersDict));
     
     // Fetch and filter potentially-subscribed users
-    const potentiallyDefaultSubscribedUsers = await Users.find({
+    const potentiallyDefaultSubscribedUsers: Array<DbUser> = await Users.find({
       _id: {$in: potentiallyDefaultSubscribedUserIds}
     }).fetch();
-    const defaultSubscribedUsers = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
+    const defaultSubscribedUsers: Array<DbUser> = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
     
     // Check for suppression in the subscriptions table
     const suppressions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: "suppressed"}).fetch();

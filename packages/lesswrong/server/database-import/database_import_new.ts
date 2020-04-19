@@ -110,7 +110,7 @@ Vulcan.postgresImport = async () => {
 
   let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
-  commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
+  commentData = _.map(commentData, (comment: any, id: any) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
 
   //eslint-disable-next-line no-console
   console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
@@ -164,7 +164,7 @@ const deepObjectExtend = (target, source) => {
 }
 
 const upsertProcessedPosts = async (posts, postMap) => {
-  const postUpdates = _.map(posts, (post) => {
+  const postUpdates = _.map(posts, (post: any) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
       let set: any = {legacyData: post.legacyData};
@@ -192,10 +192,10 @@ const upsertProcessedPosts = async (posts, postMap) => {
 const upsertProcessedUsers = async (users, userMap) => {
   let userCounter = 0;
   // We first find all the users for which we already have an existing user in the DB
-  const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
+  const usersToUpdate = _.filter(users, (user: any) => userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
   //console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
-  const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
+  const usersToInsert = _.filter(users, (user: any) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
   //console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
   if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
@@ -267,7 +267,7 @@ const upsertProcessedComments = async (comments, commentMap) => {
   let postUpdates: Array<any> = [];
   let userUpdates: Array<any> = [];
   let commentUpdates: Array<any> = [];
-  _.map(comments, (comment) => {
+  _.map(comments, (comment: any) => {
     const existingComment = commentMap.get(comment.legacyId);
     if (existingComment) {
       let set: any = {legacyData: comment.legacyData, parentCommentId: comment.parentCommentId, topLevelCommentId: comment.topLevelCommentId};

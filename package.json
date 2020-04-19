@@ -41,6 +41,7 @@
     "@types/mocha": "^5.2.7",
     "@types/moment": "^2.13.0",
     "@types/node": "8",
+    "@types/underscore": "^1.9.4",
     "akismet-api": "^4.2.0",
     "algoliasearch": "^3.29.0",
     "apollo-cache-inmemory": "^1.4.2",

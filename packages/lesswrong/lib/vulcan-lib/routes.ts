@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 
-export const Routes = {}; // populated by calls to addRoute
+type Route = any;
+export const Routes: Record<string,Route> = {}; // populated by calls to addRoute
 
 /*
  A route is defined in the list like:

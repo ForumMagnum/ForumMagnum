@@ -48,7 +48,7 @@ const NotificationsMenuButton = ({
     ssr: true,
   });
   
-  let filteredResults = [];
+  let filteredResults: Array<NotificationsList> = [];
   if (currentUser) {
     filteredResults = results && _.filter(results,
       (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck

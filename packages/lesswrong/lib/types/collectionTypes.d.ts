@@ -11,6 +11,7 @@ interface CollectionBase<T extends DbObject> {
   addField: any
   helpers: any
   loader: any
+  extraLoaders: Record<string,any>
   
   // TODO: Type-system plumbing should handle the fact that loaders are available
   // if you get the collection via a resolver's context, but not available if you
