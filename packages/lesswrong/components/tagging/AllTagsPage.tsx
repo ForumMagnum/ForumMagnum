@@ -28,7 +28,7 @@ const AllTagsPage = ({classes}: {
     },
     collection: Tags,
     fragmentName: "TagFragment",
-    limit: 100,
+    limit: 200,
     ssr: true,
   });
   const { SingleColumnSection, SectionTitle, SectionButton, Loading } = Components;
