@@ -28,7 +28,7 @@ const styles = theme => ({
 })
 
 const SunshineNewPostsItem = ({post, classes}: {
-  post: PostsList,
+  post: SunshinePostsList,
   classes: ClassesType
 }) => {
   const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
@@ -37,7 +37,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const {mutate: updatePost} = useUpdate({
     collection: Posts,
-    fragmentName: 'PostsList',
+    fragmentName: 'SunshinePostsList',
   });
   const [addTagsMutation] = useMutation(gql`
     mutation addTagsMutation($postId: String, $tagIds: [String]) {

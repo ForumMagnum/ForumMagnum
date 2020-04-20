@@ -358,10 +358,11 @@ const mozillaHubStyles = (theme) => ({
   }
 })
 
-const MozillaHubPreview = ({classes, href, innerHTML,}: {
+const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string
+  innerHTML: string,
+  id?: string,
 }) => {
   const roomId = href.split("/")[3]
   const { data: rawData, loading } = useQuery(gql`
@@ -391,7 +392,7 @@ const MozillaHubPreview = ({classes, href, innerHTML,}: {
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>
-      <a href={data.url}>
+      <a href={data.url} id={id}>
         <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
         <span className={classes.users}>
           (<SupervisorAccountIcon className={classes.icon}/> 

@@ -25,14 +25,13 @@ const styles = theme => ({
 })
 
 // This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
-const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, open, enterDelay=undefined, ...props}: {
+const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, open, ...props}: {
   classes: ClassesType,
   children: any,
   onMouseEnter?: any,
   tooltip?: boolean,
   modifiers?: any,
   open: boolean,
-  enterDelay?: number,
   
   // Arguments destructured into ...props
   placement?: PopperPlacementType,
@@ -45,7 +44,6 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, op
       className={classes.popper} 
       modifiers={newModifiers} 
       open={open}
-      enterDelay={enterDelay}
       {...props}
     >
       <div className={tooltip ? classes.tooltip : classes.default} onMouseEnter={onMouseEnter}>

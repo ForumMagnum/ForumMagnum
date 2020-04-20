@@ -3,24 +3,30 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
-import { highlightStyles } from '../posts/PostsPreviewTooltip';
-import { seeAllStyles } from './TagRelCard';
+import { commentBodyStyles } from '../../themes/stylePiping'
+import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = theme => ({
   tagTitle: {
   },
   tagDescription: {
-    ...highlightStyles(theme)
+    paddingTop: 10,
+    ...commentBodyStyles(theme)
   },
   seeAll: {
-    ...seeAllStyles(theme)
+    padding: theme.spacing.unit,
+    paddingBottom: 0,
+    display: "block",
+    textAlign: "right",
+    color: theme.palette.primary.main,
+    ...theme.typography.commentStyle
   }
 });
 
-const previewPostCount = 4;
+const previewPostCount = 3;
 
 const TagPreview = ({tag, classes}: {
-  tag: TagFragment,
+  tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
   const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
@@ -35,19 +41,22 @@ const TagPreview = ({tag, classes}: {
     limit: previewPostCount,
     ssr: true,
   });
-  
+
+  if (!tag) return null
+  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs", "")
+
   return (<div>
-    <h2 className={classes.tagTitle}>{tag?.name} Tag</h2>
-    {tag && <ContentItemBody
+    {tag.description?.htmlHighlight ? <ContentItemBody
       className={classes.tagDescription}
-      dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
+      dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
-    />}
+    /> : <div className={classes.tagDescription}><b>{tag.name}</b></div>
+    }
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} />
     )}
-    {tag && <Link className={classes.seeAll} to={`/tag/${tag.slug}`}>See All</Link>}
+    <Link className={classes.seeAll} to={`/tag/${tag.slug}`}>See All</Link>
   </div>)
 }
 
@@ -58,4 +67,3 @@ declare global {
     TagPreview: typeof TagPreviewComponent
   }
 }
-

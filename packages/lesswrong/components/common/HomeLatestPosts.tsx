@@ -5,10 +5,11 @@ import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import qs from 'qs'
+import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
+import moment from '../../lib/moment-timezone';
 
 const styles = theme => ({
   personalBlogpostsCheckbox: {
@@ -48,13 +49,18 @@ const HomeLatestPosts = ({ classes }: {
 
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
+  const { timezone } = useTimezone();
 
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
   const limit = parseInt(query.limit) || 13
+  const now = moment().tz(timezone);
+  const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
+
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,
+    after: dateCutoff,
     view: "magic",
     forum: true,
     limit:limit
