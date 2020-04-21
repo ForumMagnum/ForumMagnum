@@ -25,12 +25,15 @@ const styles = theme => ({
     display: "flex",
     justifyContent: "flex-end",
     marginTop: 12,
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: "center",
+    }
   },
   footer: {
     color: theme.palette.lwTertiary.main,
     flexGrow: 1,
     flexWrap: "wrap",
-    maxWidth: 450, //commented out during coronavirus season
+    maxWidth: 450,
     display: "flex",
     justifyContent: "space-around",
   },
@@ -205,7 +208,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
                     instead of "View All Curated Posts") to avoid wrapping */ }
                 <Hidden smUp implementation="css">More Curated</Hidden>
                 <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
-                {/* todo: revert to "View All Curated Posts" */}
               </Link>
               <SeparatorBullet />
               <SubscribeWidget view={"curated"} />
