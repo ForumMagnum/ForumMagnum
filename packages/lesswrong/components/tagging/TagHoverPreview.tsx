@@ -3,8 +3,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagBySlug } from './useTag';
+import { linkStyle } from '../linkPreview/PostLinkPreview';
 
 const styles = theme => ({
+  link: {
+    ...linkStyle(theme)
+  },
   card: {
     paddingLeft: 16,
     paddingRight: 16,
@@ -32,7 +36,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
           : <Loading/>}
       </div>
     </PopperCard>
-    <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   </span>;
 }
 
