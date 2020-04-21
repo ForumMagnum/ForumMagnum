@@ -23,55 +23,20 @@ const styles = theme => ({
   },
   footerWrapper: {
     display: "flex",
-    justifyContent: "flex-start",
+    justifyContent: "flex-end",
     marginTop: 12,
   },
   footer: {
     color: theme.palette.lwTertiary.main,
     flexGrow: 1,
     flexWrap: "wrap",
-    alignItems: "center",
-    // maxWidth: 450, //commented out during coronavirus season
+    maxWidth: 450, //commented out during coronavirus season
     display: "flex",
     justifyContent: "space-around",
   },
   loggedOutFooter: {
     maxWidth: 450,
     marginLeft: "auto"
-  },
-  coronavirusTagPage: {
-    border: `solid 1px ${theme.palette.primary.main}`,
-    color: theme.palette.primary.main,
-    padding: 5,
-    paddingLeft: 15,
-    paddingRight: 15,
-    borderRadius: 3,
-    marginLeft: 80,
-    textAlign: "center",
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: "1%",
-    },
-    [theme.breakpoints.down('xs')]: {
-      width: "48%",
-      marginTop: "1em",
-      marginLeft: "1%",
-      marginRight: "1%"
-    }
-  },
-  coronavirusLinksDB: {
-    background: "#71a376",
-    color: "white",
-    padding: 5,
-    paddingLeft: 15,
-    paddingRight: 15,
-    borderRadius: 3,
-    textAlign: "center",
-    [theme.breakpoints.down('xs')]: {
-      width: "48%",
-      marginTop: "1em",
-      marginLeft: "1%",
-      marginRight: "1%"
-    }
   },
 });
 
@@ -239,20 +204,11 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
                 { /* On very small screens, use shorter link text ("More Curated"
                     instead of "View All Curated Posts") to avoid wrapping */ }
                 <Hidden smUp implementation="css">More Curated</Hidden>
-                <Hidden xsDown implementation="css">View All Curated</Hidden>
+                <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
                 {/* todo: revert to "View All Curated Posts" */}
               </Link>
-              <SeparatorBullet/>
+              <SeparatorBullet />
               <SubscribeWidget view={"curated"} />
-              {/* todo: remember to revert subscribe widget after coronavirus */}
-              { currentUser && <>
-                <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
-                  <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
-                </LWTooltip>
-                <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
-                  <Link to="/coronavirus-link-database">Links Database</Link>
-                </LWTooltip>
-              </> }
             </Typography>
           </div>
         </div>
