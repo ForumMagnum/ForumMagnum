@@ -1358,6 +1358,8 @@ interface WithVoteTagRel { // fragment on TagRels
 }
 
 interface WithVoteTagRel_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
   readonly title: string,
 }
 
