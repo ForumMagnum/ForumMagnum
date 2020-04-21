@@ -87,7 +87,7 @@ const TagPage = ({classes}: {
     pageContext='tagPage'
     tagName={tag.name}
     tagId={tag._id}
-    sortedBy={terms.view}
+    sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
     <SingleColumnSection>
