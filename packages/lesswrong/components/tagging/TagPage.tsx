@@ -56,7 +56,7 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, LWTooltip, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
@@ -92,18 +92,15 @@ const TagPage = ({classes}: {
   >
     <SingleColumnSection>
       <div className={classes.wikiSection}>
-        <Typography variant="display3" className={classes.title}>
-          {tag.name}
-        </Typography>
         <AnalyticsContext pageSectionContext="wikiSection">
-          {Users.isAdmin(currentUser) ? <SectionButton>
-              <Link to={`/tag/${tag.slug}/edit`}>Edit Wiki</Link>
-            </SectionButton>
-            :
-              <LWTooltip title="Editing is not yet available [beta]">
-                <SectionButton className={classes.disabledButton}>Edit Wiki</SectionButton>
-              </LWTooltip>
-          }
+          {Users.isAdmin(currentUser) && <SectionButton>
+            <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
+          </SectionButton>}
+          <div className={classes.titleSection}>
+            <Typography variant="display3" className={classes.title}>
+              {tag.name}
+            </Typography>
+          </div>
           <div onClick={clickReadMore}>
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: description}}

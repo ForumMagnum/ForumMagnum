@@ -53,7 +53,7 @@ const FooterTagList = ({post, classes}: {
     refetch()
   }, [setIsAwaiting, mutate, refetch, post._id]);
   
-  const { Loading, FooterTag, LWPopper, AddTag } = Components
+  const { Loading, FooterTag } = Components
   if (loading || !results)
     return <Loading/>;
   
