@@ -1363,6 +1363,7 @@ interface WithVoteTagRel_tag { // fragment on Tags
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
+  readonly adminOnly: boolean,
   readonly description: WithVoteTagRel_tag_description,
 }
 

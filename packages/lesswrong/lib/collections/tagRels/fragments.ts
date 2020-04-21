@@ -61,6 +61,7 @@ registerFragment(`
       core
       postCount
       deleted
+      adminOnly
       description {
         htmlHighlight
       }
