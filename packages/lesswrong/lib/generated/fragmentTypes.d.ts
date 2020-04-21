@@ -193,22 +193,16 @@ interface PostsDetails_customHighlight { // fragment on Revisions
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
-  readonly sourcePost: PostsDetails_sourcePostRelations_sourcePost,
+  readonly sourcePost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_sourcePostRelations_sourcePost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly targetPost: PostsDetails_targetPostRelations_targetPost,
+  readonly targetPost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -1343,8 +1337,38 @@ interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
-interface WithVoteTagRel extends TagRelFragment { // fragment on TagRels
+interface WithVoteTagRel { // fragment on TagRels
   readonly __typename: string,
+  readonly _id: string,
+  readonly score: number,
+  readonly baseScore: number,
+  readonly afBaseScore: number,
+  readonly voteCount: number,
+  readonly userId: string,
+  readonly tagId: string,
+  readonly postId: string,
+  readonly tag: WithVoteTagRel_tag,
+  readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
+}
+
+interface WithVoteTagRel_tag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+  readonly slug: string,
+  readonly core: boolean,
+  readonly postCount: number,
+  readonly deleted: boolean,
+  readonly description: WithVoteTagRel_tag_description,
+}
+
+interface WithVoteTagRel_tag_description { // fragment on Revisions
+  readonly htmlHighlight: string,
+}
+
+interface WithVoteTagRel_currentUserVotes { // fragment on Votes
+  readonly _id: string,
+  readonly voteType: string,
+  readonly power: number,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
