@@ -21,6 +21,7 @@ export const addRoute = (routeOrRouteArray) => {
   addedRoutes.forEach(({name, path, ...properties}) => {
 
     // check if there is already a route registered to this path
+    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
     const routeWithSamePath = _.findWhere(Routes, { path });
 
     if (routeWithSamePath) {

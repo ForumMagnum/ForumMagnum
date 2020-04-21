@@ -64,6 +64,7 @@ async function getSubscribedUsers({
     const potentiallyDefaultSubscribedUsers: Array<DbUser> = await Users.find({
       _id: {$in: potentiallyDefaultSubscribedUserIds}
     }).fetch();
+    // @ts-ignore @types/underscore annotated this wrong; the filter is optional, if it's null then everything passes
     const defaultSubscribedUsers: Array<DbUser> = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
     
     // Check for suppression in the subscriptions table
