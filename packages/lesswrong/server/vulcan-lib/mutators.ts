@@ -293,7 +293,8 @@ export const updateMutator = async <T extends DbObject>({
 
   // get a "preview" of the new document
   let document: T = { ...oldDocument, ...data };
-  document = pickBy(document, f => f !== null);
+  // FIXME: This replaces all null fields with undefined, which seems wrong. But maybe there's a reason for it?
+  //document = pickBy(document, f => f !== null);
 
   /*
 
