@@ -37,7 +37,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
     collection: Comments,
     fragmentName: 'CommentWithRepliesFragment',
   });
-  const { refetch } = data;
+  const refetch = data?.refetch;
   const { Loading, Divider, CommentWithReplies } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
