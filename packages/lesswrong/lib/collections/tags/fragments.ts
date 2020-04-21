@@ -8,6 +8,7 @@ registerFragment(`
     core
     postCount
     deleted
+    adminOnly
   }
 `);
 

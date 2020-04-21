@@ -6,6 +6,7 @@ Tags.addDefaultView(terms => {
   return {
     selector: {
       deleted: false,
+      adminOnly: false
     },
   };
 });
@@ -21,6 +22,7 @@ Tags.addView('tagBySlug', terms => {
   return {
     selector: {
       slug: terms.slug,
+      adminOnly: null
     },
   };
 });
@@ -29,6 +31,7 @@ Tags.addView('coreTags', terms => {
   return {
     selector: {
       core: true,
+      adminOnly: null
     },
     options: {
       sort: {
