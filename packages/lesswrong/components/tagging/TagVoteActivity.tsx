@@ -40,7 +40,7 @@ const TagVoteActivity = ({classes}:{
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
     collection: Votes,
-    fragmentName: 'TagRelVotes',
+    fragmentName: 'TagVotingActivity',
     limit: 200,
     ssr: true
   })
@@ -64,7 +64,7 @@ const TagVoteActivity = ({classes}:{
         {votes?.map(vote=><tr key={vote._id} className={classes.voteRow}>
             <td>{vote.userId?.slice(7,10)}</td>
             <td className={classes.tagCell}><FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore /></td>
-            <td> <Link to={Posts.getPageUrl(vote.tagRel?.post)}> {vote.tagRel?.post?.title} </Link> </td>
+            <td> <Link to={vote.tagRel?.post && Posts.getPageUrl(vote.tagRel.post)}> {vote.tagRel?.post?.title} </Link> </td>
             <td>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
             <td><FormatDate date={vote.votedAt}/></td>
             <td className={classes.votingCell}>

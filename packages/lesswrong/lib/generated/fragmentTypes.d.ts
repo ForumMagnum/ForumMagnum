@@ -1491,6 +1491,10 @@ interface TagRelVotes { // fragment on Votes
   readonly tagRel: WithVoteTagRel,
 }
 
+interface TagVotingActivity extends TagRelVotes { // fragment on Votes
+  readonly tagRel: TagRelFragment,
+}
+
 interface VotedItem { // fragment on Votes
   readonly documentId: string,
   readonly power: number,
@@ -1636,6 +1640,7 @@ interface FragmentTypes {
   VoteMinimumInfo: VoteMinimumInfo
   VoteFragment: VoteFragment
   TagRelVotes: TagRelVotes
+  TagVotingActivity: TagVotingActivity
   VotedItem: VotedItem
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList

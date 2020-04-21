@@ -22,7 +22,7 @@ const AllTagsPage = ({classes}: {
     },
     collection: Tags,
     fragmentName: "TagPreviewFragment",
-    limit: 100,
+    limit: 200,
     ssr: true,
   });
   const { SingleColumnSection, TagsListItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
