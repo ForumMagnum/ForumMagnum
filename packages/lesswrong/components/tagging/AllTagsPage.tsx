@@ -8,9 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 
 const styles = theme => ({
-  tag: {
-    display: "fle",
-  },
   count: {
     color: theme.palette.grey[600],
     fontSize: "1rem",
@@ -43,7 +40,7 @@ const AllTagsPage = ({classes}: {
       </SectionTitle>
       {loading && <Loading/>}
       {results && <ul>{results.map(tag => {
-        return <Typography key={tag._id} variant="body2" component="li" className={classes.tag}>
+        return <Typography key={tag._id} variant="body2" component="li">
           <Link to={`/tag/${tag.slug}`}>
             {tag.name} {tag.postCount && <span className={classes.count}>({tag.postCount})</span>}
           </Link>
