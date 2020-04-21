@@ -196,7 +196,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             <div onClick={this.handleSearchTap}>
               <SearchIcon className={classes.searchIcon}/>
-              { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
+              { inputOpen && <SearchBox reset={undefined} focusShortcuts={[]} autoFocus={true} /> }
             </div>
             { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
               <CloseIcon className={classes.closeSearchIcon}/>

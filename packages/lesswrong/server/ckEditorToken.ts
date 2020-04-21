@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken'
 
 addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const environmentId = getSetting('ckEditor.environmentId', null)
-  const secretKey = getSetting('ckEditor.secretKey', null)
+  const secretKey: string = getSetting<string|null>('ckEditor.secretKey', null)! // Assume nonnull; causes lack of encryption in development
   
   const documentId = req.headers['document-id']
   const userId = req.headers['user-id']

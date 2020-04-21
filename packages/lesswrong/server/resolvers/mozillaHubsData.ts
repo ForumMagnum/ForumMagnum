@@ -26,7 +26,7 @@ async function getDataFromMozillaHubs() {
     console.log("Trying to get Mozilla Hubs data but lacking a mozilla hubs API key or user Id. Add those to your DatabaseMetadata collection to get mozilla hubs metadata.")
     return null
   }
-  var requestOptions = {
+  var requestOptions: any = {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${mozillaHubsAPIKey}`
