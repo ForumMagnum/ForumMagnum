@@ -86,7 +86,7 @@ const TagPage = ({classes}: {
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}
-    tagId={tag?._id}
+    tagId={tag._id}
     sortedBy={terms.view}
     limit={terms.limit}
   >
