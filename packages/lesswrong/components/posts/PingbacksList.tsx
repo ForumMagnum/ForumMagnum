@@ -29,7 +29,7 @@ const PingbacksList = ({classes, postId}: {
   classes: ClassesType,
   postId: string,
 }) => {
-  const { results, loading, loadMoreProps } = useMulti({
+  const { results, loadMoreProps, loading } = useMulti({
     terms: {
       view: "pingbackPosts",
       postId: postId,
@@ -41,10 +41,7 @@ const PingbacksList = ({classes, postId}: {
     ssr: true
   });
 
-  const { Pingback, Loading, LWTooltip, LoadMore } = Components
-
-  if (loading)
-    return <Loading/>
+  const { Pingback, LWTooltip, LoadMore, Loading } = Components
   
   if (results) {
     if (results.length > 0) {
@@ -61,7 +58,7 @@ const PingbacksList = ({classes, postId}: {
             </div>
           )}
         </div>
-        <LoadMore className={classes.loadMore} {...loadMoreProps}/>
+        {loading ? <Loading /> : <LoadMore className={classes.loadMore} {...loadMoreProps}/>}
       </div>
     }
   }
