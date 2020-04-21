@@ -149,18 +149,21 @@ const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, co
 }
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
+export const linkStyle = theme => ({
+  position: "relative",
+  marginRight: 6,
+  '&:after': {
+    content: '"°"',
+    marginLeft: 1,
+    marginRight: 1,
+    color: theme.palette.primary.main,
+    position: "absolute"
+  }
+})
 
 const styles = theme => ({
   link: {
-    position: "relative",
-    marginRight: 6,
-    '&:after': {
-      content: '"°"',
-      marginLeft: 1,
-      marginRight: 1,
-      color: theme.palette.primary.main,
-      position: "absolute"
-    }
+    ...linkStyle(theme)
   }
 })
 
