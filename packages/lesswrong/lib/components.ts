@@ -353,6 +353,7 @@ importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'))
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));
