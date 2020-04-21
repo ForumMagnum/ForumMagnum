@@ -54,6 +54,9 @@ registerFragment(`
     userId
     tagId
     postId
+    post {
+      title
+    }
     tag {
       _id
       name

@@ -1352,8 +1352,13 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
+  readonly post: WithVoteTagRel_post,
   readonly tag: WithVoteTagRel_tag,
   readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
+}
+
+interface WithVoteTagRel_post { // fragment on Posts
+  readonly title: string,
 }
 
 interface WithVoteTagRel_tag { // fragment on Tags
