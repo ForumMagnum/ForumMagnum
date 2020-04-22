@@ -17,7 +17,7 @@ const BookmarksList = ({limit=50 }) => {
   });
 
   let bookmarkedPosts = user?.bookmarkedPosts || []
-  bookmarkedPosts = bookmarkedPosts.reverse().slice(0, limit)
+  bookmarkedPosts = [...bookmarkedPosts].reverse().slice(0, limit)
 
   if (loading) return <Loading/>
 

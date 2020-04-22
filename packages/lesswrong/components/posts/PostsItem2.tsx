@@ -12,7 +12,6 @@ import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { userHasBoldPostItems } from '../../lib/betas';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -23,7 +22,7 @@ const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 export const styles = (theme) => ({
   root: {
     position: "relative",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: "100%"
     },
     '&:hover $actions': {
@@ -40,7 +39,7 @@ export const styles = (theme) => ({
     paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
@@ -65,7 +64,7 @@ export const styles = (theme) => ({
     marginTop: -1,
     marginBottom: 16,
     border: "solid 1px #ccc",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2
     }
@@ -76,19 +75,11 @@ export const styles = (theme) => ({
   karma: {
     width: KARMA_WIDTH,
     justifyContent: "center",
-    [theme.breakpoints.down('sm')]:{
+    [theme.breakpoints.down('xs')]:{
       width: "unset",
       justifyContent: "flex-start",
       marginLeft: 2,
       marginRight: theme.spacing.unit
-    }
-  },
-  karmaUnread: {
-    textShadow: "0.4px 0.4px 0px rgba(0,0,0,.6)",
-    color: 'rgba(0,0,0,.6) !important',
-    [theme.breakpoints.down('sm')]: {
-      textShadow: "none",
-      color: theme.palette.grey[600]
     }
   },
   title: {
@@ -98,11 +89,11 @@ export const styles = (theme) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       position: "relative",
       top: 3,
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       order:-1,
       height: "unset",
       maxWidth: "unset",
@@ -119,7 +110,7 @@ export const styles = (theme) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-start",
       width: "unset",
       marginLeft: 0,
@@ -132,7 +123,7 @@ export const styles = (theme) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: "unset",
       marginLeft: 0,
     }
@@ -144,7 +135,7 @@ export const styles = (theme) => ({
     paddingTop: theme.spacing.unit,
     cursor: "pointer",
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       padding: 0,
     }
   },
@@ -167,12 +158,12 @@ export const styles = (theme) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       display: "none"
     }
   },
   mobileSecondRowSpacer: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       display: "none",
     },
     flexGrow: 1,
@@ -183,7 +174,7 @@ export const styles = (theme) => ({
     opacity: .5,
     marginRight: theme.spacing.unit,
     display: "none",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       display: "block"
     }
   },
@@ -194,7 +185,7 @@ export const styles = (theme) => ({
     position: "relative",
     cursor: "pointer",
     right: 10,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       display: "inline-block"
     }
   },
@@ -202,13 +193,13 @@ export const styles = (theme) => ({
     color: theme.palette.grey[700],
     fontFamily: theme.typography.commentStyle.fontFamily,
 
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       position: "absolute",
       left: 42,
       bottom: 5,
       zIndex: theme.zIndexes.nextUnread,
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       order: -1,
       width: "100%",
       marginTop: -2,
@@ -222,7 +213,7 @@ export const styles = (theme) => ({
   nominationCount: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('xs')]: {
       position: "absolute",
       bottom: 2,
       left: KARMA_WIDTH
@@ -240,7 +231,7 @@ export const styles = (theme) => ({
     // the image extends into the padding.
     marginTop: -12,
     marginBottom: -12,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       marginTop: 0,
       marginBottom: 0,
       position: "absolute",
@@ -264,7 +255,7 @@ export const styles = (theme) => ({
   sequenceImageImg: {
     height: 48,
     width: 146,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       height: "100%",
       width: 'auto'
     },
@@ -450,7 +441,7 @@ const PostsItem2 = ({
                 [classes.withRelevanceVoting]: !!tagRel
               })}>
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
-                <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
+                <PostsItem2MetaInfo className={classes.karma}>
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>
 
@@ -502,7 +493,7 @@ const PostsItem2 = ({
                   {!resumeReading && <PostsPageActions post={post} />}
                 </div>}
 
-                {showIcons && <Hidden mdUp implementation="css">
+                {showIcons && <Hidden smUp implementation="css">
                   <PostsItemIcons post={post}/>
                 </Hidden>}
 
