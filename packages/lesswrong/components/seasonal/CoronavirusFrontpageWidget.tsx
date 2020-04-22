@@ -40,9 +40,6 @@ const CoronavirusFrontpageWidget = ({settings}) => {
         <Link to={"/tag/coronavirus"}>
           View All Coronavirus Posts
         </Link>
-        <Link to={"/coronavirus-link-database"}>
-          C19 Links Database
-        </Link>
       </SectionFooter>}
     </div>
   )

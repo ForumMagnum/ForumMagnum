@@ -33,16 +33,28 @@ const styles = theme => ({
 
 interface ExternalProps {
   tagRel: TagRelMinimumFragment,
-  tag: TagRelMinimumFragment_tag,
+  tag: TagPreviewFragment,
+  hideScore?: boolean
 }
 interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }
 
-const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
+const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
+  tagRel: TagRelMinimumFragment,
+  tag: TagFragment,
+  hideScore?: boolean,
+  
+  hover: boolean,
+  anchorEl: any,
+  classes: ClassesType,
+}) => {
+
+  if (tag.adminOnly) { return null }
+
   return (<span className={classes.root}>
     <Link to={`/tag/${tag.slug}`}>
       <span className={classes.name}>{tag.name}</span>
-      <span className={classes.score}>{tagRel.baseScore}</span>
+      {!hideScore && <span className={classes.score}>{tagRel.baseScore}</span>}
     </Link>
     <Components.PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.hovercard}>

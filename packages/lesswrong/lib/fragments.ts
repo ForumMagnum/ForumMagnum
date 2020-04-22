@@ -600,22 +600,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment VoteMinimumInfo on Vote {
-    _id
-    voteType
-  }
-`);
-
-
-registerFragment(`
-  fragment VoteFragment on Vote {
-    _id
-    voteType
-    power
-  }
-`);
-
-registerFragment(`
   fragment WithVotePost on Post {
     __typename
     _id
@@ -650,16 +634,6 @@ registerFragment(`
 //
 // example-forum migrated fragments
 //
-
-// note: fragment used by default on the UsersProfile fragment
-registerFragment(/* GraphQL */`
-  fragment VotedItem on Vote {
-    # vulcan:voting
-    documentId
-    power
-    votedAt
-  }
-`);
 
 registerFragment(`
   fragment RevisionDisplay on Revision {

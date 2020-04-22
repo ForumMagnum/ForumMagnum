@@ -13,7 +13,6 @@ const sansSerifStack = [
   '"Gill Sans MT"',
   "Myriad Pro",
   'Myriad',
-  '"DejaVu Sans Condensed"',
   '"Liberation Sans"',
   '"Nimbus Sans L"',
   'Tahoma',
