@@ -292,7 +292,7 @@ const schema = {
         return new Date()
       }
     }
-  }
+  },
 
   // createdAt: {
   //   type: Date,
