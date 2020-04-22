@@ -101,9 +101,12 @@ const styles = theme => ({
       backgroundColor: "#f3f3f3",
     }
   },
-  nomination: {
-    ...commentsItemStyles(theme).nomination,
+  metaNotice: {
+    ...commentsItemStyles(theme).metaNotice,
     marginRight: theme.spacing.unit
+  },
+  promoted: {
+    backgroundColor: theme.palette.promotedComment.main,
   }
 })
 
@@ -131,7 +134,11 @@ const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentC
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
+      <div className={classNames(classes.commentInfo, {
+          [classes.isAnswer]: comment.answer, 
+          [classes.odd]:((nestingLevel%2) !== 0),
+          [classes.promoted]: comment.promoted
+        })}>
         <CommentShortformIcon comment={comment} post={post} simple={true} />
 
         { parentCommentId!=comment.parentCommentId &&
@@ -147,8 +154,9 @@ const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentC
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
         {renderHighlight && <span className={classes.truncatedHighlight}> 
-          { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.nomination}>Nomination</span>}
-          { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.nomination}>Review</span>}
+          { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
+          { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
+          { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
           {plaintextMainText} 
         </span>}      
       </div>

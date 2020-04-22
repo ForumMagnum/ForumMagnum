@@ -357,6 +357,7 @@ interface DbComment extends DbObject {
   postVersion: string
   promoted: boolean
   promotedByUserId: string
+  promotedAt: Date
   hideKarma: boolean
   legacy: boolean
   legacyId: string

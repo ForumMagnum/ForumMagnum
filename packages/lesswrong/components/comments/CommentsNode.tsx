@@ -112,7 +112,8 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit,
   },
   promoted: {
-    border: `solid 1px ${theme.palette.lwTertiary.main}`
+    border: `solid 1px ${theme.palette.lwTertiary.main}`,
+    backgroundColor: "rgba(100,170,110, .1)"
   }
 })
 
