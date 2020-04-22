@@ -282,6 +282,24 @@ const schema = {
       }
     }    
   },
+
+  promotedAt: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    onUpdate: async ({data, oldDocument}) => {
+      if (data?.promoted && !oldDocument.promoted) {
+        return new Date()
+      }
+    }
+  }
+
+  // createdAt: {
+  //   type: Date,
+  //   optional: true,
+  //   canRead: ['admins'],
+  //   onInsert: (document, currentUser) => new Date(),
+  // },
   
   // Comments store a duplicate of their post's hideCommentKarma data. The
   // source of truth remains the hideCommentKarma field of the post. If this

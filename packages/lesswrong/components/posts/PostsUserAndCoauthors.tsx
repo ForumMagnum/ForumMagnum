@@ -7,6 +7,7 @@ const styles = theme => ({
     maxWidth: 310,
     textOverflow: "ellipsis",
     overflowX: "hidden",
+    textAlign: "right",
     [theme.breakpoints.down('sm')]: {
       maxWidth: 160
     },
@@ -15,16 +16,17 @@ const styles = theme => ({
     display: "inline",
   },
   bestAnswerAuthor: {
-    ...theme.typography.smallText,
-    textAlign: "right"
+    color: theme.palette.grey[500],
+    fontSize: ".95rem"
   },
   bestAuthorIcon: {
-    width: 13,
-    height: 13,
-    color: theme.palette.grey[400],
+    width: 12,
+    height: 12,
+    color: "#d0d0d0",
     position: "relative",
     top: 2,
-    marginRight: 3
+    marginRight: 4,
+    marginLeft: 2,
   }
 });
 
@@ -45,9 +47,9 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
     {<UsersName user={post.user} simple={simple} />}
     {post.coauthors.map(coauthor =>
       <React.Fragment key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></React.Fragment>)}
-    {renderBestAnswerAuthor && <div className={classes.bestAnswerAuthor}><ModeCommentIcon className={classes.bestAuthorIcon}/>
+    {renderBestAnswerAuthor && <span className={classes.bestAnswerAuthor}>, <ModeCommentIcon className={classes.bestAuthorIcon}/>
       <UsersName user={post.bestAnswer.user} simple={simple} />
-    </div>}
+    </span>}
   </div>;
 };
 
