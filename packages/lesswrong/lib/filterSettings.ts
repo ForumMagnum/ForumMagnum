@@ -25,7 +25,7 @@ export const defaultFilterSettings: FilterSettings = {
   ],
 }
 
-type FilterSummary = {[M in FilterMode]?: string}
+type FilterSummary = Partial<Record<FilterMode,string>>
 
 export const filterTooltips: FilterSummary = {
   Hidden: "These posts will not appear on the home page",
