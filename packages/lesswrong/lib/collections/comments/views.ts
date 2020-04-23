@@ -223,7 +223,7 @@ Comments.addView("sunshineNewCommentsList", function (terms) {
   };
 });
 
-export const questionAnswersSort = {chosenAnswer: 1, baseScore: -1, postedAt: -1}
+export const questionAnswersSort = {promoted: -1, baseScore: -1, postedAt: -1}
 Comments.addView('questionAnswers', function (terms) {
   return {
     selector: {postId: terms.postId, answer: true},

@@ -349,7 +349,6 @@ interface DbComment extends DbObject {
   authorIsUnreviewed: boolean
   answer: boolean
   parentAnswerId: string
-  chosenAnswer: boolean
   shortform: boolean
   nominatedForReview: string
   reviewingForReview: string

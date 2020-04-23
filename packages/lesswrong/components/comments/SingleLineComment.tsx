@@ -104,9 +104,6 @@ const styles = theme => ({
   metaNotice: {
     ...commentsItemStyles(theme).metaNotice,
     marginRight: theme.spacing.unit
-  },
-  promoted: {
-    border: `solid 1px ${theme.palette.lwTertiary.main}`,
   }
 })
 
@@ -137,7 +134,6 @@ const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentC
       <div className={classNames(classes.commentInfo, {
           [classes.isAnswer]: comment.answer, 
           [classes.odd]:((nestingLevel%2) !== 0),
-          [classes.promoted]: comment.promoted
         })}>
         <CommentShortformIcon comment={comment} post={post} simple={true} />
 

@@ -182,16 +182,6 @@ const schema = {
     type: String,
     optional: true,
   },
-
-  chosenAnswer: {
-    type: Boolean,
-    optional: true,
-    hidden: true,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    ...schemaDefaultValue(false),
-  },
   
   shortform: {
     type: Boolean,
