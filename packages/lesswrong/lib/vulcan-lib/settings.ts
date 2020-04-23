@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { string } from 'prop-types';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -36,7 +37,7 @@ export const getSetting = <T>(settingName: string, settingDefault?: T): T => {
 
   // If this setting hasn't been registered, and is used here without a default
   // value specified, record the fact that it was used without registration.
-  if (!(settingName in Settings) && (typeof settingDefault === undefined)) {
+  if (!(settingName in Settings) && (typeof settingDefault === 'undefined')) {
     settingsUsedWithoutRegistration[settingName] = true;
   }
 
