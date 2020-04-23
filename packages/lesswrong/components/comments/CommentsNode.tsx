@@ -113,7 +113,6 @@ const styles = theme => ({
   },
   promoted: {
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
-    backgroundColor: theme.palette.promotedComment.main
   }
 })
 

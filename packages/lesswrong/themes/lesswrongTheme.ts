@@ -39,9 +39,6 @@ const palette = {
   lwTertiary: {
     main: "#69886e"
   },
-  promotedComment: {
-    main: "#f2f9f3"
-  },
   error: {
     main: deepOrange[900]
   },

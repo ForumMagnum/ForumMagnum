@@ -106,7 +106,7 @@ const styles = theme => ({
     marginRight: theme.spacing.unit
   },
   promoted: {
-    backgroundColor: theme.palette.promotedComment.main,
+    border: `solid 1px ${theme.palette.lwTertiary.main}`,
   }
 })
 
