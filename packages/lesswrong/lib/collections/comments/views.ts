@@ -92,7 +92,7 @@ Comments.addView("postCommentsTop", function (terms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}},
+    options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
 
   };
 });
