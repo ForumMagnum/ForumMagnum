@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { userCanManageTags } from '../../lib/betas';
@@ -22,29 +22,50 @@ const styles = theme => ({
   }
 });
 
+const lwafPersonalBlogpostInfo = {
+  name: "Personal Blog Posts",
+  tooltip: <div>
+    <div>
+      By default, the home page only displays Frontpage Posts, which meet criteria including:
+    </div>
+    <ul>
+      <li>Usefulness, novelty and relevance</li>
+      <li>Timeless content (minimize reference to current events)</li>
+      <li>Explain, rather than persuade</li>
+    </ul>
+    <div>
+      Members can write about whatever they want on their personal blog. Personal blogposts are a good fit for:
+    </div>
+    <ul>
+      <li>Niche topics, less relevant to most members</li>
+      <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
+      <li>Topics that are difficult to discuss rationally</li>
+      <li>Personal ramblings</li>
+    </ul>
+    <div>
+      All posts are submitted as personal blogposts. Moderators manually move some to frontpage
+    </div>
+  </div>
+}
 
-const personalBlogpostTooltip = <div>
-  <div>
-    By default, the home page only displays Frontpage Posts, which meet criteria including:
-  </div>
-  <ul>
-    <li>Usefulness, novelty and relevance</li>
-    <li>Timeless content (minimize reference to current events)</li>
-    <li>Explain, rather than persuade</li>
-  </ul>
-  <div>
-    Members can write about whatever they want on their personal blog. Personal blogposts are a good fit for:
-  </div>
-  <ul>
-    <li>Niche topics, less relevant to most members</li>
-    <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
-    <li>Topics that are difficult to discuss rationally</li>
-    <li>Personal ramblings</li>
-  </ul>
-  <div>
-    All posts are submitted as personal blogposts. Moderators manually move some to frontpage
-  </div>
-</div>
+const personalBlogpostInfo = {
+  LessWrong: lwafPersonalBlogpostInfo,
+  AlignmentForum: lwafPersonalBlogpostInfo,
+  EAForum: {
+    name: 'Community Posts',
+    tooltip: <div>
+      <div>
+        By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively.
+      </div>
+      <div>
+        Include community posts to get posts with topical content or which relate to the EA community itself.
+      </div>
+    </div>
+  }
+}
+
+const personalBlogpostName = personalBlogpostInfo[getSetting('forumType') as string].name
+const personalBlogpostTooltip = personalBlogpostInfo[getSetting('forumType') as string].tooltip
 
 // Filter by Tag
 //   Coronavirus
@@ -62,7 +83,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
     <FilterMode
-      description="Personal Blog Posts"
+      description={personalBlogpostName}
       helpTooltip={personalBlogpostTooltip}
       mode={filterSettings.personalBlog}
       canRemove={false}
@@ -124,4 +145,3 @@ declare global {
     TagFilterSettings: typeof TagFilterSettingsComponent
   }
 }
-
