@@ -80,7 +80,6 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   const canFilterCustomTags = userCanManageTags(currentUser);
   const { AddTagButton, FilterMode } = Components
   
-  // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
     <FilterMode
       description={personalBlogpostName}
