@@ -1,6 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
+import classNames from 'classnames';
 
 const styles = theme => ({
   lengthLimited: {
@@ -27,14 +28,18 @@ const styles = theme => ({
     top: 2,
     marginRight: 4,
     marginLeft: 2,
+  },
+  new: {
+    color: theme.palette.primary.main
   }
 });
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false}: {
+const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, newPromotedComments}: {
   post: PostsList,
   abbreviateIfLong?: boolean,
   classes: ClassesType,
-  simple?: boolean
+  simple?: boolean,
+  newPromotedComments?: boolean
 }) => {
   const { UsersName, UserNameDeleted } = Components
   if (!post.user || post.hideAuthor)
@@ -47,7 +52,8 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
     {<UsersName user={post.user} simple={simple} />}
     {post.coauthors.map(coauthor =>
       <React.Fragment key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></React.Fragment>)}
-    {renderBestAnswerAuthor && <span className={classes.bestAnswerAuthor}>, <ModeCommentIcon className={classes.bestAuthorIcon}/>
+    {renderBestAnswerAuthor && <span className={classNames(classes.bestAnswerAuthor, {[classes.new]: newPromotedComments})}>
+      , <ModeCommentIcon className={classNames(classes.bestAuthorIcon, {[classes.new]: newPromotedComments})}/>
       <UsersName user={post.bestAnswer.user} simple={simple} />
     </span>}
   </div>;
