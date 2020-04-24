@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
@@ -14,6 +14,8 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { hasEventsSetting } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -125,7 +127,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
   }
 
   displaySequenceSection = (canEdit, user)  => {
-    if (getSetting('forumType') === 'AlignmentForum') {
+    if (forumTypeSetting.get() === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -140,12 +142,12 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = getSetting('forumType') !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0
-    const userCommentCount = getSetting('forumType') !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = forumTypeSetting.get() !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0
+    const userCommentCount = forumTypeSetting.get() !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { getSetting('forumType') !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
+        { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
           <span className={classes.userMetaInfo}>
             <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Karma">
@@ -154,7 +156,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           </span>
         </Tooltip>}
 
-        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(getSetting('forumType') !== 'AlignmentForum') ? " on alignmentforum.org" : ""}`}>
+        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(forumTypeSetting.get() !== 'AlignmentForum') ? " on alignmentforum.org" : ""}`}>
           <span className={classes.userMetaInfo}>
             <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Alignment Karma">
@@ -292,7 +294,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               <Components.PostsList2 terms={draftTerms}/>
               <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
+            {hasEventsSetting.get() && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>

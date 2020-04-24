@@ -1,5 +1,4 @@
 import React from 'react'
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
 import { createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -10,7 +9,8 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import Sequences from '../../lib/collections/sequences/collection';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { PublicInstanceSetting } from '../../lib/publicSettings';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const bannerHeight = 250
 

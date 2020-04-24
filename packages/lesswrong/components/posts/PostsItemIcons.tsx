@@ -1,14 +1,15 @@
 import React from 'react';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
 import GroupIcon from '@material-ui/icons/Group';
 import LinkIcon from '@material-ui/icons/Link';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const MetaTitle = getSetting('forumType') === 'EAForum' ? 'Community Post' : 'Meta Post'
-const MetaIcon = getSetting('forumType') === 'EAForum' ? GroupIcon : DetailsIcon
+const MetaTitle = forumTypeSetting.get() === 'EAForum' ? 'Community Post' : 'Meta Post'
+const MetaIcon = forumTypeSetting.get() === 'EAForum' ? GroupIcon : DetailsIcon
 
 const styles = theme => ({
   iconSet: {
@@ -54,7 +55,7 @@ const PostsItemIcons = ({post, classes}: {
 }) => {
   const { OmegaIcon, LWTooltip } = Components;
 
-  const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?
+  const isPersonalBlogpost = forumTypeSetting.get() === 'EAForum' ?
     !(post.frontpageDate || post.meta) :
     !post.frontpageDate
 
@@ -89,7 +90,7 @@ const PostsItemIcons = ({post, classes}: {
       </LWTooltip>
     </span>}
 
-    {getSetting('forumType') !== 'AlignmentForum' && post.af &&
+    {forumTypeSetting.get() !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
         <LWTooltip title="Crossposted from AlignmentForum.org" placement="right">
           <span><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></span>

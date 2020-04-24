@@ -1,7 +1,8 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import React, { Component } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 interface WrappedLoginFormState {
   reCaptchaToken: any
@@ -18,7 +19,7 @@ class WrappedLoginForm extends Component<any,WrappedLoginFormState>
   }
   
   render() {
-    const customSignupFields = ['EAForum', 'AlignmentForum'].includes(getSetting('forumType'))
+    const customSignupFields = ['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get())
       ? []
       : [
         {

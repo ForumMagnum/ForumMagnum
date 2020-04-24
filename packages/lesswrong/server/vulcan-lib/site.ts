@@ -2,6 +2,7 @@ import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../li
 import { Utils } from '../../lib/vulcan-lib/utils';
 import { getSetting } from '../../lib/vulcan-lib/settings';
 import { Meteor } from 'meteor/meteor'
+import { forumTitleSetting } from '../../lib/instanceSettings';
 
 const siteSchema = `type Site {
   title: String
@@ -14,7 +15,7 @@ const siteResolvers = {
   Query: {
     SiteData(root, args, context) {
       return {
-        title: getSetting('title'),
+        title: forumTitleSetting.get(),
         url: getSetting('siteUrl', Meteor.absoluteUrl()),
         logoUrl: Utils.getLogoUrl(),
       };

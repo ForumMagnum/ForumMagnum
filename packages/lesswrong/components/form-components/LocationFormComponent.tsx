@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
 import { Meteor } from 'meteor/meteor';
 import { DatabasePublicSetting } from '../../lib/publicSettings';

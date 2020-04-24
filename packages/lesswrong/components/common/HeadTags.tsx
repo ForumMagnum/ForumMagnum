@@ -1,16 +1,17 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Components, registerComponent, Utils, getSetting, Head } from '../../lib/vulcan-lib';
+import { Components, registerComponent, Utils, Head } from '../../lib/vulcan-lib';
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 
 import '../../lib/registerSettings';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
 
-export const taglineSetting = new DatabasePublicSetting<string | null>('tagline', null)
-export const faviconUrlSetting = new DatabasePublicSetting<string>('faviconUrl', '/img/favicon.ico')
-const descriptionSetting = new DatabasePublicSetting<string | null>('description', null)
+export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality")
+export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico')
+const descriptionSetting = new PublicInstanceSetting<string | null>('description', null)
+const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong 2.0')
 
 
 const HeadTags = (props) => {
@@ -18,7 +19,7 @@ const HeadTags = (props) => {
     const canonicalUrl = props.canonicalUrl || url
     const description = props.description || taglineSetting.get() || descriptionSetting.get()
     const { currentRoute, pathname } = useSubscribedLocation();
-    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+    const siteName = tabTitleSetting.get()
     
     const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;

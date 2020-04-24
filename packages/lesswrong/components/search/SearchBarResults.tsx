@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import Typography from '@material-ui/core/Typography';
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -12,7 +13,7 @@ const styles = theme => ({
     width:520,
     position: "fixed",
     right: 0,
-    top: getSetting('forumType') === 'EAForum' ? 90 : 64,
+    top: forumTypeSetting.get() === 'EAForum' ? 90 : 64,
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('sm')]: {

@@ -10,6 +10,7 @@ import { Meteor } from 'meteor/meteor';
 // LESSWRONG - this import wasn't needed until fixing author below.
 import Users from '../lib/collections/users/collection';
 import { taglineSetting } from '../components/common/HeadTags';
+import { forumTitleSetting } from '../lib/instanceSettings';
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
@@ -18,7 +19,7 @@ export const getMeta = (url) => {
   const siteUrl = getSetting('siteUrl', Meteor.absoluteUrl());
 
   return {
-    title: getSetting('title'),
+    title: forumTitleSetting.get(),
     description: taglineSetting.get(),
     feed_url: url,
     site_url: siteUrl,

@@ -53,3 +53,5 @@ export const hasEventsSetting = new DatabasePublicSetting<boolean>('hasEvents', 
 export const hideUnreviewedAuthorCommentsSettings = new DatabasePublicSetting<boolean>('hideUnreviewedAuthorComments', false) // Hide comments by unreviewed authors (prevents spam, but delays new user engagement)
 export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('cloudinary.cloudName', 'lesswrong-2-0') // Cloud name for cloudinary hosting
 
+export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('forum.numberOfDays', 10) // Number of days to display in the timeframe view
+

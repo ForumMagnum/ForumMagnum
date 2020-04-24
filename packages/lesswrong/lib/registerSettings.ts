@@ -9,11 +9,6 @@ registerSetting('title', 'My App', 'App title');
 registerSetting('description', null);
 registerSetting('siteImage', null, 'An image used to represent the site on social media');
 
-registerSetting('forum.numberOfDays', 10, 'Number of days to display in the timeframe view');
-registerSetting('forum.numberOfWeeks', 4, 'Number of weeks to display in the timeframe view');
-registerSetting('forum.numberOfMonths', 4, 'Number of months to display in the timeframe view');
-registerSetting('forum.numberOfYears', 4, 'Number of days to display in the timeframe view');
-
 // Karma
 registerSetting('timeDecayFactor', 1.15, 'Used to discount sorting score with time');
 
