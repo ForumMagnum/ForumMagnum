@@ -12,10 +12,6 @@ import * as _ from 'underscore';
 // (Only done for comments, not posts, because posts had proper UI for showing
 // that they were awaiting moderation, and suddenly posting old posts would
 // mostly create spam and duplicates.)
-//
-// ea-forum-look-here: You might want to take a look at what content was
-// affected before running this migration (in particular to make sure it won't
-// un-block spam).
 registerMigration({
   name: "fixLostUnapprovedComments",
   dateWritten: "2020-03-30",
