@@ -343,8 +343,7 @@ registerFragment(`
   fragment PostsRevisionsList on Post {
     _id
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)

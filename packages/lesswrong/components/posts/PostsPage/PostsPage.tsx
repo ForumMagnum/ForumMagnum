@@ -18,7 +18,8 @@ const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 export const MAX_COLUMN_WIDTH = 720
 
-const styles = theme => ({
+// Also used in PostsCompareRevisions
+export const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -72,7 +73,6 @@ const styles = theme => ({
     marginLeft: 'auto',
     marginRight: 'auto'
   },
-  postBody: {},
   postContent: postBodyStyles(theme),
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
@@ -158,15 +158,13 @@ class PostsPage extends Component<PostsPageProps> {
               <div className={classes.content}>
                 <div className={classes.centralColumn}>
                   {/* Body */}
-                  <div className={classes.postBody}>
-                    { post.isEvent && <Components.SmallMapPreview post={post} /> }
-                    <div className={classes.postContent}>
-                      <PostBodyPrefix post={post} query={query}/>
-                      
-                      <AnalyticsContext pageSectionContext="postBody">
-                        { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
-                      </AnalyticsContext>
-                    </div>
+                  { post.isEvent && <Components.SmallMapPreview post={post} /> }
+                  <div className={classes.postContent}>
+                    <PostBodyPrefix post={post} query={query}/>
+                    
+                    <AnalyticsContext pageSectionContext="postBody">
+                      { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+                    </AnalyticsContext>
                   </div>
 
                   <PostsPagePostFooter post={post} sequenceId={sequenceId} />

@@ -61,7 +61,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
       href="#"
       onClick={handleClickLoadMore}
     >
-      Load More {totalCount && <span> ({count}/{totalCount})</span>}
+      Load More {totalCount ? <span> ({count}/{totalCount})</span> : ""}
     </a>
   )
 }

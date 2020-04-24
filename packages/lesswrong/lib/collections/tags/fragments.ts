@@ -23,6 +23,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRevisionFragment on Tag {
+    ...TagBasicInfo
+    description(version: $version) {
+      html
+      htmlHighlight
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     description {
@@ -42,6 +52,15 @@ registerFragment(`
     deleted
     description {
       ...RevisionEdit
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagRevisionsList on Tag {
+    ...TagBasicInfo
+    descriptionRevisions {
+      ...RevisionMetadata
     }
   }
 `);

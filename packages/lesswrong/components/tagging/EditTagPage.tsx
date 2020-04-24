@@ -8,7 +8,7 @@ const EditTagPage = () => {
   const { params } = useLocation();
   const { history } = useNavigation();
   const { slug } = params;
-  const { tag, loading } = useTagBySlug(slug);
+  const { tag, loading } = useTagBySlug(slug, "TagFragment");
   
   if (loading)
     return <Components.Loading/>

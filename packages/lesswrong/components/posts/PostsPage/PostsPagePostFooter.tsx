@@ -39,11 +39,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsVote, BottomNavigation, PingbacksList } = Components;
+  const { PostsVote, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
   
   return <>
-    <FooterTagList post={post}/>
+    <AnalyticsContext pageSectionContext="tagFooter">
+      <FooterTagList post={post}/>
+    </AnalyticsContext>
     {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>

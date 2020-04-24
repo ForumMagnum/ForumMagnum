@@ -41,8 +41,8 @@ const CompareRevisions = ({
     }
   `, {
     variables: {
-      collectionName: "Posts",
-      fieldName: "contents",
+      collectionName: collectionName,
+      fieldName: fieldName,
       id: documentId,
       beforeRev: versionBefore,
       afterRev: versionAfter,

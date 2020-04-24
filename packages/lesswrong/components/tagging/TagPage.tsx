@@ -10,7 +10,8 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 
-const styles = theme => ({
+// Also used in TagCompareRevisions
+export const styles = theme => ({
   tagPage: {
     ...commentBodyStyles(theme),
     color: theme.palette.grey[600]
@@ -25,8 +26,9 @@ const styles = theme => ({
     textAlign: "left"
   },
   title: {
-    marginTop: 0,
+    ...theme.typography.display3,
     ...theme.typography.commentStyle,
+    marginTop: 0,
     fontWeight: 600,
     fontVariant: "small-caps"
   },
@@ -59,10 +61,14 @@ const TagPage = ({classes}: {
   const { SingleColumnSection, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { tag, loading: loadingTag } = useTagBySlug(slug);
+  const { revision } = query;
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision?"TagRevisionFragment":"TagFragment", {
+    extraVariables: revision ? {version: 'String'} : {},
+    extraVariablesValues: revision ? {version: revision} : {},
+  });
   const [truncated, setTruncated] = useState(true)
   const { captureEvent } =  useTracking()
-
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -96,10 +102,11 @@ const TagPage = ({classes}: {
           {Users.isAdmin(currentUser) && <SectionButton>
             <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
           </SectionButton>}
-          <div className={classes.titleSection}>
-            <Typography variant="display3" className={classes.title}>
-              {tag.name}
-            </Typography>
+          <SectionButton>
+            <Link to={`/revisions/tag/${tag.slug}`}>History</Link>
+          </SectionButton>
+          <div className={classes.title}>
+            {tag.name}
           </div>
           <div onClick={clickReadMore}>
             <ContentItemBody
@@ -110,20 +117,18 @@ const TagPage = ({classes}: {
           </div>
         </AnalyticsContext>
       </div>
-      <div>
-        <AnalyticsContext pageSectionContext="tagsSection">
-          <div className={classes.tagHeader}>
-            <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-            <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-          </div>
-          <PostsList2
-            terms={terms}
-            enableTotal
-            tagId={tag._id}
-            itemsPerPage={200}
-          />
-        </AnalyticsContext>
-      </div>
+      <AnalyticsContext pageSectionContext="tagsSection">
+        <div className={classes.tagHeader}>
+          <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+          <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+        </div>
+        <PostsList2
+          terms={terms}
+          enableTotal
+          tagId={tag._id}
+          itemsPerPage={200}
+        />
+      </AnalyticsContext>
     </SingleColumnSection>
   </AnalyticsContext>
 }

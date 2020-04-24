@@ -3,9 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { useLocation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
-
-const styles = theme => ({
-});
+import { styles } from './PostsPage/PostsPage';
 
 const PostsCompareRevisions = ({ classes }: {
   classes: ClassesType
@@ -15,28 +13,30 @@ const PostsCompareRevisions = ({ classes }: {
   const versionBefore = query.before;
   const versionAfter = query.after;
   
-  // Load the post, just for the title current
-  const { document: postAfter, loading: loadingPost } = useSingle({
+  // Load the post, just for the current title
+  const { document: post, loading: loadingPost } = useSingle({
     documentId: postId,
     collection: Posts,
-    fragmentName: "PostsBase",
+    fragmentName: "PostsWithNavigation",
   });
   
-  const { SingleColumnSection, CompareRevisions, } = Components;
+  const { SingleColumnSection, CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, Loading } = Components;
+  if (loadingPost) return <Loading/>
   
-  return <SingleColumnSection>
-    {postAfter && <h1>{postAfter.title}</h1>}
+  return <div className={classes.centralColumn}>
+    <PostsPagePostHeader post={post}/>
     
-    <p>You are comparing revision {versionBefore} to revision {versionAfter}</p>
+    <RevisionComparisonNotice before={versionBefore} after={versionAfter} />
     
-    <CompareRevisions
-      collectionName="Posts" fieldName="contents"
-      documentId={postId}
-      versionBefore={versionBefore}
-      versionAfter={versionAfter}
-    />
-    
-  </SingleColumnSection>;
+    <div className={classes.postContent}>
+      <CompareRevisions
+        collectionName="Posts" fieldName="contents"
+        documentId={postId}
+        versionBefore={versionBefore}
+        versionAfter={versionAfter}
+      />
+    </div>
+  </div>;
 }
 
 const PostsCompareRevisionsComponent = registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});

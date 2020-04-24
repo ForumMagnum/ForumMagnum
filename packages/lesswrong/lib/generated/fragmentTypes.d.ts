@@ -297,12 +297,7 @@ interface EditModerationGuidelines { // fragment on Posts
 
 interface PostsRevisionsList { // fragment on Posts
   readonly _id: string,
-  readonly revisions: Array<PostsRevisionsList_revisions>,
-}
-
-interface PostsRevisionsList_revisions { // fragment on Revisions
-  readonly version: string,
-  readonly editedAt: Date,
+  readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsDetailsAndRevisionsList extends PostsDetails { // fragment on Posts
@@ -399,6 +394,11 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 
 interface CommentEdit extends CommentsList { // fragment on Comments
   readonly contents: RevisionEdit,
+}
+
+interface RevisionMetadata { // fragment on Revisions
+  readonly version: string,
+  readonly editedAt: Date,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -1422,6 +1422,15 @@ interface TagFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
+interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
+  readonly description: TagRevisionFragment_description,
+}
+
+interface TagRevisionFragment_description { // fragment on Revisions
+  readonly html: string,
+  readonly htmlHighlight: string,
+}
+
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly description: TagPreviewFragment_description,
 }
@@ -1439,6 +1448,10 @@ interface TagEditFragment { // fragment on Tags
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
+}
+
+interface TagRevisionsList extends TagBasicInfo { // fragment on Tags
+  readonly descriptionRevisions: Array<RevisionMetadata>,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -1568,6 +1581,7 @@ interface FragmentTypes {
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
+  RevisionMetadata: RevisionMetadata
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -1642,8 +1656,10 @@ interface FragmentTypes {
   TagsDefaultFragment: TagsDefaultFragment
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
+  TagRevisionsList: TagRevisionsList
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment

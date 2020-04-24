@@ -27,6 +27,7 @@ import '../components/momentjs';
 
 import './collections/posts/fragments';
 import './collections/comments/fragments';
+import './collections/revisions/fragments';
 
 
 // Notifications
