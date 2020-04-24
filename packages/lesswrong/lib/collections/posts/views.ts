@@ -15,6 +15,9 @@ export const MAX_LOW_KARMA_THRESHOLD = -1000
  * written with MongoDB query syntax.
  * To avoid duplication of code, views with the same name, will reference the
  * corresponding filter
+ *
+ * TODO: This should be worked to be more nicely tied in with the filterSettings
+ * paradigm
  */
 const filters: Record<string,any> = {
   "curated": {
@@ -135,17 +138,41 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
+const lwafGetFrontpageFilter = (filterSettings: FilterSettings): any => {
+  if (filterSettings.personalBlog === "Hidden") {
+    return {frontpageDate: {$gt: new Date(0)}}
+  }
+  if (filterSettings.personalBlog === "Required") {
+    return {meta: true}
+  }
+  return {}
+}
+
+// In ea-land, personal blog does not mean personal blog, it means community
+const eaGetFrontpageFilter = (filterSettings: FilterSettings): any => {
+  if (filterSettings.personalBlog === "Hidden") {
+    return {frontpageDate: {$gt: new Date(0)}, meta: {$ne: true}}
+  }
+  if (filterSettings.personalBlog === "Required") {
+    return {frontpageDate: viewFieldNullOrMissing, meta: true}
+  }
+  return {
+    $or: [
+      {frontpageDate: {$gt: new Date(0)}},
+      {meta: true}
+    ]
+  }
+}
+
 function filterSettingsToSelector(filterSettings: FilterSettings): any {
   const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
   let frontpageFilter: any;
-  if (filterSettings.personalBlog === "Hidden") {
-    frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
-  } else if (filterSettings.personalBlog === "Required") {
-    frontpageFilter = {frontpageDate: viewFieldNullOrMissing}
+  if (getSetting('forumType') as string === 'EAForum') {
+    frontpageFilter = eaGetFrontpageFilter(filterSettings)
   } else {
-    frontpageFilter = {};
+    frontpageFilter = lwafGetFrontpageFilter(filterSettings)
   }
   
   let tagsFilter = {};
