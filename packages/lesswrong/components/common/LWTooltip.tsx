@@ -50,7 +50,6 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
           enabled: flip
         }
       }}
-      enterDelay={enterDelay}
     >
       <div className={classNames(classes.tooltip, {[classes.noMouseEvents]: !clickable})}>{title}</div>
     </LWPopper>}

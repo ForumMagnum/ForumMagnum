@@ -24,7 +24,7 @@ registerMigration({
                 $set: {
                   frontpageFilterSettings: {
                     ...defaultFilterSettings,
-                    personalBlog: (user.currentFrontpageFilter === "frontpage") ? "Hidden" : "Default"
+                    personalBlog: (user.currentFrontpageFilter === "frontpage") ? "Hidden" : "Included"
                   }
                 }
               }
