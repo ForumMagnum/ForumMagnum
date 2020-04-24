@@ -183,6 +183,11 @@ const theme = createLWTheme({
         fontFamily: sansSerifStack
       }
     },
+    SectionTitle: {
+      title: {
+        fontSize: 25
+      }
+    },
     PostsVote: {
       voteScore: {
         paddingTop:4,
@@ -207,15 +212,6 @@ const theme = createLWTheme({
       root: {
         top: 30,
         marginTop: 63
-      }
-    },
-    HomeLatestPosts: {
-      // TODO;
-      personalBlogpostsCheckboxLabel: {
-        marginTop: 2,
-        [defaultTheme.breakpoints.down("xs")]: {
-          fontSize: "1rem",
-        },
       }
     },
     FilterMode: {
