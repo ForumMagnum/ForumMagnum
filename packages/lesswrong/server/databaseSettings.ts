@@ -1,56 +1,40 @@
 
-import LRU from 'lru-cache';
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
+import { Utils } from '../lib/vulcan-lib';
+import { Meteor } from 'meteor/meteor';
+import { publicSettings } from '../lib/publicSettings'
 
-const settingsCache = new LRU({
-  maxAge: 1000 * 60 * 5 // cache expiration is five minutes
-})
-class DatabaseSetting<SettingNameType extends keyof DatabaseSettingsTypes, SettingValueType> {
-  settingName: SettingNameType;
-  defaultValue: SettingValueType;
-  initializationStatus: Promise<void>;
-  constructor(settingName: SettingNameType, defaultValue:SettingValueType) {
-    this.settingName = settingName
-    this.defaultValue = defaultValue
-    this.initializationStatus = this.init()
+let serverSettingsCache:Record<string, any> = {}
+function refreshSettingsCaches() {
+  // Note: This is using Fibers to make this database call synchronous. This is kind of bad, but I don't know how to avoid it 
+  // without doing tons of work to make everything work properly in an asynchronous context
+  const serverSettingsObject  = DatabaseMetadata.findOne({name: "serverSettings"})
+  if (!serverSettingsObject) throw Error("Didn't find object with name 'serverSettings' in the DatabaseMetadataTable please add it to the DB")
+  const publicSettingsObject  = DatabaseMetadata.findOne({name: "publicSettings"})
+  if (!publicSettingsObject) throw Error("Didn't find object with name 'publicSettings' in the DatabaseMetadataTable please add it to the DB")
+  // We modify the settingsCache object in place with the new values, to make sure that other files can safely import the cache
+  serverSettingsCache = serverSettingsObject.value
+  // We modify the publicSettings object that is made available in lib to allow both the client and the server to access it
+  Object.assign(publicSettings, publicSettingsObject.value)
+}
+
+refreshSettingsCaches()
+// We use Meteor.setInterval to make sure the code runs in a Fiber
+Meteor.setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+
+const registeredSettings:Record<string, boolean> = {}
+export class DatabaseServerSetting<SettingValueType> {
+  constructor(
+    private settingName: string, 
+    private defaultValue: SettingValueType
+  ) {
+    if (registeredSettings[settingName]) throw Error(`Already registered setting with name ${settingName} before`)
+    registeredSettings[settingName] = true
   }
-  async init() {
-    const { settingName, defaultValue } = this
-    const databaseObject = await DatabaseMetadata.findOne({name: settingName})
-    if (typeof databaseObject === "undefined") {
-      DatabaseMetadata.insert({name: settingName, value: defaultValue})
-    } else {
-      const { value: databaseValue } = databaseObject
-      settingsCache.set(settingName, databaseValue)
-    }
-    return
-  }
-  async get(): Promise<DatabaseSettingsTypes[SettingNameType]> {
-    // Before we get anything, make sure that we are done initializing the setting
-    await this.initializationStatus
-    // Then try to get the value from cache
-    const { settingName } = this
-    const cacheValue = settingsCache.get(settingName)
-    // If we can't find a value in the cache, we grab the setting from the database and repopulate the cache
-    if (typeof cacheValue === 'undefined') {
-      const {value: databaseValue} = await DatabaseMetadata.findOne({name: settingName})
-      if (!databaseValue) throw Error(`Unable to find database value for database setting: ${settingName}`)
-      
-      settingsCache.set("settingName", databaseValue)
-      return databaseValue
-    } 
+  get(): SettingValueType {
+    // eslint-disable-next-line no-console
+    const cacheValue = Utils.getNestedProperty(serverSettingsCache, this.settingName)
+    if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
   }
 }
-
-export const databaseSettings = {
-  mozillaHubsAPIKey: new DatabaseSetting("mozillaHubsAPIKey", null),
-  mozillaHubsUserId: new DatabaseSetting("mozillaHubsUserId", null)
-}
-
-type DatabaseSettingsTypes = {
-  mozillaHubsAPIKey: string | null,
-  mozillaHubsUserId: string | null
-}
-
-

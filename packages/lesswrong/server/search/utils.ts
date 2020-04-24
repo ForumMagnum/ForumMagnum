@@ -13,6 +13,8 @@ import keyBy from 'lodash/keyBy';
 import chunk from 'lodash/chunk';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { algoliaAppIdSetting } from '../../lib/publicSettings';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
@@ -362,11 +364,11 @@ async function deleteIfPresent(algoliaIndex, ids) {
   }
 }
 
-
+const algoliaAdminKeySetting = new DatabaseServerSetting<string | null>('algolia.adminKey', null)
 export function getAlgoliaAdminClient()
 {
-  const algoliaAppId = getSetting<string|undefined>('algolia.appId');
-  const algoliaAdminKey = getSetting<string|undefined>('algolia.adminKey');
+  const algoliaAppId = algoliaAppIdSetting.get();
+  const algoliaAdminKey = algoliaAdminKeySetting.get()
   
   if (!algoliaAppId || !algoliaAdminKey) {
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {

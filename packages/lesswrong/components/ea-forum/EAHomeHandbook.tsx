@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import Sequences from '../../lib/collections/sequences/collection';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { PublicInstanceSetting } from '../../lib/publicSettings';
 
 const bannerHeight = 250
 
@@ -113,7 +114,7 @@ const styles = createStyles(theme => ({
 
 const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
-const FIRST_POST_ID = getSetting('eaHomeSequenceFirstPostId')
+const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null) // Post ID for the first post in the EAHomeHandbook Sequence
 
 const EAHomeHandbook = ({ classes, documentId }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading } = Components
@@ -164,7 +165,7 @@ const EAHomeHandbook = ({ classes, documentId }) => {
           variant='contained'
           color='primary'
           className={classes.ctaButton}
-          href={`/posts/${FIRST_POST_ID}`} // TODO: slug
+          href={`/posts/${eaHomeSequenceFirstPostId.get()}`} // TODO: slug
         >
           Start Reading
         </Button>

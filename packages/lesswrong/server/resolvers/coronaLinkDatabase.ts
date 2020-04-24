@@ -1,6 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import { getSetting } from '../../lib/vulcan-lib';
 import request from 'request';
+import { DatabaseServerSetting } from '../databaseSettings';
 
 const CoronavirusDataRow = `type CoronaVirusDataRow {
     accepted: String,
@@ -31,9 +32,11 @@ const CoronavirusDataSchema = `type CoronaVirusDataSchema {
 
 addGraphQLSchema(CoronavirusDataSchema);
 
-const googleSheetsAPIKey = getSetting('googleSheets.apiKey', null)
+const googleSheetsAPIKeySetting = new DatabaseServerSetting<string | null>('googleSheets.apiKey', null)
+
 
 async function getDataFromSpreadsheet(spreadsheetId: string, rangeString: string) {
+    const googleSheetsAPIKey = googleSheetsAPIKeySetting.get()
     return new Promise((resolve, reject) => {
         request.get(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${rangeString}?key=${googleSheetsAPIKey}`, (err, response, body) => {
             if (err) reject(err);

@@ -1,6 +1,6 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import fetch from 'node-fetch'
-import { databaseSettings } from '../databaseSettings';
+import { DatabaseServerSetting } from '../databaseSettings';
 
 const MozillaHubsData = `type MozillaHubsData {
   description: String
@@ -18,9 +18,12 @@ const MozillaHubsData = `type MozillaHubsData {
 
 addGraphQLSchema(MozillaHubsData);
 
+const mozillaHubsAPIKeySetting = new DatabaseServerSetting<string | null>('mozillaHubsAPIKey', null)
+const mozillaHubsUserIdSetting = new DatabaseServerSetting<string | null>('mozillaHubsUserId', null)
+
 async function getDataFromMozillaHubs() {
-  const mozillaHubsAPIKey = await databaseSettings.mozillaHubsAPIKey.get()
-  const mozillaHubsUserId = await databaseSettings.mozillaHubsUserId.get()
+  const mozillaHubsAPIKey = mozillaHubsAPIKeySetting.get()
+  const mozillaHubsUserId = mozillaHubsUserIdSetting.get()
   if (!mozillaHubsAPIKey || !mozillaHubsUserId) {
     // eslint-disable-next-line no-console
     console.log("Trying to get Mozilla Hubs data but lacking a mozilla hubs API key or user Id. Add those to your DatabaseMetadata collection to get mozilla hubs metadata.")
@@ -41,6 +44,7 @@ const mozillaHubsResolvers = {
   Query: {
     async MozillaHubsRoomData(root, { roomId }, context) {
       const rawRoomData:any = await getDataFromMozillaHubs()
+      if (!rawRoomData) return null
       const processedData = JSON.parse(rawRoomData)
       const correctRoom = processedData.entries.find(entry => entry.id === roomId)
       if (!correctRoom) return null

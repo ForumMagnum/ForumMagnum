@@ -1,6 +1,7 @@
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import React, { Component } from 'react';
+import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 
 interface WrappedLoginFormState {
   reCaptchaToken: any
@@ -29,7 +30,7 @@ class WrappedLoginForm extends Component<any,WrappedLoginFormState>
       ]
   
     return <React.Fragment>
-      {getSetting('reCaptcha.apiKey')
+      {reCaptchaSiteKeySetting.get()
         && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
       <Components.AccountsLoginForm
         onPreSignUpHook={(options) => {

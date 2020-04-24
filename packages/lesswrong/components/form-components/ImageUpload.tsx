@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet';
 import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
 const styles = theme => ({
   button: {
@@ -63,7 +64,7 @@ class ImageUpload extends Component<any,any> {
     // @ts-ignore
     cloudinary.openUploadWidget(
       {cropping: "server",
-      cloud_name: getSetting('cloudinary.cloudName', 'lesswrong-2-0'),
+      cloud_name: cloudinaryCloudNameSetting.get(),
       upload_preset,
       theme: 'minimal',
       min_image_height,

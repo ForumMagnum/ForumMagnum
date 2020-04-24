@@ -10,6 +10,7 @@ import * as _ from 'underscore';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions } from '../../lib/collections/comments/custom_fields'
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
+import { DatabasePublicSetting } from "../../lib/publicSettings";
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -164,11 +165,11 @@ function UsersRemoveDeleteComments (user, options) {
 addCallback('users.remove.async', UsersRemoveDeleteComments);
 
 
-
+const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
 function CommentsNewRateLimit (comment, user) {
   if (!Users.isAdmin(user)) {
     const timeSinceLastComment = Users.timeSinceLast(user, Comments);
-    const commentInterval = Math.abs(parseInt(""+getSetting<string|number>('forum.commentInterval',15)));
+    const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
     // check that user waits more than 15 seconds between comments
     if((timeSinceLastComment < commentInterval)) {

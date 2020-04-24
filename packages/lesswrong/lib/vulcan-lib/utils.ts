@@ -12,6 +12,8 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
+import { DatabasePublicSetting } from '../publicSettings';
+export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
 
@@ -160,7 +162,7 @@ Utils.getNestedProperty = function (obj, desc) {
 };
 
 Utils.getLogoUrl = () => {
-  const logoUrl = getSetting<string|null>('logoUrl');
+  const logoUrl = logoUrlSetting.get()
   if (logoUrl) {
     const prefix = Utils.getSiteUrl().slice(0,-1);
     // the logo may be hosted on another website

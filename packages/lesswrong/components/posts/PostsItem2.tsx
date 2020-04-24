@@ -12,6 +12,7 @@ import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -283,7 +284,7 @@ export const styles = (theme) => ({
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
-const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 const isSticky = (post, terms) => {
   if (post && terms && terms.forum) {

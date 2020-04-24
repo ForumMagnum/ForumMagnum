@@ -10,7 +10,6 @@
     "requireViewInvite":false,
     "requirePostInvite":false,
     "autoSubscribe":false,
-    "emailNotifications":true,
     "postInterval": 20,
     "commentInterval": 20,
     "maxPostsPerDay": 10,
@@ -24,7 +23,6 @@
     }
   },
   "defaultEmail": "no-reply@lesserwrong.com",
-  "scoreUpdateInterval": "30",
   "forwardedWhitelist": ["outgoing-addresses.greaterwrong.com"],
   "newsletterExcerptLength": 20,
   "postExcerptLength": 30,

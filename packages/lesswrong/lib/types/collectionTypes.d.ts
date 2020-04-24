@@ -19,8 +19,8 @@ interface CollectionBase<T extends DbObject> {
   rawCollection: any
   checkAccess: any
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
-  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T
-  update: (selector?: string|MongoSelector<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
+  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T | null
+  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
   remove: any
   insert: any
   aggregate: any

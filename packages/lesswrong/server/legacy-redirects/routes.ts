@@ -2,6 +2,7 @@ import { getSetting, addStaticRoute } from '../vulcan-lib'
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from '../../lib/collections/users/collection';
+import { faviconUrlSetting } from '../../components/common/HeadTags';
 
 // Some legacy routes have an optional subreddit prefix, which is either
 // omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by
@@ -278,7 +279,7 @@ addStaticRoute('/item', (params, req, res, next) => {
 // Secondary way of specifying favicon for browser or RSS readers that don't
 // support using a meta tag (the preferred approach).
 addStaticRoute('/favicon.ico', (params, req, res, next) => {
-  return makeRedirect(res, getSetting('faviconUrl'));
+  return makeRedirect(res, faviconUrlSetting.get());
 });
 
 addStaticRoute('/featured', (params, req, res, next) => {

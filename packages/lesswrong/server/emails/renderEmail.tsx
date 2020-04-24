@@ -16,6 +16,7 @@ import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 import { Email } from 'meteor/email';
 
 import forumTheme from '../../themes/forumTheme'
+import { DatabaseServerSetting } from '../databaseSettings';
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -107,6 +108,8 @@ function addEmailBoilerplate({ css, title, body })
 //   * While any JSS in withStyles will be included in the email, only a very
 //     limited and inconsistent subset is supported by mail clients
 //
+
+const defaultEmailSetting = new DatabaseServerSetting<string | null>('defaultEmail', null)
 export async function generateEmail({user, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate})
 {
   if (!user) throw new Error("Missing required argument: user");
@@ -164,7 +167,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     wordwrap: plainTextWordWrap
   });
   
-  const from = getSetting("defaultEmail", null);
+  const from = defaultEmailSetting.get()
   if (!from) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
@@ -198,9 +201,11 @@ function validateSheets(sheetsRegistry)
   }
 }
 
+
+const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 export async function sendEmail(renderedEmail)
 {
-  if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {
+  if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line

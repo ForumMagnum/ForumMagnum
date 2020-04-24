@@ -3,9 +3,11 @@ import { Pool } from 'pg'
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
+import { DatabaseServerSetting } from './databaseSettings';
 
-const connectionString = getSetting("analytics.connectionString", null);
-const environmentDescription = Meteor.isDevelopment ? "development" : getSetting("analytics.environment", "misconfigured");
+const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null)
+// Since different environments are connected to the same DB, this setting cannot be moved to the database
+const environmentDescriptionSetting = getSetting("analytics.environment", "misconfigured")
 
 const serverId = Random.id();
 
@@ -40,20 +42,19 @@ addGraphQLResolvers({
 });
 addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
 
-if (!connectionString) {
-  //eslint-disable-next-line no-console
-  console.log("Analytics logging disabled: analytics.connectionString is not configured");
-}
-
 let analyticsConnectionPool = null;
 // Return the Analytics database connection pool, if configured. If no
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
 const getAnalyticsConnection = (): Pool|null => {
-  if (!connectionString)
+  // We make sure that the settingsCache is initialized before we access the connection strings
+  if (!connectionStringSetting.get()) {
+    //eslint-disable-next-line no-console
+    console.log("Analytics logging disabled: analytics.connectionString is not configured");
     return null;
+  } 
   if (!analyticsConnectionPool)
-    analyticsConnectionPool = new Pool({ connectionString });
+    analyticsConnectionPool = new Pool({ connectionString: connectionStringSetting.get() });
   return analyticsConnectionPool;
 }
 
@@ -63,6 +64,7 @@ const getAnalyticsConnection = (): Pool|null => {
 // TODO: Defer/batch so that this doesn't affect SSR speed?
 function writeEventToAnalyticsDB({type, timestamp, props}) {
   const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
+  const environmentDescription = Meteor.isDevelopment ? "development" : environmentDescriptionSetting.get()
   const queryValues = [environmentDescription, type, timestamp, props];
   
   const connection = getAnalyticsConnection();

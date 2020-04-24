@@ -4,12 +4,19 @@ import { Components, registerComponent, Utils, getSetting, Head } from '../../li
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
+
 import '../../lib/registerSettings';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+
+export const taglineSetting = new DatabasePublicSetting<string | null>('tagline', null)
+export const faviconUrlSetting = new DatabasePublicSetting<string>('faviconUrl', '/img/favicon.ico')
+const descriptionSetting = new DatabasePublicSetting<string | null>('description', null)
+
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
     const canonicalUrl = props.canonicalUrl || url
-    const description = props.description || getSetting('tagline') || getSetting('description');
+    const description = props.description || taglineSetting.get() || descriptionSetting.get()
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     
@@ -46,7 +53,7 @@ const HeadTags = (props) => {
           <meta name='twitter:description' content={description}/>
 
           <link rel='canonical' href={canonicalUrl}/>
-          <link rel='shortcut icon' href={getSetting('faviconUrl', '/img/favicon.ico')}/>
+          <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
           {Head.meta.map((tag, index) => <meta key={index} {...tag}/>)}
           {Head.link.map((tag, index) => <link key={index} {...tag}/>)}

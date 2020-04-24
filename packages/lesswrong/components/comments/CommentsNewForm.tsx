@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
+import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 
 const styles = theme => ({
   root: {
@@ -109,7 +110,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     return <FormattedMessage id="users.cannot_comment"/>;
   }
 
-  const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
+  const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
   return (
     <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
       <div className={padding ? classes.form : null}>

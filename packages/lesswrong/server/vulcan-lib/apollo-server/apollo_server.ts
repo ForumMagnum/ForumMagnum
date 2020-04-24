@@ -40,13 +40,15 @@ import { getApolloApplyMiddlewareOptions, getApolloServerOptions } from './setti
 import { getSetting } from '../../../lib/vulcan-lib/settings';
 import { formatError } from 'apollo-errors';
 
-const sentryUrl = getSetting<string|undefined>('sentry.url');
-const sentryEnvironment = getSetting<string|undefined>('sentry.environment');
-const sentryRelease = getSetting<string|undefined>('sentry.release');
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
+import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
 
-if (sentryUrl) {
+const sentryUrl = sentryUrlSetting.get()
+const sentryEnvironment = sentryEnvironmentSetting.get()
+const sentryRelease = sentryReleaseSetting.get()
+
+if (sentryUrl && sentryEnvironment && sentryRelease) {
   Sentry.init({
     dsn: sentryUrl,
     environment: sentryEnvironment,

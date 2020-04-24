@@ -3,6 +3,7 @@ import { Comments } from './collection';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import * as _ from 'underscore';
+import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 
 // Auto-generated indexes from production
 
@@ -13,7 +14,7 @@ Comments.addDefaultView(terms => {
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const hideUnreviewedAuthorComments = getSetting('hideUnreviewedAuthorComments')
+  const hideUnreviewedAuthorComments = hideUnreviewedAuthorCommentsSettings.get()
     ? {authorIsUnreviewed: {$ne: true}}
     : {}
   return ({

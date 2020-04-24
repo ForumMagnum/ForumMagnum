@@ -9,6 +9,7 @@ import { Meteor } from 'meteor/meteor';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
 import Users from '../lib/collections/users/collection';
+import { taglineSetting } from '../components/common/HeadTags';
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
@@ -18,7 +19,7 @@ export const getMeta = (url) => {
 
   return {
     title: getSetting('title'),
-    description: getSetting('tagline'),
+    description: taglineSetting.get(),
     feed_url: url,
     site_url: siteUrl,
     image_url: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"

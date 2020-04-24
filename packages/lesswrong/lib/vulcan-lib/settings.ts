@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { string } from 'prop-types';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
