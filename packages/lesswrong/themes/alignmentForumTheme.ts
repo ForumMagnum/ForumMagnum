@@ -27,7 +27,7 @@ const palette = {
   primary: indigo,
   secondary: indigo,
   lwTertiary: {
-    main: "#edebf1"
+    main: "#607e88"
   },
   error: {
     main: deepOrange[900]

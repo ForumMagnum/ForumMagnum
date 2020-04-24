@@ -283,13 +283,6 @@ const schema = {
       }
     }
   },
-
-  // createdAt: {
-  //   type: Date,
-  //   optional: true,
-  //   canRead: ['admins'],
-  //   onInsert: (document, currentUser) => new Date(),
-  // },
   
   // Comments store a duplicate of their post's hideCommentKarma data. The
   // source of truth remains the hideCommentKarma field of the post. If this
