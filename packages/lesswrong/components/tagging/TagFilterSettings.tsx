@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
-import { useCurrentUser } from '../common/withUser';
-import { userCanManageTags } from '../../lib/betas';
+import { useMulti } from '../../lib/crud/withMulti';
+import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
-    maxWidth: 500,
+    maxWidth: 600,
     marginLeft: "auto",
     marginBottom: 16,
     ...theme.typography.commentStyle,
@@ -67,18 +67,37 @@ const personalBlogpostInfo = {
 const personalBlogpostName = personalBlogpostInfo[getSetting('forumType') as string].name
 const personalBlogpostTooltip = personalBlogpostInfo[getSetting('forumType') as string].tooltip
 
-// Filter by Tag
-//   Coronavirus
-//     [None] [Less] [Neutral] [More] [Only]
-//   Add Tag [_____]
+// Filter settings
+// Appears in the gear-menu by latest posts, and in other places.
+//
+// filterSettings is the current configuration; setFilterSettings applies a
+// change.
+//
+// When this is first opened, it pre-populates the set of tags with neutral
+// filters of a core set of "suggested as filter" tags.
 const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   filterSettings: FilterSettings
   setFilterSettings: (newSettings: FilterSettings)=>void,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
-  const canFilterCustomTags = userCanManageTags(currentUser);
-  const { AddTagButton, FilterMode } = Components
+  const { AddTagButton, FilterMode, Loading } = Components
+  const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
+  
+  const { results: suggestedTags, loading: loadingSuggestedTags } = useMulti({
+    terms: {
+      view: "suggestedFilterTags",
+    },
+    collection: Tags,
+    fragmentName: "TagFragment",
+    limit: 100,
+  });
+  
+  if (suggestedTags && !addedSuggestedTags) {
+    const filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags);
+    setAddedSuggestedTags(true);
+    if (!_.isEqual(filterSettings, filterSettingsWithSuggestedTags))
+      setFilterSettings(filterSettingsWithSuggestedTags);
+  }
   
   return <div className={classes.root}>
     <FilterMode
@@ -99,7 +118,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         description={tagSettings.tagName}
         key={tagSettings.tagId}
         mode={tagSettings.filterMode}
-        canRemove={canFilterCustomTags}
+        canRemove={true}
         onChangeMode={(mode: FilterMode) => {
           const changedTagId = tagSettings.tagId;
           const replacedIndex = _.findIndex(filterSettings.tags, t=>t.tagId===changedTagId);
@@ -123,7 +142,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       />
     )}
     
-    {canFilterCustomTags && <div className={classes.addTag}>
+    {loadingSuggestedTags && <Loading/>}
+    
+    {<div className={classes.addTag}>
       <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
@@ -135,6 +156,25 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       }}/>
     </div>}
   </div>
+}
+
+const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagFragment>): FilterSettings => {
+  const tagsIncluded = {};
+  for (let tag of oldFilterSettings.tags)
+    tagsIncluded[tag.tagId] = true;
+  const tagsNotIncluded = _.filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
+  
+  return {
+    ...oldFilterSettings,
+    tags: [
+      ...oldFilterSettings.tags,
+      ...tagsNotIncluded.map(tag => ({
+        tagId: tag._id,
+        tagName: tag.name,
+        filterMode: "Default",
+      })),
+    ],
+  };
 }
 
 const TagFilterSettingsComponent = registerComponent("TagFilterSettings", TagFilterSettings, {styles});

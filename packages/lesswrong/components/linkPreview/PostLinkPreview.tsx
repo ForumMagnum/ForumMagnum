@@ -149,18 +149,21 @@ const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, co
 }
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
+export const linkStyle = theme => ({
+  position: "relative",
+  marginRight: 6,
+  '&:after': {
+    content: '"°"',
+    marginLeft: 1,
+    marginRight: 1,
+    color: theme.palette.primary.main,
+    position: "absolute"
+  }
+})
 
 const styles = theme => ({
   link: {
-    position: "relative",
-    marginRight: 6,
-    '&:after': {
-      content: '"°"',
-      marginLeft: 1,
-      marginRight: 1,
-      color: theme.palette.primary.main,
-      position: "absolute"
-    }
+    ...linkStyle(theme)
   }
 })
 
@@ -358,10 +361,11 @@ const mozillaHubStyles = (theme) => ({
   }
 })
 
-const MozillaHubPreview = ({classes, href, innerHTML,}: {
+const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string
+  innerHTML: string,
+  id?: string,
 }) => {
   const roomId = href.split("/")[3]
   const { data: rawData, loading } = useQuery(gql`
@@ -391,7 +395,7 @@ const MozillaHubPreview = ({classes, href, innerHTML,}: {
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>
-      <a href={data.url}>
+      <a href={data.url} id={id}>
         <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
         <span className={classes.users}>
           (<SupervisorAccountIcon className={classes.icon}/> 

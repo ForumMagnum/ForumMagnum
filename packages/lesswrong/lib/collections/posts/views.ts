@@ -3,7 +3,8 @@ import { viewFieldNullOrMissing, viewFieldAllowAny, getSetting } from '../../vul
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
-import { FilterSettings } from '../../filterSettings';
+import { FilterSettings, FilterMode } from '../../filterSettings';
+import { timeDecayExpr, defaultScoreModifiers } from '../../scoring';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -19,7 +20,7 @@ export const MAX_LOW_KARMA_THRESHOLD = -1000
  * TODO: This should be worked to be more nicely tied in with the filterSettings
  * paradigm
  */
-const filters: Record<string,any> = {
+export const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
@@ -48,6 +49,12 @@ const filters: Record<string,any> = {
   "meta": {
     meta: true
   },
+  "untagged": {
+    tagRelevance: {}
+  },
+  "tagged": {
+    tagRelevance: {$ne: {}}
+  },
   "includeMetaAndPersonal": {},
 }
 if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
@@ -58,7 +65,7 @@ if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
  * NB: Vulcan views overwrite sortings. If you are using a named view with a
  * sorting, do not try to supply your own.
  */
-const sortings = {
+export const sortings = {
   magic: {score: -1},
   top: {baseScore: -1},
   new: {postedAt: -1},
@@ -119,9 +126,11 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.filterSettings) {
-    params.selector = {
-      ...params.selector,
-      ...filterSettingsToSelector(terms.filterSettings)
+    const filterParams = filterSettingsToParams(terms.filterSettings);
+    params = {
+      selector: { ...params.selector, ...filterParams.selector },
+      options: { ...params.options, ...filterParams.options },
+      syntheticFields: { ...params.synetheticFields, ...filterParams.syntheticFields },
     };
   }
   if (terms.sortedBy) {
@@ -164,15 +173,26 @@ const eaGetFrontpageFilter = (filterSettings: FilterSettings): any => {
   }
 }
 
-function filterSettingsToSelector(filterSettings: FilterSettings): any {
+function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
+  // if (getSetting('forumType') as string === 'EAForum') {
+  //   frontpageFilter = eaGetFrontpageFilter(filterSettings)
+  // } else {
+  //   frontpageFilter = lwafGetFrontpageFilter(filterSettings)
+  
   let frontpageFilter: any;
-  if (getSetting('forumType') as string === 'EAForum') {
-    frontpageFilter = eaGetFrontpageFilter(filterSettings)
+  let frontpageSoftFilter: Array<any> = [];
+  if (filterSettings.personalBlog === "Hidden") {
+    frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
+  } else if (filterSettings.personalBlog === "Required") {
+    frontpageFilter = {frontpageDate: viewFieldNullOrMissing}
   } else {
-    frontpageFilter = lwafGetFrontpageFilter(filterSettings)
+    frontpageFilter = {};
+    frontpageSoftFilter = [
+      {$cond: {if: "$frontpageDate", then: 0, else: filterModeToKarmaModifier(filterSettings.personalBlog)}},
+    ];
   }
   
   let tagsFilter = {};
@@ -183,10 +203,50 @@ function filterSettingsToSelector(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
+  const tagsSoftFiltered = _.filter(filterSettings.tags, t=>t.filterMode!=="Less" && t.filterMode!=="More");
+  let scoreExpr: any = null;
+  if (tagsSoftFiltered.length > 0) {
+    scoreExpr = {
+      syntheticFields: {
+        score: {$divide:[
+          {$add:[
+            "$baseScore",
+            ...tagsSoftFiltered.map(t => ({
+              $multiply: [
+                filterModeToKarmaModifier(t.filterMode),
+                {$ifNull: [
+                  "$tagRelevance."+t.tagId,
+                  0
+                ]}
+              ]
+            })),
+            ...defaultScoreModifiers(),
+            ...frontpageSoftFilter,
+          ]},
+          timeDecayExpr()
+        ]}
+      },
+    };
+  }
+  
   return {
-    ...frontpageFilter,
-    ...tagsFilter
+    selector: {
+      ...frontpageFilter,
+      ...tagsFilter
+    },
+    ...scoreExpr,
   };
+}
+
+function filterModeToKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === "number") {
+    return mode;
+  } else switch(mode) {
+    default:
+    case "Default": return 0;
+    case "Hidden": return -100;
+    case "Required": return 100;
+  }
 }
 
 
@@ -256,6 +316,24 @@ ensureIndex(Posts,
   augmentForDefaultView({ score:-1 }),
   {
     name: "posts.score",
+  }
+);
+
+
+// Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
+// EA-FORUM: Building this index will fail until you update to MongoDB 4.2. If you haven't enabled/started using tagging, then this is probably harmless.
+ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
+// Used for the latest posts list when soft-filtering tags
+ensureIndex(Posts,
+  augmentForDefaultView({ tagRelevance: 1 }),
+  {
+    name: "posts.tagRelevance"
+  }
+);
+ensureIndex(Posts,
+  augmentForDefaultView({"tagRelevance.tNsqhzTibgGJKPEWB": 1, question: 1}),
+  {
+    name: "posts.coronavirus_questions"
   }
 );
 ensureIndex(Posts,
@@ -345,7 +423,7 @@ Posts.addView("tagRelevance", terms => ({
   // note: this relies on the selector filtering done in the default view
   // sorts by the "sortedBy" parameter if it's been passed in, or otherwise sorts by tag relevance
   options: {
-    sort: terms.sortedBy ? sortings[terms.sortBy] : { [`tagRelevance.${terms.tagId}`]: -1}
+    sort: terms.sortedBy ? sortings[terms.sortBy] : { [`tagRelevance.${terms.tagId}`]: -1, baseScore: -1}
   }
 }));
 
@@ -858,7 +936,7 @@ Posts.addView("pingbackPosts", terms => {
   }
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ "pingback.Posts": 1, baseScore: 1 }),
+  augmentForDefaultView({ "pingbacks.Posts": 1, baseScore: 1 }),
   { name: "posts.pingbackPosts" }
 );
 

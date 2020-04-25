@@ -99,7 +99,7 @@ addFieldsDict(Revisions, {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToText
-          .fromString(truncatedHtml)
+          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true})
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }
