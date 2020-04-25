@@ -21,6 +21,7 @@ Comments.getAuthorName = function (comment) {
 // LW: Overwrite the original example-forum Comments.getPageUrl
 Comments.getPageUrl = function(comment, isAbsolute = false) {
   const post = Posts.findOne(comment.postId);
+  if (!post) throw Error(`Unable to find post for comment: ${comment}`)
   return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
 };
 

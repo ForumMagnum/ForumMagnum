@@ -8,6 +8,7 @@ import { Meteor } from 'meteor/meteor';
 let dummyUser: DbUser|null = null;
 async function getDummyUser(): Promise<DbUser> {
   if (!dummyUser) dummyUser = Users.findOne();
+  if (!dummyUser) throw Error("No users in the database, can't get dummy user")
   return dummyUser;
 }
 getDummyUser();

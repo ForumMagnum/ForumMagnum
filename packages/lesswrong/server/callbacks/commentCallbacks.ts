@@ -195,8 +195,8 @@ addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 function ModerateCommentsPostUpdate (comment, oldComment) {
   const comments = Comments.find({postId:comment.postId, deleted: false}).fetch()
 
-  const lastComment = _.max(comments, (c) => c.postedAt)
-  const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId}).postedAt
+  const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
+  const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId})?.postedAt || new Date()
 
   editMutation({
     collection:Posts,
@@ -227,7 +227,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
 
     const conversationData = {
       participantIds: [newComment.userId, lwAccount._id],
-      title: `Comment deleted on ${originalPost.title}`
+      title: `Comment deleted on ${originalPost?.title}`
     }
     const conversation = await newMutation({
       collection: Conversations,
@@ -237,7 +237,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
     });
 
     let firstMessageContents =
-        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
+        `One of your comments on "${originalPost?.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
       firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
@@ -282,7 +282,7 @@ addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
 // Duplicate of PostsNewUserApprovedStatus
 function CommentsNewUserApprovedStatus (comment) {
   const commentAuthor = Users.findOne(comment.userId);
-  if (!commentAuthor.reviewedByUserId && (commentAuthor.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+  if (!commentAuthor?.reviewedByUserId && (commentAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...comment, authorIsUnreviewed: true}
   }
 }
@@ -301,7 +301,7 @@ addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
 
 function NewCommentNeedsReview (comment) {
   const user = Users.findOne({_id:comment.userId})
-  const karma = user.karma || 0
+  const karma = user?.karma || 0
   if (karma < 100) {
     Comments.update({_id:comment._id}, {$set: {needsReview: true}});
   }

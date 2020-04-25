@@ -64,6 +64,7 @@ const HeadTags = (props) => {
           let HeadComponent;
           if (Array.isArray(componentOrArray)) {
             const [component, ...hocs] = componentOrArray;
+            // @ts-ignorets-ignore // Typechecking compose sadly isn't yet really feasible, so we have to deactivate it here
             HeadComponent = compose(...hocs)(component);
           } else {
             HeadComponent = componentOrArray;

@@ -949,7 +949,7 @@ addFieldsDict(Posts, {
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
-            return !!(author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
+            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
           }
         } else {
           return false

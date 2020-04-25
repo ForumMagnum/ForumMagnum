@@ -1,9 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib'
 import React from 'react'
-import { useCurrentUser } from '../common/withUser'
-import Users from '../../lib/collections/users/collection'
 import { userHasEAHomeHandbook } from '../../lib/betas'
-import { PublicInstanceSetting } from '../../lib/publicSettings'
+import Users from '../../lib/collections/users/collection'
+import { PublicInstanceSetting } from '../../lib/instanceSettings'
+import { Components, registerComponent } from '../../lib/vulcan-lib'
+import { useCurrentUser } from '../common/withUser'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null) // Sequence ID for the EAHomeHandbook sequence
 

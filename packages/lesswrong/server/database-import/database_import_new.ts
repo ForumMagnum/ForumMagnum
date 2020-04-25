@@ -100,10 +100,12 @@ Vulcan.postgresImport = async () => {
   commentData = mapValues(commentData, keyValueArraytoObject);
   // Process post metadata
   let commentMetaData = groupBy(rawCommentMetadata, (row) => row.thing_id);
+  // @ts-ignore
   commentMetaData = mapValues(commentMetaData, (v) => pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'date'));
   // Merge data
   commentData = deepObjectExtend(commentData, commentMetaData);
   // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
+  // @ts-ignore
   commentData = mapValues(commentData,
     (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
   );

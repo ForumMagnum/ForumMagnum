@@ -58,16 +58,16 @@ async function checkForAkismetSpam({document, type = "post"}) {
 }
 
 client.verifyKey()
-.then(function(valid) {
-  //eslint-disable-next-line no-console
-  if (valid) console.log('Valid Akismet key!');
-  //eslint-disable-next-line no-console
-  else console.log('Invalid Akismet key. Please provide a key to activate spam detection.', akismetKey);
-})
-.catch(function(err) {
-  //eslint-disable-next-line no-console
-  console.log('Akismet key check failed: ' + err.message);
-});
+  .then(function(valid) {
+    //eslint-disable-next-line no-console
+    if (valid) console.log('Valid Akismet key!');
+    //eslint-disable-next-line no-console
+    else console.log('Invalid Akismet key. Please provide a key to activate spam detection.', akismetKeySetting.get());
+  })
+  .catch(function(err) {
+    //eslint-disable-next-line no-console
+    console.log('Akismet key check failed: ' + err.message);
+  });
 
 async function checkPostForSpamWithAkismet(post, currentUser) {
   if (akismetKeySetting.get()) {
