@@ -3,7 +3,8 @@ import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { addStaticRoute, getSetting } from '../vulcan-lib';
+import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
+import { addStaticRoute } from '../vulcan-lib';
 
 // Some legacy routes have an optional subreddit prefix, which is either
 // omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by
@@ -23,7 +24,7 @@ import { addStaticRoute, getSetting } from '../vulcan-lib';
 const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)?";
 
 // Because the EA Forum was identical except for the change from /lw/ to /ea/
-const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
+const legacyRouteAcronym = legacyRouteAcronymSetting.get()
 
 function findPostByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);

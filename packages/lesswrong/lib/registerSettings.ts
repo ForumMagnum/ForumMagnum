@@ -42,7 +42,6 @@ registerSetting('ckEditor.webSocketUrl', null, 'Web socket Url for CKEditor coll
 registerSetting('ckEditor.uploadUrl', null, 'Upload URL for CKEditor image upload')
 
 // Post/Sequence IDs
-registerSetting('aboutPostId', 'bJ2haLkcGeLtTWaD5', 'Post ID for the /about route') // Currently unused by LW/AF
 registerSetting('introPostId', null, 'Post ID for the /intro route')
 
 // Custom analytics

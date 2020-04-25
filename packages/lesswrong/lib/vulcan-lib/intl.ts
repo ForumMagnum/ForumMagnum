@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { getSetting } from './settings';
+import { localeSetting } from '../publicSettings';
 import { debug } from './debug';
 
 export const Strings = {};
@@ -40,7 +40,7 @@ export const getString = ({id, values, defaultMessage, locale}) => {
   return message;
 };
 
-export const defaultLocale = getSetting('locale', 'en');
+export const defaultLocale = localeSetting.get();
 
 /*
 

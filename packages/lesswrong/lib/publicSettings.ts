@@ -55,3 +55,5 @@ export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('clo
 
 export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('forum.numberOfDays', 10) // Number of days to display in the timeframe view
 
+export const localeSetting = new DatabasePublicSetting<string>('locale', 'en-US')
+export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('legacyRouteAcronym', 'lw') // Because the EA Forum was identical except for the change from /lw/ to /ea/

@@ -1,6 +1,15 @@
-import { getSetting, importComponent } from './vulcan-lib';
-import { forumTypeSetting } from './instanceSettings';
+import '../components/alignment-forum/withSetAlignmentComment';
+import '../components/alignment-forum/withSetAlignmentPost';
+import '../components/posts/PostsPage';
+import '../components/posts/TableOfContents';
+// vulcan:accounts
+import '../components/vulcan-accounts';
 import '../components/vulcan-core/vulcan-core-components';
+import { forumTypeSetting } from './instanceSettings';
+import { hasEventsSetting } from './publicSettings';
+// vulcan:forms
+import './vulcan-forms/components';
+import { importComponent } from './vulcan-lib';
 
 if(forumTypeSetting.get() === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
@@ -174,7 +183,6 @@ importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKa
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
-import '../components/posts/PostsPage';
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
 importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
 
@@ -191,7 +199,6 @@ importComponent("PostCollaborationEditor", () => require('../components/posts/Po
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
-import '../components/posts/TableOfContents';
 importComponent("ShowOrHideHighlightButton", () => require('../components/posts/ShowOrHideHighlightButton'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
@@ -216,7 +223,7 @@ importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // events
 
-if (getSetting('hasEvents', true)) {
+if (hasEventsSetting.get()) {
   importComponent("EventsPast", () => require('../components/posts/EventsPast'));
   importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
   importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
@@ -428,8 +435,6 @@ importComponent("ManageSubscriptionsLink", () => require('../components/form-com
 importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
-import '../components/alignment-forum/withSetAlignmentPost';
-import '../components/alignment-forum/withSetAlignmentComment';
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
 
 importComponent("NewQuestionDialog", () => require('../components/questions/NewQuestionDialog'));
@@ -483,9 +488,5 @@ importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Bu
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
 
-// vulcan:forms
-import './vulcan-forms/components';
 
-// vulcan:accounts
-import '../components/vulcan-accounts';
 

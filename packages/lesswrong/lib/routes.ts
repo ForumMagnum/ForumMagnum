@@ -1,12 +1,15 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting } from './instanceSettings';
-import { addRoute, getSetting } from './vulcan-lib';
+import { forumTypeSetting, PublicInstanceSetting } from './instanceSettings';
+import { hasEventsSetting, legacyRouteAcronymSetting } from './publicSettings';
+import { addRoute } from './vulcan-lib';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
+
+const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5') // Post ID for the /about route
 
 function getPostPingbackById(parsedUrl, postId) {
   if (parsedUrl.hash) {
@@ -225,8 +228,8 @@ addRoute([
 ]);
 
 
-// Because the EA Forum was identical except for the change from /lw/ to /ea/
-const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
+
+const legacyRouteAcronym = legacyRouteAcronymSetting.get()
 
 addRoute([
   // Legacy (old-LW, also old-EAF) routes
@@ -330,7 +333,7 @@ addRoute([
   },
 ]);
 
-if (getSetting('hasEvents', true)) {
+if (hasEventsSetting.get()) {
   addRoute([
     {
       name: 'EventsPast',
@@ -507,8 +510,8 @@ switch (forumTypeSetting.get()) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id: getSetting('aboutPostId'),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
+        _id: aboutPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       },
       // {
       //   name:'intro',
