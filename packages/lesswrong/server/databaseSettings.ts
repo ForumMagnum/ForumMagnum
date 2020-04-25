@@ -1,8 +1,14 @@
 
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
-import { Utils } from '../lib/vulcan-lib';
 import { Meteor } from 'meteor/meteor';
 import { publicSettings } from '../lib/publicSettings'
+
+console.log("running databaseSettings.ts")
+function getNestedProperty(obj, desc)  {
+  var arr = desc.split('.');
+  while(arr.length && (obj = obj[arr.shift()]));
+  return obj;
+};
 
 let serverSettingsCache:Record<string, any> = {}
 function refreshSettingsCaches() {
@@ -33,7 +39,7 @@ export class DatabaseServerSetting<SettingValueType> {
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    const cacheValue = Utils.getNestedProperty(serverSettingsCache, this.settingName)
+    const cacheValue = getNestedProperty(serverSettingsCache, this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
   }

@@ -4,8 +4,6 @@ import { Components, registerComponent, Utils, Head } from '../../lib/vulcan-lib
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
-
-import '../../lib/registerSettings';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality")

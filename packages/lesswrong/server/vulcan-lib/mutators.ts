@@ -38,7 +38,6 @@ import {
   dataToModifier,
   modifierToData,
 } from '../../lib/vulcan-lib/validation';
-import { registerSetting } from '../../lib/vulcan-lib/settings';
 import { debug, debugGroup, debugGroupEnd } from '../../lib/vulcan-lib/debug';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
@@ -46,8 +45,6 @@ import pickBy from 'lodash/pickBy';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
-
-registerSetting('database', 'mongo', 'Which database to use for your back-end');
 
 /*
 

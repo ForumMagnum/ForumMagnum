@@ -16,12 +16,15 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { userHasCkEditor } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
+
+console.log("Running editor form component file")
 
 const styles = theme => ({
   editor: {

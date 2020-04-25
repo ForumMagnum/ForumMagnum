@@ -12,10 +12,7 @@ import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
 import { getCollection } from './getCollection';
-import { registerSetting } from './settings';
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
-
-registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
 
 /**
  * @summary The global namespace for Vulcan utils.

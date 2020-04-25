@@ -4,7 +4,6 @@ import './client/vulcan-core/start';
 
 // Make sure to register settings before everything else
 import './client/publicSettings'
-import './lib/registerSettings'
 
 // Then import the google analytics stuff
 import './client/ga';

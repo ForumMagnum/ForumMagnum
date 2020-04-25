@@ -1,4 +1,5 @@
-import { hasEventsSetting } from './lib/publicSettings'
+import './server/databaseSettings'
+
 import './server/vulcan-lib/index';
 
 import './server/vulcan-users/main';
@@ -95,6 +96,7 @@ import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
+import { hasEventsSetting } from './lib/publicSettings'
 if (hasEventsSetting.get()) {
   import './server/callbacks/localgroupCallbacks';
 }

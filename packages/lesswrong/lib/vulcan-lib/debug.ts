@@ -1,6 +1,6 @@
 import { PublicInstanceSetting } from '../instanceSettings';
 
-const debugSetting = new PublicInstanceSetting<boolean>('debug', false)
+const debugSetting = new PublicInstanceSetting<boolean>('debug', false) // Enable debug mode (more verbose logging)
 
 export const debug: any = function () {
   if (debugSetting.get()) {
