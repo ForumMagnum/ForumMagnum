@@ -1,6 +1,6 @@
 import Users from "../../lib/collections/users/collection";
-import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges";
-import { getSetting } from '../../lib/vulcan-lib';
+import { forumTypeSetting } from "../../lib/instanceSettings";
+import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "../karmaChanges";
 
 Users.addField([
   {
@@ -37,7 +37,7 @@ Users.addField([
           
           const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
           
-          const alignmentForum = getSetting('forumType') === 'AlignmentForum';
+          const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
           return getKarmaChanges({
             user: document,
             startDate, endDate,

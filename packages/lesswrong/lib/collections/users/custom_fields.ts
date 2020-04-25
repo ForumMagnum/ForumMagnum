@@ -7,6 +7,7 @@ import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import { defaultFilterSettings } from '../../filterSettings';
 import SimpleSchema from 'simpl-schema'
 import * as _ from 'underscore';
+import { forumTypeSetting } from "../../instanceSettings";
 
 export const hashPetrovCode = (code) => {
   // @ts-ignore
@@ -227,7 +228,7 @@ addFieldsDict(Users, {
           {value:'postCommentsNew', label: 'most recent'},
           {value:'postCommentsOld', label: 'oldest'},
         ];
-        if (getSetting('forumType') === 'AlignmentForum') {
+        if (forumTypeSetting.get() === 'AlignmentForum') {
           return commentViews.concat([
             {value:'postLWComments', label: 'magical algorithm (include LW)'}
           ])
@@ -445,7 +446,7 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'admins'],
     canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: getSetting('forumType') !== 'EAForum',
+    hidden: forumTypeSetting.get() !== 'EAForum',
     control: 'checkbox',
     group: formGroups.default,
     order: 72,
@@ -728,7 +729,7 @@ addFieldsDict(Users, {
     label: "Email me new posts in Curated",
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: ['AlignmentForum', 'EAForum'].includes(getSetting('forumType')),
+    hidden: ['AlignmentForum', 'EAForum'].includes(forumTypeSetting.get()),
     canRead: ['members'],
   },
   unsubscribeFromAll: {
@@ -1091,7 +1092,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
-    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
+    hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get()),
     order: 39,
   },
 

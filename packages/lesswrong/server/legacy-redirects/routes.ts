@@ -1,8 +1,9 @@
-import { getSetting, addStaticRoute } from '../vulcan-lib'
-import { Posts } from '../../lib/collections/posts'
-import { Comments } from '../../lib/collections/comments'
-import Users from '../../lib/collections/users/collection';
 import { faviconUrlSetting } from '../../components/common/HeadTags';
+import { Comments } from '../../lib/collections/comments';
+import { Posts } from '../../lib/collections/posts';
+import Users from '../../lib/collections/users/collection';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { addStaticRoute, getSetting } from '../vulcan-lib';
 
 // Some legacy routes have an optional subreddit prefix, which is either
 // omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by
@@ -290,7 +291,7 @@ addStaticRoute('/recentComments', (params, req, res, next) => {
   return makeRedirect(res, '/allComments');
 })
 
-if (getSetting('forumType') === "AlignmentForum") {
+if (forumTypeSetting.get() === "AlignmentForum") {
   addStaticRoute('/newcomments', (params, req, res, next) => {
     return makeRedirect(res, '/allComments');
   })

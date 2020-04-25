@@ -1,11 +1,12 @@
-import Users from "../users/collection";
-import bowser from 'bowser'
-import { getSetting, Utils } from '../../vulcan-lib';
-import { Votes } from '../votes';
-import { Comments } from '../comments'
-import { Posts } from '../posts'
+import bowser from 'bowser';
 import { Meteor } from 'meteor/meteor';
 import { userHasCkEditor } from "../../betas";
+import { forumTypeSetting } from "../../instanceSettings";
+import { Utils } from '../../vulcan-lib';
+import { Comments } from '../comments';
+import { Posts } from '../posts';
+import Users from "../users/collection";
+import { Votes } from '../votes';
 
 /**
  * @summary Get a user's display name (not unique, can take special characters and spaces)
@@ -15,7 +16,7 @@ Users.getDisplayName = (user) => {
   if (!user) {
     return "";
   } else {
-    return getSetting('forumType') === 'AlignmentForum' ? 
+    return forumTypeSetting.get() === 'AlignmentForum' ? 
       (user.fullName || user.displayName) :
       (user.displayName || Users.getUserName(user))
   }
@@ -56,7 +57,7 @@ const postHasModerationGuidelines = post => {
 }
 
 const isPersonalBlogpost = post => {
-  if (getSetting('forumType') === 'EAForum') {
+  if (forumTypeSetting.get() === 'EAForum') {
     return !(post.frontpageDate || post.meta)
   }
   return !post.frontpageDate
@@ -165,7 +166,7 @@ Users.isAllowedToComment = (user, post) => {
     return false
   }
 
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     if (!Users.canDo(user, 'comments.alignment.new')) {
       return Users.owns(user, post) && Users.canDo(user, 'votes.alignment')
     }
@@ -183,7 +184,7 @@ Users.blockedCommentingReason = (user, post) => {
     return "This post's author has blocked you from commenting."
   }
 
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     if (!Users.canDo(user, 'comments.alignment.new')) {
       return "You must be approved by an admin to comment on the AI Alignment Forum"
     }
@@ -322,7 +323,7 @@ Users.getAggregateKarma = async (user) => {
 }
 
 Users.getPostCount = (user) => {
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     return user.afPostCount;
   } else {
     return user.postCount;
@@ -330,7 +331,7 @@ Users.getPostCount = (user) => {
 }
 
 Users.getCommentCount = (user) => {
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     return user.afCommentCount;
   } else {
     return user.commentCount;

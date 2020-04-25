@@ -1,10 +1,11 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from './vulcan-lib';
+import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts';
-import { WeightedList } from './weightedList';
+import { ensureIndex } from '../lib/collectionUtils';
+import { forumTypeSetting } from '../lib/instanceSettings';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
-import { ensureIndex } from '../lib/collectionUtils';
-import * as _ from 'underscore';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
+import { WeightedList } from './weightedList';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -192,7 +193,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
 const getModifierName = post => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
-  if (getSetting('forumType') === 'EAForum' && post.meta) return 'metaModifier'
+  if (forumTypeSetting.get() === 'EAForum' && post.meta) return 'metaModifier'
   return 'personalBlogpostModifier'
 }
 

@@ -1,7 +1,8 @@
-import { Posts } from '../posts'
-import { Comments } from './collection'
-import Users from "../users/collection"
-import { Utils, getSetting } from '../../vulcan-lib';
+import { forumTypeSetting } from '../../instanceSettings';
+import { Utils } from '../../vulcan-lib';
+import { Posts } from '../posts';
+import Users from "../users/collection";
+import { Comments } from './collection';
 
 
 /**
@@ -40,7 +41,7 @@ Comments.getRSSUrl = function(comment, isAbsolute = false) {
 };
 
 Comments.defaultToAlignment = (currentUser, post, comment) => {
-  if (getSetting('forumType') === 'AlignmentForum') { return true }
+  if (forumTypeSetting.get() === 'AlignmentForum') { return true }
   if (comment) {
     return (Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
@@ -53,6 +54,6 @@ Comments.getDefaultView = (post, currentUser) => {
 }
 
 Comments.getKarma = (comment) => {
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }

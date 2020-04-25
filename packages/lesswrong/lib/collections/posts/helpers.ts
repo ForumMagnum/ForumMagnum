@@ -1,6 +1,7 @@
-import { Posts, PostsMinimumForGetPageUrl } from './collection';
+import { forumTypeSetting } from '../../instanceSettings';
+import { getSetting, Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
-import { Utils, getSetting } from '../../vulcan-lib';
+import { Posts, PostsMinimumForGetPageUrl } from './collection';
 
 
 // EXAMPLE-FORUM Helpers
@@ -150,7 +151,7 @@ Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, s
 };
 
 Posts.getCommentCount = (post: PostsBase|DbPost): number => {
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -173,7 +174,7 @@ Posts.getCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefi
 
 
 Posts.getLastCommentedAt = (post) => {
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afLastCommentedAt;
   } else {
     return post.lastCommentedAt;
@@ -192,7 +193,7 @@ Posts.canDelete = (currentUser, post) => {
 }
 
 Posts.getKarma = (post) => {
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 

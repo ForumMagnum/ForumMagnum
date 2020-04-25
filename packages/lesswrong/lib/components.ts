@@ -1,15 +1,15 @@
 import { getSetting, importComponent } from './vulcan-lib';
-
+import { forumTypeSetting } from './instanceSettings';
 import '../components/vulcan-core/vulcan-core-components';
 
-if(getSetting('forumType') === 'AlignmentForum') {
+if(forumTypeSetting.get() === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
   // imports not at top level, and it re-detects it every time the line number
   // changes. Putting it at the top makes its line number stable.
   importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 }
 
-if (getSetting('forumType') === 'EAForum') {
+if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
@@ -488,3 +488,4 @@ import './vulcan-forms/components';
 
 // vulcan:accounts
 import '../components/vulcan-accounts';
+

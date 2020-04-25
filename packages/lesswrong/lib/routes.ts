@@ -1,6 +1,6 @@
-import React from 'react';
-import { addRoute, getSetting } from './vulcan-lib';
 import { Posts } from './collections/posts/collection';
+import { forumTypeSetting } from './instanceSettings';
+import { addRoute, getSetting } from './vulcan-lib';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -247,7 +247,7 @@ addRoute([
   }
 ]);
 
-if (getSetting('forumType') !== 'EAForum') {
+if (forumTypeSetting.get() !== 'EAForum') {
   addRoute([
     {
       name: 'sequencesHome',
@@ -279,7 +279,7 @@ if (getSetting('forumType') !== 'EAForum') {
   ])
 }
 
-if (getSetting('forumType') === 'LessWrong') {
+if (forumTypeSetting.get() === 'LessWrong') {
   addRoute([
     {
       name: 'HPMOR',
@@ -473,7 +473,7 @@ addRoute([
   }
 ]);
 
-switch (getSetting('forumType')) {
+switch (forumTypeSetting.get()) {
   case 'AlignmentForum':
     addRoute([
       {

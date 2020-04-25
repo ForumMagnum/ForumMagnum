@@ -1,10 +1,11 @@
-import { Posts } from './collection';
-import { viewFieldNullOrMissing, viewFieldAllowAny, getSetting } from '../../vulcan-lib';
-import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
-import { FilterSettings, FilterMode } from '../../filterSettings';
-import { timeDecayExpr, defaultScoreModifiers } from '../../scoring';
+import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { FilterMode, FilterSettings } from '../../filterSettings';
+import { forumTypeSetting } from '../../instanceSettings';
+import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
+import { Posts } from './collection';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -54,7 +55,7 @@ export const filters: Record<string,any> = {
   },
   "includeMetaAndPersonal": {},
 }
-if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
+if (forumTypeSetting.get() === 'EAForum') filters.frontpage.meta = {$ne: true}
 
 /**
  * @summary Similar to filters (see docstring above), but specifying MongoDB-style sorts
@@ -82,7 +83,7 @@ Posts.addDefaultView(terms => {
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
-  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
