@@ -1,4 +1,4 @@
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { getSetting, Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
 import { Posts, PostsMinimumForGetPageUrl } from './collection';
@@ -126,7 +126,7 @@ Posts.getEmailShareUrl = post => {
 ${post.title}
 ${Posts.getLink(post, true, false)}
 
-(found via ${getSetting('siteUrl')})
+(found via ${siteUrlSetting.get()})
   `;
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };

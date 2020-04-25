@@ -1,5 +1,6 @@
 import { getSetting } from './vulcan-lib';
 import { initializeSetting } from './publicSettings'
+import { Meteor } from 'meteor/meteor'
 
 export class PublicInstanceSetting<SettingValueType> {
   constructor(
@@ -27,3 +28,4 @@ export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('sit
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null); // DSN URL
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null) // Current release, i.e. hash of lattest commit
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', Meteor.absoluteUrl())

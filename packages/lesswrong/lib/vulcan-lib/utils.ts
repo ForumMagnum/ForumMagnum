@@ -4,15 +4,15 @@ Utilities
 
 */
 
-import urlObject from 'url';
-import getSlug from 'speakingurl';
-import { getSetting, registerSetting } from './settings';
-import { getCollection } from './getCollection';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import getSlug from 'speakingurl';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import urlObject from 'url';
+import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
+import { getCollection } from './getCollection';
+import { registerSetting } from './settings';
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
@@ -66,7 +66,7 @@ Utils.capitalize = function(str) {
  * @summary Returns the user defined site URL or Meteor.absoluteUrl. Add trailing '/' if missing
  */
 Utils.getSiteUrl = function () {
-  let url = getSetting('siteUrl', Meteor.absoluteUrl());
+  let url = siteUrlSetting.get();
   if (url.slice(-1) !== '/') {
     url += '/';
   }
