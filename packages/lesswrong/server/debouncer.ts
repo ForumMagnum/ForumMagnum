@@ -1,9 +1,9 @@
 import Sentry from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
-import { getSetting, Vulcan } from './vulcan-lib';
+import { Vulcan } from './vulcan-lib';
 
 let eventDebouncersByName: Record<string,EventDebouncer> = {};
 
@@ -269,7 +269,8 @@ export const forcePendingEvents = async (upToDate=null) => {
 }
 Vulcan.forcePendingEvents = forcePendingEvents;
 
-if (!getSetting("testServer", false)) {
+const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false)
+if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
     schedule(parser) {

@@ -37,7 +37,6 @@ import universalCookiesMiddleware from 'universal-cookie-express';
 
 import { getApolloApplyMiddlewareOptions, getApolloServerOptions } from './settings';
 
-import { getSetting } from '../../../lib/vulcan-lib/settings';
 import { formatError } from 'apollo-errors';
 
 import * as Sentry from '@sentry/node';
@@ -170,7 +169,7 @@ Meteor.startup(() => {
         console.error(e.extensions.exception)
         return formatError(e);
       },
-      tracing: getSetting('apolloTracing', Meteor.isDevelopment),
+      tracing: Meteor.isDevelopment,
       cacheControl: true,
       context: ({ req }) => computeContextFromReq(req),
       ...getApolloServerOptions(),

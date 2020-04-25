@@ -13,7 +13,6 @@ registerSetting('siteImage', null, 'An image used to represent the site on socia
 registerSetting('timeDecayFactor', 1.15, 'Used to discount sorting score with time');
 
 // helpers.js
-registerSetting('forum.outsideLinksPointTo', 'link', 'Whether to point RSS links to the linked URL (“link”) or back to the post page (“page”)');
 registerSetting('forum.requirePostsApproval', false, 'Require posts to be approved manually');
 registerSetting('twitterAccount', null, 'Twitter account associated with the app');
 registerSetting('siteUrl', null, 'Main site URL');

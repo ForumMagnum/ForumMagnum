@@ -1,16 +1,16 @@
-import { Posts } from "../../lib/collections/posts";
-import { Comments } from '../../lib/collections/comments/collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from '../vulcan-lib';
-import Users from "../../lib/collections/users/collection";
-import { performVoteServer } from '../voteServer';
-import Messages from '../../lib/collections/messages/collection';
-import Conversations from '../../lib/collections/conversations/collection';
 import * as _ from 'underscore';
-
-import { addEditableCallbacks } from '../editor/make_editable_callbacks'
-import { makeEditableOptions } from '../../lib/collections/comments/custom_fields'
-import { newDocumentMaybeTriggerReview } from './postCallbacks';
+import { Comments } from '../../lib/collections/comments/collection';
+import { makeEditableOptions } from '../../lib/collections/comments/custom_fields';
+import Conversations from '../../lib/collections/conversations/collection';
+import Messages from '../../lib/collections/messages/collection';
+import { Posts } from "../../lib/collections/posts";
+import Users from "../../lib/collections/users/collection";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { addEditableCallbacks } from '../editor/make_editable_callbacks';
+import { performVoteServer } from '../voteServer';
+import { addCallback, editMutation, newMutation, removeMutation, runCallbacksAsync } from '../vulcan-lib';
+import { newDocumentMaybeTriggerReview } from './postCallbacks';
+
 
 const MINIMUM_APPROVAL_KARMA = 5
 

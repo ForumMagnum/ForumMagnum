@@ -29,3 +29,4 @@ export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.u
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null) // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', Meteor.absoluteUrl())
+export const mailUrlSetting = new PublicInstanceSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email

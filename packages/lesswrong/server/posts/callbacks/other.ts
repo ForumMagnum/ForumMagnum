@@ -10,9 +10,10 @@ Callbacks to:
 
 */
 
-import { Posts } from '../../../lib/collections/posts'
-import { Connectors, addCallback, getSetting, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
+import { Posts } from '../../../lib/collections/posts';
+import { PublicInstanceSetting } from '../../../lib/instanceSettings';
 import { track } from '../../../lib/vulcanEvents';
+import { addCallback, Connectors, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
 
 //////////////////////////////////////////////////////
 // posts.edit.sync                                  //
@@ -61,8 +62,10 @@ addCallback('users.remove.async', UsersRemoveDeletePosts);
 //  * @param {string} ip – the IP of the current user
 //  */
 
+const trackClickEventsSetting = new PublicInstanceSetting<boolean>('forum.trackClickEvents', true) // Track clicks to posts pages
+
 function PostsClickTracking(post, ip) {
-  if (getSetting('forum.trackClickEvents', true)) {
+  if (trackClickEventsSetting.get()) {
     track('post.click', { title: post.title, postId: post._id });
     Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
   }

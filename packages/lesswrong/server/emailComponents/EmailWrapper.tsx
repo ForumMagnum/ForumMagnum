@@ -1,6 +1,6 @@
 import React from 'react';
-import { registerComponent, getSetting, Utils } from '../../lib/vulcan-lib';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { registerComponent, Utils } from '../../lib/vulcan-lib';
 
 const styles = theme => ({
   root: {

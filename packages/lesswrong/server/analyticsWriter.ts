@@ -1,13 +1,14 @@
-import { addGraphQLMutation, addGraphQLResolvers, getSetting } from './vulcan-lib';
-import { Pool } from 'pg'
-import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
+import { Pool } from 'pg';
+import { AnalyticsUtil } from '../lib/analyticsEvents';
+import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { DatabaseServerSetting } from './databaseSettings';
+import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 
 const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null)
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
-const environmentDescriptionSetting = getSetting("analytics.environment", "misconfigured")
+const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured")
 
 const serverId = Random.id();
 

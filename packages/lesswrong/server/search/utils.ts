@@ -1,20 +1,19 @@
+import algoliasearch from 'algoliasearch';
+import htmlToText from 'html-to-text';
+import chunk from 'lodash/chunk';
+import keyBy from 'lodash/keyBy';
+import { Meteor } from 'meteor/meteor';
+import * as _ from 'underscore';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
-import { Tags } from '../../lib/collections/tags/collection';
-import { Comments } from '../../lib/collections/comments'
-import Users from '../../lib/collections/users/collection';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import Sequences from '../../lib/collections/sequences/collection';
-import algoliasearch from 'algoliasearch';
-import { getSetting } from '../vulcan-lib';
-import htmlToText from 'html-to-text';
-import { dataToMarkdown } from '../editor/make_editable_callbacks'
-import { algoliaIndexNames } from '../../lib/algoliaUtil';
-import keyBy from 'lodash/keyBy';
-import chunk from 'lodash/chunk';
-import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { Tags } from '../../lib/collections/tags/collection';
+import Users from '../../lib/collections/users/collection';
 import { algoliaAppIdSetting } from '../../lib/publicSettings';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { dataToMarkdown } from '../editor/make_editable_callbacks';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;

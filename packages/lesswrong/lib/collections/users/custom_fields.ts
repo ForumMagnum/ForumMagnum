@@ -1,13 +1,14 @@
-import Users from "../users/collection";
-import { Posts } from '../posts/collection';
-import { getSetting, Utils } from '../../vulcan-lib';
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation, accessFilterMultiple } from '../../utils/schemaUtils'
-import { makeEditable } from '../../editor/make_editable'
-import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
-import { defaultFilterSettings } from '../../filterSettings';
-import SimpleSchema from 'simpl-schema'
+import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
+import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
+import { makeEditable } from '../../editor/make_editable';
+import { defaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from "../../instanceSettings";
+import { hasEventsSetting } from '../../publicSettings';
+import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
+import { Utils } from '../../vulcan-lib';
+import { Posts } from '../posts/collection';
+import Users from "../users/collection";
 
 export const hashPetrovCode = (code) => {
   // @ts-ignore
@@ -643,7 +644,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     ...schemaDefaultValue(true),
   },
   
@@ -669,7 +670,7 @@ addFieldsDict(Users, {
   },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPrivateMessage: {
@@ -682,7 +683,7 @@ addFieldsDict(Users, {
   },
   notificationEventInRadius: {
     label: "New Events in my notification radius",
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -817,7 +818,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,

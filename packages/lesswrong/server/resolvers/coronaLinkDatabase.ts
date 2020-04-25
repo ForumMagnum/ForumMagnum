@@ -1,6 +1,5 @@
-import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
-import { getSetting } from '../../lib/vulcan-lib';
 import request from 'request';
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { DatabaseServerSetting } from '../databaseSettings';
 
 const CoronavirusDataRow = `type CoronaVirusDataRow {

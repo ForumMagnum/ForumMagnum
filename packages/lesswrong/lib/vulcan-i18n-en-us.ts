@@ -93,7 +93,6 @@ addStrings('en', {
   'settings.description': 'Description',
   'settings.siteImage': 'Site Image',
   'settings.defaultEmail': 'Default Email',
-  'settings.mailUrl': 'Mail URL',
   'settings.scoreUpdate': 'Score Update',
   'settings.postsPerPage': 'Posts Per Page',
   'settings.twitterAccount': 'Twitter Account',

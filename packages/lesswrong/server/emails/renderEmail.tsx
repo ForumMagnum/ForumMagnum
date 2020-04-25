@@ -1,22 +1,23 @@
-import React from 'react';
-import { renderToString } from 'react-dom/server';
-import { ApolloProvider, getDataFromTree } from 'react-apollo';
-import Juice from 'juice';
-import { createClient, computeContextFromUser, getSetting, newMutation } from '../vulcan-lib';
-import JssProvider from 'react-jss/lib/JssProvider';
-import { SheetsRegistry } from 'react-jss/lib/jss';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
-import { UserContext } from '../../components/common/withUser';
-import { TimezoneContext } from '../../components/common/withTimezone';
-import Users from '../../lib/collections/users/collection';
-import moment from '../../lib/moment-timezone';
-import LWEvents from '../../lib/collections/lwevents/collection'
-import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
+import Juice from 'juice';
 import { Email } from 'meteor/email';
-
-import forumTheme from '../../themes/forumTheme'
+import React from 'react';
+import { ApolloProvider, getDataFromTree } from 'react-apollo';
+import { renderToString } from 'react-dom/server';
+import { SheetsRegistry } from 'react-jss/lib/jss';
+import JssProvider from 'react-jss/lib/JssProvider';
+import { TimezoneContext } from '../../components/common/withTimezone';
+import { UserContext } from '../../components/common/withUser';
+import LWEvents from '../../lib/collections/lwevents/collection';
+import Users from '../../lib/collections/users/collection';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import moment from '../../lib/moment-timezone';
+import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
+import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
+import { computeContextFromUser, createClient, newMutation } from '../vulcan-lib';
+
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -172,7 +173,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
   
-  const sitename = getSetting("title", null);
+  const sitename = forumTitleSetting.get();
   if (!sitename) {
     throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
   }
