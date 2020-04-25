@@ -108,7 +108,7 @@ export function withMulti({
 
   return compose(
     // wrap component with HoC that manages the terms object via its state
-    withState('paginationTerms', 'setPaginationTerms', props => {
+    withState('paginationTerms', 'setPaginationTerms', (props: any) => {
       // get initial limit from props, or else options
       const paginationLimit = (props.terms && props.terms.limit) || limit;
       const paginationTerms = {

@@ -160,7 +160,7 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, { ReadStatuses, currentUser }: { ReadStatuses: CollectionBase<DbReadStatus>, currentUser: DbUser }) => {
       if (!currentUser) return null;
 
       const readStatus = await getWithLoader(ReadStatuses,
@@ -176,7 +176,7 @@ addFieldsDict(Posts, {
   isRead: resolverOnlyField({
     type: Boolean,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, { ReadStatuses, currentUser }: { ReadStatuses: CollectionBase<DbReadStatus>, currentUser: DbUser }) => {
       if (!currentUser) return false;
       
       const readStatus = await getWithLoader(ReadStatuses,

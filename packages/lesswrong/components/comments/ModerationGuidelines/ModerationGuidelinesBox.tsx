@@ -140,7 +140,11 @@ const ModerationGuidelinesBox = ({classes, post, recordEvent}: {
 
   return (
     <div className={classes.root} onClick={expandable ? handleClick : undefined}>
-      {Users.canModeratePost(currentUser, post) &&
+      { // FIXME: Users.canModeratePost depends on some fields that aren't always
+        // reasonable to include in fragments, so on non-post pages the edit button
+        // may be missing from moderation guidelines.
+        // @ts-ignore
+        Users.canModeratePost(currentUser, post) &&
         <span onClick={openEditDialog}>
           <Tooltip title="Edit moderation guidelines">
             <Edit className={classes.editButton} />

@@ -170,7 +170,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
-  const tagsSoftFiltered = _.filter(filterSettings.tags, t=>t.filterMode!=="Less" && t.filterMode!=="More");
+  const tagsSoftFiltered = _.filter(filterSettings.tags, t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0));
   let scoreExpr: any = null;
   if (tagsSoftFiltered.length > 0) {
     scoreExpr = {

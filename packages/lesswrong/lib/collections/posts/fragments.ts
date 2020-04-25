@@ -203,8 +203,7 @@ registerFragment(`
       _id
       sourcePostId
       sourcePost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }
@@ -213,8 +212,7 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }

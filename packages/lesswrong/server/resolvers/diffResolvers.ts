@@ -27,8 +27,8 @@ addGraphQLResolvers({
         version: afterRev,
         fieldName: "contents",
       });
-      const before = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
-      const after = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
+      const before: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
+      const after: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
       if (!before || !after)
         return null;
       

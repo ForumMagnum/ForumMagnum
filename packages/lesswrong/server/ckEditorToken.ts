@@ -10,7 +10,7 @@ const ckEditorSecrretKeySetting = new DatabaseServerSetting<string | null>('ckEd
 
 addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const environmentId = ckEditorEnvironmentIdSetting.get()
-  const secretKey = ckEditorSecrretKeySetting.get()
+  const secretKey = ckEditorSecrretKeySetting.get()! // Assume nonnull; causes lack of encryption in development
   
   const documentId = req.headers['document-id']
   const userId = req.headers['user-id']

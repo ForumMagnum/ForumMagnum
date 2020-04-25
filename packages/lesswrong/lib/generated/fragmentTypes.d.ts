@@ -193,22 +193,16 @@ interface PostsDetails_customHighlight { // fragment on Revisions
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
-  readonly sourcePost: PostsDetails_sourcePostRelations_sourcePost,
+  readonly sourcePost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_sourcePostRelations_sourcePost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly targetPost: PostsDetails_targetPostRelations_targetPost,
+  readonly targetPost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -763,7 +757,6 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly allPostsShowLowKarma: boolean,
   readonly allPostsOpenSettings: boolean,
   readonly lastNotificationsCheck: Date,
-  readonly groups: Array<string>,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
   readonly moderationStyle: string,
@@ -968,6 +961,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afKarma: number,
   readonly deleted: boolean,
   readonly groups: Array<string>,
+  readonly isAdmin: boolean,
   readonly htmlBio: string,
   readonly postCount: number,
   readonly commentCount: number,
@@ -1289,6 +1283,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly _id: string,
   readonly createdAt: Date,
   readonly slug: string,
+  readonly userId: string,
   readonly user: UsersMinimumInfo,
   readonly title: string,
   readonly contents: RevisionDisplay,

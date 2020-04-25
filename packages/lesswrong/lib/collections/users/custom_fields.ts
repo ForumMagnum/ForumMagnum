@@ -453,11 +453,6 @@ addFieldsDict(Users, {
     order: 72,
   },
 
-  twitterUsername: {
-    hidden: true,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-  },
-
   // bannedUserIds: users who are not allowed to comment on this user's posts
   bannedUserIds: {
     type: Array,
@@ -600,9 +595,9 @@ addFieldsDict(Users, {
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
     resolver: (user, args, context) => {
-      const events = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
-      const filteredEvents = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
-      const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
+      const events: Array<DbLWEvent> = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
+      const filteredEvents: Array<Partial<DbLWEvent>> = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
+      const IPs = filteredEvents.map(event => event.properties?.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
     },
@@ -1385,10 +1380,8 @@ addUniversalFields({collection: Users})
 // Copied over utility function from Vulcan
 const createDisplayName = user => {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
-  const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
-  if (twitterName) return twitterName;
   if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));

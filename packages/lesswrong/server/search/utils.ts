@@ -15,13 +15,22 @@ import { algoliaAppIdSetting } from '../../lib/publicSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 
+type AlgoliaDocument = {
+  _id: string,
+  [key: string]: any,
+}
+
+interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
+  toAlgolia: (document: T) => Array<AlgoliaDocument>|null
+}
+
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
-Comments.toAlgolia = (comment) => {
+Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
   if (comment.deleted) return null;
   
-  const algoliaComment: any = {
+  const algoliaComment: AlgoliaDocument = {
     objectID: comment._id,
     _id: comment._id,
     userId: comment.userId,
@@ -59,8 +68,8 @@ Comments.toAlgolia = (comment) => {
   return [algoliaComment]
 }
 
-Sequences.toAlgolia = (sequence) => {
-  const algoliaSequence: any = {
+Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
+  const algoliaSequence: AlgoliaDocument = {
     objectID: sequence._id,
     _id: sequence._id,
     title: sequence.title,
@@ -68,7 +77,6 @@ Sequences.toAlgolia = (sequence) => {
     baseScore: sequence.baseScore,
     isDeleted: sequence.isDeleted,
     createdAt: sequence.createdAt,
-    postedAt: sequence.postedAt,
     af: sequence.af
   };
   const sequenceAuthor = Users.findOne({_id: sequence.userId});
@@ -85,7 +93,7 @@ Sequences.toAlgolia = (sequence) => {
   return [algoliaSequence]
 }
 
-Users.toAlgolia = (user) => {
+Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
   if (user.deleted) return null;
   
   const algoliaUser = {
@@ -106,10 +114,11 @@ Users.toAlgolia = (user) => {
 }
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
-Posts.toAlgolia = (post) => {
-  if (post.deleted) return null;
+Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
+  if (post.status !== Posts.config.STATUS_APPROVED)
+    return null;
   
-  const algoliaMetaInfo: any = {
+  const algoliaMetaInfo: AlgoliaDocument = {
     _id: post._id,
     userId: post.userId,
     url: post.url,
@@ -139,7 +148,7 @@ Posts.toAlgolia = (post) => {
     algoliaMetaInfo.feedName = postFeed.nickname;
     algoliaMetaInfo.feedLink = post.feedLink;
   }
-  let postBatch: Array<any> = [];
+  let postBatch: Array<AlgoliaDocument> = [];
   let body = ""
   if (post.contents?.originalContents?.type) {
     const { data, type } = post.contents.originalContents
@@ -163,7 +172,7 @@ Posts.toAlgolia = (post) => {
   return postBatch;
 }
 
-Tags.toAlgolia = (tag) => {
+Tags.toAlgolia = (tag: DbTag): Array<AlgoliaDocument>|null => {
   if (tag.deleted) return null;
   
   let description = ""
@@ -179,14 +188,13 @@ Tags.toAlgolia = (tag) => {
     _id: tag._id,
     name: tag.name,
     description,
-    baseScore: tag.baseScore,
   }];
 }
 
 
 // Do algoliaIndex.waitTask as an async function rather than a
 // callback-accepting function.
-async function algoliaWaitForTask(algoliaIndex, taskID) {
+async function algoliaWaitForTask(algoliaIndex: algoliasearch.Index, taskID) {
   return new Promise((resolve,reject) => {
     algoliaIndex.waitTask(taskID, (err) => {
       if (err) reject(err);
@@ -200,7 +208,7 @@ async function algoliaWaitForTask(algoliaIndex, taskID) {
 // and a list objectIDs.
 //
 // https://www.algolia.com/doc/api-reference/api-methods/add-objects/
-async function algoliaAddObjects(algoliaIndex, objects) {
+async function algoliaAddObjects(algoliaIndex: algoliasearch.Index, objects) {
   return new Promise((resolve,reject) => {
     algoliaIndex.addObjects(objects, (err, content) => {
       if (err) reject(err);
@@ -213,7 +221,7 @@ async function algoliaAddObjects(algoliaIndex, objects) {
 // callback-accepting function. Returns a content object with a taskID
 // and a list objectIDs.
 // https://www.algolia.com/doc/api-reference/api-methods/delete-objects/
-export async function algoliaDeleteIds(algoliaIndex, ids)
+export async function algoliaDeleteIds(algoliaIndex: algoliasearch.Index, ids)
 {
   return new Promise((resolve,reject) => {
     algoliaIndex.deleteObjects(ids, (err, content) => {
@@ -226,17 +234,21 @@ export async function algoliaDeleteIds(algoliaIndex, ids)
 // Do algoliaIndex.getObjects as an async function rather than a
 // callback-accepting function. Returns a content object with a results field.
 // https://www.algolia.com/doc/api-reference/api-methods/get-objects/
-async function algoliaGetObjects(algoliaIndex, ids)
+async function algoliaGetObjects(algoliaIndex: algoliasearch.Index, ids: Array<string>): Promise<{results: Array<AlgoliaDocument>}>
 {
-  return new Promise((resolve,reject) => {
+  return new Promise((resolve: (result: {results: Array<AlgoliaDocument>})=>void, reject) => {
     algoliaIndex.getObjects(ids, (err,content) => {
-      if (err) reject(err);
-      else resolve(content);
+      if (err) {
+        reject(err);
+      } else {
+        // Downcast because Algolia doesn't guarantee an _id field, but our schema does
+        resolve(content as {results: Array<AlgoliaDocument>});
+      }
     });
   });
 }
 
-export async function algoliaDoSearch(algoliaIndex, query) {
+export async function algoliaDoSearch(algoliaIndex: algoliasearch.Index, query) {
   return new Promise((resolve,reject) => {
     algoliaIndex.search(query, (err,content) => {
       if (err) reject(err);
@@ -252,7 +264,7 @@ export async function algoliaDoSearch(algoliaIndex, query) {
 // Because it does multiple queries for different pages, this may return
 // duplicate results or omit results, if the index is modified while it is
 // running.
-async function algoliaDoCompleteSearch(algoliaIndex, query) {
+async function algoliaDoCompleteSearch(algoliaIndex: algoliasearch.Index, query) {
   let allResults: Array<any> = [];
   let pageSize = 1000; // Max permitted by API
   
@@ -278,7 +290,7 @@ async function algoliaDoCompleteSearch(algoliaIndex, query) {
   return allResults;
 }
 
-export async function algoliaSetIndexSettings(algoliaIndex, settings) {
+export async function algoliaSetIndexSettings(algoliaIndex: algoliasearch.Index, settings) {
   return new Promise((resolve,reject) => {
     algoliaIndex.setSettings(settings,
       { forwardToReplicas: true },
@@ -290,19 +302,21 @@ export async function algoliaSetIndexSettings(algoliaIndex, settings) {
   });
 }
 
-export async function algoliaSetIndexSettingsAndWait(algoliaIndex, settings) {
+export async function algoliaSetIndexSettingsAndWait(algoliaIndex: algoliasearch.Index, settings) {
   let result: any = await algoliaSetIndexSettings(algoliaIndex, settings);
   await algoliaWaitForTask(algoliaIndex, result.taskID);
 }
 
-export async function algoliaGetAllDocuments(algoliaIndex) {
+export async function algoliaGetAllDocuments(algoliaIndex: algoliasearch.Index): Promise<Array<AlgoliaDocument>> {
   return new Promise((resolve,reject) => {
-    let results: Array<any> = [];
+    let results: Array<AlgoliaDocument> = [];
     let browser = algoliaIndex.browseAll();
     
     browser.on('result', (content) => {
-      for (let result of content.hits)
-        results.push(result);
+      for (let result of content.hits) {
+        // Downcast because Algolia doesn't guarantee an _id field, but our schema does
+        results.push(result as AlgoliaDocument);
+      }
     });
     browser.on('end', () => {
       resolve(results);
@@ -322,11 +336,11 @@ export async function algoliaGetAllDocuments(algoliaIndex) {
 // -- both in the traditional performance sense, and also in the sense that
 // Algolia's usage-based billing is built around it.)
 // TODO: This used to return any errors encountered, but now throws them
-async function addOrUpdateIfNeeded(algoliaIndex, objects) {
+async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: Array<AlgoliaDocument>) {
   if (objects.length == 0) return;
   
   const ids = _.map(objects, o=>o._id);
-  const algoliaObjects = await algoliaGetObjects(algoliaIndex, ids);
+  const algoliaObjects: Array<AlgoliaDocument> = (await algoliaGetObjects(algoliaIndex, ids)).results;
   const algoliaObjectsById = keyBy(algoliaObjects, o=>o._id);
   
   const objectsToSync = _.filter(objects,
@@ -344,7 +358,7 @@ async function addOrUpdateIfNeeded(algoliaIndex, objects) {
 // We first do a series of queries, one per mongo ID, to collect the indexed
 // pieces of the deleted documents (since they're split into multiple index
 // entries by paragraph).
-async function deleteIfPresent(algoliaIndex, ids) {
+async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids) {
   let algoliaIdsToDelete: Array<any> = [];
   
   for (const mongoId of ids) {
@@ -415,8 +429,8 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
 // Sometimes 100 posts generate more index requests than algolia will willingly
 // handle - split them up in that case
 // Export for testing
-export function subBatchArray (arr, maxSize) {
-  const result: Array<any> = []
+export function subBatchArray<T>(arr: Array<T>, maxSize: number): Array<Array<T>> {
+  const result: Array<Array<T>> = []
   while (arr.length > 0) {
     result.push(arr.slice(0, maxSize))
     arr = arr.slice(maxSize, arr.length)
@@ -426,13 +440,13 @@ export function subBatchArray (arr, maxSize) {
 
 export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
 {
-  let importBatch: Array<any> = [];
-  let itemsToDelete: Array<any> = [];
+  let importBatch: Array<AlgoliaDocument> = [];
+  let itemsToDelete: Array<string> = [];
 
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
     
-    let algoliaEntries = (collection.checkAccess && collection.checkAccess(null, item)) ? collection.toAlgolia(item) : null;
+    let algoliaEntries: Array<AlgoliaDocument>|null = (collection.checkAccess && collection.checkAccess(null, item)) ? collection.toAlgolia(item) : null;
     if (algoliaEntries) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     } else {
@@ -460,16 +474,16 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
 }
 
 
-export async function subsetOfIdsAlgoliaShouldntIndex(collection, ids) {
+export async function subsetOfIdsAlgoliaShouldntIndex<T extends DbObject>(collection: AlgoliaIndexedCollection<T>, ids: Array<string>) {
   // Filter out duplicates
   const sortedIds = _.clone(ids).sort();
   const uniqueIds = _.uniq(sortedIds, true);
   const pages = chunk(uniqueIds, 1000);
-  let itemsToIndexById = {};
+  let itemsToIndexById: Record<string,boolean> = {};
   
   for (let page of pages) {
-    let items = await collection.find({ _id: {$in: page} }).fetch();
-    let itemsToIndex = _.filter(items, item => collection.toAlgolia(item));
+    let items: Array<T> = await collection.find({ _id: {$in: page} }).fetch();
+    let itemsToIndex = _.filter(items, (item: T) => !!collection.toAlgolia(item));
     for (let item of itemsToIndex) {
       itemsToIndexById[item._id] = true;
     }

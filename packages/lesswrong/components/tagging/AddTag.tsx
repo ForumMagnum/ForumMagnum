@@ -77,7 +77,7 @@ const AddTag = ({onTagSelected, classes}: {
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
-      <SearchBox reset={null} focusShortcuts={[]}/>
+      <SearchBox reset={undefined} focusShortcuts={[]}/>
       
       {searchOpen && <Hits hitComponent={({hit}) =>
         <Components.TagSearchHit hit={hit}

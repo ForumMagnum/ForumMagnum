@@ -19,7 +19,7 @@ const styles = theme => ({
 });
 
 const CantCommentExplanation = ({post, classes}: {
-  post: PostsBase,
+  post: PostsDetails,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();

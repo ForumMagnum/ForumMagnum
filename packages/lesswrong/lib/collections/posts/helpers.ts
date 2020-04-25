@@ -27,7 +27,7 @@ Posts.getLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected
 
  // Whether to point RSS links to the linked URL (“link”) or back to the post page (“page”)
 const outsideLinksPointToSetting = new DatabasePublicSetting<string>('forum.outsideLinksPointTo', 'link')
-Posts.getShareableLink = function (post) {
+Posts.getShareableLink = function (post: PostsBase|DbPost): string {
   return outsideLinksPointToSetting.get() === 'link' ? Posts.getLink(post) : Posts.getPageUrl(post, true);
 };
 
@@ -35,7 +35,7 @@ Posts.getShareableLink = function (post) {
  * @summary Whether a post's link should open in a new tab or not
  * @param {Object} post
  */
-Posts.getLinkTarget = function (post) {
+Posts.getLinkTarget = function (post: PostsBase|DbPost): string {
   return !!post.url ? '_blank' : '';
 };
 
@@ -62,7 +62,7 @@ Posts.getAuthorName = function (post: DbPost) {
  */
 
 const postsRequireApprovalSetting = new DatabasePublicSetting<boolean>('forum.requirePostsApproval', false)
-Posts.getDefaultStatus = function (user) {
+Posts.getDefaultStatus = function (user: DbUser): number {
   const canPostApproved = typeof user === 'undefined' ? false : Users.canDo(user, 'posts.new.approved');
   if (!postsRequireApprovalSetting.get() || canPostApproved) {
     // if user can post straight to 'approved', or else post approval is not required
@@ -76,7 +76,7 @@ Posts.getDefaultStatus = function (user) {
  * @summary Get status name
  * @param {Object} user
  */
-Posts.getStatusName = function (post) {
+Posts.getStatusName = function (post: DbPost): string {
   return Utils.findWhere(Posts.statuses, {value: post.status}).label;
 };
 
@@ -84,7 +84,7 @@ Posts.getStatusName = function (post) {
  * @summary Check if a post is approved
  * @param {Object} post
  */
-Posts.isApproved = function (post) {
+Posts.isApproved = function (post: DbPost): boolean {
   return post.status === Posts.config.STATUS_APPROVED;
 };
 
@@ -92,17 +92,10 @@ Posts.isApproved = function (post) {
  * @summary Check if a post is pending
  * @param {Object} post
  */
-Posts.isPending = function (post) {
+Posts.isPending = function (post: DbPost): boolean {
   return post.status === Posts.config.STATUS_PENDING;
 };
 
-
-/**
- * @summary When on a post page, return the current post
- */
-Posts.current = function () {
-  return Posts.findOne('foo');
-};
 
 /**
  * @summary Get URL for sharing on Twitter.
@@ -110,7 +103,7 @@ Posts.current = function () {
  */
 
 const twitterAccountSetting = new DatabasePublicSetting<string | null>('twitterAccount', null)
-Posts.getTwitterShareUrl = post => {
+Posts.getTwitterShareUrl = (post: DbPost): string => {
   const via = twitterAccountSetting.get() ? `&via=${twitterAccountSetting.get()}` : '';
   return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(Posts.getLink(post, true)) }${via}`;
 };
@@ -119,7 +112,7 @@ Posts.getTwitterShareUrl = post => {
  * @summary Get URL for sharing on Facebook.
  * @param {Object} post
  */
-Posts.getFacebookShareUrl = post => {
+Posts.getFacebookShareUrl = (post: DbPost): string => {
   return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(Posts.getLink(post, true)) }`;
 };
 
@@ -127,7 +120,7 @@ Posts.getFacebookShareUrl = post => {
  * @summary Get URL for sharing by Email.
  * @param {Object} post
  */
-Posts.getEmailShareUrl = post => {
+Posts.getEmailShareUrl = (post: DbPost): string => {
   const subject = `Interesting link: ${post.title}`;
   const body = `I thought you might find this interesting:
 
@@ -181,7 +174,7 @@ Posts.getCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefi
 }
 
 
-Posts.getLastCommentedAt = (post) => {
+Posts.getLastCommentedAt = (post: PostsBase|DbPost): Date => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afLastCommentedAt;
   } else {
@@ -189,18 +182,18 @@ Posts.getLastCommentedAt = (post) => {
   }
 }
 
-Posts.canEdit = (currentUser, post) => {
+Posts.canEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
 }
 
-Posts.canDelete = (currentUser, post) => {
+Posts.canDelete = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   if (Users.canDo(currentUser, "posts.remove.all")) {
     return true
   }
   return Users.owns(currentUser, post) && post.draft
 }
 
-Posts.getKarma = (post) => {
+Posts.getKarma = (post: PostsBase|DbPost): number => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
@@ -211,6 +204,6 @@ Posts.getKarma = (post) => {
 //  2) The post does not exist yet
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
-Posts.canEditHideCommentKarma = (user, post) => {
-  return user?.showHideKarmaOption && (!post || !Posts.getCommentCount(post))
+Posts.canEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+  return !!(user?.showHideKarmaOption && (!post || !Posts.getCommentCount(post)))
 }

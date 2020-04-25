@@ -84,7 +84,7 @@ const schema = {
 
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
-  toAlgolia: any
+  toAlgolia: (tag: DbTag) => Array<Record<string,any>>|null
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
