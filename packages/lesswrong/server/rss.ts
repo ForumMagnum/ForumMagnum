@@ -98,9 +98,10 @@ export const serveCommentRSS = (terms, url?: string) => {
 
   restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
-
+    // eslint-disable-next-line no-console
+    if (!post) console.warn(`Can't find post for comments in RSS feed: ${comment._id}`)
     feed.item({
-     title: 'Comment on ' + post.title,
+     title: 'Comment on ' + post?.title,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,

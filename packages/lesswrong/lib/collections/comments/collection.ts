@@ -8,7 +8,7 @@ export const commentMutationOptions = {
   newCheck: (user, document) => {
     if (!user || !document) return false;
     const post = Posts.findOne(document.postId)
-
+    if (!post) return false
     if (!Users.isAllowedToComment(user, post)) {
       return Users.canDo(user, `posts.moderate.all`)
     }

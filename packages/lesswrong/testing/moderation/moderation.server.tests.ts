@@ -453,7 +453,9 @@ describe('Users.canModeratePost --', async ()=> {
 describe('Users.canEditUsersBannedUserIds --', async ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
-    expect(Users.canEditUsersBannedUserIds(null, Users.findOne())).to.be.false;
+    const user = Users.findOne()
+    if (!user) throw Error("Can't find any user")
+    expect(Users.canEditUsersBannedUserIds(null, user)).to.be.false;
   })
   it("returns false if user not in trustLevel1", async () => {
     const user = await createDummyUser()
