@@ -63,6 +63,15 @@ const schema = {
     }),
     viewableBy: ['guests'],
   },
+  adminOnly: {
+    label: "Admin Only",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
+  },
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],

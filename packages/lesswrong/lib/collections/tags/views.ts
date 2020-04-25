@@ -1,11 +1,12 @@
 import { Tags } from './collection';
 import { ensureIndex } from '../../collectionUtils';
-
+import { viewFieldAllowAny } from '../../vulcan-lib';
 
 Tags.addDefaultView(terms => {
   return {
     selector: {
       deleted: false,
+      adminOnly: false
     },
   };
 });
@@ -21,6 +22,7 @@ Tags.addView('tagBySlug', terms => {
   return {
     selector: {
       slug: terms.slug,
+      adminOnly: viewFieldAllowAny
     },
   };
 });
@@ -29,6 +31,7 @@ Tags.addView('coreTags', terms => {
   return {
     selector: {
       core: true,
+      adminOnly: viewFieldAllowAny
     },
     options: {
       sort: {

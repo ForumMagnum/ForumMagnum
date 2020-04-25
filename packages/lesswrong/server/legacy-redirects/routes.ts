@@ -278,52 +278,52 @@ addStaticRoute('/item', (params, req, res, next) => {
 // Secondary way of specifying favicon for browser or RSS readers that don't
 // support using a meta tag (the preferred approach).
 addStaticRoute('/favicon.ico', (params, req, res, next) => {
-  makeRedirect(res, getSetting('faviconUrl'));
+  return makeRedirect(res, getSetting('faviconUrl'));
 });
 
 addStaticRoute('/featured', (params, req, res, next) => {
-  makeRedirect(res, '/allPosts?filter=curated&view=new')
+  return makeRedirect(res, '/allPosts?filter=curated&view=new&timeframe=allTime')
 })
 
 addStaticRoute('/recentComments', (params, req, res, next) => {
-  makeRedirect(res, '/allComments');
+  return makeRedirect(res, '/allComments');
 })
 
 if (getSetting('forumType') === "AlignmentForum") {
   addStaticRoute('/newcomments', (params, req, res, next) => {
-    makeRedirect(res, '/allComments');
+    return makeRedirect(res, '/allComments');
   })
   
   addStaticRoute('/how-to-contribute', (params, req, res, next) => {
-    makeRedirect(res, '/posts/FoiiRDC3EhjHx7ayY/introducing-the-ai-alignment-forum-faq');
+    return makeRedirect(res, '/posts/FoiiRDC3EhjHx7ayY/introducing-the-ai-alignment-forum-faq');
   })
   
   addStaticRoute('/submitted', (params, req, res, next) => {
-    makeRedirect(res, `/users/${params.query?.id}`);
+    return makeRedirect(res, `/users/${params.query?.id}`);
   })
   
   addStaticRoute('/threads', (params, req, res, next) => {
-    makeRedirect(res, `/users/${params.query?.id}`);
+    return makeRedirect(res, `/users/${params.query?.id}`);
   })
   
   addStaticRoute('/user', (params, req, res, next) => {
-    makeRedirect(res, `/users/${params.query?.id}`);
+    return makeRedirect(res, `/users/${params.query?.id}`);
   })
   
   addStaticRoute('/submit', (params, req, res, next) => {
-    makeRedirect(res, `/newPost`);
+    return makeRedirect(res, `/newPost`);
   })
   
   addStaticRoute('/rss', (params, req, res, next) => {
-    makeRedirect(res, `/feed.xml`);
+    return makeRedirect(res, `/feed.xml`);
   })
   
   addStaticRoute('/drafts', (params, req, res, next) => {
-    makeRedirect(res, `/account`);
+    return makeRedirect(res, `/account`);
   })
   
   addStaticRoute('/saved', (params, req, res, next) => {
-    makeRedirect(res, `/account`);
+    return makeRedirect(res, `/account`);
   })
 }
 

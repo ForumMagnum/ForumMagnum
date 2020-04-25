@@ -48,6 +48,9 @@ const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
   anchorEl: any,
   classes: ClassesType,
 }) => {
+
+  if (tag.adminOnly) { return null }
+
   return (<span className={classes.root}>
     <Link to={`/tag/${tag.slug}`}>
       <span className={classes.name}>{tag.name}</span>
