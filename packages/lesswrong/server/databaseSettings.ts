@@ -52,42 +52,48 @@ export class DatabaseServerSetting<SettingValueType> {
   }
 }
 
+const runValidateSettings = false
+
 function validateSettings(registeredSettings:Record<string, "server" | "public" | "instance">, publicSettings:Record<string, any>, serverSettings:Record<string, any>) {
-  importAllComponents()
-  Object.entries(registeredSettings).forEach(([key, value]) => {
-    if (value === "server" && typeof getNestedProperty(serverSettings, key) === "undefined") {
-      // eslint-disable-next-line no-console
-      console.log(`Unable to find server database setting ${key} in serverSetting database object despite it being registered as a setting`)
-    } else if (value === "public" && typeof getNestedProperty(publicSettings, key) === "undefined") {
-      // eslint-disable-next-line no-console
-      console.log(`Unable to find public database setting ${key} in publicSetting database object despite it being registered as a setting`)
-    } 
-  })
-  Object.entries(serverSettings).forEach(([key, value]) => {
-    if(typeof value === "object") {
-      Object.keys(value).forEach(innerKey => {
-        if (typeof registeredSettings[`${key}.${innerKey}`] === "undefined") {
-          // eslint-disable-next-line no-console
-          console.log(`Spurious setting provided in the server settings cache despite it not being registered: ${`${key}.${innerKey}`}`)
-        }
-      })
-    } else if (typeof registeredSettings[key] === "undefined") {
-      // eslint-disable-next-line no-console
-      console.log(`Spurious setting provided in the server settings cache despite it not being registered: ${key}`)
-    }
-  })
-  Object.entries(publicSettings).forEach(([key, value]) => {
-    if (typeof value === "object") {
-      Object.keys(value).forEach(innerKey => {
-        if (typeof registeredSettings[`${key}.${innerKey}`] === "undefined") {
-          // eslint-disable-next-line no-console
-          console.log(`Spurious setting provided in the public settings cache despite it not being registered: ${`${key}.${innerKey}`}`)
-        }
-      })
-    } else if (typeof registeredSettings[key] === "undefined") {
-      // eslint-disable-next-line no-console
-      console.log(`Spurious setting provided in the public settings cache despite it not being registered: ${key}`)
-    }
-  })
-  console.log(groupBy(Object.keys(registeredSettings), key => registeredSettings[key]))
+  if (runValidateSettings) {
+    importAllComponents()
+    Object.entries(registeredSettings).forEach(([key, value]) => {
+      if (value === "server" && typeof getNestedProperty(serverSettings, key) === "undefined") {
+        // eslint-disable-next-line no-console
+        console.log(`Unable to find server database setting ${key} in serverSetting database object despite it being registered as a setting`)
+      } else if (value === "public" && typeof getNestedProperty(publicSettings, key) === "undefined") {
+        // eslint-disable-next-line no-console
+        console.log(`Unable to find public database setting ${key} in publicSetting database object despite it being registered as a setting`)
+      } 
+    })
+    Object.entries(serverSettings).forEach(([key, value]) => {
+      if(typeof value === "object") {
+        Object.keys(value).forEach(innerKey => {
+          if (typeof registeredSettings[`${key}.${innerKey}`] === "undefined") {
+            // eslint-disable-next-line no-console
+            console.log(`Spurious setting provided in the server settings cache despite it not being registered: ${`${key}.${innerKey}`}`)
+          }
+        })
+      } else if (typeof registeredSettings[key] === "undefined") {
+        // eslint-disable-next-line no-console
+        console.log(`Spurious setting provided in the server settings cache despite it not being registered: ${key}`)
+      }
+    })
+    Object.entries(publicSettings).forEach(([key, value]) => {
+      if (typeof value === "object") {
+        Object.keys(value).forEach(innerKey => {
+          if (typeof registeredSettings[`${key}.${innerKey}`] === "undefined") {
+            // eslint-disable-next-line no-console
+            console.log(`Spurious setting provided in the public settings cache despite it not being registered: ${`${key}.${innerKey}`}`)
+          }
+        })
+      } else if (typeof registeredSettings[key] === "undefined") {
+        // eslint-disable-next-line no-console
+        console.log(`Spurious setting provided in the public settings cache despite it not being registered: ${key}`)
+      }
+    })
+    // eslint-disable-next-line no-console
+    console.log(groupBy(Object.keys(registeredSettings), key => registeredSettings[key]))
+  }
+  
 }
