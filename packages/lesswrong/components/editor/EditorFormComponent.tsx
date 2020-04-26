@@ -24,8 +24,6 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-console.log("Running editor form component file")
-
 const styles = theme => ({
   editor: {
     position: 'relative',
