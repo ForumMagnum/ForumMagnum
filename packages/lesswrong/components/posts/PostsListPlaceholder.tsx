@@ -13,7 +13,7 @@ const PostsListPlaceholder = ({count, classes}: {
       <div key={i} className={classNames(
         classes.root,
         classes.background,
-        {[classes.bottomBorder]:i<count-1}
+        {[classes.bottomBorder]: i !== count-1}
       )}>
         <div className={classes.postsItem}>
           <span className={classes.title}>
@@ -33,4 +33,3 @@ declare global {
     PostsListPlaceholder: typeof PostsListPlaceholderComponent
   }
 }
-
