@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
+import Users from '../../lib/collections/users/collection';
 
 const styles = theme => ({
   root: {
@@ -106,7 +107,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     </div>
   };
 
-  if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
+  if (currentUser && !Users.canDo(currentUser, `posts.moderate.all`) && !Users.isAllowedToComment(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
 
