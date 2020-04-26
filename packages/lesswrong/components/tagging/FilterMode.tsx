@@ -24,11 +24,13 @@ const styles = theme => ({
     ...theme.typography.commentStyle
   },
   filterButton: {
-    margin: 4,
+    marginTop: 8,
+    marginRight: 8,
     padding: 4,
     paddingLeft: 8,
     paddingRight: 8,
     ...theme.typography.smallText,
+    display: "inline-block",
     cursor: "pointer",
     borderRadius: 2,
     border: "solid 1px rgba(0,0,0,.1)",
@@ -59,7 +61,7 @@ const styles = theme => ({
   closeButton: {
     width: 10,
     color: theme.palette.grey[500],
-    cursor: "pointer"
+    cursor: "pointer",
   },
   helpIcon: {
     color: theme.palette.grey[400],
@@ -113,9 +115,13 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
   })
   return <span>
     <span className={classes.tag}> 
-      {label} <span className={classes.filterScore}>
+      {label}
+      <span className={classes.filterScore}>
         {filterModeToStr(mode)}
       </span>
+      {canRemove && <div className={classes.closeButton} onClick={ev => {if (onRemove) onRemove()}}>
+          X
+        </div>}
     </span>
     <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom" 
       modifiers={{
@@ -126,54 +132,56 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
       }}
     >
       <div className={classes.filtering}>
-        <span className={classes.filterLabel}>
+        <div className={classes.filterLabel}>
           Set Filter:
-        </span>
-        <LWTooltip title={filterModeToTooltip("Hidden")}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
-            Hidden
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip(-50)}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode===-50})} onClick={ev => onChangeMode(-50)}>
-            -50
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip(-25)}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode===-25})} onClick={ev => onChangeMode(-25)}>
-            -25
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip(-10)}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
-            -10
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip("Default")}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default"})} onClick={ev => onChangeMode(0)}>
-            Normal
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip(10)}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
-            +10
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip(25)}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode===25})} onClick={ev => onChangeMode(25)}>
-            +25
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip(50)}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode===50})} onClick={ev => onChangeMode(50)}>
-            +50
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip("Required")}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Required"})} onClick={ev => onChangeMode("Required")}>
-            Required
-          </span>
-        </LWTooltip>
+        </div>
+        <div>
+          <LWTooltip title={filterModeToTooltip("Hidden")}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
+              Hidden
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip(-50)}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-50})} onClick={ev => onChangeMode(-50)}>
+              -50
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip(-25)}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-25})} onClick={ev => onChangeMode(-25)}>
+              -25
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip(-10)}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
+              -10
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip("Default")}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default"})} onClick={ev => onChangeMode(0)}>
+              Normal
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip(10)}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
+              +10
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip(25)}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===25})} onClick={ev => onChangeMode(25)}>
+              +25
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip(50)}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===50})} onClick={ev => onChangeMode(50)}>
+              +50
+            </span>
+          </LWTooltip>
+          <LWTooltip title={filterModeToTooltip("Required")}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Required"})} onClick={ev => onChangeMode("Required")}>
+              Required
+            </span>
+          </LWTooltip>
+        </div>
       </div>
       <TagPreview tag={tag}/>
     </PopperCard>
