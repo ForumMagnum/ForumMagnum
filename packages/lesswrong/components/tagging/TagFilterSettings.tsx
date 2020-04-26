@@ -7,7 +7,6 @@ import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
-    maxWidth: 600,
     marginLeft: "auto",
     marginBottom: 16,
     ...theme.typography.commentStyle,
@@ -80,8 +79,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   
   // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
+    {loadingSuggestedTags && <Loading/>}
     <FilterMode
-      description="Personal Blog Posts"
+      label="Personal Blogposts"
       helpTooltip={personalBlogpostTooltip}
       mode={filterSettings.personalBlog}
       canRemove={false}
@@ -92,11 +92,11 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         });
       }}
     />
-
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
-        description={tagSettings.tagName}
+        label={tagSettings.tagName}
         key={tagSettings.tagId}
+        tagId={tagSettings.tagId}
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
@@ -121,10 +121,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         }}
       />
     )}
-    
-    {loadingSuggestedTags && <Loading/>}
-    
-    {<div className={classes.addTag}>
+      
+    {<span className={classes.addTag}>
       <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
@@ -134,7 +132,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
           });
         }
       }}/>
-    </div>}
+    </span>}
   </div>
 }
 
