@@ -100,7 +100,6 @@ addStrings('en', {
   'settings.locale': 'Locale',
   'settings.requireViewInvite': 'Require View Invite',
   'settings.requirePostInvite': 'Require Post Invite',
-  'settings.requirePostsApproval': 'Require Posts Approval',
   'settings.scoreUpdateInterval': 'Score Update Interval',
 
   'app.loading': 'Loading…',

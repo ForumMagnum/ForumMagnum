@@ -20,8 +20,8 @@ import classNames from 'classnames';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
 
-const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG")
-const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW")
+const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
+const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 export const getHeaderTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
     return theme.palette.primary.contrastText

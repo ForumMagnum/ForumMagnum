@@ -5,8 +5,7 @@
  */
 import React from 'react';
 import { registerComponent, Utils } from '../../lib/vulcan-lib';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { forumTitleSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -14,7 +13,7 @@ const styles = theme => ({
   }
 })
 
-export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
+export const logoUrlSetting = new PublicInstanceSetting<string | null>('logoUrl', null, "warning")
 
 const SiteLogo = ({classes}) => logoUrlSetting.get() ? <span/> : <img
   className={classes.root}

@@ -11,18 +11,18 @@ const getNestedProperty = function (obj, desc) {
   return obj;
 };
 
-const registeredSettings:Record<string, boolean> = {}
+export const registeredSettings:Record<string, "server" | "public" | "instance"> = {}
 
-export function initializeSetting(settingName: string)  {
+export function initializeSetting(settingName: string, settingType: "server" | "public" | "instance")  {
   if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
-  registeredSettings[settingName] = true
+  registeredSettings[settingName] = settingType
 }
 export class DatabasePublicSetting<SettingValueType> {
   constructor(
     private settingName: string, 
     private defaultValue: SettingValueType
   ) {
-    initializeSetting(settingName)
+    initializeSetting(settingName, "public")
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console

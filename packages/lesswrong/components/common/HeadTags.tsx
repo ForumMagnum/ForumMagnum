@@ -6,16 +6,15 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 
-export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality")
-export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico')
-const descriptionSetting = new PublicInstanceSetting<string | null>('description', null)
-const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong 2.0')
+export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
+export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
+const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong 2.0', "warning")
 
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
     const canonicalUrl = props.canonicalUrl || url
-    const description = props.description || taglineSetting.get() || descriptionSetting.get()
+    const description = props.description || taglineSetting.get()
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = tabTitleSetting.get()
     

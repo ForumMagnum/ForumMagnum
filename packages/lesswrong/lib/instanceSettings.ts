@@ -1,35 +1,6 @@
 import { initializeSetting } from './publicSettings'
 import { Meteor } from 'meteor/meteor'
 
-export class PublicInstanceSetting<SettingValueType> {
-  constructor(
-    private settingName: string, 
-    private defaultValue: SettingValueType
-  ) {
-    initializeSetting(settingName)
-  }
-  get(): SettingValueType {
-    return getSetting(this.settingName, this.defaultValue)
-  }
-}
-
-/*
-  Public Instance Settings
-*/
-
-export const forumTypeSetting = new PublicInstanceSetting<string>('forumType', 'LessWrong') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
-export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong 2.0') // Default title for URLs
-
-// Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
-export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong")
-
-// Sentry settings
-export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null); // DSN URL
-export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null); // Environment, i.e. "development"
-export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null) // Current release, i.e. hash of lattest commit
-export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', Meteor.absoluteUrl())
-export const mailUrlSetting = new PublicInstanceSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
-
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
@@ -95,6 +66,52 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
   return setting;
 
 };
+
+export class PublicInstanceSetting<SettingValueType> {
+  constructor(
+    private settingName: string, 
+    private defaultValue: SettingValueType,
+    private settingType: "optional" | "warning" | "required"
+  ) {
+    initializeSetting(settingName, "instance")
+    if (Meteor.isDevelopment && settingType !== "optional") {
+      const settingValue = getSetting(settingName)
+      if (!settingValue) {
+        if (settingType === "warning") {
+          // eslint-disable-next-line no-console
+          console.log(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as warning`)
+        }
+        if (settingType === "required") {
+          throw Error(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as required`)
+        } 
+      }
+    }
+  }
+  get(): SettingValueType {
+    return getSetting(this.settingName, this.defaultValue)
+  }
+}
+
+/*
+  Public Instance Settings
+*/
+
+export const forumTypeSetting = new PublicInstanceSetting<string>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong 2.0', 'warning') // Default title for URLs
+
+// Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
+export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
+
+// Sentry settings
+export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
+export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
+export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', Meteor.absoluteUrl(), "optional")
+export const mailUrlSetting = new PublicInstanceSetting<string | null>('mailUrl', null, "warning") // The SMTP URL used to send out email
+
+
+
+
 
 // EA FORUM: registerSetting('introPostId', null, 'Post ID for the /intro route')
 // This was a commented out setting that you use in the routes file. You will have to port it over to the new system.

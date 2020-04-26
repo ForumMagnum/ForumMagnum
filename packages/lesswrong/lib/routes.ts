@@ -9,7 +9,7 @@ const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 
-const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5') // Post ID for the /about route
+const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 
 function getPostPingbackById(parsedUrl, postId) {
   if (parsedUrl.hash) {
@@ -488,7 +488,7 @@ switch (forumTypeSetting.get()) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id:"FoiiRDC3EhjHx7ayY"
+        _id: aboutPostIdSetting.get()
       },
       {
         name: 'Meta',
@@ -550,8 +550,8 @@ switch (forumTypeSetting.get()) {
         name: 'about',
         path: '/about',
         componentName: 'PostsSingleRoute',
-        _id:"bJ2haLkcGeLtTWaD5",
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "bJ2haLkcGeLtTWaD5"),
+        _id: aboutPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       },
       {
         name: 'faq',

@@ -21,17 +21,6 @@ Posts.getLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected
 };
 
 /**
- * @summary Depending on the settings, return either a post's URL link (if it has one) or its page URL.
- * @param {Object} post
- */
-
- // Whether to point RSS links to the linked URL (“link”) or back to the post page (“page”)
-const outsideLinksPointToSetting = new DatabasePublicSetting<string>('forum.outsideLinksPointTo', 'link')
-Posts.getShareableLink = function (post: PostsBase|DbPost): string {
-  return outsideLinksPointToSetting.get() === 'link' ? Posts.getLink(post) : Posts.getPageUrl(post, true);
-};
-
-/**
  * @summary Whether a post's link should open in a new tab or not
  * @param {Object} post
  */
@@ -61,15 +50,8 @@ Posts.getAuthorName = function (post: DbPost) {
  * @param {Object} user
  */
 
-const postsRequireApprovalSetting = new DatabasePublicSetting<boolean>('forum.requirePostsApproval', false)
 Posts.getDefaultStatus = function (user: DbUser): number {
-  const canPostApproved = typeof user === 'undefined' ? false : Users.canDo(user, 'posts.new.approved');
-  if (!postsRequireApprovalSetting.get() || canPostApproved) {
-    // if user can post straight to 'approved', or else post approval is not required
-    return Posts.config.STATUS_APPROVED;
-  } else {
-    return Posts.config.STATUS_PENDING;
-  }
+  return Posts.config.STATUS_APPROVED;
 };
 
 /**
@@ -102,10 +84,8 @@ Posts.isPending = function (post: DbPost): boolean {
  * @param {Object} post
  */
 
-const twitterAccountSetting = new DatabasePublicSetting<string | null>('twitterAccount', null)
 Posts.getTwitterShareUrl = (post: DbPost): string => {
-  const via = twitterAccountSetting.get() ? `&via=${twitterAccountSetting.get()}` : '';
-  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(Posts.getLink(post, true)) }${via}`;
+  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(Posts.getLink(post, true)) }`;
 };
 
 /**

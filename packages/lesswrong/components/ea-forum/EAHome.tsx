@@ -5,7 +5,7 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 
-const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null) // Sequence ID for the EAHomeHandbook sequence
+const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 
 const EAHome = () => {
   const currentUser = useCurrentUser();

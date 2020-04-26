@@ -36,7 +36,6 @@ export interface PostsMinimumForGetPageUrl {
 interface ExtendedPostsCollection extends PostsCollection {
   // Functions in lib/collections/posts/helpers.ts
   getLink: (post: PostsBase|DbPost, isAbsolute?: boolean, isRedirected?: boolean) => string
-  getShareableLink: (post: PostsBase|DbPost) => string
   getLinkTarget: (post: PostsBase|DbPost) => string
   getAuthorName: (post: DbPost) => string
   getDefaultStatus: (user: DbUser) => number

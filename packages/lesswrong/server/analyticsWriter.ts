@@ -8,7 +8,7 @@ import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 
 const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null)
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
-const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured")
+const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
 const serverId = Random.id();
 
