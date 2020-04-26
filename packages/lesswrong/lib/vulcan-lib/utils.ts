@@ -11,7 +11,6 @@ import * as _ from 'underscore';
 import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
-import { getCollection } from './getCollection';
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 interface UtilsType {

@@ -1,5 +1,4 @@
 import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
-import { DatabasePublicSetting } from '../../publicSettings';
 import { Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
 import { Posts, PostsMinimumForGetPageUrl } from './collection';
