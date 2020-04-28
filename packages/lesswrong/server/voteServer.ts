@@ -255,11 +255,15 @@ const getVotingRateLimits = async (user) => {
 
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }) => {
+const checkRateLimit = async ({ document, collection, voteType, user }):Promise<void> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
     return;
 
+  // No rate limit for admins
+  if(user.isAdmin) 
+    return;
+  
   const rateLimits = await getVotingRateLimits(user);
 
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours
