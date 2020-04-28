@@ -8,6 +8,7 @@ import SimpleSchema from 'simpl-schema'
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
+  commitMessage: {type: String, optional: true},
   html: {type: String, optional: true, denormalized: true},
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
   version: {type: String, optional: true},
@@ -60,15 +61,17 @@ export const makeEditable = ({collection, options = {}}: {
     hintText,
     order,
     pingbacks = false,
+    revisionsHaveCommitMessages = false,
   } = options
 
-  editableCollections.add(collection.options.collectionName)
-  editableCollectionsFields[collection.options.collectionName] = [
-    ...(editableCollectionsFields[collection.options.collectionName] || []),
+  const collectionName = collection.options.collectionName;
+  editableCollections.add(collectionName)
+  editableCollectionsFields[collectionName] = [
+    ...(editableCollectionsFields[collectionName] || []),
     fieldName || "contents"
   ]
-  editableCollectionsFieldOptions[collection.options.collectionName] = {
-    ...editableCollectionsFieldOptions[collection.options.collectionName],
+  editableCollectionsFieldOptions[collectionName] = {
+    ...editableCollectionsFieldOptions[collectionName],
     [fieldName || "contents"]: options,
   };
 
@@ -94,6 +97,7 @@ export const makeEditable = ({collection, options = {}}: {
           return {
             editedAt: (doc[field]?.editedAt) || new Date(),
             userId: doc[field]?.userId,
+            commitMessage: doc[field]?.commitMessage,
             originalContentsType: (doc[field]?.originalContentsType) || "html",
             originalContents: (doc[field]?.originalContents) || {},
             html: doc[field]?.html,
@@ -106,6 +110,7 @@ export const makeEditable = ({collection, options = {}}: {
       form: {
         hintText: hintText,
         fieldName: fieldName || "contents",
+        collectionName,
         commentEditor,
         commentStyles,
         getLocalStorageId,

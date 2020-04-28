@@ -14,6 +14,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { userHasCkEditor } from '../../lib/betas';
+import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 
@@ -105,7 +106,20 @@ const styles = theme => ({
   },
   placeholderCollaborationSpacing: {
     top: 60
-  }
+  },
+  changeDescriptionRow: {
+    display: "flex",
+    alignItems: "center",
+  },
+  changeDescriptionLabel: {
+    marginLeft: 8,
+    marginRight: 8,
+    ...theme.typography.commentStyle,
+    color: "rgba(0,0,0,.87)",
+  },
+  changeDescriptionInput: {
+    flexGrow: 1,
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -161,6 +175,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       ckEditorLoaded: null,
       updateType: 'minor',
       version: '',
+      commitMessage: "",
       ckEditorReference: null,
       loading: true,
       ...this.getEditorStatesFromType(editorType)
@@ -300,7 +315,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   submitData = (submission) => {
     const { fieldName } = this.props
     let data: any = null
-    const { draftJSValue, markdownValue, htmlValue, updateType, ckEditorReference } = this.state
+    const { draftJSValue, markdownValue, htmlValue, updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(type) {
       case "draftJS":
@@ -328,7 +343,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         data = "";
         break;
     }
-    return {...submission, [fieldName]: data ? {originalContents: {type, data}, updateType} : undefined}
+    return {
+      ...submission,
+      [fieldName]: data ? {
+        originalContents: {type, data},
+        commitMessage, updateType,
+      } : undefined
+    }
   }
   
   resetEditor = () => {
@@ -505,19 +526,41 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     this.setState({ updateType: e.target.value })
   }
 
-  renderUpdateTypeSelect = () => {
+  renderUpdateMetadata = () => {
     const { currentUser, formType, classes } = this.props
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
-    return <Select
-      value={this.state.updateType}
-      onChange={this.handleUpdateTypeSelect}
-      className={classes.select}
-      disableUnderline
+    return <>
+      <Select
+        value={this.state.updateType}
+        onChange={this.handleUpdateTypeSelect}
+        className={classes.select}
+        disableUnderline
       >
-      <MenuItem value={'major'}>Major Update</MenuItem>
-      <MenuItem value={'minor'}>Minor Update</MenuItem>
-      <MenuItem value={'patch'}>Patch</MenuItem>
-    </Select>
+        <MenuItem value={'major'}>Major Update</MenuItem>
+        <MenuItem value={'minor'}>Minor Update</MenuItem>
+        <MenuItem value={'patch'}>Patch</MenuItem>
+      </Select>
+    </>
+  }
+  
+  renderCommitMessageInput = () => {
+    const { currentUser, formType, fieldName, form, classes } = this.props
+    if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
+    
+    const collectionName = form.collectionName;
+    const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
+    if (!fieldHasCommitMessages) return null;
+    
+    return <div className={classes.changeDescriptionRow}>
+      <span className={classes.changeDescriptionLabel}>Change description{" "}</span>
+      <Input
+        className={classes.changeDescriptionInput}
+        value={this.state.commitMessage}
+        onChange={(ev) => {
+          this.setState({ commitMessage: ev.target.value });
+        }}
+      />
+    </div>
   }
 
   getCurrentRevision = () => {
@@ -721,14 +764,15 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       && this.renderEditorWarning()
 
     return <div>
-        { editorWarning }
-        <div className={classNames(classes.editor, this.getBodyStyles())}>
-          { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
-          { this.renderVersionSelect() }
-          { this.renderUpdateTypeSelect() }
-          { this.renderEditorTypeSelect() }
-        </div>
+      { editorWarning }
+      <div className={classNames(classes.editor, this.getBodyStyles())}>
+        { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
+        { this.renderVersionSelect() }
+        { this.renderUpdateMetadata() }
+        { this.renderEditorTypeSelect() }
       </div>
+      { this.renderCommitMessageInput() }
+    </div>
   }
 };
 

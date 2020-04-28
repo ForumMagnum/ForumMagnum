@@ -297,6 +297,7 @@ export function addEditableCallbacks({collection, options = {}}: {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
+      const commitMessage = doc[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
@@ -317,7 +318,8 @@ export function addEditableCallbacks({collection, options = {}}: {
         }),
         fieldName,
         version,
-        updateType: 'initial'
+        updateType: 'initial',
+        commitMessage,
       });
       
       return {
@@ -344,6 +346,7 @@ export function addEditableCallbacks({collection, options = {}}: {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
+      const commitMessage = docData[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
@@ -366,7 +369,8 @@ export function addEditableCallbacks({collection, options = {}}: {
         }),
         fieldName,
         version,
-        updateType
+        updateType,
+        commitMessage,
       });
       
       return {

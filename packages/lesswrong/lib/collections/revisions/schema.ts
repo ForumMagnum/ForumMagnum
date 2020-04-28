@@ -38,6 +38,12 @@ const schema = {
     optional: true,
     viewableBy: ['guests']
   },
+  commitMessage: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members']
+  },
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

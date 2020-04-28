@@ -4,5 +4,6 @@ registerFragment(`
   fragment RevisionMetadata on Revision {
     version
     editedAt
+    commitMessage
   }
 `);

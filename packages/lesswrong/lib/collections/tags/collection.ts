@@ -122,6 +122,7 @@ export const tagDescriptionEditableOptions = {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
     return {id: `tag:create`, verify:true}
   },
+  revisionsHaveCommitMessages: true,
 };
 
 makeEditable({
