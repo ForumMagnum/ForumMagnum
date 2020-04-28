@@ -14,6 +14,9 @@ const styles = theme => ({
     paddingRight: 16,
     paddingBottom: 6,
     width: 600,
+    [theme.breakpoints.down('xs')]: {
+      width: "calc(100% - 32px)",
+    }
   },
   tagDescription: {
     ...commentBodyStyles(theme)

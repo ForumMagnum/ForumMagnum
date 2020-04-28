@@ -35,8 +35,11 @@ const styles = theme => ({
     marginLeft: 16,
     marginTop: 16,
     marginRight: 16,
-    maxWidth: 600,
-    ...theme.typography.commentStyle
+    width: 600,
+    ...theme.typography.commentStyle,
+    [theme.breakpoints.down('xs')]: {
+      width: "calc(100% - 32px)",
+    }
   },
   filterButton: {
     marginTop: 8,
