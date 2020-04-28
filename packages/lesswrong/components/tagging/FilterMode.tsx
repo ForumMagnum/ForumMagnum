@@ -6,21 +6,30 @@ import withHover from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
+import Input from '@material-ui/core/Input';
 
 const styles = theme => ({
   tag: {
     ...tagStyle(theme),
     display: "inline-block",
     marginBottom: 4,
-    marginRight: 4
+    marginRight: 4,
+    '&:hover': {
+      '& $closeButton': {
+        display: "inline"
+      }
+    }
   },
   filterScore: {
     color: 'rgba(0,0,0,0.7)',
-    fontSize: ".9em"
+    fontSize: ".9em",
+    marginLeft: 4,
   },
   filtering: {
     marginLeft: 16,
     marginTop: 16,
+    marginRight: 16,
+    maxWidth: 600,
     ...theme.typography.commentStyle
   },
   filterButton: {
@@ -35,63 +44,22 @@ const styles = theme => ({
     borderRadius: 2,
     border: "solid 1px rgba(0,0,0,.1)",
   },
-  root: {
-    borderBottom: '1px solid rgba(0,0,0,0.1)',
+  labelRow: {
     display: "flex",
-    alignItems: "center",
-    paddingLeft: 12
+    justifyContent: "space-between"
   },
   label: {
     marginRight: "auto"
-  },
-  button: {
-    cursor: 'pointer',
-    margin: 4,
-    padding: 8,
-    textTransform: 'uppercase',
-    textAlign: 'center',
-    display: 'inline-block',
-    fontWeight: 500,
-    marginLeft: 10
   },
   selected: {
     backgroundColor: "rgba(0,0,0,.1)",
     border: "none"
   },
-  closeButton: {
+  removeFilter: {
     width: 10,
     color: theme.palette.grey[500],
-    cursor: "pointer",
-  },
-  helpIcon: {
-    color: theme.palette.grey[400],
-    height: 16,
-    verticalAlign: "middle",
-    display: "inline",
-  },
-  
-  arrowButton: {
-    cursor: "pointer",
-    
-    "&:hover": {
-      opacity: 0.5,
-    },
-  },
-  arrowLeft: {
-    transform: 'rotate(-90deg)',
-  },
-  arrowRight: {
-    transform: 'rotate(90deg)',
-  },
-  state: {
-    width: 40,
-    textAlign: "center",
-    cursor: "pointer",
-    
-    "&:hover": {
-      opacity: 0.5,
-    },
-  },
+    cursor: "pointer"
+  }
 });
 
 const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemove=false, onChangeMode, onRemove, helpTooltip, classes}: {
@@ -114,14 +82,11 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
     fragmentName: "TagPreviewFragment",
   })
   return <span>
-    <span className={classes.tag}> 
+    <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}> 
       {label}
       <span className={classes.filterScore}>
         {filterModeToStr(mode)}
       </span>
-      {canRemove && <div className={classes.closeButton} onClick={ev => {if (onRemove) onRemove()}}>
-          X
-        </div>}
     </span>
     <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom" 
       modifiers={{
@@ -132,8 +97,15 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
       }}
     >
       <div className={classes.filtering}>
-        <div className={classes.filterLabel}>
-          Set Filter:
+        <div className={classes.labelRow}>
+          <div className={classes.filterLabel}>
+            Set Filter:
+          </div>
+          {canRemove && <LWTooltip title="Remove Filter">
+            <a onClick={ev => {if (onRemove) onRemove()}}>
+              X
+            </a>
+          </LWTooltip>}
         </div>
         <div>
           <LWTooltip title={filterModeToTooltip("Hidden")}>
@@ -141,14 +113,9 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
               Hidden
             </span>
           </LWTooltip>
-          <LWTooltip title={filterModeToTooltip(-50)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-50})} onClick={ev => onChangeMode(-50)}>
-              -50
-            </span>
-          </LWTooltip>
           <LWTooltip title={filterModeToTooltip(-25)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-25})} onClick={ev => onChangeMode(-25)}>
-              -25
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-30})} onClick={ev => onChangeMode(-25)}>
+              -30
             </span>
           </LWTooltip>
           <LWTooltip title={filterModeToTooltip(-10)}>
@@ -157,7 +124,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
             </span>
           </LWTooltip>
           <LWTooltip title={filterModeToTooltip("Default")}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default"})} onClick={ev => onChangeMode(0)}>
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => onChangeMode(0)}>
               Normal
             </span>
           </LWTooltip>
@@ -167,20 +134,16 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
             </span>
           </LWTooltip>
           <LWTooltip title={filterModeToTooltip(25)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===25})} onClick={ev => onChangeMode(25)}>
-              +25
-            </span>
-          </LWTooltip>
-          <LWTooltip title={filterModeToTooltip(50)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===50})} onClick={ev => onChangeMode(50)}>
-              +50
+            <span className={classNames(classes.filterButton, {[classes.selected]: mode===30})} onClick={ev => onChangeMode(25)}>
+              +30
             </span>
           </LWTooltip>
           <LWTooltip title={filterModeToTooltip("Required")}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Required"})} onClick={ev => onChangeMode("Required")}>
+            <span className={classNames(classes.filterButton)} onClick={ev => onChangeMode("Required")}>
               Required
             </span>
           </LWTooltip>
+          <Input placeholder="Other" type="number" defaultValue={mode || ""} onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}/>
         </div>
       </div>
       <TagPreview tag={tag}/>
@@ -191,28 +154,28 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
 function filterModeToTooltip(mode: FilterMode): string {
   switch (mode) {
     case "Required":
-      return "ONLY posts with this attribute will be shown."
+      return "ONLY posts with this attribute will appear in Latest Posts."
     case "Hidden":
-      return "Posts with this attribute will be hidden."
+      return "Posts with this attribute will be not appear in Latest Posts."
     case 0:
     case "Default":
       return "This attribute will be ignored for filtering and sorting."
     default:
       if (mode<0)
-        return `These posts will be shown less (as though their score were ${-mode} points lower).`
+        return `These posts will be shown less often (as though their score were ${-mode} points lower).`
       else
-        return `These posts will be shown more (as though their score were ${mode} points higher).`
+        return `These posts will be shown more often (as though their score were ${mode} points higher).`
   }
 }
 
 function filterModeToStr(mode: FilterMode): string {
   if (typeof mode === "number") {
     if (mode>0) return `+${mode}`;
-    else if (mode===0) return "+0";
+    else if (mode===0) return "";
     else return `${mode}`;
   } else switch(mode) {
     default:
-    case "Default": return "+0";
+    case "Default": return "";
     case "Hidden": return "-∞";
     case "Required": return "+∞";
   }

@@ -10,15 +10,9 @@ const styles = theme => ({
     marginLeft: "auto",
     marginBottom: 16,
     ...theme.typography.commentStyle,
+    display: "flex",
+    flexWrap: "wrap"
   },
-  tag: {
-  },
-  addTag: {
-    textAlign: "right",
-    marginTop: 8,
-    marginBottom: 8,
-    marginRight: 16
-  }
 });
 
 
@@ -79,7 +73,6 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   
   // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
-    {loadingSuggestedTags && <Loading/>}
     <FilterMode
       label="Personal Blogposts"
       helpTooltip={personalBlogpostTooltip}
@@ -122,8 +115,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       />
     )}
       
-    {<span className={classes.addTag}>
-      <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+    {<AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
           setFilterSettings({
@@ -131,8 +123,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             tags: [...filterSettings.tags, newFilter]
           });
         }
-      }}/>
-    </span>}
+      }}/>}
+    {loadingSuggestedTags && <Loading/>}
   </div>
 }
 
