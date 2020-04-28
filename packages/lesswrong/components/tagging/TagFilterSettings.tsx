@@ -73,18 +73,6 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   
   // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
-    <FilterMode
-      label="Personal Blogposts"
-      helpTooltip={personalBlogpostTooltip}
-      mode={filterSettings.personalBlog}
-      canRemove={false}
-      onChangeMode={(mode: FilterMode) => {
-        setFilterSettings({
-          personalBlog: mode,
-          tags: filterSettings.tags,
-        });
-      }}
-    />
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
         label={tagSettings.tagName}
@@ -114,6 +102,26 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         }}
       />
     )}
+    <FilterMode
+      label="Personal Blog"
+      helpTooltip={personalBlogpostTooltip}
+      mode={filterSettings.personalBlog}
+      canRemove={false}
+      description={<div>
+        <p><b>Personal Blogposts</b> are posts that don't fit LessWrong's Frontpage Guidelines. They get less visibility by default. The frontpage guidelines are:</p>
+        <ul>
+          <li><em>Timelessness</em>. Will people still care about this in 5 years?</li>
+          <li><em>Avoid politics</em>. It's important to talk about sometimes, but we try to avoid it on LessWrong.</li>
+          <li><em>General Appeal</em>. Is this a niche post that only a small fraction of users will care about?</li>
+        </ul>
+      </div>}
+      onChangeMode={(mode: FilterMode) => {
+        setFilterSettings({
+          personalBlog: mode,
+          tags: filterSettings.tags,
+        });
+      }}
+    />
       
     {<AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {

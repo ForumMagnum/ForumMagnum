@@ -7,6 +7,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
+import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   tag: {
@@ -19,6 +20,11 @@ const styles = theme => ({
         display: "inline"
       }
     }
+  },
+  description: {
+    ...commentBodyStyles(theme),
+    padding: theme.spacing*2,
+    paddingtop: 20
   },
   filterScore: {
     color: 'rgba(0,0,0,0.7)',
@@ -62,7 +68,7 @@ const styles = theme => ({
   }
 });
 
-const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemove=false, onChangeMode, onRemove, helpTooltip, classes}: {
+const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemove=false, onChangeMode, onRemove, helpTooltip, classes, description}: {
   tagId?: string,
   label?: string,
   mode: FilterMode,
@@ -72,7 +78,8 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
   helpTooltip?: any,
   classes: ClassesType,
   hover?: boolean,
-  anchorEl?: any
+  anchorEl?: any,
+  description?: React.ReactNode
 }) => {
   const { LWTooltip, PopperCard, TagPreview } = Components
   
@@ -145,6 +152,9 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
           </LWTooltip>
           <Input placeholder="Other" type="number" defaultValue={mode || ""} onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}/>
         </div>
+        {description && <div className={classes.description}>
+          {description}
+        </div>}
       </div>
       <TagPreview tag={tag}/>
     </PopperCard>
