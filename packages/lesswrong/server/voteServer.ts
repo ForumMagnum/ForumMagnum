@@ -246,6 +246,14 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 }
 
 const getVotingRateLimits = async (user) => {
+  if (user?.isAdmin) {
+    // Very lax rate limiting for admins
+    return {
+      perDay: 100000,
+      perHour: 50000,
+      perUserPerDay: 50000
+    }
+  }
   return {
     perDay: 100,
     perHour: 30,
@@ -258,10 +266,6 @@ const getVotingRateLimits = async (user) => {
 const checkRateLimit = async ({ document, collection, voteType, user }):Promise<void> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
-    return;
-
-  // No rate limit for admins
-  if(user.isAdmin) 
     return;
   
   const rateLimits = await getVotingRateLimits(user);
