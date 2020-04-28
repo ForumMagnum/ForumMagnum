@@ -8,6 +8,8 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import { Link } from '../../lib/reactRouterWrapper';
+import { isMobile } from '../../lib/utils/isMobile'
 
 const styles = theme => ({
   tag: {
@@ -91,13 +93,21 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
     collection: Tags,
     fragmentName: "TagPreviewFragment",
   })
-  return <span>
-    <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}> 
-      {label}
-      <span className={classes.filterScore}>
-        {filterModeToStr(mode)}
-      </span>
+
+  const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}> 
+    {label}
+    <span className={classes.filterScore}>
+      {filterModeToStr(mode)}
     </span>
+  </span>
+
+  const otherValue = ["Hidden", -30,-10,0,10,30,"Required"].includes(mode) ? "" : (mode || "")
+  return <span>
+    {(tag && !isMobile()) ? <Link to={`tag/${tag.slug}`}>
+      {tagLabel}
+    </Link>
+    : tagLabel
+    }
     <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom" 
       modifiers={{
         flip: {
@@ -135,7 +145,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
           </LWTooltip>
           <LWTooltip title={filterModeToTooltip("Default")}>
             <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => onChangeMode(0)}>
-              Normal
+              +0
             </span>
           </LWTooltip>
           <LWTooltip title={filterModeToTooltip(10)}>
@@ -153,7 +163,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
               Required
             </span>
           </LWTooltip>
-          <Input placeholder="Other" type="number" defaultValue={mode || ""} onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}/>
+          <Input placeholder="Other" type="number" defaultValue={otherValue} onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}/>
         </div>
         {description && <div className={classes.description}>
           {description}
@@ -167,12 +177,12 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
 function filterModeToTooltip(mode: FilterMode): string {
   switch (mode) {
     case "Required":
-      return "ONLY posts with this attribute will appear in Latest Posts."
+      return "ONLY posts with this tag will appear in Latest Posts."
     case "Hidden":
-      return "Posts with this attribute will be not appear in Latest Posts."
+      return "Posts with this tag will be not appear in Latest Posts."
     case 0:
     case "Default":
-      return "This attribute will be ignored for filtering and sorting."
+      return "This tag will be ignored for filtering and sorting."
     default:
       if (mode<0)
         return `These posts will be shown less often (as though their score were ${-mode} points lower).`

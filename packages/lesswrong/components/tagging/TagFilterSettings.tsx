@@ -110,9 +110,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       description={<div>
         <p><b>Personal Blogposts</b> are posts that don't fit LessWrong's Frontpage Guidelines. They get less visibility by default. The frontpage guidelines are:</p>
         <ul>
-          <li><em>Timelessness</em>. Will people still care about this in 5 years?</li>
+          <li><em>Timelessness</em>. Will people still care about this in 5 years?</li>
           <li><em>Avoid politics</em>. It's important to talk about sometimes, but we try to avoid it on LessWrong.</li>
-          <li><em>General Appeal</em>. Is this a niche post that only a small fraction of users will care about?</li>
+          <li><em>General Appeal</em>. Is this a niche post that only a small fraction of users will care about?</li>
         </ul>
       </div>}
       onChangeMode={(mode: FilterMode) => {
