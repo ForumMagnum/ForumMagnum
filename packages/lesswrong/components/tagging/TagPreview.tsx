@@ -4,8 +4,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { truncate } from '../../lib/editor/ellipsize';
-import { useVote } from '../votes/withVote';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   card: {
