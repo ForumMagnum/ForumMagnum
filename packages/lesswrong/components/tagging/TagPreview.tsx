@@ -28,10 +28,6 @@ const styles = theme => ({
     marginRight: 8,
     color: theme.palette.grey[600]
   },
-  voteButton: {
-    display: "inline-block",
-    fontSize: 25,
-  },
   score: {
     marginLeft: 4,
     marginRight: 4,
@@ -44,7 +40,7 @@ const TagPreview = ({tag, classes}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
-  const { ContentItemBody, PostsItem2, PostsListPlaceholder, VoteButton } = Components;
+  const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
     terms: {
