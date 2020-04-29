@@ -7,19 +7,12 @@ import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
-    maxWidth: 600,
     marginLeft: "auto",
     marginBottom: 16,
     ...theme.typography.commentStyle,
+    display: "flex",
+    flexWrap: "wrap"
   },
-  tag: {
-  },
-  addTag: {
-    textAlign: "right",
-    marginTop: 8,
-    marginBottom: 8,
-    marginRight: 16
-  }
 });
 
 
@@ -80,23 +73,11 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   
   // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
-    <FilterMode
-      description="Personal Blog Posts"
-      helpTooltip={personalBlogpostTooltip}
-      mode={filterSettings.personalBlog}
-      canRemove={false}
-      onChangeMode={(mode: FilterMode) => {
-        setFilterSettings({
-          personalBlog: mode,
-          tags: filterSettings.tags,
-        });
-      }}
-    />
-
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
-        description={tagSettings.tagName}
+        label={tagSettings.tagName}
         key={tagSettings.tagId}
+        tagId={tagSettings.tagId}
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
@@ -121,11 +102,28 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         }}
       />
     )}
-    
-    {loadingSuggestedTags && <Loading/>}
-    
-    {<div className={classes.addTag}>
-      <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+    <FilterMode
+      label="Personal Blog"
+      helpTooltip={personalBlogpostTooltip}
+      mode={filterSettings.personalBlog}
+      canRemove={false}
+      description={<div>
+        <p><b>Personal Blogposts</b> are posts that don't fit LessWrong's Frontpage Guidelines. They get less visibility by default. The frontpage guidelines are:</p>
+        <ul>
+          <li><em>Timelessness</em>. Will people still care about this in 5 years?</li>
+          <li><em>Avoid political topics</em>. They're important to discuss sometimes, but we try to avoid it on LessWrong.</li>
+          <li><em>General Appeal</em>. Is this a niche post that only a small fraction of users will care about?</li>
+        </ul>
+      </div>}
+      onChangeMode={(mode: FilterMode) => {
+        setFilterSettings({
+          personalBlog: mode,
+          tags: filterSettings.tags,
+        });
+      }}
+    />
+      
+    {<AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
           setFilterSettings({
@@ -133,8 +131,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             tags: [...filterSettings.tags, newFilter]
           });
         }
-      }}/>
-    </div>}
+      }}/>}
+    {loadingSuggestedTags && <Loading/>}
   </div>
 }
 
