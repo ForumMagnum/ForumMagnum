@@ -7,44 +7,23 @@ import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
-    maxWidth: 600,
     marginLeft: "auto",
     marginBottom: 16,
     ...theme.typography.commentStyle,
+    display: "flex",
+    flexWrap: "wrap"
   },
-  tag: {
-  },
-  addTag: {
-    textAlign: "right",
-    marginTop: 8,
-    marginBottom: 8,
-    marginRight: 16
-  }
 });
 
 const lwafPersonalBlogpostInfo = {
-  name: "Personal Blog Posts",
+  name: "Personal Blog",
   tooltip: <div>
-    <div>
-      By default, the home page only displays Frontpage Posts, which meet criteria including:
-    </div>
+    <p><b>Personal Blogposts</b> are posts that don't fit LessWrong's Frontpage Guidelines. They get less visibility by default. The frontpage guidelines are:</p>
     <ul>
-      <li>Usefulness, novelty and relevance</li>
-      <li>Timeless content (minimize reference to current events)</li>
-      <li>Explain, rather than persuade</li>
+      <li><em>Timelessness</em>. Will people still care about this in 5 years?</li>
+      <li><em>Avoid political topics</em>. They're important to discuss sometimes, but we try to avoid it on LessWrong.</li>
+      <li><em>General Appeal</em>. Is this a niche post that only a small fraction of users will care about?</li>
     </ul>
-    <div>
-      Members can write about whatever they want on their personal blog. Personal blogposts are a good fit for:
-    </div>
-    <ul>
-      <li>Niche topics, less relevant to most members</li>
-      <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
-      <li>Topics that are difficult to discuss rationally</li>
-      <li>Personal ramblings</li>
-    </ul>
-    <div>
-      All posts are submitted as personal blogposts. Moderators manually move some to frontpage
-    </div>
   </div>
 }
 
@@ -100,23 +79,11 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   }
   
   return <div className={classes.root}>
-    <FilterMode
-      description={personalBlogpostName}
-      helpTooltip={personalBlogpostTooltip}
-      mode={filterSettings.personalBlog}
-      canRemove={false}
-      onChangeMode={(mode: FilterMode) => {
-        setFilterSettings({
-          personalBlog: mode,
-          tags: filterSettings.tags,
-        });
-      }}
-    />
-
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
-        description={tagSettings.tagName}
+        label={tagSettings.tagName}
         key={tagSettings.tagId}
+        tagId={tagSettings.tagId}
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
@@ -142,10 +109,20 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       />
     )}
     
-    {loadingSuggestedTags && <Loading/>}
-    
-    {<div className={classes.addTag}>
-      <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+    <FilterMode
+      description={personalBlogpostName}
+      helpTooltip={personalBlogpostTooltip}
+      mode={filterSettings.personalBlog}
+      canRemove={false}
+      onChangeMode={(mode: FilterMode) => {
+        setFilterSettings({
+          personalBlog: mode,
+          tags: filterSettings.tags,
+        });
+      }}
+    />
+
+    {<AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
           setFilterSettings({
@@ -153,8 +130,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             tags: [...filterSettings.tags, newFilter]
           });
         }
-      }}/>
-    </div>}
+      }}/>}
+    {loadingSuggestedTags && <Loading/>}
   </div>
 }
 
