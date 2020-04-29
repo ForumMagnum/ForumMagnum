@@ -110,8 +110,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     )}
     
     <FilterMode
-      description={personalBlogpostName}
-      helpTooltip={personalBlogpostTooltip}
+      label={personalBlogpostName}
+      description={personalBlogpostTooltip}
       mode={filterSettings.personalBlog}
       canRemove={false}
       onChangeMode={(mode: FilterMode) => {

@@ -73,14 +73,13 @@ const styles = theme => ({
   }
 });
 
-const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemove=false, onChangeMode, onRemove, helpTooltip, classes, description}: {
+const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemove=false, onChangeMode, onRemove, classes, description}: {
   tagId?: string,
   label?: string,
   mode: FilterMode,
   canRemove?: boolean,
   onChangeMode: (mode: FilterMode)=>void,
   onRemove?: ()=>void,
-  helpTooltip?: any,
   classes: ClassesType,
   hover?: boolean,
   anchorEl?: any,
