@@ -147,29 +147,60 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
-const lwafGetFrontpageFilter = (filterSettings: FilterSettings): any => {
+const lwafGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
   if (filterSettings.personalBlog === "Hidden") {
-    return {frontpageDate: {$gt: new Date(0)}}
+    return {
+      filter: {frontpageDate: {$gt: new Date(0)}},
+      softFilter: []
+    }
+  } else if (filterSettings.personalBlog === "Required") {
+    return {
+      filter: {frontpageDate: viewFieldNullOrMissing},
+      softFilter: []
+    }
+  } else {
+    return {
+      filter: {},
+      softFilter: [
+        {$cond: {
+          if: "$frontpageDate",
+          then: 0,
+          else: filterModeToKarmaModifier(filterSettings.personalBlog)
+        }},
+      ]
+    }
   }
-  if (filterSettings.personalBlog === "Required") {
-    return {meta: true}
-  }
-  return {}
 }
 
 // In ea-land, personal blog does not mean personal blog, it means community
-const eaGetFrontpageFilter = (filterSettings: FilterSettings): any => {
+const eaGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
   if (filterSettings.personalBlog === "Hidden") {
-    return {frontpageDate: {$gt: new Date(0)}, meta: {$ne: true}}
-  }
-  if (filterSettings.personalBlog === "Required") {
-    return {frontpageDate: viewFieldNullOrMissing, meta: true}
-  }
-  return {
-    $or: [
-      {frontpageDate: {$gt: new Date(0)}},
-      {meta: true}
-    ]
+    return {
+      filter: {frontpageDate: {$gt: new Date(0)}, meta: {$ne: true}},
+      softFilter: []
+    }
+  } else if (filterSettings.personalBlog === "Required") {
+    return {
+      filter: {frontpageDate: viewFieldNullOrMissing, meta: true},
+      softFilter: []
+    }
+  } else {
+    return {
+      filter: {
+        $or: [
+          {frontpageDate: {$gt: new Date(0)}},
+          {meta: true}
+        ]
+      },
+      // This is the same as the lwaf frontpageSoftFilter
+      softFilter: [
+        {$cond: {
+          if: "$frontpageDate",
+          then: 0,
+          else: filterModeToKarmaModifier(filterSettings.personalBlog)
+        }},
+      ],
+    }
   }
 }
 
@@ -177,23 +208,14 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
-  // if (getSetting('forumType') as string === 'EAForum') {
-  //   frontpageFilter = eaGetFrontpageFilter(filterSettings)
-  // } else {
-  //   frontpageFilter = lwafGetFrontpageFilter(filterSettings)
-  
-  let frontpageFilter: any;
-  let frontpageSoftFilter: Array<any> = [];
-  if (filterSettings.personalBlog === "Hidden") {
-    frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
-  } else if (filterSettings.personalBlog === "Required") {
-    frontpageFilter = {frontpageDate: viewFieldNullOrMissing}
+  let frontpageFiltering: any;
+  if (getSetting('forumType') as string === 'EAForum') {
+    frontpageFiltering = eaGetFrontpageFilter(filterSettings)
   } else {
-    frontpageFilter = {};
-    frontpageSoftFilter = [
-      {$cond: {if: "$frontpageDate", then: 0, else: filterModeToKarmaModifier(filterSettings.personalBlog)}},
-    ];
+    frontpageFiltering = lwafGetFrontpageFilter(filterSettings)
   }
+  
+  const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
   
   let tagsFilter = {};
   for (let tag of tagsRequired) {

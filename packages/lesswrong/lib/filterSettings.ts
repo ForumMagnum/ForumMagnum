@@ -34,7 +34,7 @@ const personalBlogpostFilterSummaries: {[forumType: string]: FilterSummary} = {
   AlignmentForum: lwafPersonalBlogpostFilterSummary,
   EAForum: {
     Hidden: "No Community Posts",
-    Default: "All",
+    Default: "Include Community Posts",
     Required: "Community Posts Only",
   }
 }
