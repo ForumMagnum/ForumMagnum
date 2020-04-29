@@ -214,23 +214,13 @@ interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAu
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay,
-  readonly revisions: Array<PostsRevision_revisions>,
-}
-
-interface PostsRevision_revisions { // fragment on Revisions
-  readonly version: string,
-  readonly editedAt: Date,
+  readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionEdit,
-  readonly revisions: Array<PostsRevisionEdit_revisions>,
-}
-
-interface PostsRevisionEdit_revisions { // fragment on Revisions
-  readonly version: string,
-  readonly editedAt: Date,
+  readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
@@ -301,12 +291,7 @@ interface PostsRevisionsList { // fragment on Posts
 }
 
 interface PostsDetailsAndRevisionsList extends PostsDetails { // fragment on Posts
-  readonly revisions: Array<PostsDetailsAndRevisionsList_revisions>,
-}
-
-interface PostsDetailsAndRevisionsList_revisions { // fragment on Revisions
-  readonly version: string,
-  readonly editedAt: Date,
+  readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
@@ -399,6 +384,8 @@ interface CommentEdit extends CommentsList { // fragment on Comments
 interface RevisionMetadata { // fragment on Revisions
   readonly version: string,
   readonly editedAt: Date,
+  readonly commitMessage: string,
+  readonly userId: string,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -1479,6 +1466,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly editedAt: Date,
   readonly updateType: string,
   readonly version: string,
+  readonly commitMessage: string,
   readonly userId: string,
   readonly originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly html: string,

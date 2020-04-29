@@ -152,6 +152,7 @@ interface EditorFormComponentState {
   ckEditorLoaded: any,
   updateType: string,
   version: string,
+  commitMessage: string,
   ckEditorReference: any,
   loading: boolean,
   draftJSValue: any,

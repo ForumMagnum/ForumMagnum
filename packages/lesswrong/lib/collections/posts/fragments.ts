@@ -233,8 +233,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -249,8 +248,7 @@ registerFragment(`
       ...RevisionEdit
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -352,8 +350,7 @@ registerFragment(`
   fragment PostsDetailsAndRevisionsList on Post {
     ...PostsDetails
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)

@@ -13,7 +13,7 @@ const styles = theme => ({
 const PostsRevisionSelect = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, FormatDate, RevisionSelect, Loading } = Components;
+  const { SingleColumnSection, FormatDate, RevisionSelect, UsersName, Loading } = Components;
   const { params } = useLocation();
   const { history } = useNavigation();
   const postId = params._id;
@@ -40,7 +40,9 @@ const PostsRevisionSelect = ({ classes }: {
         describeRevision={(rev: RevisionMetadata) => (
           <Link to={`${Posts.getPageUrl(post)}?revision=${rev.version}`}>
             {rev.version}{" "}
-            <FormatDate format={"LLL z"} date={rev.editedAt}/>
+            <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
+            <UsersName documentId={rev.userId}/>{" "}
+            {rev.commitMessage}
           </Link>
         )}
         onPairSelected={compareRevs}

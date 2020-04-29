@@ -13,7 +13,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const { params } = useLocation();
   const { slug } = params;
   const { history } = useNavigation();
-  const { SingleColumnSection, Loading, RevisionSelect, FormatDate } = Components;
+  const { SingleColumnSection, Loading, RevisionSelect, UsersName, FormatDate } = Components;
   
   const { tag, loading } = useTagBySlug(slug, "TagRevisionsList");
   
@@ -29,7 +29,9 @@ const TagPageRevisionSelect = ({ classes }: {
       describeRevision={(rev: RevisionMetadata) => (
         <Link to={`/tag/${tag.slug}?revision=${rev.version}`}>
           {rev.version}{" "}
-          <FormatDate format={"LLL z"} date={rev.editedAt}/>
+          <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
+            <UsersName documentId={rev.userId}/>{" "}
+          {rev.commitMessage}
         </Link>
       )}
       onPairSelected={compareRevs}

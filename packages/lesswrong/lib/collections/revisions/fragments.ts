@@ -5,5 +5,6 @@ registerFragment(`
     version
     editedAt
     commitMessage
+    userId
   }
 `);
