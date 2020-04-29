@@ -9,6 +9,7 @@ import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
+import * as _ from 'underscore';
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 
 import markdownIt from 'markdown-it'
@@ -246,8 +247,12 @@ function getInitialVersion(document) {
   }
 }
 
+async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision> {
+  return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}}) || {}
+}
+
 async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
-  const lastRevision = await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}}) || {}
+  const lastRevision = await getLatestRev(documentId, fieldName);
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision.version)
   switch (updateType) {
     case "patch":
@@ -275,6 +280,26 @@ async function buildRevision({ originalContents, currentUser }) {
     editedAt: new Date(),
     userId: currentUser._id,
   };
+}
+
+// Given a revised document, check whether fieldName (a content-editor field) is
+// different from the previous revision (or there is no previous revision).
+const revisionIsChange = async (doc, fieldName) => {
+  const id = doc._id;
+  const previousVersion = await getLatestRev(id, fieldName);
+  
+  if (!previousVersion)
+    return true;
+  
+  if (!_.isEqual(doc[fieldName].originalContents, previousVersion.originalContents)) {
+    return true;
+  }
+  
+  if (doc[fieldName].commitMessage && doc[fieldName].commitMessage.length>0) {
+    return true;
+  }
+  
+  return true; //DEBUG
 }
 
 export function addEditableCallbacks({collection, options = {}}: {
@@ -343,7 +368,7 @@ export function addEditableCallbacks({collection, options = {}}: {
   }
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
-    if (docData[fieldName]?.originalContents) {
+    if (docData[fieldName]?.originalContents && await revisionIsChange(newDocument, fieldName)) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
