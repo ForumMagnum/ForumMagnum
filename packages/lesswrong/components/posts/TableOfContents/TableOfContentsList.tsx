@@ -11,7 +11,7 @@ interface TableOfContentsListProps {
   document?: PostsBase,
   onClickSection?: any,
   drawerStyle: boolean,
-  history: any
+  history?: any
 }
 interface TableOfContentsListState {
   currentSection: any,
