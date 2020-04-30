@@ -157,7 +157,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         height="100%"
         mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => setViewport(viewport)}
-        mapboxApiAccessToken={mapboxAPIKeySetting.get()}
+        mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >
         {renderedMarkers}
       </ReactMapGL>

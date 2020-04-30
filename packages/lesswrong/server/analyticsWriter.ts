@@ -48,14 +48,15 @@ let analyticsConnectionPool = null;
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
 const getAnalyticsConnection = (): Pool|null => {
+  const connectionString = connectionStringSetting.get()
   // We make sure that the settingsCache is initialized before we access the connection strings
-  if (!connectionStringSetting.get()) {
+  if (!connectionString) {
     //eslint-disable-next-line no-console
     console.log("Analytics logging disabled: analytics.connectionString is not configured");
     return null;
   } 
   if (!analyticsConnectionPool)
-    analyticsConnectionPool = new Pool({ connectionString: connectionStringSetting.get() });
+    analyticsConnectionPool = new Pool({ connectionString });
   return analyticsConnectionPool;
 }
 
