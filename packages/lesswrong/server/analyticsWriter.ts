@@ -43,7 +43,7 @@ addGraphQLResolvers({
 });
 addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
 
-let analyticsConnectionPool = null;
+let analyticsConnectionPool:Pool|null = null;
 // Return the Analytics database connection pool, if configured. If no
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
