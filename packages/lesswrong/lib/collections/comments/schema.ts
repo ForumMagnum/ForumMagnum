@@ -277,9 +277,12 @@ const schema = {
     type: Date,
     optional: true,
     canRead: ['guests'],
-    onUpdate: async ({data, oldDocument}) => {
+    onUpdate: async ({data, document, oldDocument}) => {
       if (data?.promoted && !oldDocument.promoted) {
         return new Date()
+      }
+      if (!document.promoted && oldDocument.promoted) {
+        return null
       }
     }
   },
