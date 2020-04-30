@@ -110,7 +110,7 @@ function addEmailBoilerplate({ css, title, body })
 //     limited and inconsistent subset is supported by mail clients
 //
 
-const defaultEmailSetting = new DatabaseServerSetting<string | null>('defaultEmail', null)
+const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 export async function generateEmail({user, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate})
 {
   if (!user) throw new Error("Missing required argument: user");
