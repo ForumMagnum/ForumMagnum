@@ -221,6 +221,12 @@ addRoute([
     path: '/tagVoting',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
+  },
+  {
+    name: 'search',
+    path: '/search',
+    componentName: 'SearchPage',
+    title: 'LW Search'
   }
 ]);
 
