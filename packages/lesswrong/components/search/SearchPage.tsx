@@ -109,6 +109,7 @@ const SearchPage = ({classes}:{
         <SearchIcon className={classes.searchIcon}/>
         <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
       </div>
+      <CurrentRefinements />
       <div className={classes.columns}>
       <Components.ErrorBoundary>
           <div className={classes.searchList}>
