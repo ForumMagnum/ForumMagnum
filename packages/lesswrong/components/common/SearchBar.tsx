@@ -5,9 +5,10 @@ import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
-import { withLocation } from '../../lib/routeUtil';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import qs from 'qs'
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -92,14 +93,14 @@ const styles = theme => ({
     "& .ais-SearchBox-input::placeholder": {
       color: "rgba(255,255,255, 0.5)",
     },
-  },
+  },  
 })
 
 interface ExternalProps {
   onSetIsActive: (active: boolean)=>void,
   searchResultsArea: any,
 }
-interface SearchBarProps extends ExternalProps, WithStylesProps, WithLocationProps {
+interface SearchBarProps extends ExternalProps, WithStylesProps, WithLocationProps, WithNavigationProps {
 }
 
 interface SearchBarState {
@@ -120,6 +121,11 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     }
   }
 
+  handleSubmit = (event) => {
+    const { history } = this.props
+      history.push({pathname: "/search", search: `?${qs.stringify({terms:event.target.querySelector('input').value})}`});
+  }
+  
   componentDidMount() {
     let _this = this;
     this.routerUpdateCallback = function closeSearchOnNavigate() {
@@ -196,7 +202,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             <div onClick={this.handleSearchTap}>
               <SearchIcon className={classes.searchIcon}/>
-              { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
+              { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} onSubmit={this.handleSubmit} /> }
             </div>
             { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
               <CloseIcon className={classes.closeSearchIcon}/>
@@ -215,7 +221,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
 
 const SearchBarComponent = registerComponent<ExternalProps>("SearchBar", SearchBar, {
   styles,
-  hocs: [withLocation, withErrorBoundary],
+  hocs: [withLocation, withErrorBoundary, withNavigation],
 });
 
 declare global {

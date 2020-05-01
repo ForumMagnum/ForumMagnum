@@ -4,6 +4,7 @@ import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements } 
 import Typography from '@material-ui/core/Typography';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import SearchIcon from '@material-ui/icons/Search';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = theme => ({
   root: {
@@ -40,13 +41,17 @@ const styles = theme => ({
     display: "flex",
     alignItems: "center",
     margin: "auto",
+    width: 925,
+    marginLeft: "auto",
+    marginRight: "auto",
     marginTop: 24,
     marginBottom: 40,
-    marginLeft: 12,
-    marginRight: 12,
     height: 48,
     border: "solid 1px rgba(0,0,0,.3)",
     borderRadius: 3,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%"
+    },
     "& .ais-SearchBox": {
       display: 'inline-block',
       position: 'relative',
@@ -76,15 +81,6 @@ const styles = theme => ({
       fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
-      borderRadius:5,
-
-      [theme.breakpoints.down('xs')]: {
-        backgroundColor: "#eee",
-        zIndex: theme.zIndexes.searchBar,
-        width:110,
-        height:36,
-        paddingLeft:10
-      },
     },
   }
 })
@@ -94,6 +90,8 @@ const SearchPage = ({classes}:{
 }) => {
 
   const { ErrorBoundary, SearchPagination, UsersSearchHit, PostsSearchHit, CommentsSearchHit } = Components
+
+  const {query} = useLocation()
 
   if(!isAlgoliaEnabled) {
     return <div className={classes.root}>
@@ -109,7 +107,7 @@ const SearchPage = ({classes}:{
     >
       <div className={classes.searchInputArea}>
         <SearchIcon className={classes.searchIcon}/>
-        <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />
+        <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
       </div>
       <div className={classes.columns}>
       <Components.ErrorBoundary>
