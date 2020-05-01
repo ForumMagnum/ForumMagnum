@@ -182,6 +182,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
 
     const { searchResultsArea, classes } = this.props
     const { searchOpen, inputOpen } = this.state
+    const { SearchBarResults } = Components
 
     if(!isAlgoliaEnabled) {
       return <div>Search is disabled (Algolia App ID not configured on server)</div>
@@ -209,7 +210,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             </div>}
             <div>
               { searchOpen && <Portal container={searchResultsArea.current}>
-                  <Components.SearchBarResults closeSearch={this.closeSearch} />
+                  <SearchBarResults closeSearch={this.closeSearch} />
                 </Portal> }
             </div>
           </div>

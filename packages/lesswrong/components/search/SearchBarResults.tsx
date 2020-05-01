@@ -95,9 +95,6 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
             <Index indexName={algoliaIndexNames.Users}>
               <div className={classes.header}>
                 <Typography variant="body1">Users</Typography>
-                <Link to={"/search"} className={classes.seeAll}>
-                  See all results
-                </Link>
               </div>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />
