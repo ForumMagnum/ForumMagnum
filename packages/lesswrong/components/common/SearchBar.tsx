@@ -124,7 +124,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   handleSubmit = (event) => {
     const { history } = this.props
     const terms = event.target.querySelector('input').value
-    history.push({pathname: "/search", search: `?${qs.stringify({terms})}`});
+    history.push({pathname: `/search`, search: `?${qs.stringify({terms})}`});
   }
   
   componentDidMount() {
@@ -182,7 +182,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     const alignmentForum = getSetting<string>('forumType') === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
-    const { searchOpen, inputOpen } = this.state
+    const { searchOpen, inputOpen, currentQuery } = this.state
     const { SearchBarResults } = Components
 
     if(!isAlgoliaEnabled) {
@@ -211,7 +211,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             </div>}
             <div>
               { searchOpen && <Portal container={searchResultsArea.current}>
-                  <SearchBarResults closeSearch={this.closeSearch} />
+                  <SearchBarResults closeSearch={this.closeSearch} currentQuery={currentQuery} />
                 </Portal> }
             </div>
           </div>

@@ -77,7 +77,8 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  closeSearch: any
+  closeSearch: any,
+  currentQuery: string
 }
 interface SearchBarResultsProps extends ExternalProps, WithStylesProps{
 }
@@ -85,7 +86,7 @@ interface SearchBarResultsProps extends ExternalProps, WithStylesProps{
 class SearchBarResults extends Component<SearchBarResultsProps> {
 
   render() {
-    const { classes, closeSearch } = this.props
+    const { classes, closeSearch, currentQuery } = this.props
 
     return <div className={classes.root}>
       <div className={classes.searchResults}>
@@ -95,6 +96,9 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
             <Index indexName={algoliaIndexNames.Users}>
               <div className={classes.header}>
                 <Typography variant="body1">Users</Typography>
+                <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
+                  See all results
+                </Link>
               </div>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />
