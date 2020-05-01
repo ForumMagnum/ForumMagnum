@@ -181,7 +181,7 @@ Posts.getLastCommentedAt = (post) => {
 }
 
 Posts.getLastCommentPromotedAt = (post) => {
-  if (getSetting('forumType') === 'AlignmentForum') return ""
+  if (getSetting('forumType') === 'AlignmentForum') return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt;
 }
