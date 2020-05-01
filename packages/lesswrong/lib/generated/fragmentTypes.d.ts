@@ -368,6 +368,7 @@ interface CommentsList { // fragment on Comments
   readonly reviewingForReview: string,
   readonly promoted: boolean,
   readonly promotedByUserId: string,
+  readonly promotedByUser: UsersMinimumInfo,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -546,7 +547,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly authorIsUnreviewed: boolean,
   readonly answer: boolean,
   readonly parentAnswerId: string,
-  readonly chosenAnswer: boolean,
   readonly shortform: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
@@ -554,6 +554,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postVersion: string,
   readonly promoted: boolean,
   readonly promotedByUserId: string,
+  readonly promotedAt: Date,
   readonly hideKarma: boolean,
 }
 

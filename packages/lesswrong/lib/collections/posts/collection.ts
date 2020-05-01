@@ -51,6 +51,7 @@ interface ExtendedPostsCollection extends PostsCollection {
   getCommentCount: (post: PostsBase|DbPost) => number
   getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
   getLastCommentedAt: any
+  getLastCommentPromotedAt: any
   canEdit: any
   canDelete: any
   getKarma: any
