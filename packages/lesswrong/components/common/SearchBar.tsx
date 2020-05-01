@@ -123,7 +123,8 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
 
   handleSubmit = (event) => {
     const { history } = this.props
-      history.push({pathname: "/search", search: `?${qs.stringify({terms:event.target.querySelector('input').value})}`});
+    const terms = event.target.querySelector('input').value
+    history.push({pathname: "/search", search: `?${qs.stringify({terms})}`});
   }
   
   componentDidMount() {
