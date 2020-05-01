@@ -51,7 +51,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
     {<UsersName user={post.user} simple={simple} />}
     {post.coauthors.map(coauthor =>
-      <React.Fragment key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></React.Fragment>)}
+      <span key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></span>)}
     {renderBestAnswerAuthor && <span className={classNames(classes.bestAnswerAuthor, {[classes.new]: newPromotedComments})}>
       , <ModeCommentIcon className={classNames(classes.bestAuthorIcon, {[classes.new]: newPromotedComments})}/>
       <UsersName user={post.bestAnswer.user} simple={simple} />
