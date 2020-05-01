@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { Meteor } from 'meteor/meteor';
+import { withNavigation } from '../../../lib/routeUtil';
 
 const topSection = "top";
 
@@ -10,6 +11,7 @@ interface TableOfContentsListProps {
   document?: PostsBase,
   onClickSection?: any,
   drawerStyle: boolean,
+  history?: any
 }
 interface TableOfContentsListState {
   currentSection: any,
@@ -102,6 +104,8 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
 
     const anchorY = this.getAnchorY(anchor);
     if (anchorY !== null) {
+      const { history } = this.props
+      history.push(`#${anchor}`)
       let sectionYdocumentSpace = anchorY + window.scrollY;
       this.jumpToY(sectionYdocumentSpace, ev);
     }
@@ -173,7 +177,7 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
 
 const TableOfContentsListComponent = registerComponent(
   "TableOfContentsList", TableOfContentsList, {
-    hocs: [withErrorBoundary]
+    hocs: [withErrorBoundary, withNavigation]
   }
 );
 

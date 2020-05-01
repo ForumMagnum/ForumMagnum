@@ -52,6 +52,14 @@ const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  defaultOrder: {
+    type: Number,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(0),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",

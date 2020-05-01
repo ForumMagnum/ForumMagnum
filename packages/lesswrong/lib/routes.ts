@@ -510,13 +510,20 @@ switch (getSetting('forumType')) {
         _id: getSetting('aboutPostId'),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
       },
-      // {
-      //   name:'intro',
-      //   path:'/intro',
-      //   componentName: 'PostsSingleRoute',
-      //   _id: getSetting('introPostId'),
-      //   getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
-      // },
+      {
+        name: 'intro',
+        path: '/intro',
+        componentName: 'PostsSingleRoute',
+        _id: getSetting('introPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
+      },
+      {
+        name: 'contact',
+        path:'/contact',
+        componentName: 'PostsSingleRoute',
+        _id: getSetting('contactPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('contactPostId')),
+      },
       {
         name: 'Community',
         path: '/meta',
