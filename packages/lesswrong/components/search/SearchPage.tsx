@@ -103,7 +103,6 @@ const SearchPage = ({classes}:{
     <InstantSearch
       indexName={algoliaIndexNames.Posts}
       searchClient={getSearchClient()}
-      onSearchStateChange={this.queryStateControl}
     >
       <div className={classes.searchInputArea}>
         <SearchIcon className={classes.searchIcon}/>
