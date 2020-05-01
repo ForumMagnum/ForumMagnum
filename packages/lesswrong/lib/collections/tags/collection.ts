@@ -1,6 +1,6 @@
 import { createCollection, Utils } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
+import { denormalizedCountOfReferences, foreignKeyField } from '../../utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import Users from '../users/collection';
@@ -62,6 +62,23 @@ const schema = {
       //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
     }),
     viewableBy: ['guests'],
+  },
+  createdAt: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: () => new Date(),
+  },
+  createdBy: {
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User"
+    }),
+    onCreate: ({currentUser}) => currentUser._id,
+    viewableBy: ['guests'],
+    optional: true
   },
   adminOnly: {
     label: "Admin Only",
