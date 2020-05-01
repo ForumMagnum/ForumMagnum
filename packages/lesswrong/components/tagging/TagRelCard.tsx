@@ -5,15 +5,9 @@ import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = theme => ({
-  root: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    [theme.breakpoints.down('xs')]: {
-      width: "95vw",
-    },
-    [theme.breakpoints.up('sm')]: {
-      width: 600,
-    },
+  relevance: {
+    marginTop: 12,
+    marginLeft: 16,
     ...theme.typography.commentStyle,
   },
   relevanceLabel: {
@@ -39,39 +33,39 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   const vote = useVote();
   const { VoteButton, TagPreview } = Components;
   
-  return <div className={classes.root}>
-    <span className={classes.relevanceLabel}>
-      Relevance
-    </span>
-    
-    <div className={classes.voteButton}>
-      <VoteButton
-        orientation="left"
-        color="error"
-        voteType="Downvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
+  return <div>
+    <div className={classes.relevance}>
+      <span className={classes.relevanceLabel}>
+        Relevance
+      </span>
+      
+      <div className={classes.voteButton}>
+        <VoteButton
+          orientation="left"
+          color="error"
+          voteType="Downvote"
+          document={tagRel}
+          currentUser={currentUser}
+          collection={TagRels}
+          vote={vote}
+        />
+      </div>
+      <span className={classes.score}>
+        {tagRel.baseScore}
+      </span>
+      <div className={classes.voteButton}>
+        <VoteButton
+          orientation="right"
+          color="secondary"
+          voteType="Upvote"
+          document={tagRel}
+          currentUser={currentUser}
+          collection={TagRels}
+          vote={vote}
+        />
+      </div>
     </div>
-    <span className={classes.score}>
-      {tagRel.baseScore}
-    </span>
-    <div className={classes.voteButton}>
-      <VoteButton
-        orientation="right"
-        color="secondary"
-        voteType="Upvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
-    </div>
-    
     <TagPreview tag={tagRel.tag}/>
-    
   </div>
 }
 
