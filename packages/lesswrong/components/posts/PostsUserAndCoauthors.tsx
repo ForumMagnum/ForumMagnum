@@ -47,7 +47,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
     return <UserNameDeleted/>;
   
   const bestAnswerAuthor = post.bestAnswer?.user
-  const renderBestAnswerAuthor = (forumTypeSetting.get() && bestAnswerAuthor && bestAnswerAuthor._id != post.user._id
+  const renderBestAnswerAuthor = (forumTypeSetting.get() && bestAnswerAuthor && bestAnswerAuthor._id != post.user._id)
   
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
     {<UsersName user={post.user} simple={simple} />}
