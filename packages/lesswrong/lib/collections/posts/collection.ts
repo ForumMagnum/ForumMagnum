@@ -49,6 +49,7 @@ interface ExtendedPostsCollection extends PostsCollection {
   getCommentCount: (post: PostsBase|DbPost) => number
   getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
   getLastCommentedAt: (post: PostsBase|DbPost) => Date
+  getLastCommentPromotedAt: (post: PostsBase|DbPost) => Date | null
   canEdit: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   canDelete: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   getKarma: (post: PostsBase|DbPost) => number

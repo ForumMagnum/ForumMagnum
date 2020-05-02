@@ -34,7 +34,7 @@ const PostsItemMeta = ({post, read, classes}: {
   const { MetaInfo, FormatDate, PostsStats, PostsUserAndCoauthors, LWTooltip } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
-      <MetaInfo>
+      {!post.shortform && <MetaInfo>
         <LWTooltip title={<div>
           This post has { baseScore || 0 } karma<br/>
           ({ post.voteCount} votes)
@@ -43,7 +43,7 @@ const PostsItemMeta = ({post, read, classes}: {
             { baseScore || 0 }
           </span>
         </LWTooltip>
-      </MetaInfo>
+      </MetaInfo>}
 
       { post.isEvent && <MetaInfo>
         {post.startTime

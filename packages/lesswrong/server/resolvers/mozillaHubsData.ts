@@ -24,11 +24,8 @@ const mozillaHubsUserIdSetting = new DatabaseServerSetting<string | null>('mozil
 async function getDataFromMozillaHubs() {
   const mozillaHubsAPIKey = mozillaHubsAPIKeySetting.get()
   const mozillaHubsUserId = mozillaHubsUserIdSetting.get()
-  if (!mozillaHubsAPIKey || !mozillaHubsUserId) {
-    // eslint-disable-next-line no-console
-    console.log("Trying to get Mozilla Hubs data but lacking a mozilla hubs API key or user Id. Add those to your DatabaseMetadata collection to get mozilla hubs metadata.")
-    return null
-  }
+  if (!mozillaHubsAPIKey || !mozillaHubsUserId) return null
+  
   var requestOptions: any = {
     method: 'GET',
     headers: {

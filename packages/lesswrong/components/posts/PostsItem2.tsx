@@ -36,8 +36,7 @@ export const styles = (theme) => ({
   postsItem: {
     display: "flex",
     position: "relative",
-    paddingTop: 10,
-    paddingBottom: 10,
+    height: 46,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -394,6 +393,12 @@ const PostsItem2 = ({
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
   }
 
+  const hasNewPromotedComments = () => {
+    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastCommentPromotedAt = Posts.getLastCommentPromotedAt(post)
+    return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
+  }
+
   const hadUnreadComments = () => {
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
@@ -462,6 +467,7 @@ const PostsItem2 = ({
                   </AnalyticsTracker>
                 </span>
 
+
                 {(resumeReading?.sequence || resumeReading?.collection) &&
                   <div className={classes.subtitle}>
                     {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
@@ -479,7 +485,7 @@ const PostsItem2 = ({
                 
 
                 { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
                 </PostsItem2MetaInfo>}
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
@@ -503,6 +509,7 @@ const PostsItem2 = ({
                     post={post}
                     onClick={toggleComments}
                     unreadComments={hasUnreadComments()}
+                    newPromotedComments={hasNewPromotedComments()}
                   />
                 </div>}
 

@@ -10,6 +10,8 @@ const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
+const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional") 
 
 function getPostPingbackById(parsedUrl, postId) {
   if (parsedUrl.hash) {
@@ -224,6 +226,12 @@ addRoute([
     path: '/tagVoting',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
+  },
+  {
+    name: 'search',
+    path: '/search',
+    componentName: 'SearchPage',
+    title: 'LW Search'
   }
 ]);
 
@@ -513,13 +521,20 @@ switch (forumTypeSetting.get()) {
         _id: aboutPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       },
-      // {
-      //   name:'intro',
-      //   path:'/intro',
-      //   componentName: 'PostsSingleRoute',
-      //   _id: getSetting('introPostId'),
-      //   getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
-      // },
+      {
+        name: 'intro',
+        path: '/intro',
+        componentName: 'PostsSingleRoute',
+        _id: introPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, introPostIdSetting.get()),
+      },
+      {
+        name: 'contact',
+        path:'/contact',
+        componentName: 'PostsSingleRoute',
+        _id: contactPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      },
       {
         name: 'Community',
         path: '/meta',

@@ -110,6 +110,9 @@ const styles = theme => ({
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
+  },
+  promoted: {
+    border: `solid 1px ${theme.palette.lwTertiary.main}`,
   }
 })
 
@@ -354,6 +357,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
         [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
         [classes.hoverPreview]: hoverPreview,
         [classes.moderatorHat]: comment.moderatorHat,
+        [classes.promoted]: comment.promoted
       }
     )
 
