@@ -69,9 +69,6 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     '& h1': {
       margin:0
-    },
-    '&:hover': {
-      opacity: .5,
     }
   },
 })

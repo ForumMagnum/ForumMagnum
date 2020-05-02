@@ -121,10 +121,11 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     }
   }
 
-  handleSubmit = (event) => {
+  handleSubmit = () => {
     const { history } = this.props
-    const terms = event.target.querySelector('input').value
-    history.push({pathname: `/search`, search: `?${qs.stringify({terms})}`});
+    const { currentQuery } = this.state
+    history.push({pathname: `/search`, search: `?${qs.stringify({terms: currentQuery})}`});
+    this.closeSearch()
   }
   
   componentDidMount() {
@@ -165,6 +166,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
 
   handleKeyDown = (event) => {
     if (event.key === 'Escape') this.closeSearch();
+    if (event.keyCode === 13) this.handleSubmit()
   }
 
   queryStateControl = (searchState) => {
@@ -204,7 +206,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             <div onClick={this.handleSearchTap}>
               <SearchIcon className={classes.searchIcon}/>
-              { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} onSubmit={this.handleSubmit} /> }
+              { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
             </div>
             { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
               <CloseIcon className={classes.closeSearchIcon}/>
