@@ -34,21 +34,22 @@ const styles = theme => ({
     marginLeft: 4,
   },
   filtering: {
-    marginLeft: 16,
-    marginTop: 16,
-    marginRight: 16,
+    paddingLeft: 16,
+    paddingTop: 16,
+    paddingRight: 16,
     width: 600,
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('xs')]: {
       width: "calc(100% - 32px)",
     }
   },
-  removeFilter: {
-    textAlign: "right",
+  filterRow: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  filterLabel: {
     ...theme.typography.commentStyle,
-    paddingTop: 6,
-    paddingBottom: 8,
-    paddingRight: 16,
+    color: theme.palette.grey[600]
   },
   filterButton: {
     marginTop: 8,
@@ -114,8 +115,16 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
       }}
     >
       <div className={classes.filtering}>
-        <div className={classes.filterLabel}>
-          Set Filter:
+        <div className={classes.filterRow}>
+          <div className={classes.filterLabel}>
+            Set Filter
+          </div>
+          {canRemove && 
+            <div className={classes.filterLabel} onClick={ev => {if (onRemove) onRemove()}}>
+              <LWTooltip title="This filter will no longer appear in Latest Posts. You can add it back later if you want.">
+                <a>Remove Filter</a>
+              </LWTooltip>
+            </div>}
         </div>
         <div>
           <LWTooltip title={filterModeToTooltip("Hidden")}>
@@ -160,12 +169,6 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
         </div>}
       </div>
       <TagPreview tag={tag}/>
-      {canRemove && 
-          <div className={classes.removeFilter} onClick={ev => {if (onRemove) onRemove()}}>
-            <LWTooltip title="This filter will no longer appear in Latest Posts. You can add it back later if you want.">
-              <a>Remove Filter</a>
-            </LWTooltip>
-          </div>}
     </PopperCard>
   </span>
 }
