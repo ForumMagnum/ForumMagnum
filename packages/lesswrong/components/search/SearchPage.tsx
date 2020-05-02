@@ -106,7 +106,7 @@ const SearchPage = ({classes}:{
     >
       <div className={classes.searchInputArea}>
         <SearchIcon className={classes.searchIcon}/>
-        <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
+        <SearchBox defaultRefinement={query.terms} reset={<span/>} focusShortcuts={[]} autoFocus={true} />
       </div>
       <CurrentRefinements />
       <div className={classes.columns}>
