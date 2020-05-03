@@ -7,7 +7,6 @@ Utilities
 import urlObject from 'url';
 import getSlug from 'speakingurl';
 import { getSetting, registerSetting } from './settings';
-import { getCollection } from './getCollection';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import * as _ from 'underscore';

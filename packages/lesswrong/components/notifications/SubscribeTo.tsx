@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, Utils, getCollectionName } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getCollectionName } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';

@@ -45,7 +45,7 @@ Users.createGroup = (groupName: string): void => {
  * @summary get a list of a user's groups
  * @param {Object} user
  */
-Users.getGroups = (user: UsersCurrent|DbUser|null): Array<string> => {
+Users.getGroups = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
   let userGroups: Array<string> = [];
 
   if (!user) { // guests user
@@ -70,7 +70,7 @@ Users.getGroups = (user: UsersCurrent|DbUser|null): Array<string> => {
  * @summary get a list of all the actions a user can perform
  * @param {Object} user
  */
-Users.getActions = (user: UsersCurrent|DbUser|null): Array<string> => {
+Users.getActions = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
   let userGroups = Users.getGroups(user);
   if (!userGroups.includes('guests')) {
     // always give everybody permission for guests actions, too
@@ -99,7 +99,7 @@ Users.isMemberOf = (user: UsersCurrent|DbUser|null, groupOrGroups: string|Array<
  * @param {Object} user
  * @param {String/Array} action or actions
  */
-Users.canDo = (user: UsersCurrent|DbUser|null, actionOrActions: string|Array<string>): boolean => {
+Users.canDo = (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>): boolean => {
   const authorizedActions = Users.getActions(user);
   const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
   return Users.isAdmin(user) || intersection(authorizedActions, actions).length > 0;
@@ -134,7 +134,7 @@ Users.owns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdTy
  * @summary Check if a user is an admin
  * @param {Object|string} userOrUserId - The user or their userId
  */
-Users.isAdmin = function (user: UsersCurrent|DbUser|null): boolean {
+Users.isAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {
   try {
     //LESSWRONG: This function no longer takes a userId, and instead just works if you provide the user object
     return !!user && !!user.isAdmin;

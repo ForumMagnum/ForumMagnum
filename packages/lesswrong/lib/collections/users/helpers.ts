@@ -63,7 +63,7 @@ const isPersonalBlogpost = (post: PostsBase|DbPost): boolean => {
   return !post.frontpageDate
 }
 
-Users.canModeratePost = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null): boolean => {
+Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null): boolean => {
   if (Users.canDo(user,"posts.moderate.all")) {
     return true
   }
@@ -109,9 +109,14 @@ Users.canCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost):
   )
 }
 
+const getUserFromPost = (post: PostsBase|DbPost): UsersMinimumInfo|DbUser => {
+  // @ts-ignore Hackily handling the dual cases of "a fragment with a post subfragment" and "a DbPost with a postId"
+  return post.user || Users.findOne(post.userId);
+}
+
 Users.userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost): boolean => {
   if (!post) return false;
-  const postAuthor = post.user || Users.findOne(post.userId)
+  const postAuthor = getUserFromPost(post);
   return !!(
     post.bannedUserIds?.includes(user._id) &&
     Users.owns(postAuthor, post)
@@ -119,8 +124,9 @@ Users.userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|
 }
 
 Users.userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsBase|DbPost): boolean => {
-  const postAuthor = post.user || Users.findOne(post.userId)
+  const postAuthor = getUserFromPost(post);
   return !!(
+    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
     Users.canDo(postAuthor, 'posts.moderate.own') &&
     Users.owns(postAuthor, post)
@@ -128,8 +134,9 @@ Users.userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsBase|DbP
 }
 
 Users.userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsBase|DbPost): boolean => {
-  const postAuthor = post.user || Users.findOne(post.userId)
+  const postAuthor = getUserFromPost(post);
   return !!(
+    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedPersonalUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
     Users.canDo(postAuthor, 'posts.moderate.own.personal') &&
     Users.owns(postAuthor, post)
@@ -170,7 +177,7 @@ Users.isAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|D
   return true
 }
 
-Users.blockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): string => {
+Users.blockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost): string => {
   if (!user) {
     return "Can't recognize user"
   }

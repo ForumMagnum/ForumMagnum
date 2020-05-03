@@ -224,7 +224,7 @@ export async function algoliaDeleteIds(algoliaIndex, ids)
 // Do algoliaIndex.getObjects as an async function rather than a
 // callback-accepting function. Returns a content object with a results field.
 // https://www.algolia.com/doc/api-reference/api-methods/get-objects/
-async function algoliaGetObjects(algoliaIndex, ids)
+async function algoliaGetObjects(algoliaIndex, ids): Promise<Array<any>>
 {
   return new Promise((resolve,reject) => {
     algoliaIndex.getObjects(ids, (err,content) => {
