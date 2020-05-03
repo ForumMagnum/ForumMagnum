@@ -102,7 +102,6 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsOpenSettings
     lastNotificationsCheck
-    groups
     bannedUserIds
     bannedPersonalUserIds
     moderationStyle
@@ -391,6 +390,7 @@ registerFragment(`
     afKarma
     deleted
     groups
+    isAdmin
     htmlBio
     postCount
     commentCount

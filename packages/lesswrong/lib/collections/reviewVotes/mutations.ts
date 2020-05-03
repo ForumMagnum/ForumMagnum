@@ -17,7 +17,7 @@ addGraphQLResolvers({
       const existingVote = ReviewVotes.findOne({ postId, userId: currentUser._id });
       if (!existingVote) {
         const finalQuadraticScore = (typeof newQuadraticScore !== 'undefined' ) ? newQuadraticScore : (quadraticChange || 0)
-        const newVote = await Utils.newMutation({
+        const newVote = await Utils.createMutator({
           collection: ReviewVotes,
           document: { postId, qualitativeScore, quadraticScore: finalQuadraticScore, comment },
           validate: false,
