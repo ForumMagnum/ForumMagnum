@@ -273,8 +273,7 @@ export const styles = (theme) => ({
       marginLeft: 28
   },
   bookmark: {
-    marginLeft: theme.spacing.unit/2,
-    marginRight: theme.spacing.unit*1.5,
+    marginLeft: theme.spacing.unit,
     position: "relative",
     top: 2,
   }
@@ -445,6 +444,9 @@ const PostsItem2 = ({
                 [classes.dense]: dense,
                 [classes.withRelevanceVoting]: !!tagRel
               })}>
+                {bookmark && <div className={classes.bookmark}>
+                  <BookmarkButton post={post}/>
+                </div>}
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classes.karma}>
                   <PostsItemKarma post={post} read={isRead} />
@@ -524,10 +526,6 @@ const PostsItem2 = ({
                 {/* {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
                   <ReviewPostButton post={post}/>
                 </Link>} */}
-
-                {bookmark && <div className={classes.bookmark}>
-                  <BookmarkButton post={post}/>
-                </div>}
 
                 <div className={classes.mobileDismissButton}>
                   {dismissButton}

@@ -7,7 +7,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
-import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
@@ -16,10 +15,15 @@ const styles = theme => ({
     marginTop: -12,
   },
   continueReadingList: {
-    marginBottom: theme.spacing.unit*2,
   },
   subsection: {
-    marginBottom: theme.spacing.unit*2,
+  },
+  subtitle: {
+    '&&': {
+      fontSize: "1rem",
+      marginTop: 8,
+      marginBottom: 8
+    }
   },
   footerWrapper: {
     display: "flex",
@@ -29,18 +33,17 @@ const styles = theme => ({
       justifyContent: "center",
     }
   },
-  footer: {
-    color: theme.palette.lwTertiary.main,
-    flexGrow: 1,
-    flexWrap: "wrap",
-    maxWidth: 450,
-    display: "flex",
-    justifyContent: "space-around",
-  },
-  loggedOutFooter: {
-    maxWidth: 450,
-    marginLeft: "auto"
-  },
+  // footer: {
+  //   color: theme.palette.lwTertiary.main,
+  //   flexGrow: 1,
+  //   flexWrap: "wrap",
+  //   display: "flex",
+  //   justifyContent: "flex-end",
+  // },
+  // loggedOutFooter: {
+  //   maxWidth: 450,
+  //   marginLeft: "auto"
+  // },
 });
 
 const defaultFrontpageSettings = {
@@ -84,7 +87,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip, CoronavirusFrontpageWidget } = Components;
+    const { RecommendationsAlgorithmPicker, SectionFooter, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, LoginPopupButton, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip, RecommendationsList } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -93,9 +96,9 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       <div><em>(Click to see more curated posts)</em></div>
     </div>
 
-    const coreReadingTooltip = <div>
-      <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
-    </div>
+    // const coreReadingTooltip = <div>
+    //   <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
+    // </div>
 
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
@@ -107,13 +110,13 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     </div>
 
     // Disabled during 2018 Review [and coronavirus]
-    // const allTimeTooltip = <div>
-    //   <div>
-    //     A weighted, randomized sample of the highest karma posts
-    //     {settings.onlyUnread && " that you haven't read yet"}.
-    //   </div>
-    //   <div><em>(Click to see more recommendations)</em></div>
-    // </div>
+    const allTimeTooltip = <div>
+      <div>
+        A weighted, randomized sample of the highest karma posts
+        {settings.onlyUnread && " that you haven't read yet"}.
+      </div>
+      <div><em>(Click to see more recommendations)</em></div>
+    </div>
 
     // defaultFrontpageSettings does not contain anything that overrides a user
     // editable setting, so the reverse ordering here is fine
@@ -140,81 +143,34 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
 
-      {renderContinueReading && <div className={classes.subsection}>
-          <LWTooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
-            <Link to={"/library"}>
-              <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
-                {currentUser ? "Continue Reading" : "Core Reading" }
-              </SectionSubtitle>
-            </Link>
-          </LWTooltip>
-          <ContinueReadingList continueReading={continueReading} />
-        </div>}
-
-      {renderBookmarks && <div className={classes.subsection}>
-        <LWTooltip placement="top-start" title={bookmarksTooltip}>
-          <Link to={"/bookmarks"}>
-            <SectionSubtitle>
-              Bookmarks
-            </SectionSubtitle>
-          </Link>
-        </LWTooltip>
-        <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-          <BookmarksList limit={3} />
-        </AnalyticsContext>
-      </div>}
+      {renderContinueReading && <ContinueReadingList continueReading={continueReading} />}
 
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}
 
-      <AnalyticsContext pageSectionContext="coronavirusWidget">
-        <div className={classes.subsection}>
-          <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
-        </div>
-      </AnalyticsContext>
-
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      {/* {!settings.hideFrontpage && <div className={classes.subsection}>
-        <LWTooltip placement="top-start" title={allTimeTooltip}>
-          <Link to={"/recommendations"}>
-            <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
-              From the Archives
-            </SectionSubtitle>
-          </Link>
-        </LWTooltip>
-        <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-          <RecommendationsList algorithm={frontpageRecommendationSettings} />
-        </AnalyticsContext>
-      </div>} */}
+      {currentUser && !settings.hideFrontpage && <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+        <RecommendationsList algorithm={frontpageRecommendationSettings} />
+      </AnalyticsContext>}
 
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
-        <div className={classes.subsection}>
-          <LWTooltip placement="top-start" title={curatedTooltip}>
-            <Link to={curatedUrl}>
-              <SectionSubtitle className={classes.subtitle}>
-                Recently Curated
-              </SectionSubtitle>
-            </Link>
-          </LWTooltip>
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
-          </AnalyticsContext>
-          <div className={classes.footerWrapper}>
-            <Typography component="div" variant="body2" className={classNames(classes.footer, {[classes.loggedOutFooter]:!currentUser})}>
-              <Link to={curatedUrl}>
-                { /* On very small screens, use shorter link text ("More Curated"
-                    instead of "View All Curated Posts") to avoid wrapping */ }
-                <Hidden smUp implementation="css">More Curated</Hidden>
-                <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
-              </Link>
-              <SeparatorBullet />
-              <SubscribeWidget view={"curated"} />
-            </Typography>
-          </div>
-        </div>
+        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
       </AnalyticsContext>
+
+      {renderBookmarks && <div>
+        <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
+          <BookmarksList limit={3} />
+          {/* <SectionFooter>
+            <LWTooltip placement="top-start" title={bookmarksTooltip}>
+              <Link to={"/bookmarks"}>
+                View All Bookmarks
+              </Link>
+            </LWTooltip>
+          </SectionFooter> */}
+        </AnalyticsContext>
+      </div>}
     </SingleColumnSection>
   }
 }
