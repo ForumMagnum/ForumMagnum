@@ -29,19 +29,27 @@ const styles = theme => ({
     paddingtop: 20
   },
   filterScore: {
-    color: 'rgba(0,0,0,0.7)',
-    fontSize: ".9em",
+    color: theme.palette.primary.dark,
+    fontSize: 11,
     marginLeft: 4,
   },
   filtering: {
-    marginLeft: 16,
-    marginTop: 16,
-    marginRight: 16,
+    paddingLeft: 16,
+    paddingTop: 16,
+    paddingRight: 16,
     width: 600,
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('xs')]: {
       width: "calc(100% - 32px)",
     }
+  },
+  filterRow: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  filterLabel: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600]
   },
   filterButton: {
     marginTop: 8,
@@ -55,21 +63,12 @@ const styles = theme => ({
     borderRadius: 2,
     border: "solid 1px rgba(0,0,0,.1)",
   },
-  labelRow: {
-    display: "flex",
-    justifyContent: "space-between"
-  },
   label: {
     marginRight: "auto"
   },
   selected: {
     backgroundColor: "rgba(0,0,0,.1)",
     border: "none"
-  },
-  removeFilter: {
-    width: 10,
-    color: theme.palette.grey[500],
-    cursor: "pointer"
   }
 });
 
@@ -116,15 +115,16 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
       }}
     >
       <div className={classes.filtering}>
-        <div className={classes.labelRow}>
+        <div className={classes.filterRow}>
           <div className={classes.filterLabel}>
-            Set Filter:
+            Set Filter
           </div>
-          {canRemove && <LWTooltip title="Remove Filter">
-            <a onClick={ev => {if (onRemove) onRemove()}}>
-              X
-            </a>
-          </LWTooltip>}
+          {canRemove && 
+            <div className={classes.filterLabel} onClick={ev => {if (onRemove) onRemove()}}>
+              <LWTooltip title="This filter will no longer appear in Latest Posts. You can add it back later if you want.">
+                <a>Remove Filter</a>
+              </LWTooltip>
+            </div>}
         </div>
         <div>
           <LWTooltip title={filterModeToTooltip("Hidden")}>
@@ -198,8 +198,8 @@ function filterModeToStr(mode: FilterMode): string {
   } else switch(mode) {
     default:
     case "Default": return "";
-    case "Hidden": return "-∞";
-    case "Required": return "+∞";
+    case "Hidden": return "Hidden";
+    case "Required": return "Required";
   }
 }
 
