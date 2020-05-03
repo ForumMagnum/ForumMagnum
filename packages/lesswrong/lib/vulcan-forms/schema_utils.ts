@@ -35,7 +35,7 @@ export const getUpdateableFields = schema => {
  * @param {Object} user – the user for which to check field permissions
  */
 export const getInsertableFields = function(schema, user): Array<string> {
-  const fields = _filter(_keys(schema), function(fieldName) {
+  const fields = _filter(_keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     return Users.canCreateField(user, field);
   });
