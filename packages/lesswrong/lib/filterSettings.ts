@@ -1,4 +1,5 @@
 import * as _ from 'underscore';
+import { getSetting } from './vulcan-lib';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -9,26 +10,36 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hidden"|"Less"|"Default"|"More"|"Required"
-//export const filterModes: Array<FilterMode> = ["Hidden","Less","Default","More","Required"];
-export const filterModes: Array<FilterMode> = ["Hidden","Default","Required"];
+export type FilterMode = "Hidden"|"Default"|"Required"|number
 
 export const defaultFilterSettings: FilterSettings = {
   personalBlog: "Hidden",
-  tags: [
-    {
-      tagId: "tNsqhzTibgGJKPEWB",
-      tagName: "Coronavirus",
-      filterMode: "Default",
-    }
-  ],
+  tags: [],
 }
 
-export const filterTooltips = {
-  Hidden: "These posts will not appear on the home page",
-  Default: "These posts will appear on the home page (sorted normally)",
-  Required: "The home page will ONLY show posts that you have marked as 'required.'"
+type FilterSummary = Partial<Record<FilterMode,string>>
+
+const lwafPersonalBlogpostFilterSummary: FilterSummary = {
+  Hidden: "No Personal Blogposts",
+  Default: "All",
+  Required: "Personal Blog",
 }
+
+// LW and AF have different language than the EA Forum around the exclusion of
+// their "special category" from the frontpage. The EA Forum excludes Community
+// Posts, and needs langugage to support that. So we make a lookup for the text
+// to use based on the forumType and FilterSetting.
+const personalBlogpostFilterSummaries: {[forumType: string]: FilterSummary} = {
+  LessWrong: lwafPersonalBlogpostFilterSummary,
+  AlignmentForum: lwafPersonalBlogpostFilterSummary,
+  EAForum: {
+    Hidden: "No Community Posts",
+    Default: "Include Community Posts",
+    Required: "Community Posts Only",
+  }
+}
+
+const forumPersonBlogpostFilterSummary: FilterSummary = personalBlogpostFilterSummaries[getSetting('forumType') as string]
 
 export function filterSettingsToString(filterSettings: FilterSettings): string {
   let nonNeutralTagModifiers = _.filter(filterSettings.tags,
@@ -65,14 +76,5 @@ export function filterSettingsToString(filterSettings: FilterSettings): string {
     }
   }
   
-  // Doesn't filter on a tag. Convert the personalBlog setting into a string.
-  if (filterSettings.personalBlog === "Hidden") {
-    return "No Personal Blogposts";
-  } else if (filterSettings.personalBlog === "Required") {
-    return "Personal Blog";
-  } else if (filterSettings.personalBlog === "Default") {
-    return "All";
-  } else {
-    return "Custom";
-  }
+  return forumPersonBlogpostFilterSummary[filterSettings.personalBlog] || "Custom"
 }

@@ -12,6 +12,11 @@ interface CollectionBase<T extends DbObject> {
   helpers: any
   loader: any
   
+  // TODO: Type-system plumbing should handle the fact that loaders are available
+  // if you get the collection via a resolver's context, but not available if you
+  // just import the collection.
+  loader: any
+  
   rawCollection: any
   checkAccess: any
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>

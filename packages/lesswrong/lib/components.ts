@@ -162,6 +162,7 @@ importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.tsx'));
+importComponent("PostsListSortDropdown", () => require('../components/posts/PostsListSortDropdown.tsx'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle'));
@@ -175,6 +176,7 @@ importComponent("PostsItemNewCommentsWrapper", () => require('../components/post
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
 import '../components/posts/PostsPage';
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
+importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
@@ -303,6 +305,7 @@ importComponent("UsersAutoCompleteHit", () => require('../components/search/User
 importComponent("UsersSearchInput", () => require('../components/search/UsersSearchInput'));
 importComponent("SearchBarResults", () => require('../components/search/SearchBarResults'));
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
+importComponent("SearchPage", () => require('../components/search/SearchPage'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
@@ -349,13 +352,16 @@ importComponent("FooterTagList", () => require('../components/tagging/FooterTagL
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
+importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));
 importComponent("TagHoverPreview", () => require('../components/tagging/TagHoverPreview'));
 importComponent("TagRelCard", () => require('../components/tagging/TagRelCard'));
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit'));
+importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
 
 // SequenceEditor

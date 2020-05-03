@@ -39,11 +39,6 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
-  readonly contents: PostsMinimumInfo_contents,
-}
-
-interface PostsMinimumInfo_contents { // fragment on Revisions
-  readonly version: string,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -70,6 +65,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly lastVisitedAt: Date,
   readonly isRead: boolean,
   readonly lastCommentedAt: Date,
+  readonly lastCommentPromotedAt: Date,
   readonly canonicalCollectionSlug: string,
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
@@ -113,6 +109,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly group: PostsBase_group,
+  readonly bestAnswer: CommentsList,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -369,6 +366,9 @@ interface CommentsList { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
+  readonly promoted: boolean,
+  readonly promotedByUserId: string,
+  readonly promotedByUser: UsersMinimumInfo,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -532,6 +532,32 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly afBaseScore: number,
 }
 
+interface CommentsDefaultFragment { // fragment on Comments
+  readonly parentCommentId: string,
+  readonly topLevelCommentId: string,
+  readonly createdAt: Date,
+  readonly postedAt: Date,
+  readonly author: string,
+  readonly postId: string,
+  readonly userId: string,
+  readonly isDeleted: boolean,
+  readonly userIP: string,
+  readonly userAgent: string,
+  readonly referrer: string,
+  readonly authorIsUnreviewed: boolean,
+  readonly answer: boolean,
+  readonly parentAnswerId: string,
+  readonly shortform: boolean,
+  readonly nominatedForReview: string,
+  readonly reviewingForReview: string,
+  readonly lastSubthreadActivity: Date,
+  readonly postVersion: string,
+  readonly promoted: boolean,
+  readonly promotedByUserId: string,
+  readonly promotedAt: Date,
+  readonly hideKarma: boolean,
+}
+
 interface PostsDefaultFragment { // fragment on Posts
   readonly createdAt: Date,
   readonly postedAt: Date,
@@ -562,6 +588,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly canonicalSource: string,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
+  readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
 }
 
@@ -1108,17 +1135,6 @@ interface unclaimedReportsList_claimedUser { // fragment on Users
   readonly slug: string,
 }
 
-interface VoteMinimumInfo { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-}
-
-interface VoteFragment { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-  readonly power: number,
-}
-
 interface WithVotePost { // fragment on Posts
   readonly __typename: string,
   readonly _id: string,
@@ -1149,12 +1165,6 @@ interface WithVoteComment_currentUserVotes { // fragment on Votes
   readonly _id: string,
   readonly voteType: string,
   readonly power: number,
-}
-
-interface VotedItem { // fragment on Votes
-  readonly documentId: string,
-  readonly power: number,
-  readonly votedAt: Date,
 }
 
 interface RevisionDisplay { // fragment on Revisions
@@ -1310,69 +1320,62 @@ interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
   readonly afSubmittedApplication: boolean,
 }
 
-interface TagRelFragment { // fragment on TagRels
+interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
+  readonly score: number,
   readonly baseScore: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
   readonly userId: string,
   readonly tagId: string,
-  readonly tag: TagRelFragment_tag,
   readonly postId: string,
+}
+
+interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment,
   readonly post: PostsList,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
-interface TagRelFragment_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly description: TagRelFragment_tag_description,
-}
-
-interface TagRelFragment_tag_description { // fragment on Revisions
-  readonly htmlHighlight: string,
-}
-
-interface TagRelMinimumFragment { // fragment on TagRels
-  readonly _id: string,
-  readonly baseScore: number,
-  readonly afBaseScore: number,
-  readonly userId: string,
-  readonly postId: string,
-  readonly tag: TagRelMinimumFragment_tag,
+interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment,
   readonly currentUserVotes: Array<VoteFragment>,
-}
-
-interface TagRelMinimumFragment_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly description: TagRelMinimumFragment_tag_description,
-}
-
-interface TagRelMinimumFragment_tag_description { // fragment on Revisions
-  readonly htmlHighlight: string,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
   readonly __typename: string,
   readonly _id: string,
-  readonly userId: string,
-  readonly tagId: string,
-  readonly tag: WithVoteTagRel_tag,
-  readonly postId: string,
-  readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
+  readonly score: number,
   readonly baseScore: number,
   readonly afBaseScore: number,
-  readonly score: number,
   readonly voteCount: number,
+  readonly userId: string,
+  readonly tagId: string,
+  readonly postId: string,
+  readonly post: WithVoteTagRel_post,
+  readonly tag: WithVoteTagRel_tag,
+  readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
+}
+
+interface WithVoteTagRel_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+  readonly title: string,
 }
 
 interface WithVoteTagRel_tag { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
+  readonly postCount: number,
+  readonly deleted: boolean,
+  readonly adminOnly: boolean,
+  readonly description: WithVoteTagRel_tag_description,
+}
+
+interface WithVoteTagRel_tag_description { // fragment on Revisions
+  readonly htmlHighlight: string,
 }
 
 interface WithVoteTagRel_currentUserVotes { // fragment on Votes
@@ -1385,17 +1388,23 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
+  readonly adminOnly: boolean,
   readonly deleted: boolean,
 }
 
-interface TagFragment { // fragment on Tags
+interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
+  readonly adminOnly: boolean,
+}
+
+interface TagFragment extends TagBasicInfo { // fragment on Tags
   readonly description: TagFragment_description,
 }
 
@@ -1404,11 +1413,20 @@ interface TagFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
+interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly description: TagPreviewFragment_description,
+}
+
+interface TagPreviewFragment_description { // fragment on Revisions
+  readonly htmlHighlight: string,
+}
+
 interface TagEditFragment { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
@@ -1451,28 +1469,36 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly plaintextMainText: string,
 }
 
-interface CommentsDefaultFragment { // fragment on Comments
-  readonly parentCommentId: string,
-  readonly topLevelCommentId: string,
-  readonly createdAt: Date,
-  readonly postedAt: Date,
-  readonly author: string,
-  readonly postId: string,
+interface VoteMinimumInfo { // fragment on Votes
+  readonly _id: string,
+  readonly voteType: string,
+}
+
+interface VoteFragment { // fragment on Votes
+  readonly _id: string,
+  readonly voteType: string,
+  readonly power: number,
+}
+
+interface TagRelVotes { // fragment on Votes
+  readonly _id: string,
   readonly userId: string,
-  readonly isDeleted: boolean,
-  readonly userIP: string,
-  readonly userAgent: string,
-  readonly referrer: string,
-  readonly authorIsUnreviewed: boolean,
-  readonly answer: boolean,
-  readonly parentAnswerId: string,
-  readonly chosenAnswer: boolean,
-  readonly shortform: boolean,
-  readonly nominatedForReview: string,
-  readonly reviewingForReview: string,
-  readonly lastSubthreadActivity: Date,
-  readonly postVersion: string,
-  readonly hideKarma: boolean,
+  readonly voteType: string,
+  readonly power: number,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly isUnvote: boolean,
+  readonly tagRel: WithVoteTagRel,
+}
+
+interface TagVotingActivity extends TagRelVotes { // fragment on Votes
+  readonly tagRel: TagRelFragment,
+}
+
+interface VotedItem { // fragment on Votes
+  readonly documentId: string,
+  readonly power: number,
+  readonly votedAt: Date,
 }
 
 interface NewRelatedPostRel { // fragment on PostRelations
@@ -1545,6 +1571,7 @@ interface FragmentTypes {
   SequencesDefaultFragment: SequencesDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
+  CommentsDefaultFragment: CommentsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -1583,11 +1610,8 @@ interface FragmentTypes {
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
   unclaimedReportsList: unclaimedReportsList
-  VoteMinimumInfo: VoteMinimumInfo
-  VoteFragment: VoteFragment
   WithVotePost: WithVotePost
   WithVoteComment: WithVoteComment
-  VotedItem: VotedItem
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   ChaptersFragment: ChaptersFragment
@@ -1601,20 +1625,27 @@ interface FragmentTypes {
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
   SuggestAlignmentUser: SuggestAlignmentUser
+  TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagsDefaultFragment: TagsDefaultFragment
+  TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment
-  CommentsDefaultFragment: CommentsDefaultFragment
+  VoteMinimumInfo: VoteMinimumInfo
+  VoteFragment: VoteFragment
+  TagRelVotes: TagRelVotes
+  TagVotingActivity: TagVotingActivity
+  VotedItem: VotedItem
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"Comments"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
 

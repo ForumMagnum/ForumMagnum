@@ -3,6 +3,7 @@ import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib'
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import Typography from '@material-ui/core/Typography';
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   root: {
@@ -55,7 +56,7 @@ const styles = theme => ({
     paddingLeft:theme.spacing.unit*2,
     paddingRight:theme.spacing.unit*2
   },
-  loadMore: {
+  seeAll: {
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main
   },
@@ -68,56 +69,21 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     '& h1': {
       margin:0
-    },
-    '&:hover': {
-      opacity: .5,
     }
   },
 })
 
 interface ExternalProps {
-  closeSearch: any
+  closeSearch: any,
+  currentQuery: string
 }
 interface SearchBarResultsProps extends ExternalProps, WithStylesProps{
 }
-interface SearchBarResultsState {
-  type: string,
-  userCount: number,
-  postCount: number,
-  commentCount: number,
-}
 
-class SearchBarResults extends Component<SearchBarResultsProps,SearchBarResultsState> {
-  state: SearchBarResultsState = { type: "all", userCount: 3, postCount: 3, commentCount: 3}
-
-  loadMoreUsers = () => {
-    this.setState((prevState) => ({
-      type: prevState.type === 'all' ? 'users' : 'all',
-      userCount: 15
-    }))
-  }
-
-  loadMorePosts = () => {
-    this.setState((prevState) => ({
-      type: prevState.type === 'all' ? 'posts' : 'all',
-      postCount: 15
-    }))
-  }
-
-  loadMoreComments = () => {
-    this.setState((prevState) => ({
-      type: prevState.type === 'all' ? 'comments' : 'all',
-      commentCount: 15
-    }))
-  }
+class SearchBarResults extends Component<SearchBarResultsProps> {
 
   render() {
-    const { classes, closeSearch } = this.props
-    const { type, userCount, postCount, commentCount } = this.state
-
-    const showUsers = type === "all" || type === "users"
-    const showPosts = type === "all" || type === "posts"
-    const showComments = type === "all" || type === "comments"
+    const { classes, closeSearch, currentQuery } = this.props
 
     return <div className={classes.root}>
       <div className={classes.searchResults}>
@@ -125,45 +91,37 @@ class SearchBarResults extends Component<SearchBarResultsProps,SearchBarResultsS
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Users}>
-              <div className={classes.header} onClick={this.loadMoreUsers}>
+              <div className={classes.header}>
                 <Typography variant="body1">Users</Typography>
-                {/* <Components.SearchPagination /> */}
-                <div className={classes.loadMore}>
-                  {type === "users" ? "Fewer" : "More"} Users
-                </div>
+                <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
+                  See all results
+                </Link>
               </div>
-              <Configure hitsPerPage={type === "users" ? userCount : 3} />
-              {showUsers && <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />}
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Posts}>
-              <div className={classes.header} onClick={this.loadMorePosts}>
+              <div className={classes.header}>
                 <Typography variant="body1">Posts</Typography>
-                {/* <Components.SearchPagination /> */}
-                <div className={classes.loadMore}>
-                  {type === "posts" ? "Fewer" : "More"} Posts
-                </div>
               </div>
 
-              <Configure hitsPerPage={type === "posts" ? postCount : 3} />
-              {showPosts && <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={closeSearch} {...props} />} />}
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Comments}>
-              <div className={classes.header} onClick={this.loadMoreComments}>
+              <div className={classes.header}>
                 <Typography variant="body1">Comments</Typography>
-                <div className={classes.loadMore}>
-                  {type === "comments" ? "Fewer" : "More"} Comments
-                </div>
               </div>
-              <Configure hitsPerPage={type === "comments" ? commentCount : 3} />
-              {showComments && <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={closeSearch} {...props} />} />}
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </div>
         </Components.ErrorBoundary>

@@ -1,26 +1,43 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
-import { highlightStyles } from '../posts/PostsPreviewTooltip';
-import { seeAllStyles } from './TagRelCard';
+import { commentBodyStyles } from '../../themes/stylePiping'
+import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = theme => ({
-  tagTitle: {
+  card: {
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 6,
+    width: 600,
+    [theme.breakpoints.down('xs')]: {
+      width: "calc(100% - 32px)",
+    }
   },
   tagDescription: {
-    ...highlightStyles(theme)
+    ...commentBodyStyles(theme)
   },
-  seeAll: {
-    ...seeAllStyles(theme)
+  relevance: {
+    marginBottom: 12,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle
+  },
+  relevanceLabel: {
+    marginRight: 8,
+    color: theme.palette.grey[600]
+  },
+  score: {
+    marginLeft: 4,
+    marginRight: 4,
   }
 });
 
-const previewPostCount = 4;
+const previewPostCount = 3;
 
 const TagPreview = ({tag, classes}: {
-  tag: TagFragment,
+  tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
   const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
@@ -35,19 +52,21 @@ const TagPreview = ({tag, classes}: {
     limit: previewPostCount,
     ssr: true,
   });
-  
-  return (<div>
-    <h2 className={classes.tagTitle}>{tag?.name} Tag</h2>
-    {tag && <ContentItemBody
+
+  if (!tag) return null
+  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs", "")
+
+  return (<div className={classes.card}>
+    {tag.description?.htmlHighlight ? <ContentItemBody
       className={classes.tagDescription}
-      dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
+      dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
-    />}
-    {!results && <PostsListPlaceholder count={previewPostCount}/>}
+    /> : <div className={classes.tagDescription}><b>{tag.name}</b></div>
+    }
+    {!results && <PostsListPlaceholder count={previewPostCount} />}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} />
+      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={i!=2}/>
     )}
-    {tag && <Link className={classes.seeAll} to={`/tag/${tag.slug}`}>See All</Link>}
   </div>)
 }
 
@@ -58,4 +77,3 @@ declare global {
     TagPreview: typeof TagPreviewComponent
   }
 }
-

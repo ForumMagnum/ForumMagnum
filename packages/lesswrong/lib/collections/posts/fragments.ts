@@ -10,10 +10,6 @@ registerFragment(`
     draft
     hideCommentKarma
     af
-    
-    contents {
-      version
-    }
   }
 `);
 
@@ -46,6 +42,7 @@ registerFragment(`
     lastVisitedAt
     isRead
     lastCommentedAt
+    lastCommentPromotedAt
     canonicalCollectionSlug
     curatedDate
     commentsLocked
@@ -105,6 +102,9 @@ registerFragment(`
     group {
       _id
       name
+    }
+    bestAnswer {
+      ...CommentsList
     }
   }
 `);

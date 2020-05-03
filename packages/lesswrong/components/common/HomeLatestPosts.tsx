@@ -5,26 +5,11 @@ import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import qs from 'qs'
+import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
-
-const styles = theme => ({
-  personalBlogpostsCheckbox: {
-    // Hackily counteract margin from SectionFooterCheckbox
-    // We probably shouldn't be using SectionFOOTERCheckbox in the SectionTitle,
-    // but will probably refactor soon so won't bother fixing.
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: -16,
-    }
-  },
-  personalBlogpostsCheckboxLabel: {
-    [theme.breakpoints.down("xs")]: {
-      width: 105,
-    },
-  },
-});
+import moment from '../../lib/moment-timezone';
 
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 
@@ -34,9 +19,7 @@ const useFilterSettings = (currentUser: UsersCurrent|null) => {
   return useState(defaultSettings);
 }
 
-const HomeLatestPosts = ({ classes }: {
-  classes: ClassesType
-}) => {
+const HomeLatestPosts = () => {
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { captureEvent } = useTracking()
@@ -48,13 +31,18 @@ const HomeLatestPosts = ({ classes }: {
 
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
+  const { timezone } = useTimezone();
 
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
   const limit = parseInt(query.limit) || 13
+  const now = moment().tz(timezone);
+  const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
+
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,
+    after: dateCutoff,
     view: "magic",
     forum: true,
     limit:limit
@@ -115,7 +103,7 @@ const HomeLatestPosts = ({ classes }: {
   )
 }
 
-const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
+const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts);
 
 declare global {
   interface ComponentTypes {

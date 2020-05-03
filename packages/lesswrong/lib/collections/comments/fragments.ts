@@ -45,6 +45,11 @@ registerFragment(`
     moderatorHat
     nominatedForReview
     reviewingForReview
+    promoted
+    promotedByUserId
+    promotedByUser {
+      ...UsersMinimumInfo
+    }
   }
 `);
 

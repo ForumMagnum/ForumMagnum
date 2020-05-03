@@ -5,7 +5,7 @@ import { styles } from './PostsItem2';
 
 const PostsListPlaceholder = ({count, classes}: {
   count: number,
-  classes: ClassesType,
+  classes: ClassesType
 }) => {
   let placeholders: Array<JSX.Element> = [];
   for(let i=0; i<count; i++) {
@@ -13,7 +13,7 @@ const PostsListPlaceholder = ({count, classes}: {
       <div key={i} className={classNames(
         classes.root,
         classes.background,
-        classes.bottomBorder,
+        {[classes.bottomBorder]: i !== count-1}
       )}>
         <div className={classes.postsItem}>
           <span className={classes.title}>
@@ -33,4 +33,3 @@ declare global {
     PostsListPlaceholder: typeof PostsListPlaceholderComponent
   }
 }
-
