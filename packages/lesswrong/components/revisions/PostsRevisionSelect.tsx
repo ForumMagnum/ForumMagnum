@@ -37,14 +37,7 @@ const PostsRevisionSelect = ({ classes }: {
     <div className={classes.revisionList}>
       {post && <RevisionSelect
         revisions={post.revisions}
-        describeRevision={(rev: RevisionMetadata) => (
-          <Link to={`${Posts.getPageUrl(post)}?revision=${rev.version}`}>
-            {rev.version}{" "}
-            <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
-            <UsersName documentId={rev.userId}/>{" "}
-            {rev.commitMessage}
-          </Link>
-        )}
+        getRevisionUrl={(rev: RevisionMetadata) => `${Posts.getPageUrl(post)}?revision=${rev.version}`}
         onPairSelected={compareRevs}
       />}
     </div>

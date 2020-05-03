@@ -21,10 +21,10 @@ const PostsCompareRevisions = ({ classes }: {
   });
   
   const { SingleColumnSection, CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, Loading } = Components;
-  if (loadingPost) return <Loading/>
+  if (loadingPost || !post) return <Loading/>
   
   return <div className={classes.centralColumn}>
-    <PostsPagePostHeader post={post}/>
+    {post && <PostsPagePostHeader post={post}/>}
     
     <RevisionComparisonNotice before={versionBefore} after={versionAfter} />
     

@@ -59,5 +59,6 @@ addGraphQLResolvers({
     }
   },
 });
+
 addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String): String');
 

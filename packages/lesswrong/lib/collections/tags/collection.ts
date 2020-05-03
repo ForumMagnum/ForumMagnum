@@ -89,6 +89,14 @@ const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  charsAdded: {
+    type: Number,
+    viewableBy: ['guests'],
+  },
+  charsRemoved: {
+    type: Number,
+    viewableBy: ['guests'],
+  },
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],

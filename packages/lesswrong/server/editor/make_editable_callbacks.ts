@@ -251,6 +251,15 @@ async function getLatestRev(documentId: string, fieldName: string): Promise<DbRe
   return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}}) || {}
 }
 
+/// Given a revision, return the last revision of the same document/field prior
+/// to it (null if the revision is the first).
+export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null> {
+  return await Revisions.findOne(
+    {documentId: rev.documentId, fieldName: rev.fieldName, editedAt: {$lt: rev.editedAt}},
+    {sort: {editedAt: -1}}
+  );
+}
+
 async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
   const lastRevision = await getLatestRev(documentId, fieldName);
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision.version)

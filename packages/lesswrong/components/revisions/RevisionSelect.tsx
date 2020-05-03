@@ -15,15 +15,21 @@ const styles = theme => ({
   radioDisabled: {
     color: "rgba(0,0,0,0) !important",
   },
+  charsAdded: {
+    color: "#008800",
+  },
+  charsRemoved: {
+    color: "#880000",
+  },
 });
 
-const RevisionSelect = ({ revisions, describeRevision, onPairSelected, classes }: {
-  revisions: Array<RevisionMetadata>,
-  describeRevision: (rev: RevisionMetadata) => React.ReactNode,
+const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, classes }: {
+  revisions: Array<RevisionMetadataWithChangeMetrics>,
+  getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   classes: ClassesType,
 }) => {
-  const { FormatDate } = Components;
+  const { FormatDate, UsersName } = Components;
   
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
@@ -69,7 +75,19 @@ const RevisionSelect = ({ revisions, describeRevision, onPairSelected, classes }
               }
             }}
           />
-          {describeRevision(rev)}
+          <Link to={getRevisionUrl(rev)}>
+            {rev.version}{" "}
+            <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
+            <UsersName documentId={rev.userId}/>{" "}
+            {(rev.changeMetrics.added>0 && rev.changeMetrics.removed>0)
+              && <>(<span className={classes.charsAdded}>+{rev.changeMetrics.added}</span>/<span className={classes.charsRemoved}>-{rev.changeMetrics.removed}</span>)</>}
+            {(rev.changeMetrics.added>0 && rev.changeMetrics.removed==0)
+              && <span className={classes.charsAdded}>(+{rev.changeMetrics.added})</span>}
+            {(rev.changeMetrics.added==0 && rev.changeMetrics.removed>0)
+              && <span className={classes.charsRemoved}>(-{rev.changeMetrics.removed})</span>}
+            {" "}
+            {rev.commitMessage}
+          </Link>
         </div>
       )
     })}

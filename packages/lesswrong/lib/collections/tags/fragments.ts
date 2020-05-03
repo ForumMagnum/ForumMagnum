@@ -60,7 +60,7 @@ registerFragment(`
   fragment TagRevisionsList on Tag {
     ...TagBasicInfo
     descriptionRevisions {
-      ...RevisionMetadata
+      ...RevisionMetadataWithChangeMetrics
     }
   }
 `);

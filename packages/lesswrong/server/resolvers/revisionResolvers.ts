@@ -1,13 +1,15 @@
 import Revisions from '../../lib/collections/revisions/collection'
 import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
-import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
+import { markdownToHtmlNoLaTeX, dataToMarkdown, getPrecedingRev } from '../editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { addFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
+import { diff } from '../vendor/node-htmldiff/htmldiff';
+import cheerio from 'cheerio';
 import * as _ from 'underscore';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
@@ -60,6 +62,35 @@ export function dataToDraftJS(data, type) {
       throw new Error(`Unrecognized type: ${type}`);
     }
   }
+}
+
+interface ChangeMetrics {
+  added: number
+  removed: number
+}
+
+/// Given an HTML diff, where added sections are marked with <ins> and <del>
+/// tags, count the number of chars added and removed. This is used for providing
+/// a quick distinguisher between small and large changes, on revision history
+/// lists.
+const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
+  const parsedHtml = cheerio.load(diffHtml);
+  
+  const insertedChars = countCharsInTag(parsedHtml, "ins");
+  const removedChars = countCharsInTag(parsedHtml, "del");
+  
+  return { added: insertedChars, removed: removedChars };
+}
+
+const countCharsInTag = (parsedHtml: CheerioStatic, tagName: string) => {
+  const instancesOfTag = parsedHtml(tagName);
+  let cumulative = 0;
+  for (let i=0; i<instancesOfTag.length; i++) {
+    const tag = instancesOfTag[i];
+    const text = cheerio(tag).text();
+    cumulative += text.length;
+  }
+  return cumulative;
 }
 
 addFieldsDict(Revisions, {
@@ -122,5 +153,20 @@ addFieldsDict(Revisions, {
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }
-  }
+  },
+  changeMetrics: {
+    type: Object, //ChangeMetrics
+    resolveAs: {
+      type: 'JSON',
+      resolver: async (revision: DbRevision) => {
+        const previousRev = await getPrecedingRev(revision);
+        if (!previousRev) {
+          return {added:0, removed:0};
+        }
+        
+        const htmlDiff = diff(previousRev.html, revision.html);
+        return diffToChangeMetrics(htmlDiff);
+      }
+    },
+  },
 })

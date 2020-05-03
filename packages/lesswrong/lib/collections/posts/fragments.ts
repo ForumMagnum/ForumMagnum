@@ -350,7 +350,7 @@ registerFragment(`
   fragment PostsDetailsAndRevisionsList on Post {
     ...PostsDetails
     revisions {
-      ...RevisionMetadata
+      ...RevisionMetadataWithChangeMetrics
     }
   }
 `)

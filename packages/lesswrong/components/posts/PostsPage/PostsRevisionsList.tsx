@@ -40,7 +40,7 @@ const PostsRevisionsList = ({post, classes}: {
         <span className={classes.version}>View v{version}</span> (<FormatDate date={editedAt}/>)
       </MenuItemUntyped>)}
     
-    <MenuItem onClick={ev => history.push(`/revisions/post/${post._id}/post.slug`)}>
+    <MenuItem onClick={ev => history.push(`/revisions/post/${post._id}/${post.slug}`)}>
       Compare Revisions
     </MenuItem>
   </React.Fragment>

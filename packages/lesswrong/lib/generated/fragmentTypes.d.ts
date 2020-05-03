@@ -291,7 +291,7 @@ interface PostsRevisionsList { // fragment on Posts
 }
 
 interface PostsDetailsAndRevisionsList extends PostsDetails { // fragment on Posts
-  readonly revisions: Array<RevisionMetadata>,
+  readonly revisions: Array<RevisionMetadataWithChangeMetrics>,
 }
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
@@ -386,6 +386,10 @@ interface RevisionMetadata { // fragment on Revisions
   readonly editedAt: Date,
   readonly commitMessage: string,
   readonly userId: string,
+}
+
+interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
+  readonly changeMetrics: any,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -1386,7 +1390,11 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
   readonly postCount: number,
+  readonly createdAt: Date,
+  readonly createdBy: string,
   readonly adminOnly: boolean,
+  readonly charsAdded: number,
+  readonly charsRemoved: number,
   readonly deleted: boolean,
 }
 
@@ -1438,7 +1446,7 @@ interface TagEditFragment { // fragment on Tags
 }
 
 interface TagRevisionsList extends TagBasicInfo { // fragment on Tags
-  readonly descriptionRevisions: Array<RevisionMetadata>,
+  readonly descriptionRevisions: Array<RevisionMetadataWithChangeMetrics>,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -1463,6 +1471,8 @@ interface SubscriptionState { // fragment on Subscriptions
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
+  readonly documentId: string,
+  readonly fieldName: string,
   readonly editedAt: Date,
   readonly updateType: string,
   readonly version: string,
@@ -1477,6 +1487,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
+  readonly changeMetrics: any,
 }
 
 interface VoteMinimumInfo { // fragment on Votes
@@ -1570,6 +1581,7 @@ interface FragmentTypes {
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
   RevisionMetadata: RevisionMetadata
+  RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment

@@ -8,3 +8,10 @@ registerFragment(`
     userId
   }
 `);
+
+registerFragment(`
+  fragment RevisionMetadataWithChangeMetrics on Revision {
+    ...RevisionMetadata
+    changeMetrics
+  }
+`);
