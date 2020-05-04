@@ -52,6 +52,14 @@ const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  defaultOrder: {
+    type: Number,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(0),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",
@@ -109,7 +117,7 @@ const schema = {
 
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
-  toAlgolia: any
+  toAlgolia: (tag: DbTag) => Array<Record<string,any>>|null
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({

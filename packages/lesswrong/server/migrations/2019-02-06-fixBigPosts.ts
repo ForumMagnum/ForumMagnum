@@ -33,7 +33,7 @@ registerMigration({
             documentId: doc._id,
             set: {
               htmlBody: newHtml
-            },
+            } as any, // Suppress type error because old migration uses an old schema
             validate: false
           });
         }

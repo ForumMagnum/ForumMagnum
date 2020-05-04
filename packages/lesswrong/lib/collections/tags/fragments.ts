@@ -9,6 +9,8 @@ registerFragment(`
     postCount
     deleted
     adminOnly
+    defaultOrder
+    suggestedAsFilter
   }
 `);
 
@@ -43,13 +45,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagEditFragment on Tag {
-    _id
-    name
-    slug
-    core
-    suggestedAsFilter
-    postCount
-    deleted
+    ...TagBasicInfo
     description {
       ...RevisionEdit
     }

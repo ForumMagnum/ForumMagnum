@@ -125,7 +125,7 @@ class PostsPage extends Component<PostsPageProps> {
     const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
       PostsCommentsThread, ContentItemBody,
       PostsPageQuestionContent, TableOfContents, CommentPermalink,
-      FooterTagList, AnalyticsInViewTracker } = Components
+      AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");

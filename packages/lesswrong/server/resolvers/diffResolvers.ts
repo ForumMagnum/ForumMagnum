@@ -40,8 +40,8 @@ addGraphQLResolvers({
         version: afterRev,
         fieldName: fieldName,
       });
-      const before = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
-      const after = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
+      const before: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
+      const after: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
       if (!before || !beforeUnfiltered) {
         throw new Error(`Could not find revision: ${beforeRev}`);
       }

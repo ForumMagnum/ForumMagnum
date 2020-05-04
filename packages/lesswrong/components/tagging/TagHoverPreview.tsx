@@ -8,13 +8,7 @@ import { linkStyle } from '../linkPreview/PostLinkPreview';
 const styles = theme => ({
   link: {
     ...linkStyle(theme)
-  },
-  card: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingBottom: 8,
-    width: 600,
-  },
+  }
 });
 
 const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
@@ -30,11 +24,9 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
-      <div className={classes.card}>
-        {tag
-          ? <TagPreview tag={tag}/>
-          : <Loading/>}
-      </div>
+      {tag
+        ? <TagPreview tag={tag}/>
+        : <Loading/>}
     </PopperCard>
     <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   </span>;

@@ -174,15 +174,15 @@ const PostsPagePostHeader = ({post, classes}: {
           </span>
         </div>
       </div>
-      <div className={classes.headerVote}>
+      {!post.shortform && <div className={classes.headerVote}>
         <PostsVote
           collection={Posts}
           post={post}
           />
-      </div>
+      </div>}
     </div>
     
-    <hr className={classes.divider}/>
+    {!post.shortform && <hr className={classes.divider}/>}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

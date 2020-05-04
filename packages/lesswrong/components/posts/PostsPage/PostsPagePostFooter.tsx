@@ -43,10 +43,10 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const wordCount = post.contents?.wordCount || 0
   
   return <>
-    <AnalyticsContext pageSectionContext="tagFooter">
+    {!post.shortform && <AnalyticsContext pageSectionContext="tagFooter">
       <FooterTagList post={post}/>
-    </AnalyticsContext>
-    {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+    </AnalyticsContext>}
+    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>
           <PostsVote

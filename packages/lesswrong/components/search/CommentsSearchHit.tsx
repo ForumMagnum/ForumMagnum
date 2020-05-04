@@ -9,7 +9,8 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*2
   },
   snippet: {
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing.unit,
+    wordBreak: "break-word"
   }
 })
 
