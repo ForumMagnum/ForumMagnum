@@ -45,7 +45,7 @@ function maybeSendVerificationEmail (modifier, user)
   {
     Accounts.sendVerificationEmail(user._id);
   }
-}        
+}
 addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
@@ -64,7 +64,7 @@ addCallback("users.edit.async", approveUnreviewedSubmissions);
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
-function makeFirstUserAdminAndApproved (user) {         
+function makeFirstUserAdminAndApproved (user) {
   const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
   if (realUsersCount === 0) {
     user.reviewedByUserId = "firstAccount"; //HACK
