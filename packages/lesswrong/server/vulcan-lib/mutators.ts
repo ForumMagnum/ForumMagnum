@@ -44,6 +44,7 @@ import { Connectors } from './connectors';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
+import pickBy from 'lodash/pickBy';
 
 //
 // Create mutation
@@ -289,8 +290,10 @@ export const updateMutator = async <T extends DbObject>({
 
   // get a "preview" of the new document
   let document: T = { ...oldDocument, ...data };
-  // FIXME: This replaces all null fields with undefined, which seems wrong. But maybe there's a reason for it?
-  //document = pickBy(document, f => f !== null);
+  // FIXME: Filtering out null-valued fields here is a very sketchy, probably
+  // wrong thing to do. This originates from Vulcan, and it's not clear why it's
+  // doing it. Explicit cast to make it type-check anyways.
+  document = pickBy(document, f => f !== null) as any;
 
   /*
 
