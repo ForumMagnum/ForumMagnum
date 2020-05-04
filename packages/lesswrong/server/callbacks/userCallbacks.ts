@@ -45,7 +45,7 @@ function maybeSendVerificationEmail (modifier, user)
   {
     Accounts.sendVerificationEmail(user._id);
   }
-}
+}        
 addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
@@ -53,9 +53,10 @@ addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration}
 function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
-  {
+  {                               
     Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}}, {multi: true})
-    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}}, {multi: true})
+    // We don't want to reset the postedAt for comments, since those are by default visible almost everywhere                                                                                                    
+    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 }
 addCallback("users.edit.async", approveUnreviewedSubmissions);
@@ -63,7 +64,7 @@ addCallback("users.edit.async", approveUnreviewedSubmissions);
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
-function makeFirstUserAdminAndApproved (user) {
+function makeFirstUserAdminAndApproved (user) {         
   const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
   if (realUsersCount === 0) {
     user.reviewedByUserId = "firstAccount"; //HACK
