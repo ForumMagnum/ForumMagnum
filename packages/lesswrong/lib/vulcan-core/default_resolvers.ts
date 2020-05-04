@@ -5,6 +5,7 @@ Default list, single, and total resolvers
 */
 
 import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
+import Users from '../collections/users/collection'
 import * as _ from 'underscore';
 
 const defaultOptions = {
@@ -12,7 +13,7 @@ const defaultOptions = {
 };
 
 // note: for some reason changing resolverOptions to "options" throws error
-export function getDefaultResolvers(options) {
+export function getDefaultResolvers<T extends DbObject>(options) {
   let typeName, collectionName, resolverOptions;
   if (typeof arguments[0] === 'object') {
     // new single-argument API
@@ -41,10 +42,10 @@ export function getDefaultResolvers(options) {
         }
 
         // get currentUser and Users collection from context
-        const { currentUser, Users } = context;
+        const { currentUser }: {currentUser: DbUser} = context;
 
         // get collection based on collectionName argument
-        const collection = context[collectionName];
+        const collection: CollectionBase<T> = context[collectionName];
 
         // get selector and options from terms and perform Mongo query
         const parameters = await collection.getParameters(terms, {}, context);
@@ -95,8 +96,8 @@ export function getDefaultResolvers(options) {
           cacheControl.setCacheHint({ maxAge });
         }
 
-        const { currentUser, Users } = context;
-        const collection = context[collectionName];
+        const { currentUser }: {currentUser: DbUser, } = context;
+        const collection: CollectionBase<T> = context[collectionName];
 
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;

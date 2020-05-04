@@ -87,7 +87,7 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc, { version }, { currentUser, Revisions }) => {
+        resolver: async (doc, { version }, { currentUser, Revisions }: {currentUser: DbUser, Revisions: RevisionsCollection}) => {
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
           if (version) {

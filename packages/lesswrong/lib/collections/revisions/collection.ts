@@ -9,6 +9,8 @@ export const Revisions: RevisionsCollection = createCollection({
   typeName: 'Revision',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
+  // No mutations (revisions are insert-only immutable, and are created as a
+  // byproduct of creating/editing documents in other collections).
   // mutations: getDefaultMutations('Revisions'),
 });
 addUniversalFields({collection: Revisions})
@@ -18,7 +20,7 @@ addUniversalFields({collection: Revisions})
 // and the revision itself differ (e.g. because an admin has made the edit, or a coauthor), then
 // we will hide those revisions unless they are marked as post-1.0.0 releases. This is not ideal, but
 // seems acceptable
-Revisions.checkAccess = function (user, revision) {
+Revisions.checkAccess = function (user: DbUser|null, revision: DbRevision): boolean {
   if (!revision) return false
   if ((user && user._id) === revision.userId) return true
   if (Users.canDo(user, 'posts.view.all')) return true

@@ -138,7 +138,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
   }),
 });
 
-Tags.checkAccess = (currentUser, tag) => {
+Tags.checkAccess = (currentUser: DbUser|null, tag: DbTag) => {
   if (Users.isAdmin(currentUser))
     return true;
   else if (tag.deleted)

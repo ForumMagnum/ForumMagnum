@@ -17,7 +17,7 @@ const adminActions = [
 ];
 Users.groups.admins.can(adminActions);
 
-Chapters.checkAccess = (user, document) => {
+Chapters.checkAccess = (user: DbUser|null, document: DbChapter): boolean => {
   if (!user || !document) return false;
   return Users.owns(user, document) ? Users.canDo(user, 'chapters.view.own') : (Users.canDo(user, `conversations.view.all`) || !document.draft)
 };

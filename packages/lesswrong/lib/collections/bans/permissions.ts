@@ -16,7 +16,7 @@ const adminActions = [
 ];
 Users.groups.admins.can(adminActions);
 
-Bans.checkAccess = (user, document) => {
+Bans.checkAccess = (user: DbUser|null, document: DbBan): boolean => {
   if (!user || !document) return false;
   return Users.canDo(user, 'bans.view')
 };

@@ -25,7 +25,7 @@ const sunshineRegimentActions = [
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 
-ReviewVotes.checkAccess = (user, document) => {
+ReviewVotes.checkAccess = (user: DbUser|null, document: DbReviewVote): boolean => {
   if (!user || !document) return false;
   return (
     document.userId === user._id ? Users.canDo(user, 'reviewVotes.view.own') : Users.canDo(user, `reviewVotes.view.all`)

@@ -33,8 +33,15 @@ export const sanitize = function(s) {
   });
 };
 
-Utils.performCheck = (operation, user, checkedObject, context, documentId, operationName, collectionName) => {
-
+Utils.performCheck = <T extends DbObject>(
+  operation: (user: DbUser|null, obj: T, context: any) => boolean,
+  user: DbUser|null,
+  checkedObject: T,
+  context: any,
+  documentId: string,
+  operationName: string,
+  collectionName: CollectionNameString
+): void => {
   if (!checkedObject) {
     throwError({ id: 'app.document_not_found', data: { documentId, operationName } });
   }
@@ -42,7 +49,6 @@ Utils.performCheck = (operation, user, checkedObject, context, documentId, opera
   if (!operation(user, checkedObject, context)) {
     throwError({ id: 'app.operation_not_allowed', data: { documentId, operationName } });
   }
-
 };
 
 export { Utils };

@@ -18,7 +18,7 @@ interface CollectionBase<T extends DbObject> {
   loader: any
   
   rawCollection: any
-  checkAccess: any
+  checkAccess: (user: DbUser|null, obj: T) => boolean
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T
   update: (selector?: string|MongoSelector<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
