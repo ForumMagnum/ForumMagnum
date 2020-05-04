@@ -102,14 +102,11 @@ export const styles = theme => ({
   username: {
     marginRight: 10,
   },
-  nomination: {
+  metaNotice: {
     color: theme.palette.lwTertiary.main,
     fontStyle: "italic",
     fontSize: "1rem",
-    marginBottom: theme.spacing.unit,
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing.unit
-    }
+    marginBottom: theme.spacing.unit
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -275,13 +272,16 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 <span className={classes.outdatedWarning}>
                   <Components.CommentOutdatedWarning comment={comment} post={post} />
                 </span>
-                {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
+                {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
                   {`Nomination for ${comment.nominatedForReview}`}
                 </Link>}
-                {comment.reviewingForReview && <Link to={"/reviews"} className={classes.nomination}>
+                {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
                 {`Review for ${comment.reviewingForReview}`}
               </Link>}
               </div>
+              { comment.promotedByUser && <div className={classes.metaNotice}>
+                Promoted by {comment.promotedByUser.displayName}
+              </div>}
               {this.renderBodyOrEditor()}
               {!comment.deleted && !collapsed && this.renderCommentBottom()}
             </div>
@@ -340,6 +340,11 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
         !hideReply &&
         !comment.deleted &&
         (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
+        // FIXME Users.isAllowedToComment depends on some post metadatadata that we
+        // often don't want to include in fragments, producing a type-check error
+        // here. We should do something more complicated to give client-side feedback
+        // if you're banned.
+        // @ts-ignore
         (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
       )
 

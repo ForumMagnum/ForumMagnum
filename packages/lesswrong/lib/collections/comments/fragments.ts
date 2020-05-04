@@ -47,6 +47,9 @@ registerFragment(`
     reviewingForReview
     promoted
     promotedByUserId
+    promotedByUser {
+      ...UsersMinimumInfo
+    }
   }
 `);
 

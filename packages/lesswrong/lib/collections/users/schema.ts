@@ -181,29 +181,6 @@ const schema = {
     },
   },
   /**
-  The user's Twitter username
-*/
-  twitterUsername: {
-    type: String,
-    optional: true,
-    control: 'text',
-    canCreate: ['members'],
-    canUpdate: ['members'],
-    canRead: ['guests'],
-    order: 60,
-    resolveAs: {
-      type: 'String',
-      resolver: async (user, args, { Users }) => {
-        return Users.getTwitterName(await Utils.Connectors.get(Users, user._id));
-      },
-    },
-    onInsert: user => {
-      if (user.services && user.services.twitter && user.services.twitter.screenName) {
-        return user.services.twitter.screenName;
-      }
-    },
-  },
-  /**
     Groups
   */
   groups: {

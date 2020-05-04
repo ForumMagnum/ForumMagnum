@@ -182,16 +182,6 @@ const schema = {
     type: String,
     optional: true,
   },
-
-  chosenAnswer: {
-    type: Boolean,
-    optional: true,
-    hidden: true,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    ...schemaDefaultValue(false),
-  },
   
   shortform: {
     type: Boolean,
@@ -281,6 +271,20 @@ const schema = {
         return currentUser._id
       }
     }    
+  },
+
+  promotedAt: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    onUpdate: async ({data, document, oldDocument}) => {
+      if (data?.promoted && !oldDocument.promoted) {
+        return new Date()
+      }
+      if (!document.promoted && oldDocument.promoted) {
+        return null
+      }
+    }
   },
   
   // Comments store a duplicate of their post's hideCommentKarma data. The

@@ -349,7 +349,6 @@ interface DbComment extends DbObject {
   authorIsUnreviewed: boolean
   answer: boolean
   parentAnswerId: string
-  chosenAnswer: boolean
   shortform: boolean
   nominatedForReview: string
   reviewingForReview: string
@@ -357,6 +356,7 @@ interface DbComment extends DbObject {
   postVersion: string
   promoted: boolean
   promotedByUserId: string
+  promotedAt: Date
   hideKarma: boolean
   legacy: boolean
   legacyId: string
@@ -622,7 +622,7 @@ interface DbEmailTokens extends DbObject {
   token: string
   tokenType: string
   userId: string
-  used: Date
+  usedAt: Date
   params: any /*{"definitions":[{"blackbox":true}]}*/
 }
 

@@ -1,6 +1,5 @@
 import Messages from './collections/messages/collection';
 import Conversations from './collections/conversations/collection';
-import Users from './collections/users/collection';
 import { Utils, getCollection } from './vulcan-lib';
 
 
@@ -8,7 +7,7 @@ import { Utils, getCollection } from './vulcan-lib';
 * @summary Get relative link to conversation (used only in session)
 * @param {Object} conversation
 **/
-Conversations.getLink = (conversation) => {
+Conversations.getLink = (conversation: HasIdType): string => {
   return `/inbox/${conversation._id}`;
 };
 
@@ -16,33 +15,12 @@ Conversations.getLink = (conversation) => {
 * @summary Get relative link to conversation of message (conversations are only linked to relatively)
 * @param {Object} message
 **/
-Messages.getLink = (message) => {
+Messages.getLink = (message: DbMessage): string => {
   return `/inbox/${message.conversationId}`;
 };
 
-/**
-* @summary Check whether User is subscribed to a document
-* @param {Object} user
-* @param {Object} document
-**/
-Users.isSubscribedTo = (user, document) => {
-  if (!user || !document) {
-    // should return an error
-    return false;
-  }
-
-  const { __typename, _id: itemId } = document;
-  const documentType = Utils.capitalize(Utils.getCollectionNameFromTypename(__typename));
-
-  if (user.subscribedItems && user.subscribedItems[documentType]) {
-    return !!user.subscribedItems[documentType].find(subscribedItems => subscribedItems.itemId === itemId);
-  } else {
-    return false;
-  }
-};
-
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
-Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentId) {
+Utils.getUnusedSlug = function <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string): string {
   let suffix = '';
   let index = 0;
   
@@ -52,7 +30,7 @@ Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentI
     // Filter out our own document (i.e. don't change the slug if the only conflict is with ourselves)
     const conflictingDocuments = existingDocuments.filter((doc) => doc._id !== documentId)
     // If there are other documents we conflict with, change the index and slug, then check again
-    if (!!conflictingDocuments?.length) {
+    if (!!conflictingDocuments.length) {
       index++
       suffix = '-'+index;
       existingDocuments = getDocumentsBySlug({slug, suffix, useOldSlugs, collection})
@@ -63,7 +41,12 @@ Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentI
   return slug+suffix;
 };
 
-const getDocumentsBySlug = ({slug, suffix, useOldSlugs,  collection}) => {
+const getDocumentsBySlug = <T extends HasSlugType>({slug, suffix, useOldSlugs, collection}: {
+  slug: string,
+  suffix: string,
+  useOldSlugs: boolean,
+  collection: CollectionBase<T>
+}): Array<T> => {
   return collection.find(useOldSlugs ? 
     {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : 
     {slug: slug+suffix}
@@ -71,11 +54,11 @@ const getDocumentsBySlug = ({slug, suffix, useOldSlugs,  collection}) => {
 }
 
 // LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
-Utils.getUnusedSlugByCollectionName = function (collectionName, slug, useOldSlugs = false, documentId) {
+Utils.getUnusedSlugByCollectionName = function (collectionName: CollectionNameString, slug: string, useOldSlugs = false, documentId?: string): string {
   return Utils.getUnusedSlug(getCollection(collectionName), slug, useOldSlugs, documentId)
 };
 
-Utils.slugIsUsed = async (collectionName, slug) => {
+Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): Promise<boolean> => {
   const collection = getCollection(collectionName)
   const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
   return !!existingUserWithSlug

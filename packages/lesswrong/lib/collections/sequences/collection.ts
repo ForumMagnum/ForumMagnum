@@ -24,14 +24,14 @@ const options = {
 interface ExtendedSequencesCollection extends SequencesCollection {
   // Functions in lib/collections/sequences/elpers.ts
   getPageUrl: any
-  getAllPostIDs: any
-  getAllPosts: any
-  getNextPostID: any
-  getPrevPostID: any
-  sequenceContainsPost: any
+  getAllPostIDs: (sequenceId: string) => Promise<Array<string>>
+  getAllPosts: (sequenceId: string) => Promise<Array<DbPost>>
+  getNextPostID: (sequenceId: string, postId: string) => Promise<string|null>
+  getPrevPostID: (sequenceId: string, postId: string) => Promise<string|null>
+  sequenceContainsPost: (sequenceId: string, postId: string) => Promise<boolean>
   
   // Functions in search/utils.ts
-  toAlgolia: any
+  toAlgolia: (sequence: DbSequence) => Array<Record<string,any>>|null
 }
 
 export const Sequences: ExtendedSequencesCollection = createCollection({

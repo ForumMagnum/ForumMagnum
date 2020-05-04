@@ -545,7 +545,7 @@ const schema = {
     resolver: async (post) => {
       if (post.question) {
         if (post.lastCommentPromotedAt) {
-          return Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{baseScore: -1}})
+          return Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
         } else {
           return Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
         }

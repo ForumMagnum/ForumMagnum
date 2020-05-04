@@ -73,7 +73,6 @@ addGraphQLResolvers({
         
         const tokenType = emailTokenTypesByName[tokenObj.tokenType];
         
-        // @ts-ignore FIXME: usedAt is checked and set correctly, but is missing from the schema
         if (tokenObj.usedAt && !tokenType.reusable)
           throw new Error("This email link has already been used.");
         

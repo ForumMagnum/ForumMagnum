@@ -368,6 +368,7 @@ interface CommentsList { // fragment on Comments
   readonly reviewingForReview: string,
   readonly promoted: boolean,
   readonly promotedByUserId: string,
+  readonly promotedByUser: UsersMinimumInfo,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -546,7 +547,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly authorIsUnreviewed: boolean,
   readonly answer: boolean,
   readonly parentAnswerId: string,
-  readonly chosenAnswer: boolean,
   readonly shortform: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
@@ -554,6 +554,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postVersion: string,
   readonly promoted: boolean,
   readonly promotedByUserId: string,
+  readonly promotedAt: Date,
   readonly hideKarma: boolean,
 }
 
@@ -763,7 +764,6 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly allPostsShowLowKarma: boolean,
   readonly allPostsOpenSettings: boolean,
   readonly lastNotificationsCheck: Date,
-  readonly groups: Array<string>,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
   readonly moderationStyle: string,
@@ -968,6 +968,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afKarma: number,
   readonly deleted: boolean,
   readonly groups: Array<string>,
+  readonly isAdmin: boolean,
   readonly htmlBio: string,
   readonly postCount: number,
   readonly commentCount: number,
@@ -1289,6 +1290,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly _id: string,
   readonly createdAt: Date,
   readonly slug: string,
+  readonly userId: string,
   readonly user: UsersMinimumInfo,
   readonly title: string,
   readonly contents: RevisionDisplay,
