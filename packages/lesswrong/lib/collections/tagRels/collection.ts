@@ -71,7 +71,7 @@ export const TagRels: TagRelsCollection = createCollection({
   }),
 });
 
-TagRels.checkAccess = (currentUser: DbUser|null, tagRel: DbTagRel): boolean => {
+TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel): Promise<boolean> => {
   if (userCanUseTags(currentUser))
     return true;
   else if (tagRel.deleted)

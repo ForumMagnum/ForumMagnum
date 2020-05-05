@@ -413,18 +413,18 @@ addFieldsDict(Posts, {
         const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
         if (nextPostID) {
           const nextPost = await Posts.loader.load(nextPostID);
-          return accessFilterSingle(currentUser, Posts, nextPost);
+          return await accessFilterSingle(currentUser, Posts, nextPost);
         }
       }
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
-        return accessFilterSingle(currentUser, Posts, nextPost);
+        return await accessFilterSingle(currentUser, Posts, nextPost);
       }
       if(post.canonicalSequenceId) {
         const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
         if (!nextPostID) return null;
         const nextPost = await Posts.loader.load(nextPostID);
-        return accessFilterSingle(currentUser, Posts, nextPost);
+        return await accessFilterSingle(currentUser, Posts, nextPost);
       }
 
       return null;
@@ -444,18 +444,18 @@ addFieldsDict(Posts, {
         const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
         if (prevPostID) {
           const prevPost = await Posts.loader.load(prevPostID);
-          return accessFilterSingle(currentUser, Posts, prevPost);
+          return await accessFilterSingle(currentUser, Posts, prevPost);
         }
       }
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
-        return accessFilterSingle(currentUser, Posts, prevPost);
+        return await accessFilterSingle(currentUser, Posts, prevPost);
       }
       if(post.canonicalSequenceId) {
         const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
         if (!prevPostID) return null;
         const prevPost = await Posts.loader.load(prevPostID);
-        return accessFilterSingle(currentUser, Posts, prevPost);
+        return await accessFilterSingle(currentUser, Posts, prevPost);
       }
 
       return null;
@@ -480,7 +480,7 @@ addFieldsDict(Posts, {
         sequence = await Sequences.loader.load(post.canonicalSequenceId);
       }
 
-      return accessFilterSingle(currentUser, Sequences, sequence);
+      return await accessFilterSingle(currentUser, Sequences, sequence);
     }
   }),
 
@@ -1017,7 +1017,7 @@ addFieldsDict(Posts, {
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
     resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, { currentUser, Comments }) => {
       const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
-      const comments = Comments.find({
+      const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         postId: post._id,
         score: {$gt:0},
@@ -1028,7 +1028,7 @@ addFieldsDict(Posts, {
         limit: commentsLimit,
         sort: {postedAt:-1}
       }).fetch();
-      return accessFilterMultiple(currentUser, Comments, comments);
+      return await accessFilterMultiple(currentUser, Comments, comments);
     }
   }),
   'recentComments.$': {

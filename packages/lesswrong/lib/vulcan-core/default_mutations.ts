@@ -76,7 +76,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
         const collection = context[collectionName];
 
         // check if current user can pass check function; else throw error
-        Utils.performCheck(
+        await Utils.performCheck(
           this.check,
           context.currentUser,
           data,
@@ -150,7 +150,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
         }
 
         // check if user can perform operation; if not throw error
-        Utils.performCheck(
+        await Utils.performCheck(
           this.check,
           context.currentUser,
           document,
@@ -248,7 +248,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
           );
         }
 
-        Utils.performCheck(
+        await Utils.performCheck(
           this.check,
           context.currentUser,
           document,

@@ -17,7 +17,7 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const user = await getUserFromReq(req)
   const post = await Posts.findOne(documentId)
   const canEdit = post && Posts.canEdit(user, post)  
-  const canView = post && Posts.checkAccess(user, post)
+  const canView = post && await Posts.checkAccess(user, post)
 
   let permissions = {}
   if (formType === "new" && userId) {

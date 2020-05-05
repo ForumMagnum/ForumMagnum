@@ -5,6 +5,7 @@ import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfR
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import { defaultFilterSettings } from '../../filterSettings';
+import { asyncFilter } from '../../utils/asyncUtils';
 import SimpleSchema from 'simpl-schema'
 import * as _ from 'underscore';
 
@@ -592,9 +593,16 @@ addFieldsDict(Users, {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: (user, args, context) => {
-      const events = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
-      const filteredEvents = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
+    resolver: async (user, args, context) => {
+      const events: Array<DbLWEvent> = context.LWEvents.find(
+        {userId: user._id, name: 'login'},
+        {
+          fields: context.Users.getViewableFields(context.currentUser, context.LWEvents),
+          limit: 10,
+          sort: {createdAt: -1}
+        }
+      ).fetch()
+      const filteredEvents = await asyncFilter(events, async (e: DbLWEvent) => await context.LWEvents.checkAccess(context.currentUser, e))
       const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
@@ -1320,9 +1328,9 @@ addFieldsDict(Users, {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: (user, { limit }, { currentUser, Users, Posts }) => {
+      resolver: async (user, { limit }, { currentUser, Users, Posts }) => {
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
-        return accessFilterMultiple(currentUser, Posts, posts);
+        return await accessFilterMultiple(currentUser, Posts, posts);
       }
     }
   },

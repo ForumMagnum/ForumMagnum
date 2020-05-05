@@ -27,7 +27,7 @@ const sunshineRegimentActions = [
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 
-Reports.checkAccess = (user: DbUser|null, document: DbReport): boolean => {
+Reports.checkAccess = async (user: DbUser|null, document: DbReport): Promise<boolean> => {
   if (!user || !document) return false;
   return (
     document.userId === user._id ? Users.canDo(user, 'reports.view.own') : Users.canDo(user, `reports.view.all`)

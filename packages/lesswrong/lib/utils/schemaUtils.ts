@@ -3,6 +3,7 @@ import Users from '../collections/users/collection';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
 import { Meteor } from 'meteor/meteor';
+import { asyncFilter } from './asyncUtils';
 import * as _ from 'underscore';
 
 const generateIdResolverSingle = ({collectionName, fieldName}) => {
@@ -19,7 +20,7 @@ const generateIdResolverSingle = ({collectionName, fieldName}) => {
       return null;
     }
 
-    return accessFilterSingle(currentUser, collection, resolvedDoc);
+    return await accessFilterSingle(currentUser, collection, resolvedDoc);
   }
 }
 
@@ -33,7 +34,7 @@ const generateIdResolverMulti = ({collectionName, fieldName, getKey = (a=>a)}) =
 
     const resolvedDocs = await collection.loader.loadMany(keys)
 
-    return accessFilterMultiple(currentUser, collection, resolvedDocs);
+    return await accessFilterMultiple(currentUser, collection, resolvedDocs);
   }
 }
 
@@ -41,10 +42,10 @@ const generateIdResolverMulti = ({collectionName, fieldName, getKey = (a=>a)}) =
 // If the user can't access the document, returns null. If the user can access the
 // document, return a copy of the document in which any fields the user can't access
 // have been removed. If document is null, returns null.
-export const accessFilterSingle = <T extends DbObject>(currentUser: DbUser|null, collection: CollectionBase<T>, document: T|null): T|null => {
+export const accessFilterSingle = async <T extends DbObject>(currentUser: DbUser|null, collection: CollectionBase<T>, document: T|null): Promise<T|null> => {
   const { checkAccess } = collection
   if (!document) return null;
-  if (checkAccess && !checkAccess(currentUser, document)) return null
+  if (checkAccess && !(await checkAccess(currentUser, document))) return null
   const restrictedDoc = Users.restrictViewableFields(currentUser, collection, document)
   return restrictedDoc;
 }
@@ -54,13 +55,13 @@ export const accessFilterSingle = <T extends DbObject>(currentUser: DbUser|null,
 // list, and fields which the user can't access are removed from the documents inside
 // the list. If currentUser is null, applies permission checks for the logged-out
 // view.
-export const accessFilterMultiple = <T extends DbObject>(currentUser: DbUser|null, collection: CollectionBase<T>, unfilteredDocs: Array<T>): Array<T> => {
+export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUser|null, collection: CollectionBase<T>, unfilteredDocs: Array<T|null>): Promise<Array<T>> => {
   const { checkAccess } = collection
   
   // Filter out nulls (docs that were referenced but didn't exist)
-  const existingDocs = _.filter(unfilteredDocs, d=>!!d);
+  const existingDocs: Array<T> = _.filter(unfilteredDocs, d=>!!d);
   // Apply the collection's checkAccess function, if it has one, to filter out documents
-  const filteredDocs = checkAccess ? _.filter(existingDocs, d => checkAccess(currentUser, d)) : existingDocs
+  const filteredDocs = checkAccess ? await asyncFilter(existingDocs, async (d: T) => await checkAccess(currentUser, d)) : existingDocs
   // Apply field-level permissions
   const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
   

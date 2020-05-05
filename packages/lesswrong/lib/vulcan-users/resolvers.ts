@@ -1,4 +1,5 @@
 import { addGraphQLResolvers, Utils } from '../vulcan-lib';
+import { asyncFilter } from '../utils/asyncUtils';
 import * as _ from 'underscore';
 
 const specificResolvers = {
@@ -38,11 +39,11 @@ const resolvers = {
       // get selector and options from terms and perform Mongo query
       let { selector, options } = await Users.getParameters(terms);
       options.skip = terms.offset;
-      const users = await Utils.Connectors.find(Users, selector, options);
+      const users: Array<DbUser> = await Utils.Connectors.find(Users, selector, options);
 
       // restrict documents via checkAccess
       const viewableUsers = Users.checkAccess
-      ? _.filter(users, doc => Users.checkAccess(currentUser, doc))
+      ? await asyncFilter(users, async (doc: DbUser): Promise<boolean> => await Users.checkAccess(currentUser, doc))
       : users;
 
       // restrict documents fields
@@ -79,7 +80,7 @@ const resolvers = {
         ? await Utils.Connectors.get(Users, { slug })
         : await Utils.Connectors.get(Users);
       if (Users.checkAccess) {
-        if (!Users.checkAccess(currentUser, user)) return null
+        if (!await Users.checkAccess(currentUser, user)) return null
       }
       return { result: Users.restrictViewableFields(currentUser, Users, user) };
     },

@@ -75,7 +75,7 @@ interface UtilsType {
   getCurrentChapter: any
   
   // In server/vulcan-lib/utils.ts
-  performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => boolean, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => void
+  performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
   
   // In server/vulcan-lib/errors.ts
   throwError: any

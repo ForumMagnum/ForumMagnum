@@ -119,7 +119,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         // if collection has a checkAccess function defined, use it to perform a check on the current document
         // (will throw an error if check doesn't pass)
         if (collection.checkAccess) {
-          Utils.performCheck(
+          await Utils.performCheck(
             collection.checkAccess,
             currentUser,
             doc,

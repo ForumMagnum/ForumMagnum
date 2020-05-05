@@ -92,7 +92,7 @@ export const makeEditable = ({collection, options = {}}: {
           const { checkAccess } = Revisions
           if (version) {
             const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            return checkAccess(currentUser, revision) ? revision : null
+            return await checkAccess(currentUser, revision) ? revision : null
           }
           return {
             editedAt: (doc[field]?.editedAt) || new Date(),
@@ -127,7 +127,7 @@ export const makeEditable = ({collection, options = {}}: {
         resolver: async (post, { limit }, { currentUser, Revisions }) => {
           const field = fieldName || "contents"
           const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
-          return accessFilterMultiple(currentUser, Revisions, resolvedDocs);
+          return await accessFilterMultiple(currentUser, Revisions, resolvedDocs);
         }
       }
     },

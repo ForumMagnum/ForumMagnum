@@ -14,9 +14,9 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser}: {
   // and that this user can see both.
   const post = Posts.findOne({_id: postId});
   const tag = Tags.findOne({_id: tagId});
-  if (!accessFilterSingle(currentUser, Posts, post))
+  if (!await accessFilterSingle(currentUser, Posts, post))
     throw new Error("Invalid postId");
-  if (!accessFilterSingle(currentUser, Tags, tag))
+  if (!await accessFilterSingle(currentUser, Tags, tag))
     throw new Error("Invalid tagId");
   
   // Check whether this document already has this tag applied
