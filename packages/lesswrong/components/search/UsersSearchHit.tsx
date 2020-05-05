@@ -5,8 +5,9 @@ import React from 'react';
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    marginLeft: theme.spacing.unit,
+    marginTop: theme.spacing.unit/2,
+    marginBottom: theme.spacing.unit/2
   },
 })
 
@@ -15,6 +16,7 @@ const isLeftClick = (event) => {
 }
 
 const UsersSearchHit = ({hit, clickAction, classes}) => <div className={classes.root}>
+  {console.log(hit)}
   <Link to={Users.getProfileUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction()}>
     <Components.MetaInfo>
       <Components.FormatDate date={hit.createdAt}/>

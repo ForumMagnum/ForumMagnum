@@ -9,7 +9,7 @@ import { useLocation } from '../../lib/routeUtil';
 const styles = theme => ({
   root: {
     width: "100%",
-    maxWidth: 1000,
+    maxWidth: 1200,
     margin: "auto"
   },
   header: {
@@ -24,14 +24,31 @@ const styles = theme => ({
   },
   searchList: {
     width: 300,
-    [theme.breakpoints.down('xs')]: {
-      width: "100%"
-    }
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      borderBottom: "solid 1px rgba(0,0,0,.1)",
+      order: 1,
+      maxWidth: 625,
+    },
   },
   usersList: {
     width: 220,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      maxWidth: 625,
+      borderBottom: "solid 1px rgba(0,0,0,.1)",
+      paddingBottom: 8
+    }
+  },
+  tagsList: {
+    width: 220,
+    [theme.breakpoints.down('sm')]: {
+      width: "50%"
+    },
     [theme.breakpoints.down('xs')]: {
-      width: "100%"
+      width: "100%",
+      borderBottom: "solid 1px rgba(0,0,0,.1)",
+      paddingBottom: 8
     }
   },
   searchIcon: {
@@ -41,7 +58,7 @@ const styles = theme => ({
     display: "flex",
     alignItems: "center",
     margin: "auto",
-    width: 925,
+    width: 625,
     marginLeft: "auto",
     marginRight: "auto",
     marginTop: 24,
@@ -50,7 +67,9 @@ const styles = theme => ({
     border: "solid 1px rgba(0,0,0,.3)",
     borderRadius: 3,
     [theme.breakpoints.down('xs')]: {
-      width: "100%"
+      width: "100%",
+      marginTop: 12,
+      marginBottom: 12,
     },
     "& .ais-SearchBox": {
       display: 'inline-block',
@@ -89,7 +108,7 @@ const SearchPage = ({classes}:{
   classes: ClassesType
 }) => {
 
-  const { ErrorBoundary, SearchPagination, UsersSearchHit, PostsSearchHit, CommentsSearchHit } = Components
+  const { ErrorBoundary, SearchPagination, UsersSearchHit, PostsSearchHit, CommentsSearchHit, TagsSearchHit } = Components
 
   const {query} = useLocation()
 
@@ -110,40 +129,60 @@ const SearchPage = ({classes}:{
       </div>
       <CurrentRefinements />
       <div className={classes.columns}>
-      <Components.ErrorBoundary>
+      <ErrorBoundary>
+        <div className={classes.usersList}>
+          <Index indexName={algoliaIndexNames.Users}>
+            <div className={classes.header}>
+              <Typography variant="body1">
+                Users
+              </Typography>
+              <SearchPagination />
+            </div>
+            <Configure hitsPerPage={6} />
+            <Hits hitComponent={(props) => <UsersSearchHit {...props} />} />
+          </Index>
+        </div>
+      </ErrorBoundary>
+      <ErrorBoundary>
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Posts}>
               <div className={classes.header}>
-                <Typography variant="body1">Posts</Typography>
+                <Typography variant="body1">
+                  Posts
+                </Typography>
                 <SearchPagination />
               </div>
 
-              <Configure hitsPerPage={10} />
+              <Configure hitsPerPage={6} />
               <Hits hitComponent={(props) => <PostsSearchHit {...props} />} />
             </Index>
           </div>
-        </Components.ErrorBoundary>
+        </ErrorBoundary>
         <ErrorBoundary>
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Comments}>
               <div className={classes.header}>
-                <Typography variant="body1">Comments</Typography>
+                <Typography variant="body1">
+                  Comments
+                </Typography>
                 <SearchPagination />
               </div>
-              <Configure hitsPerPage={10} />
+              <Configure hitsPerPage={6} />
               <Hits hitComponent={(props) => <CommentsSearchHit {...props} />} />
             </Index>
           </div>
         </ErrorBoundary>
         <ErrorBoundary>
-          <div className={classes.usersList}>
-            <Index indexName={algoliaIndexNames.Users}>
+          <div className={classes.tagsList}>
+            <Index indexName={algoliaIndexNames.Tags}>
               <div className={classes.header}>
-                <Typography variant="body1">Users</Typography>
+                <Typography variant="body1">
+                  Tags
+                </Typography>
                 <SearchPagination />
               </div>
-              <Configure hitsPerPage={10} />
-              <Hits hitComponent={(props) => <UsersSearchHit {...props} />} />
+              <Configure hitsPerPage={6} />
+              <Hits hitComponent={(props) => <TagsSearchHit {...props} />} />
             </Index>
           </div>
         </ErrorBoundary>
