@@ -43,10 +43,8 @@ const styles = theme => ({
   tagsList: {
     width: 220,
     [theme.breakpoints.down('sm')]: {
-      width: "50%"
-    },
-    [theme.breakpoints.down('xs')]: {
       width: "100%",
+      maxWidth: 625,
       borderBottom: "solid 1px rgba(0,0,0,.1)",
       paddingBottom: 8
     }
