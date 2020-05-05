@@ -13,22 +13,13 @@ registerMigration({
       callback: async (users: Array<DbUser>) => {
         // eslint-disable-next-line no-console
         console.log("Migrating user batch");
-        let changes: Array<any> = [];
         
-        for (let user of users) {
-          changes.push({
-            updateOne: {
-              filter: { _id: user._id },
-              update: {
-                $set: {
-                  'frontpageFilterSettings.tags': [{
-                    ...defaultFilterSettings.tags[0],
-                  }]
-                }
-              }
-            }
-          });
-        }
+        const changes = users.map(user => ({
+          updateOne: {
+            filter: { _id: user._id },
+            update: {$set: {'frontpageFilterSettings.tags': defaultFilterSettings.tags}}
+          }
+        }))
         
         await Users.rawCollection().bulkWrite(changes, { ordered: false });
       }
