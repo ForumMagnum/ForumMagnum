@@ -158,7 +158,7 @@ export const styles = (theme) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },
