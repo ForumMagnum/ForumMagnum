@@ -37,12 +37,12 @@ describe('Utils', async () => {
   })
   describe('createDummyUser', async () => {
     it('generates appropriate email', async () => {
-      const user = await createDummyUser()
-      user.email.should.equal(user.username + "@test.lesserwrong.com")
+      const user = await createDummyUser();
+      (user.email as any).should.equal(user.username + "@test.lesserwrong.com")
     });
     it('autogenerates username', async () => {
-      const user = await createDummyUser()
-      user.username.should.not.equal(undefined)
+      const user = await createDummyUser();
+      (user.username as any).should.not.equal(undefined)
     });
     it("user is in no groups by default", async () => {
       const user = await createDummyUser();
@@ -50,14 +50,14 @@ describe('Utils', async () => {
     });
     it("user can be added to a group", async () => {
       const testGroups = ['randomGroupName']
-      const user = await createDummyUser({groups:testGroups})
-      user.groups.should.deep.equal(testGroups)
+      const user = await createDummyUser({groups:testGroups});
+      (user.groups as any).should.deep.equal(testGroups)
     });
   });
   describe('createDummyPost', async () => {
     it('generates a default title and slug', async () => {
-      const post = await createDummyPost()
-      post.title.toLowerCase().should.equal(post.slug)
+      const post = await createDummyPost();
+      (post.title.toLowerCase() as any).should.equal(post.slug)
     });
   });
 

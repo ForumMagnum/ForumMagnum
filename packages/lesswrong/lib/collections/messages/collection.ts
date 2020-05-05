@@ -29,7 +29,7 @@ const options = {
 }
 
 interface ExtendedMessagesCollection extends MessagesCollection {
-  getLink: any
+  getLink: (message: DbMessage) => string
 }
 
 export const Messages: ExtendedMessagesCollection = createCollection({
