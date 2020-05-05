@@ -90,7 +90,7 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
       
       {showAllLink && <SectionFooter>
         <a onClick={this.showAll}>
-          Show All
+          View Full Reading List
         </a>
       </SectionFooter>}
     </div>

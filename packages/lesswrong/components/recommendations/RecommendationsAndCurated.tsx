@@ -146,6 +146,19 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
       {renderContinueReading && <ContinueReadingList continueReading={continueReading} />}
 
+      {renderBookmarks && <div>
+        <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
+          <BookmarksList limit={3} />
+          <SectionFooter>
+            <LWTooltip placement="top-start" title={bookmarksTooltip}>
+              <Link to={"/bookmarks"}>
+                View All Bookmarks
+              </Link>
+            </LWTooltip>
+          </SectionFooter>
+        </AnalyticsContext>
+      </div>}
+
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
@@ -159,19 +172,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
       </AnalyticsContext>
-
-      {renderBookmarks && <div>
-        <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-          <BookmarksList limit={3} />
-          {/* <SectionFooter>
-            <LWTooltip placement="top-start" title={bookmarksTooltip}>
-              <Link to={"/bookmarks"}>
-                View All Bookmarks
-              </Link>
-            </LWTooltip>
-          </SectionFooter> */}
-        </AnalyticsContext>
-      </div>}
     </SingleColumnSection>
   }
 }
