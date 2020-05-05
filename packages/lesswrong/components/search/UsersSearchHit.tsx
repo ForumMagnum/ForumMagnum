@@ -16,7 +16,6 @@ const isLeftClick = (event) => {
 }
 
 const UsersSearchHit = ({hit, clickAction, classes}) => <div className={classes.root}>
-  {console.log(hit)}
   <Link to={Users.getProfileUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction()}>
     <Components.MetaInfo>
       <Components.FormatDate date={hit.createdAt}/>
