@@ -126,6 +126,7 @@ Tags.checkAccess = (currentUser, tag) => {
 addUniversalFields({collection: Tags})
 
 export const tagDescriptionEditableOptions = {
+  commentStyles: true,
   fieldName: "description",
   getLocalStorageId: (tag, name) => {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }

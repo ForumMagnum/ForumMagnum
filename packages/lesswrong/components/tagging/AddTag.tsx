@@ -90,8 +90,11 @@ const AddTag = ({onTagSelected, classes}: {
     </InstantSearch>
     {currentUser?.isAdmin &&
       <Link to="/tag/create" className={classes.newTag}>
-        New Tag
+        Create New Tag
       </Link>}
+    <Link to="/tags/all" className={classes.newTag}>
+      View All Tags
+    </Link>
   </div>
 }
 
