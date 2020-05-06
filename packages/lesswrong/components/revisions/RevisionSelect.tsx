@@ -23,13 +23,14 @@ const styles = theme => ({
   },
 });
 
-const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, classes }: {
+const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
+  loadMoreProps: any,
   classes: ClassesType,
 }) => {
-  const { FormatDate, UsersName } = Components;
+  const { FormatDate, UsersName, LoadMore } = Components;
   
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
@@ -92,6 +93,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, classes }: 
       )
     })}
     
+    <div><LoadMore {...loadMoreProps}/></div>
     <Button onClick={compareRevs}>Compare selected revisions</Button>
   </React.Fragment>
 }

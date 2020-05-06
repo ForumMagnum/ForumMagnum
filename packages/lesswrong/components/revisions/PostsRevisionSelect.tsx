@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -18,10 +19,21 @@ const PostsRevisionSelect = ({ classes }: {
   const { history } = useNavigation();
   const postId = params._id;
   
-  const { document: post, loading } = useSingle({
+  const { document: post, loading: loadingPost } = useSingle({
     documentId: postId,
     collection: Posts,
-    fragmentName: "PostsDetailsAndRevisionsList",
+    fragmentName: "PostsDetails",
+  });
+  const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
+    skip: !post,
+    terms: {
+      view: "viewsOnDocument",
+      documentId: post?._id,
+      fieldName: "contents",
+    },
+    collectionName: "Revisions",
+    fragmentName: "RevisionMetadataWithChangeMetrics",
+    ssr: true,
   });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
@@ -30,15 +42,16 @@ const PostsRevisionSelect = ({ classes }: {
   }, [post, history]);
   
   return <SingleColumnSection>
-    {loading && <Loading/>}
-    
     <h1>{post && post.title}</h1>
     
+    {(loadingPost || loadingRevisions) && <Loading/>}
+    
     <div className={classes.revisionList}>
-      {post && <RevisionSelect
-        revisions={post.revisions}
+      {revisions && <RevisionSelect
+        revisions={revisions}
         getRevisionUrl={(rev: RevisionMetadata) => `${Posts.getPageUrl(post)}?revision=${rev.version}`}
         onPairSelected={compareRevs}
+        loadMoreProps={loadMoreProps}
       />}
     </div>
   </SingleColumnSection>

@@ -290,10 +290,6 @@ interface PostsRevisionsList { // fragment on Posts
   readonly revisions: Array<RevisionMetadata>,
 }
 
-interface PostsDetailsAndRevisionsList extends PostsDetails { // fragment on Posts
-  readonly revisions: Array<RevisionMetadataWithChangeMetrics>,
-}
-
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
 }
@@ -1443,10 +1439,6 @@ interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly description: RevisionEdit,
 }
 
-interface TagRevisionsList extends TagBasicInfo { // fragment on Tags
-  readonly descriptionRevisions: Array<RevisionMetadataWithChangeMetrics>,
-}
-
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly createdAt: Date,
   readonly userId: string,
@@ -1570,7 +1562,6 @@ interface FragmentTypes {
   PostsEdit: PostsEdit
   EditModerationGuidelines: EditModerationGuidelines
   PostsRevisionsList: PostsRevisionsList
-  PostsDetailsAndRevisionsList: PostsDetailsAndRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   SunshinePostsList: SunshinePostsList
@@ -1658,7 +1649,6 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
-  TagRevisionsList: TagRevisionsList
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment

@@ -347,16 +347,6 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment PostsDetailsAndRevisionsList on Post {
-    ...PostsDetails
-    revisions {
-      ...RevisionMetadataWithChangeMetrics
-    }
-  }
-`)
-
-
-registerFragment(`
   fragment PostsRecentDiscussion on Post {
     ...PostsList
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {

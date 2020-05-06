@@ -51,12 +51,3 @@ registerFragment(`
     }
   }
 `);
-
-registerFragment(`
-  fragment TagRevisionsList on Tag {
-    ...TagBasicInfo
-    descriptionRevisions {
-      ...RevisionMetadataWithChangeMetrics
-    }
-  }
-`);

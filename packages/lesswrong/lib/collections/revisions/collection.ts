@@ -1,5 +1,5 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
+import { createCollection, getCollection } from '../../vulcan-lib';
 import { extractVersionsFromSemver } from '../../editor/utils'
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import Users from '../users/collection';
@@ -24,8 +24,26 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   if (!revision) return false
   if ((user && user._id) === revision.userId) return true
   if (Users.canDo(user, 'posts.view.all')) return true
-  const { major } = extractVersionsFromSemver(revision.version)
-  return major > 0
+  
+  // Get the document that this revision is a field of, and check for access to
+  // it. This is necessary for correctly handling things like posts' draft
+  // status and sharing settings.
+  //
+  // We might or might not have a ResolverContext (because some places, like
+  // email-sending, don't have one). If we do, use its loader; in the typical
+  // case, this will hit in the cache 100% of the time. If we don't have a
+  // ResolverContext, use a findOne query; this is slow, but doesn't come up
+  // in any contexts where speed matters.
+  const { collectionName, documentId } = revision;
+  const collection = getCollection(collectionName);
+  const document = context
+    ? await context[collectionName].loader.load(documentId)
+    : await collection.findOne(documentId);
+  
+  if (!await collection.checkAccess(user, document, context))
+    return false;
+  
+  return true;
 }
 
 export default Revisions;
