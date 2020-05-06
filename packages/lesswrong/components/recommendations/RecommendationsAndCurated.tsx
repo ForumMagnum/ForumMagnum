@@ -84,7 +84,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip, CoronavirusFrontpageWidget } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -107,13 +107,13 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     </div>
 
     // Disabled during 2018 Review [and coronavirus]
-    // const allTimeTooltip = <div>
-    //   <div>
-    //     A weighted, randomized sample of the highest karma posts
-    //     {settings.onlyUnread && " that you haven't read yet"}.
-    //   </div>
-    //   <div><em>(Click to see more recommendations)</em></div>
-    // </div>
+    const allTimeTooltip = <div>
+      <div>
+        A weighted, randomized sample of the highest karma posts
+        {settings.onlyUnread && " that you haven't read yet"}.
+      </div>
+      <div><em>(Click to see more recommendations)</em></div>
+    </div>
 
     // defaultFrontpageSettings does not contain anything that overrides a user
     // editable setting, so the reverse ordering here is fine
@@ -129,9 +129,9 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
-        <LWTooltip title="Customize your recommendations">
+        {currentUser && <LWTooltip title="Customize your recommendations">
           <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
-        </LWTooltip>
+        </LWTooltip>}
       </SectionTitle>
       {showSettings &&
         <RecommendationsAlgorithmPicker
@@ -169,14 +169,15 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}
 
-      <AnalyticsContext pageSectionContext="coronavirusWidget">
+      {/* disabled except during coronavirus times */}
+      {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
         <div className={classes.subsection}>
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
-      </AnalyticsContext>
+      </AnalyticsContext> */}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      {/* {!settings.hideFrontpage && <div className={classes.subsection}>
+      {currentUser && !settings.hideFrontpage && <div className={classes.subsection}>
         <LWTooltip placement="top-start" title={allTimeTooltip}>
           <Link to={"/recommendations"}>
             <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
@@ -187,7 +188,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
           <RecommendationsList algorithm={frontpageRecommendationSettings} />
         </AnalyticsContext>
-      </div>} */}
+      </div>}
 
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
         <div className={classes.subsection}>
