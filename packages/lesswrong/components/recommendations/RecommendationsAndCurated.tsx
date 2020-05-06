@@ -7,8 +7,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
-import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
@@ -86,7 +84,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SubscribeWidget, SectionTitle, SectionSubtitle, SectionFooter, BookmarksList, LWTooltip } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 

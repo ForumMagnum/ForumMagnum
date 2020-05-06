@@ -68,7 +68,7 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
   
   render() {
     const { continueReading, continueReadingLoading } = this.props;
-    const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
+    const { PostsItem2, PostsLoading, SectionFooter } = Components;
     if (continueReadingLoading || !continueReading)
       return <PostsLoading/>
     
