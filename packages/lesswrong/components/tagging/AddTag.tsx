@@ -4,6 +4,7 @@ import { InstantSearch, SearchBox, Hits } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
+import Divider from '@material-ui/core/Divider';
 
 const styles = theme => ({
   root: {
@@ -88,13 +89,13 @@ const AddTag = ({onTagSelected, classes}: {
         />
       }/>}
     </InstantSearch>
-    {currentUser?.isAdmin &&
-      <Link to="/tag/create" className={classes.newTag}>
-        Create New Tag
-      </Link>}
+    <Divider/>
     <Link to="/tags/all" className={classes.newTag}>
       View All Tags
     </Link>
+    {currentUser?.isAdmin && <Link to="/tag/create" className={classes.newTag}>
+      Create Tag
+    </Link>}
   </div>
 }
 
