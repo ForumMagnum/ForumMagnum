@@ -57,8 +57,9 @@ const styles = theme => ({
     paddingRight:theme.spacing.unit*2
   },
   seeAll: {
+    ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main
+    color: theme.palette.lwTertiary.main,
   },
   header: {
     cursor: "pointer",
