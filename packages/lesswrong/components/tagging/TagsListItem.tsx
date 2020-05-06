@@ -5,15 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  // card: {
-  //   paddingLeft: 16,
-  //   paddingRight: 16,
-  //   paddingBottom: 8,
-  //   width: 600,
-  //   [theme.breakpoints.down('xs')]: {
-  //     width: "100%"
-  //   }
-  // },
   tag: {
     display: "inline-block",
     width: 250,
