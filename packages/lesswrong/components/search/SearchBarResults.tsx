@@ -57,8 +57,9 @@ const styles = theme => ({
     paddingRight:theme.spacing.unit*2
   },
   seeAll: {
+    ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main
+    color: theme.palette.lwTertiary.main,
   },
   header: {
     cursor: "pointer",
@@ -84,6 +85,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
 
   render() {
     const { classes, closeSearch, currentQuery } = this.props
+    const { PostsSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 
     return <div className={classes.root}>
       <div className={classes.searchResults}>
@@ -98,7 +100,18 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
                 </Link>
               </div>
               <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <Components.UsersSearchHit clickAction={closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} />} />
+            </Index>
+          </div>
+        </Components.ErrorBoundary>
+        <Components.ErrorBoundary>
+          <div className={classes.searchList}>
+            <Index indexName={algoliaIndexNames.Tags}>
+              <div className={classes.header}>
+                <Typography variant="body1">Tags</Typography>
+              </div>
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </div>
         </Components.ErrorBoundary>
@@ -110,7 +123,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
               </div>
 
               <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <Components.PostsSearchHit clickAction={closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </div>
         </Components.ErrorBoundary>
@@ -121,7 +134,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
                 <Typography variant="body1">Comments</Typography>
               </div>
               <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <Components.CommentsSearchHit clickAction={closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} />} />
             </Index>
           </div>
         </Components.ErrorBoundary>
