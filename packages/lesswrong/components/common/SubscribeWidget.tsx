@@ -24,26 +24,19 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
   }
 
   render() {
-    const { SeparatorBullet } = Components;
+    const { TabNavigationSubItem, SubscribeDialog } = Components;
     const { view } = this.props;
     const { dialogOpen, method } = this.state;
 
     return (
       <React.Fragment>
-        <a onClick={ () => this.openDialog("rss") }>
-          { /* On very small screens, use shorter link text ("Subscribe (RSS)"
-               instead of "Subscribe via RSS") to avoid wrapping */ }
-          <Hidden smUp implementation="css">Subscribe (RSS)</Hidden>
-          <Hidden xsDown implementation="css">Subscribe via RSS</Hidden>
-          {/* todo: change back to "via RSS" */}
-        </a>
-        <SeparatorBullet />
-        <a onClick={ () => this.openDialog("email") }>
-          <Hidden smUp implementation="css">Subscribe (Email)</Hidden> 
-          <Hidden xsDown implementation="css">Subscribe via Email</Hidden> 
-          {/* todo: change back to "via Email" */}
-        </a>
-        { dialogOpen && <Components.SubscribeDialog
+        <div onClick={() => this.openDialog("rss")}>
+          <TabNavigationSubItem>Subscribe (RSS)</TabNavigationSubItem>
+        </div>
+        <div onClick={ () => this.openDialog("email")}>
+          <TabNavigationSubItem>Subscribe (Email)</TabNavigationSubItem>
+        </div>
+        { dialogOpen && <SubscribeDialog
           open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
           view={view}

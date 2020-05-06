@@ -73,9 +73,6 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
       return <PostsLoading/>
     
     const { entries, showAllLink } = this.limitResumeReading(continueReading);
-    const saveLeftOffTooltip = <div>
-      Logging in helps you keep track of which sequences you've started reading, so that you can continue reading them when you return to LessWrong.
-    </div>
 
     return <div>
       <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
@@ -91,15 +88,11 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
         })}
       </AnalyticsContext>
       
-      
-      <SectionFooter>
-        {showAllLink && <a onClick={this.showAll}>
+      {showAllLink && <SectionFooter>
+        <a onClick={this.showAll}>
           Show All
-        </a>}
-        <LoginPopupButton title={saveLeftOffTooltip}>
-          Log in to save where you left off
-        </LoginPopupButton>
-      </SectionFooter>
+        </a>
+      </SectionFooter>}
     </div>
   }
 }
