@@ -129,9 +129,9 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
-        <LWTooltip title="Customize your recommendations">
+        {currentUser && <LWTooltip title="Customize your recommendations">
           <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
-        </LWTooltip>
+        </LWTooltip>}
       </SectionTitle>
       {showSettings &&
         <RecommendationsAlgorithmPicker
