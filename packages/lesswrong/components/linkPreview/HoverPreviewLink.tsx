@@ -80,6 +80,9 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }: {
       if (linkTargetAbsolute.host === "hubs.mozilla.com") {
         return <Components.MozillaHubPreview href={href} innerHTML={innerHTML} id={id} />
       }
+      if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
+        return <Components.MetaculusPreview href={href} innerHTML={innerHTML} id={id} />
+      }
       return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
     }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
