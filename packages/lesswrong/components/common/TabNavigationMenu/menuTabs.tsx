@@ -136,6 +136,9 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'subscribeWidget',
+      customComponent: Components.SubscribeWidget,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -157,9 +160,6 @@ export default {
       title: 'Tags',
       link: '/tags',
       subItem: true,
-    }, {
-      id: 'eventsList',
-      customComponent: Components.SubscribeWidget,
     }
   ],
   AlignmentForum: [
