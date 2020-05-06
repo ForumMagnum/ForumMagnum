@@ -286,7 +286,7 @@ addGraphQLResolvers({
     async Recommendations(root, {count,algorithm}, context: ResolverContext) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
-      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts);
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");

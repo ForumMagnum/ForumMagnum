@@ -42,7 +42,7 @@ export const servePostRSS = async (terms, url?: string) => {
   parameters.options.limit = 10;
 
   const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
-  const restrictedPosts = await accessFilterMultiple(null, Posts, postsCursor);
+  const restrictedPosts = await accessFilterMultiple(null, Posts, postsCursor, null);
 
   restrictedPosts.forEach((post) => {
     // LESSWRONG - this was added to handle karmaThresholds
@@ -94,7 +94,7 @@ export const serveCommentRSS = async (terms, url?: string) => {
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
   const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
-  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor);
+  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);
 
   restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);

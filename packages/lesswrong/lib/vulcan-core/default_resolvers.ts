@@ -54,7 +54,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
         const viewableDocs = collection.checkAccess
-          ? _.filter(docs, doc => collection.checkAccess(currentUser, doc))
+          ? _.filter(docs, doc => collection.checkAccess(currentUser, doc, context))
           : docs;
 
         // take the remaining documents and remove any fields that shouldn't be accessible

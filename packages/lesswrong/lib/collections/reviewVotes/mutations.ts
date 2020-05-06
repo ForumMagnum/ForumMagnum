@@ -11,7 +11,7 @@ addGraphQLResolvers({
       if (!postId) throw new Error("Missing argument: postId");
       
       const post = Posts.findOne({_id: postId});
-      if (!await accessFilterSingle(currentUser, Posts, post))
+      if (!await accessFilterSingle(currentUser, Posts, post, context))
         throw new Error("Invalid postId");
       
       // Check whether this post already has a review vote

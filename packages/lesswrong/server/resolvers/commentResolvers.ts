@@ -27,7 +27,7 @@ const specificResolvers = {
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
         runCallbacksAsync('comments.moderate.async', updatedComment, comment, context);
-        return context.Users.restrictViewableFields(currentUser, context.Comments, updatedComment);
+        return context.Users.restrictViewableFields(currentUser, context.Comments, updatedComment, context);
       } else {
         throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }

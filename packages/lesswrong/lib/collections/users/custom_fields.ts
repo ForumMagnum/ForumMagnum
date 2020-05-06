@@ -602,7 +602,7 @@ addFieldsDict(Users, {
           sort: {createdAt: -1}
         }
       ).fetch()
-      const filteredEvents = await asyncFilter(events, async (e: DbLWEvent) => await context.LWEvents.checkAccess(context.currentUser, e))
+      const filteredEvents = await asyncFilter(events, async (e: DbLWEvent) => await context.LWEvents.checkAccess(context.currentUser, e, context))
       const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
@@ -1328,9 +1328,10 @@ addFieldsDict(Users, {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: async (user, { limit }, { currentUser, Users, Posts }: ResolverContext) => {
+      resolver: async (user, { limit }, context: ResolverContext) => {
+        const { currentUser, Users, Posts } = context;
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
-        return await accessFilterMultiple(currentUser, Posts, posts);
+        return await accessFilterMultiple(currentUser, Posts, posts, context);
       }
     }
   },

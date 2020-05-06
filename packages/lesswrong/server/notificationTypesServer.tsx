@@ -108,7 +108,7 @@ export const NewCommentNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -129,7 +129,7 @@ export const NewReplyNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -150,7 +150,7 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw);
+    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
     
     return <Components.EmailCommentBatch comments={comments}/>;
   },
@@ -172,18 +172,18 @@ export const NewMessageNotification = serverRegisterNotificationType({
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);
     const messagesRaw = Messages.find({ _id: {$in: messageIds} }).fetch();
-    const messages = await accessFilterMultiple(user, Messages, messagesRaw);
+    const messages = await accessFilterMultiple(user, Messages, messagesRaw, null);
     
     // Load conversations
     const messagesByConversationId = keyBy(messages, message=>message.conversationId);
     const conversationIds = _.keys(messagesByConversationId);
     const conversationsRaw = Conversations.find({ _id: {$in: conversationIds} }).fetch();
-    const conversations = await accessFilterMultiple(user, Conversations, conversationsRaw);
+    const conversations = await accessFilterMultiple(user, Conversations, conversationsRaw, null);
     
     // Load participant users
     const participantIds = _.uniq(_.flatten(conversations.map(conversation => conversation.participantIds), true));
     const participantsRaw = Users.find({ _id: {$in: participantIds} }).fetch();
-    const participants = await accessFilterMultiple(user, Users, participantsRaw);
+    const participants = await accessFilterMultiple(user, Users, participantsRaw, null);
     const participantsById = keyBy(participants, u=>u._id);
     const otherParticipants = _.filter(participants, id=>id!=user._id);
     

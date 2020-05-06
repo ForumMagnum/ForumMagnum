@@ -5,18 +5,19 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { performVoteServer } from '../voteServer';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
-const addOrUpvoteTag = async ({tagId, postId, currentUser}: {
+const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
   tagId: string,
   postId: string,
   currentUser: DbUser,
+  context: ResolverContext,
 }): Promise<any> => {
   // Validate that tagId and postId refer to valid non-deleted documents
   // and that this user can see both.
   const post = Posts.findOne({_id: postId});
   const tag = Tags.findOne({_id: tagId});
-  if (!await accessFilterSingle(currentUser, Posts, post))
+  if (!await accessFilterSingle(currentUser, Posts, post, context))
     throw new Error("Invalid postId");
-  if (!await accessFilterSingle(currentUser, Tags, tag))
+  if (!await accessFilterSingle(currentUser, Tags, tag, context))
     throw new Error("Invalid tagId");
   
   // Check whether this document already has this tag applied
@@ -51,7 +52,7 @@ addGraphQLResolvers({
       if (!postId) throw new Error("Missing argument: postId");
       if (!tagId) throw new Error("Missing argument: tagId");
       
-      return addOrUpvoteTag({tagId, postId, currentUser});
+      return addOrUpvoteTag({tagId, postId, currentUser, context});
     },
     
     addTags: async (root, {postId, tagIds}: {postId: string, tagIds: Array<string>}, context: ResolverContext) => {
@@ -61,7 +62,7 @@ addGraphQLResolvers({
       if (!tagIds) throw new Error("Missing argument: tagIds");
       
       await Promise.all(tagIds.map(tagId =>
-        addOrUpvoteTag({ tagId, postId, currentUser })
+        addOrUpvoteTag({ tagId, postId, currentUser, context })
       ));
       
       return true;

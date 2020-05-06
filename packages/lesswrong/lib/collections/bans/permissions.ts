@@ -16,7 +16,7 @@ const adminActions = [
 ];
 Users.groups.admins.can(adminActions);
 
-Bans.checkAccess = async (user: DbUser|null, document: DbBan): Promise<boolean> => {
+Bans.checkAccess = async (user: DbUser|null, document: DbBan, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;
   return Users.canDo(user, 'bans.view')
 };

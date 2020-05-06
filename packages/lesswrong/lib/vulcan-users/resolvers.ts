@@ -44,7 +44,7 @@ const resolvers = {
 
       // restrict documents via checkAccess
       const viewableUsers = Users.checkAccess
-      ? await asyncFilter(users, async (doc: DbUser): Promise<boolean> => await Users.checkAccess(currentUser, doc))
+      ? await asyncFilter(users, async (doc: DbUser): Promise<boolean> => await Users.checkAccess(currentUser, doc, context))
       : users;
 
       // restrict documents fields
@@ -65,7 +65,8 @@ const resolvers = {
   },
 
   single: {
-    async resolver(root, { input = {} }: any, { currentUser, Users }, { cacheControl }) {
+    async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
+      const { currentUser, Users } = context;
       const { selector = {}, enableCache = false } = input;
       const { documentId, slug } = selector;
 
@@ -81,7 +82,7 @@ const resolvers = {
         ? await Utils.Connectors.get(Users, { slug })
         : await Utils.Connectors.get(Users);
       if (Users.checkAccess) {
-        if (!await Users.checkAccess(currentUser, user)) return null
+        if (!await Users.checkAccess(currentUser, user, context)) return null
       }
       return { result: Users.restrictViewableFields(currentUser, Users, user) };
     },

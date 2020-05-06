@@ -416,18 +416,18 @@ addFieldsDict(Posts, {
         const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
         if (nextPostID) {
           const nextPost = await Posts.loader.load(nextPostID);
-          return await accessFilterSingle(currentUser, Posts, nextPost);
+          return await accessFilterSingle(currentUser, Posts, nextPost, context);
         }
       }
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
-        return await accessFilterSingle(currentUser, Posts, nextPost);
+        return await accessFilterSingle(currentUser, Posts, nextPost, context);
       }
       if(post.canonicalSequenceId) {
         const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
         if (!nextPostID) return null;
         const nextPost = await Posts.loader.load(nextPostID);
-        return await accessFilterSingle(currentUser, Posts, nextPost);
+        return await accessFilterSingle(currentUser, Posts, nextPost, context);
       }
 
       return null;
@@ -448,18 +448,18 @@ addFieldsDict(Posts, {
         const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
         if (prevPostID) {
           const prevPost = await Posts.loader.load(prevPostID);
-          return await accessFilterSingle(currentUser, Posts, prevPost);
+          return await accessFilterSingle(currentUser, Posts, prevPost, context);
         }
       }
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
-        return await accessFilterSingle(currentUser, Posts, prevPost);
+        return await accessFilterSingle(currentUser, Posts, prevPost, context);
       }
       if(post.canonicalSequenceId) {
         const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
         if (!prevPostID) return null;
         const prevPost = await Posts.loader.load(prevPostID);
-        return await accessFilterSingle(currentUser, Posts, prevPost);
+        return await accessFilterSingle(currentUser, Posts, prevPost, context);
       }
 
       return null;
@@ -485,7 +485,7 @@ addFieldsDict(Posts, {
         sequence = await Sequences.loader.load(post.canonicalSequenceId);
       }
 
-      return await accessFilterSingle(currentUser, Sequences, sequence);
+      return await accessFilterSingle(currentUser, Sequences, sequence, context);
     }
   }),
 
@@ -919,7 +919,7 @@ addFieldsDict(Posts, {
     graphQLtype: GraphQLJSON,
     resolver: async (document, args, context: ResolverContext) => {
       const { currentUser } = context;
-      return await Utils.getTableOfContentsData({document, version: null, currentUser});
+      return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
     },
   }),
 
@@ -930,7 +930,7 @@ addFieldsDict(Posts, {
     graphqlArguments: 'version: String',
     resolver: async (document, { version=null }, context: ResolverContext) => {
       const { currentUser } = context;
-      return await Utils.getTableOfContentsData({document, version, currentUser});
+      return await Utils.getTableOfContentsData({document, version, currentUser, context});
     },
   }),
 
@@ -1037,7 +1037,7 @@ addFieldsDict(Posts, {
         limit: commentsLimit,
         sort: {postedAt:-1}
       }).fetch();
-      return await accessFilterMultiple(currentUser, Comments, comments);
+      return await accessFilterMultiple(currentUser, Comments, comments, context);
     }
   }),
   'recentComments.$': {

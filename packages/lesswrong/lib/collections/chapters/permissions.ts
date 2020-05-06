@@ -17,7 +17,7 @@ const adminActions = [
 ];
 Users.groups.admins.can(adminActions);
 
-Chapters.checkAccess = async (user: DbUser|null, document: DbChapter): Promise<boolean> => {
+Chapters.checkAccess = async (user: DbUser|null, document: DbChapter, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;
   return Users.owns(user, document) ? Users.canDo(user, 'chapters.view.own') : (Users.canDo(user, `conversations.view.all`) || !document.draft)
 };

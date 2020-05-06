@@ -520,7 +520,7 @@ const schema = {
         'postId', post._id
       );
       if (tagRels?.length) {
-        return Users.restrictViewableFields(currentUser, TagRels, tagRels)[0]
+        return Users.restrictViewableFields(currentUser, TagRels, tagRels, context)[0]
       }
     }
   }),
