@@ -177,6 +177,7 @@ Tags.toAlgolia = (tag: DbTag): Array<Record<string,any>>|null => {
   return [{
     _id: tag._id,
     name: tag.name,
+    slug: tag.slug,
     description,
   }];
 }
