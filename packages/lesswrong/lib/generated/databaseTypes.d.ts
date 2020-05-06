@@ -572,6 +572,7 @@ interface DbTag extends DbObject {
   slug: string
   core: boolean
   suggestedAsFilter: boolean
+  defaultOrder: number
   postCount: number
   adminOnly: boolean
   deleted: boolean
