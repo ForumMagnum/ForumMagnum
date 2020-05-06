@@ -1470,6 +1470,7 @@ interface SubscriptionState { // fragment on Subscriptions
 
 interface RevisionsDefaultFragment { // fragment on Revisions
   readonly documentId: string,
+  readonly collectionName: string,
   readonly fieldName: string,
   readonly editedAt: Date,
   readonly updateType: string,

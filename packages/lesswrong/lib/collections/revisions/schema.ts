@@ -19,6 +19,10 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
   },
+  collectionName: {
+    type: String,
+    viewableBy: ['guests'],
+  },
   fieldName: {
     type: String,
     viewableBy: ['guests'],

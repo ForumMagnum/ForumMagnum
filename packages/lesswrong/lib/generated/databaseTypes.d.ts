@@ -601,6 +601,7 @@ interface RevisionsCollection extends CollectionBase<DbRevision> {
 
 interface DbRevision extends DbObject {
   documentId: string
+  collectionName: string
   fieldName: string
   editedAt: Date
   updateType: string

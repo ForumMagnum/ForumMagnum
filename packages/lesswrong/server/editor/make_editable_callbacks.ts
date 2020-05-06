@@ -325,6 +325,7 @@ export function addEditableCallbacks({collection, options = {}}: {
     deactivateNewCallback,
   } = options
 
+  const collectionName = collection.collectionName;
   const { typeName } = collection.options
 
   async function editorSerializationBeforeCreate (doc, { currentUser }) {
@@ -351,6 +352,7 @@ export function addEditableCallbacks({collection, options = {}}: {
           currentUser,
         }),
         fieldName,
+        collectionName,
         version,
         updateType: 'initial',
         commitMessage,
@@ -402,6 +404,7 @@ export function addEditableCallbacks({collection, options = {}}: {
           currentUser,
         }),
         fieldName,
+        collectionName,
         version,
         updateType,
         commitMessage,
