@@ -20,7 +20,7 @@ export const makeVoteable = (collection, options?: any) => {
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document, args, { Users, Votes, currentUser }) => {
+        resolver: async (document, args, { Users, Votes, currentUser }: ResolverContext) => {
           if (!currentUser) return [];
           const votes = await getWithLoader(Votes,
             `votesByUser${currentUser._id}`,
@@ -46,7 +46,7 @@ export const makeVoteable = (collection, options?: any) => {
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document, args, { Users, Votes, currentUser }) => {
+        resolver: async (document, args, { Users, Votes, currentUser }: ResolverContext) => {
           const votes = await getWithLoader(Votes,
             "votesByDocument",
             {

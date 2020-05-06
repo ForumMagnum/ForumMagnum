@@ -272,25 +272,25 @@ const schema = {
   domain: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context) => Utils.getDomain(post.url),
+    resolver: (post, args, context: ResolverContext) => Utils.getDomain(post.url),
   }),
 
   pageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, true),
+    resolver: (post, args, {Posts}: ResolverContext) => Posts.getPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, false),
+    resolver: (post, args, {Posts}: ResolverContext) => Posts.getPageUrl(post, false),
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => {
+    resolver: (post, args, { Posts }: ResolverContext) => {
       return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
     },
   }),
@@ -298,7 +298,7 @@ const schema = {
   postedAtFormatted: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context) => {
+    resolver: (post, args, context: ResolverContext) => {
       return moment(post.postedAt).format('dddd, MMMM Do YYYY');
     }
   }),
@@ -306,19 +306,19 @@ const schema = {
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => Posts.getEmailShareUrl(post),
+    resolver: (post, args, { Posts }: ResolverContext) => Posts.getEmailShareUrl(post),
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => Posts.getTwitterShareUrl(post),
+    resolver: (post, args, { Posts }: ResolverContext) => Posts.getTwitterShareUrl(post),
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => Posts.getFacebookShareUrl(post),
+    resolver: (post, args, { Posts }: ResolverContext) => Posts.getFacebookShareUrl(post),
   }),
 
   question: {
@@ -345,7 +345,7 @@ const schema = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => {
+    resolver: (post, args, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -355,7 +355,7 @@ const schema = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => {
+    resolver: (post, args, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return "";
       return contents.html;
@@ -404,7 +404,7 @@ const schema = {
     type: Array,
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
-    resolver: async (post, args, { Posts }) => {
+    resolver: async (post, args, { Posts }: ResolverContext) => {
       return await PostRelations.find({targetPostId: post._id}).fetch()
     }
   }),
@@ -417,7 +417,7 @@ const schema = {
     type: Array,
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
-    resolver: async (post, args, { Posts }) => {
+    resolver: async (post, args, { Posts }: ResolverContext) => {
       const postRelations = await Posts.rawCollection().aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
@@ -510,7 +510,8 @@ const schema = {
     graphQLtype: "TagRel",
     viewableBy: ['guests'],
     graphqlArguments: 'tagId: String',
-    resolver: async (post, {tagId}, { Users, Posts, currentUser}) => {
+    resolver: async (post, {tagId}, context: ResolverContext) => {
+      const { Users, Posts, currentUser } = context;
       const tagRels = await getWithLoader(TagRels,
         "tagRelByDocument",
         {

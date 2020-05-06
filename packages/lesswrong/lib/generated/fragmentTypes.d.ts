@@ -1391,6 +1391,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly slug: string,
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
   readonly postCount: number,
   readonly createdAt: Date,
   readonly createdBy: string,
@@ -1408,6 +1409,8 @@ interface TagBasicInfo { // fragment on Tags
   readonly postCount: number,
   readonly deleted: boolean,
   readonly adminOnly: boolean,
+  readonly defaultOrder: number,
+  readonly suggestedAsFilter: boolean,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1436,14 +1439,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
-interface TagEditFragment { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly postCount: number,
-  readonly deleted: boolean,
+interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly description: RevisionEdit,
 }
 

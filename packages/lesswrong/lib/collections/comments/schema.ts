@@ -131,7 +131,7 @@ const schema = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context) => {
+    resolver: (comment, args, context: ResolverContext) => {
       return context.Comments.getPageUrl(comment, true)
     },
   }),
@@ -139,7 +139,7 @@ const schema = {
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context) => {
+    resolver: (comment, args, context: ResolverContext) => {
       return context.Comments.getPageUrl(comment, false)
     },
   }),
@@ -173,7 +173,8 @@ const schema = {
     type: Array,
     graphQLtype: '[Comment]',
     viewableBy: ['guests'],
-    resolver: async (comment, args, { Comments }) => {
+    resolver: async (comment, args, context: ResolverContext) => {
+      const { Comments } = context;
       const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
       return await Comments.find(params.selector, params.options).fetch()
     }
@@ -314,7 +315,8 @@ const schema = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (comment, args, { Comments }) => {
+    resolver: (comment, args, context: ResolverContext) => {
+      const { Comments } = context;
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -324,7 +326,8 @@ const schema = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (comment, args, { Comments }) => {
+    resolver: (comment, args, context: ResolverContext) => {
+      const { Comments } = context;
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;

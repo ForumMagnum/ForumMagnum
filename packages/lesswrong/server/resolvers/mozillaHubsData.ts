@@ -41,7 +41,7 @@ async function getDataFromMozillaHubs() {
 
 const mozillaHubsResolvers = {
   Query: {
-    async MozillaHubsRoomData(root, { roomId }, context) {
+    async MozillaHubsRoomData(root, { roomId }, context: ResolverContext) {
       const rawRoomData:any = await getDataFromMozillaHubs()
       if (!rawRoomData) return null
       const processedData = JSON.parse(rawRoomData)

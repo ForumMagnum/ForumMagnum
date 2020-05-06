@@ -45,7 +45,8 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser}: {
 
 addGraphQLResolvers({
   Mutation: {
-    addOrUpvoteTag: async (root, { tagId, postId }, { currentUser }) => {
+    addOrUpvoteTag: async (root, { tagId, postId }, context: ResolverContext) => {
+      const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to tag");
       if (!postId) throw new Error("Missing argument: postId");
       if (!tagId) throw new Error("Missing argument: tagId");
@@ -53,7 +54,8 @@ addGraphQLResolvers({
       return addOrUpvoteTag({tagId, postId, currentUser});
     },
     
-    addTags: async (root, {postId, tagIds}: {postId: string, tagIds: Array<string>}, {currentUser}) => {
+    addTags: async (root, {postId, tagIds}: {postId: string, tagIds: Array<string>}, context: ResolverContext) => {
+      const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to tag");
       if (!postId) throw new Error("Missing argument: postId");
       if (!tagIds) throw new Error("Missing argument: tagIds");

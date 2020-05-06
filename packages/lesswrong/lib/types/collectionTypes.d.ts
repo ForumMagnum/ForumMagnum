@@ -10,7 +10,7 @@ interface CollectionBase<T extends DbObject> {
   simpleSchema: any
   addField: any
   helpers: any
-  loader: any
+  defaultView: any,
   
   // TODO: Type-system plumbing should handle the fact that loaders are available
   // if you get the collection via a resolver's context, but not available if you
@@ -64,4 +64,10 @@ interface HasSlugType extends DbObject {
 
 interface HasCreatedAtType extends DbObject {
   createdAt: Date
+}
+
+interface ResolverContext extends CollectionsByName {
+  headers: any,
+  currentUser: DbUser|null,
+  locale: string,
 }

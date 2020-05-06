@@ -159,7 +159,8 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
 
       const readStatus = await getWithLoader(ReadStatuses,
@@ -175,7 +176,8 @@ addFieldsDict(Posts, {
   isRead: resolverOnlyField({
     type: Boolean,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;
       
       const readStatus = await getWithLoader(ReadStatuses,
@@ -229,7 +231,7 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: async (post, args, context) => {
+      resolver: async (post, args, context: ResolverContext) => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
@@ -347,7 +349,7 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post, args, context) => {
+      resolver: (post, args, context: ResolverContext) => {
         if (!post.canonicalCollectionSlug) return null;
         return context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
@@ -408,7 +410,8 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+      const { currentUser, Posts, Sequences } = context;
       if (sequenceId) {
         const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
         if (nextPostID) {
@@ -439,7 +442,8 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+      const { currentUser, Posts, Sequences } = context;
       if (sequenceId) {
         const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
         if (prevPostID) {
@@ -472,7 +476,8 @@ addFieldsDict(Posts, {
     graphQLtype: "Sequence",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, { currentUser, Sequences }) => {
+    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+      const { currentUser, Sequences } = context;
       let sequence = null;
       if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
         sequence = await Sequences.loader.load(sequenceId);
@@ -912,7 +917,8 @@ addFieldsDict(Posts, {
     type: Object,
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
-    resolver: async (document, args, { currentUser }) => {
+    resolver: async (document, args, context: ResolverContext) => {
+      const { currentUser } = context;
       return await Utils.getTableOfContentsData({document, version: null, currentUser});
     },
   }),
@@ -922,7 +928,8 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
     graphqlArguments: 'version: String',
-    resolver: async (document, { version=null }, { currentUser }) => {
+    resolver: async (document, { version=null }, context: ResolverContext) => {
+      const { currentUser } = context;
       return await Utils.getTableOfContentsData({document, version, currentUser});
     },
   }),
@@ -935,7 +942,8 @@ addFieldsDict(Posts, {
     canRead: ['guests'],
     resolveAs: {
       type: 'Boolean',
-      resolver: async (post, args, { LWEvents, currentUser }) => {
+      resolver: async (post, args, context: ResolverContext) => {
+        const { LWEvents, currentUser } = context;
         if(currentUser){
           const query = {
             name:'toggled-user-moderation-guidelines',
@@ -1015,7 +1023,8 @@ addFieldsDict(Posts, {
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, { currentUser, Comments }) => {
+    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
       const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,

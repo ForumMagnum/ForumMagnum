@@ -593,7 +593,7 @@ addFieldsDict(Users, {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user, args, context) => {
+    resolver: async (user, args, context: ResolverContext) => {
       const events: Array<DbLWEvent> = context.LWEvents.find(
         {userId: user._id, name: 'login'},
         {
@@ -982,7 +982,7 @@ addFieldsDict(Users, {
   isReviewed: resolverOnlyField({
     type: Boolean,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
-    resolver: (user, args, context) => !!user.reviewedByUserId,
+    resolver: (user, args, context: ResolverContext) => !!user.reviewedByUserId,
   }),
 
   reviewedAt: {
@@ -1005,7 +1005,7 @@ addFieldsDict(Users, {
     type: Number,
     graphQLtype: "Float",
     canRead: ['guests'],
-    resolver: (user, args, context) => {
+    resolver: (user, args, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
 
@@ -1028,7 +1028,7 @@ addFieldsDict(Users, {
     type: Array,
     graphQLtype: '[Vote]',
     canRead: ['admins', 'sunshineRegiment'],
-    resolver: async (document, args, { Users, Votes, currentUser }) => {
+    resolver: async (document, args, { Users, Votes, currentUser }: ResolverContext) => {
       const votes = await Votes.find({
         userId: document._id,
         cancelled: false,
@@ -1328,7 +1328,7 @@ addFieldsDict(Users, {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: async (user, { limit }, { currentUser, Users, Posts }) => {
+      resolver: async (user, { limit }, { currentUser, Users, Posts }: ResolverContext) => {
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts);
       }

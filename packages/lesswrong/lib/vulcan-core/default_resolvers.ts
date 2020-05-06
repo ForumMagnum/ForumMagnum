@@ -33,7 +33,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root, { input = {} }, context, { cacheControl }) {
+      async resolver(root, { input = {} }, context: ResolverContext, { cacheControl }) {
         const { terms = {}, enableCache = false, enableTotal = false } = input as any; //LESSWRONG: enableTotal defaults false
 
         if (cacheControl && enableCache) {
@@ -42,7 +42,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         }
 
         // get currentUser and Users collection from context
-        const { currentUser }: {currentUser: DbUser} = context;
+        const { currentUser }: {currentUser: DbUser|null} = context;
 
         // get collection based on collectionName argument
         const collection: CollectionBase<T> = context[collectionName];
@@ -81,7 +81,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root, { input = {} }, context, { cacheControl }) {
+      async resolver(root, { input = {} }, context: ResolverContext, { cacheControl }) {
         const { selector = {}, enableCache = false, allowNull = false } = input as any;
 
         debug('');
@@ -96,7 +96,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
           cacheControl.setCacheHint({ maxAge });
         }
 
-        const { currentUser }: {currentUser: DbUser, } = context;
+        const { currentUser }: {currentUser: DbUser|null} = context;
         const collection: CollectionBase<T> = context[collectionName];
 
         // use Dataloader if doc is selected by documentId/_id

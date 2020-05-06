@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 
 const specificResolvers = {
   Query: {
-    async currentUser(root, args, context) {
+    async currentUser(root, args, context: ResolverContext) {
       let user: any = null;
       if (context && context.userId) {
         user = await context.Users.loader.load(context.userId);
@@ -28,7 +28,8 @@ const defaultOptions = {
 
 const resolvers = {
   multi: {
-    async resolver(root, { input = {} }: any, { currentUser, Users }, { cacheControl }) {
+    async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
+      const { currentUser, Users } = context;
       const { terms = {}, enableCache = false, enableTotal = false } = input;
 
       if (cacheControl && enableCache) {

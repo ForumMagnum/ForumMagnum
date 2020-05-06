@@ -47,7 +47,7 @@ const schema = {
     type: Array,
     graphQLtype: '[Book]',
     viewableBy: ['guests'],
-    resolver: (collection, args, context) => {
+    resolver: (collection, args, context: ResolverContext) => {
       const books = context.Books.find(
         {collectionId: collection._id},
         {

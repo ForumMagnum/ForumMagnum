@@ -23,7 +23,7 @@ defineQuery({
       finished: Date
       succeeded: Boolean
     }`,
-  fn: async (root, args, context) => {
+  fn: async (root, args, context: ResolverContext) => {
     if (!context.currentUser || !context.currentUser.isAdmin)
       throw new Error("MigrationsDashboard graphQL API requires being logged in as an admin");
     

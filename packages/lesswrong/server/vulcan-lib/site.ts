@@ -12,7 +12,7 @@ addGraphQLSchema(siteSchema);
 
 const siteResolvers = {
   Query: {
-    SiteData(root, args, context) {
+    SiteData(root, args, context: ResolverContext) {
       return {
         title: getSetting('title'),
         url: getSetting('siteUrl', Meteor.absoluteUrl()),

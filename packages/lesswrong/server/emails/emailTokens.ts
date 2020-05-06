@@ -61,7 +61,7 @@ export class EmailTokenType
 addGraphQLMutation('useEmailToken(token: String): JSON');
 addGraphQLResolvers({
   Mutation: {
-    async useEmailToken(root, {token}, context) {
+    async useEmailToken(root, {token}, context: ResolverContext) {
       try {
         const results = await EmailTokens.find({ token }).fetch();
         if (results.length != 1)

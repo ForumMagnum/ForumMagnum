@@ -572,6 +572,7 @@ interface DbTag extends DbObject {
   slug: string
   core: boolean
   suggestedAsFilter: boolean
+  defaultOrder: number
   postCount: number
   createdAt: Date
   createdBy: string
@@ -629,5 +630,36 @@ interface DbEmailTokens extends DbObject {
   userId: string
   usedAt: Date
   params: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface CollectionsByName {
+  Users: UsersCollection
+  Votes: VotesCollection
+  Notifications: NotificationsCollection
+  Conversations: ConversationsCollection
+  Messages: MessagesCollection
+  RSSFeeds: RSSFeedsCollection
+  Reports: ReportsCollection
+  LWEvents: LWEventsCollection
+  DatabaseMetadata: DatabaseMetadataCollection
+  Migrations: MigrationsCollection
+  DebouncerEvents: DebouncerEventsCollection
+  ReadStatuses: ReadStatusesCollection
+  Bans: BansCollection
+  Sequences: SequencesCollection
+  PostRelations: PostRelationsCollection
+  TagRels: TagRelsCollection
+  Comments: CommentsCollection
+  Posts: PostsCollection
+  Chapters: ChaptersCollection
+  Books: BooksCollection
+  Collections: CollectionsCollection
+  ReviewVotes: ReviewVotesCollection
+  Localgroups: LocalgroupsCollection
+  Tags: TagsCollection
+  Subscriptions: SubscriptionsCollection
+  Revisions: RevisionsCollection
+  LegacyData: LegacyDataCollection
+  EmailTokens: EmailTokensCollection
 }
 

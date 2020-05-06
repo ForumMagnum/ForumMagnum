@@ -100,7 +100,7 @@ const schema = {
     type: "TagRel",
     graphQLtype: 'TagRel',
     canRead: ['admins'],
-    resolver: (vote, args, { TagRels }) => {
+    resolver: (vote, args, { TagRels }: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
         const tagRel = TagRels.find({_id: vote.documentId}).fetch()[0]
         if (tagRel) {

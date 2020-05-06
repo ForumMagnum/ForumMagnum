@@ -10,7 +10,8 @@ Users.addField([
       resolveAs: {
         arguments: 'startDate: Date, endDate: Date',
         type: 'KarmaChanges',
-        resolver: async (document, {startDate,endDate}, {currentUser}) => {
+        resolver: async (document, {startDate,endDate}, context: ResolverContext) => {
+          const { currentUser } = context;
           if (!currentUser)
             return null;
           

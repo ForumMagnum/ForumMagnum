@@ -87,7 +87,7 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc, { version }, { currentUser, Revisions }: {currentUser: DbUser, Revisions: RevisionsCollection}) => {
+        resolver: async (doc, { version }, { currentUser, Revisions }: ResolverContext) => {
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
           if (version) {
@@ -124,7 +124,7 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: '[Revision]',
         arguments: 'limit: Int = 5',
-        resolver: async (post, { limit }, { currentUser, Revisions }) => {
+        resolver: async (post, { limit }, { currentUser, Revisions }: ResolverContext) => {
           const field = fieldName || "contents"
           const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
           return await accessFilterMultiple(currentUser, Revisions, resolvedDocs);

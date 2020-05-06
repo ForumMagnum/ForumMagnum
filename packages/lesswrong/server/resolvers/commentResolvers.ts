@@ -3,18 +3,19 @@ import Users from "../../lib/collections/users/collection";
 
 const specificResolvers = {
   Mutation: {
-    moderateComment(root, { commentId, deleted, deletedPublic, deletedReason}, context) {
+    moderateComment(root, { commentId, deleted, deletedPublic, deletedReason}, context: ResolverContext) {
+      const {currentUser} = context;
       const comment = context.Comments.findOne(commentId)
       const post = context.Posts.findOne(comment.postId)
-
-      if (Users.canModeratePost(context.currentUser, post)) {
+      
+      if (currentUser && Users.canModeratePost(currentUser, post)) {
 
         let set: Record<string,any> = {deleted: deleted}
         if (deleted) {
           set.deletedPublic = deletedPublic;
           set.deletedDate = comment.deletedDate || new Date();
           set.deletedReason = deletedReason;
-          set.deletedByUserId = context.currentUser._id;
+          set.deletedByUserId = currentUser._id;
         } else { //When you undo delete, reset all delete-related fields
           set.deletedPublic = false;
           set.deletedDate = null;
@@ -26,7 +27,7 @@ const specificResolvers = {
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
         runCallbacksAsync('comments.moderate.async', updatedComment, comment, context);
-        return context.Users.restrictViewableFields(context.currentUser, context.Comments, updatedComment);
+        return context.Users.restrictViewableFields(currentUser, context.Comments, updatedComment);
       } else {
         throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }

@@ -8,7 +8,7 @@ import { editableCollections, editableCollectionsFields } from '../../lib/editor
 
 addGraphQLResolvers({
   Query: {
-    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string }, context): Promise<string> {
+    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
       // Validate collectionName, fieldName

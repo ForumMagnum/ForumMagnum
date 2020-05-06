@@ -9,7 +9,7 @@ import Users from "../collections/users/collection";
 
 const alignmentCommentResolvers = {
   Mutation: {
-    alignmentComment(root, { commentId, af }, context) {
+    alignmentComment(root, { commentId, af }, context: ResolverContext) {
       const comment = context.Comments.findOne(commentId)
 
       if (Users.canDo(context.currentUser, "comments.alignment.move.all")) {
@@ -32,7 +32,7 @@ addGraphQLMutation('alignmentComment(commentId: String, af: Boolean): Comment');
 
 const alignmentPostResolvers = {
   Mutation: {
-    alignmentPost(root, { postId, af }, context) {
+    alignmentPost(root, { postId, af }, context: ResolverContext) {
       const post = context.Posts.findOne(postId)
 
       if (Users.canMakeAlignmentPost(context.currentUser, post)) {
@@ -55,7 +55,7 @@ addGraphQLMutation('alignmentPost(postId: String, af: Boolean): Post');
 
 // const suggestAlignmentPostResolvers = {
 //   Mutation: {
-//     suggestAlignmentPost(root, { postId, suggestForAlignmentUserIds }, context) {
+//     suggestAlignmentPost(root, { postId, suggestForAlignmentUserIds }, context: ResolverContext) {
 //       const post = context.Posts.findOne(postId)
 //
 //       if (Users.canDo(context.currentUser, "posts.alignment.new")) {
