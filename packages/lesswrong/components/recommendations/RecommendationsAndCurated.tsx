@@ -97,14 +97,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       <div><em>(Click to see more curated posts)</em></div>
     </div>
 
-    // const coreReadingTooltip = <div>
-    //   <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
-    // </div>
-
-    const continueReadingTooltip = <div>
-      <div>The next posts in sequences you've started reading, but not finished.</div>
-    </div>
-
     const bookmarksTooltip = <div>
       <div>Individual posts that you've bookmarked</div>
       <div><em>(Click to see all)</em></div>
@@ -132,6 +124,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
 
     return <SingleColumnSection className={classes.section}>
+
       <SectionTitle title="Recommendations">
         <LWTooltip title="Customize your recommendations">
           <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
@@ -144,34 +137,35 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
 
-      {renderContinueReading && <ContinueReadingList continueReading={continueReading} />}
+      {currentUser && renderContinueReading && <ContinueReadingList continueReading={continueReading} />}
 
       {renderBookmarks && <div>
         <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
           <BookmarksList limit={3} />
-          <SectionFooter>
+        </AnalyticsContext>
+      </div>}
+      {currentUser && (renderBookmarks || renderContinueReading) && <SectionFooter>
             <LWTooltip placement="top-start" title={bookmarksTooltip}>
               <Link to={"/bookmarks"}>
                 View All Bookmarks
               </Link>
             </LWTooltip>
-          </SectionFooter>
-        </AnalyticsContext>
-      </div>}
+          </SectionFooter>}
 
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}
-
+        
       {/* Disabled during 2018 Review [and coronavirus season] */}
+      {!currentUser && renderContinueReading && <ContinueReadingList continueReading={continueReading} />}
       {currentUser && !settings.hideFrontpage && <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
         <RecommendationsList algorithm={frontpageRecommendationSettings} />
       </AnalyticsContext>}
-
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
       </AnalyticsContext>
+
     </SingleColumnSection>
   }
 }

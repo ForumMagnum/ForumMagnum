@@ -87,12 +87,6 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
           />
         })}
       </AnalyticsContext>
-      
-      {showAllLink && <SectionFooter>
-        <a onClick={this.showAll}>
-          View Full Reading List
-        </a>
-      </SectionFooter>}
     </div>
   }
 }

@@ -5,13 +5,14 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 
 const BookmarksPage = () => {
-  const {SingleColumnSection, SectionTitle, BookmarksList} = Components
+  const {SingleColumnSection, SectionTitle, BookmarksList, ContinueReadingList} = Components
 
   const currentUser = useCurrentUser()
 
   if (!currentUser) return <span>You must sign in to view bookmarked posts.</span>
 
   return <SingleColumnSection>
+    {/* {renderContinueReading && <ContinueReadingList continueReading={continueReading} />} */}
       <AnalyticsContext listContext={"bookmarksPage"} capturePostItemOnMount>
         <SectionTitle title="Bookmarks"/>
         <BookmarksList/>
