@@ -5,6 +5,7 @@ import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/core';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Meteor } from 'meteor/meteor';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -94,7 +95,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }: {
 
 }
 
-const HoverPreviewLinkComponent = registerComponent('HoverPreviewLink', HoverPreviewLink);
+const HoverPreviewLinkComponent = registerComponent('HoverPreviewLink', HoverPreviewLink, { hocs: [withErrorBoundary] });
 
 declare global {
   interface ComponentTypes {
