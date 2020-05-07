@@ -448,7 +448,7 @@ const MetaculusPreview = ({classes, href, innerHTML, id}: {
 }) => {
   const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
-  const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/)
+  const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/) || []
 
   if (!questionNumber) {
     return <a href={href}>
