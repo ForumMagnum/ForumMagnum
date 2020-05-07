@@ -304,7 +304,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" onMouseEnter={stopHover}>
         <Card>
           <div className={classes.hovercard}>
-            {href}
+            {decodeURIComponent(href)}
           </div>
         </Card>
       </LWPopper>
@@ -386,8 +386,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   });
   
   const data = rawData?.MozillaHubsRoomData
-  const { AnalyticsTracker } = Components
-  const { LWPopper } = Components
+  const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   if (loading || !data) return <a href={href}>
     <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
@@ -426,6 +425,54 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
+const metaculusStyles = (theme) => ({
+  background: {
+    backgroundColor: "#2c3947"
+  },
+  iframeStyling: {
+    width: 400,
+    height: 250, 
+    border: "none",
+    maxWidth: "100vw"
+  },
+  link: {
+    ...linkStyle(theme)
+  }
+})
+
+const MetaculusPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  id?: string,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components
+  const { anchorEl, hover, eventHandlers } = useHover();
+  const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/) || []
+
+  if (!questionNumber) {
+    return <a href={href}>
+      <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    </a>  
+  }
+
+  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
+    <span {...eventHandlers}>
+      <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+        <div className={classes.background}>
+          <iframe className={classes.iframeStyling} src={`https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf`} />
+        </div>
+      </LWPopper>
+    </span>
+  </AnalyticsTracker>
+}
+
+const MetaculusPreviewComponent = registerComponent('MetaculusPreview', MetaculusPreview, {
+  styles: metaculusStyles
+})
+
 declare global {
   interface ComponentTypes {
     PostLinkPreview: typeof PostLinkPreviewComponent,
@@ -439,6 +486,7 @@ declare global {
     PostLinkPreviewWithPost: typeof PostLinkPreviewWithPostComponent,
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
+    MetaculusPreview: typeof MetaculusPreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
   }
 }
