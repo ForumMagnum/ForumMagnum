@@ -30,10 +30,7 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
     return (
       <React.Fragment>
         <div onClick={() => this.openDialog("rss")}>
-          <TabNavigationSubItem>Subscribe (RSS)</TabNavigationSubItem>
-        </div>
-        <div onClick={ () => this.openDialog("email")}>
-          <TabNavigationSubItem>Subscribe (Email)</TabNavigationSubItem>
+          <TabNavigationSubItem>Subscribe (RSS/Email)</TabNavigationSubItem>
         </div>
         { dialogOpen && <SubscribeDialog
           open={true}
