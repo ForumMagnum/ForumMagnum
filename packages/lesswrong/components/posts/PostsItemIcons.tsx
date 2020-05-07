@@ -95,7 +95,7 @@ const PostsItemIcons = ({post, classes}: {
     {getSetting('forumType') !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
         <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
-          <a href={`https://alignmentforum.org/${Posts.getPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
+            <a href={`https://alignmentforum.org${Posts.getPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
         </LWTooltip>
       </span>
     }
