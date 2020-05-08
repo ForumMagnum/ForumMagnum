@@ -115,18 +115,24 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
     <span>{post.title}</span>
-
-    {showIcons && <span className={classes.hideSmDown}>
-      <PostsItemIcons post={post}/>
-    </span>}
   </span>
 
   if (isLink) {
-    return <Link to={url}>
-      {title}
-    </Link>
+    return <span>
+          <Link to={url}>
+            {title}
+          </Link>
+          {showIcons && <span className={classes.hideSmDown}>
+            <PostsItemIcons post={post}/>
+          </span>}
+      </span>
   } else {
-    return <span>{title}</span>
+    return <span>
+      {title}
+      {showIcons && <span className={classes.hideSmDown}>
+        <PostsItemIcons post={post}/>
+      </span>}
+    </span>
   }
 }
 
