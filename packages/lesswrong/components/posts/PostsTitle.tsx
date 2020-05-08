@@ -108,10 +108,6 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
     {shared && <span className={classes.tag}>[Shared]</span>}
 
-    {/* {post.question && shouldRenderQuestionTag && <span className={classes.question}>Q</span>} */}
-
-    {/* {post.url && showLinkTag && <span className={classes.tag}>[Link]</span>} */}
-
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
     <span>{post.title}</span>
