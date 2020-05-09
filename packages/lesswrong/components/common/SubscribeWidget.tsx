@@ -38,7 +38,7 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
   }
 }
 
-const SubscribeWidgetComponent = registerComponent<ExternalProps>("SubscribeWidget", SubscribeWidget, {
+const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget, {
   hocs: [withTracking]
 });
 
