@@ -149,6 +149,9 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'subscribeWidget',
+      customComponent: Components.SubscribeWidget,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
