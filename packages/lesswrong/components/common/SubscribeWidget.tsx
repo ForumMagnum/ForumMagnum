@@ -14,7 +14,7 @@ interface SubscribeWidgetState {
 class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetState> {
   state: SubscribeWidgetState = {
     dialogOpen: false,
-    method: "",
+    method: "curated",
   }
 
   openDialog(method: string) {
@@ -28,16 +28,16 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
     const { dialogOpen, method } = this.state;
 
     return (
-      <React.Fragment>
-        <div onClick={() => this.openDialog("rss")}>
+      <div>
+        <a onClick={() => this.openDialog("rss")}>
           <TabNavigationSubItem>Subscribe (RSS/Email)</TabNavigationSubItem>
-        </div>
+        </a>
         { dialogOpen && <SubscribeDialog
           open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
           view={view}
           method={method} /> }
-      </React.Fragment>
+      </div>
     )
   }
 }

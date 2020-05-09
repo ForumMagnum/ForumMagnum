@@ -93,15 +93,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
   const url = postLink || Posts.getPageUrl(post)
 
-  const title = <span className={classNames(
-      classes.root,
-      {
-        [classes.read]: read,
-        [classes.wrap]: wrap,
-        [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
-        [classes.adminRead]: read && userHasBoldPostItems(currentUser),
-      }
-    )}>
+  const title = <span>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
@@ -113,23 +105,20 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
     <span>{post.title}</span>
   </span>
 
-  if (isLink) {
-    return <span>
-          <Link to={url}>
-            {title}
-          </Link>
-          {showIcons && <span className={classes.hideSmDown}>
-            <PostsItemIcons post={post}/>
-          </span>}
-      </span>
-  } else {
-    return <span>
-      {title}
+  return (
+    <span className={classNames(classes.root, {
+      [classes.read]: read,
+      [classes.wrap]: wrap,
+      [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
+      [classes.adminRead]: read && userHasBoldPostItems(currentUser),
+    })}>
+      {isLink ? <Link to={url}>{title}</Link> : title }
       {showIcons && <span className={classes.hideSmDown}>
         <PostsItemIcons post={post}/>
       </span>}
     </span>
-  }
+  )
+
 }
 
 const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
