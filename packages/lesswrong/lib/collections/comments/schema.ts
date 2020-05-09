@@ -2,6 +2,7 @@ import Users from '../users/collection';
 import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { schemaDefaultValue } from '../../collectionUtils';
+import { Utils } from '../../vulcan-lib';
 
 const schema = {
   // The `_id` of the parent comment, if there is one
@@ -181,16 +182,6 @@ const schema = {
     type: String,
     optional: true,
   },
-
-  chosenAnswer: {
-    type: Boolean,
-    optional: true,
-    hidden: true,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    ...schemaDefaultValue(false),
-  },
   
   shortform: {
     type: Boolean,
@@ -246,6 +237,53 @@ const schema = {
     onCreate: async ({newDocument}) => {
       const post = await Posts.findOne({_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
+    }
+  },
+
+  promoted: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+  },
+
+  promotedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "promotedByUserId",
+      resolverName: "promotedByUser",
+      collectionName: "Users",
+      type: "User"
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    onUpdate: async ({data, currentUser, document, oldDocument}) => {
+      if (data?.promoted && !oldDocument.promoted) {
+        Utils.updateMutator({
+          collection: Posts,
+          selector: {_id:document.postId},
+          data: { lastCommentPromotedAt: new Date() },
+          currentUser,
+          validate: false
+        })
+        return currentUser._id
+      }
+    }    
+  },
+
+  promotedAt: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    onUpdate: async ({data, document, oldDocument}) => {
+      if (data?.promoted && !oldDocument.promoted) {
+        return new Date()
+      }
+      if (!document.promoted && oldDocument.promoted) {
+        return null
+      }
     }
   },
   

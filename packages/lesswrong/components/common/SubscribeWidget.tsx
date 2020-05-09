@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Hidden from '@material-ui/core/Hidden';
 import { withTracking } from "../../lib/analyticsEvents";
 
-interface ExternalProps {
-  view: string,
-}
-interface SubscribeWidgetProps extends ExternalProps, WithTrackingProps {
+interface SubscribeWidgetProps extends WithTrackingProps {
 }
 interface SubscribeWidgetState {
   dialogOpen: boolean,
@@ -24,34 +20,25 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
   }
 
   render() {
-    const { SeparatorBullet } = Components;
-    const { view } = this.props;
+    const { TabNavigationSubItem, SubscribeDialog } = Components;
     const { dialogOpen, method } = this.state;
 
     return (
-      <React.Fragment>
-        <a onClick={ () => this.openDialog("rss") }>
-          { /* On very small screens, use shorter link text ("Subscribe (RSS)"
-               instead of "Subscribe via RSS") to avoid wrapping */ }
-          <Hidden smUp implementation="css">Subscribe (RSS)</Hidden>
-          <Hidden xsDown implementation="css">Subscribe via RSS</Hidden>
+      <div>
+        <a onClick={() => this.openDialog("rss")}>
+          <TabNavigationSubItem>Subscribe (RSS/Email)</TabNavigationSubItem>
         </a>
-        <SeparatorBullet/>
-        <a onClick={ () => this.openDialog("email") }>
-          <Hidden smUp implementation="css">Subscribe (Email)</Hidden>
-          <Hidden xsDown implementation="css">Subscribe via Email</Hidden>
-        </a>
-        { dialogOpen && <Components.SubscribeDialog
+        { dialogOpen && <SubscribeDialog
           open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
-          view={view}
+          view={"curated"}
           method={method} /> }
-      </React.Fragment>
+      </div>
     )
   }
 }
 
-const SubscribeWidgetComponent = registerComponent<ExternalProps>("SubscribeWidget", SubscribeWidget, {
+const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget, {
   hocs: [withTracking]
 });
 

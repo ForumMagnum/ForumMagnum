@@ -4,6 +4,7 @@ import { getSetting, Utils } from '../../vulcan-lib';
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation, accessFilterMultiple } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
+import { defaultFilterSettings } from '../../filterSettings';
 import SimpleSchema from 'simpl-schema'
 import * as _ from 'underscore';
 
@@ -286,6 +287,16 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
+  frontpageFilterSettings: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    hidden: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    ...schemaDefaultValue(defaultFilterSettings),
+  },
   allPostsTimeframe: {
     type: String,
     optional: true,
@@ -438,11 +449,6 @@ addFieldsDict(Users, {
     control: 'checkbox',
     group: formGroups.default,
     order: 72,
-  },
-
-  twitterUsername: {
-    hidden: true,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
 
   // bannedUserIds: users who are not allowed to comment on this user's posts
@@ -1372,10 +1378,8 @@ addUniversalFields({collection: Users})
 // Copied over utility function from Vulcan
 const createDisplayName = user => {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
-  const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
-  if (twitterName) return twitterName;
   if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));

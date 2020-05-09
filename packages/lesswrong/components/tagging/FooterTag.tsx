@@ -3,39 +3,30 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import withHover from '../common/withHover';
 
+export const tagStyle = theme => ({
+  marginRight: 4,
+  padding: 5,
+  paddingLeft: 8,
+  paddingRight: 7,
+  backgroundColor: 'rgba(0,0,0,0.05)',
+  borderRadius: 10,
+  cursor: "pointer",
+  ...theme.typography.commentStyle,
+  "&:hover": {
+    opacity: 1
+  }
+})
+
 const styles = theme => ({
   root: {
-    marginRight: 4,
-    paddingTop: 5,
-    paddingBottom: 5,
-    ...theme.typography.commentStyle,
-    "&:hover": {
-      opacity: 1
-    },
+    ...tagStyle(theme)
   },
   score: {
-    display: "inline-block",
-    paddingLeft: 10,
-    paddingRight: 6,
-    paddingTop: 5,
-    paddingBottom: 5,
-    background: "rgba(100,170,110,1)",
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
-    color: "white",
-    fontWeight: 400,
-    border: "1px solid #aaa",
+    color: 'rgba(0,0,0,0.7)',
   },
   name: {
-    display: "inline-block",
-    paddingLeft: 8,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
-    border: "1px solid #aaa",
-    borderTopRightRadius: 14,
-    borderBottomRightRadius: 14,
-    borderLeft: "none"
+    display: 'inline-block',
+    paddingRight: 5
   },
   hovercard: {
   },
@@ -43,22 +34,36 @@ const styles = theme => ({
 
 interface ExternalProps {
   tagRel: TagRelMinimumFragment,
-  tag: TagRelMinimumFragment_tag,
+  tag: TagPreviewFragment,
+  hideScore?: boolean
 }
 interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }
 
-const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
+const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
+  tagRel: TagRelMinimumFragment,
+  tag: TagFragment,
+  hideScore?: boolean,
+  
+  hover: boolean,
+  anchorEl: any,
+  classes: ClassesType,
+}) => {
+
+  const { PopperCard, TagRelCard } = Components
+
+  if (tag.adminOnly) { return null }
+
   return (<span className={classes.root}>
-    <Link to={`/tag/${tag.slug}`} className={classes.root}>
-      <span className={classes.score}>{tagRel.baseScore}</span>
+    <Link to={`/tag/${tag.slug}`}>
       <span className={classes.name}>{tag.name}</span>
+      {!hideScore && <span className={classes.score}>{tagRel.baseScore}</span>}
     </Link>
-    <Components.PopperCard open={hover} anchorEl={anchorEl}>
+    <PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.hovercard}>
-        <Components.TagRelCard tagRel={tagRel}/>
+        <TagRelCard tagRel={tagRel} />
       </div>
-    </Components.PopperCard>
+    </PopperCard>
   </span>);
 }
 

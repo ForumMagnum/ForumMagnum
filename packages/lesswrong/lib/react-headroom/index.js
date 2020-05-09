@@ -62,6 +62,7 @@ export default class Headroom extends Component {
       state: 'unfixed',
       translateY: 0,
       className: 'headroom headroom--unfixed',
+      height: props.height,
     }
   }
 

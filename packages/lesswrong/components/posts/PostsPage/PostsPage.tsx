@@ -360,14 +360,14 @@ class PostsPage extends Component<PostsPageProps> {
                         </span>
                       </div>
                     </div>
-                    <div className={classes.headerVote}>
+                    {!post.shortform && <div className={classes.headerVote}>
                       <PostsVote
                         collection={Posts}
                         post={post}
                         />
-                    </div>
+                    </div>}
                   </div>
-                  <hr className={classes.divider}/>
+                  {!post.shortform && <hr className={classes.divider}/>}
                   {post.isEvent && <PostsPageEventData post={post}/>}
                 </div>
               </div></AnalyticsContext>
@@ -397,13 +397,15 @@ class PostsPage extends Component<PostsPageProps> {
                         { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                       </AnalyticsContext>
                     </div>
-                    <FooterTagList post={post}/>
+                    {!post.shortform && <AnalyticsContext pageSectionContext="tagFooter">
+                      <FooterTagList post={post}/>
+                    </AnalyticsContext>}
                   </div>
                 </div>
 
                 {/* Footer */}
 
-                {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+                {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
                   <div className={classes.footerSection}>
                     <div className={classes.voteBottom}>
                       <PostsVote

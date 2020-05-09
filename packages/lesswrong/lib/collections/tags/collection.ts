@@ -2,7 +2,8 @@ import { createCollection, Utils } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable'
-import { userCanManageTags } from '../../betas';
+import { userCanCreateTags } from '../../betas';
+import Users from '../users/collection';
 
 const formGroups = {
   advancedOptions: {
@@ -33,6 +34,32 @@ const schema = {
       }
     }
   },
+  core: {
+    label: "Core Tag (moderators check whether it applies when reviewing new posts)",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
+  },
+  suggestedAsFilter: {
+    label: "Suggested Filter (appears as a default option in filter settings without having to use the search box)",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
+  },
+  defaultOrder: {
+    type: Number,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(0),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",
@@ -43,6 +70,15 @@ const schema = {
       //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
     }),
     viewableBy: ['guests'],
+  },
+  adminOnly: {
+    label: "Admin Only",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
   },
   deleted: {
     type: Boolean,
@@ -56,7 +92,8 @@ const schema = {
 
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
-  toAlgolia: any
+  toAlgolia: (tag: DbTag) => Array<Record<string,any>>|null
+  getUrl: (tag: DbTag) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -66,10 +103,10 @@ export const Tags: ExtendedTagsCollection = createCollection({
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user, tag) => {
-      return userCanManageTags(user);
+      return userCanCreateTags(user);
     },
     editCheck: (user, tag) => {
-      return userCanManageTags(user);
+      return userCanCreateTags(user);
     },
     removeCheck: (user, tag) => {
       return false;
@@ -78,7 +115,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 });
 
 Tags.checkAccess = (currentUser, tag) => {
-  if (userCanManageTags(currentUser))
+  if (Users.isAdmin(currentUser))
     return true;
   else if (tag.deleted)
     return false;
@@ -89,6 +126,7 @@ Tags.checkAccess = (currentUser, tag) => {
 addUniversalFields({collection: Tags})
 
 export const tagDescriptionEditableOptions = {
+  commentStyles: true,
   fieldName: "description",
   getLocalStorageId: (tag, name) => {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }

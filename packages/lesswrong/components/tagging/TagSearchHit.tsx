@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import withHover from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
+import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
@@ -14,7 +15,12 @@ const styles = theme => ({
   card: {
     padding: 16,
     width: 400,
-    ...theme.typography.commentStyle
+    ...commentBodyStyles(theme),
+    
+    // No hover-preview on small phone screens
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
 });
 

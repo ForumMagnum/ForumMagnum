@@ -170,7 +170,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     this.handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
-  handleSetNotificationDrawerOpen = (isOpen) => {
+  handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
     const { updateUser, currentUser } = this.props;
     if (!currentUser) return;
     if (isOpen) {
@@ -256,6 +256,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
             <Headroom
               disableInlineStyles
               downTolerance={10} upTolerance={10}
+              height={64}
               className={classNames(
                 classes.headroom,
                 { [classes.headroomPinnedOpen]: searchOpen }

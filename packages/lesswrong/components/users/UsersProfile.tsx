@@ -252,7 +252,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
+              { currentUser && currentUser._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton>}
               { currentUser && currentUser._id !== user._id && <SubscribeTo

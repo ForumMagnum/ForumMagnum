@@ -5,8 +5,8 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 
 interface ExtendedCollectionsCollection extends CollectionsCollection {
   // Functions in lib/collections/collections/helpers.ts
-  getAllPostIDs: any
-  getPageUrl: any
+  getAllPostIDs: (collectionID: string) => Promise<Array<string>>
+  getPageUrl: (collection: CollectionsPageFragment|DbCollection, isAbsolute?: boolean) => string
 }
 
 export const Collections: ExtendedCollectionsCollection = createCollection({

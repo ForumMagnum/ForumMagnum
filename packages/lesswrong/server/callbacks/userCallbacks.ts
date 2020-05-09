@@ -53,9 +53,10 @@ addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration}
 function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
-  {
-    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
-    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+  {                               
+    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}}, {multi: true})
+    // We don't want to reset the postedAt for comments, since those are by default visible almost everywhere                                                                                                    
+    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 }
 addCallback("users.edit.async", approveUnreviewedSubmissions);

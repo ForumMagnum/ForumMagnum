@@ -207,9 +207,27 @@ addRoute([
   {
     name: 'tagIndex',
     path: '/tags',
+    componentName: 'PostsSingleRoute',
+    _id:"DHJBEsi4XJDw2fRFq"
+  },
+  {
+    name: 'allTags',
+    path: '/tags/all',
     componentName: 'AllTagsPage',
     title: "All Tags",
   },
+  {
+    name: 'tagVoting',
+    path: '/tagVoting',
+    componentName: 'TagVoteActivity',
+    title: 'Tag Voting Activity'
+  },
+  {
+    name: 'search',
+    path: '/search',
+    componentName: 'SearchPage',
+    title: 'LW Search'
+  }
 ]);
 
 
@@ -408,6 +426,18 @@ addRoute([
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   },
   {
+    name: 'posts.revisioncompare',
+    path: '/compare/:_id/:slug',
+    componentName: 'PostsCompareRevisions',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
+    name:'coronavirus.link.db',
+    path:'/coronavirus-link-database',
+    componentName: 'SpreadsheetPage',
+    title: "COVID-19 Link Database"
+  },
+  {
     name: 'admin',
     path: '/admin',
     componentName: 'AdminHome',
@@ -486,13 +516,20 @@ switch (getSetting('forumType')) {
         _id: getSetting('aboutPostId'),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
       },
-      // {
-      //   name:'intro',
-      //   path:'/intro',
-      //   componentName: 'PostsSingleRoute',
-      //   _id: getSetting('introPostId'),
-      //   getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
-      // },
+      {
+        name: 'intro',
+        path: '/intro',
+        componentName: 'PostsSingleRoute',
+        _id: getSetting('introPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
+      },
+      {
+        name: 'contact',
+        path:'/contact',
+        componentName: 'PostsSingleRoute',
+        _id: getSetting('contactPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('contactPostId')),
+      },
       {
         name: 'Community',
         path: '/meta',
@@ -532,6 +569,13 @@ switch (getSetting('forumType')) {
         componentName: 'PostsSingleRoute',
         _id:"2rWKkWuPrgTMpLRbp",
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+      },
+      {
+        name: 'donate',
+        path: '/donate',
+        componentName: 'PostsSingleRoute',
+        _id:"LcpQQvcpWfPXvW7R9",
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
       },
       {
         name: 'Meta',
