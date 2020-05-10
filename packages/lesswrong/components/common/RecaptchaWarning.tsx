@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
+
+// ea-forum look here (you will want to set this to whatever is appropriate for you)
 export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
 
 const styles = (theme) => ({
@@ -24,6 +26,7 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
   if (!currentUser?.spamRiskScore || (currentUser.spamRiskScore > spamRiskScoreThreshold)) {
     return <> { children } </>
   }
+  // ea-forum look here: You will want to change where this links to
   return <div className={classes.warningText}>
     You've been flagged by our spam detection system. Please message an admin via 
     Intercom (the chat bubble in the bottom right corner) or send a private message to admin 
