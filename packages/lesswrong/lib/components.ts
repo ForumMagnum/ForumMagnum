@@ -343,7 +343,6 @@ importComponent("SidebarInfo", () => require('../components/sunshineDashboard/Si
 importComponent("SidebarActionMenu", () => require('../components/sunshineDashboard/SidebarActionMenu'));
 importComponent("SidebarAction", () => require('../components/sunshineDashboard/SidebarAction'));
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount'));
-importComponent("LastCuratedDate", () => require('../components/sunshineDashboard/LastCuratedDate'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
