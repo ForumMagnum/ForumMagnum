@@ -19,13 +19,15 @@ const MozillaHubsData = `type MozillaHubsData {
 addGraphQLSchema(MozillaHubsData);
 
 async function getDataFromMozillaHubs() {
-  const { value: mozillaHubsAPIKey } = await DatabaseMetadata.findOne({name: "mozillaHubsAPIKey"})
-  const { value: mozillaHubsUserId } = await DatabaseMetadata.findOne({name: "mozillaHubsUserId"})
-  if (!mozillaHubsAPIKey || !mozillaHubsUserId) {
+  const mozillaHubsAPIKeyResult = await DatabaseMetadata.findOne({name: "mozillaHubsAPIKey"})
+  const mozillaHubsUserIdResult = await DatabaseMetadata.findOne({name: "mozillaHubsUserId"})
+  if (!mozillaHubsAPIKeyResult || !mozillaHubsUserIdResult) {
     // eslint-disable-next-line no-console
     console.log("Trying to get Mozilla Hubs data but lacking a mozilla hubs API key or user Id. Add those to your DatabaseMetadata collection to get mozilla hubs metadata.")
     return null
   }
+  const { value: mozillaHubsAPIKey } = mozillaHubsAPIKeyResult
+  const { value: mozillaHubsUserId } = mozillaHubsUserIdResult
   var requestOptions: any = {
     method: 'GET',
     headers: {
@@ -41,6 +43,7 @@ const mozillaHubsResolvers = {
   Query: {
     async MozillaHubsRoomData(root, { roomId }, context) {
       const rawRoomData:any = await getDataFromMozillaHubs()
+      if (!rawRoomData) return null
       const processedData = JSON.parse(rawRoomData)
       const correctRoom = processedData.entries.find(entry => entry.id === roomId)
       if (!correctRoom) return null

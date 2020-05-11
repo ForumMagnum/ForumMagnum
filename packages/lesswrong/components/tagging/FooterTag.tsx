@@ -10,6 +10,7 @@ export const tagStyle = theme => ({
   paddingRight: 7,
   backgroundColor: 'rgba(0,0,0,0.05)',
   borderRadius: 10,
+  cursor: "pointer",
   ...theme.typography.commentStyle,
   "&:hover": {
     opacity: 1
@@ -48,16 +49,21 @@ const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
   anchorEl: any,
   classes: ClassesType,
 }) => {
+
+  const { PopperCard, TagRelCard } = Components
+
+  if (tag.adminOnly) { return null }
+
   return (<span className={classes.root}>
     <Link to={`/tag/${tag.slug}`}>
       <span className={classes.name}>{tag.name}</span>
       {!hideScore && <span className={classes.score}>{tagRel.baseScore}</span>}
     </Link>
-    <Components.PopperCard open={hover} anchorEl={anchorEl}>
+    <PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.hovercard}>
-        <Components.TagRelCard tagRel={tagRel}/>
+        <TagRelCard tagRel={tagRel} />
       </div>
-    </Components.PopperCard>
+    </PopperCard>
   </span>);
 }
 

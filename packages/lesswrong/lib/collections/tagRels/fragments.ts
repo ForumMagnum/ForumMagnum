@@ -54,6 +54,11 @@ registerFragment(`
     userId
     tagId
     postId
+    post {
+      _id
+      slug
+      title
+    }
     tag {
       _id
       name
@@ -61,6 +66,7 @@ registerFragment(`
       core
       postCount
       deleted
+      adminOnly
       description {
         htmlHighlight
       }

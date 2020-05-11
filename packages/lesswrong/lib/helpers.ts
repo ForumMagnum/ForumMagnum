@@ -30,7 +30,7 @@ Utils.getUnusedSlug = function <T extends HasSlugType>(collection: CollectionBas
     // Filter out our own document (i.e. don't change the slug if the only conflict is with ourselves)
     const conflictingDocuments = existingDocuments.filter((doc) => doc._id !== documentId)
     // If there are other documents we conflict with, change the index and slug, then check again
-    if (!!conflictingDocuments?.length) {
+    if (!!conflictingDocuments.length) {
       index++
       suffix = '-'+index;
       existingDocuments = getDocumentsBySlug({slug, suffix, useOldSlugs, collection})

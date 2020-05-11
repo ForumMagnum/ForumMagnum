@@ -362,6 +362,7 @@ interface CommentsList { // fragment on Comments
   readonly reviewingForReview: string,
   readonly promoted: boolean,
   readonly promotedByUserId: string,
+  readonly promotedByUser: UsersMinimumInfo,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -540,7 +541,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly authorIsUnreviewed: boolean,
   readonly answer: boolean,
   readonly parentAnswerId: string,
-  readonly chosenAnswer: boolean,
   readonly shortform: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
@@ -548,6 +548,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postVersion: string,
   readonly promoted: boolean,
   readonly promotedByUserId: string,
+  readonly promotedAt: Date,
   readonly hideKarma: boolean,
 }
 
@@ -1347,8 +1348,15 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
+  readonly post: WithVoteTagRel_post,
   readonly tag: WithVoteTagRel_tag,
   readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
+}
+
+interface WithVoteTagRel_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+  readonly title: string,
 }
 
 interface WithVoteTagRel_tag { // fragment on Tags
@@ -1358,6 +1366,7 @@ interface WithVoteTagRel_tag { // fragment on Tags
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
+  readonly adminOnly: boolean,
   readonly description: WithVoteTagRel_tag_description,
 }
 
@@ -1376,7 +1385,9 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly slug: string,
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
   readonly postCount: number,
+  readonly adminOnly: boolean,
   readonly deleted: boolean,
 }
 
@@ -1387,6 +1398,9 @@ interface TagBasicInfo { // fragment on Tags
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
+  readonly adminOnly: boolean,
+  readonly defaultOrder: number,
+  readonly suggestedAsFilter: boolean,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1406,14 +1420,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
-interface TagEditFragment { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly postCount: number,
-  readonly deleted: boolean,
+interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly description: RevisionEdit,
 }
 
@@ -1474,6 +1481,10 @@ interface TagRelVotes { // fragment on Votes
   readonly votedAt: Date,
   readonly isUnvote: boolean,
   readonly tagRel: WithVoteTagRel,
+}
+
+interface TagVotingActivity extends TagRelVotes { // fragment on Votes
+  readonly tagRel: TagRelFragment,
 }
 
 interface VotedItem { // fragment on Votes
@@ -1621,6 +1632,7 @@ interface FragmentTypes {
   VoteMinimumInfo: VoteMinimumInfo
   VoteFragment: VoteFragment
   TagRelVotes: TagRelVotes
+  TagVotingActivity: TagVotingActivity
   VotedItem: VotedItem
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList

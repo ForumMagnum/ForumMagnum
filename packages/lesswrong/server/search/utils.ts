@@ -186,6 +186,11 @@ Tags.toAlgolia = (tag: DbTag): Array<AlgoliaDocument>|null => {
   return [{
     _id: tag._id,
     name: tag.name,
+    slug: tag.slug,
+    core: tag.core,
+    defaultOrder: tag.defaultOrder,
+    suggestedAsFilter: tag.suggestedAsFilter,
+    postCount: tag.postCount,
     description,
   }];
 }

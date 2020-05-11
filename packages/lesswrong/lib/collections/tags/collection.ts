@@ -52,6 +52,14 @@ const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  defaultOrder: {
+    type: Number,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(0),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",
@@ -62,6 +70,15 @@ const schema = {
       //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
     }),
     viewableBy: ['guests'],
+  },
+  adminOnly: {
+    label: "Admin Only",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
   },
   deleted: {
     type: Boolean,
@@ -76,6 +93,7 @@ const schema = {
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Array<Record<string,any>>|null
+  getUrl: (tag: DbTag) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -108,6 +126,7 @@ Tags.checkAccess = (currentUser, tag) => {
 addUniversalFields({collection: Tags})
 
 export const tagDescriptionEditableOptions = {
+  commentStyles: true,
   fieldName: "description",
   getLocalStorageId: (tag, name) => {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }

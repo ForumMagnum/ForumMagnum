@@ -98,12 +98,14 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 
+importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
+
 // Outgoing RSS Feed builder
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget'));
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount'));
@@ -298,6 +300,7 @@ importComponent("SearchAutoComplete", () => require('../components/search/Search
 importComponent("PostsSearchAutoComplete", () => require('../components/search/PostsSearchAutoComplete'));
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
+importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
 importComponent("SequencesSearchHit", () => require('../components/search/SequencesSearchHit'));
 importComponent("SequencesSearchAutoComplete", () => require('../components/search/SequencesSearchAutoComplete'));
 importComponent("UsersSearchAutoComplete", () => require('../components/search/UsersSearchAutoComplete'));
@@ -305,6 +308,7 @@ importComponent("UsersAutoCompleteHit", () => require('../components/search/User
 importComponent("UsersSearchInput", () => require('../components/search/UsersSearchInput'));
 importComponent("SearchBarResults", () => require('../components/search/SearchBarResults'));
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
+importComponent("SearchPage", () => require('../components/search/SearchPage'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
@@ -353,6 +357,7 @@ importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'))
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));

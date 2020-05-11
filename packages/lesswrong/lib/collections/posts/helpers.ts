@@ -173,6 +173,12 @@ Posts.getLastCommentedAt = (post: PostsBase|DbPost): Date => {
   }
 }
 
+Posts.getLastCommentPromotedAt = (post: PostsList): Date|null => {
+  if (getSetting('forumType') === 'AlignmentForum') return null
+  // TODO: add an afLastCommentPromotedAt
+  return post.lastCommentPromotedAt;
+}
+
 Posts.canEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
 }

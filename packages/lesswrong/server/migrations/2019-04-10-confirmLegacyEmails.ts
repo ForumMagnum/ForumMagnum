@@ -34,7 +34,7 @@ registerMigration({
           // If the email address matches legacyData.emailAddress, set its verified flag to legacyData.email_validated.
           const legacyData = user.legacyData;
           for (let i=0; i<user.emails.length; i++) {
-            if (legacyData && legacyData.email
+            if (legacyData.email
               && user.emails && user.emails[i].address === legacyData.email)
             {
               const shouldBeVerified = legacyData.email_validated;

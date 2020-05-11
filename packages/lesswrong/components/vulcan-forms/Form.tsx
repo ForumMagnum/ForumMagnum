@@ -278,7 +278,7 @@ class SmartForm extends Component<any,any> {
     fields = _.sortBy(fields, 'order');
 
     // get list of all unique groups (based on their name) used in current fields
-    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), g => g && g.name));
+    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g: any) => g && g.name));
 
     // for each group, add relevant fields
     groups = groups.map(group => {
