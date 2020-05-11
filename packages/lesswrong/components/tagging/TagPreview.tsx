@@ -13,7 +13,7 @@ const styles = theme => ({
     paddingBottom: 6,
     width: 600,
     [theme.breakpoints.down('xs')]: {
-      width: "calc(100% - 32px)",
+      width: "100%",
     }
   },
   tagDescription: {

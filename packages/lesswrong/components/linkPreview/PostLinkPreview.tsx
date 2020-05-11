@@ -88,10 +88,9 @@ const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}: {
   const legacyPostId = targetLocation.params.id;
   const legacyCommentId = targetLocation.params.commentId;
 
-  const { post, loading: loadingPost, error: postError } = usePostByLegacyId({ legacyId: legacyPostId });
-  const { comment, loading: loadingComment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId });
+  const { post, error: postError } = usePostByLegacyId({ legacyId: legacyPostId });
+  const { comment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId });
   const error = postError || commentError;
-  const loading = loadingPost || loadingComment;
 
   if (comment) {
     return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} innerHTML={innerHTML} id={id} />
@@ -203,7 +202,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
 
   if (!post) {
     return <span {...eventHandlers}>
-      <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>;
+      <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   }
   return (
@@ -244,7 +243,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
   if (!comment) {
     return <span {...eventHandlers}>
       <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
-    </span>;
+    </span>
   }
   return (
     <span {...eventHandlers}>
@@ -263,7 +262,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
     </span>
-  );
+  )
 }
 const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
   styles,

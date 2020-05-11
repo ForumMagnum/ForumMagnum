@@ -5,17 +5,13 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  card: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingBottom: 8,
-    width: 600,
-  },
   tag: {
     display: "inline-block",
     width: 250,
-    paddingTop: 1,
-    paddingBottom: 1
+    paddingTop: 3,
+    paddingBottom: 3,
+    paddingLeft: 6,
+    borderBottom: "solid 1px rgba(0,0,0,.1)"
   },
   count: {
     color: theme.palette.grey[600],
@@ -32,10 +28,12 @@ const TagsListItem = ({tag, classes}: {
   const { hover, anchorEl, eventHandlers } = useHover();
   
   return <span {...eventHandlers}>
-    <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
-      <div className={classes.card}>
-        <TagPreview tag={tag}/>
-      </div>
+    <PopperCard 
+      open={hover} 
+      anchorEl={anchorEl} 
+      placement="right-start"
+    >
+      <TagPreview tag={tag}/>
     </PopperCard>
     <Typography key={tag._id} variant="body2" className={classes.tag}>
       <Link to={`/tag/${tag.slug}`}>

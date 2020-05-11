@@ -7,9 +7,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
-import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+
+export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
 const styles = theme => ({
   section: {
@@ -84,7 +84,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -124,8 +124,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
-    const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
-
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
@@ -202,18 +200,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
           </AnalyticsContext>
-          <div className={classes.footerWrapper}>
-            <Typography component="div" variant="body2" className={classNames(classes.footer, {[classes.loggedOutFooter]:!currentUser})}>
-              <Link to={curatedUrl}>
-                { /* On very small screens, use shorter link text ("More Curated"
-                    instead of "View All Curated Posts") to avoid wrapping */ }
-                <Hidden smUp implementation="css">More Curated</Hidden>
-                <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
-              </Link>
-              <SeparatorBullet />
-              <SubscribeWidget view={"curated"} />
-            </Typography>
-          </div>
         </div>
       </AnalyticsContext>
     </SingleColumnSection>
