@@ -80,7 +80,7 @@ function getUserABTestGroup(user: UsersCurrent|DbUser|null, clientId: string, ab
   for (let group in abTest.groups)
     groupWeights[group] = abTest.groups[group].weight;
   
-  if (user && user.abTestOverrides && user.abTestOverrides && user.abTestOverrides[abTest.name]) {
+  if (user && user.abTestOverrides && user.abTestOverrides[abTest.name]) {
     return user.abTestOverrides[abTest.name];
   } else {
     return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey}`);

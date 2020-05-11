@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
-import withUser from '../common/withUser';
 import { useClientId } from '../../lib/abTestUtil';
 
 const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState }: {

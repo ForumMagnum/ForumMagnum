@@ -147,7 +147,7 @@ addCallback('users.new.async', subscribeOnSignup);
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
 async function setABTestKeyOnSignup (user) {
-  Users.update(user._id, {$set: {abTestKey: user?.profile?.clientId}});
+  Users.update(user._id, {$set: {abTestKey: user.profile?.clientId}});
 }
 addCallback('users.new.async', setABTestKeyOnSignup);
 
