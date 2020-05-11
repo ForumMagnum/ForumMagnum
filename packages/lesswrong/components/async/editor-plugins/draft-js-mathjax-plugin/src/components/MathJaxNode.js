@@ -9,7 +9,7 @@ class MathJaxNode extends Component {
     super(props)
     this.timeout = props.timeout
     this.annul = null
-    this.state = { ready: !!window.MathJaxLoaded }
+    this.state = { ready: !!window.MathJaxReady }
   }
 
   componentDidMount() {
@@ -17,7 +17,7 @@ class MathJaxNode extends Component {
     else {
       const { check } = this.props
       this.annul = setInterval(() => {
-        if (window.MathJaxLoaded) {
+        if (window.MathJaxReady) {
           this.setState({ ready: true })
           clearInterval(this.annul)
         } else {

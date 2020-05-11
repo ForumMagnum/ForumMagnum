@@ -38,7 +38,7 @@ const loadMathJax = ({ macros: Macros, script, mathjaxConfig }) => {
   }
   window.MathJax = config.options
   
-  load(config.script, (err) => {window.MathJaxLoaded = true})
+  load(config.script, (err) => {window.MathJaxReady = true})
 }
 
 export default loadMathJax
