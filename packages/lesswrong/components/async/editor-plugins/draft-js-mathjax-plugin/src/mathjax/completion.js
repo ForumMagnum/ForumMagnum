@@ -44,6 +44,7 @@ function getMostUsedTeXCmds(teX) {
   const res = {}
   let search
   let cmd
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     search = cmdRe.exec(copy)
     if (search === null) break
