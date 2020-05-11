@@ -2,19 +2,25 @@
 import load from './load'
 
 // mathjax cdn shutdown the 30/04/2017!!! https://cdn.mathjax.org/mathjax/latest/MathJax.js
-const DEFAULT_SCRIPT = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js'
+const DEFAULT_SCRIPT = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 const DEFAULT_OPTIONS = {
-  jax: ['input/TeX', 'output/CommonHTML'],
-  TeX: {
-    extensions: ['autoload-all.js'],
+  options: {
+    renderActions: {
+      addMenu: [],
+      checkLoading: []
+    }
   },
-  messageStyles: 'none',
-  showProcessingMessages: false,
-  showMathMenu: false,
-  showMathMenuMSIE: false,
-  preview: 'none',
-  delayStartupTypeset: true,
+  tex: {
+    autoload: {
+      color: [],
+      colorV2: [ 'color' ]
+    },
+    packages: { '[+]': [ 'noerrors' ] }
+  },
+  startup: {
+    typeset: false,
+  }
 }
 
 const loadMathJax = ({ macros: Macros, script, mathjaxConfig }) => {
@@ -28,17 +34,11 @@ const loadMathJax = ({ macros: Macros, script, mathjaxConfig }) => {
   config.options = Object.assign(config.options, { TeX })
 
   if (window.MathJax) {
-    window.MathJax.Hub.Config(config.options)
-    window.MathJax.Hub.processSectionDelay = 0
     return
   }
-  load(config.script, (err) => {
-    if (!err) {
-      window.MathJax.Hub.Config(config.options)
-      // avoid flickering of the preview
-      window.MathJax.Hub.processSectionDelay = 0
-    }
-  })
+  window.MathJax = config.options
+  
+  load(config.script, (err) => {window.MathJaxLoaded = true})
 }
 
 export default loadMathJax

@@ -9,7 +9,7 @@ class MathJaxNode extends Component {
     super(props)
     this.timeout = props.timeout
     this.annul = null
-    this.state = { ready: window.MathJax && window.MathJax.ready }
+    this.state = { ready: !!window.MathJaxLoaded }
   }
 
   componentDidMount() {
@@ -17,7 +17,7 @@ class MathJaxNode extends Component {
     else {
       const { check } = this.props
       this.annul = setInterval(() => {
-        if (window.MathJax && window.MathJax.isReady) {
+        if (window.MathJaxLoaded) {
           this.setState({ ready: true })
           clearInterval(this.annul)
         } else {
@@ -44,7 +44,10 @@ class MathJaxNode extends Component {
    */
   componentDidUpdate(prevProps) {
     const forceUpdate = prevProps.inline !== this.props.inline
-    this.typeset(forceUpdate)
+    if (this.state.ready) { 
+      this.typeset(forceUpdate)
+    }
+
   }
 
   /**
@@ -52,7 +55,6 @@ class MathJaxNode extends Component {
    */
   componentWillUnmount() {
     clearInterval(this.annul)
-    this.clear()
   }
 
   /**
@@ -64,35 +66,14 @@ class MathJaxNode extends Component {
     const { inline } = this.props
 
     if (!this.script) {
-      this.script = document.createElement('script')
-      this.script.type = `math/tex; ${inline ? '' : 'mode=display'}`
+      this.script = document.createElement('span')
+      // this.script.type = `math/tex; ${inline ? '' : 'mode=display'}`
       this.node.appendChild(this.script)
     }
 
-    if ('text' in this.script) {
-      // IE8, etc
-      this.script.text = text
-    } else {
-      this.script.textContent = text
-    }
-
+    this.script.dataset.mathjax = text
+    this.script.dataset.type = inline ? "inline" : "display"
     return this.script
-  }
-
-  /**
-   * Clear the jax
-   */
-  clear() {
-    const MathJax = window.MathJax
-
-    if (!this.script || !MathJax || !MathJax.isReady) {
-      return
-    }
-
-    const jax = MathJax.Hub.getJaxFor(this.script)
-    if (jax) {
-      jax.Remove()
-    }
   }
 
   /**
@@ -105,26 +86,8 @@ class MathJaxNode extends Component {
 
     const text = children
 
-    if (forceUpdate) {
-      this.clear()
-    }
-
-    if (!forceUpdate && this.script) {
-      MathJax.Hub.Queue(() => {
-        const jax = MathJax.Hub.getJaxFor(this.script)
-
-        if (jax) jax.Text(text, onRender)
-        else {
-          const script = this.setScriptText(text)
-          processTeX(MathJax, script, onRender)
-        }
-      })
-    } else {
-      const script = this.setScriptText(text)
-      MathJax.Hub.Queue(() =>
-        processTeX(MathJax, script, onRender),
-      )
-    }
+    const script = this.setScriptText(text)
+    processTeX(MathJax, script, onRender)
   }
 
 
