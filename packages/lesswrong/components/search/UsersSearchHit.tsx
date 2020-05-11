@@ -5,8 +5,9 @@ import React from 'react';
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    marginLeft: theme.spacing.unit,
+    marginTop: theme.spacing.unit/2,
+    marginBottom: theme.spacing.unit/2
   },
 })
 

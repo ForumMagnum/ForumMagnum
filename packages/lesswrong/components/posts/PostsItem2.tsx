@@ -36,7 +36,8 @@ export const styles = (theme) => ({
   postsItem: {
     display: "flex",
     position: "relative",
-    height: 46,
+    paddingTop: 10,
+    paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -158,7 +159,7 @@ export const styles = (theme) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },

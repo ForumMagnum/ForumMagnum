@@ -22,7 +22,7 @@ const PostsNewForm = ({classes}: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = {
@@ -48,22 +48,24 @@ const PostsNewForm = ({classes}: {
 
   return (
     <div className="posts-new-form">
-      <NoSsr>
-        <WrappedSmartForm
-          collection={Posts}
-          mutationFragment={getFragment('PostsPage')}
-          prefilledProps={prefilledProps}
-          successCallback={post => {
-            history.push({pathname: Posts.getPageUrl(post)});
-            flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
-          }}
-          eventForm={eventForm}
-          repeatErrors
-          formComponents={{
-            FormSubmit: NewPostsSubmit,
-          }}
-        />
-      </NoSsr>
+      <RecaptchaWarning currentUser={currentUser}>
+        <NoSsr>
+          <WrappedSmartForm
+            collection={Posts}
+            mutationFragment={getFragment('PostsPage')}
+            prefilledProps={prefilledProps}
+            successCallback={post => {
+              history.push({pathname: Posts.getPageUrl(post)});
+              flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+            }}
+            eventForm={eventForm}
+            repeatErrors
+            formComponents={{
+              FormSubmit: NewPostsSubmit,
+            }}
+          />
+        </NoSsr>
+      </RecaptchaWarning>
     </div>
   );
 }

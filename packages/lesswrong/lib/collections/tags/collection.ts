@@ -93,6 +93,7 @@ const schema = {
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Array<Record<string,any>>|null
+  getUrl: (tag: DbTag) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -125,6 +126,7 @@ Tags.checkAccess = (currentUser, tag) => {
 addUniversalFields({collection: Tags})
 
 export const tagDescriptionEditableOptions = {
+  commentStyles: true,
   fieldName: "description",
   getLocalStorageId: (tag, name) => {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }

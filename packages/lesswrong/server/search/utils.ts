@@ -187,6 +187,11 @@ Tags.toAlgolia = (tag: DbTag): Array<AlgoliaDocument>|null => {
   return [{
     _id: tag._id,
     name: tag.name,
+    slug: tag.slug,
+    core: tag.core,
+    defaultOrder: tag.defaultOrder,
+    suggestedAsFilter: tag.suggestedAsFilter,
+    postCount: tag.postCount,
     description,
   }];
 }
@@ -340,8 +345,9 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   if (objects.length == 0) return;
   
   const ids = _.map(objects, o=>o._id);
-  const algoliaObjects: Array<AlgoliaDocument> = (await algoliaGetObjects(algoliaIndex, ids)).results;
-  const algoliaObjectsById = keyBy(algoliaObjects, o=>o._id);
+  const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;
+  const algoliaObjectsNonnull: Array<AlgoliaDocument> = _.filter(algoliaObjects, o=>!!o);
+  const algoliaObjectsById = keyBy(algoliaObjectsNonnull, o=>o._id);
   
   const objectsToSync = _.filter(objects,
     obj => !_.isEqual(obj, algoliaObjectsById[obj._id]));
