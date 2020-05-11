@@ -42,7 +42,7 @@ const styles = theme => ({
 const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
 {
   prefilledProps?: any,
-  post?: PostsBase,
+  post?: PostsMinimumInfo,
   parentComment?: any,
   successCallback?: any,
   type: string,
@@ -62,7 +62,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   
   const [showGuidelines, setShowGuidelines] = useState(false)
   
-  const { ModerationGuidelinesBox, WrappedSmartForm } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning } = Components
   
   if (post) {
     prefilledProps = {
@@ -112,31 +112,33 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
   return (
     <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
-      <div className={padding ? classes.form : null}>
-      {commentWillBeHidden && <div className={classes.modNote}><em>
-        A moderator will need to review your account before your comments will show up.
-      </em></div>}
+      <RecaptchaWarning currentUser={currentUser}>
+        <div className={padding ? classes.form : null}>
+        {commentWillBeHidden && <div className={classes.modNote}><em>
+          A moderator will need to review your account before your comments will show up.
+        </em></div>}
 
-      <WrappedSmartForm
-        collection={Comments}
-        mutationFragment={getFragment(fragment)}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        prefilledProps={prefilledProps}
-        layout="elementOnly"
-        formComponents={{
-          FormSubmit: SubmitComponent,
-          FormGroupLayout: Components.DefaultStyleFormGroup
-        }}
-        alignmentForumPost={post?.af}
-        addFields={currentUser?[]:["contents"]}
-        removeFields={removeFields}
-        formProps={formProps}
-      />
-      </div>
-      {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
-        <ModerationGuidelinesBox document={post} />
-      </div>}
+        <WrappedSmartForm
+          collection={Comments}
+          mutationFragment={getFragment(fragment)}
+          successCallback={successCallback}
+          cancelCallback={cancelCallback}
+          prefilledProps={prefilledProps}
+          layout="elementOnly"
+          formComponents={{
+            FormSubmit: SubmitComponent,
+            FormGroupLayout: Components.DefaultStyleFormGroup
+          }}
+          alignmentForumPost={post?.af}
+          addFields={currentUser?[]:["contents"]}
+          removeFields={removeFields}
+          formProps={formProps}
+        />
+        </div>
+        {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          <ModerationGuidelinesBox post={post} />
+        </div>}
+      </RecaptchaWarning>
     </div>
   );
 };

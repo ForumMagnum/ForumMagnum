@@ -213,9 +213,27 @@ addRoute([
   {
     name: 'tagIndex',
     path: '/tags',
+    componentName: 'PostsSingleRoute',
+    _id:"DHJBEsi4XJDw2fRFq"
+  },
+  {
+    name: 'allTags',
+    path: '/tags/all',
     componentName: 'AllTagsPage',
     title: "All Tags",
   },
+  {
+    name: 'tagVoting',
+    path: '/tagVoting',
+    componentName: 'TagVoteActivity',
+    title: 'Tag Voting Activity'
+  },
+  {
+    name: 'search',
+    path: '/search',
+    componentName: 'SearchPage',
+    title: 'LW Search'
+  }
 ]);
 
 
@@ -414,6 +432,12 @@ addRoute([
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   },
   {
+    name: 'posts.revisioncompare',
+    path: '/compare/:_id/:slug',
+    componentName: 'PostsCompareRevisions',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
     name:'coronavirus.link.db',
     path:'/coronavirus-link-database',
     componentName: 'SpreadsheetPage',
@@ -498,13 +522,20 @@ switch (getSetting('forumType')) {
         _id: getSetting('aboutPostId'),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
       },
-      // {
-      //   name:'intro',
-      //   path:'/intro',
-      //   componentName: 'PostsSingleRoute',
-      //   _id: getSetting('introPostId'),
-      //   getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
-      // },
+      {
+        name: 'intro',
+        path: '/intro',
+        componentName: 'PostsSingleRoute',
+        _id: getSetting('introPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
+      },
+      {
+        name: 'contact',
+        path:'/contact',
+        componentName: 'PostsSingleRoute',
+        _id: getSetting('contactPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('contactPostId')),
+      },
       {
         name: 'Community',
         path: '/meta',

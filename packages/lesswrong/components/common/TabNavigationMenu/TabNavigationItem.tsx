@@ -70,7 +70,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
   // Case to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
 
-  return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
+  return <LWTooltip placement='right-start' title={tab.tooltip || ''} clickable={false}>
     <MenuItemUntyped
       onClick={onClick}
       component={Link} to={tab.link}

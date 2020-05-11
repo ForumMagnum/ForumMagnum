@@ -74,6 +74,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId }) => {
   return <Dialog
     open={true}
     onClose={onClose}
+    disableEnforceFocus
   >
     <DialogContent className="local-group-form">
       <WrappedSmartForm

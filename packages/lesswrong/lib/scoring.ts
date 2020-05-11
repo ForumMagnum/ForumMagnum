@@ -1,6 +1,12 @@
 import { getSetting } from './vulcan-lib';
 import Votes from './collections/votes/collection';
 
+export const TIME_DECAY_FACTOR = getSetting('timeDecayFactor', 1.15); //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
+// Basescore bonuses for various categories
+export const FRONTPAGE_BONUS = 10;
+export const FEATURED_BONUS = 10;
+
+
 export const recalculateBaseScore = (document) => {
   const votes = Votes.find(
     {
@@ -19,13 +25,6 @@ export const recalculateScore = item => {
     const age = now - postedAt;
     const ageInHours = age / (60 * 60 * 1000);
 
-    // time decay factor
-    const TIME_DECAY_FACTOR = getSetting('timeDecayFactor', 1.15); //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
-
-    // Basescore bonuses for various categories
-    const FRONTPAGE_BONUS = 10;
-    const FEATURED_BONUS = 10;
-
     // use baseScore if defined, if not just use 0
     let baseScore = item.baseScore || 0;
 
@@ -39,3 +38,26 @@ export const recalculateScore = item => {
     return item.baseScore;
   }
 };
+
+export const timeDecayExpr = () => {
+  return {$pow: [
+    {$add: [
+      {$divide: [
+        {$subtract: [
+          new Date(), '$postedAt' // Age in miliseconds
+        ]},
+        60 * 60 * 1000
+      ] }, // Age in hours
+      2
+    ]},
+    TIME_DECAY_FACTOR
+  ]}
+}
+
+export const defaultScoreModifiers = () => {
+  return [
+    {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}},
+    {$cond: {if: "$curatedDate", then: FEATURED_BONUS, else: 0}}
+  ];
+};
+

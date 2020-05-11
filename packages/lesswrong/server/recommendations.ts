@@ -13,6 +13,7 @@ const MINIMUM_BASE_SCORE = 50
 // from the database.
 const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
 
+
 // Returns part of a mongodb aggregate pipeline, which will join against the
 // LWEvents collection and filter out any posts which have a corresponding
 // post-view event for the current user. Returns as an array, so you can spread
@@ -59,6 +60,12 @@ const pipelineFilterUnread = ({currentUser}) => {
 // deterministically combine them without writing out each individual case
 // combinatorially. . ... Yeah .... Sometimes life is hard.
 const getInclusionSelector = algorithm => {
+  if (algorithm.coronavirus) {
+    return {
+      ["tagRelevance.tNsqhzTibgGJKPEWB"]: {$gte: 1},
+      question: true
+    }
+  }
   if (algorithm.review2018) {
     return { 
       nominationCount2018: {$gte: 2}
@@ -84,28 +91,29 @@ const getInclusionSelector = algorithm => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = algorithm => ({$or:
-  [
-    {
-      // Gets the selector from the default Posts view, which includes things like
-      // excluding drafts and deleted posts
-      ...Posts.getParameters({}).selector,
+const recommendablePostFilter = algorithm => {
+  const recommendationFilter = {
+    // Gets the selector from the default Posts view, which includes things like
+    // excluding drafts and deleted posts
+    ...Posts.getParameters({}).selector,
 
-      // Only consider recommending posts if they hit the minimum base score. This has a big
-      // effect on the size of the recommendable-post set, which needs to not be
-      // too big for performance reasons.
-      baseScore: {$gt: MINIMUM_BASE_SCORE},
+    // Only consider recommending posts if they hit the minimum base score. This has a big
+    // effect on the size of the recommendable-post set, which needs to not be
+    // too big for performance reasons.
+    baseScore: {$gt: algorithm.minimumBaseScore || MINIMUM_BASE_SCORE},
 
-      ...getInclusionSelector(algorithm),
+    ...getInclusionSelector(algorithm),
 
-      // Enforce the disableRecommendation flag
-      disableRecommendation: {$ne: true},
-    },
-    {
-      defaultRecommendation: true
-    }
-  ]
-})
+    // Enforce the disableRecommendation flag
+    disableRecommendation: {$ne: true},
+  }
+  
+  if (algorithm.excludeDefaultRecommendations) {
+    return recommendationFilter
+  } else {
+    return {$or: [recommendationFilter, { defaultRecommendation: true}]}
+  }
+}
 
 ensureIndex(Posts, {defaultRecommendation: 1})
 
@@ -230,7 +238,7 @@ const getDefaultResumeSequence = () => {
     {
       // R:A-Z
       collectionId: "oneQyj4pw77ynzwAF",
-      nextPostId: "uXn3LyA8eNqpvdoZw",
+      nextPostId: "2ftJ38y9SRBCBsCzy",
     },
   ]
 }

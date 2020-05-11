@@ -96,10 +96,10 @@ Vulcan.postgresImport = async () => {
   let rawCommentData = await database.any('SELECT thing_id, key, value from reddit_data_comment', [true]);
   let rawCommentMetadata = await database.any('SELECT thing_id, ups, downs, deleted, spam, date from reddit_thing_comment', [true]);
   // Process comment data
-  let commentData = groupBy(rawCommentData, (row) => row.thing_id);
+  let commentData: any = groupBy(rawCommentData, (row) => row.thing_id);
   commentData = mapValues(commentData, keyValueArraytoObject);
   // Process post metadata
-  let commentMetaData = groupBy(rawCommentMetadata, (row) => row.thing_id);
+  let commentMetaData: any = groupBy(rawCommentMetadata, (row) => row.thing_id);
   commentMetaData = mapValues(commentMetaData, (v) => pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'date'));
   // Merge data
   commentData = deepObjectExtend(commentData, commentMetaData);

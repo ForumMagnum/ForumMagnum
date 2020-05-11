@@ -5,7 +5,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import Messages from "../../lib/collections/messages/collection";
 import Typography from '@material-ui/core/Typography';
 import Conversations from '../../lib/collections/conversations/collection';
-import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -29,9 +28,12 @@ const styles = theme => ({
 })
 
 // The Navigation for the Inbox components
-const ConversationPage = ({ documentId, terms, classes }) => {
-  const currentUser = useCurrentUser();
-  
+const ConversationPage = ({ documentId, terms, currentUser, classes }: {
+  documentId: string,
+  terms: any,
+  currentUser: UsersCurrent,
+  classes: ClassesType,
+}) => {
   const { results, loading: loadingMessages } = useMulti({
     terms,
     collection: Messages,

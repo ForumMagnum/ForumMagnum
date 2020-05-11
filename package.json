@@ -22,7 +22,7 @@
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
     "generate": "scripts/generateTypes.sh"
-  }, 
+  },
   "dependencies": {
     "@babel/runtime": "7.7.7",
     "@ckeditor/ckeditor5-build-balloon-block": "./public/lesswrong-editor",
@@ -37,6 +37,7 @@
     "@sentry/node": "^5.12.4",
     "@types/cheerio": "^0.22.16",
     "@types/classnames": "^2.2.9",
+    "@types/lodash": "^4.14.150",
     "@types/mocha": "^5.2.7",
     "@types/moment": "^2.13.0",
     "@types/node": "8",
@@ -113,7 +114,6 @@
     "mathjax": "^2.7.5",
     "mathjax-node": "^2.1.1",
     "mathjax-node-page": "3.2.0",
-    "meteor-node-stubs": "0.4.1",
     "mingo": "^2.2.11",
     "moment": "^2.22.2",
     "mz": "^2.7.0",

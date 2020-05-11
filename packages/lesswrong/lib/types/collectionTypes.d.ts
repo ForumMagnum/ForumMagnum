@@ -10,6 +10,12 @@ interface CollectionBase<T extends DbObject> {
   simpleSchema: any
   addField: any
   helpers: any
+  loader: any
+  
+  // TODO: Type-system plumbing should handle the fact that loaders are available
+  // if you get the collection via a resolver's context, but not available if you
+  // just import the collection.
+  loader: any
   
   rawCollection: any
   checkAccess: any
@@ -42,7 +48,20 @@ interface HasIdType {
   _id: string
 }
 
+// Common base type for everything with a userId field
+interface HasUserIdType {
+  userId: string
+}
+
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {
   schemaVersion: number
+}
+
+interface HasSlugType extends DbObject {
+  slug: string
+}
+
+interface HasCreatedAtType extends DbObject {
+  createdAt: Date
 }

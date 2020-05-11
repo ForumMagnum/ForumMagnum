@@ -28,7 +28,7 @@ const styles = theme => ({
 })
 
 const SunshineNewPostsItem = ({post, classes}: {
-  post: PostsList,
+  post: SunshinePostsList,
   classes: ClassesType
 }) => {
   const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
@@ -37,7 +37,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const {mutate: updatePost} = useUpdate({
     collection: Posts,
-    fragmentName: 'PostsList',
+    fragmentName: 'SunshinePostsList',
   });
   const [addTagsMutation] = useMutation(gql`
     mutation addTagsMutation($postId: String, $tagIds: [String]) {
@@ -83,9 +83,6 @@ const SunshineNewPostsItem = ({post, classes}: {
     })
   }
   
-  // ea-forum-look-here This widget/form was redesigned to support core tags, and
-  // had some EA-forum specific customization (for the "Move to Community"
-  // button). Make sure the set of buttons here is right.
   const handleMoveToCommunity = () => {
     applyTags();
     
@@ -188,4 +185,3 @@ declare global {
     SunshineNewPostsItem: typeof SunshineNewPostsItemComponent
   }
 }
-
