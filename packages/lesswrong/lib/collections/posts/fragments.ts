@@ -141,6 +141,13 @@ registerFragment(`
       version
       html
     }
+
+    tagRels {
+      ...TagRelBasicInfo
+      tag {
+        ...TagPreviewFragment
+      }
+  }
   }
 `);
 

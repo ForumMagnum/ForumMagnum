@@ -132,6 +132,7 @@ interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
   readonly contents: PostsList_contents,
   readonly moderationGuidelines: RevisionDisplay,
   readonly customHighlight: PostsList_customHighlight,
+  readonly tagRels: Array<PostsList_tagRels>,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -145,8 +146,16 @@ interface PostsList_customHighlight { // fragment on Revisions
   readonly html: string,
 }
 
+interface PostsList_tagRels extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment,
+}
+
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRel: WithVoteTagRel,
+  readonly tagRel: PostsListTag_tagRel,
+}
+
+interface PostsListTag_tagRel { // fragment on TagRels
+  readonly tag: TagPreviewFragment,
 }
 
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
@@ -802,7 +811,6 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
-  readonly signUpReCaptchaRating: number,
 }
 
 interface UserBookmarks { // fragment on Users

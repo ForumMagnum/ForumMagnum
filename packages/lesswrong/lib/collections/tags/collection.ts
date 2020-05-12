@@ -117,7 +117,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 Tags.checkAccess = (currentUser, tag) => {
   if (Users.isAdmin(currentUser))
     return true;
-  else if (tag.deleted)
+  else if (tag.deleted || tag.adminOnly)
     return false;
   else
     return true;

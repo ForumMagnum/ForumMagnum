@@ -89,7 +89,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit,
   },
   wordCount: {
-    marginLeft: theme.spacing.unit
+    display: "inline-block"
   },
   metadata: {
     marginLeft: 12,
@@ -163,7 +163,9 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
                 {getPostCategory(post)}
-                {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
+                {(post.tagRels?.length > 0) && " – "}
+                {post.tagRels?.map((tagRel, i) => <span key={tagRel._id}>{tagRel.tag?.name}{(i !== (post.tagRels?.length - 1)) ? ",  " : ""}</span>)}
+                {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
                 {post.user && <LWTooltip title="Author">

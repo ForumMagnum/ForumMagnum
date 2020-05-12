@@ -1,7 +1,7 @@
 import Users from '../users/collection';
 import { Utils, getCollection } from '../../vulcan-lib';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { TagRels } from "../tagRels/collection";
@@ -521,6 +521,20 @@ const schema = {
       if (tagRels?.length) {
         return Users.restrictViewableFields(currentUser, TagRels, tagRels)[0]
       }
+    }
+  }),
+
+  tagRels: resolverOnlyField({
+    type: "[TagRel]",
+    graphQLtype: "[TagRel]",
+    viewableBy: ['guests'],
+    resolver: async (post, args, { currentUser }) => {
+      const tagRels = await getWithLoader(TagRels,
+        "tagRelByDocument",
+        {},
+        'postId', post._id
+      );
+      return accessFilterMultiple(currentUser, TagRels, tagRels)
     }
   }),
   
