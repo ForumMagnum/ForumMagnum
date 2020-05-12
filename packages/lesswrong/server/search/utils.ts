@@ -14,6 +14,7 @@ import Users from '../../lib/collections/users/collection';
 import { algoliaAppIdSetting } from '../../lib/publicSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
+import filter from 'lodash/filter';
 
 type AlgoliaDocument = {
   _id: string,
@@ -346,7 +347,9 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   
   const ids = _.map(objects, o=>o._id);
   const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;
-  const algoliaObjectsNonnull: Array<AlgoliaDocument> = _.filter(algoliaObjects, o=>!!o);
+  // Workaround for getting filter to properly typecheck: https://github.com/microsoft/TypeScript/issues/16069#issuecomment-392022894
+  const isNotNull = <T extends object>(x:undefined | null | T) : x is T => !!x
+  const algoliaObjectsNonnull: Array<AlgoliaDocument> = filter(algoliaObjects, isNotNull);
   const algoliaObjectsById = keyBy(algoliaObjectsNonnull, o=>o._id);
   
   const objectsToSync = _.filter(objects,

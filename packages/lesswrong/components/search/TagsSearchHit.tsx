@@ -15,7 +15,7 @@ const isLeftClick = (event) => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const TagsSearchHit = ({hit, clickAction, classes}) => <div className={classes.root}>
+const TagsSearchHit = ({hit, clickAction, classes}: {hit: any, classes: any, clickAction?: any}) => <div className={classes.root}>
   <Link to={Tags.getUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction()}>
     <Components.MetaInfo>
       {hit.name}
