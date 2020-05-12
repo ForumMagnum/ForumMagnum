@@ -1,7 +1,7 @@
 import Users from '../users/collection';
 import { Utils, getCollection } from '../../vulcan-lib';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { TagRels } from "../tagRels/collection";
@@ -519,7 +519,7 @@ const schema = {
         'postId', post._id
       );
       if (tagRels?.length) {
-        return Users.restrictViewableFields(currentUser, TagRels, tagRels)[0]
+        return accessFilterMultiple(currentUser, TagRels, tagRels)[0]
       }
     }
   }),
@@ -542,12 +542,14 @@ const schema = {
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
-    resolver: async (post) => {
+    resolver: async (post, args, { currentUser, TagRels }) => {
       if (post.question) {
         if (post.lastCommentPromotedAt) {
-          return Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
+          const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
+          return accessFilterSingle(currentUser, TagRels, comment)
         } else {
-          return Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+          const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+          return accessFilterSingle(currentUser, TagRels, comment)
         }
       }
     }

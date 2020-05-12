@@ -41,7 +41,7 @@ const generateIdResolverMulti = ({collectionName, fieldName, getKey = (a=>a)}) =
 // If the user can't access the document, returns null. If the user can access the
 // document, return a copy of the document in which any fields the user can't access
 // have been removed. If document is null, returns null.
-export const accessFilterSingle = (currentUser, collection, document) => {
+export const accessFilterSingle = <T extends DbObject>(currentUser:DbUser|null , collection:CollectionBase<T>, document: T) : T|null => {
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !checkAccess(currentUser, document)) return null
@@ -54,7 +54,7 @@ export const accessFilterSingle = (currentUser, collection, document) => {
 // list, and fields which the user can't access are removed from the documents inside
 // the list. If currentUser is null, applies permission checks for the logged-out
 // view.
-export const accessFilterMultiple = (currentUser, collection, unfilteredDocs) => {
+export const accessFilterMultiple = <T extends DbObject>(currentUser:DbUser|null, collection:CollectionBase<T>, unfilteredDocs:T[]) : T[] => {
   const { checkAccess } = collection
   
   // Filter out nulls (docs that were referenced but didn't exist)
