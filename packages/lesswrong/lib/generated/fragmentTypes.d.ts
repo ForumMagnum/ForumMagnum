@@ -802,7 +802,6 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
-  readonly signUpReCaptchaRating: number,
 }
 
 interface UserBookmarks { // fragment on Users

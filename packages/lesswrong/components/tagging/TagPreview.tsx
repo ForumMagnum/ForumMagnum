@@ -1,9 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { truncate } from '../../lib/editor/ellipsize';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   card: {
@@ -31,6 +33,14 @@ const styles = theme => ({
   score: {
     marginLeft: 4,
     marginRight: 4,
+  },
+  footerCount: {
+    textAlign: "right",
+    ...theme.typography.smallFont,
+    ...theme.typography.commentStyle,
+    color: theme.palette.primary.main,
+    marginTop: 8,
+    marginBottom: 6
   }
 });
 
@@ -65,8 +75,11 @@ const TagPreview = ({tag, classes}: {
     }
     {!results && <PostsListPlaceholder count={previewPostCount} />}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={i!=2}/>
+      <PostsItem2 key={result.post._id} post={result.post} index={i}/>
     )}
+    <div className={classes.footerCount}>
+      <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
+    </div>
   </div>)
 }
 
