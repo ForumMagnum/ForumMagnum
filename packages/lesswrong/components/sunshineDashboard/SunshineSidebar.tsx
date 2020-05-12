@@ -51,7 +51,7 @@ const SunshineSidebar = ({classes}) => {
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
         <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 2}}/>
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 10}}/>
         
         {/* alignmentForumAdmins see AF content above the fold */}
         { currentUser?.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
