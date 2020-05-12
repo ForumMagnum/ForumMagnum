@@ -480,7 +480,7 @@ addFieldsDict(Posts, {
         sequence = await Sequences.loader.load(post.canonicalSequenceId);
       }
 
-      return accessFilterSingle(currentUser, Sequences, sequence);
+      return sequence ? accessFilterSingle(currentUser, Sequences, sequence) : null
     }
   }),
 

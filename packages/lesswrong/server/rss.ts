@@ -76,11 +76,6 @@ export const servePostRSS = (terms, url?: string) => {
       url: Posts.getPageUrl(post, true)
     };
 
-    if (post.thumbnailUrl) {
-      const url = Utils.addHttp(post.thumbnailUrl);
-      feedItem.custom_elements = [{'imageUrl':url}, {'content': url}];
-    }
-
     feed.item(feedItem);
   });
 
