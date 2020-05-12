@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -9,6 +9,7 @@ import { commentBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
+import { Tags } from '../../lib/collections/tags/collection';
 
 const styles = theme => ({
   tagPage: {
@@ -56,17 +57,21 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404, PermanentRedirect } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
   const [truncated, setTruncated] = useState(true)
   const { captureEvent } =  useTracking()
-
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
     return <Error404/>
+  // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
+  if (tag.slug !== slug) {
+    return <PermanentRedirect url={Tags.getUrl(tag)} />
+  }
 
   const terms = {
     ...query,
