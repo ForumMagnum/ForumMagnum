@@ -39,8 +39,9 @@ const styles = theme => ({
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
     color: theme.palette.primary.main,
-    marginTop: 8,
-    marginBottom: 6
+    marginTop: 6,
+    marginBottom: 2,
+    marginRight: 6
   }
 });
 
