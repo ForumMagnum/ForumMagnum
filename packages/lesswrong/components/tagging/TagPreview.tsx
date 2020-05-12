@@ -47,9 +47,10 @@ const styles = theme => ({
 
 const previewPostCount = 3;
 
-const TagPreview = ({tag, classes}: {
+const TagPreview = ({tag, classes, showCount=true}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
+  showCount?: boolean
 }) => {
   const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
   const { results } = useMulti({
@@ -76,11 +77,11 @@ const TagPreview = ({tag, classes}: {
     }
     {!results && <PostsListPlaceholder count={previewPostCount} />}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i}/>
+      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={showCount && i!=2}/>
     )}
-    <div className={classes.footerCount}>
+    {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
-    </div>
+    </div>}
   </div>)
 }
 
