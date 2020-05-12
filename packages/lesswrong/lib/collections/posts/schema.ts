@@ -542,7 +542,7 @@ const schema = {
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
-    resolver: async (post, args, { currentUser, TagRels }) => {
+    resolver: async (post, args, { currentUser }) => {
       if (post.question) {
         if (post.lastCommentPromotedAt) {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
