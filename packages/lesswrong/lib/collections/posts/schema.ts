@@ -546,10 +546,10 @@ const schema = {
       if (post.question) {
         if (post.lastCommentPromotedAt) {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
-          return accessFilterSingle(currentUser, TagRels, comment)
+          return accessFilterSingle(currentUser, Comments, comment)
         } else {
           const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
-          return accessFilterSingle(currentUser, TagRels, comment)
+          return accessFilterSingle(currentUser, Comments, comment)
         }
       }
     }
