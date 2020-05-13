@@ -138,14 +138,14 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
 
-      {renderContinueReading && <div className={classes.subsection}>
-          <LWTooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
+      {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
+          {currentUser && <LWTooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
             <Link to={"/library"}>
               <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
-                {currentUser ? "Continue Reading" : "Core Reading" }
+                 Continue Reading
               </SectionSubtitle>
             </Link>
-          </LWTooltip>
+          </LWTooltip>}
           <ContinueReadingList continueReading={continueReading} />
         </div>}
 
@@ -175,33 +175,23 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       </AnalyticsContext> */}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      {currentUser && !settings.hideFrontpage && <div className={classes.subsection}>
-        <LWTooltip placement="top-start" title={allTimeTooltip}>
+      <div className={currentUser ? classes.subsection : null}>
+        {currentUser && (renderBookmarks || renderContinueReading) && <LWTooltip placement="top-start" title={allTimeTooltip}>
           <Link to={"/recommendations"}>
             <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
-              From the Archives
+              Curated and Archives
             </SectionSubtitle>
           </Link>
-        </LWTooltip>
-        <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-          <RecommendationsList algorithm={frontpageRecommendationSettings} />
-        </AnalyticsContext>
-      </div>}
-
-      <AnalyticsContext pageSectionContext={"curatedPosts"}>
-        <div className={classes.subsection}>
-          <LWTooltip placement="top-start" title={curatedTooltip}>
-            <Link to={curatedUrl}>
-              <SectionSubtitle className={classes.subtitle}>
-                Recently Curated
-              </SectionSubtitle>
-            </Link>
-          </LWTooltip>
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+        </LWTooltip>}
+        {currentUser && !settings.hideFrontpage &&
+          <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+            <RecommendationsList algorithm={frontpageRecommendationSettings} />
           </AnalyticsContext>
-        </div>
-      </AnalyticsContext>
+        }
+        <AnalyticsContext listContext={"curatedPosts"}>
+          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+        </AnalyticsContext>
+      </div>
     </SingleColumnSection>
   }
 }
