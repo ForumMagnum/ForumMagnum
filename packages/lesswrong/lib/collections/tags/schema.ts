@@ -1,7 +1,6 @@
 import { schemaDefaultValue } from '../../collectionUtils'
 import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
-import filter from 'lodash/filter';
 
 const formGroups = {
   advancedOptions: {
