@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-
+import Hidden from '@material-ui/core/Hidden';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
 const styles = theme => ({
@@ -41,6 +41,9 @@ const styles = theme => ({
     maxWidth: 450,
     marginLeft: "auto"
   },
+  sequenceGrid: {
+    marginTop: -8
+  }
 });
 
 const defaultFrontpageSettings = {
@@ -84,7 +87,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, SectionFooter, LoginPopupButton, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -118,11 +121,22 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
  
     return <SingleColumnSection className={classes.section}>
-      <SectionTitle title="Recommendations">
-        {currentUser && <LWTooltip title="Customize your recommendations">
-          <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
-        </LWTooltip>}
-      </SectionTitle>
+      {currentUser ? 
+        <SectionTitle title="Recommendations">
+          <LWTooltip title="Customize your recommendations">
+            <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
+          </LWTooltip>
+        </SectionTitle>
+        :
+        <Hidden mdUp implementation="css">
+          <SectionTitle title="Recommendations">
+            <LWTooltip title="Customize your recommendations">
+              <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
+            </LWTooltip>
+          </SectionTitle>
+        </Hidden>
+      }
+
       {showSettings &&
         <RecommendationsAlgorithmPicker
           configName={configName}
@@ -130,11 +144,20 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
 
-      {!currentUser && <SequencesGridWrapper
-            terms={{'view':'curatedSequences', limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-          />}
+      {!currentUser && <div>
+          <Hidden smDown implementation="css">
+            <div className={classes.sequenceGrid}>
+              <SequencesGridWrapper
+                terms={{'view':'curatedSequences', limit:3}}
+                showAuthor={true}
+                showLoadMore={false}
+              />
+            </div>
+          </Hidden>
+          <Hidden mdUp implementation="css">
+            <ContinueReadingList continueReading={continueReading} />
+          </Hidden>
+        </div>}
 
       {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
           <LWTooltip placement="top-start" title={continueReadingTooltip}>
@@ -187,8 +210,13 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           </AnalyticsContext>
         }
         <AnalyticsContext listContext={"curatedPosts"}>
-          <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true}/>
+          <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
         </AnalyticsContext>
+        {!currentUser && <SectionFooter>
+          <LoginPopupButton title="Logged In users can adjust their recommendation settings">
+            Log In for Customized Recommendstions
+          </LoginPopupButton>
+        </SectionFooter>}
       </div>
     </SingleColumnSection>
   }

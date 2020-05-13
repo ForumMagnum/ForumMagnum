@@ -74,6 +74,7 @@ const styles = theme => ({
 
   image: {
     width: "100%",
+    height: 95,
     display: 'block',
     [legacyBreakpoints.maxTiny]: {
       width: "100%",
