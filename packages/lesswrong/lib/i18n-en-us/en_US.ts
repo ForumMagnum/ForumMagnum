@@ -13,7 +13,6 @@ addStrings('en', {
   'posts.title': 'Title',
   'posts.url': 'URL',
   'posts.categories': 'Categories',
-  'posts.thumbnailUrl': 'Thumbnail URL',
   'posts.status': 'Status',
   'posts.sticky': 'Sticky',
   'posts.load_more': 'Load More',
