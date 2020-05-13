@@ -84,14 +84,9 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
-
-    const curatedTooltip = <div>
-      <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
-      <div><em>(Click to see more curated posts)</em></div>
-    </div>
 
     const coreReadingTooltip = <div>
       <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
@@ -109,7 +104,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     // Disabled during 2018 Review [and coronavirus]
     const allTimeTooltip = <div>
       <div>
-        A weighted, randomized sample of the highest karma posts
+        Recently curated posts, as well as a random sampling of top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
       </div>
       <div><em>(Click to see more recommendations)</em></div>
@@ -119,12 +114,13 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     // editable setting, so the reverse ordering here is fine
     const frontpageRecommendationSettings = {
       ...settings,
-      ...defaultFrontpageSettings
+      ...defaultFrontpageSettings,
+      count: currentUser ? 3 : 2,
     }
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
-    const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
-
+    const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+ 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
         {currentUser && <LWTooltip title="Customize your recommendations">
@@ -138,14 +134,20 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
 
+      {!currentUser && <SequencesGridWrapper
+            terms={{'view':'curatedSequences', limit:3}}
+            showAuthor={true}
+            showLoadMore={false}
+          />}
+
       {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
-          {currentUser && <LWTooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
+          <LWTooltip placement="top-start" title={continueReadingTooltip}>
             <Link to={"/library"}>
               <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
                  Continue Reading
               </SectionSubtitle>
             </Link>
-          </LWTooltip>}
+          </LWTooltip>
           <ContinueReadingList continueReading={continueReading} />
         </div>}
 
@@ -183,13 +185,13 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             </SectionSubtitle>
           </Link>
         </LWTooltip>}
-        {currentUser && !settings.hideFrontpage &&
+        {!settings.hideFrontpage &&
           <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
             <RecommendationsList algorithm={frontpageRecommendationSettings} />
           </AnalyticsContext>
         }
         <AnalyticsContext listContext={"curatedPosts"}>
-          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+          <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true}/>
         </AnalyticsContext>
       </div>
     </SingleColumnSection>
