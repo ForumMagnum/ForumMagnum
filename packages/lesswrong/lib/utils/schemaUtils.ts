@@ -41,7 +41,7 @@ const generateIdResolverMulti = ({collectionName, fieldName, getKey = (a=>a)}) =
 // If the user can't access the document, returns null. If the user can access the
 // document, return a copy of the document in which any fields the user can't access
 // have been removed. If document is null, returns null.
-export const accessFilterSingle = <T extends DbObject>(currentUser:DbUser|null , collection:CollectionBase<T>, document: T) : T|null => {
+export const accessFilterSingle = <T extends DbObject>(currentUser:DbUser|null , collection:CollectionBase<T>, document: T | null) : T|null => {
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !checkAccess(currentUser, document)) return null

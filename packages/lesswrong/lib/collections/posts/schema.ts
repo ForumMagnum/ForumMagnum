@@ -518,8 +518,9 @@ const schema = {
         },
         'postId', post._id
       );
-      if (tagRels?.length) {
-        return accessFilterMultiple(currentUser, TagRels, tagRels)[0]
+      const filteredTagRels = accessFilterMultiple(currentUser, TagRels, tagRels)
+      if (filteredTagRels?.length) {
+        return filteredTagRels[0]
       }
     }
   }),
