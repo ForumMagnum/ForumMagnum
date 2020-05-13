@@ -21,13 +21,11 @@ const styles = theme => ({
     fontStyle: "italic"
   },
   rightIcon: {
-    marginLeft: -6
+    marginLeft: -6,
   },
   downIcon: {
-    rightIcon: {
-      marginLeft: -4,
-      marginRight: 3
-    }
+    marginLeft: -4,
+    marginRight: 3
   }
 })
 
