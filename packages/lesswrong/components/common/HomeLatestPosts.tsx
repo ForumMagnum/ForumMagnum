@@ -4,12 +4,32 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
-import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
+import { defaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+
+const styles = theme => ({
+  toggleFilters: {
+    display: "flex",
+    alignItems: "center",
+    color: theme.palette.grey[600],
+    fontStyle: "italic"
+  },
+  rightIcon: {
+    marginLeft: -6
+  },
+  downIcon: {
+    rightIcon: {
+      marginLeft: -4,
+      marginRight: 3
+    }
+  }
+})
 
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 
@@ -19,7 +39,7 @@ const useFilterSettings = (currentUser: UsersCurrent|null) => {
   return useState(defaultSettings);
 }
 
-const HomeLatestPosts = () => {
+const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { captureEvent } = useTracking()
@@ -34,7 +54,7 @@ const HomeLatestPosts = () => {
   const { timezone } = useTimezone();
 
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings } = Components
   const limit = parseInt(query.limit) || 13
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
@@ -68,16 +88,20 @@ const HomeLatestPosts = () => {
         <SingleColumnSection>
           <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
             <LWTooltip title={filterTooltip}>
-              <SettingsIcon
-                onClick={() => {
+              <a className={classes.toggleFilters} onClick={() => {
                   setFilterSettingsVisible(!filterSettingsVisible)
                   captureEvent("filterSettingsClicked", {
                     settingsVisible: !filterSettingsVisible,
                     settings: filterSettings,
                     pageSectionContext: "latestPosts"
                   })
-                }}
-                label={"Filter: "+filterSettingsToString(filterSettings)}/>
+                }}>
+              {filterSettingsVisible ? 
+                <><ExpandMoreIcon className={classes.downIcon}/> Hide Tag Filters</>
+                : 
+                <><ChevronRightIcon className={classes.rightIcon} /> Show Tag Filters</>
+              }                
+              </a>
             </LWTooltip>
           </SectionTitle>
           {filterSettingsVisible && <TagFilterSettings
@@ -103,7 +127,7 @@ const HomeLatestPosts = () => {
   )
 }
 
-const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts);
+const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
 
 declare global {
   interface ComponentTypes {
