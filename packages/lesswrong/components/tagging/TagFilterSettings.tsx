@@ -8,7 +8,7 @@ import * as _ from 'underscore';
 const styles = theme => ({
   root: {
     marginLeft: "auto",
-    marginBottom: 16,
+    marginBottom: 6,
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap"
