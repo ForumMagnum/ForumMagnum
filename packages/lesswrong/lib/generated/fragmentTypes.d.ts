@@ -132,7 +132,7 @@ interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
   readonly contents: PostsList_contents,
   readonly moderationGuidelines: RevisionDisplay,
   readonly customHighlight: PostsList_customHighlight,
-  readonly tagRels: Array<PostsList_tagRels>,
+  readonly tags: Array<TagPreviewFragment>,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -146,16 +146,8 @@ interface PostsList_customHighlight { // fragment on Revisions
   readonly html: string,
 }
 
-interface PostsList_tagRels extends TagRelBasicInfo { // fragment on TagRels
-  readonly tag: TagPreviewFragment,
-}
-
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRel: PostsListTag_tagRel,
-}
-
-interface PostsListTag_tagRel { // fragment on TagRels
-  readonly tag: TagPreviewFragment,
+  readonly tagRel: WithVoteTagRel,
 }
 
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
@@ -243,6 +235,7 @@ interface PostsRevisionEdit_revisions { // fragment on Revisions
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
+  readonly tags: Array<TagPreviewFragment>,
   readonly tableOfContentsRevision: any,
 }
 
@@ -290,6 +283,7 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay,
+  readonly tags: Array<TagPreviewFragment>,
 }
 
 interface PostsEdit extends PostsPage { // fragment on Posts
@@ -565,6 +559,17 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly promotedByUserId: string,
   readonly promotedAt: Date,
   readonly hideKarma: boolean,
+}
+
+interface TagsDefaultFragment { // fragment on Tags
+  readonly name: string,
+  readonly slug: string,
+  readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
+  readonly postCount: number,
+  readonly adminOnly: boolean,
+  readonly deleted: boolean,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1395,17 +1400,6 @@ interface WithVoteTagRel_currentUserVotes { // fragment on Votes
   readonly power: number,
 }
 
-interface TagsDefaultFragment { // fragment on Tags
-  readonly name: string,
-  readonly slug: string,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly defaultOrder: number,
-  readonly postCount: number,
-  readonly adminOnly: boolean,
-  readonly deleted: boolean,
-}
-
 interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
@@ -1579,6 +1573,7 @@ interface FragmentTypes {
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
+  TagsDefaultFragment: TagsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -1636,7 +1631,6 @@ interface FragmentTypes {
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
-  TagsDefaultFragment: TagsDefaultFragment
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
   TagPreviewFragment: TagPreviewFragment
@@ -1654,5 +1648,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
 

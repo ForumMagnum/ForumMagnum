@@ -142,12 +142,9 @@ registerFragment(`
       html
     }
 
-    tagRels {
-      ...TagRelBasicInfo
-      tag {
-        ...TagPreviewFragment
-      }
-  }
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `);
 
@@ -267,6 +264,9 @@ registerFragment(`
     ...PostsRevision
     ...PostSequenceNavigation
     
+    tags {
+      ...TagPreviewFragment
+    }
     tableOfContentsRevision(version: $version)
   }
 `)
@@ -317,6 +317,9 @@ registerFragment(`
     version
     contents {
       ...RevisionDisplay
+    }
+    tags {
+      ...TagPreviewFragment
     }
   }
 `)

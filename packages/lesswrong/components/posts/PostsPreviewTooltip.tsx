@@ -163,8 +163,8 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
                 {getPostCategory(post)}
-                {(post.tagRels?.length > 0) && " – "}
-                {post.tagRels?.map((tagRel, i) => <span key={tagRel._id}>{tagRel.tag?.name}{(i !== (post.tagRels?.length - 1)) ? ",  " : ""}</span>)}
+                {(post.tags?.length > 0) && " – "}
+                {post.tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
