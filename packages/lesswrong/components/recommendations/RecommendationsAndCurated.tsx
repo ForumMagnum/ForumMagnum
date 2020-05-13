@@ -88,10 +88,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
-    const coreReadingTooltip = <div>
-      <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
-    </div>
-
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
     </div>

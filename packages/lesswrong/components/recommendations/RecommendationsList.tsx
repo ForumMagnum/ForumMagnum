@@ -1,6 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withRecommendations } from './withRecommendations';
 
 interface ExternalProps {
