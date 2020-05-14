@@ -42,7 +42,12 @@ const styles = theme => ({
     marginLeft: "auto"
   },
   sequenceGrid: {
-    marginTop: -8
+    marginTop: 8,
+    marginBottom: 8
+  },
+  loggedOutCustomizeLabel: {
+    fontSize: "1rem",
+    fontStyle: "italic"
   }
 });
 
@@ -87,7 +92,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { SequencesGridWrapper, SectionFooter, LoginPopupButton, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, LoginPopupButton, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -121,21 +126,17 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
  
     return <SingleColumnSection className={classes.section}>
-      {currentUser ? 
-        <SectionTitle title="Recommendations">
+      <SectionTitle title="Recommendations">
+        {currentUser ? 
           <LWTooltip title="Customize your recommendations">
-            <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
+            <SettingsIcon onClick={this.toggleSettings} label="Customize"/>
           </LWTooltip>
-        </SectionTitle>
-        :
-        <Hidden mdUp implementation="css">
-          <SectionTitle title="Recommendations">
-            <LWTooltip title="Customize your recommendations">
-              <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
-            </LWTooltip>
-          </SectionTitle>
-        </Hidden>
-      }
+          :
+          <LoginPopupButton title="Logged In users can adjust their recommendation settings">
+            <div className={classes.loggedOutCustomizeLabel}>Customize Recommendations</div>
+          </LoginPopupButton>
+        }
+      </SectionTitle>
 
       {showSettings &&
         <RecommendationsAlgorithmPicker
@@ -151,6 +152,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
                 terms={{'view':'curatedSequences', limit:3}}
                 showAuthor={true}
                 showLoadMore={false}
+                smallerHeight
               />
             </div>
           </Hidden>
@@ -212,11 +214,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <AnalyticsContext listContext={"curatedPosts"}>
           <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
         </AnalyticsContext>
-        {!currentUser && <SectionFooter>
-          <LoginPopupButton title="Logged In users can adjust their recommendation settings">
-            Log In for Customized Recommendstions
-          </LoginPopupButton>
-        </SectionFooter>}
       </div>
     </SingleColumnSection>
   }

@@ -30,12 +30,15 @@ const styles = theme => ({
   top: {
     height: 44,
     lineHeight: 1.1,
-    borderTopStyle: "solid",
-    paddingTop: 7,
+    paddingTop: 12,
   },
 
   topWithAuthor: {
-    height: 68,
+    height: 59,
+  },
+
+  smallerHeight: {
+    height: 45
   },
 
   title: {
@@ -61,7 +64,7 @@ const styles = theme => ({
   },
 
   author: {
-    marginTop: 3,
+    marginTop: 5,
     color: "rgba(0,0,0,0.5)",
 
     "&:hover": {
@@ -73,6 +76,7 @@ const styles = theme => ({
   },
 
   image: {
+    backgroundColor: theme.palette.grey[600],
     width: "100%",
     height: 95,
     display: 'block',
@@ -93,10 +97,12 @@ const styles = theme => ({
   },
 })
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
+const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
   classes: ClassesType,
+  smallerHeight?: boolean
+
 }) => {
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
@@ -105,7 +111,16 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
   const url = getSequenceUrl()
 
   return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
-    <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
+    <div className={classes.image}>
+      <NoSSR>
+        <Components.CloudinaryImage
+          publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+          height={124}
+          width={315}
+        />
+      </NoSSR>
+    </div>
+    <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor, [classes.smallerHeight]:smallerHeight})} style={{borderTopColor: sequence.color}}>
       <Link key={sequence._id} to={url}>
         <Typography variant='title' className={classes.title}>
           {sequence.draft && <span className={classes.draft}>[Draft] </span>}
@@ -116,15 +131,6 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
         <div className={classes.author}>
           by <Components.UsersName user={sequence.user} />
         </div>}
-    </div>
-    <div className={classes.image}>
-      <NoSSR>
-        <Components.CloudinaryImage
-          publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-          height={124}
-          width={315}
-        />
-      </NoSSR>
     </div>
   </LinkCard>
 }
