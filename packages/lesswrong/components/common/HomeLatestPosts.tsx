@@ -80,19 +80,21 @@ const HomeLatestPosts = () => {
                 label={"Filter: "+filterSettingsToString(filterSettings)}/>
             </LWTooltip>
           </SectionTitle>
-          {filterSettingsVisible && <TagFilterSettings
-            filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-              setFilterSettings(newSettings)
-              if (currentUser) {
-                updateUser({
-                  selector: { _id: currentUser._id},
-                  data: {
-                    frontpageFilterSettings: newSettings
-                  },
-                })
-              }
-            }}
-          />}
+          <AnalyticsContext pageSectionContext="tagFilterSettings">
+              {filterSettingsVisible && <TagFilterSettings
+              filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+                setFilterSettings(newSettings)
+                if (currentUser) {
+                  updateUser({
+                    selector: { _id: currentUser._id},
+                    data: {
+                      frontpageFilterSettings: newSettings
+                    },
+                  })
+                }
+              }}
+            />}
+          </AnalyticsContext>
           <AnalyticsContext listContext={"latestPosts"}>
             <PostsList2 terms={recentPostsTerms}>
               <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
