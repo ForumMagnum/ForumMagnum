@@ -9,6 +9,7 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import withDialog from '../common/withDialog';
+import { withTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -84,7 +85,7 @@ interface VoteButtonState {
 
 class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
   votingTransition: any
-  
+
   constructor(props: VoteButtonProps) {
     super(props);
     this.votingTransition = null
@@ -120,6 +121,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
       });
     } else {
       this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
+      this.props.captureEvent("vote", {collectionName: collection.collectionName});
     }
   }
 
@@ -139,7 +141,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
   handleClick = () => { // This handler is only used for mobile
     if(isMobile()) {
       const { voteType } = this.props
-      // This causes the following behavior (repeating after 3rd click): 
+      // This causes the following behavior (repeating after 3rd click):
       // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
       const voted = this.hasVoted(`big${voteType}`) || this.hasVoted(`small${voteType}`)
       if (voted) {
@@ -191,7 +193,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
 
 const VoteButtonComponent = registerComponent<ExternalProps>('VoteButton', VoteButton, {
   styles,
-  hocs: [withDialog, withTheme()]
+  hocs: [withDialog, withTheme(), withTracking]
 });
 
 declare global {
