@@ -172,7 +172,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
         </div>
         <TagPreview tag={tag} showCount={false}/>
       </PopperCard>
-      </AnalyticsContext>
+    </AnalyticsContext>
   </span>
 }
 
