@@ -83,17 +83,17 @@ const HomeLatestPosts = () => {
           </SectionTitle>
           <AnalyticsContext pageSectionContext="tagFilterSettings">
               {filterSettingsVisible && <TagFilterSettings
-              filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                setFilterSettings(newSettings)
-                if (currentUser) {
-                  updateUser({
-                    selector: { _id: currentUser._id},
-                    data: {
-                      frontpageFilterSettings: newSettings
-                    },
-                  })
-                }
-              }}
+                filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+                  setFilterSettings(newSettings)
+                  if (currentUser) {
+                    updateUser({
+                      selector: { _id: currentUser._id},
+                      data: {
+                        frontpageFilterSettings: newSettings
+                      },
+                    })
+                  }
+                }}
             />}
           </AnalyticsContext>
           <AnalyticsContext listContext={"latestPosts"}>
