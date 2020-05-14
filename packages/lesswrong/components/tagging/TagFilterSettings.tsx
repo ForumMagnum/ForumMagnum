@@ -98,7 +98,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             ...filterSettings.tags[replacedIndex],
             filterMode: mode
           };
-          captureEvent('tagFilterModified', {tagId: tagSettings._id, tagName: tagSettings.tagName, mode})
+          captureEvent('tagFilterModified', {tagId: tagSettings.tagId, tagName: tagSettings.tagName, mode})
 
           setFilterSettings({
             personalBlog: filterSettings.personalBlog,

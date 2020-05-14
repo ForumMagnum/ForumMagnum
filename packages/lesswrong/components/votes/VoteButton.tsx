@@ -73,7 +73,7 @@ interface ExternalProps {
   currentUser: UsersCurrent|null,
   solidArrow?: boolean
 }
-interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
+interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps, WithTrackingProps {
   theme: any,
 }
 interface VoteButtonState {
