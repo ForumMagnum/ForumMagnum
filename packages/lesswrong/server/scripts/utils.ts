@@ -44,7 +44,7 @@ export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, u
 // In the meteor shell:
 //
 // > Vulcan.fixAllTheThings('fee', 'bee')
-export const wrapVulcanAsyncScript = (name, scriptFunc) => async (...args) => {
+export const wrapVulcanAsyncScript = (name: string, scriptFunc: Function) => async (...args) => {
   try {
     // eslint-disable-next-line no-console
     console.log(`================ ${name} ================`)

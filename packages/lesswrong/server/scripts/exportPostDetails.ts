@@ -47,7 +47,11 @@ function getPosts (selector) {
     meta: 1,
     frontpageDate: 1,
     postedAt: 1,
-    createdAt: 1
+    createdAt: 1,
+    isEvent: 1,
+    isFuture: 1,
+    draft: 1,
+    status: 1,
   }
 
   const finalSelector = Object.assign({}, defaultSelector, selector || {})
@@ -66,10 +70,10 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
     const rows: Array<any> = []
     for (let post of documents.fetch()) {
       // SD: this makes things horribly slow, but no idea how to do a more efficient join query in Mongo
-      const user = Users.findOne(post.userId, { fields: { username: 1, email: 1 }})
+      const user = Users.findOne(post.userId, { fields: { displayName: 1, email: 1 }})
       const postUrl = getSetting('siteUrl')
       const row = {
-        username: user.username,
+        display_name: user.displayName,
         email: user.email,
         id: post._id,
         user_id: post.userId,
@@ -92,7 +96,26 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
     await fs.writeFile(filePath, csvFile)
     //eslint-disable-next-line no-console
     console.log(`Wrote details for ${rows.length} posts to ${filePath}`)
+  }
+)
+
+Vulcan.exportLowKarma = ({outputFilepath, karma = 5}: {outputFilepath: string, karma?: number}) => {
+  Vulcan.exportPostDetails({
+    selector: {
+      postedAt: {
+        $gt: moment.utc('2014-09-10').toDate(),
+        $lt: moment.utc().subtract(1, 'year').toDate()
+      },
+      isEvent: {$ne: true},
+      isFuture: false,
+      draft: false,
+      baseScore: {$lt: karma},
+      status: 2, // Others are not shown
+    },
+    outputFile: path.basename(outputFilepath),
+    outputDir: path.dirname(outputFilepath)
   })
+}
 
 Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
