@@ -50,6 +50,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
+  useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
 
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings } = Components
@@ -102,19 +103,21 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               </a>
             </LWTooltip>
           </SectionTitle>
-          {filterSettingsVisible && <TagFilterSettings
-            filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-              setFilterSettings(newSettings)
-              if (currentUser) {
-                updateUser({
-                  selector: { _id: currentUser._id},
-                  data: {
-                    frontpageFilterSettings: newSettings
-                  },
-                })
-              }
-            }}
-          />}
+          <AnalyticsContext pageSectionContext="tagFilterSettings">
+              {filterSettingsVisible && <TagFilterSettings
+                filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+                  setFilterSettings(newSettings)
+                  if (currentUser) {
+                    updateUser({
+                      selector: { _id: currentUser._id},
+                      data: {
+                        frontpageFilterSettings: newSettings
+                      },
+                    })
+                  }
+                }}
+            />}
+          </AnalyticsContext>
           <AnalyticsContext listContext={"latestPosts"}>
             <PostsList2 terms={recentPostsTerms}>
               <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>

@@ -4,6 +4,7 @@ import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings'
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -62,7 +63,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
 }) => {
   const { AddTagButton, FilterMode, Loading } = Components
   const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
-  
+
   const { results: suggestedTags, loading: loadingSuggestedTags } = useMulti({
     terms: {
       view: "suggestedFilterTags",
@@ -71,14 +72,16 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     fragmentName: "TagFragment",
     limit: 100,
   });
-  
+
+  const { captureEvent } = useTracking()
+
   if (suggestedTags && !addedSuggestedTags) {
     const filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags);
     setAddedSuggestedTags(true);
     if (!_.isEqual(filterSettings, filterSettingsWithSuggestedTags))
       setFilterSettings(filterSettingsWithSuggestedTags);
   }
-  
+
   return <div className={classes.root}>
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
@@ -95,7 +98,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             ...filterSettings.tags[replacedIndex],
             filterMode: mode
           };
-          
+          captureEvent('tagFilterModified', {tagId: tagSettings.tagId, tagName: tagSettings.tagName, mode})
+
           setFilterSettings({
             personalBlog: filterSettings.personalBlog,
             tags: newTagFilters,
@@ -106,10 +110,11 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             personalBlog: filterSettings.personalBlog,
             tags: _.filter(filterSettings.tags, t=>t.tagId !== tagSettings.tagId),
           });
+          captureEvent("tagRemovedFromFilters", {tagId: tagSettings.tagId, tagName: tagSettings.tagName});
         }}
       />
     )}
-    
+
     <FilterMode
       label={personalBlogpostName}
       description={personalBlogpostTooltip}
@@ -130,6 +135,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             personalBlog: filterSettings.personalBlog,
             tags: [...filterSettings.tags, newFilter]
           });
+          captureEvent("tagAddedToFilters", {tagId, tagName})
         }
       }}/>}
     {loadingSuggestedTags && <Loading/>}
@@ -141,7 +147,7 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
   for (let tag of oldFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
   const tagsNotIncluded = _.filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
-  
+
   return {
     ...oldFilterSettings,
     tags: [
