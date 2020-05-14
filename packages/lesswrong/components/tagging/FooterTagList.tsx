@@ -20,6 +20,7 @@ const FooterTagList = ({post, classes}: {
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
 
   const { results, loading, refetch } = useMulti({
     terms: {
@@ -55,6 +56,7 @@ const FooterTagList = ({post, classes}: {
     });
     setIsAwaiting(false)
     refetch()
+    captureEvent("tagAddedToItem", {tagId, tagName})
   }, [setIsAwaiting, mutate, refetch, post._id]);
 
   const { Loading, FooterTag } = Components
