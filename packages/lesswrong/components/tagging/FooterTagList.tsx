@@ -57,7 +57,7 @@ const FooterTagList = ({post, classes}: {
     setIsAwaiting(false)
     refetch()
     captureEvent("tagAddedToItem", {tagId, tagName})
-  }, [setIsAwaiting, mutate, refetch, post._id]);
+  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
 
   const { Loading, FooterTag } = Components
   if (loading || !results)
