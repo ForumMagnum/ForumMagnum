@@ -32,6 +32,7 @@ const HomeLatestPosts = () => {
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
+  useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
 
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
