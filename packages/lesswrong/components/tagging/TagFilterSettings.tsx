@@ -12,7 +12,8 @@ const styles = theme => ({
     marginBottom: 6,
     ...theme.typography.commentStyle,
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    alignItems: "center"
   },
 });
 

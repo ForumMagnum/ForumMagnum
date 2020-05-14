@@ -11,9 +11,8 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     display: "inline-block",
-    height: 26,
     textAlign: "center",
-    padding: 4
+    paddingLeft: 4
   },
 });
 
