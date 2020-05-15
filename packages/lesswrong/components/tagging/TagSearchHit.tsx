@@ -4,6 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import withHover from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -22,6 +23,9 @@ const styles = theme => ({
       display: "none",
     },
   },
+  selected: {
+    background: "rgba(0,0,0,.15)"
+  }
 });
 
 interface ExternalProps {
@@ -29,9 +33,10 @@ interface ExternalProps {
   onClick: (ev: any) => void,
 }
 interface TagSearchHitProps extends ExternalProps, WithHoverProps, WithStylesProps {
+  selectedPosition?: number
 }
 
-const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProps) => {
+const TagSearchHit = ({hit, onClick, hover, anchorEl, classes, selectedPosition}: TagSearchHitProps) => {
   const { PopperCard, ContentItemBody, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
@@ -50,7 +55,7 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
           />}
         </div>
       </PopperCard>
-      <a className={classes.root} onClick={onClick} >
+      <a className={classNames(classes.root, {[classes.selected]:selectedPosition === hit.__position})} onClick={onClick} >
         {hit.name}
       </a>
     </React.Fragment>

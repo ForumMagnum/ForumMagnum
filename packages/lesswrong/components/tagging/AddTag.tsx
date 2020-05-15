@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
@@ -31,7 +31,9 @@ const AddTag = ({onTagSelected, classes}: {
 }) => {
   const { TagSearchHit } = Components
   const currentUser = useCurrentUser();
-  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchSelection, setSearchSelection] = useState("");
+  const [searchPosition, setSearchPosition] = useState(1)
   const searchStateChanged = React.useCallback((searchState) => {
     setSearchOpen(searchState.query?.length > 0);
   }, []);
@@ -72,6 +74,18 @@ const AddTag = ({onTagSelected, classes}: {
       }}/>
     </div>
   }
+
+  const handleKeydown = (e) => {
+    if (e.keyCode === 38 && (searchPosition > 0)) {
+      setSearchPosition(searchPosition - 1)
+    } else if (e.keyCode === 40 && (searchPosition < 7)) {
+      setSearchPosition(searchPosition + 1)
+    } else if (e.keyCode === 13) {
+      console.log("enter")
+    } else {
+      setSearchPosition(1)
+    }
+  }
   
   return <div className={classes.root} ref={containerRef}>
     <InstantSearch
@@ -79,10 +93,11 @@ const AddTag = ({onTagSelected, classes}: {
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
-      <SearchBox reset={null} focusShortcuts={[]}/>
+      <SearchBox reset={null} focusShortcuts={[]} onKeyDown={handleKeydown}/>
       <Configure hitsPerPage={searchOpen ? 12 : 6} />
       <Hits hitComponent={({hit}) =>
         <TagSearchHit hit={hit}
+            selectedPosition={searchPosition}          
             onClick={ev => {
               onTagSelected({tagId: hit._id, tagName: hit.name});
               ev.stopPropagation();
