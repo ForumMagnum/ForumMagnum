@@ -15,7 +15,7 @@ const styles = (theme) => ({
     width: 
       TAB_NAVIGATION_MENU_WIDTH - // base width
       ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,
-      (theme.spacing.unit*2), // paddingRight,
+      (theme.spacing.unit*2), // leave some space on the right,
     fontSize: "1rem",
     whiteSpace: "nowrap",
     overflow: "hidden",
