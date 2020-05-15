@@ -15,6 +15,12 @@ const formGroups = {
 };
 
 const schema = {
+  createdAt: {
+    optional: true,
+    type: Date,
+    canRead: ['admins'],
+    onInsert: (document, currentUser) => new Date(),
+  },
   name: {
     type: String,
     viewableBy: ['guests'],
