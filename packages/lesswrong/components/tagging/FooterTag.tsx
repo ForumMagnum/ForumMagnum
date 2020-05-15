@@ -44,7 +44,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
   tagRel: TagRelMinimumFragment,
   tag: TagFragment,
   hideScore?: boolean,
-  
+
   hover: boolean,
   anchorEl: any,
   classes: ClassesType,
