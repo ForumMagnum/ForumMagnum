@@ -133,7 +133,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           </LWTooltip>
           :
           <LoginPopupButton title="Logged In users can adjust their recommendation settings">
-            <div className={classes.loggedOutCustomizeLabel}>Customize Recommendations</div>
+            <SettingsIcon label="Customize Recommendations"/>
           </LoginPopupButton>
         }
       </SectionTitle>

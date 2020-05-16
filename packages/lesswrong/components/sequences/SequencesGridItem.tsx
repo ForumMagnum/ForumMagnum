@@ -76,7 +76,7 @@ const styles = theme => ({
   },
 
   image: {
-    backgroundColor: theme.palette.grey[600],
+    backgroundColor: "#b8b372",
     width: "100%",
     height: 95,
     display: 'block',
@@ -88,6 +88,7 @@ const styles = theme => ({
         width: "305px !important",
         height: "auto !important",
       },
+      opacity: .93,
       width: "100%",
       height: 95,
       [legacyBreakpoints.maxTiny]: {
