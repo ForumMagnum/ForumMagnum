@@ -13,7 +13,7 @@ import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { userHasCkEditor } from '../../lib/betas';
+import { userHasCkEditor, userHasCkCollaboration } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 
@@ -609,8 +609,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   isDocumentCollaborative = () => {
-    const { document, fieldName } = this.props
-    return document?._id && document?.shareWithUsers && (fieldName === "contents")
+    const { document, fieldName, currentUser } = this.props
+    return userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers && (fieldName === "contents")
   }
 
   renderCkEditor = () => {
