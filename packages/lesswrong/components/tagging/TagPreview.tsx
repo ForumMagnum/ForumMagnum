@@ -77,7 +77,7 @@ const TagPreview = ({tag, classes, showCount=true}: {
     }
     {!results && <PostsListPlaceholder count={previewPostCount} />}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={showCount && i!=2}/>
+      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={showCount || i!=2}/>
     )}
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
