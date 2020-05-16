@@ -408,10 +408,12 @@ class PostsPage extends Component<PostsPageProps> {
                 {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
                   <div className={classes.footerSection}>
                     <div className={classes.voteBottom}>
-                      <PostsVote
-                        collection={Posts}
-                        post={post}
-                        />
+                      <AnalyticsContext pageSectionContext="lowerVoteButton">
+                        <PostsVote
+                          collection={Posts}
+                          post={post}
+                          />
+                      </AnalyticsContext>
                     </div>
                   </div>}
                 {sequenceId && <div className={classes.bottomNavigation}>

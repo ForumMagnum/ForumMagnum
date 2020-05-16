@@ -1,5 +1,6 @@
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from '../../lib/vulcan-lib';
 import Users from "../../lib/collections/users/collection";
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 const specificResolvers = {
   Mutation: {
@@ -26,7 +27,7 @@ const specificResolvers = {
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
         runCallbacksAsync('comments.moderate.async', updatedComment, comment, context);
-        return context.Users.restrictViewableFields(context.currentUser, context.Comments, updatedComment);
+        return accessFilterSingle(context.currentUser, context.Comments, updatedComment);
       } else {
         throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }

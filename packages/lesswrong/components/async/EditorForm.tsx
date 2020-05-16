@@ -8,7 +8,7 @@ import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
-import createMathjaxPlugin from 'draft-js-mathjax-plugin'
+import createMathjaxPlugin from './editor-plugins/draft-js-mathjax-plugin/src'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 import { withTheme } from '@material-ui/core/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';

@@ -913,7 +913,7 @@ Posts.addView("sunshineCuratedSuggestions", function () {
     },
     options: {
       sort: {
-        createdAt: 1,
+        createdAt: -1,
       },
       hint: "posts.sunshineCuratedSuggestions",
     }
