@@ -149,30 +149,19 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
       && parsedFragmentField.selectionSet.selections[0].kind == "FragmentSpread")
     {
       const subfragmentName = parsedFragmentField.selectionSet.selections[0].name.value;
-      if (fieldType.startsWith("Array<")) {
-        return {
-          fieldType: `Array<${subfragmentName}>`,
-          subfragment: null
-        };
-      } else {
-        return {
-          fieldType: subfragmentName,
-          subfragment: null
-        };
-      }
+      return {
+        fieldType: getFragmentTypeFieldType(fieldType, subfragmentName),
+        subfragment: null,
+      };
     }
     else
     {
       if (typeof fieldType !== "string") throw new Error("fieldType is not a string: was "+JSON.stringify(fieldType));
-      let collectionName;
-      if (fieldType.startsWith("Array<"))
-        collectionName = getCollectionName(fieldType.substr(6, fieldType.length-7));
-      else
-        collectionName = getCollectionName(fieldType);
+      const collectionName = getCollectionNameFromType(fieldType)
       const subfieldCollection = getCollection(collectionName);
       if (!subfieldCollection) {
         // eslint-disable-next-line no-console
-        console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
+        console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection (${collectionName})`);
         //throw new Error(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
         return {
           fieldType: "any", subfragment: null
@@ -182,21 +171,35 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
       const subfragment = fragmentToInterface(subfragmentName, parsedFragmentField, subfieldCollection);
       
       // If it's an array type, then it's an array of that subfragment. Otherwise it's an instance of that subfragmetn.
-      if (fieldType.startsWith("Array<")) {
-        return {
-          fieldType: `Array<${subfragmentName}>`,
-          subfragment: subfragment,
-        };
-      } else {
-        return {
-          fieldType: subfragmentName,
-          subfragment: subfragment,
-        };
-      }
+      return {
+        fieldType: getFragmentTypeFieldType(fieldType, subfragmentName),
+        subfragment: subfragment,
+      };
     }
   } else {
     return {
       fieldType, subfragment: null
     };
+  }
+}
+
+function getCollectionNameFromType(fieldType: string):string {
+  if (fieldType.endsWith(" | null"))
+    return getCollectionNameFromType(fieldType.substr(0, fieldType.length - 7))
+  if (fieldType.startsWith("Array<"))
+    return getCollectionNameFromType(fieldType.substr(6, fieldType.length - 7));
+  else
+    return getCollectionName(fieldType);
+}
+
+function getFragmentTypeFieldType(fieldType: string, subfragmentName: string) : string {
+  if (fieldType.endsWith(' | null')) {
+    return `${getFragmentTypeFieldType(fieldType.substring(0, fieldType.length - 7), subfragmentName)} | null`
+  }
+  // If it's an array type, then it's an array of that subfragment. Otherwise it's an instance of that subfragmetn.
+  if (fieldType.startsWith("Array<")) {
+    return `Array<${subfragmentName}>`
+  } else {
+    return subfragmentName
   }
 }

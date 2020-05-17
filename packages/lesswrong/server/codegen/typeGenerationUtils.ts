@@ -17,6 +17,14 @@ export const assert = (b: boolean, message?: string) => {
 }
 
 export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType): string {
+  if (schema[fieldName]?.optional) {
+    return `${simplSchemaTypeToTypescriptBasic(schema, fieldName, simplSchemaType)} | null`
+  } else {
+    return simplSchemaTypeToTypescriptBasic(schema, fieldName, simplSchemaType)
+  }
+}
+
+function simplSchemaTypeToTypescriptBasic(schema, fieldName, simplSchemaType): string {
   if (simplSchemaType.singleType == Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema))
@@ -45,6 +53,10 @@ export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType):
 export function graphqlTypeToTypescript(graphqlType: any): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
   if (graphqlType == GraphQLJSON) return "any";
+  return graphqlType.endsWith("!") ? basicGraphqlTypeToTypescript(graphqlType) : `${basicGraphqlTypeToTypescript(graphqlType)} | null`
+}
+
+function basicGraphqlTypeToTypescript(graphqlType: any): string {
   if (graphqlType.startsWith("[") && graphqlType.endsWith("]")) {
     const arrayElementType = graphqlType.endsWith("!]") ? graphqlType.substr(1,graphqlType.length-3) : graphqlType.substr(1,graphqlType.length-2);
     return `Array<${graphqlTypeToTypescript(arrayElementType )}>`;
@@ -66,4 +78,4 @@ export function graphqlTypeToTypescript(graphqlType: any): string {
         return `any /*${graphqlType}*/`;
       }
   }
-}
+} 
