@@ -64,8 +64,8 @@ const FooterTagList = ({post, classes}: {
     return <Loading/>;
 
   return <div className={classes.root}>
-    {results.map((result, i) =>
-      <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
+    {results.filter(tagRel => !!tagRel?.tag).map(tagRel =>
+      <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag}/>
     )}
     {currentUser && <Components.AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
