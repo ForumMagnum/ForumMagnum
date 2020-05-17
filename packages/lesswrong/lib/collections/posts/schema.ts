@@ -7,6 +7,7 @@ import { PostRelations } from "../postRelations/collection"
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
+import { Tags } from '../tags/collection';
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -522,6 +523,18 @@ const schema = {
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
+    }
+  }),
+
+  tags: resolverOnlyField({
+    type: "[Tag]",
+    graphQLtype: "[Tag]",
+    viewableBy: ['guests'],
+    resolver: async (post:DbPost, args, { currentUser }) => {
+      const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
+      const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
+      const tags = await Tags.loader.loadMany(tagIds)
+      return accessFilterMultiple(currentUser, Tags, tags)
     }
   }),
   
