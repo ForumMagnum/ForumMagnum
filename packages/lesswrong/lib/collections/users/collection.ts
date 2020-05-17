@@ -121,7 +121,7 @@ interface ExtendedUsersCollection extends UsersCollection {
   // Functions from lib/collections/users/helpers.ts
   getDisplayName: (user: UsersMinimumInfo|DbUser|null) => string
   ownsAndInGroup: (group: string) => (user: DbUser, document: HasUserIdType) => boolean
-  isSharedOn: (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase) => boolean
+  isSharedOn: (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase | DbPost) => boolean
   canCollaborate: (currentUser: UsersCurrent|null, document: PostsBase) => boolean
   canEditUsersBannedUserIds: (currentUser: DbUser|null, targetUser: DbUser) => boolean
   canModeratePost: (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null) => boolean

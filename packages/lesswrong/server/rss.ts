@@ -6,8 +6,8 @@ import Users from '../lib/collections/users/collection';
 import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl } from '../lib/rss_urls';
+import { addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import { addStaticRoute, Utils } from './vulcan-lib';
 
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
@@ -75,11 +75,6 @@ export const servePostRSS = (terms, url?: string) => {
       guid: post._id,
       url: Posts.getPageUrl(post, true)
     };
-
-    if (post.thumbnailUrl) {
-      const url = Utils.addHttp(post.thumbnailUrl);
-      feedItem.custom_elements = [{'imageUrl':url}, {'content': url}];
-    }
 
     feed.item(feedItem);
   });

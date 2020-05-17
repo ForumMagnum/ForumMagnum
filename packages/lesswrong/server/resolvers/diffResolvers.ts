@@ -1,9 +1,8 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { Utils } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
-import Users from '../../lib/collections/users/collection';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 addGraphQLResolvers({
   Query: {
@@ -13,7 +12,7 @@ addGraphQLResolvers({
       if (!postUnfiltered) return null;
       
       // Check that the user has access to the post
-      const post = Users.restrictViewableFields(currentUser, Posts, postUnfiltered);
+      const post = accessFilterSingle(currentUser, Posts, postUnfiltered);
       if (!post) return null;
       
       // Load the revisions
@@ -27,11 +26,8 @@ addGraphQLResolvers({
         version: afterRev,
         fieldName: "contents",
       });
-      if (!beforeUnfiltered || !afterUnfiltered) 
-        return null
-        
-      const before: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
-      const after: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
+      const before: DbRevision|null = accessFilterSingle(currentUser, Revisions, beforeUnfiltered);
+      const after: DbRevision|null = accessFilterSingle(currentUser, Revisions, afterUnfiltered);
       if (!before || !after)
         return null;
       

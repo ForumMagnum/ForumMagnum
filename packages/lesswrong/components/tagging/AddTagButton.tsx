@@ -4,15 +4,15 @@ import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     display: "inline-block",
-    height: 26,
     textAlign: "center",
-    padding: 4
+    paddingLeft: 4
   },
 });
 
@@ -23,17 +23,22 @@ const AddTagButton = ({onTagSelected, classes}: {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
-  
+  const { captureEvent } = useTracking()
+
   if (!userCanUseTags(currentUser)) {
     return null;
   }
-  
+
   return <a
-    onClick={(ev) => {setAnchorEl(ev.currentTarget); setIsOpen(true)}}
+    onClick={(ev) => {
+      setAnchorEl(ev.currentTarget);
+      setIsOpen(true);
+      captureEvent("addTagClicked")
+    }}
     className={classes.addTagButton}
   >
     {"+ Add Tag"}
-    
+
     <Components.LWPopper
       open={isOpen}
       anchorEl={anchorEl}

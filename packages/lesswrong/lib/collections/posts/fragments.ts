@@ -141,6 +141,10 @@ registerFragment(`
       version
       html
     }
+
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `);
 
@@ -258,6 +262,9 @@ registerFragment(`
     ...PostsRevision
     ...PostSequenceNavigation
     
+    tags {
+      ...TagPreviewFragment
+    }
     tableOfContentsRevision(version: $version)
   }
 `)
@@ -309,12 +316,16 @@ registerFragment(`
     contents {
       ...RevisionDisplay
     }
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `)
 
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    coauthorUserIds
     moderationGuidelines {
       ...RevisionEdit
     }

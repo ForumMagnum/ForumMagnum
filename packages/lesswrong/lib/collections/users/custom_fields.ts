@@ -1028,7 +1028,7 @@ addFieldsDict(Users, {
         cancelled: false,
       }).fetch();
       if (!votes.length) return [];
-      return Users.restrictViewableFields(currentUser, Votes, votes);
+      return accessFilterMultiple(currentUser, Votes, votes);
     },
   }),
 
