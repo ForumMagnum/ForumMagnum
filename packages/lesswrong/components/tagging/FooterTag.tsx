@@ -72,7 +72,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
 
 const FooterTagComponent = registerComponent<ExternalProps>("FooterTag", FooterTag, {
   styles,
-  hocs: [withHover({pageElementContext: "tagItem"}, ({tag})=>({tagId: tag._id, tagName: tag.name, tagSlug: tag.slug}))]
+  hocs: [withHover({pageElementContext: "tagItem"}, ({tag}:{tag: TagFragment})=>({tagId: tag._id, tagName: tag.name, tagSlug: tag.slug}))]
 });
 
 declare global {
