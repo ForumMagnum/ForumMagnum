@@ -110,6 +110,7 @@ const getNotificationTiming = (typeSettings) => {
 
 const createNotification = async (userId, notificationType, documentType, documentId) => {
   let user = Users.findOne({ _id:userId });
+  if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
   const notificationTypeSettings = (userSettingField && user[userSettingField]) ? user[userSettingField] : defaultNotificationTypeSettings;
 
@@ -157,7 +158,7 @@ const createNotification = async (userId, notificationType, documentType, docume
 
 const sendPostByEmail = async (users, postId, reason) => {
   let post = await Posts.findOne(postId);
-
+  if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
       await wrapAndSendEmail({
@@ -253,16 +254,17 @@ async function postsNewNotifications (post) {
     if (post.groupId) {
       // Load the group, so we know who the organizers are
       const group = await Localgroups.findOne(post.groupId);
-      const organizerIds = group.organizerIds;
-      
-      const subscribedUsers = await getSubscribedUsers({
-        documentId: post.groupId,
-        collectionName: "Localgroups",
-        type: subscriptionTypes.newEvents,
-        potentiallyDefaultSubscribedUserIds: organizerIds,
-        userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
-      });
-      usersToNotify = _.union(usersToNotify, subscribedUsers)
+      if (group) {
+        const organizerIds = group.organizerIds;
+        const subscribedUsers = await getSubscribedUsers({
+          documentId: post.groupId,
+          collectionName: "Localgroups",
+          type: subscriptionTypes.newEvents,
+          potentiallyDefaultSubscribedUserIds: organizerIds,
+          userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
+        });
+        usersToNotify = _.union(usersToNotify, subscribedUsers)
+      }
     }
     
     // remove this post's author
@@ -313,14 +315,14 @@ const curationEmailDelay = new EventDebouncer({
     
     // Still curated? If it was un-curated during the 20 minute delay, don't
     // send emails.
-    if (post.curatedDate) {
+    if (post?.curatedDate) {
       // Email only non-admins (admins get emailed immediately, without the
       // delay).
       let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
       sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
     } else {
       //eslint-disable-next-line no-console
-      console.log(`Not sending curation notice for ${post.title} because it was un-curated during the delay period.`);
+      console.log(`Not sending curation notice for ${post?.title} because it was un-curated during the delay period.`);
     }
   }
 });
@@ -352,26 +354,28 @@ async function CommentsNewNotifications(comment) {
     // 1. Notify users who are subscribed to the parent comment
     if (comment.parentCommentId) {
       const parentComment = Comments.findOne(comment.parentCommentId)
-      const subscribedUsers = await getSubscribedUsers({
-        documentId: comment.parentCommentId,
-        collectionName: "Comments",
-        type: subscriptionTypes.newReplies,
-        potentiallyDefaultSubscribedUserIds: [parentComment.userId],
-        userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
-      })
-      const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
-      
-      // Don't notify the author of their own comment, and filter out the author
-      // of the parent-comment to be treated specially (with a newReplyToYou
-      // notification instead of a newReply notification).
-      let parentCommentSubscriberIdsToNotify = _.difference(subscribedUserIds, [comment.userId, parentComment.userId])
-      await createNotifications(parentCommentSubscriberIdsToNotify, 'newReply', 'comment', comment._id);
-
-      // Separately notify author of comment with different notification, if
-      // they are subscribed, and are NOT the author of the comment
-      if (subscribedUserIds.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
-        await createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
-        notifiedUsers = [...notifiedUsers, parentComment.userId];
+      if (parentComment) {
+        const subscribedUsers = await getSubscribedUsers({
+          documentId: comment.parentCommentId,
+          collectionName: "Comments",
+          type: subscriptionTypes.newReplies,
+          potentiallyDefaultSubscribedUserIds: [parentComment.userId],
+          userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
+        })
+        const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+        
+        // Don't notify the author of their own comment, and filter out the author
+        // of the parent-comment to be treated specially (with a newReplyToYou
+        // notification instead of a newReply notification).
+        let parentCommentSubscriberIdsToNotify = _.difference(subscribedUserIds, [comment.userId, parentComment.userId])
+        await createNotifications(parentCommentSubscriberIdsToNotify, 'newReply', 'comment', comment._id);
+  
+        // Separately notify author of comment with different notification, if
+        // they are subscribed, and are NOT the author of the comment
+        if (subscribedUserIds.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
+          await createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
+          notifiedUsers = [...notifiedUsers, parentComment.userId];
+        }
       }
     }
     
@@ -381,7 +385,7 @@ async function CommentsNewNotifications(comment) {
       documentId: comment.postId,
       collectionName: "Posts",
       type: subscriptionTypes.newComments,
-      potentiallyDefaultSubscribedUserIds: [post.userId],
+      potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
     const userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
@@ -411,6 +415,7 @@ addCallback("comments.new.async", CommentsNewNotifications);
 async function messageNewNotification(message) {
   const conversationId = message.conversationId;
   const conversation = Conversations.findOne(conversationId);
+  if (!conversation) throw Error(`Can't find conversation for message: ${message}`)
   
   // For on-site notifications, notify everyone except the sender of the
   // message. For email notifications, notify everyone including the sender

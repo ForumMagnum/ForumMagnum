@@ -1,18 +1,20 @@
+import algoliasearch from 'algoliasearch';
+import htmlToText from 'html-to-text';
+import chunk from 'lodash/chunk';
+import keyBy from 'lodash/keyBy';
+import { Meteor } from 'meteor/meteor';
+import * as _ from 'underscore';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
-import { Tags } from '../../lib/collections/tags/collection';
-import { Comments } from '../../lib/collections/comments'
-import Users from '../../lib/collections/users/collection';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import Sequences from '../../lib/collections/sequences/collection';
-import algoliasearch from 'algoliasearch';
-import { getSetting } from '../vulcan-lib';
-import htmlToText from 'html-to-text';
-import { dataToMarkdown } from '../editor/make_editable_callbacks'
-import { algoliaIndexNames } from '../../lib/algoliaUtil';
-import keyBy from 'lodash/keyBy';
-import chunk from 'lodash/chunk';
-import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { Tags } from '../../lib/collections/tags/collection';
+import Users from '../../lib/collections/users/collection';
+import { algoliaAppIdSetting } from '../../lib/publicSettings';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { dataToMarkdown } from '../editor/make_editable_callbacks';
+import filter from 'lodash/filter';
 
 type AlgoliaDocument = {
   _id: string,
@@ -345,7 +347,9 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   
   const ids = _.map(objects, o=>o._id);
   const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;
-  const algoliaObjectsNonnull: Array<AlgoliaDocument> = _.filter(algoliaObjects, o=>!!o) as Array<AlgoliaDocument>;
+  // Workaround for getting filter to properly typecheck: https://github.com/microsoft/TypeScript/issues/16069#issuecomment-392022894
+  const isNotNull = <T extends object>(x:undefined | null | T) : x is T => !!x
+  const algoliaObjectsNonnull: Array<AlgoliaDocument> = filter(algoliaObjects, isNotNull);
   const algoliaObjectsById = keyBy(algoliaObjectsNonnull, o=>o._id);
   
   const objectsToSync = _.filter(objects,
@@ -382,11 +386,11 @@ async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids) {
   }
 }
 
-
+const algoliaAdminKeySetting = new DatabaseServerSetting<string | null>('algolia.adminKey', null)
 export function getAlgoliaAdminClient()
 {
-  const algoliaAppId = getSetting<string|undefined>('algolia.appId');
-  const algoliaAdminKey = getSetting<string|undefined>('algolia.adminKey');
+  const algoliaAppId = algoliaAppIdSetting.get();
+  const algoliaAdminKey = algoliaAdminKeySetting.get()
   
   if (!algoliaAppId || !algoliaAdminKey) {
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {

@@ -11,7 +11,7 @@ import { Meteor } from 'meteor/meteor';
  * @summary Get a user
  * @param {String} userOrUserId
  */
-Users.getUser = function(userOrUserId: DbUser|string|undefined): DbUser {
+Users.getUser = function(userOrUserId: DbUser|string|undefined): DbUser|null {
   if (typeof userOrUserId === 'undefined') {
     if (!Meteor.user()) {
       throw new Error();
@@ -85,7 +85,7 @@ Users.getEmail = function(user: DbUser): string|null {
 // Other Helpers //
 ///////////////////
 
-Users.findLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): T {
+Users.findLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): T|null {
   return collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
 };
 

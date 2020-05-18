@@ -19,6 +19,7 @@ import ApolloState from './components/ApolloState';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 import { Random } from 'meteor/random';
+import { publicSettings } from '../../../lib/publicSettings'
 
 const makePageRenderer = async sink => {
   const startTime = new Date();
@@ -32,6 +33,9 @@ const makePageRenderer = async sink => {
   // response object, which the onPageLoad/sink API doesn't offer).
   const tabId = Random.id();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+
+  if (!publicSettings) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(publicSettings)}</script>`
   
   const ssrEventParams = {
     url: req.url.pathname,
@@ -50,7 +54,7 @@ const makePageRenderer = async sink => {
     });
     sendToSink(sink, {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader],
+      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
@@ -64,7 +68,7 @@ const makePageRenderer = async sink => {
     }));
     sendToSink(sink, {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader],
+      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,

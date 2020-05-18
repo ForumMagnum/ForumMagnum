@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
@@ -10,6 +10,7 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
@@ -29,7 +30,7 @@ const styles = theme => ({
   }
 })
 
-const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
   const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : defaultFilterSettings;

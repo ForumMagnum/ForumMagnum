@@ -201,7 +201,9 @@ export const createDummyComment = async (user: any, data?: any) => {
     },
   }
   if (!data.postId) {
-    defaultData.postId = Posts.findOne()._id; // By default, just grab ID from a random post
+    const randomPost = Posts.findOne()
+    if (!randomPost) throw Error("Can't find any post to generate random comment for")
+    defaultData.postId = randomPost._id; // By default, just grab ID from a random post
   }
   const commentData = {...defaultData, ...data};
   const newCommentResponse = await newMutation({

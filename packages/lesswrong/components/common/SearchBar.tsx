@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent, Components, getSetting, addCallback, removeCallback } from '../../lib/vulcan-lib';
+import { registerComponent, Components, addCallback, removeCallback } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
@@ -8,6 +8,7 @@ import Portal from '@material-ui/core/Portal';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs'
 
 const VirtualMenu = connectMenu(() => null);
@@ -181,7 +182,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   }
 
   render() {
-    const alignmentForum = getSetting<string>('forumType') === 'AlignmentForum';
+    const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
     const { searchOpen, inputOpen, currentQuery } = this.state

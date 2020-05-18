@@ -1,7 +1,8 @@
-import { getSetting } from './vulcan-lib';
 import googleMaps from '@google/maps'
+import { DatabaseServerSetting } from './databaseSettings';
 
-const googleMapsApiKey = getSetting('googleMaps.serverApiKey', null)
+const googleMapsApiKeySetting = new DatabaseServerSetting<string | null>('googleMaps.serverApiKey', null)
+const googleMapsApiKey = googleMapsApiKeySetting.get()
 let googleMapsClient: any = null
 if (googleMapsApiKey) {
   googleMapsClient = googleMaps.createClient({

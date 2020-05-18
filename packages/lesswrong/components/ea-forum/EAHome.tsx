@@ -1,8 +1,11 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
 import React from 'react'
-import { useCurrentUser } from '../common/withUser'
-import Users from '../../lib/collections/users/collection'
 import { userHasEAHomeHandbook } from '../../lib/betas'
+import Users from '../../lib/collections/users/collection'
+import { PublicInstanceSetting } from '../../lib/instanceSettings'
+import { Components, registerComponent } from '../../lib/vulcan-lib'
+import { useCurrentUser } from '../common/withUser'
+
+const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 
 const EAHome = () => {
   const currentUser = useCurrentUser();
@@ -19,7 +22,7 @@ const EAHome = () => {
     <React.Fragment>
       {shouldRenderSidebar && <Components.SunshineSidebar/>}
       
-      {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={getSetting('eaHomeSequenceId')}/>}
+      {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>}
 
       <HomeLatestPosts />
 

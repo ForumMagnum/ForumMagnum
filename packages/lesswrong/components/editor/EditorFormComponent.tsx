@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
 import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
@@ -16,6 +16,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { userHasCkEditor, userHasCkCollaboration } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -109,7 +110,7 @@ const styles = theme => ({
 })
 
 const autosaveInterval = 3000; //milliseconds
-const ckEditorName = getSetting('forumType') === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
+const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 const editorTypeToDisplay = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},

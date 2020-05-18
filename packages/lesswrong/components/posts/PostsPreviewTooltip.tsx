@@ -1,4 +1,4 @@
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -6,6 +6,7 @@ import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const POST_PREVIEW_WIDTH = 435
 
@@ -116,7 +117,7 @@ const styles = theme => ({
   }
 })
 
-const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
