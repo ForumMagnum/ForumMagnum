@@ -42,7 +42,7 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
     captureEvent("continueReadingDismissed", {"postId": postId});
   }
   
-  limitResumeReading(resumeReadingList) {
+  limitResumeReading(resumeReadingList: Array<any>): { entries: Array<any>, showAllLink: boolean } {
     const { dismissedRecommendations } = this.state;
     
     // Filter out dismissed recommendations

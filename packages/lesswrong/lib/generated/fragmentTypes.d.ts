@@ -194,22 +194,16 @@ interface PostsDetails_customHighlight { // fragment on Revisions
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
-  readonly sourcePost: PostsDetails_sourcePostRelations_sourcePost,
+  readonly sourcePost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_sourcePostRelations_sourcePost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly targetPost: PostsDetails_targetPostRelations_targetPost,
+  readonly targetPost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts

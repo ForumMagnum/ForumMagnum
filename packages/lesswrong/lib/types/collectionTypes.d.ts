@@ -15,6 +15,7 @@ interface CollectionBase<T extends DbObject> {
   // if you get the collection via a resolver's context, but not available if you
   // just import the collection.
   loader: any
+  extraLoaders: Record<string,any>
   
   rawCollection: any
   checkAccess: (user:DbUser|null, document: T) => boolean

@@ -12,7 +12,12 @@ const styles = theme => ({
   },
 });
 
-const PrivateMessagesEmail = ({conversations, messages, participantsById, classes}) => {
+const PrivateMessagesEmail = ({conversations, messages, participantsById, classes}: {
+  conversations: Array<DbConversation>,
+  messages: Array<DbMessage>,
+  participantsById: Record<string,DbUser>,
+  classes: ClassesType,
+}) => {
   if (conversations.length == 1) {
     return <React.Fragment>
       <p>

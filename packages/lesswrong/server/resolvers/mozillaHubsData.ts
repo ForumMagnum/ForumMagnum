@@ -28,7 +28,7 @@ async function getDataFromMozillaHubs() {
   }
   const { value: mozillaHubsAPIKey } = mozillaHubsAPIKeyResult
   const { value: mozillaHubsUserId } = mozillaHubsUserIdResult
-  var requestOptions = {
+  var requestOptions: any = {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${mozillaHubsAPIKey}`

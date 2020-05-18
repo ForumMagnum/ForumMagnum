@@ -60,7 +60,7 @@ export const accessFilterMultiple = <T extends DbObject>(currentUser:DbUser|null
   // Filter out nulls (docs that were referenced but didn't exist)
   const existingDocs = _.filter(unfilteredDocs, d=>!!d);
   // Apply the collection's checkAccess function, if it has one, to filter out documents
-  const filteredDocs = checkAccess ? _.filter(existingDocs, d => checkAccess(currentUser, d)) : existingDocs
+  const filteredDocs: Array<any> = checkAccess ? _.filter(existingDocs, d => checkAccess(currentUser, d)) : existingDocs
   // Apply field-level permissions
   const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
   

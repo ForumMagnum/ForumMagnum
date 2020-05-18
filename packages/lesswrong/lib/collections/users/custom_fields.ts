@@ -593,9 +593,9 @@ addFieldsDict(Users, {
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
     resolver: (user, args, context) => {
-      const events = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
-      const filteredEvents = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
-      const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
+      const events: Array<DbLWEvent> = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
+      const filteredEvents: Array<Partial<DbLWEvent>> = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
+      const IPs = filteredEvents.map(event => event.properties?.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
     },
