@@ -68,11 +68,11 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
   
   render() {
     const { continueReading, continueReadingLoading } = this.props;
-    const { PostsItem2, PostsLoading } = Components;
+    const { PostsItem2, PostsLoading, SectionFooter } = Components;
     if (continueReadingLoading || !continueReading)
       return <PostsLoading/>
     
-    const { entries } = this.limitResumeReading(continueReading);
+    const { entries, showAllLink } = this.limitResumeReading(continueReading);
 
     return <div>
       <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
@@ -86,6 +86,11 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
             key={sequence?._id || collection?._id}
           />
         })}
+        {showAllLink && <SectionFooter>	
+          <a onClick={this.showAll}>	
+            Show All	
+          </a>	
+        </SectionFooter>}
       </AnalyticsContext>
     </div>
   }

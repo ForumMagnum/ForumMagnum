@@ -76,7 +76,7 @@ const styles = theme => ({
   },
 
   image: {
-    backgroundColor: "#b8b372",
+    backgroundColor: "#b4a78f",
     width: "100%",
     height: 95,
     display: 'block',

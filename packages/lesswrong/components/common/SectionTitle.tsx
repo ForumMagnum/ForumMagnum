@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-const borderStyle = "solid 3px rgba(0,0,0,.5)"
+const borderStyle = "solid 2px rgba(0,0,0,.5)"
 
 const styles = (theme) => ({
   root: {
