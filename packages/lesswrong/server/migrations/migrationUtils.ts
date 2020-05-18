@@ -1,5 +1,6 @@
 import Migrations from '../../lib/collections/migrations/collection';
 import { Vulcan } from '../../lib/vulcan-lib';
+import { MongoSelector } from '../../lib/types/collectionTypes'
 import * as _ from 'underscore';
 
 // When running migrations with split batches, the fraction of time spent
@@ -293,8 +294,8 @@ export async function dropUnusedField(collection, fieldName) {
 export async function forEachDocumentBatchInCollection({collection, batchSize, filter=null, callback, loadFactor=1.0}: {
   collection: any,
   batchSize?: number,
-  filter?: any,
-  callback: any,
+  filter?: MongoSelector | null,
+  callback: Function,
   loadFactor?: number
 })
 {
