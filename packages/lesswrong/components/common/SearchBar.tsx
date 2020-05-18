@@ -207,7 +207,10 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             <div onClick={this.handleSearchTap}>
               <SearchIcon className={classes.searchIcon}/>
-              { inputOpen && <SearchBox reset={undefined} focusShortcuts={[]} autoFocus={true} /> }
+              {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+                * null is the only option that actually suppresses the extra X button.
+               // @ts-ignore */}
+              {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
             </div>
             { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
               <CloseIcon className={classes.closeSearchIcon}/>

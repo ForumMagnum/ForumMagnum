@@ -21,8 +21,8 @@ const styles = theme => ({
   navButton: {
     paddingTop: theme.spacing.unit,
     paddingBottom: 2,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
     width: "100%",
     display: "flex",
     alignItems: "center",

@@ -18,7 +18,11 @@ const isLeftClick = (event) => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes}: {hit: any, classes: any, clickAction?: any}) => {
+const CommentsSearchHit = ({hit, clickAction, classes}: {
+  hit: any,
+  clickAction?: any,
+  classes: ClassesType,
+}) => {
   const url = "/posts/" + hit.postId + "/" + hit.postSlug + "#" + hit._id
   return <div className={classes.root}>
     <Link to={url} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>

@@ -14,10 +14,10 @@ const styles = (theme) => ({
     color: theme.palette.grey[600],
     width: 
       TAB_NAVIGATION_MENU_WIDTH - // base width
-      ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))), // paddingLeft,
+      ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,
+      (theme.spacing.unit*2), // leave some space on the right,
     fontSize: "1rem",
     whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
     overflow: "hidden",
     '&:hover': {
       opacity: .6

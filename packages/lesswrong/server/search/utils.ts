@@ -346,7 +346,7 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   
   const ids = _.map(objects, o=>o._id);
   const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;
-  const algoliaObjectsNonnull: Array<AlgoliaDocument> = _.filter(algoliaObjects, o=>!!o);
+  const algoliaObjectsNonnull: Array<AlgoliaDocument> = _.filter(algoliaObjects, o=>!!o) as Array<AlgoliaDocument>;
   const algoliaObjectsById = keyBy(algoliaObjectsNonnull, o=>o._id);
   
   const objectsToSync = _.filter(objects,

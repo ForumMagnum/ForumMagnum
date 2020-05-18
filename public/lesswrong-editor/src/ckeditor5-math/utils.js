@@ -91,7 +91,7 @@ async function renderMathJax3( equation, element, display, isolateStyles ) {
 	if ( isolateStyles ) { // If we isolate the styles, append another style tag with our overwritten styles
 		const styleNode = document.createElement( 'style' );
 		styleNode.innerHTML = `
-			body {
+			mjx-math {
 				font-size: 22px;
 			}
 			mjx-merror {
