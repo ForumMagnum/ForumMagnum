@@ -281,6 +281,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
 }
 
 interface PostsEdit extends PostsPage { // fragment on Posts
+  readonly coauthorUserIds: Array<string>,
   readonly moderationGuidelines: RevisionEdit,
   readonly contents: RevisionEdit,
   readonly customHighlight: RevisionEdit,
@@ -522,6 +523,7 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
+  readonly createdAt: Date,
   readonly tagId: string,
   readonly postId: string,
   readonly deleted: boolean,
@@ -556,6 +558,7 @@ interface CommentsDefaultFragment { // fragment on Comments
 }
 
 interface TagsDefaultFragment { // fragment on Tags
+  readonly createdAt: Date,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
@@ -1642,5 +1645,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
 

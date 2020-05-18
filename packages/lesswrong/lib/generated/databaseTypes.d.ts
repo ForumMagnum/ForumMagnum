@@ -128,6 +128,14 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean
 }
 
+interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata> {
+}
+
+interface DbDatabaseMetadata extends DbObject {
+  name: string
+  value: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface VotesCollection extends CollectionBase<DbVote> {
 }
 
@@ -228,14 +236,6 @@ interface DbLWEvent extends DbObject {
   intercom: boolean
 }
 
-interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata> {
-}
-
-interface DbDatabaseMetadata extends DbObject {
-  name: string
-  value: any /*{"definitions":[{"blackbox":true}]}*/
-}
-
 interface MigrationsCollection extends CollectionBase<DbMigration> {
 }
 
@@ -320,6 +320,7 @@ interface TagRelsCollection extends CollectionBase<DbTagRel> {
 }
 
 interface DbTagRel extends DbObject {
+  createdAt: Date
   tagId: string
   postId: string
   deleted: boolean
@@ -391,6 +392,7 @@ interface TagsCollection extends CollectionBase<DbTag> {
 }
 
 interface DbTag extends DbObject {
+  createdAt: Date
   name: string
   slug: string
   core: boolean
