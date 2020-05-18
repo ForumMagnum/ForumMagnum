@@ -6,8 +6,8 @@ import Users from '../lib/collections/users/collection';
 import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl } from '../lib/rss_urls';
+import { addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import { addStaticRoute, Utils } from './vulcan-lib';
 
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed

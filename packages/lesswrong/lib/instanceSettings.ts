@@ -67,6 +67,7 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
 
 };
 
+// A setting which is configured via Meteor's configuration system, ie in `settings.json`, as opposed to a database setting.
 export class PublicInstanceSetting<SettingValueType> {
   constructor(
     private settingName: string, 
