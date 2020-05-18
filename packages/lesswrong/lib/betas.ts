@@ -18,7 +18,8 @@ const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-d
 //////////////////////////////////////////////////////////////////////////////
 
 export const userHasPingbacks = shippedFeature;
-export const userHasCkEditor = adminOnly;
+export const userHasCkEditor = optInOnly;
+export const userHasCkCollaboration = adminOnly;
 export const userCanManageTags = moderatorOnly;
 export const userCanCreateTags = moderatorOnly;
 export const userCanUseTags = shippedFeature;

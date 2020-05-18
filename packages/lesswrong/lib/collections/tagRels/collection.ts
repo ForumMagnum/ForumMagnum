@@ -5,6 +5,12 @@ import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 
 const schema = {
+  createdAt: {
+    optional: true,
+    type: Date,
+    canRead: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
+  },
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",

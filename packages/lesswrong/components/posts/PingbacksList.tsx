@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -41,8 +42,11 @@ const PingbacksList = ({classes, postId}: {
     ssr: true
   });
 
+  const pingbackIds = (results||[]).map((pingback) => pingback._id)
+  useTracking({eventType: "pingbacksList", eventProps: {pingbackIds}, captureOnMount: eventProps => eventProps.pingbackIds.length, skip: !pingbackIds.length||loading})
+
   const { Pingback, LWTooltip, LoadMore, Loading } = Components
-  
+
   if (results) {
     if (results.length > 0) {
       return <div className={classes.root}>
@@ -52,7 +56,7 @@ const PingbacksList = ({classes, postId}: {
           </LWTooltip>
         </div>
         <div className={classes.list}>
-          {results.map((post, i) => 
+          {results.map((post, i) =>
             <div key={post._id} >
               <Pingback post={post}/>
             </div>
@@ -62,7 +66,7 @@ const PingbacksList = ({classes, postId}: {
       </div>
     }
   }
-  
+
   return null;
 }
 
