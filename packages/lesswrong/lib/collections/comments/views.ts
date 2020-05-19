@@ -1,19 +1,21 @@
-import { getSetting, viewFieldNullOrMissing } from '../../vulcan-lib';
-import { Comments } from './collection';
 import moment from 'moment';
-import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import * as _ from 'underscore';
+import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { forumTypeSetting } from '../../instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { viewFieldNullOrMissing } from '../../vulcan-lib';
+import { Comments } from './collection';
 
 // Auto-generated indexes from production
 
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
 
-  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const hideUnreviewedAuthorComments = getSetting('hideUnreviewedAuthorComments')
+  const hideUnreviewedAuthorComments = hideUnreviewedAuthorCommentsSettings.get()
     ? {authorIsUnreviewed: {$ne: true}}
     : {}
   return ({

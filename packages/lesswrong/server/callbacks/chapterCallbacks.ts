@@ -29,7 +29,7 @@ async function ChaptersEditCanonizeCallback (chapter) {
       return !currentPost.canonicalSequenceId || currentPost.canonicalSequenceId === sequence._id
     }
 
-    if ((currentPost.userId === sequence.userId) && validSequenceId(currentPost, sequence)) {
+    if ((currentPost.userId === sequence?.userId) && validSequenceId(currentPost, sequence)) {
       let prevPost = {slug:""}
       let nextPost = {slug:""}
       if (i-1>=0) {

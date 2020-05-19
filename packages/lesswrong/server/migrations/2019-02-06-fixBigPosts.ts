@@ -16,7 +16,7 @@ registerMigration({
       unmigratedDocumentQuery: {
         $where: '(this.htmlBody && this.htmlBody.length) > 3000000'
       }, 
-      migrate: async (documents) => {
+      migrate: async (documents: Array<any>) => {
         for (const doc of documents) {
           const { body, content, htmlBody } = doc
           let newHtml

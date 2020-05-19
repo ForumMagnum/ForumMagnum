@@ -13,11 +13,12 @@ import * as _ from 'underscore';
 // status.
 const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) => {
   const user = Users.getUser(userId);
+  if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
   const postIDs = await Sequences.getAllPostIDs(sequenceId);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);
   const anyUnread = _.some(postIDs, postID => !postReadStatuses[postID]);
   const sequence = await Sequences.findOne({_id: sequenceId});
-  const collection = sequence.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
+  const collection = sequence?.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
   const now = new Date();
   
   const partiallyReadMinusThis = _.filter(user.partiallyReadSequences,

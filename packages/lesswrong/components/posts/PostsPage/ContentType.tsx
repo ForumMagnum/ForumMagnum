@@ -1,10 +1,11 @@
 import React from 'react'
-import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
 import SubjectIcon from '@material-ui/icons/Subject';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -155,7 +156,7 @@ const ContentType = ({classes, type, label}: {
   }
   const { LWTooltip } = Components
 
-  const contentData = contentTypes[getSetting<string>('forumType')][type]
+  const contentData = contentTypes[forumTypeSetting.get()][type]
   return <Typography variant="body1" component="span" className={classes.root}>
     <LWTooltip title={<React.Fragment>
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>

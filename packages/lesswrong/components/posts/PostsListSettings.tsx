@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import classNames from 'classnames'
@@ -11,6 +11,7 @@ import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage'
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const FILTERS_ALL = {
   "AlignmentForum": {
@@ -72,7 +73,7 @@ const FILTERS_ALL = {
     },
   }
 }
-const FILTERS = FILTERS_ALL[getSetting<string>('forumType')]
+const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
 
 const styles = theme => ({
   root: {

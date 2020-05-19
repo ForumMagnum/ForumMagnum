@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useClientId } from '../../lib/abTestUtil';
+import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState }: {
   onSignedInHook?: any,
@@ -10,7 +12,7 @@ const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState }: {
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
   const clientId = useClientId();
   
-  const customSignupFields = ['EAForum', 'AlignmentForum'].includes(getSetting('forumType'))
+  const customSignupFields = ['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get())
     ? []
     : [
       {
@@ -22,7 +24,7 @@ const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState }: {
     ]
 
   return <React.Fragment>
-    {getSetting('reCaptcha.apiKey')
+    {reCaptchaSiteKeySetting.get()
       && <Components.ReCaptcha verifyCallback={(token) => setReCaptchaToken(token)} action="login/signup"/>}
     <Components.AccountsLoginForm
       onPreSignUpHook={(options) => {

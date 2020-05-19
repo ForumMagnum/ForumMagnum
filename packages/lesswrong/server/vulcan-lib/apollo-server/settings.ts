@@ -1,16 +1,4 @@
 import _merge from 'lodash/merge';
-// import { registerSetting } from '../../client/main';
-
-//import { registerSetting } from '../../modules/settings';
-// TODO: is this still necessary?
-//registerSetting('apolloEngine.logLevel', 'INFO', 'Log level (one of INFO, DEBUG, WARN, ERROR');
-//registerSetting(
-//  'apolloTracing',
-//  Meteor.isDevelopment,
-//  'Tracing by Apollo. Default is true on development and false on prod',
-//  true
-//);
-// registerSetting('apolloServer.jsonParserOptions.limit', undefined, 'bodyParser jsonParser limit');
 
 // NOTE: some option can be functions, so they cannot be
 // defined as Meteor settings, which are pure JSON (no function)

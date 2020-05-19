@@ -1,13 +1,15 @@
-import Users from "../users/collection";
-import { Posts } from '../posts/collection';
-import { getSetting, Utils } from '../../vulcan-lib';
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation, accessFilterMultiple } from '../../utils/schemaUtils'
-import { makeEditable } from '../../editor/make_editable'
-import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
-import { defaultFilterSettings } from '../../filterSettings';
-import SimpleSchema from 'simpl-schema'
 import GraphQLJSON from 'graphql-type-json';
+import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
+import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
+import { makeEditable } from '../../editor/make_editable';
+import { defaultFilterSettings } from '../../filterSettings';
+import { forumTypeSetting } from "../../instanceSettings";
+import { hasEventsSetting } from '../../publicSettings';
+import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
+import { Utils } from '../../vulcan-lib';
+import { Posts } from '../posts/collection';
+import Users from "../users/collection";
 
 export const hashPetrovCode = (code) => {
   // @ts-ignore
@@ -228,7 +230,7 @@ addFieldsDict(Users, {
           {value:'postCommentsNew', label: 'most recent'},
           {value:'postCommentsOld', label: 'oldest'},
         ];
-        if (getSetting('forumType') === 'AlignmentForum') {
+        if (forumTypeSetting.get() === 'AlignmentForum') {
           return commentViews.concat([
             {value:'postLWComments', label: 'magical algorithm (include LW)'}
           ])
@@ -446,7 +448,7 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'admins'],
     canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: getSetting('forumType') !== 'EAForum',
+    hidden: forumTypeSetting.get() !== 'EAForum',
     control: 'checkbox',
     group: formGroups.default,
     order: 72,
@@ -594,9 +596,9 @@ addFieldsDict(Users, {
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
     resolver: (user, args, context) => {
-      const events = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
-      const filteredEvents = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
-      const IPs = filteredEvents.map(event => event.properties && event.properties.ip);
+      const events: Array<DbLWEvent> = context.LWEvents.find({userId: user._id, name: 'login'}, {fields: context.Users.getViewableFields(context.currentUser, context.LWEvents), limit: 10, sort: {createdAt: -1}}).fetch()
+      const filteredEvents: Array<Partial<DbLWEvent>> = _.filter(events, e => context.LWEvents.checkAccess(context.currentUser, e))
+      const IPs = filteredEvents.map(event => event.properties?.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
     },
@@ -638,7 +640,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     ...schemaDefaultValue(true),
   },
   
@@ -664,7 +666,7 @@ addFieldsDict(Users, {
   },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPrivateMessage: {
@@ -677,7 +679,7 @@ addFieldsDict(Users, {
   },
   notificationEventInRadius: {
     label: "New Events in my notification radius",
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -724,7 +726,7 @@ addFieldsDict(Users, {
     label: "Email me new posts in Curated",
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: ['AlignmentForum', 'EAForum'].includes(getSetting('forumType')),
+    hidden: ['AlignmentForum', 'EAForum'].includes(forumTypeSetting.get()),
     canRead: ['members'],
   },
   unsubscribeFromAll: {
@@ -812,7 +814,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
-    hidden: !getSetting('hasEvents', true),
+    hidden: !hasEventsSetting.get(),
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1027,7 +1029,7 @@ addFieldsDict(Users, {
         cancelled: false,
       }).fetch();
       if (!votes.length) return [];
-      return Users.restrictViewableFields(currentUser, Votes, votes);
+      return accessFilterMultiple(currentUser, Votes, votes);
     },
   }),
 
@@ -1087,7 +1089,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
-    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
+    hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get()),
     order: 39,
   },
 

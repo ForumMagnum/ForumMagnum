@@ -17,8 +17,8 @@ registerMigration({
         unmigratedDocumentQuery: {
           _id: {$type: "objectId"}
         },
-        migrate: async (documents) => {
-          const updates = documents.map((doc) => {
+        migrate: async (documents: Array<any>) => {
+          const updates = documents.map((doc: any): any => {
             return {
               updateOne: {
                 filter: {_id: doc._id.valueOf()},
@@ -46,7 +46,7 @@ registerMigration({
         unmigratedDocumentQuery: {
           userId: {$type: "objectId"}
         },
-        migrate: async (documents) => {
+        migrate: async (documents: Array<any>) => {
           for (let doc of documents) {
             await collection.update(
               {_id: doc._id},
