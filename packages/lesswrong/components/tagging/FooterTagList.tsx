@@ -9,7 +9,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
-    marginTop: 16,
+    marginTop: 16, 
     marginBottom: 16,
   },
 });
@@ -35,7 +35,6 @@ const FooterTagList = ({post, classes}: {
 
   const tagIds = (results||[]).map((tag) => tag._id)
   useTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
-
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
