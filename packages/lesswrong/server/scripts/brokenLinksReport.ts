@@ -7,8 +7,6 @@ import { URL } from 'url';
 import fs from 'fs';
 import * as _ from 'underscore';
 
-// TODO; how test this file
-
 const whitelistedImageHosts = [
   "lesswrong.com",
   "www.lesswrong.com",
