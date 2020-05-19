@@ -68,7 +68,7 @@ export function getFieldsWithAttribute(schema, attributeName) {
 }
 
 export async function urlIsBroken(url: string): Promise<boolean> {
-  console.log('hello url', url)
+  // console.log('hello url', url)
   try {
     let result = HTTP.call('GET', url, {timeout: 5000});
     if (result.statusCode >= 300 && result.statusCode <= 399) {
@@ -78,10 +78,10 @@ export async function urlIsBroken(url: string): Promise<boolean> {
       console.log("Got "+result.statusCode+" redirect on "+url)
       return false
     } else if (result.statusCode !== 200) {
-      console.log('no https', result.statusCode)
+      // console.log('no https', result.statusCode)
       return true
     } else {
-      console.log('https found')
+      // console.log('https found')
       return false
     }
   } catch(e) {
