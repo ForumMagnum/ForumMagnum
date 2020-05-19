@@ -19,7 +19,9 @@ const styles = theme => ({
   },
   open: {
     width: 300,
-    cursor: "unset",
+    '& input': {
+      cursor: "unset"
+    },
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     }
@@ -67,15 +69,13 @@ const AddPostsToTag = ({classes, tag}: {
   const { PostsSearchAutoComplete, Loading } = Components
   return <div className={classNames(classes.root, {[classes.open]: searchOpen})} onClick={() => setSearchOpen(true)} onBlur={() => setSearchOpen(false)}>
     {searchOpen && <SearchIcon className={classes.icon}/>}
+    {!searchOpen && !isAwaiting && <AddBoxIcon className={classes.icon}/>}
     {isAwaiting 
       ? <Loading/> 
-      : <>
-          <AddBoxIcon className={classes.icon}/>
-          <PostsSearchAutoComplete 
-            clickAction={onPostSelected} 
-            placeholder={searchOpen ? "Search for posts" : "Add Posts"}
-          />
-        </>
+      : <PostsSearchAutoComplete 
+          clickAction={onPostSelected} 
+          placeholder={searchOpen ? "Search for posts" : "Add Posts"}
+        />
     }
   </div>
 }
