@@ -1,7 +1,8 @@
 import React from 'react';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { Comments } from './collections/comments'
+import { Comments } from './collections/comments';
+import { Tags } from './collections/tags/collection';
 import Messages from './collections/messages/collection';
 import Localgroups from './collections/localgroups/collection';
 import Users from './collections/users/collection';
@@ -151,6 +152,18 @@ export const NewShortformNotification = registerNotificationType({
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
+  },
+});
+
+export const NewTagPostsNotification = registerNotificationType({
+  name: "newTagPosts",
+  userSettingField: "notificationTagPosts",
+  getMessage({documentType, documentId}) {
+    // let tag = getDocument(documentType, documentId) as DbTag;
+    return 'New post tagged with'
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles}/>
   },
 });
 

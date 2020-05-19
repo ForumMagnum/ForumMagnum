@@ -344,6 +344,20 @@ function PostsCurateNotification (post, oldPost) {
 }
 addCallback("posts.edit.async", PostsCurateNotification);
 
+async function TaggedPostNewNotifications(tagRel) {
+  const subscribedUsers = await getSubscribedUsers({
+    documentId: tagRel.tagId,
+    collectionName: "Tags",
+    type: subscriptionTypes.newTagPosts
+  })
+  const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+        
+  // Don't notify the person who created the tagRel
+  let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, [tagRel.userId])
+  await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'post', tagRel.postId);
+}
+addCallback("tagrels.new.async", TaggedPostNewNotifications);
+
 // add new comment notification callback on comment submit
 async function CommentsNewNotifications(comment) {
   if(Meteor.isServer && !comment.disableNotifications) {
