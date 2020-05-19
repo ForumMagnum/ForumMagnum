@@ -10,10 +10,12 @@ import { useMessages } from '../common/withMessages';
 
 const styles = theme => ({
   root: {
-    width: 94,
+    width: 90,
     transition: ".25s",
     display: "flex",
-    cursor: "pointer"
+    '& input': {
+      cursor: "pointer"
+    }
   },
   open: {
     width: 300,
@@ -58,7 +60,7 @@ const AddPostsToTag = ({classes, tag}: {
       },
     });    
     setIsAwaiting(false)
-    flash({messageString: `Tagged post with '${tag.name}'`, type: "success"})
+    flash({messageString: `Tagged post with '${tag.name} (Refresh Page)'`, type: "success"})
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent]);
 
