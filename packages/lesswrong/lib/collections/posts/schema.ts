@@ -531,11 +531,12 @@ const schema = {
     type: "[Tag]",
     graphQLtype: "[Tag]",
     viewableBy: ['guests'],
-    resolver: async (post:DbPost, args, { currentUser }) => {
+    resolver: async (post:DbPost, args, context: ResolverContext) => {
+      const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
       const tags = await Tags.loader.loadMany(tagIds)
-      return accessFilterMultiple(currentUser, Tags, tags)
+      return await accessFilterMultiple(currentUser, Tags, tags, context)
     }
   }),
   
@@ -557,14 +558,15 @@ const schema = {
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
-    resolver: async (post, args, { currentUser }) => {
+    resolver: async (post, args, context: ResolverContext) => {
+      const { currentUser } = context;
       if (post.question) {
         if (post.lastCommentPromotedAt) {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
-          return accessFilterSingle(currentUser, Comments, comment)
+          return await accessFilterSingle(currentUser, Comments, comment, context)
         } else {
           const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
-          return accessFilterSingle(currentUser, Comments, comment)
+          return await accessFilterSingle(currentUser, Comments, comment, context)
         }
       }
     }

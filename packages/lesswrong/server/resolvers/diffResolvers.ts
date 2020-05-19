@@ -23,7 +23,7 @@ addGraphQLResolvers({
       const documentUnfiltered = await collection.loader.load(id);
       
       // Check that the user has access to the document
-      const document = await accessFilterSingle(currentUser, collection, documentUnfiltered);
+      const document = await accessFilterSingle(currentUser, collection, documentUnfiltered, context);
       if (!document) {
         throw new Error(`Could not find document: ${id}`);
       }
@@ -40,8 +40,8 @@ addGraphQLResolvers({
         fieldName: fieldName,
       });
       
-      const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered);
-      const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered);
+      const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
+      const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
       if (!before || !beforeUnfiltered) {
         throw new Error(`Could not find revision: ${beforeRev}`);
       }

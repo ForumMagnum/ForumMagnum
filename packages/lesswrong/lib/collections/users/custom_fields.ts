@@ -1032,13 +1032,14 @@ addFieldsDict(Users, {
     type: Array,
     graphQLtype: '[Vote]',
     canRead: ['admins', 'sunshineRegiment'],
-    resolver: async (document, args, { Users, Votes, currentUser }: ResolverContext) => {
+    resolver: async (document, args, context: ResolverContext) => {
+      const { Users, Votes, currentUser } = context;
       const votes = await Votes.find({
         userId: document._id,
         cancelled: false,
       }).fetch();
       if (!votes.length) return [];
-      return accessFilterMultiple(currentUser, Votes, votes);
+      return await accessFilterMultiple(currentUser, Votes, votes, context);
     },
   }),
 

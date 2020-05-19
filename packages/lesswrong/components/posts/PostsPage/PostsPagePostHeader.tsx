@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Posts } from '../../../lib/collections/posts';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
