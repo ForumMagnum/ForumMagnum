@@ -145,6 +145,7 @@ importComponent("UserNameDeleted", () => require('../components/users/UserNameDe
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
+importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon'));
