@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
-
-const mapboxAPIKey = getSetting('mapbox.apiKey', null);
+import { mapboxAPIKeySetting } from './CommunityMap';
 
 const styles = createStyles(theme => ({
   previewWrapper: {
@@ -70,7 +69,7 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
         height="100%"
         mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => this.setState({ viewport })}
-        mapboxApiAccessToken={mapboxAPIKey}
+        mapboxApiAccessToken={mapboxAPIKeySetting.get()}
       >
           {post && <Components.LocalEventMarker
           key={post._id}

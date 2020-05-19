@@ -10,18 +10,17 @@
  * @see https://github.com/apollographql/apollo-server/issues/420
  */
 
-import DataLoader from 'dataloader';
-import { Collections } from '../../../lib/vulcan-lib/collections';
-import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
-import findByIds from '../findbyids';
-import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
-import { getHeaderLocale } from '../intl';
-import { getSetting } from '../../../lib/vulcan-lib/settings';
-import Cookies from 'universal-cookie';
 import Sentry from '@sentry/node';
-import { Meteor } from 'meteor/meteor';
+import DataLoader from 'dataloader';
 import { Accounts } from 'meteor/accounts-base';
-import { check } from 'meteor/check'
+import { check } from 'meteor/check';
+import { Meteor } from 'meteor/meteor';
+import Cookies from 'universal-cookie';
+import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
+import { Collections } from '../../../lib/vulcan-lib/collections';
+import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
+import findByIds from '../findbyids';
+import { getHeaderLocale } from '../intl';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 const getUser = async loginToken => {
@@ -110,11 +109,6 @@ export const computeContextFromUser = async (user, headers): Promise<ResolverCon
 
   //add the headers to the context
   context.headers = headers;
-
-  // if apiKey is present, assign "fake" currentUser with admin rights
-  if (headers.apikey && headers.apikey === getSetting('vulcan.apiKey')) {
-    context.currentUser = { isAdmin: true, isApiUser: true };
-  }
 
   context.locale = getHeaderLocale(headers, context.currentUser && context.currentUser.locale);
 

@@ -1,12 +1,17 @@
-import React from 'react';
-import { addRoute, getSetting } from './vulcan-lib';
 import { Posts } from './collections/posts/collection';
+import { forumTypeSetting, PublicInstanceSetting } from './instanceSettings';
+import { hasEventsSetting, legacyRouteAcronymSetting } from './publicSettings';
+import { addRoute } from './vulcan-lib';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
+
+const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
+const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional") 
 
 function getPostPingbackById(parsedUrl, postId) {
   if (parsedUrl.hash) {
@@ -76,6 +81,12 @@ addRoute([
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount'
+  },
+  {
+    name: 'users.abTestGroups',
+    path: '/abTestGroups',
+    componentName: 'UsersViewABTests',
+    title: "A/B Test Groups",
   },
 
   // Miscellaneous LW2 routes
@@ -231,8 +242,8 @@ addRoute([
 ]);
 
 
-// Because the EA Forum was identical except for the change from /lw/ to /ea/
-const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
+
+const legacyRouteAcronym = legacyRouteAcronymSetting.get()
 
 addRoute([
   // Legacy (old-LW, also old-EAF) routes
@@ -253,7 +264,7 @@ addRoute([
   }
 ]);
 
-if (getSetting('forumType') !== 'EAForum') {
+if (forumTypeSetting.get() !== 'EAForum') {
   addRoute([
     {
       name: 'sequencesHome',
@@ -285,7 +296,7 @@ if (getSetting('forumType') !== 'EAForum') {
   ])
 }
 
-if (getSetting('forumType') === 'LessWrong') {
+if (forumTypeSetting.get() === 'LessWrong') {
   addRoute([
     {
       name: 'HPMOR',
@@ -336,7 +347,7 @@ addRoute([
   },
 ]);
 
-if (getSetting('hasEvents', true)) {
+if (hasEventsSetting.get()) {
   addRoute([
     {
       name: 'EventsPast',
@@ -497,7 +508,7 @@ addRoute([
   }
 ]);
 
-switch (getSetting('forumType')) {
+switch (forumTypeSetting.get()) {
   case 'AlignmentForum':
     addRoute([
       {
@@ -509,7 +520,7 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id:"FoiiRDC3EhjHx7ayY"
+        _id: aboutPostIdSetting.get()
       },
       {
         name: 'Meta',
@@ -531,22 +542,22 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id: getSetting('aboutPostId'),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
+        _id: aboutPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       },
       {
         name: 'intro',
         path: '/intro',
         componentName: 'PostsSingleRoute',
-        _id: getSetting('introPostId'),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
+        _id: introPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, introPostIdSetting.get()),
       },
       {
         name: 'contact',
         path:'/contact',
         componentName: 'PostsSingleRoute',
-        _id: getSetting('contactPostId'),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('contactPostId')),
+        _id: contactPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       },
       {
         name: 'Community',
@@ -578,8 +589,8 @@ switch (getSetting('forumType')) {
         name: 'about',
         path: '/about',
         componentName: 'PostsSingleRoute',
-        _id:"bJ2haLkcGeLtTWaD5",
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "bJ2haLkcGeLtTWaD5"),
+        _id: aboutPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       },
       {
         name: 'faq',

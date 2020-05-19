@@ -41,6 +41,7 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
     return false;
   } else {
     const status = _.findWhere(Posts.statuses, {value: post.status});
+    if (!status) return false;
     return Users.canDo(currentUser, `posts.view.${status.label}`);
   }
 }

@@ -2,8 +2,8 @@
  * Schema converter/getters
  */
 import Users from '../collections/users/collection';
-import _filter from 'lodash/filter';
 import _keys from 'lodash/keys';
+import _filter from 'lodash/filter';
 import * as _ from 'underscore';
 
 /* getters */
@@ -35,7 +35,7 @@ export const getUpdateableFields = schema => {
  * @param {Object} user – the user for which to check field permissions
  */
 export const getInsertableFields = function(schema, user): Array<string> {
-  const fields = _filter(_keys(schema), function(fieldName: string): boolean {
+  const fields: Array<string> = _filter(_keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     return Users.canCreateField(user, field);
   });
@@ -48,7 +48,7 @@ export const getInsertableFields = function(schema, user): Array<string> {
  * @param {Object} user – the user for which to check field permissions
  */
 export const getEditableFields = function(schema, user, document): Array<string> {
-  const fields = _.filter(_.keys(schema), function(fieldName) {
+  const fields = _.filter(_.keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     return Users.canUpdateField(user, field, document);
   });

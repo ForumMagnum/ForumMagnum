@@ -6,12 +6,16 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 
 export const commentMutationOptions = {
   newCheck: (user, document) => {
-    if (!user || !document) return false;
+    if (!user) return false;
+
+    if (!document || !document.postId) return Users.canDo(user, 'comments.new')
     const post = Posts.findOne(document.postId)
+    if (!post) return true
 
     if (!Users.isAllowedToComment(user, post)) {
       return Users.canDo(user, `posts.moderate.all`)
     }
+
     return Users.canDo(user, 'comments.new')
   },
 

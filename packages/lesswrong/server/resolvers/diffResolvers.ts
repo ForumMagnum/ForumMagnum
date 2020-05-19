@@ -1,10 +1,9 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { Utils } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
-import Users from '../../lib/collections/users/collection';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 addGraphQLResolvers({
   Query: {
@@ -24,7 +23,7 @@ addGraphQLResolvers({
       const documentUnfiltered = await collection.loader.load(id);
       
       // Check that the user has access to the document
-      const document = Users.restrictViewableFields(currentUser, collection, documentUnfiltered);
+      const document = await accessFilterSingle(currentUser, collection, documentUnfiltered);
       if (!document) {
         throw new Error(`Could not find document: ${id}`);
       }
@@ -40,8 +39,9 @@ addGraphQLResolvers({
         version: afterRev,
         fieldName: fieldName,
       });
-      const before: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
-      const after: DbRevision|null = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
+      
+      const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered);
+      const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered);
       if (!before || !beforeUnfiltered) {
         throw new Error(`Could not find revision: ${beforeRev}`);
       }

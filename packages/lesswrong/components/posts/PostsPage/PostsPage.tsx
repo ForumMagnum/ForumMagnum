@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
@@ -12,6 +12,7 @@ import withNewEvents from '../../../lib/events/withNewEvents';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
+import { forumTitleSetting, forumTypeSetting } from '../../../lib/instanceSettings';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -116,7 +117,7 @@ class PostsPage extends Component<PostsPageProps> {
 
   getDescription = post => {
     if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
-    if (post.shortform) return `A collection of shorter posts by ${getSetting('title')} user ${post.user.displayName}`
+    if (post.shortform) return `A collection of shorter posts by ${forumTitleSetting.get()} user ${post.user.displayName}`
     return null
   }
 

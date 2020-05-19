@@ -132,6 +132,7 @@ interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
   readonly contents: PostsList_contents,
   readonly moderationGuidelines: RevisionDisplay,
   readonly customHighlight: PostsList_customHighlight,
+  readonly tags: Array<TagPreviewFragment>,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -193,22 +194,16 @@ interface PostsDetails_customHighlight { // fragment on Revisions
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
-  readonly sourcePost: PostsDetails_sourcePostRelations_sourcePost,
+  readonly sourcePost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_sourcePostRelations_sourcePost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly targetPost: PostsDetails_targetPostRelations_targetPost,
+  readonly targetPost: PostsList,
   readonly order: number,
-}
-
-interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -224,6 +219,7 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
+  readonly tags: Array<TagPreviewFragment>,
   readonly tableOfContentsRevision: any,
 }
 
@@ -271,9 +267,11 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay,
+  readonly tags: Array<TagPreviewFragment>,
 }
 
 interface PostsEdit extends PostsPage { // fragment on Posts
+  readonly coauthorUserIds: Array<string>,
   readonly moderationGuidelines: RevisionEdit,
   readonly contents: RevisionEdit,
   readonly customHighlight: RevisionEdit,
@@ -521,6 +519,7 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
+  readonly createdAt: Date,
   readonly tagId: string,
   readonly postId: string,
   readonly deleted: boolean,
@@ -552,6 +551,21 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly promotedByUserId: string,
   readonly promotedAt: Date,
   readonly hideKarma: boolean,
+}
+
+interface TagsDefaultFragment { // fragment on Tags
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly slug: string,
+  readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
+  readonly postCount: number,
+  readonly createdBy: string,
+  readonly adminOnly: boolean,
+  readonly charsAdded: number,
+  readonly charsRemoved: number,
+  readonly deleted: boolean,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -798,6 +812,8 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
+  readonly abTestKey: string,
+  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface UserBookmarks { // fragment on Users
@@ -1382,21 +1398,6 @@ interface WithVoteTagRel_currentUserVotes { // fragment on Votes
   readonly power: number,
 }
 
-interface TagsDefaultFragment { // fragment on Tags
-  readonly name: string,
-  readonly slug: string,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly defaultOrder: number,
-  readonly postCount: number,
-  readonly createdAt: Date,
-  readonly createdBy: string,
-  readonly adminOnly: boolean,
-  readonly charsAdded: number,
-  readonly charsRemoved: number,
-  readonly deleted: boolean,
-}
-
 interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
@@ -1586,6 +1587,7 @@ interface FragmentTypes {
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
+  TagsDefaultFragment: TagsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -1643,7 +1645,6 @@ interface FragmentTypes {
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
-  TagsDefaultFragment: TagsDefaultFragment
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
   TagRevisionFragment: TagRevisionFragment
@@ -1662,5 +1663,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
 

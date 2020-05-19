@@ -1,5 +1,6 @@
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
 function cloudinaryPropsToStr(props) {
   let sb: string[] = [];
@@ -17,7 +18,7 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId}: {
   objectFit?: string,
   publicId: string,
 }) => {
-  const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
   let cloudinaryProps: any = {
     c: "fill",

@@ -247,8 +247,8 @@ function getInitialVersion(document) {
   }
 }
 
-async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision> {
-  return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}}) || {}
+async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
+  return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
 }
 
 /// Given a revision, return the last revision of the same document/field prior
@@ -262,7 +262,7 @@ export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null>
 
 async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
   const lastRevision = await getLatestRev(documentId, fieldName);
-  const { major, minor, patch } = extractVersionsFromSemver(lastRevision.version)
+  const { major, minor, patch } = extractVersionsFromSemver(lastRevision?.version || "1.0.0")
   switch (updateType) {
     case "patch":
       return `${major}.${minor}.${patch + 1}`

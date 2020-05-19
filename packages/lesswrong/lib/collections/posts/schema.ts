@@ -1,12 +1,13 @@
 import Users from '../users/collection';
 import { Utils, getCollection } from '../../vulcan-lib';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
+import { Tags } from '../tags/collection';
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -519,9 +520,22 @@ const schema = {
         },
         'postId', post._id
       );
-      if (tagRels?.length) {
-        return Users.restrictViewableFields(currentUser, TagRels, tagRels, context)[0]
+      const filteredTagRels = await accessFilterMultiple(currentUser, TagRels, tagRels, context)
+      if (filteredTagRels?.length) {
+        return filteredTagRels[0]
       }
+    }
+  }),
+
+  tags: resolverOnlyField({
+    type: "[Tag]",
+    graphQLtype: "[Tag]",
+    viewableBy: ['guests'],
+    resolver: async (post:DbPost, args, { currentUser }) => {
+      const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
+      const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
+      const tags = await Tags.loader.loadMany(tagIds)
+      return accessFilterMultiple(currentUser, Tags, tags)
     }
   }),
   
@@ -543,12 +557,14 @@ const schema = {
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
-    resolver: async (post) => {
+    resolver: async (post, args, { currentUser }) => {
       if (post.question) {
         if (post.lastCommentPromotedAt) {
-          return Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
+          const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
+          return accessFilterSingle(currentUser, Comments, comment)
         } else {
-          return Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+          const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+          return accessFilterSingle(currentUser, Comments, comment)
         }
       }
     }

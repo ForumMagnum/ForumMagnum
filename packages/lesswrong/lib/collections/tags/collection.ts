@@ -15,6 +15,12 @@ const formGroups = {
 };
 
 const schema = {
+  createdAt: {
+    optional: true,
+    type: Date,
+    canRead: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
+  },
   name: {
     type: String,
     viewableBy: ['guests'],
@@ -118,7 +124,7 @@ const schema = {
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Array<Record<string,any>>|null
-  getUrl: (tag: DbTag) => string
+  getUrl: (tag: TagPreviewFragment) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -142,7 +148,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser))
     return true;
-  else if (tag.deleted)
+  else if (tag.deleted || tag.adminOnly)
     return false;
   else
     return true;
@@ -151,6 +157,7 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
 addUniversalFields({collection: Tags})
 
 export const tagDescriptionEditableOptions = {
+  commentStyles: true,
   fieldName: "description",
   getLocalStorageId: (tag, name) => {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }

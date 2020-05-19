@@ -16,12 +16,13 @@ interface CollectionBase<T extends DbObject> {
   // if you get the collection via a resolver's context, but not available if you
   // just import the collection.
   loader: any
+  extraLoaders: Record<string,any>
   
   rawCollection: any
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
-  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T
-  update: (selector?: string|MongoSelector<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
+  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T | null
+  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
   remove: any
   insert: any
   aggregate: any

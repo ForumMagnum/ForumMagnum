@@ -6,6 +6,7 @@ GraphQL config
 
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../vulcan-lib';
 import Users from "../collections/users/collection";
+import { accessFilterSingle } from '../utils/schemaUtils';
 
 const alignmentCommentResolvers = {
   Mutation: {
@@ -18,7 +19,7 @@ const alignmentCommentResolvers = {
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
         runCallbacksAsync('comments.alignment.async', updatedComment, comment, context);
-        return context.Users.restrictViewableFields(context.currentUser, context.Comments, updatedComment);
+        return accessFilterSingle(context.currentUser, context.Comments, updatedComment);
       } else {
         throw new Error({id: `app.user_cannot_edit_comment_alignment_forum_status`} as any);
       }
@@ -41,7 +42,7 @@ const alignmentPostResolvers = {
         context.Posts.update({_id: postId}, modifier);
         const updatedPost = context.Posts.findOne(postId)
         runCallbacksAsync('posts.alignment.async', updatedPost, post, context);
-        return context.Users.restrictViewableFields(context.currentUser, context.Posts, updatedPost);
+        return accessFilterSingle(context.currentUser, context.Posts, updatedPost);
       } else {
         throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);
       }

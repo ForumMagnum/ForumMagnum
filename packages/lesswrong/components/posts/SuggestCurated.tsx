@@ -1,4 +1,4 @@
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
@@ -6,6 +6,7 @@ import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 interface ExternalProps {
   post: PostsBase,
@@ -47,7 +48,7 @@ class SuggestCurated extends Component<SuggestCuratedProps> {
     if (post?.frontpageDate &&
         !post.curatedDate &&
         !post.reviewForCuratedUserId &&
-        getSetting('forumType') !== 'AlignmentForum' &&
+        forumTypeSetting.get() !== 'AlignmentForum' &&
         Users.canDo(this.props.currentUser, "posts.moderate.all"))
     {
       return <div className="posts-page-suggest-curated">

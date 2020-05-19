@@ -1,4 +1,4 @@
-import { addFieldsDict, denormalizedCountOfReferences } from './utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 
 export const VoteableCollections: Array<any> = [];
@@ -33,7 +33,7 @@ export const makeVoteable = (collection, options?: any) => {
           );
           
           if (!votes.length) return [];
-          return Users.restrictViewableFields(currentUser, Votes, votes, context);
+          return await accessFilterMultiple(currentUser, Votes, votes, context);
         },
       }
     },
@@ -58,7 +58,7 @@ export const makeVoteable = (collection, options?: any) => {
           );
           
           if (!votes.length) return [];
-          return Users.restrictViewableFields(currentUser, Votes, votes, context);
+          return await accessFilterMultiple(currentUser, Votes, votes, context);
         },
       }
     },

@@ -19,8 +19,9 @@ Meteor.startup(() => {
     document.body.appendChild(rootElement);
   }
 
+  const abTestGroups = {};
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} />
+    <AppGenerator apolloClient={apolloClient} abTestGroups={abTestGroups} />
   );
 
   onPageLoad(() => {

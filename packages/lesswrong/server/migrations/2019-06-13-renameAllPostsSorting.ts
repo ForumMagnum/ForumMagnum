@@ -14,7 +14,7 @@ registerMigration({
       unmigratedDocumentQuery: {
         allPostsView: {$exists: true}
       },
-      migrate: async (users) => {
+      migrate: async (users: Array<any>) => {
         const updates = _.map(users, user => {
           return {
             updateOne: {

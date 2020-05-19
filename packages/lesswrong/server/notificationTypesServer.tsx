@@ -34,6 +34,7 @@ export const NewPostNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }) => {
     const postId = notifications[0].documentId;
     const post = await Posts.findOne({_id: postId});
+    if (!post) throw Error(`Can't find post to generate subject-line for: ${postId}`)
     return post.title;
   },
   emailBody: async ({ user, notifications }) => {
@@ -57,6 +58,7 @@ export const NewEventNotification = serverRegisterNotificationType({
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }) => {
     const post = Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post to generate subject-line for: ${notifications}`)
     return post.title;
   },
   emailBody: async ({ user, notifications }) => {
@@ -85,10 +87,12 @@ export const NewShortformNotification = serverRegisterNotificationType({
   emailSubject: async ({user, notifications}) => {
     const comment = Comments.findOne(notifications[0].documentId)
     const post = Posts.findOne(comment?.postId)
+    if (!post) throw Error(`Can't find post to generate subject-line for: ${comment}`)
     return 'New comment on "' + post.title + '"';
   },
   emailBody: async ({user, notifications}) => {
     const comment = Comments.findOne(notifications[0].documentId)
+    if (!comment) throw Error(`Can't find comment for comment email notification: ${notifications[0]}`)
     return <Components.EmailCommentBatch comments={[comment]}/>;
   }
 })
@@ -101,7 +105,9 @@ export const NewCommentNotification = serverRegisterNotificationType({
       return `${notifications.length} comments on posts you subscribed to`;
     } else {
       const comment = Comments.findOne(notifications[0].documentId);
+      if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = Users.findOne(comment.userId);
+      if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
       return `${author.displayName} commented on a post you subscribed to`;
     }
   },
@@ -122,7 +128,9 @@ export const NewReplyNotification = serverRegisterNotificationType({
       return `${notifications.length} replies to comments you're subscribed to`;
     } else {
       const comment = Comments.findOne(notifications[0].documentId);
+      if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = Users.findOne(comment.userId);
+      if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
       return `${Users.getDisplayName(author)} replied to a comment you're subscribed to`;
     }
   },
@@ -143,7 +151,9 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
       return `${notifications.length} replies to your comments`;
     } else {
       const comment = Comments.findOne(notifications[0].documentId);
+      if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = Users.findOne(comment.userId);
+      if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
       return `${Users.getDisplayName(author)} replied to your comment`;
     }
   },
@@ -225,10 +235,12 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }) => {
     let post = Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return `You have been shared on the ${post.draft ? "draft" : "post"} ${post.title}`;
   },
   emailBody: async ({ user, notifications }) => {
     const post = Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = Posts.getPageUrl(post, true);
     return <p>
       You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
@@ -241,6 +253,7 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }) => {
     let post = Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return `A new event has been created in your area: ${post.title}`;
   },
   emailBody: async ({ user, notifications }) => {
@@ -256,6 +269,7 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }) => {
     let post = Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return `An event in your area has been edited: ${post.title}`;
   },
   emailBody: async ({ user, notifications }) => {
