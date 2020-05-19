@@ -7,7 +7,6 @@ export * from './callbacks';
 export * from './graphql';
 export * from './routes';
 export * from './utils';
-export * from './settings';
 export * from './headtags';
 export * from './fragments';
 export * from './apollo-common';

@@ -4,7 +4,7 @@ import { htmlToDraftServer } from '../../server/resolvers/revisionResolvers'
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {
-    const rawDraftJS = {
+    const rawDraftJS: any = {
       "blocks" : [ 
           {
               "data" : {},

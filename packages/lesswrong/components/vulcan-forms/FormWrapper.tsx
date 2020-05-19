@@ -238,6 +238,7 @@ class FormWrapper extends PureComponent<any> {
         withSingle(queryOptions),
         withUpdate(mutationOptions),
         withDelete(mutationOptions)
+      // @ts-ignore
       )(Loader);
 
       return (
@@ -271,6 +272,7 @@ class FormWrapper extends PureComponent<any> {
         WrappedComponent = compose(
           extraQueriesHoC,
           withCreate(mutationOptions)
+        // @ts-ignore
         )(Loader);
       } else {
         WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);

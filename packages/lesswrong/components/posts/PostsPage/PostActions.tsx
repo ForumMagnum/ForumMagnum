@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
 import Users from '../../../lib/collections/users/collection'
@@ -16,8 +16,9 @@ import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { withDialog } from '../../common/withDialog';
 import { tagStyle } from '../../tagging/FooterTag';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -235,12 +236,12 @@ class PostActions extends Component<PostActionsProps,{}> {
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
                 <Tooltip placement="left" title={
-                  getSetting('forumType') === 'EAForum' && post.submitToFrontpage ?
+                  forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage ?
                     'user did not select "Moderators may promote to Frontpage" option':''
                 }>
                   <MenuItem>
                     Move to {metaName}
-                    {getSetting('forumType') === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                    {forumTypeSetting.get() === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
                   </MenuItem>
                 </Tooltip>
               </div>

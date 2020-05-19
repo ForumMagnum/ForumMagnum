@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Comments } from "../../lib/collections/comments";
 import Users from '../../lib/collections/users/collection';
@@ -7,6 +7,7 @@ import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import Tooltip from '@material-ui/core/Tooltip';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   vote: {
@@ -58,7 +59,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
 
   return (
     <span className={classes.vote} {...eventHandlers}>
-      {(getSetting('forumType') !== 'AlignmentForum' || !!comment.af) &&
+      {(forumTypeSetting.get() !== 'AlignmentForum' || !!comment.af) &&
         <span>
           <Tooltip
             title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
@@ -103,7 +104,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
           </Tooltip>
         </span>
       }
-      {!!comment.af && getSetting('forumType') !== 'AlignmentForum' &&
+      {!!comment.af && forumTypeSetting.get() !== 'AlignmentForum' &&
         <Tooltip placement="bottom" title={
           <div>
             <p>AI Alignment Forum Karma</p>
@@ -116,7 +117,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
           </span>
         </Tooltip>
       }
-      {!comment.af && (getSetting('forumType') === 'AlignmentForum') &&
+      {!comment.af && (forumTypeSetting.get() === 'AlignmentForum') &&
         <Tooltip title="LessWrong Karma" placement="bottom">
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>

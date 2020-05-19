@@ -1,12 +1,10 @@
-import {Inject} from 'meteor/meteorhacks:inject-initial';
 import { SyncedCron } from 'meteor/littledata:synced-cron';
-import { getSetting, registerSetting } from '../vulcan-lib';
 import { Meteor } from 'meteor/meteor';
+import { Inject } from 'meteor/meteorhacks:inject-initial';
+import { mailUrlSetting } from '../../lib/instanceSettings';
 
-registerSetting('mailUrl', null, 'The SMTP URL used to send out email');
-
-if (getSetting('mailUrl')) {
-  process.env.MAIL_URL = getSetting('mailUrl');
+if (mailUrlSetting.get()) {
+  process.env.MAIL_URL = mailUrlSetting.get() || undefined;
 }
 
 Meteor.startup(function() {

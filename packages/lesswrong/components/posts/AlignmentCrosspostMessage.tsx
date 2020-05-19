@@ -1,5 +1,6 @@
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -12,7 +13,7 @@ const AlignmentCrosspostMessage = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  if (post.af && getSetting('forumType') !== 'AlignmentForum') {
+  if (post.af && forumTypeSetting.get() !== 'AlignmentForum') {
     return (
       <div className={classes.root}>
         Crossposted from the <a href={`https://alignmentforum.org/posts/${post._id}/${post.slug}`}>AI Alignment Forum</a>. May contain more technical jargon than usual.

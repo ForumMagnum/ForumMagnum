@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentUser } from '../common/withUser';
 import { withRecommendations } from './withRecommendations';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
 interface ExternalProps {
   showLoginPrompt?: boolean,
@@ -14,6 +16,9 @@ interface RecommendationsListProps extends ExternalProps{
 const RecommendationsList = ({ recommendations, recommendationsLoading, showLoginPrompt=true }: RecommendationsListProps) => {
   const { PostsItem2, PostsLoading } = Components;
   
+  const nameWithArticle = siteNameWithArticleSetting.get()
+  const capitalizedName = nameWithArticle.charAt(0).toUpperCase() + nameWithArticle.slice(1)
+
   if (recommendationsLoading || !recommendations)
     return <PostsLoading/>
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
@@ -44,8 +45,8 @@ const personalBlogpostInfo = {
   }
 }
 
-const personalBlogpostName = personalBlogpostInfo[getSetting('forumType') as string].name
-const personalBlogpostTooltip = personalBlogpostInfo[getSetting('forumType') as string].tooltip
+const personalBlogpostName = personalBlogpostInfo[forumTypeSetting.get()].name
+const personalBlogpostTooltip = personalBlogpostInfo[forumTypeSetting.get()].tooltip
 
 // Filter settings
 // Appears in the gear-menu by latest posts, and in other places.
@@ -142,7 +143,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
 }
 
 const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagFragment>): FilterSettings => {
-  const tagsIncluded = {};
+  const tagsIncluded: Record<string,boolean> = {};
   for (let tag of oldFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
   const tagsNotIncluded = _.filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
@@ -151,7 +152,7 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
     ...oldFilterSettings,
     tags: [
       ...oldFilterSettings.tags,
-      ...tagsNotIncluded.map(tag => ({
+      ...tagsNotIncluded.map((tag: TagFragment): FilterTag => ({
         tagId: tag._id,
         tagName: tag.name,
         filterMode: "Default",

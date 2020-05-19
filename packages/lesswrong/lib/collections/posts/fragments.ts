@@ -141,6 +141,10 @@ registerFragment(`
       version
       html
     }
+
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `);
 
@@ -203,8 +207,7 @@ registerFragment(`
       _id
       sourcePostId
       sourcePost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }
@@ -213,8 +216,7 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }
@@ -260,6 +262,9 @@ registerFragment(`
     ...PostsRevision
     ...PostSequenceNavigation
     
+    tags {
+      ...TagPreviewFragment
+    }
     tableOfContentsRevision(version: $version)
   }
 `)
@@ -310,6 +315,9 @@ registerFragment(`
     version
     contents {
       ...RevisionDisplay
+    }
+    tags {
+      ...TagPreviewFragment
     }
   }
 `)
