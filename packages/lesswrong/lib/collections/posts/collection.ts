@@ -33,7 +33,7 @@ export interface PostsMinimumForGetPageUrl {
   groupId?: string|undefined
 }
 
-export interface ExtendedPostsCollection extends PostsCollection {
+interface ExtendedPostsCollection extends PostsCollection {
   // Functions in lib/collections/posts/helpers.ts
   getLink: (post: PostsBase|DbPost, isAbsolute?: boolean, isRedirected?: boolean) => string
   getShareableLink: (post: PostsBase|DbPost) => string
