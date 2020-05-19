@@ -422,6 +422,7 @@ interface DbPost extends DbObject {
   reviewCount2018: number
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
+  noIndex: boolean
   voteCount: number
   baseScore: number
   score: number
@@ -572,6 +573,7 @@ interface DbTag extends DbObject {
   slug: string
   core: boolean
   suggestedAsFilter: boolean
+  defaultOrder: number
   postCount: number
   adminOnly: boolean
   deleted: boolean

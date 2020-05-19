@@ -93,6 +93,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     canonicalSource
+    noIndex
 
     shareWithUsers
     
@@ -389,4 +390,3 @@ registerFragment(`
     }
   }
 `)
-

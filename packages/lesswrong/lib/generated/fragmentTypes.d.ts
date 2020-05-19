@@ -105,6 +105,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly canonicalSource: string,
+  readonly noIndex: boolean,
   readonly shareWithUsers: Array<string>,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
@@ -590,6 +591,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewCount2018: number,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly noIndex: boolean,
 }
 
 interface ChaptersDefaultFragment { // fragment on Chapters
@@ -1391,6 +1393,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly slug: string,
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
   readonly postCount: number,
   readonly adminOnly: boolean,
   readonly deleted: boolean,
@@ -1404,6 +1407,8 @@ interface TagBasicInfo { // fragment on Tags
   readonly postCount: number,
   readonly deleted: boolean,
   readonly adminOnly: boolean,
+  readonly defaultOrder: number,
+  readonly suggestedAsFilter: boolean,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1423,14 +1428,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
-interface TagEditFragment { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly postCount: number,
-  readonly deleted: boolean,
+interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly description: RevisionEdit,
 }
 

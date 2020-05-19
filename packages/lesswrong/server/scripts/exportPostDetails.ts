@@ -25,6 +25,7 @@ import { wrapVulcanAsyncScript } from './utils'
 import { Vulcan, getSetting } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection'
+import { makeLowKarmaSelector } from '../migrations/2020-05-13-noIndexLowKarma';
 import fs from 'mz/fs'
 import path from 'path'
 import moment from 'moment'
@@ -101,17 +102,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
 
 Vulcan.exportLowKarma = ({outputFilepath, karma = 5}: {outputFilepath: string, karma?: number}) => {
   Vulcan.exportPostDetails({
-    selector: {
-      postedAt: {
-        $gt: moment.utc('2014-09-10').toDate(),
-        $lt: moment.utc().subtract(1, 'year').toDate()
-      },
-      isEvent: {$ne: true},
-      isFuture: false,
-      draft: false,
-      baseScore: {$lt: karma},
-      status: 2, // Others are not shown
-    },
+    selector: makeLowKarmaSelector(karma),
     outputFile: path.basename(outputFilepath),
     outputDir: path.dirname(outputFilepath)
   })
