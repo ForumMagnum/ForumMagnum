@@ -44,7 +44,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { captureEvent } = useTracking()
-  useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -53,6 +52,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
+  useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   
   const numPostsOnHomePageGroup: string = useABTest(numPostsOnHomePage);
   const numPosts = parseInt(numPostsOnHomePageGroup);
