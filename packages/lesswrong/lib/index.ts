@@ -5,8 +5,6 @@ import './vulcan-users/index';
 // vulcan:accounts
 import './vulcan-accounts/index';
 
-// Settings
-import './registerSettings'
 // schema utils
 import './utils/schemaUtils'
 // Permissions
@@ -178,6 +176,7 @@ import './alignment-forum/users/helpers';
 import './alignment-forum/users/views';
 
 import './analyticsEvents';
+import './abTests';
 import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';

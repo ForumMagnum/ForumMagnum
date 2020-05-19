@@ -21,7 +21,7 @@ export const sanitize = function(s) {
       span: ['style']
     },
     allowedStyles: {
-      ...sanitizeHtml.defaults.allowedStyles,
+      ...(sanitizeHtml.defaults as any).allowedStyles,
       'figure': {
         'width': [/^(?:\d|\.)+(?:px|em|%)$/]
       },

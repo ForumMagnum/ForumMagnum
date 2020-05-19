@@ -1,10 +1,11 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from './vulcan-lib';
+import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts';
-import { WeightedList } from './weightedList';
+import { ensureIndex } from '../lib/collectionUtils';
+import { forumTypeSetting } from '../lib/instanceSettings';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
-import { ensureIndex } from '../lib/collectionUtils';
-import * as _ from 'underscore';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
+import { WeightedList } from './weightedList';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -121,7 +122,7 @@ ensureIndex(Posts, {defaultRecommendation: 1})
 // scoreRelevantFields included (but other fields projected away). If
 // onlyUnread is true and currentUser is nonnull, posts that the user has
 // already read are filtered out.
-const allRecommendablePosts = async ({currentUser, algorithm}) => {
+const allRecommendablePosts = async ({currentUser, algorithm}): Promise<Array<DbPost>> => {
   return await Posts.aggregate([
     // Filter to recommendable posts
     { $match: {
@@ -192,7 +193,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
 const getModifierName = post => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
-  if (getSetting('forumType') === 'EAForum' && post.meta) return 'metaModifier'
+  if (forumTypeSetting.get() === 'EAForum' && post.meta) return 'metaModifier'
   return 'personalBlogpostModifier'
 }
 
@@ -250,7 +251,7 @@ const getResumeSequences = async (currentUser, context) => {
     return [];
 
   const results = await Promise.all(_.map(sequences,
-    async partiallyReadSequence => {
+    async (partiallyReadSequence: any) => {
       const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
         sequence: sequenceId
@@ -298,9 +299,9 @@ addGraphQLResolvers({
     async dismissRecommendation(root, {postId}, context) {
       const { currentUser } = context;
 
-      if (_.some(currentUser.partiallyReadSequences, s=>s.nextPostId===postId)) {
+      if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
-          s=>s.nextPostId !== postId);
+          (s:any)=>s.nextPostId !== postId);
         setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;
       }

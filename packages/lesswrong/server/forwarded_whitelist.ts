@@ -1,11 +1,13 @@
-import { getSetting } from '../lib/vulcan-lib';
 import dns from 'dns';
 import process from 'process';
+import { DatabaseServerSetting } from './databaseSettings';
 
 var whitelist = {};
+const forwardedWhitelistSetting = new DatabaseServerSetting<Array<string>>('forwardedWhitelist', [])
+const forwardedWhitelist = forwardedWhitelistSetting.get()
 
-if(getSetting("forwardedWhitelist")) {
-  Object.values(getSetting("forwardedWhitelist")).forEach((hostname: string) => {
+if(forwardedWhitelist) {
+  Object.values(forwardedWhitelist).forEach((hostname: string) => {
     dns.resolve(hostname, "ANY", (err, records: any) => {
       if(!err) {
         records.forEach((rec) => {

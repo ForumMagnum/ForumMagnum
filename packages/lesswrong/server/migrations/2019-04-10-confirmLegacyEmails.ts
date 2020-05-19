@@ -22,7 +22,7 @@ registerMigration({
           // Because all emails were verified on import, if the email address
           // is unverified, that means verification was cleared (eg by an email
           // address change) on import.
-          if (_.some(user.emails, email=>!email.verified))
+          if (_.some(user.emails, (email:any) => !email.verified))
             continue;
           
           // If user.whenConfirmationEmailSent, either the email address was unnecessarily re-verified, or the email

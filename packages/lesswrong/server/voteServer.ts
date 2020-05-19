@@ -123,6 +123,8 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     cancelled: false,
   })
 
+  if (!vote) throw Error(`Can't find vote to cancel: ${document._id}, ${user._id}, ${voteType}`)
+
   //eslint-disable-next-line no-unused-vars
   const {_id, ...otherVoteFields} = vote;
   const unvote = {

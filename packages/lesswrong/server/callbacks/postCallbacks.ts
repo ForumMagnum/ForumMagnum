@@ -73,7 +73,9 @@ addCallback("posts.new.sync", PostsNewDefaultLocation);
 
 function PostsNewDefaultTypes (post) {
   if (post.isEvent && post.groupId && !post.types) {
-    const { types } = Localgroups.findOne(post.groupId)
+    const localgroup = Localgroups.findOne(post.groupId) 
+    if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
+    const { types } = localgroup
     post = {...post, types}
   }
   return post
@@ -92,7 +94,7 @@ addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
 
 function PostsNewUserApprovedStatus (post) {
   const postAuthor = Users.findOne(post.userId);
-  if (!postAuthor.reviewedByUserId && (postAuthor.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+  if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...post, authorIsUnreviewed: true}
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
@@ -9,7 +9,10 @@ import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings } from '../../lib/filterSettings';
+import { numPostsOnHomePage } from '../../lib/abTests';
+import { useABTest } from '../../lib/abTestUtil';
 import moment from '../../lib/moment-timezone';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
@@ -29,7 +32,7 @@ const styles = theme => ({
   }
 })
 
-const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
   const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : defaultFilterSettings;
@@ -49,15 +52,19 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
-  const { timezone } = useTimezone();
   useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
+  
+  const numPostsOnHomePageGroup: string = useABTest(numPostsOnHomePage);
+  const numPosts = parseInt(numPostsOnHomePageGroup);
 
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings } = Components
-  const limit = parseInt(query.limit) || 13
+  const limit = parseInt(query.limit) || numPosts
+  
+  const { timezone } = useTimezone();
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
-
+  
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMutation } from 'react-apollo';
 import { Posts } from '../../lib/collections/posts';
@@ -15,6 +15,7 @@ import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
 import ClearIcon from '@material-ui/icons/Clear';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   icon: {
@@ -148,7 +149,7 @@ const SunshineNewPostsItem = ({post, classes}: {
               {post.submitToFrontpage && <Button onClick={handlePromote}>
                 <HomeIcon className={classes.icon} /> Frontpage
               </Button>}
-              {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
+              {forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
                 <GroupIcon className={classes.icon} /> Community
               </Button>}
               <Button onClick={handleDelete}>

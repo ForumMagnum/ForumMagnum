@@ -1,14 +1,15 @@
-import { Posts } from './collection';
-import Users from "../users/collection";
-import { makeEditable } from '../../editor/make_editable'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, accessFilterSingle, denormalizedField, denormalizedCountOfReferences, googleLocationToMongoLocation } from '../../utils/schemaUtils'
-import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { Utils, getSetting } from '../../vulcan-lib';
 import GraphQLJSON from 'graphql-type-json';
-import { schemaDefaultValue } from '../../collectionUtils';
-import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { schemaDefaultValue } from '../../collectionUtils';
+import { makeEditable } from '../../editor/make_editable';
+import { forumTypeSetting } from '../../instanceSettings';
+import { getWithLoader } from '../../loaders';
+import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
+import { Utils } from '../../vulcan-lib';
+import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
+import Users from "../users/collection";
+import { Posts } from './collection';
 
 export const formGroups = {
   default: {
@@ -159,7 +160,7 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, { ReadStatuses, currentUser }: { ReadStatuses: CollectionBase<DbReadStatus>, currentUser: DbUser }) => {
       if (!currentUser) return null;
 
       const readStatus = await getWithLoader(ReadStatuses,
@@ -175,7 +176,7 @@ addFieldsDict(Posts, {
   isRead: resolverOnlyField({
     type: Boolean,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, { ReadStatuses, currentUser }: { ReadStatuses: CollectionBase<DbReadStatus>, currentUser: DbUser }) => {
       if (!currentUser) return false;
       
       const readStatus = await getWithLoader(ReadStatuses,
@@ -948,7 +949,7 @@ addFieldsDict(Posts, {
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
-            return !!(author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
+            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
           }
         } else {
           return false
@@ -989,7 +990,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['admins', Posts.canEditHideCommentKarma],
     editableBy: ['admins', Posts.canEditHideCommentKarma],
-    hidden: getSetting('forumType') !== 'EAForum',
+    hidden: forumTypeSetting.get() !== 'EAForum',
     denormalized: true,
     ...schemaDefaultValue(false),
   },
