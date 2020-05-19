@@ -15,7 +15,7 @@ const styles = theme => ({
       fontWeight: 300,
       fontSize: "1rem",
       color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
     }
@@ -27,7 +27,7 @@ const styles = theme => ({
       fontWeight: 300,
       fontSize: "1rem",
       color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
     }

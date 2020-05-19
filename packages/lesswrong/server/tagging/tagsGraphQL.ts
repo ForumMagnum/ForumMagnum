@@ -8,7 +8,7 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 const addOrUpvoteTag = async ({tagId, postId, currentUser}: {
   tagId: string,
   postId: string,
-  currentUser: UsersCurrent,
+  currentUser: DbUser,
 }): Promise<any> => {
   // Validate that tagId and postId refer to valid non-deleted documents
   // and that this user can see both.

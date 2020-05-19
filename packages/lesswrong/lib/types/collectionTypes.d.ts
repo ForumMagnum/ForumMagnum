@@ -11,11 +11,16 @@ interface CollectionBase<T extends DbObject> {
   addField: any
   helpers: any
   
+  // TODO: Type-system plumbing should handle the fact that loaders are available
+  // if you get the collection via a resolver's context, but not available if you
+  // just import the collection.
+  loader: any
+  
   rawCollection: any
-  checkAccess: any
+  checkAccess: (user:DbUser|null, document: T) => boolean
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T
-  update: (selector?: string|MongoSelector<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
+  update: (selector: string|MongoSelector<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
   remove: any
   insert: any
   aggregate: any
@@ -42,7 +47,20 @@ interface HasIdType {
   _id: string
 }
 
+// Common base type for everything with a userId field
+interface HasUserIdType {
+  userId: string
+}
+
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {
   schemaVersion: number
+}
+
+interface HasSlugType extends DbObject {
+  slug: string
+}
+
+interface HasCreatedAtType extends DbObject {
+  createdAt: Date
 }

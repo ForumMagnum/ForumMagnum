@@ -151,6 +151,8 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   const renderWordCount = !comment && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
+  const renderedComment = comment || post.bestAnswer
+
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.header}>
@@ -182,16 +184,17 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <BookmarkButton post={post}/>
           </div>}
         </div>
-        {comment
+        {renderedComment
           ? <div className={classes.comment}>
               <CommentsNode
-              truncated
-              comment={comment}
-              post={post}
-              hoverPreview
-              forceNotSingleLine
-              hideReply
-            /></div>
+                truncated
+                comment={renderedComment}
+                post={post}
+                hoverPreview
+                forceNotSingleLine
+                hideReply
+              />
+            </div>
           : <div onClick={() => setExpanded(true)}>
               <ContentItemBody
                 className={classes.highlight}

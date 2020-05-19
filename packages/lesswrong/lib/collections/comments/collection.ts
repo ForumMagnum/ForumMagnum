@@ -32,20 +32,20 @@ export const commentMutationOptions = {
 
 interface ExtendedCommentsCollection extends CommentsCollection {
   // Functions in lib/collections/comments/helpers.ts
-  getAuthorName: any
-  getPageUrl: any
-  getPageUrlFromIds: any
-  getRSSUrl: any
-  defaultToAlignment: any
-  getDefaultView: any
-  getKarma: any
+  getAuthorName: (comment: DbComment) => string
+  getPageUrl: (comment: CommentsList|DbComment, isAbsolute?: boolean) => string
+  getPageUrlFromIds: (args: { postId: string, postSlug: string, commentId: string, permalink?: boolean, isAbsolute?: boolean }) => string
+  getRSSUrl: (comment: HasIdType, isAbsolute?: boolean) => string
+  defaultToAlignment: (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList) => boolean
+  getDefaultView: (post: PostsDetails|DbPost, currentUser: UsersCurrent|null) => string
+  getKarma: (comment: CommentsList|DbComment) => number
   
   // Functions in lib/alignment-forum/comments/helpers.ts
   suggestForAlignment: any
   unSuggestForAlignment: any
   
   // Functions in server/search/utils.ts
-  toAlgolia: any
+  toAlgolia: (comment: DbComment) => Array<Record<string,any>>|null
 }
 
 export const Comments: ExtendedCommentsCollection = createCollection({

@@ -114,7 +114,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
   
-  let totalChange = sumBy(changedPosts, doc=>doc.scoreChange) + sumBy(changedComments, doc=>doc.scoreChange);
+  let totalChange = sumBy(changedPosts, (doc: any)=>doc.scoreChange) + sumBy(changedComments, (doc: any)=>doc.scoreChange);
   
   return {
     totalChange,

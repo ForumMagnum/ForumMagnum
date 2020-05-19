@@ -14,7 +14,7 @@ function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }
     enforcePostRateLimit(currentUser);
   }
   
-  return post;
+  return validationErrors;
 }
 addCallback('post.create.validate', PostsNewRateLimit);
 
@@ -24,7 +24,7 @@ function PostsUndraftRateLimit (validationErrors, { oldDocument, newDocument, cu
     enforcePostRateLimit(currentUser);
   }
   
-  return newDocument;
+  return validationErrors;
 }
 addCallback('post.update.validate', PostsUndraftRateLimit);
 

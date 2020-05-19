@@ -10,7 +10,7 @@ const ConversationWrapper = () => {
   if (!currentUser) return <div>Log in to access private messages.</div>
   const messagesTerms = {view: 'messagesConversation', conversationId: params._id};
 
-  return <Components.ConversationPage terms={messagesTerms} documentId={params._id}/>
+  return <Components.ConversationPage terms={messagesTerms} documentId={params._id} currentUser={currentUser} />
 }
 
 const ConversationWrapperComponent = registerComponent('ConversationWrapper', ConversationWrapper);

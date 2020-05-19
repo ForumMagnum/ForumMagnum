@@ -7,7 +7,7 @@ import classNames from 'classnames';
 const ParentCommentSingle = ({ documentId, nestingLevel, post, truncated }: {
   documentId: string,
   nestingLevel: number,
-  post: PostsList,
+  post: PostsMinimumInfo,
   truncated?: boolean,
 }) => {
   const { document, loading } = useSingle({

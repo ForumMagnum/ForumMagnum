@@ -149,6 +149,9 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'subscribeWidget',
+      customComponent: Components.SubscribeWidget,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -160,12 +163,16 @@ export default {
       title: 'FAQ',
       link: '/faq',
       subItem: true,
-    },
-    {
+    }, {
       id: 'donate',
       title: "Donate",
       link: '/donate',
       subItem: true
+    }, {
+      id: 'tags',
+      title: 'Tags',
+      link: '/tags',
+      subItem: true,
     }
   ],
   AlignmentForum: [
@@ -269,23 +276,28 @@ export default {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
-    // }, {
-    //   id: 'intro',
-    //   title: 'What is EA?',
-    //   link: '/intro',
-    //   subItem: true,
     }, {
       id: 'shortform',
       title: 'Shortform [Beta]',
       link: '/shortform',
       subItem: true,
     }, {
+      id: 'intro',
+      title: 'About EA',
+      link: '/intro',
+      subItem: true,
+    }, {
       id: 'about',
-      title: 'About',
+      title: 'About the Forum',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,
       showOnCompressed: true,
+    }, {
+      id: 'contact',
+      title: 'Contact Us',
+      link: '/contact',
+      subItem: true,
     }
   ]
 }

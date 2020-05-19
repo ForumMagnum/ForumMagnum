@@ -170,7 +170,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     this.handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
-  handleSetNotificationDrawerOpen = (isOpen) => {
+  handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
     const { updateUser, currentUser } = this.props;
     if (!currentUser) return;
     if (isOpen) {

@@ -1,10 +1,12 @@
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withNewEvents from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';
 import Users from '../../../lib/collections/users/collection';
+import { Posts } from '../../../lib/collections/posts/collection';
+import { useSingle } from '../../../lib/crud/withSingle';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -54,16 +56,55 @@ const styles = theme => ({
   }
 })
 
-const ModerationGuidelinesBox = ({classes, document, recordEvent}: {
+const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
+  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle)
+  const truncatiseOptions = {
+    TruncateLength: 300,
+    TruncateBy: "characters",
+    Suffix: "... <a>(Read More)</a>",
+    Strict: false
+  }
+  const { html = "" } = document.moderationGuidelines || {}
+  const userGuidelines = `${document.user ? `<p><em>${document.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
+  ${html || ""}`
+
+  const combinedGuidelines = `
+    ${(html || moderationStyle) ? userGuidelines : ""}
+    ${(html && document.frontpageDate) ? '<hr/>' : ''}
+    ${document.frontpageDate ?
+        frontpageGuidelines :
+          (
+            (html || moderationStyle) ?
+              "" :
+              defaultGuidelines
+          )
+     }
+  `
+  const truncatedGuidelines = truncatise(combinedGuidelines, truncatiseOptions)
+  return { combinedGuidelines, truncatedGuidelines }
+}
+
+const ModerationGuidelinesBox = ({classes, post, recordEvent}: {
   classes: ClassesType,
-  document: PostsBase,
+  post: PostsMinimumInfo,
   recordEvent?: any,
 }) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
 
-  if (!document) return null
+  const { document: postWithDetails, loading } = useSingle({
+    skip: !post,
+    documentId: post?._id,
+    collection: Posts,
+    fetchPolicy: "cache-first",
+    fragmentName: "PostsList",
+  });
+  
+  if (!post)
+    return null
+  if (loading)
+    return <Components.Loading/>
 
   const handleClick = (e) => {
     e.preventDefault()
@@ -74,39 +115,11 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent}: {
         userId: currentUser._id,
         important: false,
         intercom: true,
-        documentId: document && document.userId,
+        documentId: postWithDetails?.userId,
         targetState: !expanded
       };
       recordEvent('toggled-user-moderation-guidelines', false, eventProperties);
     }
-  }
-
-  const getModerationGuidelines = (document, classes) => {
-    const moderationStyle = document.moderationStyle || (document.user && document.user.moderationStyle)
-    const truncatiseOptions = {
-      TruncateLength: 300,
-      TruncateBy: "characters",
-      Suffix: "... <a>(Read More)</a>",
-      Strict: false
-    }
-    const { html = "" } = document.moderationGuidelines || {}
-    const userGuidelines = `${document.user ? `<p><em>${document.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
-    ${html || ""}`
-
-    const combinedGuidelines = `
-      ${(html || moderationStyle) ? userGuidelines : ""}
-      ${(html && document.frontpageDate) ? '<hr/>' : ''}
-      ${document.frontpageDate ?
-          frontpageGuidelines :
-            (
-              (html || moderationStyle) ?
-                "" :
-                defaultGuidelines
-            )
-       }
-    `
-    const truncatedGuidelines = truncatise(combinedGuidelines, truncatiseOptions)
-    return { combinedGuidelines, truncatedGuidelines }
   }
 
   const openEditDialog = (e) => {
@@ -115,19 +128,23 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent}: {
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
       componentProps: {
-        postId: document._id,
+        postId: post._id,
       }
     });
   }
   
-  const { combinedGuidelines, truncatedGuidelines } = getModerationGuidelines(document, classes)
+  const { combinedGuidelines, truncatedGuidelines } = getModerationGuidelines(postWithDetails, classes)
   const displayedGuidelines = expanded ? combinedGuidelines : truncatedGuidelines
 
   const expandable = combinedGuidelines.trim().length !== truncatedGuidelines.trim().length
 
   return (
     <div className={classes.root} onClick={expandable ? handleClick : undefined}>
-      {Users.canModeratePost(currentUser, document) &&
+      { // FIXME: Users.canModeratePost depends on some fields that aren't always
+        // reasonable to include in fragments, so on non-post pages the edit button
+        // may be missing from moderation guidelines.
+        // @ts-ignore
+        Users.canModeratePost(currentUser, post) &&
         <span onClick={openEditDialog}>
           <Tooltip title="Edit moderation guidelines">
             <Edit className={classes.editButton} />

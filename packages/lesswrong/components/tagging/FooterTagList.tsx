@@ -1,12 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useCurrentUser } from '../common/withUser';
-import { userCanManageTags } from '../../lib/betas';
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -21,7 +20,8 @@ const FooterTagList = ({post, classes}: {
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
-  
+  const { captureEvent } = useTracking()
+
   const { results, loading, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",
@@ -32,7 +32,11 @@ const FooterTagList = ({post, classes}: {
     limit: 100,
     ssr: true,
   });
-  
+
+  const tagIds = (results||[]).map((tag) => tag._id)
+  useTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
+
+
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
@@ -52,20 +56,18 @@ const FooterTagList = ({post, classes}: {
     });
     setIsAwaiting(false)
     refetch()
-  }, [setIsAwaiting, mutate, refetch, post._id]);
-  
-  const { Loading, FooterTag, LWPopper, AddTag } = Components
+    captureEvent("tagAddedToItem", {tagId, tagName})
+  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
+
+  const { Loading, FooterTag } = Components
   if (loading || !results)
     return <Loading/>;
-  
+
   return <div className={classes.root}>
-    {results.map((result, i) => {
-      // currently only showing the "Coronavirus" tag to most users
-      if ((result.tag._id === "tNsqhzTibgGJKPEWB") || userCanManageTags(currentUser)) {
-        return <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
-      }
-    })}
-    <Components.AddTagButton onTagSelected={onTagSelected} />
+    {results.filter(tagRel => !!tagRel?.tag).map(tagRel =>
+      <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag}/>
+    )}
+    {currentUser && <Components.AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
   </div>
 };

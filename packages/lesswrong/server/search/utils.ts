@@ -17,7 +17,7 @@ import { Meteor } from 'meteor/meteor';
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
-Comments.toAlgolia = (comment) => {
+Comments.toAlgolia = (comment: DbComment): Array<Record<string,any>>|null => {
   if (comment.deleted) return null;
   
   const algoliaComment: any = {
@@ -58,7 +58,7 @@ Comments.toAlgolia = (comment) => {
   return [algoliaComment]
 }
 
-Sequences.toAlgolia = (sequence) => {
+Sequences.toAlgolia = (sequence: DbSequence): Array<Record<string,any>>|null => {
   const algoliaSequence: any = {
     objectID: sequence._id,
     _id: sequence._id,
@@ -67,7 +67,6 @@ Sequences.toAlgolia = (sequence) => {
     baseScore: sequence.baseScore,
     isDeleted: sequence.isDeleted,
     createdAt: sequence.createdAt,
-    postedAt: sequence.postedAt,
     af: sequence.af
   };
   const sequenceAuthor = Users.findOne({_id: sequence.userId});
@@ -84,7 +83,7 @@ Sequences.toAlgolia = (sequence) => {
   return [algoliaSequence]
 }
 
-Users.toAlgolia = (user) => {
+Users.toAlgolia = (user: DbUser): Array<Record<string,any>>|null => {
   if (user.deleted) return null;
   
   const algoliaUser = {
@@ -105,8 +104,9 @@ Users.toAlgolia = (user) => {
 }
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
-Posts.toAlgolia = (post) => {
-  if (post.deleted) return null;
+Posts.toAlgolia = (post: DbPost): Array<Record<string,any>>|null => {
+  if (post.status !== Posts.config.STATUS_APPROVED)
+    return null;
   
   const algoliaMetaInfo: any = {
     _id: post._id,
@@ -162,7 +162,7 @@ Posts.toAlgolia = (post) => {
   return postBatch;
 }
 
-Tags.toAlgolia = (tag) => {
+Tags.toAlgolia = (tag: DbTag): Array<Record<string,any>>|null => {
   if (tag.deleted) return null;
   
   let description = ""
@@ -177,8 +177,12 @@ Tags.toAlgolia = (tag) => {
   return [{
     _id: tag._id,
     name: tag.name,
+    slug: tag.slug,
+    core: tag.core,
+    defaultOrder: tag.defaultOrder,
+    suggestedAsFilter: tag.suggestedAsFilter,
+    postCount: tag.postCount,
     description,
-    baseScore: tag.baseScore,
   }];
 }
 
@@ -225,7 +229,7 @@ export async function algoliaDeleteIds(algoliaIndex, ids)
 // Do algoliaIndex.getObjects as an async function rather than a
 // callback-accepting function. Returns a content object with a results field.
 // https://www.algolia.com/doc/api-reference/api-methods/get-objects/
-async function algoliaGetObjects(algoliaIndex, ids)
+async function algoliaGetObjects(algoliaIndex, ids): Promise<Array<any>>
 {
   return new Promise((resolve,reject) => {
     algoliaIndex.getObjects(ids, (err,content) => {
