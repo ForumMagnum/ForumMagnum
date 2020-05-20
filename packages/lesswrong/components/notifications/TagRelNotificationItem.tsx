@@ -25,7 +25,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   if (loading) return <Loading/>
 
   return <div className={classes.root}>
-    <div className={classes.meta}>Post tagged <em>{tagRel.tag.name}</em>:</div>
+    <div className={classes.meta}>Tagged <em>{tagRel.tag.name}</em>:</div>
     <div>{tagRel.post.title}</div>
   </div>;
 }
