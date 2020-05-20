@@ -90,7 +90,7 @@ const TagPage = ({classes}: {
     sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
-    <SingleColumnSection>
+    <SingleColumnSection key={tag._id}>
       <div className={classes.wikiSection}>
         <AnalyticsContext pageSectionContext="wikiSection">
           {Users.isAdmin(currentUser) && <SectionButton>
