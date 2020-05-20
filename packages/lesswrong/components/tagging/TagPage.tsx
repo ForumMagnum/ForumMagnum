@@ -78,7 +78,7 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
