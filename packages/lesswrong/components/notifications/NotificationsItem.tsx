@@ -99,8 +99,11 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
 
   renderMessage = () => {
     const { notification } = this.props
+    const { TagRelNotificationItem } = Components
     switch (notification.documentType) {
       // TODO: add case for tagRel
+      case 'tagRel': 
+        return <TagRelNotificationItem tagRelId={notification.documentId}/>
       default:
         return notification.message
     }
