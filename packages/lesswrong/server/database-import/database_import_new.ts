@@ -87,9 +87,9 @@ Vulcan.postgresImport = async () => {
 
   // Update posts scores
   const nActivePostsUpdated = await batchUpdateScore({collection: Posts, forceUpdate: true})
-  console.log('nActivePostsUpdated', nActivePostsUpdated)
+  // console.log('nActivePostsUpdated', nActivePostsUpdated)
   const nInactivePostsUpdated = await batchUpdateScore({collection: Posts, inactive: true, forceUpdate: true})
-  console.log('nInactivePostsUpdated', nInactivePostsUpdated)
+  // console.log('nInactivePostsUpdated', nInactivePostsUpdated)
   /*
     COMMENT DATA IMPORT
   */
@@ -130,9 +130,9 @@ Vulcan.postgresImport = async () => {
 
   // Update comment scores
   const nActiveCommentsUpdated = await batchUpdateScore({collection: Comments, forceUpdate: true})
-  console.log('nActiveCommentsUpdated', nActiveCommentsUpdated)
+  // console.log('nActiveCommentsUpdated', nActiveCommentsUpdated)
   const nInactiveCommentsUpdated = await batchUpdateScore({collection: Comments, inactive: true, forceUpdate: true})
-  console.log('nInactiveCommentsUpdated', nInactiveCommentsUpdated)
+  // console.log('nInactiveCommentsUpdated', nInactiveCommentsUpdated)
 
   //eslint-disable-next-line no-console
   console.log("Finished data import");
@@ -197,7 +197,7 @@ const upsertProcessedPosts = async (posts, postMap) => {
     }
   })
   const postUpsertCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
-  console.log("Upserted posts: ", loggableCursor(postUpsertCursor));
+  // console.log("Upserted posts: ", loggableCursor(postUpsertCursor));
 }
 
 const upsertProcessedUsers = async (users, userMap) => {
