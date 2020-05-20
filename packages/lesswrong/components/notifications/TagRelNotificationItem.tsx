@@ -5,8 +5,13 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = theme => ({
   meta: {
-    ...theme.typography.smallText,
-    color: theme.palette.grey[600]
+    fontSize: ".9rem",
+    color: "rgba(0,0,0,.45)"
+  },
+  title: {
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis"
   }
 });
 
@@ -25,8 +30,8 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   if (loading) return <Loading/>
 
   return <div className={classes.root}>
-    <div className={classes.meta}>Tagged <em>{tagRel.tag.name}</em>:</div>
-    <div>{tagRel.post.title}</div>
+    <div className={classes.meta}>New post tagged <em>{tagRel.tag.name}</em>:</div>
+    <div className={classes.title}>{tagRel.post.title}</div>
   </div>;
 }
 
