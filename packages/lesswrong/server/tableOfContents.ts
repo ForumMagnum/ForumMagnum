@@ -230,7 +230,7 @@ const getTableOfContentsData = async ({document, version, currentUser}) => {
     if (!revision) return null;
     if (!Revisions.checkAccess(currentUser, revision))
       return null;
-    html = revision?.html;
+    html = revision.html;
   } else {
     html = document?.contents?.html;
   }
