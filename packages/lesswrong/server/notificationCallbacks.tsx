@@ -354,7 +354,7 @@ async function TaggedPostNewNotifications(tagRel) {
         
   // Don't notify the person who created the tagRel
   let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, [tagRel.userId])
-  await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'post', tagRel.postId);
+  await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'tagRel', tagRel._id);
 }
 addCallback("tagrels.new.async", TaggedPostNewNotifications);
 

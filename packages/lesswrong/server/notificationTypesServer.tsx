@@ -4,6 +4,7 @@ import { Posts } from '../lib/collections/posts/collection';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';
 import { Messages } from '../lib/collections/messages/collection';
+import { TagRels } from '../lib/collections/tagRels/collection';
 import { Conversations } from '../lib/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
@@ -12,6 +13,7 @@ import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventInRadiusEmail';
+import { taggedPostMessage } from '../lib/notificationTypes';
 
 const notificationTypes = {};
 
@@ -94,6 +96,22 @@ export const NewShortformNotification = serverRegisterNotificationType({
     const comment = Comments.findOne(notifications[0].documentId)
     if (!comment) throw Error(`Can't find comment for comment email notification: ${notifications[0]}`)
     return <Components.EmailCommentBatch comments={[comment]}/>;
+  }
+})
+
+export const NewTagPostsNotification = serverRegisterNotificationType({
+  name: "newTagPosts",
+  canCombineEmails: true,
+  emailSubject: ({user, notifications}) => {
+    const [documentId, documentType] = notifications[0]
+    return taggedPostMessage({documentId, documentType})
+  },
+  emailBody: ({user, notifications}) => {
+    const [documentId, documentType] = notifications[0]
+    const tagRel = TagRels.findOne({_id: documentId})
+    if (tagRel) {
+      return <Components.NewPostEmail documentId={ tagRel.postId}/>
+    }
   }
 })
 

@@ -78,10 +78,12 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
 
   renderPreview = () => {
     const { notification, currentUser } = this.props
-    const { PostsPreviewTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
 
     switch (notification.documentType) {
+      case 'tagRel':
+        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
       case 'post':
         return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
       case 'comment':
@@ -92,6 +94,15 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
         </Card>
       default:
         return null
+    }
+  }
+
+  renderMessage = () => {
+    const { notification } = this.props
+    switch (notification.documentType) {
+      // TODO: add case for tagRel
+      default:
+        return notification.message
     }
   }
 
@@ -141,7 +152,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
         </LWPopper>
         {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabel}>
-          {notification.message}
+          {this.renderMessage()}
         </div>
       </a>
     )
