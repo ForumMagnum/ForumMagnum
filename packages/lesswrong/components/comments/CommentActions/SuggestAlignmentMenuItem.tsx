@@ -34,7 +34,7 @@ const styles = theme => ({
 
 const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
   comment: CommentsList,
-  post: PostsList,
+  post: PostsDetails,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();

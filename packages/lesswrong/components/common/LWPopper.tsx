@@ -1,6 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
+import classNames from 'classnames';
 
 const styles = theme => ({
   popper: {
@@ -21,34 +22,36 @@ const styles = theme => ({
     color: "white",
     position: "relative",
     zIndex: theme.zIndexes.lwPopperTooltip,
-  }
+  },
+  noMouseEvents: {
+    pointerEvents: "none",
+  },
 })
 
 // This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
-const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, open, enterDelay=undefined, ...props}: {
+const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, open, clickable = true, ...props}: {
   classes: ClassesType,
   children: any,
   onMouseEnter?: any,
   tooltip?: boolean,
   modifiers?: any,
   open: boolean,
-  enterDelay?: number,
   
   // Arguments destructured into ...props
   placement?: PopperPlacementType,
   anchorEl: any,
   className?: string,
+  clickable?: boolean
 }) => {
   const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
   return (
     <Popper 
-      className={classes.popper} 
+      className={classNames(classes.popper, {[classes.noMouseEvents]: !clickable})} 
       modifiers={newModifiers} 
       open={open}
-      enterDelay={enterDelay}
       {...props}
     >
-      <div className={tooltip ? classes.tooltip : classes.default} onMouseEnter={onMouseEnter}>
+      <div className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip})} onMouseEnter={onMouseEnter}>
         { children }
       </div>
     </Popper>

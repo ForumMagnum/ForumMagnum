@@ -21,6 +21,9 @@ const styles = (theme) => ({
   unreadComments: {
     color: theme.palette.secondary.light,
   },
+  newPromotedComments: {
+    color: "rgb(160, 225, 165)"
+  },
   commentCountIcon: {
     position:"absolute",
     right:"50%",
@@ -31,15 +34,18 @@ const styles = (theme) => ({
   },
 })
 
-const PostsItemComments = ({ classes, post, onClick, unreadComments }: {
+const PostsItemComments = ({ classes, post, onClick, unreadComments, newPromotedComments }: {
   classes: ClassesType,
   post: PostsBase,
   onClick: any,
   unreadComments: any,
+  newPromotedComments: any,
 }) => {
   let commentCount = Posts.getCommentCount(post)
 
-  let unreadCommentsClass = unreadComments ? classes.unreadComments : classes.noUnreadComments;
+  let unreadCommentsClass =  classes.noUnreadComments
+  if (unreadComments) { unreadCommentsClass = classes.unreadComments }
+  if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }
 
   return (
     <div className={classes.root} onClick={onClick}>

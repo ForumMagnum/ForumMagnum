@@ -104,6 +104,7 @@ import './server/callbacks/alignment-forum/alignmentPostCallbacks';
 import './server/callbacks/alignment-forum/alignmentUserCallbacks';
 import './server/callbacks/votingCallbacks';
 
+import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';

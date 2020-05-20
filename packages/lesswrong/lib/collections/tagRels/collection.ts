@@ -2,9 +2,15 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
-import { userCanManageTags } from '../../betas';
+import { userCanUseTags } from '../../betas';
 
 const schema = {
+  createdAt: {
+    optional: true,
+    type: Date,
+    canRead: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
+  },
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",
@@ -60,10 +66,10 @@ export const TagRels: TagRelsCollection = createCollection({
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
     newCheck: (user, tag) => {
-      return userCanManageTags(user);
+      return userCanUseTags(user);
     },
     editCheck: (user, tag) => {
-      return userCanManageTags(user);
+      return userCanUseTags(user);
     },
     removeCheck: (user, tag) => {
       return false;
@@ -72,7 +78,7 @@ export const TagRels: TagRelsCollection = createCollection({
 });
 
 TagRels.checkAccess = (currentUser, tagRel) => {
-  if (userCanManageTags(currentUser))
+  if (userCanUseTags(currentUser))
     return true;
   else if (tagRel.deleted)
     return false;

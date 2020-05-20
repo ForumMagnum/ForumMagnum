@@ -3,11 +3,13 @@ import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
 import Conversations from '../../lib/collections/conversations/collection';
-import { useCurrentUser } from '../common/withUser';
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, children }) => {
-  const currentUser = useCurrentUser();
+const NewConversationButton = ({ user, currentUser, children }: {
+  user: UsersMinimumInfo,
+  currentUser: UsersCurrent,
+  children: any
+}) => {
   const { create: createConversation } = useCreate({
     collection: Conversations,
     fragmentName: 'newConversationFragment',
@@ -17,7 +19,7 @@ const NewConversationButton = ({ user, children }) => {
     const alignmentFields = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
 
     const response = await createConversation({
-      data: {participantIds:[user._id, currentUser!._id], ...alignmentFields},
+      data: {participantIds:[user._id, currentUser._id], ...alignmentFields},
     })
     const conversationId = response.data.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`})
