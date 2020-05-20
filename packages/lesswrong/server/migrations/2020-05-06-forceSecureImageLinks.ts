@@ -22,12 +22,15 @@ function findInsecureImages ($: any): Array<string> {
   return insecureImageSources
 }
 
+// For an array of insecure image urls, test whether the secure version exists.
+// If so for any image, return shouldUpdate: true, and a map of insecure to
+// secure version
 async function testSecureImages
   (insecureImageSources: Array<string>, post: DbPost):
   Promise<{shouldUpdate: boolean, imageUpdates: Map<string, string>}>
 {
   let shouldUpdate = false
-  const imageUpdates = new Map((await Promise.all(
+  const imageUpdatesArr = (await Promise.all(
     insecureImageSources.map(async (src): Promise<[string, string | boolean]> => {
       const secureImageSource = src.replace(/^http:/, 'https:')
       if (!(await urlIsBroken(secureImageSource))) {
@@ -36,11 +39,18 @@ async function testSecureImages
       }
       return [src, false]
     })
-  )).filter(tuple => tuple[1])) as Map<string, string>
+  // Filter out images that didn't have secure versions available
+  )).filter(tuple => tuple[1])
+  // The array was easy to make from the previous array's map function, but we
+  // want a nice hashmap that will allow us to quickly check if the insecure
+  // image exists in our updates
+  const imageUpdates = new Map(imageUpdatesArr) as Map<string, string>
   return {shouldUpdate, imageUpdates}
 }
 
+// Mutate the cheerio `$` object with the given updates to the images
 function updateHtmlWithSecureImages($: any, imageUpdates: Map<string, string>): void {
+  // This is the second
   $('img').each(function (this: any) {
     const el = $(this)
     const src = el.attr('src') as string
@@ -55,7 +65,6 @@ function updateHtmlWithSecureImages($: any, imageUpdates: Map<string, string>): 
 async function getFixedHTML (post: DbPost): Promise<{shouldUpdate: boolean, fixedHtml?: string}> {
   const html = post.contents?.html
   if (!html || !html.length) {
-    // console.warn('No html for this post')
     return {shouldUpdate: false}
   }
 

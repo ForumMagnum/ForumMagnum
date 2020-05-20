@@ -3,6 +3,9 @@ import Posts from '../../lib/collections/posts/collection';
 import { getSetting } from '../vulcan-lib';
 import moment from 'moment'
 
+export const lowKarmaThreshold = 5
+
+const dateFormat = 'YYYY-MM-DD'
 const launchDateByForum = {
   LessWrong: 'TODO', // lw-look-here
   AlignmentForum: "Don't",
@@ -29,10 +32,13 @@ registerMigration({
   dateWritten: "2020-05-13",
   idempotent: true,
   action: async () => {
+    if (!moment(launchDate, dateFormat, true).isValid()) {
+      throw new Error('Need to specify launch date for this forum')
+    }
     await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,
-      filter: makeLowKarmaSelector(5),
+      filter: makeLowKarmaSelector(lowKarmaThreshold),
       callback: async (posts: Array<DbPost>) => {
         // eslint-disable-next-line no-console
         console.log("Migrating post batch");

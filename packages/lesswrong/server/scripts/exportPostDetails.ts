@@ -25,7 +25,7 @@ import { wrapVulcanAsyncScript } from './utils'
 import { Vulcan, getSetting } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection'
-import { makeLowKarmaSelector } from '../migrations/2020-05-13-noIndexLowKarma';
+import { makeLowKarmaSelector, lowKarmaThreshold } from '../migrations/2020-05-13-noIndexLowKarma';
 import fs from 'mz/fs'
 import path from 'path'
 import moment from 'moment'
@@ -100,7 +100,9 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
   }
 )
 
-Vulcan.exportLowKarma = ({outputFilepath, karma = 5}: {outputFilepath: string, karma?: number}) => {
+Vulcan.exportLowKarma = (
+  {outputFilepath, karma = lowKarmaThreshold}: {outputFilepath: string, karma?: number}
+) => {
   Vulcan.exportPostDetails({
     selector: makeLowKarmaSelector(karma),
     outputFile: path.basename(outputFilepath),
