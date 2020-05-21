@@ -3,7 +3,7 @@ import Posts from '../../lib/collections/posts/collection';
 import { getSetting } from '../vulcan-lib';
 import moment from 'moment'
 
-export const lowKarmaThreshold = 5
+export const LOW_KARMA_THRESHOLD = 5
 
 const dateFormat = 'YYYY-MM-DD'
 const launchDateByForum = {
@@ -38,7 +38,7 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,
-      filter: makeLowKarmaSelector(lowKarmaThreshold),
+      filter: makeLowKarmaSelector(LOW_KARMA_THRESHOLD),
       callback: async (posts: Array<DbPost>) => {
         // eslint-disable-next-line no-console
         console.log("Migrating post batch");

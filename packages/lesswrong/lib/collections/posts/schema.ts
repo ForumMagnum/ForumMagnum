@@ -563,6 +563,7 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
+    group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
 };
