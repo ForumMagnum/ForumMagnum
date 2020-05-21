@@ -231,13 +231,17 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
+    
+    const username = Users.getDisplayName(user)
+
+    const userPostsTitle = username.slice(-1) === "s" ? `${username}' Posts` :`${username}'s Posts`
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <SectionTitle title={Users.getDisplayName(user)}/>
+            <SectionTitle title={username}/>
 
             <SectionFooter>
               { this.renderMeta() }
@@ -299,7 +303,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-              <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
+              <SectionTitle title={userPostsTitle}>
                 <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
             </div>
