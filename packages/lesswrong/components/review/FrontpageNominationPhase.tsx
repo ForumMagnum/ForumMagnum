@@ -65,7 +65,7 @@ const FrontpageNominationPhase = ({classes, settings}) => {
           </SectionSubtitle>
         </div>
       </LWTooltip>
-      <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
+      <RecommendationsList algorithm={algorithm} />
       <SectionFooter>
         <Link to={"/nominations"}>
           View{" "}<span className={classes.hideOnMobile}>All{" "}</span>Nominations
