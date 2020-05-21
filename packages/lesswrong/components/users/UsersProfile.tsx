@@ -235,6 +235,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const username = Users.getDisplayName(user)
 
     const userPostsTitle = username.slice(-1) === "s" ? `${username}' Posts` :`${username}'s Posts`
+    const userCommentsTitle = username.slice(-1) === "s" ? `${username}' Comments` :`${username}'s Comments`
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -322,7 +323,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
+              <SectionTitle title={userCommentsTitle} />
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
