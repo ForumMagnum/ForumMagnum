@@ -9,6 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 import withTimezone from '../common/withTimezone';
+import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import * as _ from 'underscore';
@@ -80,6 +81,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
       timeOfDay: timeOfDay,
       dayOfWeek: oldTimeLocalTZ.dayOfWeek
     };
+    console.log("DDD", timeOfDay, oldTimeLocalTZ)
     const newTimeGMT = convertTimeOfWeekTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
     this.modifyValue({
@@ -90,6 +92,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   
   setBatchingDayOfWeek = (dayOfWeek, tz) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
+    console.log("ZZZZ", dayOfWeek, oldTimeLocalTZ)
     const newTimeLocalTZ = {
       timeOfDay: oldTimeLocalTZ.timeOfDay,
       dayOfWeek: dayOfWeek
@@ -112,6 +115,10 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   render() {
     const { timezone, classes } = this.props;
     const settings = this.props.value || {}
+
+    if (!settings.timeOfDayGMT || !settings.dayOfWeekGMT) {
+      return null
+    }
     
     const {timeOfDay, dayOfWeek} = this.getBatchingTimeLocalTZ();
     
@@ -208,7 +215,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
 
 const KarmaChangeNotifierSettingsComponent = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings, {
   styles,
-  hocs: [withTimezone]
+  hocs: [withTimezone, withErrorBoundary]
 });
 
 declare global {
