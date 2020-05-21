@@ -113,6 +113,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
 
   componentDidUpdate(prevProps) {
     if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
+      this.replacedElements = [];
       this.applyLocalModifications();
     }
   }
