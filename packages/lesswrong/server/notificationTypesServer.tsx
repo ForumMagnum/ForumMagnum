@@ -101,7 +101,7 @@ export const NewShortformNotification = serverRegisterNotificationType({
 
 export const NewTagPostsNotification = serverRegisterNotificationType({
   name: "newTagPosts",
-  canCombineEmails: true,
+  canCombineEmails: false,
   emailSubject: ({user, notifications}) => {
     const [documentId, documentType] = notifications[0]
     return taggedPostMessage({documentId, documentType})
