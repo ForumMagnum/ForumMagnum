@@ -86,10 +86,10 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
             key={sequence?._id || collection?._id}
           />
         })}
-        {showAllLink && <SectionFooter>	
-          <a onClick={this.showAll}>	
-            Show All	
-          </a>	
+        {showAllLink && <SectionFooter>
+          <a onClick={this.showAll}>
+            Show All
+          </a>
         </SectionFooter>}
       </AnalyticsContext>
     </div>
