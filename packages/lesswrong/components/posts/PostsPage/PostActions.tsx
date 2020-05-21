@@ -6,7 +6,7 @@ import Users from '../../../lib/collections/users/collection'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
-import { withPostsRead } from '../../common/withRecordPostView';
+import { withPostsRead, PostsReadContextType } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -50,7 +50,7 @@ const styles = theme => ({
 interface ExternalProps {
   post: PostsList,
 }
-interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps {
+interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps, PostsReadContextType {
   markAsReadOrUnread: any,
   setAlignmentPostMutation: any,
 }

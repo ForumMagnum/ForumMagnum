@@ -5,13 +5,15 @@ import compose from 'recompose/compose';
 import withNewEvents from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 
-type PostsReadContextType = {
+export type PostsReadContextType = {
   postsRead: Record<string,boolean>,
   setPostRead: (postId: string, isRead: boolean) => void,
 };
 export const PostsReadContext = React.createContext<PostsReadContextType|null>(null);
 export const usePostsRead = (): PostsReadContextType => {
-  return useContext(PostsReadContext);
+  const context = useContext(PostsReadContext);
+  if (!context) throw new Error("usePostsRead called but not a descedent of Layout");
+  return context;
 }
 export const withPostsRead = hookToHoc(usePostsRead);
 
