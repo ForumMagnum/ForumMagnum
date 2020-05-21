@@ -12,6 +12,8 @@ const styles = theme => ({
 
     width: "33%",
     padding: 15,
+    paddingBottom: 0,
+    marginBottom: 10,
 
     "&:hover": {
       boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
@@ -27,20 +29,6 @@ const styles = theme => ({
     },
   },
 
-  top: {
-    height: 44,
-    lineHeight: 1.1,
-    paddingTop: 12,
-  },
-
-  topWithAuthor: {
-    height: 59,
-  },
-
-  smallerHeight: {
-    height: 45
-  },
-
   title: {
     fontSize: 16,
     lineHeight: 1.0,
@@ -51,7 +39,7 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     overflow: "hidden",
     fontVariant: "small-caps",
-    marginRight: 5,
+    marginBottom: 0,
     "&:hover": {
       color: "inherit",
       textDecoration: "none",
@@ -64,25 +52,18 @@ const styles = theme => ({
   },
 
   author: {
-    marginTop: 5,
     color: "rgba(0,0,0,0.5)",
+  },
 
-    "&:hover": {
-      color: "rgba(0,0,0,0.3)",
-      "& a": {
-        color: "rgba(0,0,0,0.3)",
-      }
-    }
+  meta: {
+    marginTop: 10,
+    marginBottom: 8,
   },
 
   image: {
     backgroundColor: "#b4a78f",
-    width: "100%",
-    height: 95,
     display: 'block',
-    [legacyBreakpoints.maxTiny]: {
-      width: "100%",
-    },
+    height: 95,
     "& img": {
       [legacyBreakpoints.maxSmall]: {
         width: "305px !important",
@@ -96,6 +77,10 @@ const styles = theme => ({
       },
     }
   },
+  titleWrapper: {
+    display: "flex",
+    alignItems: "center"
+  }
 })
 
 const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight }: {
@@ -111,7 +96,8 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
   const { LinkCard, SequenceTooltip } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
+  // tooltip={<SequenceTooltip sequence={sequence}/>
+  return <Link className={classes.root} to={url}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -121,7 +107,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
         />
       </NoSSR>
     </div>
-    <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor, [classes.smallerHeight]:smallerHeight})} style={{borderTopColor: sequence.color}}>
+    <div className={classes.meta}>
       <Link key={sequence._id} to={url}>
         <Typography variant='title' className={classes.title}>
           {sequence.draft && <span className={classes.draft}>[Draft] </span>}
@@ -133,7 +119,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
           by <Components.UsersName user={sequence.user} />
         </div>}
     </div>
-  </LinkCard>
+  </Link>
 }
 
 const SequencesGridItemComponent = registerComponent('SequencesGridItem', SequencesGridItem, {styles});
