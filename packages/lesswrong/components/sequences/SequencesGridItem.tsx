@@ -2,9 +2,9 @@ import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import { useHover } from '../common/withHover';
 
 const styles = theme => ({
   root: {
@@ -93,10 +93,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { LinkCard, SequenceTooltip } = Components;
+  const { hover, anchorEl } = useHover()
+  const { PopperCard, SequenceTooltip } = Components;
   const url = getSequenceUrl()
 
-  // tooltip={<SequenceTooltip sequence={sequence}/>
   return <Link className={classes.root} to={url}>
     <div className={classes.image}>
       <NoSSR>
@@ -119,6 +119,9 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
           by <Components.UsersName user={sequence.user} />
         </div>}
     </div>
+    <PopperCard open={hover} anchorEl={anchorEl}>
+      <SequenceTooltip sequence={sequence}/>
+    </PopperCard>
   </Link>
 }
 
