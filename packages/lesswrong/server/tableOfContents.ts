@@ -109,7 +109,6 @@ export function extractTableOfContents(postHTML: string)
 function elementToToCText(cheerioTag: CheerioElement) {
   const tagClone = cheerio.load(cheerioTag);
   tagClone("style").remove();
-  console.log(tagClone.root().html);
   return tagClone.root().text();
 }
 
