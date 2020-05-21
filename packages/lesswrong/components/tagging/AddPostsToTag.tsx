@@ -45,11 +45,11 @@ const AddPostsToTag = ({classes, tag}: {
   const { flash } = useMessages()
   const [ searchOpen, setSearchOpen ] = useState(false)  
   const [mutate] = useMutation(gql`
-  mutation addOrUpvoteTag($tagId: String, $postId: String) {
-    addOrUpvoteTag(tagId: $tagId, postId: $postId) {
-      ...TagRelMinimumFragment
+    mutation addOrUpvoteTag($tagId: String, $postId: String) {
+      addOrUpvoteTag(tagId: $tagId, postId: $postId) {
+        ...TagRelMinimumFragment
+      }
     }
-  }
     ${getFragment("TagRelMinimumFragment")}
   `);
 
