@@ -81,7 +81,6 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
       timeOfDay: timeOfDay,
       dayOfWeek: oldTimeLocalTZ.dayOfWeek
     };
-    console.log("DDD", timeOfDay, oldTimeLocalTZ)
     const newTimeGMT = convertTimeOfWeekTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
     this.modifyValue({
@@ -92,7 +91,6 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   
   setBatchingDayOfWeek = (dayOfWeek, tz) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
-    console.log("ZZZZ", dayOfWeek, oldTimeLocalTZ)
     const newTimeLocalTZ = {
       timeOfDay: oldTimeLocalTZ.timeOfDay,
       dayOfWeek: dayOfWeek
