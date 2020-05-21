@@ -211,6 +211,7 @@ async function getTocAnswers (document) {
 
 async function getTocComments (document) {
   const commentSelector: any = {
+    ...Comments.defaultView({}).selector,
     answer: false,
     parentAnswerId: null,
     postId: document._id
@@ -233,7 +234,7 @@ const getTableOfContentsData = async ({document, version, currentUser, context}:
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
     if (!revision || !await Revisions.checkAccess(currentUser, revision, context))
       return null;
-    html = revision?.html;
+    html = revision.html;
   } else {
     html = document?.contents?.html;
   }

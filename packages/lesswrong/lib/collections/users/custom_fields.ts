@@ -1,5 +1,4 @@
 import { asyncFilter } from '../../utils/asyncUtils';
-import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
@@ -1363,21 +1362,7 @@ addFieldsDict(Users, {
     }),
     canRead: ['guests'],
     ...schemaDefaultValue(0)
-  },
-  
-  abTestKey: {
-    type: String,
-    optional: true,
-    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
-    canUpdate: ['admins'],
-  },
-  abTestOverrides: {
-    type: GraphQLJSON, //Record<string,number>
-    optional: true,
-    hidden: true,
-    canRead: [Users.owns],
-    canUpdate: ['admins'],
-  },
+  }
 });
 
 export const makeEditableOptionsModeration = {

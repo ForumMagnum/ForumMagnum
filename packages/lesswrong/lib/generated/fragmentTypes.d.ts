@@ -554,13 +554,13 @@ interface CommentsDefaultFragment { // fragment on Comments
 }
 
 interface TagsDefaultFragment { // fragment on Tags
-  readonly createdAt: Date,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly postCount: number,
+  readonly createdAt: Date,
   readonly createdBy: string,
   readonly adminOnly: boolean,
   readonly charsAdded: number,
@@ -812,8 +812,6 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
-  readonly abTestKey: string,
-  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface UserBookmarks { // fragment on Users
