@@ -1,6 +1,7 @@
-import { Posts, PostsMinimumForGetPageUrl } from './collection';
+import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
+import { Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
-import { Utils, getSetting } from '../../vulcan-lib';
+import { Posts, PostsMinimumForGetPageUrl } from './collection';
 
 
 // EXAMPLE-FORUM Helpers
@@ -16,14 +17,6 @@ import { Utils, getSetting } from '../../vulcan-lib';
 Posts.getLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
   const url = isRedirected ? Utils.getOutgoingUrl(post.url) : post.url;
   return !!post.url ? url : Posts.getPageUrl(post, isAbsolute);
-};
-
-/**
- * @summary Depending on the settings, return either a post's URL link (if it has one) or its page URL.
- * @param {Object} post
- */
-Posts.getShareableLink = function (post: PostsBase|DbPost): string {
-  return getSetting('forum.outsideLinksPointTo', 'link') === 'link' ? Posts.getLink(post) : Posts.getPageUrl(post, true);
 };
 
 /**
@@ -55,14 +48,9 @@ Posts.getAuthorName = function (post: DbPost) {
  * @summary Get default status for new posts.
  * @param {Object} user
  */
+
 Posts.getDefaultStatus = function (user: DbUser): number {
-  const canPostApproved = typeof user === 'undefined' ? false : Users.canDo(user, 'posts.new.approved');
-  if (!getSetting('forum.requirePostsApproval', false) || canPostApproved) {
-    // if user can post straight to 'approved', or else post approval is not required
-    return Posts.config.STATUS_APPROVED;
-  } else {
-    return Posts.config.STATUS_PENDING;
-  }
+  return Posts.config.STATUS_APPROVED;
 };
 
 /**
@@ -94,9 +82,9 @@ Posts.isPending = function (post: DbPost): boolean {
  * @summary Get URL for sharing on Twitter.
  * @param {Object} post
  */
+
 Posts.getTwitterShareUrl = (post: DbPost): string => {
-  const via = getSetting('twitterAccount', null) ? `&via=${getSetting('twitterAccount')}` : '';
-  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(Posts.getLink(post, true)) }${via}`;
+  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(Posts.getLink(post, true)) }`;
 };
 
 /**
@@ -118,7 +106,7 @@ Posts.getEmailShareUrl = (post: DbPost): string => {
 ${post.title}
 ${Posts.getLink(post, true, false)}
 
-(found via ${getSetting('siteUrl')})
+(found via ${siteUrlSetting.get()})
   `;
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
@@ -143,7 +131,7 @@ Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, s
 };
 
 Posts.getCommentCount = (post: PostsBase|DbPost): number => {
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -166,15 +154,15 @@ Posts.getCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefi
 
 
 Posts.getLastCommentedAt = (post: PostsBase|DbPost): Date => {
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afLastCommentedAt;
   } else {
     return post.lastCommentedAt;
   }
 }
 
-Posts.getLastCommentPromotedAt = (post: PostsList): Date|null => {
-  if (getSetting('forumType') === 'AlignmentForum') return null
+Posts.getLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null => {
+  if (forumTypeSetting.get() === 'AlignmentForum') return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt;
 }
@@ -191,7 +179,7 @@ Posts.canDelete = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost
 }
 
 Posts.getKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 

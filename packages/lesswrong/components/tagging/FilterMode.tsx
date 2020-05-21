@@ -10,6 +10,7 @@ import Input from '@material-ui/core/Input';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   tag: {
@@ -85,14 +86,14 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
   description?: React.ReactNode
 }) => {
   const { LWTooltip, PopperCard, TagPreview } = Components
-  
+
   const { document: tag } = useSingle({
     documentId: tagId,
     collection: Tags,
     fragmentName: "TagPreviewFragment",
   })
 
-  const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}> 
+  const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     {label}
     <span className={classes.filterScore}>
       {filterModeToStr(mode)}
@@ -101,75 +102,77 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
 
   const otherValue = ["Hidden", -30,-10,0,10,30,"Required"].includes(mode) ? "" : (mode || "")
   return <span>
-    {(tag && !isMobile()) ? <Link to={`tag/${tag.slug}`}>
-      {tagLabel}
-    </Link>
-    : tagLabel
-    }
-    <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom" 
-      modifiers={{
-        flip: {
-          behavior: ["bottom-start", "top-end", "bottom-start"],
-          boundariesElement: 'viewport'
-        }
-      }}
-    >
-      <div className={classes.filtering}>
-        <div className={classes.filterRow}>
-          <div className={classes.filterLabel}>
-            Set Filter
+    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
+      {(tag && !isMobile()) ? <Link to={`tag/${tag.slug}`}>
+        {tagLabel}
+      </Link>
+      : tagLabel
+      }
+      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom"
+        modifiers={{
+          flip: {
+            behavior: ["bottom-start", "top-end", "bottom-start"],
+            boundariesElement: 'viewport'
+          }
+        }}
+      >
+        <div className={classes.filtering}>
+          <div className={classes.filterRow}>
+            <div className={classes.filterLabel}>
+              Set Filter
+            </div>
+            {canRemove &&
+              <div className={classes.filterLabel} onClick={ev => {if (onRemove) onRemove()}}>
+                <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
+                  <a>Remove Filter</a>
+                </LWTooltip>
+              </div>}
           </div>
-          {canRemove && 
-            <div className={classes.filterLabel} onClick={ev => {if (onRemove) onRemove()}}>
-              <LWTooltip title="This filter will no longer appear in Latest Posts. You can add it back later if you want.">
-                <a>Remove Filter</a>
-              </LWTooltip>
-            </div>}
+          <div>
+            <LWTooltip title={filterModeToTooltip("Hidden")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
+                Hidden
+              </span>
+            </LWTooltip>
+            <LWTooltip title={filterModeToTooltip(-25)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-30})} onClick={ev => onChangeMode(-25)}>
+                -30
+              </span>
+            </LWTooltip>
+            <LWTooltip title={filterModeToTooltip(-10)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
+                -10
+              </span>
+            </LWTooltip>
+            <LWTooltip title={filterModeToTooltip("Default")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => onChangeMode(0)}>
+                +0
+              </span>
+            </LWTooltip>
+            <LWTooltip title={filterModeToTooltip(10)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
+                +10
+              </span>
+            </LWTooltip>
+            <LWTooltip title={filterModeToTooltip(25)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode===30})} onClick={ev => onChangeMode(25)}>
+                +30
+              </span>
+            </LWTooltip>
+            <LWTooltip title={filterModeToTooltip("Required")}>
+              <span className={classNames(classes.filterButton)} onClick={ev => onChangeMode("Required")}>
+                Required
+              </span>
+            </LWTooltip>
+            <Input placeholder="Other" type="number" defaultValue={otherValue} onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}/>
+          </div>
+          {description && <div className={classes.description}>
+            {description}
+          </div>}
         </div>
-        <div>
-          <LWTooltip title={filterModeToTooltip("Hidden")}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
-              Hidden
-            </span>
-          </LWTooltip>
-          <LWTooltip title={filterModeToTooltip(-25)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-30})} onClick={ev => onChangeMode(-25)}>
-              -30
-            </span>
-          </LWTooltip>
-          <LWTooltip title={filterModeToTooltip(-10)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
-              -10
-            </span>
-          </LWTooltip>
-          <LWTooltip title={filterModeToTooltip("Default")}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => onChangeMode(0)}>
-              +0
-            </span>
-          </LWTooltip>
-          <LWTooltip title={filterModeToTooltip(10)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
-              +10
-            </span>
-          </LWTooltip>
-          <LWTooltip title={filterModeToTooltip(25)}>
-            <span className={classNames(classes.filterButton, {[classes.selected]: mode===30})} onClick={ev => onChangeMode(25)}>
-              +30
-            </span>
-          </LWTooltip>
-          <LWTooltip title={filterModeToTooltip("Required")}>
-            <span className={classNames(classes.filterButton)} onClick={ev => onChangeMode("Required")}>
-              Required
-            </span>
-          </LWTooltip>
-          <Input placeholder="Other" type="number" defaultValue={otherValue} onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}/>
-        </div>
-        {description && <div className={classes.description}>
-          {description}
-        </div>}
-      </div>
-      <TagPreview tag={tag}/>
-    </PopperCard>
+        <TagPreview tag={tag} showCount={false}/>
+      </PopperCard>
+    </AnalyticsContext>
   </span>
 }
 
@@ -203,7 +206,9 @@ function filterModeToStr(mode: FilterMode): string {
   }
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles, hocs: [withHover()]});
+const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent,
+  {styles, hocs: [withHover({pageElementContext: "tagFilterMode"}, ({tagId, label, mode})=>({tagId, label, mode}))]
+  });
 
 declare global {
   interface ComponentTypes {

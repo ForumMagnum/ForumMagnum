@@ -1,4 +1,3 @@
-// import './oauth_config';
 import './site';
 
 export * from './connectors';

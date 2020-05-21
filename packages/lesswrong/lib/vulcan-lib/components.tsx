@@ -191,6 +191,7 @@ const getComponent = name => {
       }
       return actualHoc(...args);
     });
+    // @ts-ignore
     return compose(...hocs)(component.rawComponent);
   } else {
     return component.rawComponent;

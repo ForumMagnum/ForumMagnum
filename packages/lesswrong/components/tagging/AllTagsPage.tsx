@@ -6,12 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 
-const styles = theme => ({
-  tags: {
-    marginLeft: 40
-  }
-})
-
 const AllTagsPage = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -36,7 +30,7 @@ const AllTagsPage = ({classes}: {
         </SectionButton>}
       </SectionTitle>
       {loading && <Loading/>}
-      <div className={classes.tags}>
+      <div>
         {results && results.map(tag => {
           return <div key={tag._id}>
               <TagsListItem tag={tag}/>
@@ -51,7 +45,7 @@ const AllTagsPage = ({classes}: {
   );
 }
 
-const AllTagsPageComponent = registerComponent("AllTagsPage", AllTagsPage, {styles});
+const AllTagsPageComponent = registerComponent("AllTagsPage", AllTagsPage);
 
 declare global {
   interface ComponentTypes {

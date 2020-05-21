@@ -128,6 +128,14 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean
 }
 
+interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata> {
+}
+
+interface DbDatabaseMetadata extends DbObject {
+  name: string
+  value: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface VotesCollection extends CollectionBase<DbVote> {
 }
 
@@ -228,14 +236,6 @@ interface DbLWEvent extends DbObject {
   intercom: boolean
 }
 
-interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata> {
-}
-
-interface DbDatabaseMetadata extends DbObject {
-  name: string
-  value: any /*{"definitions":[{"blackbox":true}]}*/
-}
-
 interface MigrationsCollection extends CollectionBase<DbMigration> {
 }
 
@@ -320,6 +320,7 @@ interface TagRelsCollection extends CollectionBase<DbTagRel> {
 }
 
 interface DbTagRel extends DbObject {
+  createdAt: Date
   tagId: string
   postId: string
   deleted: boolean
@@ -385,6 +386,22 @@ interface DbComment extends DbObject {
   reviewForAlignmentUserId: string
   afDate: Date
   moveToAlignmentUserId: string
+}
+
+interface TagsCollection extends CollectionBase<DbTag> {
+}
+
+interface DbTag extends DbObject {
+  createdAt: Date
+  name: string
+  slug: string
+  core: boolean
+  suggestedAsFilter: boolean
+  defaultOrder: number
+  postCount: number
+  adminOnly: boolean
+  deleted: boolean
+  description: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
 }
 
 interface PostsCollection extends CollectionBase<DbPost> {
@@ -563,21 +580,6 @@ interface DbLocalgroup extends DbObject {
   website: string
   inactive: boolean
   contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-}
-
-interface TagsCollection extends CollectionBase<DbTag> {
-}
-
-interface DbTag extends DbObject {
-  name: string
-  slug: string
-  core: boolean
-  suggestedAsFilter: boolean
-  defaultOrder: number
-  postCount: number
-  adminOnly: boolean
-  deleted: boolean
-  description: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
 }
 
 interface SubscriptionsCollection extends CollectionBase<DbSubscription> {

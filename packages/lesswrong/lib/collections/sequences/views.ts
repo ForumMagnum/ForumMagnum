@@ -1,9 +1,9 @@
-import Sequences from './collection';
-import { getSetting } from '../../vulcan-lib';
 import { ensureIndex } from '../../collectionUtils';
+import { forumTypeSetting } from '../../instanceSettings';
+import Sequences from './collection';
 
 Sequences.addDefaultView(terms => {
-  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params = {
     selector: {
       hidden: false,

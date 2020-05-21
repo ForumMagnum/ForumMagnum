@@ -1,13 +1,14 @@
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Image } from 'cloudinary-react';
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
 const CloudinaryImage = ({width, height, publicId}: {
   width?: number|string,
   height?: number|string,
   publicId: string,
 }) => {
-  const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   
   let sizeProps: any = {};
   if (width)

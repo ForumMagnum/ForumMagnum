@@ -111,7 +111,7 @@ addGraphQLResolvers({
         throw new Error("Please only specify notificationIds or postId in the query")
       }
       
-      let emails
+      let emails:any[] = []
       if (notificationIds?.length) {
         const notifications = await Notifications.find(
           { _id: {$in: notificationIds} }
@@ -123,11 +123,13 @@ addGraphQLResolvers({
       }
       if (postId) {
         const post = Posts.findOne(postId)
-        emails = [{
-          user: currentUser,
-          subject: post.title,
-          body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
-        }]
+        if (post) {
+          emails = [{
+            user: currentUser,
+            subject: post.title,
+            body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
+          }]
+        }
       }
       const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
       return renderedEmails;

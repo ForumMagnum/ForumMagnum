@@ -21,15 +21,16 @@
 
 */
 
-import { wrapVulcanAsyncScript } from './utils'
-import { Vulcan, getSetting } from '../vulcan-lib';
-import { Posts } from '../../lib/collections/posts'
-import Users from '../../lib/collections/users/collection'
+import moment from 'moment';
+import fs from 'mz/fs';
+import Papa from 'papaparse';
+import path from 'path';
+import { Posts } from '../../lib/collections/posts';
+import Users from '../../lib/collections/users/collection';
+import { siteUrlSetting } from '../../lib/instanceSettings';
+import { Vulcan } from '../vulcan-lib';
+import { wrapVulcanAsyncScript } from './utils';
 import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../migrations/2020-05-13-noIndexLowKarma';
-import fs from 'mz/fs'
-import path from 'path'
-import moment from 'moment'
-import Papa from 'papaparse'
 
 function getPosts (selector) {
   const defaultSelector = {
@@ -72,7 +73,8 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
     for (let post of documents.fetch()) {
       // SD: this makes things horribly slow, but no idea how to do a more efficient join query in Mongo
       const user = Users.findOne(post.userId, { fields: { displayName: 1, email: 1 }})
-      const postUrl = getSetting('siteUrl')
+      if (!user) throw Error(`Can't find user for post: ${post._id}`)
+      const postUrl = siteUrlSetting.get()
       const row = {
         display_name: user.displayName,
         email: user.email,

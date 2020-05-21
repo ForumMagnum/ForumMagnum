@@ -1,15 +1,24 @@
-import { getSetting, importComponent } from './vulcan-lib';
-
+import '../components/alignment-forum/withSetAlignmentComment';
+import '../components/alignment-forum/withSetAlignmentPost';
+import '../components/posts/PostsPage';
+import '../components/posts/TableOfContents';
+// vulcan:accounts
+import '../components/vulcan-accounts';
 import '../components/vulcan-core/vulcan-core-components';
+import { forumTypeSetting } from './instanceSettings';
+import { hasEventsSetting } from './publicSettings';
+// vulcan:forms
+import './vulcan-forms/components';
+import { importComponent } from './vulcan-lib';
 
-if(getSetting('forumType') === 'AlignmentForum') {
+if(forumTypeSetting.get() === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
   // imports not at top level, and it re-detects it every time the line number
   // changes. Putting it at the top makes its line number stable.
   importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 }
 
-if (getSetting('forumType') === 'EAForum') {
+if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
@@ -98,12 +107,14 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 
+importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
+
 // Outgoing RSS Feed builder
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget'));
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount'));
@@ -174,7 +185,6 @@ importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKa
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
-import '../components/posts/PostsPage';
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
 importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
 
@@ -191,7 +201,6 @@ importComponent("PostCollaborationEditor", () => require('../components/posts/Po
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
-import '../components/posts/TableOfContents';
 importComponent("ShowOrHideHighlightButton", () => require('../components/posts/ShowOrHideHighlightButton'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
@@ -216,7 +225,7 @@ importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // events
 
-if (getSetting('hasEvents', true)) {
+if (hasEventsSetting.get()) {
   importComponent("EventsPast", () => require('../components/posts/EventsPast'));
   importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
   importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
@@ -341,7 +350,6 @@ importComponent("SidebarInfo", () => require('../components/sunshineDashboard/Si
 importComponent("SidebarActionMenu", () => require('../components/sunshineDashboard/SidebarActionMenu'));
 importComponent("SidebarAction", () => require('../components/sunshineDashboard/SidebarAction'));
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount'));
-importComponent("LastCuratedDate", () => require('../components/sunshineDashboard/LastCuratedDate'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
@@ -430,8 +438,6 @@ importComponent("ManageSubscriptionsLink", () => require('../components/form-com
 importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
-import '../components/alignment-forum/withSetAlignmentPost';
-import '../components/alignment-forum/withSetAlignmentComment';
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
 
 importComponent("NewQuestionDialog", () => require('../components/questions/NewQuestionDialog'));
@@ -485,8 +491,5 @@ importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Bu
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
 
-// vulcan:forms
-import './vulcan-forms/components';
 
-// vulcan:accounts
-import '../components/vulcan-accounts';
+

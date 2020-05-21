@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Posts from '../../lib/collections/posts/collection';
-import { getSetting } from '../vulcan-lib';
 import moment from 'moment'
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const LOW_KARMA_THRESHOLD = 5
 
@@ -11,7 +11,7 @@ const launchDateByForum = {
   AlignmentForum: "Don't",
   EAForum: '2014-09-10'
 }
-const launchDate = launchDateByForum[getSetting('forumType') as string]
+const launchDate = launchDateByForum[forumTypeSetting.get()]
 
 export function makeLowKarmaSelector (karmaThreshold: number): MongoSelector<DbPost> {
   return {

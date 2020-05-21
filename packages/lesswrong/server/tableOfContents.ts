@@ -1,12 +1,13 @@
-import { Utils, getSetting } from '../lib/vulcan-lib';
 import cheerio from 'cheerio';
-import { Comments } from '../lib/collections/comments/collection'
+import htmlToText from 'html-to-text';
+import * as _ from 'underscore';
+import { Comments } from '../lib/collections/comments/collection';
+import { questionAnswersSort } from '../lib/collections/comments/views';
 import { Posts } from '../lib/collections/posts/collection';
 import { Revisions } from '../lib/collections/revisions/collection';
-import { questionAnswersSort } from '../lib/collections/comments/views';
-import { truncate, answerTocExcerptFromHTML } from '../lib/editor/ellipsize';
-import htmlToText from 'html-to-text'
-import * as _ from 'underscore';
+import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
+import { forumTypeSetting } from '../lib/instanceSettings';
+import { Utils } from '../lib/vulcan-lib';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -174,7 +175,7 @@ async function getTocAnswers (document) {
     postId: document._id,
     deleted:false,
   }
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
@@ -210,11 +211,12 @@ async function getTocAnswers (document) {
 
 async function getTocComments (document) {
   const commentSelector: any = {
+    ...Comments.defaultView({}).selector,
     answer: false,
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && getSetting('forumType') === 'AlignmentForum') {
+  if (document.af && forumTypeSetting.get() === 'AlignmentForum') {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()
@@ -225,9 +227,10 @@ const getTableOfContentsData = async ({document, version, currentUser}) => {
   let html;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
+    if (!revision) return null;
     if (!Revisions.checkAccess(currentUser, revision))
       return null;
-    html = revision?.html;
+    html = revision.html;
   } else {
     html = document?.contents?.html;
   }

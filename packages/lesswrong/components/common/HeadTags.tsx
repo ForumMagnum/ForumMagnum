@@ -1,17 +1,22 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Components, registerComponent, Utils, getSetting, Head } from '../../lib/vulcan-lib';
+import { Components, registerComponent, Utils, Head } from '../../lib/vulcan-lib';
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
-import '../../lib/registerSettings';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
+
+export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
+export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
+const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong 2.0', "warning")
+
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
     const canonicalUrl = props.canonicalUrl || url
-    const description = props.description || getSetting('tagline') || getSetting('description');
+    const description = props.description || taglineSetting.get()
     const { currentRoute, pathname } = useSubscribedLocation();
-    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+    const siteName = tabTitleSetting.get()
     
     const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
@@ -47,7 +52,7 @@ const HeadTags = (props) => {
 
           {props.noIndex && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
-          <link rel='shortcut icon' href={getSetting('faviconUrl', '/img/favicon.ico')}/>
+          <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
           {Head.meta.map((tag, index) => <meta key={index} {...tag}/>)}
           {Head.link.map((tag, index) => <link key={index} {...tag}/>)}
@@ -59,6 +64,7 @@ const HeadTags = (props) => {
           let HeadComponent;
           if (Array.isArray(componentOrArray)) {
             const [component, ...hocs] = componentOrArray;
+            // @ts-ignorets-ignore // Typechecking compose sadly isn't yet really feasible, so we have to deactivate it here
             HeadComponent = compose(...hocs)(component);
           } else {
             HeadComponent = componentOrArray;

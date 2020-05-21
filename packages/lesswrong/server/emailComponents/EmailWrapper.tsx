@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, getSetting, Utils } from '../../lib/vulcan-lib';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { registerComponent, Utils } from '../../lib/vulcan-lib';
 
 const styles = theme => ({
   root: {
@@ -14,7 +15,7 @@ const styles = theme => ({
 // wrapper.handlebars in Vulcan-Starter.
 const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
   const accountLink = `${Utils.getSiteUrl()}account`
-  const siteNameWithArticle = getSetting('siteNameWithArticle')
+  const siteNameWithArticle = siteNameWithArticleSetting.get()
   
   // Put props for some HTML elements in any-typed objects, because emails use
   // non-HTML5 attributes which the typechecker will complain about

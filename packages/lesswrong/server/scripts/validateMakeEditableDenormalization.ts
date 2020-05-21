@@ -23,7 +23,7 @@ Vulcan.validateMakeEditableDenormalization = async () => {
       const collection = getCollection(collectionName);
       await forEachDocumentBatchInCollection({
         collection: collection, batchSize: 100,
-        callback: async (documents) => {
+        callback: async (documents: Array<any>) => {
           const documentIds = _.map(documents, d=>d._id);
           const revs = await Revisions.find({
             documentId: {$in: documentIds},
@@ -40,10 +40,10 @@ Vulcan.validateMakeEditableDenormalization = async () => {
               recordError(`Document ${doc._id} has no revisions`);
               continue;
             }
-            const latestRev = _.last(_.sortBy(revsByDocument[doc._id], r=>r.version));
+            const latestRev: DbRevision|undefined = _.last(_.sortBy(revsByDocument[doc._id], r=>r.version));
             
             const denormalizedContents = doc[editableField].originalContents;
-            const revContents = latestRev.originalContents;
+            const revContents = latestRev?.originalContents;
             if (JSON.stringify(denormalizedContents) !== JSON.stringify(revContents)) {
               recordError(`Document ${doc._id} denormalized contents don't match latest rev contents`);
             }

@@ -1,24 +1,24 @@
 import RSS from 'rss';
-import { Posts } from '../lib/collections/posts';
-import { rssTermsToUrl } from '../lib/rss_urls';
+import { taglineSetting } from '../components/common/HeadTags';
 import { Comments } from '../lib/collections/comments';
-import { Utils, getSetting, addStaticRoute } from './vulcan-lib';
-import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import moment from '../lib/moment-timezone';
-import { Meteor } from 'meteor/meteor';
-
-// LESSWRONG - this import wasn't needed until fixing author below.
+import { Posts } from '../lib/collections/posts';
 import Users from '../lib/collections/users/collection';
+import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
+import moment from '../lib/moment-timezone';
+import { rssTermsToUrl } from '../lib/rss_urls';
+import { addStaticRoute } from './vulcan-lib';
+import { accessFilterMultiple } from '../lib/utils/schemaUtils';
+
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
 
 export const getMeta = (url) => {
-  const siteUrl = getSetting('siteUrl', Meteor.absoluteUrl());
+  const siteUrl = siteUrlSetting.get();
 
   return {
-    title: getSetting('title'),
-    description: getSetting('tagline'),
+    title: forumTitleSetting.get(),
+    description: taglineSetting.get(),
     feed_url: url,
     site_url: siteUrl,
     image_url: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"
@@ -76,11 +76,6 @@ export const servePostRSS = (terms, url?: string) => {
       url: Posts.getPageUrl(post, true)
     };
 
-    if (post.thumbnailUrl) {
-      const url = Utils.addHttp(post.thumbnailUrl);
-      feedItem.custom_elements = [{'imageUrl':url}, {'content': url}];
-    }
-
     feed.item(feedItem);
   });
 
@@ -98,9 +93,10 @@ export const serveCommentRSS = (terms, url?: string) => {
 
   restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
-
+    // eslint-disable-next-line no-console
+    if (!post) console.warn(`Can't find post for comments in RSS feed: ${comment._id}`)
     feed.item({
-     title: 'Comment on ' + post.title,
+     title: 'Comment on ' + post?.title,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,

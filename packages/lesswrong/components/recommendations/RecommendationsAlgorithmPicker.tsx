@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -7,6 +7,7 @@ import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from '../../lib/collections/users/collection';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 // Elements here should match switch cases in recommendations.ts
 const recommendationAlgorithms = [
@@ -46,7 +47,7 @@ const forumIncludeExtra = {
   EAForum: {humanName: 'Include Community', machineName: 'includeMeta'},
 }
 
-const includeExtra = forumIncludeExtra[getSetting('forumType', 'LessWrong')]
+const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false }: {
   settings: any,
@@ -98,19 +99,19 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     </div>} */}
 
     {/* disabled during 2018 Review [and coronavirus]*/}
-    {/* {(configName === "frontpage") && <div> 
+    {(configName === "frontpage") && <div> 
       <Checkbox
         checked={!settings.hideFrontpage}
         onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: !checked })}
       /> Show 'From the Archives' recommendations
-    </div>} */}
+    </div>}
 
-    <div> 
+    {/* <div> 
       <Checkbox
         checked={!settings.hideCoronavirus}
         onChange={(ev, checked) => applyChange({ ...settings, hideCoronavirus: !checked })}
       /> Show 'Coronavirus' recommendations
-    </div>
+    </div> */}
 
     <div>
       <Checkbox

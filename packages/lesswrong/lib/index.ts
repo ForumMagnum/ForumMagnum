@@ -5,8 +5,6 @@ import './vulcan-users/index';
 // vulcan:accounts
 import './vulcan-accounts/index';
 
-// Settings
-import './registerSettings'
 // schema utils
 import './utils/schemaUtils'
 // Permissions
