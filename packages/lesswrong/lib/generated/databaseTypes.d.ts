@@ -160,6 +160,7 @@ interface DbNotification extends DbObject {
   createdAt: Date
   documentId: string
   documentType: string
+  deleted: boolean,
   link: string
   title: string
   message: string
