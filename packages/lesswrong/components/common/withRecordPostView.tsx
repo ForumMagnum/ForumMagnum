@@ -3,12 +3,19 @@ import { withMutation } from '../../lib/crud/withMutation';
 import { useCurrentUser } from './withUser';
 import compose from 'recompose/compose';
 import withNewEvents from '../../lib/events/withNewEvents';
+import { hookToHoc } from '../../lib/hocUtils';
 
-type PostsReadContextType = {
+export type PostsReadContextType = {
   postsRead: Record<string,boolean>,
   setPostRead: (postId: string, isRead: boolean) => void,
 };
 export const PostsReadContext = React.createContext<PostsReadContextType|null>(null);
+export const usePostsRead = (): PostsReadContextType => {
+  const context = useContext(PostsReadContext);
+  if (!context) throw new Error("usePostsRead called but not a descedent of Layout");
+  return context;
+}
+export const withPostsRead = hookToHoc(usePostsRead);
 
 // HoC which adds recordPostView and isRead properties to a component which
 // already has a post property.

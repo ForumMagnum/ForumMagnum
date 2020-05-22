@@ -1,6 +1,6 @@
 {
-  "name": "Vulcan",
-  "version": "1.13.0",
+  "name": "LessWrong",
+  "version": "2.0.0",
   "engines": {
     "npm": "^3.0"
   },
@@ -12,7 +12,7 @@
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     
     "prestart": "bash prestart_lesswrong.sh",
-    "start": "meteor --settings settings-dev.json",
+    "start": "meteor --exclude-archs web.browser.legacy --settings settings-dev.json",
     "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
     "start-dev-db": "../LessWrong-Credentials/run-local-dev-devdb.sh",
     "debug": "meteor --settings settings-dev.json --inspect run",
@@ -21,9 +21,9 @@
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor meteor --settings settings-af.json --port 3030",
     "start-af-prod-db": "../LessWrong-Credentials/run-local-dev-af-proddb.sh",
     "debug-af": "meteor --settings settings-af.json --inspect run",
-    "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app",
-    "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",
-    "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once",
+    "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings sample_settings.json --port 3200 --full-app",
+    "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings sample_settings.json --port 3200 --full-app --once",
+    "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings settings.json --port 3200 --full-app --once",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
     "generate": "scripts/generateTypes.sh"
   },
