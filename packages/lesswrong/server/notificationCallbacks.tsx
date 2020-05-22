@@ -239,9 +239,13 @@ async function PostsUndraftNotification(post) {
 }
 addCallback("posts.undraft.async", PostsUndraftNotification);
 
+function postIsPublic (post) {
+  return !post.draft && post.status === Posts.config.STATUS_APPROVED
+}
+
 // Add new post notification callback on post submit
 async function postsNewNotifications (post) {
-  if (!post.draft && post.status === Posts.config.STATUS_APPROVED) {
+  if (postIsPublic(post)) {
 
     // add users who are subscribed to this post's author
     let usersToNotify = await getSubscribedUsers({
@@ -350,11 +354,14 @@ async function TaggedPostNewNotifications(tagRel) {
     collectionName: "Tags",
     type: subscriptionTypes.newTagPosts
   })
-  const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+  const post = Posts.findOne({_id:tagRel.postId})
+  if (postIsPublic(post)) {
+    const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
         
-  // Don't notify the person who created the tagRel
-  let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, [tagRel.userId])
-  await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'tagRel', tagRel._id);
+    // Don't notify the person who created the tagRel
+    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, [tagRel.userId])
+    await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'tagRel', tagRel._id);
+  }
 }
 addCallback("tagrels.new.async", TaggedPostNewNotifications);
 

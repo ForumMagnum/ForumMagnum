@@ -158,7 +158,6 @@ export const NewShortformNotification = registerNotificationType({
   },
 });
 
-
 export const taggedPostMessage = ({documentType, documentId}) => {
   const tagRel = getDocument(documentType, documentId) as DbTagRel;
   const tag = Tags.findOne({_id: tagRel.tagId})
