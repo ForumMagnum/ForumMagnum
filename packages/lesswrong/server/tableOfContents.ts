@@ -46,7 +46,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML)
+export function extractTableOfContents(postHTML: string)
 {
   if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
@@ -63,7 +63,7 @@ export function extractTableOfContents(postHTML)
       continue;
     }
 
-    let title = cheerio(tag).text();
+    let title = elementToToCText(tag);
     
     if (title && title.trim()!=="") {
       let anchor = titleToAnchor(title, usedAnchors);
@@ -104,6 +104,12 @@ export function extractTableOfContents(postHTML)
     sections: headings,
     headingsCount: headings.length
   }
+}
+
+function elementToToCText(cheerioTag: CheerioElement) {
+  const tagClone = cheerio.load(cheerioTag);
+  tagClone("style").remove();
+  return tagClone.root().text();
 }
 
 const reservedAnchorNames = ["top", "comments"];

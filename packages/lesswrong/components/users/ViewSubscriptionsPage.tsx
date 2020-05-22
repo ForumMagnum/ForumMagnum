@@ -72,8 +72,8 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
     collectionName, fragmentName,
   });
   
-  if (!document || loading)
-    return <Loading/>
+  if (!document && !loading) return null
+  if (loading) return <Loading/>
   
   return <div className={classes.subscribedItem}>
     <div className={classes.subscribedItemDescription}>
