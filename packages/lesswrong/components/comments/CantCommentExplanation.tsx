@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import classNames from 'classnames';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -18,14 +19,14 @@ const styles = theme => ({
 });
 
 const CantCommentExplanation = ({post, classes}: {
-  post: PostsBase,
+  post: PostsDetails,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
       { Users.blockedCommentingReason(currentUser, post)}
-      { getSetting('forumType') !== 'AlignmentForum' && <span>
+      { forumTypeSetting.get() !== 'AlignmentForum' && <span>
         (Questions? Send an email to <a className={classes.emailLink} href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
       </span> }
     </div>

@@ -1,21 +1,25 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment TagRelFragment on TagRel {
+  fragment TagRelBasicInfo on TagRel {
     _id
+    score
     baseScore
     afBaseScore
+    voteCount
     userId
     tagId
-    tag {
-      _id
-      name
-      slug
-      description {
-        htmlHighlight
-      }
-    }
     postId
+  }
+`);
+
+
+registerFragment(`
+  fragment TagRelFragment on TagRel {
+    ...TagRelBasicInfo
+    tag {
+      ...TagPreviewFragment
+    }
     post {
       ...PostsList
     }
@@ -27,18 +31,9 @@ registerFragment(`
 
 registerFragment(`
   fragment TagRelMinimumFragment on TagRel {
-    _id
-    baseScore
-    afBaseScore
-    userId
-    postId
+    ...TagRelBasicInfo
     tag {
-      _id
-      name
-      slug
-      description {
-        htmlHighlight
-      }
+      ...TagPreviewFragment
     }
     currentUserVotes {
       ...VoteFragment
@@ -46,26 +41,40 @@ registerFragment(`
   }
 `);
 
+
+// This fragment has to be fully dereferences, because the context of vote fragments doesn't allow for spreading other fragments
 registerFragment(`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id
+    score
+    baseScore
+    afBaseScore
+    voteCount
     userId
     tagId
+    postId
+    post {
+      _id
+      slug
+      title
+    }
     tag {
       _id
       name
       slug
+      core
+      postCount
+      deleted
+      adminOnly
+      description {
+        htmlHighlight
+      }
     }
-    postId
     currentUserVotes {
       _id
       voteType
       power
     }
-    baseScore
-    afBaseScore
-    score
-    voteCount
   }
 `);

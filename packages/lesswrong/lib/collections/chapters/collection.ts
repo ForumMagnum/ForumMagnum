@@ -9,18 +9,21 @@ const options = {
   newCheck: (user, document) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.new.own') : Users.canDo(user, `chapters.new.all`)
   },
 
   editCheck: (user, document) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.edit.own') : Users.canDo(user, `chapters.edit.all`)
   },
 
   removeCheck: (user, document) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.remove.own') : Users.canDo(user, `chapters.remove.all`)
   },
 }
@@ -35,6 +38,10 @@ export const Chapters: ChaptersCollection = createCollection({
 
 export const makeEditableOptions = {
   order: 30,
+  getLocalStorageId: (chapter, name) => {
+    if (chapter._id) { return {id: `${chapter._id}_${name}`, verify: true} }
+    return {id: `sequence: ${chapter.sequenceId}_${name}`, verify: false}
+  },
 }
 
 makeEditable({

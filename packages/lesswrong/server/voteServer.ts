@@ -123,6 +123,8 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     cancelled: false,
   })
 
+  if (!vote) throw Error(`Can't find vote to cancel: ${document._id}, ${user._id}, ${voteType}`)
+
   //eslint-disable-next-line no-unused-vars
   const {_id, ...otherVoteFields} = vote;
   const unvote = {
@@ -197,10 +199,12 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
+  const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
+
   if (!document) throw new Error("Error casting vote: Document not found.");
   if (!user) throw new Error("Error casting vote: Not logged in.");
-  if (!Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
-    throw new Error("Error casting vote: User can't cast that type of vote.");
+  if (!Users.canDo(user, collectionVoteType)) {
+    throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
 
   const existingVote = await hasVotedServer({document, voteType, user});
@@ -244,6 +248,14 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 }
 
 const getVotingRateLimits = async (user) => {
+  if (user?.isAdmin) {
+    // Very lax rate limiting for admins
+    return {
+      perDay: 100000,
+      perHour: 50000,
+      perUserPerDay: 50000
+    }
+  }
   return {
     perDay: 100,
     perHour: 30,
@@ -253,11 +265,11 @@ const getVotingRateLimits = async (user) => {
 
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }) => {
+const checkRateLimit = async ({ document, collection, voteType, user }):Promise<void> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
     return;
-
+  
   const rateLimits = await getVotingRateLimits(user);
 
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours

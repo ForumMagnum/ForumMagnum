@@ -5,8 +5,6 @@ import './vulcan-users/index';
 // vulcan:accounts
 import './vulcan-accounts/index';
 
-// Settings
-import './registerSettings'
 // schema utils
 import './utils/schemaUtils'
 // Permissions
@@ -103,11 +101,13 @@ import './alignment-forum/users/fragments';
 
 import './collections/tagRels/collection';
 import './collections/tagRels/views';
+import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
 import './collections/tags/collection';
 import './collections/tags/views';
 import './collections/tags/fragments';
+import './collections/tags/helpers';
 
 import './collections/chapters/views';
 

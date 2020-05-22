@@ -50,7 +50,7 @@ const palette = {
 }
 
 const basicText = {
-  color: grey[800],
+  color: grey[900],
   // use ems (not rems) to preserve relative height even if font-size is changed
   lineHeight: '1.75em',
   fontWeight: 400,
@@ -183,6 +183,11 @@ const theme = createLWTheme({
         fontFamily: sansSerifStack
       }
     },
+    SectionTitle: {
+      title: {
+        fontSize: 25
+      }
+    },
     PostsVote: {
       voteScore: {
         paddingTop:4,
@@ -209,12 +214,9 @@ const theme = createLWTheme({
         marginTop: 63
       }
     },
-    HomeLatestPosts: {
-      personalBlogpostsCheckboxLabel: {
-        marginTop: 2,
-        [defaultTheme.breakpoints.down("xs")]: {
-          fontSize: "1rem",
-        },
+    FilterMode: {
+      selected: {
+        color: palette.primary.main
       }
     },
     NavigationStandalone: {
@@ -292,7 +294,7 @@ const theme = createLWTheme({
     },
     MuiSnackbarContent: {
       root: {
-        backgroundColor: palette.primary.main
+        backgroundColor: palette.lwTertiary.main
       }
     }
   }

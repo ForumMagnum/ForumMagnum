@@ -1,5 +1,5 @@
-import { Connectors, getSetting } from './vulcan-lib';
-import { recalculateScore } from '../lib/scoring';
+import { Connectors } from './vulcan-lib';
+import { recalculateScore, timeDecayExpr, defaultScoreModifiers, TIME_DECAY_FACTOR } from '../lib/scoring';
 import * as _ from 'underscore';
 
 /*
@@ -12,7 +12,7 @@ Returns how many documents have been updated (1 or 0).
 export const updateScore = async ({collection, item, forceUpdate}) => {
 
   // Age Check
-  const postedAt = item && item.postedAt && item.postedAt.valueOf();
+  const postedAt = item?.frontpageDate?.valueOf() || item?.postedAt?.valueOf()
   const now = new Date().getTime();
   const age = now - postedAt;
   const ageInHours = age / (60 * 60 * 1000);
@@ -65,11 +65,6 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
   //      and posts can become inactive
   const INACTIVITY_THRESHOLD_DAYS = 30;
-  // time decay factor
-  const TIME_DECAY_FACTOR = getSetting('timeDecayFactor', 1.15); //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
-  // Basescore bonuses for various categories
-  const FRONTPAGE_BONUS = 10;
-  const FEATURED_BONUS = 10;
   // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
   const x = 1 / Math.pow((INACTIVITY_THRESHOLD_DAYS*24) + 2, TIME_DECAY_FACTOR);
 
@@ -86,14 +81,14 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     {
       $project: {
         postedAt: 1,
+        scoreDate: {$cond: {if: "$frontpageDate", then: "$frontpageDate", else: "$postedAt"}},
         score: 1,
         frontpageDate: 1,
         curatedDate: 1,
         baseScore: { // Add optional bonuses to baseScore of posts
           $add: [
             "$baseScore",
-            {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}},
-            {$cond: {if: "$curatedDate", then: FEATURED_BONUS, else: 0}}
+            ...defaultScoreModifiers()
           ]
         },
       }
@@ -101,36 +96,21 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     {
       $project: {
         postedAt: 1,
+        scoreDate: 1, 
         baseScore: 1,
         score: 1,
         newScore: {
           $divide: [
             '$baseScore',
-              {
-                $pow: [
-                  {
-                    $add: [
-                      {
-                        $divide: [
-                          {
-                            $subtract: [new Date(), '$postedAt'] // Age in miliseconds
-                          },
-                          60 * 60 * 1000
-                        ]
-                      }, // Age in hours
-                      2
-                    ]
-                  },
-                  TIME_DECAY_FACTOR
-                ]
-              }
-            ]
+            timeDecayExpr(),
+          ]
         }
       }
     },
     {
       $project: {
         postedAt: 1,
+        scoreDate: 1,
         baseScore: 1,
         score: 1,
         newScore: 1,
@@ -144,7 +124,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
           $gt: [
             {$divide: [
               {
-                $subtract: [new Date(), '$postedAt'] // Difference in miliseconds
+                $subtract: [new Date(), '$scoreDate'] // Difference in miliseconds
               },
               60 * 60 * 1000 //Difference in hours
             ]},

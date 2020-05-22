@@ -69,7 +69,13 @@ const styles = theme => ({
   },
 });
 
-const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }) => {
+const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
+  terms: any,
+  classes: ClassesType,
+  open: boolean,
+  setIsOpen: (isOpen: boolean) => void,
+  hasOpened: boolean,
+}) => {
   const currentUser = useCurrentUser();
   const [tab,setTab] = useState(0);
   const [notificationTerms,setNotificationTerms] = useState({view: 'userNotifications'});
@@ -161,7 +167,7 @@ const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }) => {
                 <Tab className={classes.hiddenTab} />
               </Tabs>
               <ClearIcon className={classNames(classes.hideButton, classes.cancel)} onClick={() => setIsOpen(false)} />
-              <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} />
+              <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser} />
             </div>}
           </SwipeableDrawer>}
         </Components.ErrorBoundary>

@@ -6,6 +6,7 @@ import { Comments } from "../../../lib/collections/comments";
 import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
+import qs from 'qs'
 
 const styles = theme => ({
   root: {
@@ -37,7 +38,7 @@ const styles = theme => ({
 
 const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView, permalink=true }: {
   comment: CommentsList,
-  post: PostsBase,
+  post: PostsMinimumInfo,
   classes: ClassesType,
   scrollOnClick?: boolean,
   scrollIntoView?: ()=>void,
@@ -49,7 +50,7 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
 
   const handleLinkClick = (event) => {
     event.preventDefault()
-    history.replace({...location, hash: "#" + comment._id})
+    history.replace({...location, search: qs.stringify({commentId: comment._id})})
     if(scrollIntoView) scrollIntoView();
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
   };

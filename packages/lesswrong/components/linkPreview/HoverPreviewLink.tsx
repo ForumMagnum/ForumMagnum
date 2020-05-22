@@ -2,9 +2,10 @@ import React from 'react';
 import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { parseRoute, parsePath } from '../../lib/vulcan-core/appContext';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
-import Sentry from '@sentry/node';
+import Sentry from '@sentry/core';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Meteor } from 'meteor/meteor';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -77,6 +78,12 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }: {
         }
       }
     } else {
+      if (linkTargetAbsolute.host === "hubs.mozilla.com") {
+        return <Components.MozillaHubPreview href={href} innerHTML={innerHTML} id={id} />
+      }
+      if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
+        return <Components.MetaculusPreview href={href} innerHTML={innerHTML} id={id} />
+      }
       return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
     }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
@@ -88,7 +95,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }: {
 
 }
 
-const HoverPreviewLinkComponent = registerComponent('HoverPreviewLink', HoverPreviewLink);
+const HoverPreviewLinkComponent = registerComponent('HoverPreviewLink', HoverPreviewLink, { hocs: [withErrorBoundary] });
 
 declare global {
   interface ComponentTypes {

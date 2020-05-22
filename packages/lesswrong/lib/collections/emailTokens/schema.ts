@@ -15,7 +15,7 @@ const schema = {
       type: "User",
     })
   },
-  used: {
+  usedAt: {
     type: Date,
     optional: true,
   },

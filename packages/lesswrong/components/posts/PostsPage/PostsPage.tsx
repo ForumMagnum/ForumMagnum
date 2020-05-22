@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
@@ -10,10 +10,11 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
-import { userHasPingbacks, userHasTagging } from '../../../lib/betas';
+import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
+import { forumTitleSetting, forumTypeSetting } from '../../../lib/instanceSettings';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -220,7 +221,7 @@ const styles = theme => ({
 })
 
 const getContentType = (post) => {
-  if (getSetting('forumType') === 'EAForum') {
+  if (forumTypeSetting.get() === 'EAForum') {
     return (post.frontpageDate && 'frontpage') ||
     (post.meta && 'meta') ||
     'personal'
@@ -285,7 +286,7 @@ class PostsPage extends Component<PostsPageProps> {
 
   getDescription = post => {
     if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
-    if (post.shortform) return `A collection of shorter posts by ${getSetting('title')} user ${post.user.displayName}`
+    if (post.shortform) return `A collection of shorter posts by ${forumTitleSetting.get()} user ${post.user.displayName}`
     return null
   }
 
@@ -360,14 +361,14 @@ class PostsPage extends Component<PostsPageProps> {
                         </span>
                       </div>
                     </div>
-                    <div className={classes.headerVote}>
+                    {!post.shortform && <div className={classes.headerVote}>
                       <PostsVote
                         collection={Posts}
                         post={post}
                         />
-                    </div>
+                    </div>}
                   </div>
-                  <hr className={classes.divider}/>
+                  {!post.shortform && <hr className={classes.divider}/>}
                   {post.isEvent && <PostsPageEventData post={post}/>}
                 </div>
               </div></AnalyticsContext>
@@ -397,19 +398,23 @@ class PostsPage extends Component<PostsPageProps> {
                         { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                       </AnalyticsContext>
                     </div>
-                    {userHasTagging(currentUser) && <FooterTagList post={post}/>}
+                    {!post.shortform && <AnalyticsContext pageSectionContext="tagFooter">
+                      <FooterTagList post={post}/>
+                    </AnalyticsContext>}
                   </div>
                 </div>
 
                 {/* Footer */}
 
-                {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+                {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
                   <div className={classes.footerSection}>
                     <div className={classes.voteBottom}>
-                      <PostsVote
-                        collection={Posts}
-                        post={post}
-                        />
+                      <AnalyticsContext pageSectionContext="lowerVoteButton">
+                        <PostsVote
+                          collection={Posts}
+                          post={post}
+                          />
+                      </AnalyticsContext>
                     </div>
                   </div>}
                 {sequenceId && <div className={classes.bottomNavigation}>

@@ -135,7 +135,7 @@ export const NewCommentNotification = registerNotificationType({
   userSettingField: "notificationCommentsOnSubscribedPost",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId).title + '"';
+    return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId)?.title + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -147,7 +147,7 @@ export const NewShortformNotification = registerNotificationType({
   userSettingField: "notificationShortformContent",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return 'New comment on "' + Posts.findOne(document.postId).title + '"';
+    return 'New comment on "' + Posts.findOne(document.postId)?.title + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -160,7 +160,7 @@ export const NewReplyNotification = registerNotificationType({
   userSettingField: "notificationRepliesToSubscribedComments",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' replied to a comment on "' + Posts.findOne(document.postId).title + '"';
+    return Comments.getAuthorName(document) + ' replied to a comment on "' + Posts.findOne(document.postId)?.title + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -173,7 +173,7 @@ export const NewReplyToYouNotification = registerNotificationType({
   userSettingField: "notificationRepliesToMyComments",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' replied to your comment on "' + Posts.findOne(document.postId).title + '"';
+    return Comments.getAuthorName(document) + ' replied to your comment on "' + Posts.findOne(document.postId)?.title + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -200,7 +200,7 @@ export const NewMessageNotification = registerNotificationType({
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbMessage;
     let conversation = Conversations.findOne(document.conversationId);
-    return Users.findOne(document.userId).displayName + ' sent you a new message' + (conversation.title ? (' in the conversation ' + conversation.title) : "") + '!';
+    return Users.findOne(document.userId)?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
   getIcon() {
     return <MailIcon style={iconStyles}/>

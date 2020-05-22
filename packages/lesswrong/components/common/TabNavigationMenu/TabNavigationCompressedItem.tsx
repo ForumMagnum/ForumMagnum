@@ -37,7 +37,7 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}) => {
   const MenuItemUntyped = MenuItem as any;
   const { LWTooltip } = Components
   
-  return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
+  return <LWTooltip placement='right-start' title={tab.tooltip || ''} clickable={false}>
     <MenuItemUntyped
       onClick={onClick}
       component={Link} to={tab.link}

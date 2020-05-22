@@ -1,9 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { InstantSearch, SearchBox, Hits } from 'react-instantsearch-dom';
+import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
+import Divider from '@material-ui/core/Divider';
 
 const styles = theme => ({
   root: {
@@ -24,11 +25,11 @@ const styles = theme => ({
   }
 });
 
-const AddTag = ({post, onTagSelected, classes}: {
-  post: PostsBase,
-  onTagSelected: (id:string)=>void,
+const AddTag = ({onTagSelected, classes}: {
+  onTagSelected: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
 }) => {
+  const { TagSearchHit } = Components
   const currentUser = useCurrentUser();
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState) => {
@@ -65,7 +66,7 @@ const AddTag = ({post, onTagSelected, classes}: {
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
         if (ev.charCode===13) {
           const id = (ev.target as any).value;
-          onTagSelected(id);
+          onTagSelected({tagId: id, tagName: "Tag"});
           ev.preventDefault();
         }
       }}/>
@@ -78,21 +79,27 @@ const AddTag = ({post, onTagSelected, classes}: {
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
+      {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+        * null is the only option that actually suppresses the extra X button.
+       // @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
-      
-      {searchOpen && <Hits hitComponent={({hit}) =>
-        <Components.TagSearchHit hit={hit}
-          onClick={ev => {
-            onTagSelected(hit._id);
-            ev.stopPropagation();
-          }}
-        />
-      }/>}
+      <Configure hitsPerPage={searchOpen ? 12 : 6} />
+      <Hits hitComponent={({hit}) =>
+        <TagSearchHit hit={hit}
+            onClick={ev => {
+              onTagSelected({tagId: hit._id, tagName: hit.name});
+              ev.stopPropagation();
+            }}
+          />
+        }/>
     </InstantSearch>
-    {currentUser?.isAdmin &&
-      <Link to="/tag/create" className={classes.newTag}>
-        New Tag
-      </Link>}
+    <Divider/>
+    <Link to="/tags/all" className={classes.newTag}>
+      View All Tags
+    </Link>
+    {currentUser?.isAdmin && <Link to="/tag/create" className={classes.newTag}>
+      Create Tag
+    </Link>}
   </div>
 }
 

@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
-import qs from 'qs';
-import { getSetting } from './vulcan-lib';
-import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from './vulcan-core/appContext';
 import { Meteor } from 'meteor/meteor';
+import qs from 'qs';
+import React, { useContext } from 'react';
+import { forumTypeSetting } from './instanceSettings';
+import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext } from './vulcan-core/appContext';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -142,7 +142,7 @@ const forumDomainWhitelist: Record<string, Array<string>> = {
   ]
 }
 
-const domainWhitelist: Array<string> = forumDomainWhitelist[getSetting<string>('forumType')]
+const domainWhitelist: Array<string> = forumDomainWhitelist[forumTypeSetting.get()]
 
 export const hostIsOnsite = (host: string): boolean => {
   let isOnsite = false

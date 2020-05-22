@@ -27,7 +27,7 @@ registerMigration({
           }).fetch();
           
           // Group votes by document to generate vote counts
-          let votesByDocument = {};
+          let votesByDocument: Record<string,Array<DbVote>> = {};
           for (let documentId of documentIds)
             votesByDocument[documentId] = [];
           for (let vote of votes)

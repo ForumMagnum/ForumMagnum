@@ -1,4 +1,4 @@
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -6,8 +6,34 @@ import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const POST_PREVIEW_WIDTH = 435
+
+export const highlightStyles = theme => ({
+  ...postHighlightStyles(theme),
+  marginTop: theme.spacing.unit*2.5,
+  marginBottom: theme.spacing.unit*1.5,
+  marginRight: theme.spacing.unit/2,
+  wordBreak: 'break-word',
+  fontSize: "1.1rem",
+
+  '& img': {
+    display:"none"
+  },
+  '& h1': {
+    fontSize: "1.2rem"
+  },
+  '& h2': {
+    fontSize: "1.2rem"
+  },
+  '& h3': {
+    fontSize: "1.1rem"
+  },
+  '& hr': {
+    display: "none"
+  }
+})
 
 const styles = theme => ({
   root: {
@@ -45,28 +71,7 @@ const styles = theme => ({
     alignItems: "center"
   },
   highlight: {
-    ...postHighlightStyles(theme),
-    marginTop: theme.spacing.unit*2.5,
-    marginBottom: theme.spacing.unit*1.5,
-    marginRight: theme.spacing.unit/2,
-    wordBreak: 'break-word',
-    fontSize: "1.1rem",
-
-    '& img': {
-      display:"none"
-    },
-    '& h1': {
-      fontSize: "1.2rem"
-    },
-    '& h2': {
-      fontSize: "1.2rem"
-    },
-    '& h3': {
-      fontSize: "1.1rem"
-    },
-    '& hr': {
-      display: "none"
-    }
+    ...highlightStyles(theme)
   },
   comment: {
     marginTop: theme.spacing.unit,
@@ -85,7 +90,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit,
   },
   wordCount: {
-    marginLeft: theme.spacing.unit
+    display: "inline-block"
   },
   metadata: {
     marginLeft: 12,
@@ -112,7 +117,7 @@ const styles = theme => ({
   }
 })
 
-const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
@@ -147,6 +152,8 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   const renderWordCount = !comment && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
+  const renderedComment = comment || post.bestAnswer
+
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.header}>
@@ -157,7 +164,9 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
                 {getPostCategory(post)}
-                {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
+                {(post.tags?.length > 0) && " – "}
+                {post.tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
+                {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
                 {post.user && <LWTooltip title="Author">
@@ -178,16 +187,17 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <BookmarkButton post={post}/>
           </div>}
         </div>
-        {comment
+        {renderedComment
           ? <div className={classes.comment}>
               <CommentsNode
-              truncated
-              comment={comment}
-              post={post}
-              hoverPreview
-              forceNotSingleLine
-              hideReply
-            /></div>
+                truncated
+                comment={renderedComment}
+                post={post}
+                hoverPreview
+                forceNotSingleLine
+                hideReply
+              />
+            </div>
           : <div onClick={() => setExpanded(true)}>
               <ContentItemBody
                 className={classes.highlight}

@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
@@ -7,6 +7,8 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
+import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
+import Users from '../../lib/collections/users/collection';
 
 const styles = theme => ({
   root: {
@@ -42,7 +44,7 @@ const styles = theme => ({
 const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
 {
   prefilledProps?: any,
-  post?: PostsBase,
+  post?: PostsMinimumInfo,
   parentComment?: any,
   successCallback?: any,
   type: string,
@@ -62,7 +64,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   
   const [showGuidelines, setShowGuidelines] = useState(false)
   
-  const { ModerationGuidelinesBox, WrappedSmartForm } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning } = Components
   
   if (post) {
     prefilledProps = {
@@ -105,38 +107,40 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     </div>
   };
 
-  if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
+  if (currentUser && !Users.canDo(currentUser, `posts.moderate.all`) && !Users.isAllowedToComment(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
 
-  const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
+  const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
   return (
     <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
-      <div className={padding ? classes.form : null}>
-      {commentWillBeHidden && <div className={classes.modNote}><em>
-        A moderator will need to review your account before your comments will show up.
-      </em></div>}
+      <RecaptchaWarning currentUser={currentUser}>
+        <div className={padding ? classes.form : null}>
+        {commentWillBeHidden && <div className={classes.modNote}><em>
+          A moderator will need to review your account before your comments will show up.
+        </em></div>}
 
-      <WrappedSmartForm
-        collection={Comments}
-        mutationFragment={getFragment(fragment)}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        prefilledProps={prefilledProps}
-        layout="elementOnly"
-        formComponents={{
-          FormSubmit: SubmitComponent,
-          FormGroupLayout: Components.DefaultStyleFormGroup
-        }}
-        alignmentForumPost={post?.af}
-        addFields={currentUser?[]:["contents"]}
-        removeFields={removeFields}
-        formProps={formProps}
-      />
-      </div>
-      {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
-        <ModerationGuidelinesBox document={post} />
-      </div>}
+        <WrappedSmartForm
+          collection={Comments}
+          mutationFragment={getFragment(fragment)}
+          successCallback={successCallback}
+          cancelCallback={cancelCallback}
+          prefilledProps={prefilledProps}
+          layout="elementOnly"
+          formComponents={{
+            FormSubmit: SubmitComponent,
+            FormGroupLayout: Components.DefaultStyleFormGroup
+          }}
+          alignmentForumPost={post?.af}
+          addFields={currentUser?[]:["contents"]}
+          removeFields={removeFields}
+          formProps={formProps}
+        />
+        </div>
+        {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+          <ModerationGuidelinesBox post={post} />
+        </div>}
+      </RecaptchaWarning>
     </div>
   );
 };

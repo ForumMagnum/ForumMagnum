@@ -4,10 +4,12 @@ import classNames from 'classnames';
 import { hasVotedClient } from '../../lib/voting/vote';
 import { isMobile } from '../../lib/utils/isMobile'
 import { withTheme } from '@material-ui/core/styles';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp'
+import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import withDialog from '../common/withDialog';
+import { withTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -41,6 +43,10 @@ const styles = theme => ({
     opacity: 0,
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
+  bigArrowSolid: {
+    fontSize: '65%',
+    top: "-45%"
+  },
   bigArrowCompleted: {
     fontSize: '90%',
     top: '-75%',
@@ -65,8 +71,9 @@ interface ExternalProps {
   color: any,
   orientation: string,
   currentUser: UsersCurrent|null,
+  solidArrow?: boolean
 }
-interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
+interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps, WithTrackingProps {
   theme: any,
 }
 interface VoteButtonState {
@@ -78,7 +85,7 @@ interface VoteButtonState {
 
 class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
   votingTransition: any
-  
+
   constructor(props: VoteButtonProps) {
     super(props);
     this.votingTransition = null
@@ -114,6 +121,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
       });
     } else {
       this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
+      this.props.captureEvent("vote", {collectionName: collection.collectionName});
     }
   }
 
@@ -133,7 +141,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
   handleClick = () => { // This handler is only used for mobile
     if(isMobile()) {
       const { voteType } = this.props
-      // This causes the following behavior (repeating after 3rd click): 
+      // This causes the following behavior (repeating after 3rd click):
       // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
       const voted = this.hasVoted(`big${voteType}`) || this.hasVoted(`small${voteType}`)
       if (voted) {
@@ -150,10 +158,12 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
   }
 
   render() {
-    const { classes, orientation = 'up', theme, color = "secondary", voteType } = this.props
+    const { classes, orientation = 'up', theme, color = "secondary", voteType, solidArrow } = this.props
     const voted = this.hasVoted(`small${voteType}`) || this.hasVoted(`big${voteType}`)
     const bigVoted = this.hasVoted(`big${voteType}`)
     const { bigVotingTransition, bigVoteCompleted } = this.state
+
+    const Icon = solidArrow ? ArrowDropUpIcon :UpArrowIcon
     return (
         <IconButton
           className={classNames(classes.root, classes[orientation])}
@@ -163,7 +173,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
           onClick={this.handleClick}
           disableRipple
         >
-          <UpArrowIcon
+          <Icon
             className={classes.smallArrow}
             color={voted ? color : 'inherit'}
             viewBox='6 6 12 12'
@@ -172,7 +182,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
             {(state) => (
               <UpArrowIcon
                 style={{color: bigVoteCompleted && theme.palette[color].light}}
-                className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted}, classes[state])}
+                className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
                 color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
                 viewBox='6 6 12 12'
               />)}
@@ -183,7 +193,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
 
 const VoteButtonComponent = registerComponent<ExternalProps>('VoteButton', VoteButton, {
   styles,
-  hocs: [withDialog, withTheme()]
+  hocs: [withDialog, withTheme(), withTracking]
 });
 
 declare global {

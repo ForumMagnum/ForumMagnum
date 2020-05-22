@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
-import Headroom from 'react-headroom'
+import Headroom from '../../lib/react-headroom'
 import { withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -18,8 +18,10 @@ import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
+import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
 
-
+const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
+const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 export const getHeaderTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
     return theme.palette.primary.contrastText
@@ -170,7 +172,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     this.handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
-  handleSetNotificationDrawerOpen = (isOpen) => {
+  handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
     const { updateUser, currentUser } = this.props;
     if (!currentUser) return;
     if (isOpen) {
@@ -243,7 +245,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
-    const hasLogo = getSetting('forumType') === 'EAForum'
+    const hasLogo = forumTypeSetting.get() === 'EAForum'
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -256,6 +258,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
             <Headroom
               disableInlineStyles
               downTolerance={10} upTolerance={10}
+              height={64}
               className={classNames(
                 classes.headroom,
                 { [classes.headroomPinnedOpen]: searchOpen }
@@ -264,14 +267,14 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
               onUnpin={() => this.setState({unFixed: false})}
             >
               <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-                  <Toolbar disableGutters={getSetting('forumType') === 'EAForum'}>
+                  <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
                   {this.renderNavigationMenuButton()}
                   <Typography className={classes.title} variant="title" color="textSecondary">
                     <Hidden smDown implementation="css">
                       <div className={classes.titleSubtitleContainer}>
                         <Link to="/" className={classes.titleLink}>
                           {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
-                          {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
+                          {forumHeaderTitleSetting.get()}
                         </Link>
                         <HeaderSubtitle />
                       </div>
@@ -279,7 +282,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
                     <Hidden mdUp implementation="css">
                       <Link to="/" className={classes.titleLink}>
                         {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
-                        {getSetting('forumSettings.shortForumTitle', 'LW')}
+                        {forumShortTitleSetting.get()}
                       </Link>
                     </Hidden>
                   </Typography>

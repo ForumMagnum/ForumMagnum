@@ -114,6 +114,14 @@ const schema = {
     insertableBy: ['admins'],
   },
 
+  userProfileOrder: {
+    type: Number,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+  },
+
   draft: {
     type: Boolean,
     optional: true,

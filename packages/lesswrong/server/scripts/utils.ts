@@ -62,6 +62,6 @@ export const wrapVulcanAsyncScript = (name, scriptFunc) => async (...args) => {
   }
 }
 
-export function getFieldsWithAttribute(schema, attributeName) {
+export function getFieldsWithAttribute(schema, attributeName: string): Array<string> {
   return _.filter(Object.keys(schema), (fieldName) => !!schema[fieldName][attributeName])
 }

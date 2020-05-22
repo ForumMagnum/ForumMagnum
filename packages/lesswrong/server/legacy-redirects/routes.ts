@@ -1,7 +1,10 @@
-import { getSetting, addStaticRoute } from '../vulcan-lib'
-import { Posts } from '../../lib/collections/posts'
-import { Comments } from '../../lib/collections/comments'
+import { faviconUrlSetting } from '../../components/common/HeadTags';
+import { Comments } from '../../lib/collections/comments';
+import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
+import { addStaticRoute } from '../vulcan-lib';
 
 // Some legacy routes have an optional subreddit prefix, which is either
 // omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by
@@ -21,7 +24,7 @@ import Users from '../../lib/collections/users/collection';
 const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)?";
 
 // Because the EA Forum was identical except for the change from /lw/ to /ea/
-const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
+const legacyRouteAcronym = legacyRouteAcronymSetting.get()
 
 function findPostByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);
@@ -278,13 +281,52 @@ addStaticRoute('/item', (params, req, res, next) => {
 // Secondary way of specifying favicon for browser or RSS readers that don't
 // support using a meta tag (the preferred approach).
 addStaticRoute('/favicon.ico', (params, req, res, next) => {
-  makeRedirect(res, getSetting('faviconUrl'));
+  return makeRedirect(res, faviconUrlSetting.get());
 });
 
 addStaticRoute('/featured', (params, req, res, next) => {
-  makeRedirect(res, '/allPosts?filter=curated&view=new')
+  return makeRedirect(res, '/allPosts?filter=curated&view=new&timeframe=allTime')
 })
 
 addStaticRoute('/recentComments', (params, req, res, next) => {
-  makeRedirect(res, '/allComments');
+  return makeRedirect(res, '/allComments');
 })
+
+if (forumTypeSetting.get() === "AlignmentForum") {
+  addStaticRoute('/newcomments', (params, req, res, next) => {
+    return makeRedirect(res, '/allComments');
+  })
+  
+  addStaticRoute('/how-to-contribute', (params, req, res, next) => {
+    return makeRedirect(res, '/posts/FoiiRDC3EhjHx7ayY/introducing-the-ai-alignment-forum-faq');
+  })
+  
+  addStaticRoute('/submitted', (params, req, res, next) => {
+    return makeRedirect(res, `/users/${params.query?.id}`);
+  })
+  
+  addStaticRoute('/threads', (params, req, res, next) => {
+    return makeRedirect(res, `/users/${params.query?.id}`);
+  })
+  
+  addStaticRoute('/user', (params, req, res, next) => {
+    return makeRedirect(res, `/users/${params.query?.id}`);
+  })
+  
+  addStaticRoute('/submit', (params, req, res, next) => {
+    return makeRedirect(res, `/newPost`);
+  })
+  
+  addStaticRoute('/rss', (params, req, res, next) => {
+    return makeRedirect(res, `/feed.xml`);
+  })
+  
+  addStaticRoute('/drafts', (params, req, res, next) => {
+    return makeRedirect(res, `/account`);
+  })
+  
+  addStaticRoute('/saved', (params, req, res, next) => {
+    return makeRedirect(res, `/account`);
+  })
+}
+

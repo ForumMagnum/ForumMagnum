@@ -1,6 +1,6 @@
-import { getSetting } from '../../vulcan-lib';
-import SimpleSchema from 'simpl-schema'
-import { addFieldsDict } from '../../utils/schemaUtils'
+import SimpleSchema from 'simpl-schema';
+import { forumTypeSetting } from '../../instanceSettings';
+import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 
 const baseDefaultAlgorithmSettings = {
@@ -16,7 +16,7 @@ const baseDefaultAlgorithmSettings = {
   onlyUnread: true,
 };
 
-export const defaultAlgorithmSettings = getSetting<string>('forumType', 'LessWrong') === 'EAForum' ?
+export const defaultAlgorithmSettings = forumTypeSetting.get() === 'EAForum' ?
   {...baseDefaultAlgorithmSettings, metaModifier: 0} :
   baseDefaultAlgorithmSettings
 

@@ -1,7 +1,7 @@
 import { Comments } from "../../collections/comments";
-import { arrayOfForeignKeysField, addFieldsDict, foreignKeyField } from '../../utils/schemaUtils'
-import { getSetting } from '../../vulcan-lib';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { forumTypeSetting } from "../../instanceSettings";
+import { addFieldsDict, arrayOfForeignKeysField, foreignKeyField } from '../../utils/schemaUtils';
 
 export const alignmentOptionsGroup = {
   order: 50,
@@ -10,7 +10,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true
 };
 
-const alignmentForum = getSetting('forumType') === 'AlignmentForum'
+const alignmentForum = forumTypeSetting.get() === 'AlignmentForum'
 
 addFieldsDict(Comments, {
   af: {

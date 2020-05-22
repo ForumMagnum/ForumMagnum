@@ -1,13 +1,17 @@
 import React from 'react';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import Posts from '../../lib/collections/posts/collection';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
 import GroupIcon from '@material-ui/icons/Group';
-
-const MetaTitle = getSetting('forumType') === 'EAForum' ? 'Community Post' : 'Meta Post'
-const MetaIcon = getSetting('forumType') === 'EAForum' ? GroupIcon : DetailsIcon
+import LinkIcon from '@material-ui/icons/Link';
+import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
+import { Link } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+// ea-forum-look-here (JP I think you really just gotta move away from your re-use of meta now)
+const MetaIcon = forumTypeSetting.get() === 'EAForum' ? GroupIcon : DetailsIcon
 
 const styles = theme => ({
   iconSet: {
@@ -28,11 +32,23 @@ const styles = theme => ({
       top: 3,
     }
   },
+  question: {
+    fontSize: "1.2rem",
+    color: theme.palette.grey[500],
+    fontWeight: '600'
+  },
   alignmentIcon: {
     '&&':{
       top: 0,
     }
   },
+  linkIcon: {
+    fontSize: "1.2rem",
+    color: theme.palette.grey[500],
+    transform: 'rotate(-45deg)',
+    position: "relative",
+    top: 3
+  }
 });
 
 const PostsItemIcons = ({post, classes}: {
@@ -41,14 +57,26 @@ const PostsItemIcons = ({post, classes}: {
 }) => {
   const { OmegaIcon, LWTooltip } = Components;
 
-  const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?
+  const isPersonalBlogpost = forumTypeSetting.get() === 'EAForum' ?
     !(post.frontpageDate || post.meta) :
     !post.frontpageDate
 
   return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>
-      <LWTooltip title="Curated Post" placement="right">
-        <StarIcon className={classes.icon}/>
+      <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="right">
+        <Link to={curatedUrl}><StarIcon className={classes.icon}/></Link>
+      </LWTooltip>
+    </span>}
+    
+    {post.question && <span className={classes.postIcon}>
+      <LWTooltip title={<div>Question <div><em>(click to view all questions)</em></div></div>} placement="right">
+        <Link to={"/questions"}><span className={classes.question}>Q</span></Link>
+      </LWTooltip>
+    </span>}
+
+    {post.url && <span className={classes.postIcon}>
+      <LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
+        <a href={post.url}><LinkIcon className={classes.linkIcon}/></a>
       </LWTooltip>
     </span>}
 
@@ -59,15 +87,15 @@ const PostsItemIcons = ({post, classes}: {
     </span>}
 
     {post.meta && <span className={classes.postIcon}>
-      <LWTooltip title={MetaTitle} placement="right">
-        <MetaIcon className={classes.icon}/>
+      <LWTooltip title={<div>Meta <div><em>(Click to view all meta content)</em></div></div>} placement="right">
+        <Link to={"/tag/site-meta"}><MetaIcon className={classes.icon}/></Link>
       </LWTooltip>
     </span>}
 
-    {getSetting('forumType') !== 'AlignmentForum' && post.af &&
+    {forumTypeSetting.get() !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
-        <LWTooltip title="Crossposted from AlignmentForum.org" placement="right">
-          <span><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></span>
+        <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
+            <a href={`https://alignmentforum.org${Posts.getPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
         </LWTooltip>
       </span>
     }

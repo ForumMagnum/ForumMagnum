@@ -7,9 +7,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
-import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+
+export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
 const styles = theme => ({
   section: {
@@ -25,15 +25,22 @@ const styles = theme => ({
     display: "flex",
     justifyContent: "flex-end",
     marginTop: 12,
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: "center",
+    }
   },
   footer: {
     color: theme.palette.lwTertiary.main,
     flexGrow: 1,
+    flexWrap: "wrap",
     maxWidth: 450,
-    
     display: "flex",
     justifyContent: "space-around",
-  }
+  },
+  loggedOutFooter: {
+    maxWidth: 450,
+    marginLeft: "auto"
+  },
 });
 
 const defaultFrontpageSettings = {
@@ -77,7 +84,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, RecommendationsList, LWTooltip } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -99,7 +106,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       <div><em>(Click to see all)</em></div>
     </div>
 
-    // Disabled during 2018 Review
+    // Disabled during 2018 Review [and coronavirus]
     const allTimeTooltip = <div>
       <div>
         A weighted, randomized sample of the highest karma posts
@@ -117,13 +124,12 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
-    const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
-        <LWTooltip title="Customize your recommendations">
-          <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
-        </LWTooltip>
+        {currentUser && <LWTooltip title="Customize your recommendations">
+          <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
+        </LWTooltip>}
       </SectionTitle>
       {showSettings &&
         <RecommendationsAlgorithmPicker
@@ -161,8 +167,15 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}
 
-      {/* Disabled during 2018 Review */}
-      {!settings.hideFrontpage && <div className={classes.subsection}>
+      {/* disabled except during coronavirus times */}
+      {/* <AnalyticsContext pageSectionContext="coronavirusWidget">
+        <div className={classes.subsection}>
+          <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
+        </div>
+      </AnalyticsContext> */}
+
+      {/* Disabled during 2018 Review [and coronavirus season] */}
+      {currentUser && !settings.hideFrontpage && <div className={classes.subsection}>
         <LWTooltip placement="top-start" title={allTimeTooltip}>
           <Link to={"/recommendations"}>
             <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
@@ -187,18 +200,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
           </AnalyticsContext>
-          <div className={classes.footerWrapper}>
-            <Typography component="div" variant="body2" className={classes.footer}>
-              <Link to={curatedUrl}>
-                { /* On very small screens, use shorter link text ("More Curated"
-                    instead of "View All Curated Posts") to avoid wrapping */ }
-                <Hidden smUp implementation="css">More Curated</Hidden>
-                <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
-              </Link>
-              <SeparatorBullet/>
-              <SubscribeWidget view={"curated"} />
-            </Typography>
-          </div>
         </div>
       </AnalyticsContext>
     </SingleColumnSection>

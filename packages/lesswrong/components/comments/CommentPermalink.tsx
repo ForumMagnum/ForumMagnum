@@ -1,7 +1,8 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   dividerMargins: {
@@ -29,7 +30,7 @@ const styles = theme => ({
 
 const CommentPermalink = ({ documentId, post, classes }: {
   documentId: string,
-  post: PostsBase,
+  post: PostsList,
   classes: ClassesType,
 }) => {
   const { document: comment, data, loading, error } = useSingle({
@@ -37,7 +38,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
     collection: Comments,
     fragmentName: 'CommentWithRepliesFragment',
   });
-  const { refetch } = data;
+  const refetch = data?.refetch;
   const { Loading, Divider, CommentWithReplies } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
@@ -48,10 +49,10 @@ const CommentPermalink = ({ documentId, post, classes }: {
   return <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       {loading ? <Loading /> : <div>
-        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} showTitle={false}/>
+        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} expandByDefault showTitle={false}/>
         <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
       </div>}
-      {getSetting('forumType') !== 'EAForum' && <div className={classes.dividerMargins}><Divider /></div>}
+      {forumTypeSetting.get() !== 'EAForum' && <div className={classes.dividerMargins}><Divider /></div>}
     </div>
 }
 
