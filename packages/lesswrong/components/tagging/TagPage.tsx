@@ -78,7 +78,7 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
@@ -150,7 +150,10 @@ const TagPage = ({classes}: {
             enableTotal
             tagId={tag._id}
             itemsPerPage={200}
-          />
+          >
+            <AddPostsToTag tag={tag} />
+          </PostsList2>
+          
         </AnalyticsContext>
       </div>
     </SingleColumnSection>
