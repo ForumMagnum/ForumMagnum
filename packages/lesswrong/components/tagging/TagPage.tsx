@@ -58,7 +58,7 @@ export const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, AddPostsToTag, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -127,7 +127,9 @@ const TagPage = ({classes}: {
           enableTotal
           tagId={tag._id}
           itemsPerPage={200}
-        />
+        >
+          <AddPostsToTag tag={tag} />
+        </PostsList2>
       </AnalyticsContext>
     </SingleColumnSection>
   </AnalyticsContext>

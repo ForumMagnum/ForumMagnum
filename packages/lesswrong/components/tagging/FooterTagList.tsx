@@ -36,7 +36,6 @@ const FooterTagList = ({post, classes}: {
   const tagIds = (results||[]).map((tag) => tag._id)
   useTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
 
-
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {

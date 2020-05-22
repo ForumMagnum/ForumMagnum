@@ -21,7 +21,8 @@ const styles = (theme) => ({
     overflow: "hidden",
     '&:hover': {
       opacity: .6
-    }
+    },
+    boxSizing: "content-box"
   }
 })
 
