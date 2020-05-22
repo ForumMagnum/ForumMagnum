@@ -73,7 +73,7 @@ async function getFixedHTML (post: DbPost): Promise<{shouldUpdate: boolean, fixe
   if (!insecureImageSources.length) {
     return {shouldUpdate: false}
   }
-  const {shouldUpdate, imageUpdates} = await testSecureImages(insecureImageSources, post)
+  const {shouldUpdate, imageUpdates} = await testSecureImages(insecureImageSources)
   if (!shouldUpdate) {
     return {shouldUpdate}
   }
