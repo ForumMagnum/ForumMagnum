@@ -26,7 +26,7 @@ function findInsecureImages ($: any): Array<string> {
 // If so for any image, return shouldUpdate: true, and a map of insecure to
 // secure version
 async function testSecureImages
-  (insecureImageSources: Array<string>, post: DbPost):
+  (insecureImageSources: Array<string>):
   Promise<{shouldUpdate: boolean, imageUpdates: Map<string, string>}>
 {
   let shouldUpdate = false
