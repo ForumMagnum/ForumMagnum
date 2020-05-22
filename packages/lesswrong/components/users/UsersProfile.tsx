@@ -231,13 +231,18 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
+    
+    const username = Users.getDisplayName(user)
+
+    const userPostsTitle = username.slice(-1) === "s" ? `${username}' Posts` :`${username}'s Posts`
+    const userCommentsTitle = username.slice(-1) === "s" ? `${username}' Comments` :`${username}'s Comments`
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <SectionTitle title={Users.getDisplayName(user)}/>
+            <SectionTitle title={username}/>
 
             <SectionFooter>
               { this.renderMeta() }
@@ -299,7 +304,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-              <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
+              <SectionTitle title={userPostsTitle}>
                 <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
             </div>
@@ -318,7 +323,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
+              <SectionTitle title={userCommentsTitle} />
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
