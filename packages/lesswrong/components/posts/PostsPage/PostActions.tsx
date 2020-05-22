@@ -161,9 +161,10 @@ class PostActions extends Component<PostActionsProps,{}> {
   render() {
     const { classes, post, postsRead, currentUser } = this.props
     const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    if (!post) return null;
     const postAuthor = post.user;
     
-    const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
+    const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
     
     return (
       <div className={classes.actions}>

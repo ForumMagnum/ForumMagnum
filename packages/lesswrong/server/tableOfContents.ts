@@ -226,6 +226,8 @@ const getTableOfContentsData = async ({document, version, currentUser}) => {
   let html;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
+    if (!revision)
+      return null;
     if (!Revisions.checkAccess(currentUser, revision))
       return null;
     html = revision?.html;
