@@ -1,5 +1,5 @@
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../../server/draftConvert'
+import { getDraftToHTML } from '../../server/draftConvert'
 import { htmlToDraftServer } from '../../server/resolvers/revisionResolvers'
 
 describe("draftToHtml", () => {
@@ -59,7 +59,7 @@ describe("draftToHtml", () => {
       ],
       "entityMap" : {}
     }
-    const result = draftToHTML(convertFromRaw(rawDraftJS))
+    const result = getDraftToHTML()(convertFromRaw(rawDraftJS))
     result.should.equal("<p><em>Italic</em></p><p><strong>Bold</strong></p><p><strong><em>BoldItalic</em></strong></p>")
   })
 })
@@ -75,7 +75,7 @@ describe("htmlToDraft -> draftToHtml roundtrip testing", () => {
   for (const t of tests) {
     it(t.description, () => {
       const draft = htmlToDraftServer(t.html)
-      const html = draftToHTML(draft)
+      const html = getDraftToHTML()(draft)
       html.should.equal(t.html)
     })
   }

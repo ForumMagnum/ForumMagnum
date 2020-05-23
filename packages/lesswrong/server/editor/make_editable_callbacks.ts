@@ -1,7 +1,7 @@
 import { Utils, addCallback, Connectors } from '../vulcan-lib';
 import { sanitize } from '../vulcan-lib/utils';
 import { Random } from 'meteor/random';
-import { draftToHTML } from '../draftConvert';
+import { getDraftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
@@ -133,7 +133,7 @@ const isEmptyParagraphOrBreak = (elem) => {
 export async function draftJSToHtmlWithLatex(draftJS) {
   const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
   const convertFromRaw = require("draft-js").convertFromRaw;
-  const html = draftToHTML(convertFromRaw(draftJSWithLatex))
+  const html = getDraftToHTML()(convertFromRaw(draftJSWithLatex))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   return wrapSpoilerTags(trimmedHtml)
 }
@@ -222,7 +222,7 @@ export function dataToMarkdown(data, type) {
       try {
         const convertFromRaw = require("draft-js").convertFromRaw;
         const contentState = convertFromRaw(data);
-        const html = draftToHTML(contentState)
+        const html = getDraftToHTML()(contentState)
         return htmlToMarkdown(html)  
       } catch(e) {
         // eslint-disable-next-line no-console
