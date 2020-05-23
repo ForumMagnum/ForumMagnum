@@ -4,7 +4,6 @@ import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
 import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
-import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
 
 
@@ -233,6 +232,7 @@ export const createDummyConversation = async (user: any, data?: any) => {
 }
 
 export const createDummyMessage = async (user: any, data?: any) => {
+  const {ContentState, convertToRaw} = require('draft-js');
   let defaultData = {
     contents: convertToRaw(ContentState.createFromText('Dummy Message Content')),
     userId: user._id,
