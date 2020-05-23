@@ -532,6 +532,7 @@ registerFragment(`
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
+    notificationSubscribedTagPost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe
