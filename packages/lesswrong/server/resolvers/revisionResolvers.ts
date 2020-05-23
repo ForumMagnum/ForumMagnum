@@ -1,6 +1,5 @@
 import Revisions from '../../lib/collections/revisions/collection'
 import { getHtmlToDraft } from '../draftConvert';
-import { convertToRaw } from 'draft-js';
 import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { addFieldsDict } from '../../lib/utils/schemaUtils'
@@ -38,6 +37,7 @@ export function htmlToDraftServer(...args) {
 
 export function dataToDraftJS(data, type) {
   if (data===undefined || data===null) return null;
+  const { convertToRaw } = require("draft-js");
 
   switch (type) {
     case "draftJS": {
