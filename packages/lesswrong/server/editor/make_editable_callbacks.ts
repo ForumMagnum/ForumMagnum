@@ -1,15 +1,11 @@
 import { Utils, addCallback, Connectors } from '../vulcan-lib';
 import { sanitize } from '../vulcan-lib/utils';
 import { Random } from 'meteor/random';
-import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
-import TurndownService from 'turndown';
-const turndownService = new TurndownService()
-turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
@@ -23,8 +19,6 @@ mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
-
-import { mjpage }  from 'mathjax-node-page'
 
 const mjPageSettings = {
   fragment: true, 
@@ -41,6 +35,7 @@ function mjPagePromise(html, beforeSerializationCallback) {
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
+    const mjpage = require("mathjax-node-page");
     mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
@@ -137,9 +132,20 @@ const isEmptyParagraphOrBreak = (elem) => {
 
 export async function draftJSToHtmlWithLatex(draftJS) {
   const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
+  const convertFromRaw = require("draft-js").convertFromRaw;
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   return wrapSpoilerTags(trimmedHtml)
+}
+
+let turndownService = null;
+function getTurndownService() {
+  if (!turndownService) {
+    const TurndownService = require('turndown');
+    turndownService = new TurndownService()
+    turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+  }
+  return turndownService;
 }
 
 export function htmlToMarkdown(html) {
@@ -214,6 +220,7 @@ export function dataToMarkdown(data, type) {
     }
     case "draftJS": {
       try {
+        const convertFromRaw = require("draft-js").convertFromRaw;
         const contentState = convertFromRaw(data);
         const html = draftToHTML(contentState)
         return htmlToMarkdown(html)  
