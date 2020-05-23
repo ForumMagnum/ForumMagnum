@@ -1,4 +1,3 @@
-import feedparser from 'feedparser-promised';
 import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
 import { newMutation, editMutation } from '../vulcan-lib';
@@ -20,6 +19,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
     //eslint-disable-next-line no-console
     console.log(rssFeed);
     for (let i of _.range(1,pages)) {
+      const feedparser = require("feedparser-promised");
       const newPosts = await feedparser.parse(rssURL+i)
       //eslint-disable-next-line no-console
       console.log("Importing RSS posts page " + i);
