@@ -1,6 +1,5 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
-import Juice from 'juice';
 import { Email } from 'meteor/email';
 import React from 'react';
 import { ApolloProvider, getDataFromTree } from 'react-apollo';
@@ -161,6 +160,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
+  const Juice = require("juice");
   const inlinedHTML = Juice(html, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
