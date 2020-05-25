@@ -44,7 +44,7 @@ const styles = theme => ({
 const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start" }: {
   classes: ClassesType,
   label: any,
-  onClick: (ev: any, checked: any)=>void,
+  onClick: (any)=>void,
   value: boolean,
   disabled?: boolean,
   tooltip?: any,
