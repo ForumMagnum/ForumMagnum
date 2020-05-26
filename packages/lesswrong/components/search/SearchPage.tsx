@@ -123,6 +123,9 @@ const SearchPage = ({classes}:{
     >
       <div className={classes.searchInputArea}>
         <SearchIcon className={classes.searchIcon}/>
+        {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+          * null is the only option that actually suppresses the extra X button.
+         // @ts-ignore */}
         <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
       </div>
       <CurrentRefinements />

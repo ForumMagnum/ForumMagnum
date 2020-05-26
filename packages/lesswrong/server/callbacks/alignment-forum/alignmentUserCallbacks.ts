@@ -29,6 +29,7 @@ function isAlignmentForumMember(user) {
 export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     const lwAccount = await getAlignmentForumAccount();
+    if (!lwAccount) throw Error("Unable to find the lwAccount to send the new alignment user message")
     const conversationData = {
       participantIds: [newUser._id, lwAccount._id],
       title: `Welcome to the AI Alignment Forum!`

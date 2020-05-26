@@ -48,7 +48,7 @@ Tags.addView('suggestedFilterTags', terms => {
     },
     options: {
       sort: {
-        defaultOrder: 1,
+        defaultOrder: -1,
         name: 1
       }
     },
