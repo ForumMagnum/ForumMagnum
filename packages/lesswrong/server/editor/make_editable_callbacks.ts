@@ -35,7 +35,7 @@ function mjPagePromise(html, beforeSerializationCallback) {
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
-    const mjpage = require("mathjax-node-page");
+    const { mjpage } = require("mathjax-node-page");
     mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
@@ -138,7 +138,7 @@ export async function draftJSToHtmlWithLatex(draftJS) {
   return wrapSpoilerTags(trimmedHtml)
 }
 
-let turndownService = null;
+let turndownService: any = null;
 function getTurndownService() {
   if (!turndownService) {
     const TurndownService = require('turndown');
@@ -149,12 +149,12 @@ function getTurndownService() {
 }
 
 export function htmlToMarkdown(html) {
-  return turndownService.turndown(html)
+  return getTurndownService().turndown(html)
 }
 
 export function ckEditorMarkupToMarkdown(markup) {
   // Sanitized CKEditor markup is just html
-  return turndownService.turndown(sanitize(markup))
+  return getTurndownService().turndown(sanitize(markup))
 }
 
 export function markdownToHtmlNoLaTeX(markdown) {

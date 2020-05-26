@@ -62,7 +62,7 @@ Utils.preProcessLatex = async (content) => {
   for (let key in content.entityMap) { // Can't use forEach with await
     let value = content.entityMap[key];
     if(value.type === "INLINETEX" && value.data.teX) {
-      const mathJax = await getMjAPI.typeset({
+      const mathJax = await getMjAPI().typeset({
             math: value.data.teX,
             format: "inline-TeX",
             html: true,
@@ -80,7 +80,7 @@ Utils.preProcessLatex = async (content) => {
   for (let key in content.blocks) {
     const block = content.blocks[key];
     if (block.type === "atomic" && block.data.mathjax) {
-      const mathJax = await getMjAPI.typeset({
+      const mathJax = await getMjAPI().typeset({
         math: block.data.teX,
         format: "TeX",
         html: true,

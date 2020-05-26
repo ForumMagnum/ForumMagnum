@@ -20,5 +20,5 @@ export const assertDatabaseId = (databaseIdObject) => {
       process.exit(1);
     }
   }
-});
+};
 

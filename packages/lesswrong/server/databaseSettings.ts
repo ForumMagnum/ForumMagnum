@@ -5,6 +5,7 @@ import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
 import { ensureIndex } from '../lib/collectionUtils';
 import { assertDatabaseId } from './startupSanityChecks';
+import * as _ from 'underscore';
 
 let serverSettingsCache:Record<string, any> = {}
 const runValidateSettings = false
@@ -21,7 +22,10 @@ function refreshSettingsCaches() {
   const serverSettingsObject = _.find(databaseSettingsObjects, s=>s.name==="serverSettings");
   const publicSettingsObject = _.find(databaseSettingsObjects, s=>s.name==="publicSettings");
   const databaseIdObject = _.find(databaseSettingsObjects, s=>s.name==="databaseId");
-  if (!serverSettingsObject || !publicSettingsObject) console.log("Settings not found");
+  if (!serverSettingsObject || !publicSettingsObject) {
+    // eslint-disable-next-line no-console
+    console.log("Settings not found");
+  }
   
   serverSettingsCache = serverSettingsObject?.value || {__initialized: true}
   // We modify the publicSettings object that is made available in lib to allow both the client and the server to access it
