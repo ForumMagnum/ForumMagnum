@@ -13,11 +13,17 @@ const styles = theme => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
-    borderBottom: "solid 1px rgba(0,0,0,.25)",
-    paddingTop: 8,
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingBottom: 20
+    flexWrap: "wrap"
+  },
+  settingGroup: {
+    border:"solid 1px rgba(0,0,0,.15)",
+    borderRadius: 3,
+    padding: 8,
+    marginBottom: 10
+  },
+  setting: {
+    marginLeft: 20,
+    marginRight: 20
   }
 })
 
@@ -68,7 +74,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   showAdvanced?: boolean,
   classes: ClassesType
 }) => {
-  const { SectionFooterCheckbox, SeparatorBullet } = Components
+  const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -91,23 +97,28 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     onChange(newSettings);
   }
   return <div className={classes.root}>
-    {(configName === "frontpage") &&
-      <SectionFooterCheckbox
-        value={!settings.hideContinueReading}
-        onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !checked })}
-        label="Continue Reading"
-        tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
-      />
-    }
-    {(configName === "frontpage") && 
-      <SectionFooterCheckbox
-        value={!settings.hideBookmarks}
-        onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !checked })}
-        label="Bookmarks"
-        tooltip="Posts that you have bookmarked will appear in Recommendations."
-      />
-    }
-    <SeparatorBullet />
+    <span className={classes.settingGroup}>
+      <span className={classes.setting}>
+        {(configName === "frontpage") &&
+          <SectionFooterCheckbox
+            value={!settings.hideContinueReading}
+            onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
+            label="Continue Reading"
+            tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
+          />
+        }
+      </span>
+      <span className={classes.setting}>
+        {(configName === "frontpage") && 
+          <SectionFooterCheckbox
+            value={!settings.hideBookmarks}
+            onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
+            label="Bookmarks"
+            tooltip="Posts that you have bookmarked will appear in Recommendations."
+          />
+        }
+      </span>
+    </span>
 
     {/* disabled except during review */}
     {/* {(configName === "frontpage") && <div> 
@@ -117,16 +128,6 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       /> Show 'The LessWrong 2018 Review'
     </div>} */}
 
-    {/* disabled during 2018 Review [and coronavirus]*/}
-    {(configName === "frontpage") && 
-      <SectionFooterCheckbox
-        value={!settings.hideFrontpage}
-        onClick={(ev, checked) => applyChange({ ...settings, hideFrontpage: !checked })}
-        label="Archives"
-        tooltip="Show randomized posts from the archives"
-      />
-    }
-
     {/* <div> 
       <Checkbox
         checked={!settings.hideCoronavirus}
@@ -134,22 +135,40 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       /> Show 'Coronavirus' recommendations
     </div> */}
 
-    <SectionFooterCheckbox
-      disabled={!currentUser}
-      value={settings.onlyUnread && !!currentUser}
-      onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
-      label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
-      tooltip="'Archive Recommendations' will only show unread posts"
-    /> 
+    {/* disabled during 2018 Review [and coronavirus]*/}
+    <span className={classes.settingGroup}>
+      {(configName === "frontpage") && 
+        <span className={classes.setting}>
+          <SectionFooterCheckbox
+            value={!settings.hideFrontpage}
+            onClick={(ev, checked) => applyChange({ ...settings, hideFrontpage: !settings.hideFrontpage })}
+            label="Archives"
+            tooltip="Show randomized posts from the archives"
+          />
+        </span>
+      }
+    
+      <span className={classes.setting}>
+        <SectionFooterCheckbox
+          disabled={!currentUser}
+          value={settings.onlyUnread && !!currentUser}
+          onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
+          label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
+          tooltip="'Archive Recommendations' will only show unread posts"
+        />
+      </span>
 
-    {/* Include personal blogposts (LW) or meta (EA Forum) */}
-    <SectionFooterCheckbox
-      disabled={!currentUser}
-      value={settings[includeExtra.machineName]}
-      onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: checked })}
-      label={includeExtra.humanName}
-      tooltip={`'Archive Recommendations' will include ${includeExtra.humanName}`}
-    />
+      {/* Include personal blogposts (LW) or meta (EA Forum) */}
+      <span className={classes.setting}>
+        <SectionFooterCheckbox
+          disabled={!currentUser}
+          value={settings[includeExtra.machineName]}
+          onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
+          label={includeExtra.humanName}
+          tooltip={`'Archive Recommendations' will include ${includeExtra.humanName}`}
+        />
+      </span>
+    </span>
     {/* ea-forum look here */}
     {showAdvanced && <div>
       <div>{"Algorithm "}
