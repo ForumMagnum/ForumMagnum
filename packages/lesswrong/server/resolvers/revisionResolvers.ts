@@ -12,7 +12,7 @@ const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 
 function domBuilder(html) {
-  const JSDOM = require('jsdom');
+  const { JSDOM } = require('jsdom');
   const jsdom = new JSDOM(html)
   const document = jsdom.window.document;
   const bodyEl = document.body; // implicitly created
@@ -22,7 +22,7 @@ function domBuilder(html) {
 
 export function htmlToDraftServer(...args) {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
-  const JSDOM = require('jsdom');
+  const { JSDOM } = require('jsdom');
   const jsdom = new JSDOM();
   const globalHTMLElement = jsdom.window.HTMLElement;
   (global as any).HTMLElement = globalHTMLElement;
