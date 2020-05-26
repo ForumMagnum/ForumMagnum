@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import HistoryIcon from '@material-ui/icons/History';
 
 // Also used in TagCompareRevisions
 export const styles = theme => ({
@@ -74,13 +75,18 @@ export const styles = theme => ({
     display: "flex",
     alignItems: "center",
     marginRight: 16
-  }
+  },
+  historyButton: {
+    display: "flex",
+    alignItems: "center",
+    marginRight: 16
+  },
 });
 
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404 } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, SectionButton, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -127,7 +133,12 @@ const TagPage = ({classes}: {
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
-            {Users.isAdmin(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}><EditOutlinedIcon /> Edit Wiki</Link>}
+            {Users.isAdmin(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+              <EditOutlinedIcon /> Edit Wiki
+            </Link>}
+            <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
+              <HistoryIcon /> History
+            </Link>
             <SubscribeTo 
               document={tag} 
               showIcon 
@@ -135,9 +146,6 @@ const TagPage = ({classes}: {
               unsubscribeMessage="Unsubscribe from Tag"
               subscriptionType={subscriptionTypes.newTagPosts}
             />
-            <SectionButton>
-              <Link to={`/revisions/tag/${tag.slug}`}>History</Link>
-            </SectionButton>
           </div>
           <div onClick={clickReadMore}>
             <ContentItemBody
