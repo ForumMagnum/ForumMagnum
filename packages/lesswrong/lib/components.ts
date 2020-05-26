@@ -46,6 +46,7 @@ importComponent("newFeedButton", () => require('../components/feeds/newFeedButto
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
+importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));
 importComponent("SubscribeTo", () => require('../components/notifications/SubscribeTo'));
@@ -150,7 +151,6 @@ importComponent("UserNameDeleted", () => require('../components/users/UserNameDe
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
-importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon'));
@@ -363,6 +363,7 @@ importComponent("AddTagButton", () => require('../components/tagging/AddTagButto
 importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTagsChecklist'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
+importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));

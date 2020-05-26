@@ -5,6 +5,7 @@ interface CollectionBase<T extends DbObject> {
   
   addDefaultView: any
   addView: any
+  defaultView: (terms: any) => any
   views: any
   getParameters: any
   simpleSchema: any

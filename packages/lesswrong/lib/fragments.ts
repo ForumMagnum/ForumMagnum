@@ -143,9 +143,6 @@ registerFragment(`
     bookmarkedPostsMetadata
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
-    
-    abTestKey
-    abTestOverrides
   }
 `);
 

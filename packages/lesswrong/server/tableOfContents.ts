@@ -46,7 +46,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML)
+export function extractTableOfContents(postHTML: string)
 {
   if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
@@ -63,7 +63,7 @@ export function extractTableOfContents(postHTML)
       continue;
     }
 
-    let title = cheerio(tag).text();
+    let title = elementToToCText(tag);
     
     if (title && title.trim()!=="") {
       let anchor = titleToAnchor(title, usedAnchors);
@@ -104,6 +104,13 @@ export function extractTableOfContents(postHTML)
     sections: headings,
     headingsCount: headings.length
   }
+}
+
+function elementToToCText(cheerioTag: CheerioElement) {
+  const tagHtml = cheerio(cheerioTag).html();
+  const tagClone = cheerio.load(tagHtml);
+  tagClone("style").remove();
+  return tagClone.root().text();
 }
 
 const reservedAnchorNames = ["top", "comments"];
@@ -211,6 +218,7 @@ async function getTocAnswers (document) {
 
 async function getTocComments (document) {
   const commentSelector: any = {
+    ...Comments.defaultView({}).selector,
     answer: false,
     parentAnswerId: null,
     postId: document._id
@@ -231,9 +239,10 @@ const getTableOfContentsData = async ({document, version, currentUser, context}:
   let html;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
-    if (!revision || !await Revisions.checkAccess(currentUser, revision, context))
+    if (!revision) return null;
+    if (!Revisions.checkAccess(currentUser, revision, context))
       return null;
-    html = revision?.html;
+    html = revision.html;
   } else {
     html = document?.contents?.html;
   }

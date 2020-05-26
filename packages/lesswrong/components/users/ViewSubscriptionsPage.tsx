@@ -6,6 +6,7 @@ import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Comments } from '../../lib/collections/comments/collection';
+import { Tags } from '../../lib/collections/tags/collection';
 
 const styles = theme => ({
   subscribedItem: {
@@ -71,8 +72,8 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
     collectionName, fragmentName,
   });
   
-  if (!document || loading)
-    return <Loading/>
+  if (!document && !loading) return null
+  if (loading) return <Loading/>
   
   return <div className={classes.subscribedItem}>
     <div className={classes.subscribedItemDescription}>
@@ -143,6 +144,15 @@ const ViewSubscriptionsPage = ({classes}) => {
       fragmentName="localGroupsBase"
       renderDocument={group => group.name}
       noSubscriptionsMessage="You are not subscribed to any local groups."
+    />
+
+    <SubscriptionsList
+      title="Subscribed to Tags"
+      collectionName="Tags"
+      subscriptionType="newTagPosts"
+      fragmentName="TagPreviewFragment"
+      renderDocument={tag => <Link to={Tags.getUrl(tag)}>{tag.name}</Link>}
+      noSubscriptionsMessage="You are not subscribed to any tags."
     />
     
     

@@ -6,6 +6,7 @@ import Users from '../../../lib/collections/users/collection'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
+import { withPostsRead, PostsReadContextType } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -49,7 +50,7 @@ const styles = theme => ({
 interface ExternalProps {
   post: PostsList,
 }
-interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps {
+interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps, PostsReadContextType {
   markAsReadOrUnread: any,
   setAlignmentPostMutation: any,
 }
@@ -57,17 +58,21 @@ interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserP
 class PostActions extends Component<PostActionsProps,{}> {
 
   handleMarkAsRead = () => {
-    this.props.markAsReadOrUnread({
-      postId: this.props.post._id,
+    const {markAsReadOrUnread, post, setPostRead} = this.props;
+    markAsReadOrUnread({
+      postId: post._id,
       isRead: true,
     });
+    setPostRead(post._id, true);
   }
   
   handleMarkAsUnread = () => {
-    this.props.markAsReadOrUnread({
-      postId: this.props.post._id,
+    const {markAsReadOrUnread, post, setPostRead} = this.props;
+    markAsReadOrUnread({
+      postId: post._id,
       isRead: false,
     });
+    setPostRead(post._id, false);
   }
   
   handleMoveToMeta = () => {
@@ -154,9 +159,12 @@ class PostActions extends Component<PostActionsProps,{}> {
   }
 
   render() {
-    const { classes, post, currentUser } = this.props
+    const { classes, post, postsRead, currentUser } = this.props
     const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    if (!post) return null;
     const postAuthor = post.user;
+    
+    const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
     
     return (
       <div className={classes.actions}>
@@ -216,7 +224,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             </MenuItem>
           </div>
         }
-        { post.isRead
+        { isRead
           ? <div onClick={this.handleMarkAsUnread}>
               <MenuItem>
                 Mark as Unread
@@ -323,7 +331,8 @@ const PostActionsComponent = registerComponent<ExternalProps>('PostActions', Pos
     }),
     withSetAlignmentPost({
       fragmentName: "PostsList"
-    })
+    }),
+    withPostsRead,
   ]
 });
 

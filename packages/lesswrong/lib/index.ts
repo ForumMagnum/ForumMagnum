@@ -178,7 +178,6 @@ import './alignment-forum/users/helpers';
 import './alignment-forum/users/views';
 
 import './analyticsEvents';
-import './abTests';
 import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';

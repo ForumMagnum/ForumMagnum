@@ -10,6 +10,7 @@ import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import Users from "../users/collection";
 import { Posts } from './collection';
+import Sentry from '@sentry/core';
 
 export const formGroups = {
   default: {
@@ -920,7 +921,12 @@ addFieldsDict(Posts, {
     graphQLtype: GraphQLJSON,
     resolver: async (document, args, context: ResolverContext) => {
       const { currentUser } = context;
-      return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
+      try {
+        return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
+      } catch(e) {
+        Sentry.captureException(e);
+        return null;
+      }
     },
   }),
 
@@ -931,7 +937,12 @@ addFieldsDict(Posts, {
     graphqlArguments: 'version: String',
     resolver: async (document, { version=null }, context: ResolverContext) => {
       const { currentUser } = context;
-      return await Utils.getTableOfContentsData({document, version, currentUser, context});
+      try {
+        return await Utils.getTableOfContentsData({document, version, currentUser, context});
+      } catch(e) {
+        Sentry.captureException(e);
+        return null;
+      }
     },
   }),
 
