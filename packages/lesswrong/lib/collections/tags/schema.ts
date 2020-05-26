@@ -12,6 +12,12 @@ const formGroups = {
 };
   
 export const schema = {
+  createdAt: {
+    optional: true,
+    type: Date,
+    canRead: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
+  },
   name: {
     type: String,
     viewableBy: ['guests'],
