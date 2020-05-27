@@ -76,10 +76,6 @@ const styles = theme => ({
         width: "100% !important",
       },
     }
-  },
-  titleWrapper: {
-    display: "flex",
-    alignItems: "center"
   }
 })
 
@@ -94,10 +90,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
     return '/s/' + sequence._id
   }
   const { hover, anchorEl } = useHover()
-  const { PopperCard, SequenceTooltip } = Components;
+  const { PopperCard, SequenceTooltip, LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <Link className={classes.root} to={url}>
+  return <LinkCard className={classes.root} to={url}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -122,7 +118,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
     <PopperCard open={hover} anchorEl={anchorEl}>
       <SequenceTooltip sequence={sequence}/>
     </PopperCard>
-  </Link>
+  </LinkCard>
 }
 
 const SequencesGridItemComponent = registerComponent('SequencesGridItem', SequencesGridItem, {styles});
