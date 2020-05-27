@@ -668,6 +668,10 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationSubscribedTagPost: {
+    label: "Posts added to tags I'm subscribed to",
+    ...notificationTypeSettingsField(),
+  },
   notificationPrivateMessage: {
     label: "Private messages",
     ...notificationTypeSettingsField({ channel: "both" }),
