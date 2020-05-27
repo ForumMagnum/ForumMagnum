@@ -61,7 +61,7 @@ const FrontpageReviewPhase = ({classes, settings}) => {
         </div>
       </LWTooltip>
       <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
-        <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
+        <RecommendationsList algorithm={reviewAlgorithm} />
       </AnalyticsContext>
       <SectionFooter>
         <Link to={"/reviews"}>
