@@ -10,22 +10,22 @@ import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import htmlToText from 'html-to-text';
-import cheerio from 'cheerio'
 import * as _ from 'underscore';
 import { Random } from 'meteor/random';
 
 const postgresImportDetails = {
   host: 'localhost',
   port: 5432,
-  database: 'oldforum',
-  user: 'jpaddison', // If this is the logged-in user on localhost, no need for password
-  password: ''
+  database: 'reddit',
+  user: 'reddit',
+  password: '' // Ommitted for obvious reasons
 }
 
 Vulcan.postgresImport = async () => {
   // Set up DB connection
   let postgresConnector = pgp({});
   let database = postgresConnector(postgresImportDetails);
+
 
   /*
     USER DATA IMPORT
@@ -85,11 +85,6 @@ Vulcan.postgresImport = async () => {
   // Construct post lookup table to avoid repeated querying
   legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
 
-  // Update posts scores
-  const nActivePostsUpdated = await batchUpdateScore({collection: Posts, forceUpdate: true})
-  console.log('nActivePostsUpdated', nActivePostsUpdated)
-  const nInactivePostsUpdated = await batchUpdateScore({collection: Posts, inactive: true, forceUpdate: true})
-  console.log('nInactivePostsUpdated', nInactivePostsUpdated)
   /*
     COMMENT DATA IMPORT
   */
@@ -118,7 +113,7 @@ Vulcan.postgresImport = async () => {
   commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
 
   //eslint-disable-next-line no-console
-  console.log("Finished Comment Data Processing") //, commentData[25], commentData[213]);
+  console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
 
   await upsertProcessedComments(commentData, legacyIdToCommentMap);
 
@@ -128,14 +123,8 @@ Vulcan.postgresImport = async () => {
   // construct comment lookup table to avoid repeated querying
   legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
-  // Update comment scores
-  const nActiveCommentsUpdated = await batchUpdateScore({collection: Comments, forceUpdate: true})
-  console.log('nActiveCommentsUpdated', nActiveCommentsUpdated)
-  const nInactiveCommentsUpdated = await batchUpdateScore({collection: Comments, inactive: true, forceUpdate: true})
-  console.log('nInactiveCommentsUpdated', nInactiveCommentsUpdated)
-
   //eslint-disable-next-line no-console
-  console.log("Finished data import");
+  console.log("Finished comment data import");
 }
 
 const addParentCommentId = (comment, parentComment) => {
@@ -162,7 +151,7 @@ Vulcan.syncUserPostCount = async () => {
   }))
   const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false})
   //eslint-disable-next-line no-console
-  console.log("Finished updating users:", loggableCursor(userUpdateCursor));
+  console.log("Finished updating users:", userUpdateCursor);
 }
 
 const deepObjectExtend = (target, source) => {
@@ -178,7 +167,7 @@ const upsertProcessedPosts = async (posts, postMap) => {
   const postUpdates = _.map(posts, (post) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
-      let set: any = {htmlBody: post.htmlBody, draft: post.draft, legacyData: post.legacyData};
+      let set: any = {legacyData: post.legacyData};
       if (post.deleted || post.spam) {
         set.status = 3;
       }
@@ -196,8 +185,8 @@ const upsertProcessedPosts = async (posts, postMap) => {
       }
     }
   })
-  const postUpsertCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
-  console.log("Upserted posts: ", loggableCursor(postUpsertCursor));
+  await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
+  // console.log("Upserted posts: ", postUpdateCursor);
 }
 
 const upsertProcessedUsers = async (users, userMap) => {
@@ -243,7 +232,7 @@ const bulkUpdateUsers = async (users, userMap) => {
   })
   const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
   //eslint-disable-next-line no-console
-  console.log("userUpdateCursor: ", loggableCursor(userUpdateCursor));
+  console.log("userUpdateCursor: ", userUpdateCursor);
 }
 
 const insertUser = async (user) => {
@@ -278,10 +267,10 @@ const upsertProcessedComments = async (comments, commentMap) => {
   let postUpdates: Array<any> = [];
   let userUpdates: Array<any> = [];
   let commentUpdates: Array<any> = [];
-  _.map(comments, comment => {
+  _.map(comments, (comment) => {
     const existingComment = commentMap.get(comment.legacyId);
     if (existingComment) {
-      let set: any = {legacyData: comment.legacyData, parentCommentId: comment.parentCommentId, topLevelCommentId: comment.topLevelCommentId, deleted: comment.deleted, isDeleted: comment.isDeleted};
+      let set: any = {legacyData: comment.legacyData, parentCommentId: comment.parentCommentId, topLevelCommentId: comment.topLevelCommentId};
       if (comment.retracted) {
         set.retracted = true;
       }
@@ -322,25 +311,18 @@ const upsertProcessedComments = async (comments, commentMap) => {
   if (_.size(postUpdates)) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
     //eslint-disable-next-line no-console
-    console.log("postUpdateCursor", loggableCursor(postUpdateCursor));
+    console.log("postUpdateCursor", postUpdateCursor);
   }
   if (_.size(userUpdates)) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
     //eslint-disable-next-line no-console
-    console.log("userUpdateCursor", loggableCursor(userUpdateCursor));
+    console.log("userUpdateCursor", userUpdateCursor);
   }
   if (_.size(commentUpdates)) {
     const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("commentUpdateCursor", commentUpdateCursor);
   }
-}
-
-const loggableCursor = (updateCursor) => {
-  return _.pick(updateCursor.result, [
-    'writeErrors', 'writeConcernErrors', 'nInserted',
-    'nUpserted', 'nMatched', 'nModified', 'nRemoved'
-  ])
 }
 
 const keyValueArraytoObject = (keyValueArray) => {
@@ -369,7 +351,7 @@ const legacyUserToNewUser = (user, legacyId) => {
 
 const legacyPostToNewPost = (post, legacyId, user) => {
   const body = htmlToText.fromString(post.article);
-  const isPublished = post.sr_id === "1" || post.sr_id === "2";
+  const isPublished = post.sr_id === "2" || post.sr_id === "3" || post.sr_id === "3391" || post.sr_id === "4";
   return {
     _id: Random.id(),
     legacy: true,
@@ -382,7 +364,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
         type: "html",
         data: post.article
       },
-      html: cleanHtml(post.article)
+      html: post.article
     },
     userIP: post.ip,
     status: post.deleted || post.spam ? 3 : 2,
@@ -395,119 +377,6 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
-}
-
-// / what tags do we get
-const BANNED_TAGS = [
-  'meta',
-  'head',
-  'title',
-  'style',
-  'script',
-  'form'
-]
-
-
-const BANNED_ATTRS = [
-  'style',
-  'target',
-  'class',
-  'width',
-  'height',
-  'id',
-  'name',
-  'size',
-  'clear',
-  'align',
-  'dir',
-  'lang',
-  'border',
-  'rel',
-  'rev',
-  'onclick',
-  'type',
-  'datetime',
-  'cite',
-  'cellspacing',
-  'cellpadding',
-  'valign',
-  'value',
-  'tabindex',
-  'action',
-  'span',
-  'bgcolor',
-  'data-params',
-  'frameborder',
-  'allowfullscreen',
-  'draggable',
-  'data-image-id',
-  'data-width',
-  'data-height',
-  'data-href',
-  'data-saferedirecturl',
-  'data-surl',
-  'sizes',
-  'srcset',
-  'data-sizes',
-  'data-srcset',
-  'data-sheets-value',
-  'data-sheets-numberformat',
-  'data-sheets-formula',
-  'start',
-  'data-sheets-userformat',
-  'data-ft',
-  'data-cke-saved-href',
-  'data-wpmedia-src',
-  'data-orcid',
-  'data-t',
-  'data-fn',
-  'data-ln',
-  'data-pos',
-  'data-tb',
-  'data-etype',
-  'data-mathml',
-  'data-original-height',
-  'data-original-width',
-  'data-block',
-  'data-editor',
-  'data-offset-key',
-  'hspace',
-  'vspace',
-  'data-lynx-mode',
-  'scrolling',
-  'seamless',
-  'data-file-id',
-  'data-xf-p',
-  'data-external',
-  'data-artdeco-is-focused',
-  'data-text',
-  'data-lynx-uri',
-  'contenteditable'
-]
-
-const cleanHtml = (htmlBody) => {
-  const $ = cheerio.load(htmlBody)
-  // Useful for debugging, but too much for every day
-  // console.log('htmlBody start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-  // console.log($.html())
-  // console.log('htmlBody end <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-
-  let needsRemoving = []
-  BANNED_TAGS.forEach(tag => {
-    if ($(tag).length > 0 && !needsRemoving.includes(tag)) needsRemoving.push(tag)
-    $(tag).remove()
-  })
-
-  $('*').each(function () {
-    const el = $(this)
-    BANNED_ATTRS.forEach(attr => el.removeAttr(attr))
-  })
-
-  const result = $.html()
-  // console.log('result start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-  // console.log(result)
-  // console.log('result end <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-  return result
 }
 
 const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
@@ -525,9 +394,8 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
     userId: author && author._id,
     baseScore: comment.ups - comment.downs,
     retracted: comment.retracted,
-    // TODO why are there two here
-    deleted: !author || !parentPost || comment.deleted,
-    isDeleted: !author || !parentPost || comment.isDeleted,
+    deleted: comment.deleted,
+    isDeleted: comment.isDeleted,
     createdAt: moment(comment.date).toDate(),
     postedAt: moment(comment.date).toDate(),
     contents: {
