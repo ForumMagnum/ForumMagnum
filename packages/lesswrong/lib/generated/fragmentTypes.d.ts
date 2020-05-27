@@ -1221,12 +1221,15 @@ interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
   readonly contents: RevisionEdit,
 }
 
-interface SequencesPageFragment { // fragment on Sequences
+interface SequencesPageTitleFragment { // fragment on Sequences
   readonly _id: string,
+  readonly title: string,
+}
+
+interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment on Sequences
   readonly createdAt: Date,
   readonly userId: string,
   readonly user: UsersMinimumInfo,
-  readonly title: string,
   readonly contents: RevisionDisplay,
   readonly gridImageId: string,
   readonly bannerImageId: string,
@@ -1615,6 +1618,7 @@ interface FragmentTypes {
   RevisionEdit: RevisionEdit
   ChaptersFragment: ChaptersFragment
   ChaptersEdit: ChaptersEdit
+  SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageFragment: SequencesPageFragment
   SequencesEdit: SequencesEdit
   SequencesNavigationFragment: SequencesNavigationFragment
