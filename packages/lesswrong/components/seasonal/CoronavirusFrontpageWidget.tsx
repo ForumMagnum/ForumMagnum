@@ -34,7 +34,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
         </LWTooltip>
       </SectionSubtitle>
       <AnalyticsContext listContext={"coronavirusWidget"} capturePostItemOnMount>
-        <RecommendationsList algorithm={samplingAlgorithm} />
+        <RecommendationsList algorithm={samplingAlgorithm} showLoginPrompt={false} />
       </AnalyticsContext>
       {!currentUser && <SectionFooter>
         <Link to={"/tag/coronavirus"}>
