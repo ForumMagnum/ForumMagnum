@@ -14,7 +14,7 @@ import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
-export const MENU_WIDTH = 18
+export const MENU_WIDTH = 80
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
@@ -27,7 +27,7 @@ export const styles = (theme) => ({
       width: "100%"
     },
     '&:hover $actions': {
-      opacity: .2,
+      opacity: .75,
     }
   },
   background: {
@@ -407,7 +407,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, SubscribeTo } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -553,6 +553,8 @@ const PostsItem2 = ({
           {<div className={classes.actions}>
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
+            <BookmarkButton post={post} placement="top" lightIcon={false}/>
+            <SubscribeTo document={post} showIcon />
           </div>}
 
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>

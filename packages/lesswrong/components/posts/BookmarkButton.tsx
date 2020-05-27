@@ -12,18 +12,23 @@ import Users from '../../lib/collections/users/collection';
 import {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
+import classNames from 'classnames';
 
 const styles = theme => ({
   icon: {
     cursor: "pointer",
-    color: theme.palette.grey[400]
+    color: "rgba(0, 0, 0, 0.54)"
+  },
+  lightIcon: {
+    color: theme.palette.grey[400] // some places require the icon color to be lighter to avoid being too ostentatious
   }
 })
 
-const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
+const BookmarkButton = ({classes, post, menuItem, placement="right", lightIcon=true}: {
   classes: ClassesType,
   post: PostsBase,
   menuItem?: boolean,
+  lightIcon?: boolean,
   placement?: TooltipProps["placement"],
 }) => {
   const currentUser = useCurrentUser();
@@ -84,9 +89,9 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   } else {
     return (
       <LWTooltip title={title} placement={placement}>
-        <span onClick={toggleBookmark} className={classes.icon}>
-        { icon }
-        </span>
+        <a onClick={toggleBookmark} className={classNames(classes.icon, {[classes.lightIcon]:lightIcon})}>
+          { icon }
+        </a>
       </LWTooltip>
     )
   }
