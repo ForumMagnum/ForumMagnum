@@ -11,20 +11,14 @@ const styles = (theme) => ({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: theme.spacing.unit*3,
-    marginBottom: 4,
+    paddingBottom: 4
+  },
+  divider: {
+    borderBottom: "solid 1px rgba(0,0,0,.15)"
   },
   title: {
     margin:0,
-    fontFamily: theme.typography.postStyle.fontFamily,
-    fontStyle: "italic"
-  },
-  leftDivider: {
-    borderTop: borderStyle,
-    width: theme.spacing.unit*4,
-    marginRight: theme.spacing.unit*1.5,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    },
+    fontFamily: theme.typography.postStyle.fontFamily
   },
   rightDivider: {
     flexGrow: 1,
@@ -57,22 +51,21 @@ const styles = (theme) => ({
   },
 })
 
-const SectionTitle = ({children, classes, className, title, dividers=true}: {
+const SectionTitle = ({children, classes, className, title, divider=true}: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
   title: React.ReactNode,
-  dividers?: boolean,
+  divider?: boolean,
 }) => {
   return (
-    <div className={classes.root}>
-      { dividers && title && <div className={classes.leftDivider}/>}
+    <div className={classNames(classes.root, {[classes.divider]: divider})}>
       <Typography variant='display1' className={classNames(classes.title, className)}>
         {title}
       </Typography>
-      { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>}
+      {/* { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>} */}
+      
       <div className={classes.children}>{ children }</div>
-      { children && dividers && <div className={classes.tailDivider}/>}
     </div>
   )
 }

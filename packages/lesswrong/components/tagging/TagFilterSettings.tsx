@@ -13,8 +13,18 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "center"
+    alignItems: "flex-start",
+    paddingBottom: 4,
+    borderBottom: "solid 1px rgba(0,0,0,.15)"
   },
+  addButton: {
+    border: "solid 1px rgba(0,0,0,.15)",
+    paddingLeft: 12,
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingRight: 18,
+    borderRadius: 3
+  }
 });
 
 const lwafPersonalBlogpostInfo = {
@@ -128,7 +138,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       }}
     />
 
-    {<AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+    {<div className={classes.addButton}>
+      <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
           setFilterSettings({
@@ -137,7 +148,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
           });
           captureEvent("tagAddedToFilters", {tagId, tagName})
         }
-      }}/>}
+      }}/>
+    </div>}
     {loadingSuggestedTags && <Loading/>}
   </div>
 }

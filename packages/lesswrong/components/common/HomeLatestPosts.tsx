@@ -86,26 +86,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
         <SingleColumnSection>
-          <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
-            <LWTooltip title={filterTooltip}>
-              <a className={classes.toggleFilters} onClick={() => {
-                  setFilterSettingsVisible(!filterSettingsVisible)
-                  captureEvent("filterSettingsClicked", {
-                    settingsVisible: !filterSettingsVisible,
-                    settings: filterSettings,
-                    pageSectionContext: "latestPosts"
-                  })
-                }}>
-              {filterSettingsVisible ? 
-                <><ExpandMoreIcon className={classes.downIcon}/> Hide Filters</>
-                : 
-                <><ChevronRightIcon className={classes.rightIcon} /> Show Tag Filters</>
-              }                
-              </a>
-            </LWTooltip>
-          </SectionTitle>
+          <SectionTitle divider={false} title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}/>
           <AnalyticsContext pageSectionContext="tagFilterSettings">
-              {filterSettingsVisible && <TagFilterSettings
+              <TagFilterSettings
                 filterSettings={filterSettings} setFilterSettings={(newSettings) => {
                   setFilterSettings(newSettings)
                   if (currentUser) {
@@ -117,7 +100,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                     })
                   }
                 }}
-            />}
+            />
           </AnalyticsContext>
           <AnalyticsContext listContext={"latestPosts"}>
             <PostsList2 terms={recentPostsTerms}>

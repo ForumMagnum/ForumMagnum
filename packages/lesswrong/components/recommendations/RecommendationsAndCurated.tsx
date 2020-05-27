@@ -42,8 +42,7 @@ const styles = theme => ({
     marginLeft: "auto"
   },
   sequenceGrid: {
-    marginTop: 8,
-    marginBottom: 8
+    // marginBottom: 8
   },
   loggedOutCustomizeLabel: {
     fontSize: "1rem",
@@ -127,15 +126,15 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
  
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
-        {currentUser ? 
+        {currentUser && 
           <LWTooltip title="Customize your recommendations">
-            <SettingsIcon onClick={this.toggleSettings} label="Customize"/>
+            <SettingsIcon showIcon={false} onClick={this.toggleSettings} label="Customize"/>
           </LWTooltip>
-          :
-          <LoginPopupButton title="Logged In users can adjust their recommendation settings">
+        }
+          {/* <LoginPopupButton title="Logged In users can adjust their recommendation settings">
             <SettingsIcon label="Customize Recommendations"/>
           </LoginPopupButton>
-        }
+        } */}
       </SectionTitle>
 
       {showSettings &&
