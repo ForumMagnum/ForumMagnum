@@ -1262,7 +1262,6 @@ addFieldsDict(Users, {
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
-      //Make sure to update this callback for Apollo2 upgrade
       if (data.slug && data.slug !== oldDocument.slug) {
         const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
         if (slugIsUsed) {
@@ -1276,7 +1275,6 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     onUpdate: ({data, oldDocument}) => {
-      // Make sure to update this callback for Apollo2 upgrade
       if (data.slug && data.slug !== oldDocument.slug)  {
         return [...(oldDocument.oldSlugs || []), oldDocument.slug]
       }
