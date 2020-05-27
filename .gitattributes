@@ -1,2 +1,1 @@
 settings-dev.json filter=crypt diff=crypt merge=crypt
-testfile.txt filter=crypt diff=crypt merge=crypt
