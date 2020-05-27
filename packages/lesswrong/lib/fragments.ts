@@ -65,6 +65,7 @@ registerFragment(`
     _id
     documentId
     documentType
+    deleted
     userId
     createdAt
     link

@@ -10,6 +10,7 @@ Notifications.addDefaultView(function (terms) {
       // ...alignmentForum, TODO: develop better notification system for AlignmentForum that properly filters 
       emailed: false,
       waitingForBatch: false,
+      deleted: false
     },
     options: {limit: 1000},
   };
