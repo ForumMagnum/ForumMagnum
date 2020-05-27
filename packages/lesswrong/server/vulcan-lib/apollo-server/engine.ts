@@ -1,6 +1,7 @@
-import { getSetting } from '../../../lib/vulcan-lib/settings';
+import { DatabaseServerSetting } from '../../databaseSettings';
 // see https://github.com/apollographql/apollo-cache-control
-export const engineApiKey = process.env.ENGINE_API_KEY || getSetting('apolloEngine.apiKey');
+const apolloEngineSettings = new DatabaseServerSetting<string | null>('apolloEngine.apiKey', null)
+export const engineApiKey = process.env.ENGINE_API_KEY || apolloEngineSettings.get()
 // options now available:
 // @see https://www.apollographql.com/docs/apollo-server/api/apollo-server.html#EngineReportingOptions
 export const engineConfig = engineApiKey

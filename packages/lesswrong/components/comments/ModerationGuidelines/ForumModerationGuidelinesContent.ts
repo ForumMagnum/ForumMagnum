@@ -1,7 +1,7 @@
-import { getSetting } from '../../../lib/vulcan-lib';
 import {frontpageGuidelinesLW, defaultGuidelinesLW} from './LWModerationGuidelinesContent'
 import {frontpageGuidelinesEA, defaultGuidelinesEA} from './EAModerationGuidelinesContent'
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-export const frontpageGuidelines = getSetting('forumType') === 'EAForum' ? frontpageGuidelinesEA : frontpageGuidelinesLW
-export const defaultGuidelines = getSetting('forumType') === 'EAForum' ? defaultGuidelinesEA : defaultGuidelinesLW
+export const frontpageGuidelines = forumTypeSetting.get() === 'EAForum' ? frontpageGuidelinesEA : frontpageGuidelinesLW
+export const defaultGuidelines = forumTypeSetting.get() === 'EAForum' ? defaultGuidelinesEA : defaultGuidelinesLW
 

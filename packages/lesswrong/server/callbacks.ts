@@ -26,6 +26,7 @@ function updateConversationActivity (message) {
   // Update latest Activity timestamp on conversation when new message is added
   const user = Users.findOne(message.userId);
   const conversation = Conversations.findOne(message.conversationId);
+  if (!conversation) throw Error(`Can't find conversation for message ${message}`)
   editMutation({
     collection: Conversations,
     documentId: conversation._id,

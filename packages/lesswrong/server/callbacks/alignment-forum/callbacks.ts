@@ -15,6 +15,7 @@ export const recalculateAFBaseScore = async (document) => {
 async function updateAlignmentKarmaServer (newDocument, vote) {
   // Update a
   const voter = Users.findOne(vote.userId)
+  if (!voter) throw Error(`Can't find voter to update Alignment Karma for vote: ${vote}`)
 
   if (Users.canDo(voter, "votes.alignment")) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
@@ -56,6 +57,7 @@ addCallback("votes.smallUpvote.sync", updateAlignmentKarmaServerCallback);
 async function updateAlignmentUserServer (newDocument, vote, multiplier) {
   if (newDocument.af && (newDocument.userId != vote.userId)) {
     const documentUser = Users.findOne({_id:newDocument.userId})
+    if (!documentUser) throw Error("Can't find user to update Alignment Karma")
     const newAfKarma = (documentUser.afKarma || 0) + ((vote.afPower || 0) * multiplier)
     if (newAfKarma > 0) {
       Users.update({_id:newDocument.userId}, {
@@ -146,6 +148,7 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
     })
   } else if (!document.af && oldDocument.af) {
     const documentUser = Users.findOne({_id:document.userId})
+    if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
     const newAfKarma = (documentUser.afKarma || 0) - (document.afBaseScore || 0)
     if (newAfKarma > 0) {
       await Users.update({_id:document.userId}, {$inc: {afKarma: -document.afBaseScore || 0}})

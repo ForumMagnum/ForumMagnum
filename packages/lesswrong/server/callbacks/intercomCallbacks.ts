@@ -1,5 +1,5 @@
 import { addCallback } from '../../lib/vulcan-lib';
-import intercomClient from '../../lib/events/server';
+import intercomClient from '../intercomSetup';
 
 
 function sendIntercomEvent (event, user) {

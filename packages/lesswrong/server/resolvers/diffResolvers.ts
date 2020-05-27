@@ -26,6 +26,9 @@ addGraphQLResolvers({
         version: afterRev,
         fieldName: "contents",
       });
+      if (!beforeUnfiltered || !afterUnfiltered) 
+        return null
+        
       const before: DbRevision|null = accessFilterSingle(currentUser, Revisions, beforeUnfiltered);
       const after: DbRevision|null = accessFilterSingle(currentUser, Revisions, afterUnfiltered);
       if (!before || !after)

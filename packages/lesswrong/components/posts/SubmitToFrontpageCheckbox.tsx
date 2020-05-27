@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const forumDefaultCheckboxLabels = {
   LessWrong: 'Moderators may promote to Frontpage',
@@ -10,7 +11,7 @@ const forumDefaultCheckboxLabels = {
   EAForum: 'Moderators may promote to Frontpage or Community'
 }
 
-const defaultCheckboxLabel = forumDefaultCheckboxLabels[getSetting<string>('forumType')]
+const defaultCheckboxLabel = forumDefaultCheckboxLabels[forumTypeSetting.get()]
 
 const defaultTooltipLWAF = ({classes}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
@@ -34,7 +35,7 @@ const forumDefaultTooltip = {
   EAForum: () => "Uncheck this box if you want your post to stay on your personal blog."
 }
 
-const defaultTooltip = forumDefaultTooltip[getSetting<string>('forumType')]
+const defaultTooltip = forumDefaultTooltip[forumTypeSetting.get()]
 
 const styles = theme => ({
   submitToFrontpageWrapper: {

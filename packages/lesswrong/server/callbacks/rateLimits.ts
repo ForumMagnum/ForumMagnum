@@ -1,12 +1,15 @@
 import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection';
-import { addCallback, getSetting } from '../vulcan-lib';
+import { addCallback } from '../vulcan-lib';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
 };
-const postInterval = Math.abs(parseInt(""+getSetting<number|string>('forum.postInterval', 30)));
-const maxPostsPer24Hours = Math.abs(parseInt(""+getSetting<number|string>('forum.maxPostsPerDay', 5)));
+
+
+const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterval', 30) // How long users should wait between each posts, in seconds
+const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPostsPerDay', 5) // Maximum number of posts a user can create in a day
 
 // Post rate limiting
 function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -39,11 +42,11 @@ function enforcePostRateLimit (user) {
   const numberOfPostsInPast24Hours = Users.numberOfItemsInPast24Hours(user, Posts, countsTowardsRateLimitFilter);
   
   // check that the user doesn't post more than Y posts per day
-  if(numberOfPostsInPast24Hours >= maxPostsPer24Hours) {
-    throw new Error(`Sorry, you cannot submit more than ${maxPostsPer24Hours} posts per day.`);
+  if(numberOfPostsInPast24Hours >= maxPostsPer24HoursSetting.get()) {
+    throw new Error(`Sorry, you cannot submit more than ${maxPostsPer24HoursSetting.get()} posts per day.`);
   }
   // check that user waits more than X seconds between posts
-  if(timeSinceLastPost < postInterval) {
-    throw new Error(`Please wait ${postInterval-timeSinceLastPost} seconds before posting again.`);
+  if(timeSinceLastPost < postIntervalSetting.get()) {
+    throw new Error(`Please wait ${postIntervalSetting.get()-timeSinceLastPost} seconds before posting again.`);
   }
 }
