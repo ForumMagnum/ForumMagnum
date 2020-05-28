@@ -21,9 +21,9 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
     fragmentName: 'PostsList',
   });
   const curatedDate = new Date(curatedResults && curatedResults[0]?.curatedDate)
-  const twoDaysAgo = new Date(new Date().getTime()-(2*24*60*60*1000));
+  const threeDaysAgo = new Date(new Date().getTime()-(3*24*60*60*1000));
 
-  if (!belowFold && (curatedDate > twoDaysAgo)) return null
+  if (!belowFold && (curatedDate > threeDaysAgo)) return null
 
   if (loading) return <Components.Loading/>;
   
