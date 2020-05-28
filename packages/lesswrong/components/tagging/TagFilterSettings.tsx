@@ -10,7 +10,6 @@ import { useTracking } from "../../lib/analyticsEvents";
 const styles = theme => ({
   root: {
     marginLeft: "auto",
-    marginBottom: 6,
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
