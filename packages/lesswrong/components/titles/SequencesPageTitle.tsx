@@ -13,7 +13,7 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}) => {
   const { document: sequence, loading } = useSingle({
     documentId: _id,
     collection: Sequences,
-    fragmentName: "SequencesPageFragment",
+    fragmentName: "SequencesPageTitleFragment",
     fetchPolicy: 'cache-only',
   });
   
