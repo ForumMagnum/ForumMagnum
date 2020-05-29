@@ -27,7 +27,7 @@ export const styles = (theme) => ({
       width: "100%"
     },
     '&:hover $actions': {
-      opacity: .75,
+      opacity: 1,
     }
   },
   background: {
@@ -106,11 +106,12 @@ export const styles = (theme) => ({
     }
   },
   author: {
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
+    width: 120,
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-start",
       width: "unset",
@@ -149,11 +150,11 @@ export const styles = (theme) => ({
     top: 2
   },
   actions: {
-    opacity: 0,
+    opacity: .2,
     display: "flex",
     position: "absolute",
     top: 0,
-    right: -MENU_WIDTH - 6,
+    right: 75,
     width: MENU_WIDTH,
     height: "100%",
     cursor: "pointer",
@@ -452,6 +453,10 @@ const PostsItem2 = ({
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>
 
+                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
+                </PostsItem2MetaInfo>}
+
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
                       eventType={"postItem"}
@@ -483,11 +488,7 @@ const PostsItem2 = ({
                   </div>
                 
                 }
-                
-
-                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
-                </PostsItem2MetaInfo>}
+              
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />
