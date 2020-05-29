@@ -4,6 +4,7 @@ import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
+import { Posts } from "../posts/collection"
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
@@ -279,19 +280,19 @@ const schema = {
   pageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, {Posts}: ResolverContext) => Posts.getPageUrl(post, true),
+    resolver: (post, args, context: ResolverContext) => Posts.getPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, {Posts}: ResolverContext) => Posts.getPageUrl(post, false),
+    resolver: (post, args, context: ResolverContext) => Posts.getPageUrl(post, false),
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }: ResolverContext) => {
+    resolver: (post, args, context: ResolverContext) => {
       return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
     },
   }),
@@ -307,19 +308,19 @@ const schema = {
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }: ResolverContext) => Posts.getEmailShareUrl(post),
+    resolver: (post, args, context: ResolverContext) => Posts.getEmailShareUrl(post),
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }: ResolverContext) => Posts.getTwitterShareUrl(post),
+    resolver: (post, args, context: ResolverContext) => Posts.getTwitterShareUrl(post),
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }: ResolverContext) => Posts.getFacebookShareUrl(post),
+    resolver: (post, args, context: ResolverContext) => Posts.getFacebookShareUrl(post),
   }),
 
   question: {

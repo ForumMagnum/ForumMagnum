@@ -9,7 +9,7 @@ import { hasEventsSetting } from '../../publicSettings';
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
-import Users from "../users/collection";
+import Users from "./collection";
 
 export const hashPetrovCode = (code) => {
   // @ts-ignore
@@ -596,16 +596,15 @@ addFieldsDict(Users, {
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
     resolver: async (user, args, context: ResolverContext) => {
-      const events: Array<DbLWEvent> = context.LWEvents.find(
+      const { currentUser, LWEvents } = context;
+      const events: Array<DbLWEvent> = LWEvents.find(
         {userId: user._id, name: 'login'},
         {
-          fields: context.Users.getViewableFields(context.currentUser, context.LWEvents),
           limit: 10,
           sort: {createdAt: -1}
         }
       ).fetch()
-      const filteredEvents: Array<Partial<DbLWEvent>> = await asyncFilter(events,
-        async (e: DbLWEvent) => await context.LWEvents.checkAccess(context.currentUser, e, context));
+      const filteredEvents = await accessFilterMultiple(currentUser, LWEvents, events, context);
       const IPs = filteredEvents.map(event => event.properties?.ip);
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs

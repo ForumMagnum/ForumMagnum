@@ -93,6 +93,7 @@ export const makeEditable = ({collection, options = {}}: {
           const { checkAccess } = Revisions
           if (version) {
             const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
+            if (!revision) return null;
             return await checkAccess(currentUser, revision, context) ? revision : null
           }
           return {

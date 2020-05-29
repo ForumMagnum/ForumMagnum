@@ -110,7 +110,7 @@ export const computeContextFromUser = async (user, headers): Promise<ResolverCon
   //add the headers to the context
   context.headers = headers;
 
-  context.locale = getHeaderLocale(headers, context.currentUser && context.currentUser.locale);
+  context.locale = getHeaderLocale(headers, null);
 
   return context;
 }

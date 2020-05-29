@@ -37,7 +37,8 @@ Utils.performCheck = async <T extends DbObject>(
   operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>,
   user: DbUser|null,
   checkedObject: T,
-  context: any,
+  
+  context: ResolverContext,
   documentId: string,
   operationName: string,
   collectionName: CollectionNameString

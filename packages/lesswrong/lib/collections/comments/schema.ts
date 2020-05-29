@@ -1,6 +1,7 @@
 import Users from '../users/collection';
 import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
+import { Comments } from '../comments/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
@@ -132,7 +133,7 @@ const schema = {
     type: String,
     canRead: ['guests'],
     resolver: (comment, args, context: ResolverContext) => {
-      return context.Comments.getPageUrl(comment, true)
+      return Comments.getPageUrl(comment, true)
     },
   }),
 
@@ -140,7 +141,7 @@ const schema = {
     type: String,
     canRead: ['guests'],
     resolver: (comment, args, context: ResolverContext) => {
-      return context.Comments.getPageUrl(comment, false)
+      return Comments.getPageUrl(comment, false)
     },
   }),
 

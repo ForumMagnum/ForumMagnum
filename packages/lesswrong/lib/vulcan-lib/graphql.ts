@@ -12,6 +12,7 @@ import GraphQLDate from 'graphql-date';
 import './config';
 import { Utils } from './utils';
 import { disableFragmentWarnings } from 'graphql-tag';
+import Users from '../collections/users/collection';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -209,7 +210,7 @@ export const GraphQLSchema: any = {
           const resolver = {
             [typeName]: {
               [resolverName]: (document, args, context: ResolverContext, info) => {
-                const { Users, currentUser } = context;
+                const { currentUser } = context;
                 // check that current user has permission to access the original non-resolved field
                 const canReadField = Users.canReadField(currentUser, field, document);
                 return canReadField

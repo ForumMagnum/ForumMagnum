@@ -10,6 +10,7 @@ import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import Users from "../users/collection";
 import { Posts } from './collection';
+import { Sequences } from '../sequences/collection';
 import Sentry from '@sentry/core';
 
 export const formGroups = {
@@ -413,7 +414,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
     resolver: async (post, { sequenceId }, context: ResolverContext) => {
-      const { currentUser, Posts, Sequences } = context;
+      const { currentUser, Posts } = context;
       if (sequenceId) {
         const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
         if (nextPostID) {
@@ -445,7 +446,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
     resolver: async (post, { sequenceId }, context: ResolverContext) => {
-      const { currentUser, Posts, Sequences } = context;
+      const { currentUser, Posts } = context;
       if (sequenceId) {
         const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
         if (prevPostID) {
@@ -479,12 +480,12 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
     resolver: async (post, { sequenceId }, context: ResolverContext) => {
-      const { currentUser, Sequences } = context;
+      const { currentUser, Sequences: SequencesContext } = context;
       let sequence = null;
       if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
-        sequence = await Sequences.loader.load(sequenceId);
+        sequence = await SequencesContext.loader.load(sequenceId);
       } else if (post.canonicalSequenceId) {
-        sequence = await Sequences.loader.load(post.canonicalSequenceId);
+        sequence = await SequencesContext.loader.load(post.canonicalSequenceId);
       }
 
       return await accessFilterSingle(currentUser, Sequences, sequence, context);

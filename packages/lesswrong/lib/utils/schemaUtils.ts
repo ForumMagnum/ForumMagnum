@@ -59,7 +59,9 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   const { checkAccess } = collection
   
   // Filter out nulls (docs that were referenced but didn't exist)
-  const existingDocs: Array<T> = _.filter(unfilteredDocs, d=>!!d);
+  // Explicit cast because the type-system doesn't detect that this is removing
+  // nulls.
+  const existingDocs: Array<T> = _.filter(unfilteredDocs, d=>!!d) as Array<T>;
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess ? await asyncFilter(existingDocs, async (d: T) => await checkAccess(currentUser, d, context)) : existingDocs
   // Apply field-level permissions

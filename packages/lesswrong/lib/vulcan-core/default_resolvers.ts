@@ -6,6 +6,7 @@ Default list, single, and total resolvers
 
 import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
 import Users from '../collections/users/collection'
+import { asyncFilter } from '../utils/asyncUtils';
 import * as _ from 'underscore';
 
 const defaultOptions = {
@@ -50,11 +51,11 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         // get selector and options from terms and perform Mongo query
         const parameters = await collection.getParameters(terms, {}, context);
         
-        const docs = await queryFromViewParameters(collection, terms, parameters);
+        const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
         
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
-        const viewableDocs = collection.checkAccess
-          ? _.filter(docs, doc => collection.checkAccess(currentUser, doc, context))
+        const viewableDocs: Array<T> = collection.checkAccess
+          ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
           : docs;
 
         // take the remaining documents and remove any fields that shouldn't be accessible
@@ -123,7 +124,8 @@ export function getDefaultResolvers<T extends DbObject>(options) {
             collection.checkAccess,
             currentUser,
             doc,
-            collection,
+            
+            context,
             documentId,
             `${typeName}.read.single`,
             collectionName
@@ -143,7 +145,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
   };
 }
 
-const queryFromViewParameters = async (collection, terms, parameters) => {
+const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: any, parameters: any): Promise<Array<T>> => {
   const selector = parameters.selector;
   const options = {
     ...parameters.options,

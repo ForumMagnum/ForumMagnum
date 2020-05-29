@@ -71,7 +71,9 @@ const schema = {
       fieldName: 'chapters',
       type: '[Chapter]',
       resolver: (sequence, args, context: ResolverContext) => {
-        const books = context.Chapters.find({sequenceId: sequence._id}, {fields: context.Users.getViewableFields(context.currentUser, context.Chapters), sort: {number: 1}}).fetch();
+        const books = context.Chapters.find(
+          {sequenceId: sequence._id},
+        ).fetch();
         return books;
       }
     }

@@ -7,7 +7,9 @@ const specificResolvers = {
     async moderateComment(root, { commentId, deleted, deletedPublic, deletedReason}, context: ResolverContext) {
       const {currentUser} = context;
       const comment = context.Comments.findOne(commentId)
+      if (!comment) throw new Error("Invalid commentId");
       const post = context.Posts.findOne(comment.postId)
+      if (!post) throw new Error("Cannot find post");
       
       if (currentUser && Users.canModeratePost(currentUser, post)) {
 
