@@ -281,6 +281,12 @@ if (forumTypeSetting.get() !== 'EAForum') {
       ...rationalitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
+    {
+      name: 'tagIndex',
+      path: '/tags',
+      componentName: 'PostsSingleRoute',
+      _id:"DHJBEsi4XJDw2fRFq"
+    },
   ])
 }
 
@@ -589,18 +595,6 @@ switch (forumTypeSetting.get()) {
       },
     ]);
     break;
-}
-
-// LW and AF
-if (getSetting('forumType') !== 'EAForum') {
-  addRoute([
-    {
-      name: 'tagIndex',
-      path: '/tags',
-      componentName: 'PostsSingleRoute',
-      _id:"DHJBEsi4XJDw2fRFq"
-    },
-  ])
 }
 
 addRoute([
