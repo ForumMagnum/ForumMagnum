@@ -40,6 +40,7 @@ const defaultOptions = {
     </div>
   ),
   pingbacks: false,
+  revisionsHaveCommitMessages: false,
 }
 
 export const editableCollections = new Set<string>()
@@ -61,7 +62,7 @@ export const makeEditable = ({collection, options = {}}: {
     hintText,
     order,
     pingbacks = false,
-    revisionsHaveCommitMessages = false,
+    //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
 
   const collectionName = collection.options.collectionName;

@@ -1034,7 +1034,7 @@ addFieldsDict(Users, {
     graphQLtype: '[Vote]',
     canRead: ['admins', 'sunshineRegiment'],
     resolver: async (document, args, context: ResolverContext) => {
-      const { Users, Votes, currentUser } = context;
+      const { Votes, currentUser } = context;
       const votes = await Votes.find({
         userId: document._id,
         cancelled: false,

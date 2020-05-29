@@ -26,7 +26,7 @@ const PostsRevisionSelect = ({ classes }: {
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
     skip: !post,
     terms: {
-      view: "viewsOnDocument",
+      view: "revisionsOnDocument",
       documentId: post?._id,
       fieldName: "contents",
     },
@@ -60,6 +60,6 @@ const PostsRevisionSelectComponent = registerComponent("PostsRevisionSelect", Po
 
 declare global {
   interface ComponentTypes {
-    PostsRevisionSelectComponent: typeof PostsRevisionSelect
+    PostsRevisionSelect: typeof PostsRevisionSelectComponent
   }
 }

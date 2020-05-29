@@ -327,7 +327,6 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
     resolver: (comment, args, context: ResolverContext) => {
-      const { Comments } = context;
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;

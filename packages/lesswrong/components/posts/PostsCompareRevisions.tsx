@@ -24,7 +24,7 @@ const PostsCompareRevisions = ({ classes }: {
   if (loadingPost || !post) return <Loading/>
   
   return <div className={classes.centralColumn}>
-    {post && <PostsPagePostHeader post={post}/>}
+    <PostsPagePostHeader post={post}/>
     
     <RevisionComparisonNotice before={versionBefore} after={versionAfter} />
     

@@ -293,7 +293,7 @@ async function buildRevision({ originalContents, currentUser }) {
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-const revisionIsChange = async (doc, fieldName) => {
+const revisionIsChange = async (doc, fieldName): boolean => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
   
@@ -308,7 +308,7 @@ const revisionIsChange = async (doc, fieldName) => {
     return true;
   }
   
-  return true; //DEBUG
+  return false;
 }
 
 export function addEditableCallbacks({collection, options = {}}: {

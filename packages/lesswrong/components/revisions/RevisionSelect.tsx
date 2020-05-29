@@ -43,11 +43,6 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
     });
   }, [beforeRevisionIndex, afterRevisionIndex, onPairSelected, revisions]);
   
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Cast to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any;
-  
   return <React.Fragment>
     {revisions.map((rev,i) => {
       const beforeDisabled = i<=afterRevisionIndex;

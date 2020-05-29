@@ -19,7 +19,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
     skip: !tag,
     terms: {
-      view: "viewsOnDocument",
+      view: "revisionsOnDocument",
       documentId: tag?._id,
       fieldName: "description",
     },

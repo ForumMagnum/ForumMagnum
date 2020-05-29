@@ -1,7 +1,6 @@
 import { Revisions } from './collection';
-import { ensureIndex } from '../../collectionUtils';
 
-Revisions.addView('viewsOnDocument', terms => {
+Revisions.addView('revisionsOnDocument', terms => {
   return {
     selector: {
       documentId: terms.documentId,
