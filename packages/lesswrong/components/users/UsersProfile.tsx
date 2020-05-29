@@ -163,7 +163,6 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const { query } = location;
     const user = getUserFromResults(results)
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
-
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -176,7 +175,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       return <Error404/>
     }
 
-    if (user.slug && user.slug !== slug) {
+    if (user.oldSlugs?.includes(slug)) {
       return <PermanentRedirect url={Users.getProfileUrlFromSlug(user.slug)} />
     }
 
