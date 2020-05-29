@@ -2,7 +2,6 @@ import React, { useCallback } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
-import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = theme => ({
@@ -52,6 +51,6 @@ const TagPageRevisionSelectComponent = registerComponent("TagPageRevisionSelect"
 
 declare global {
   interface ComponentTypes {
-    TagPageRevisionSelectComponent: typeof TagPageRevisionSelect
+    TagPageRevisionSelect: typeof TagPageRevisionSelectComponent
   }
 }

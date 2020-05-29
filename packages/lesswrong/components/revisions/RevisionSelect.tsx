@@ -37,8 +37,6 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   
   const compareRevs = useCallback(() => {
     if (!revisions) return;
-    const beforeVersion = revisions[beforeRevisionIndex].version;
-    const afterVersion = revisions[afterRevisionIndex].version;
     onPairSelected({
       before: revisions[beforeRevisionIndex],
       after: revisions[afterRevisionIndex]

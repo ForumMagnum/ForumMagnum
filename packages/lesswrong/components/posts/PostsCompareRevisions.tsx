@@ -20,7 +20,7 @@ const PostsCompareRevisions = ({ classes }: {
     fragmentName: "PostsWithNavigation",
   });
   
-  const { SingleColumnSection, CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, Loading } = Components;
+  const { CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, Loading } = Components;
   if (loadingPost || !post) return <Loading/>
   
   return <div className={classes.centralColumn}>

@@ -1,7 +1,6 @@
 import { addGraphQLResolvers, Utils } from '../vulcan-lib';
 import { asyncFilter } from '../utils/asyncUtils';
 import Users from '../collections/users/collection'
-import * as _ from 'underscore';
 
 const specificResolvers = {
   Query: {

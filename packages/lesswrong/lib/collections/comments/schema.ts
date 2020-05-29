@@ -317,7 +317,6 @@ const schema = {
     type: Number,
     viewableBy: ['guests'],
     resolver: (comment, args, context: ResolverContext) => {
-      const { Comments } = context;
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;

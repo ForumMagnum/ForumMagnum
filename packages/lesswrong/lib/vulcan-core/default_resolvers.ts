@@ -7,7 +7,6 @@ Default list, single, and total resolvers
 import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
 import Users from '../collections/users/collection'
 import { asyncFilter } from '../utils/asyncUtils';
-import * as _ from 'underscore';
 
 const defaultOptions = {
   cacheMaxAge: 300,

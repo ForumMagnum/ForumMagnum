@@ -1,6 +1,5 @@
 import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
-import { extractVersionsFromSemver } from '../../editor/utils'
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import Users from '../users/collection';
 

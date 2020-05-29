@@ -513,7 +513,7 @@ const schema = {
     viewableBy: ['guests'],
     graphqlArguments: 'tagId: String',
     resolver: async (post, {tagId}, context: ResolverContext) => {
-      const { Users, Posts, currentUser } = context;
+      const { currentUser } = context;
       const tagRels = await getWithLoader(TagRels,
         "tagRelByDocument",
         {

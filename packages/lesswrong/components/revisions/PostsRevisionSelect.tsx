@@ -4,7 +4,6 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
-import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   revisionList: {
@@ -14,7 +13,7 @@ const styles = theme => ({
 const PostsRevisionSelect = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, FormatDate, RevisionSelect, UsersName, Loading } = Components;
+  const { SingleColumnSection, RevisionSelect, Loading } = Components;
   const { params } = useLocation();
   const { history } = useNavigation();
   const postId = params._id;

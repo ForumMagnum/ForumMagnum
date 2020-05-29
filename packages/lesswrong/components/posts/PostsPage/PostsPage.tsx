@@ -12,7 +12,7 @@ import withNewEvents from '../../../lib/events/withNewEvents';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
-import { forumTitleSetting, forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting } from '../../../lib/instanceSettings';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270

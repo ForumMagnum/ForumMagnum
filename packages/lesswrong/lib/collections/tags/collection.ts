@@ -1,6 +1,5 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import Users from '../users/collection';

@@ -1,4 +1,3 @@
-import { asyncFilter } from '../../utils/asyncUtils';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
@@ -1334,7 +1333,7 @@ addFieldsDict(Users, {
       arguments: 'limit: Int = 5',
       type: '[Post]',
       resolver: async (user, { limit }, context: ResolverContext) => {
-        const { currentUser, Users, Posts } = context;
+        const { currentUser, Posts } = context;
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts, context);
       }
