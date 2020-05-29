@@ -10,32 +10,18 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hidden"|"Less"|"Included"|"More"|"Required"
-//export const filterModes: Array<FilterMode> = ["Hidden","Less","Included","More","Required"];
-export const filterModes: Array<FilterMode> = ["Hidden","Included","Required"];
+export type FilterMode = "Hidden"|"Default"|"Required"|number
 
 export const defaultFilterSettings: FilterSettings = {
   personalBlog: "Hidden",
-  tags: [
-    {
-      tagId: getSetting('coronavirusTagId'),
-      tagName: "Coronavirus",
-      filterMode: "Included",
-    }
-  ],
+  tags: [],
 }
 
 type FilterSummary = Partial<Record<FilterMode,string>>
 
-export const filterTooltips: FilterSummary = {
-  Hidden: "These posts will not appear on the home page",
-  Included: "These posts will appear on the home page (sorted normally)",
-  Required: "The home page will ONLY show posts that you have marked as 'required.'"
-}
-
 const lwafPersonalBlogpostFilterSummary: FilterSummary = {
   Hidden: "No Personal Blogposts",
-  Included: "All",
+  Default: "All",
   Required: "Personal Blog",
 }
 
@@ -48,7 +34,7 @@ const personalBlogpostFilterSummaries: {[forumType: string]: FilterSummary} = {
   AlignmentForum: lwafPersonalBlogpostFilterSummary,
   EAForum: {
     Hidden: "No Community Posts",
-    Included: "All",
+    Default: "Include Community Posts",
     Required: "Community Posts Only",
   }
 }
@@ -57,7 +43,7 @@ const forumPersonBlogpostFilterSummary: FilterSummary = personalBlogpostFilterSu
 
 export function filterSettingsToString(filterSettings: FilterSettings): string {
   let nonNeutralTagModifiers = _.filter(filterSettings.tags,
-    tag => tag.filterMode !== "Included");
+    tag => tag.filterMode !== "Default");
   let hasTagModifiers = nonNeutralTagModifiers.length > 0;
   
   // Filters on a tag?
@@ -69,7 +55,7 @@ export function filterSettingsToString(filterSettings: FilterSettings): string {
     // Filters is for only the selected tag?
     const singleTagFilter = nonNeutralTagModifiers[0]
     if (singleTagFilter.filterMode === "Required") {
-      if (filterSettings.personalBlog === "Included") {
+      if (filterSettings.personalBlog === "Default") {
         return singleTagFilter.tagName;
       } else if (filterSettings.personalBlog === "Hidden") {
         return `Frontpage ${singleTagFilter.tagName}`
@@ -77,7 +63,7 @@ export function filterSettingsToString(filterSettings: FilterSettings): string {
         return "Custom";
       }
     } else if (singleTagFilter.filterMode === "Hidden") {
-      if (filterSettings.personalBlog === "Included") {
+      if (filterSettings.personalBlog === "Default") {
         return `No ${singleTagFilter.tagName}`;
       } else if (filterSettings.personalBlog === "Hidden") {
         return `Frontpage, No ${singleTagFilter.tagName}`

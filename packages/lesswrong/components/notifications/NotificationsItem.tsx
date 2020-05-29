@@ -60,6 +60,7 @@ const styles = theme => ({
 interface ExternalProps {
   notification: any,
   lastNotificationsCheck: any,
+  currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
 }
 interface NotificationsItemProps extends ExternalProps, WithHoverProps, WithNavigationProps, WithStylesProps {
 }
@@ -76,7 +77,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
   }
 
   renderPreview = () => {
-    const { notification } = this.props
+    const { notification, currentUser } = this.props
     const { PostsPreviewTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
 
@@ -87,7 +88,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
         return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
       case 'message':
         return <Card>
-          <ConversationPreview conversationId={parsedPath?.params?._id} />
+          <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
         </Card>
       default:
         return null

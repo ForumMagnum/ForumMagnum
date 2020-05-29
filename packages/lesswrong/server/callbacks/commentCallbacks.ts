@@ -325,7 +325,7 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
       if (
         (comment.deleted || comment.deletedPublic) &&
         (deletedPublic || deletedReason) &&
-        !Users.canDo('comments.remove.all') &&
+        !Users.canDo(currentUser, 'comments.remove.all') &&
         comment.deletedByUserId !== currentUser._id) {
           throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
       }
@@ -340,7 +340,7 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&
         (deletedPublic || deleted) &&
-        !Users.canDo('comment.remove.all')
+        !Users.canDo(currentUser, 'comment.remove.all')
       ) {
         throw new Error("You cannot delete a comment that has children")
       }

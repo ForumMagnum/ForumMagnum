@@ -8,7 +8,10 @@ import Typography from '@material-ui/core/Typography';
 import qs from 'qs'
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({terms}) => {
+const InboxNavigation = ({terms, currentUser}: {
+  terms: any,
+  currentUser: UsersCurrent,
+}) => {
   const location = useLocation();
   const { query } = location;
   const { history } = useNavigation();
@@ -36,7 +39,7 @@ const InboxNavigation = ({terms}) => {
     <SingleColumnSection>
         <SectionTitle title="Your Conversations"/>
         {results?.length ?
-          results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} />) :
+          results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} currentUser={currentUser} />) :
           loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations. Go and be free.</Typography>
         }
         <SectionFooter>

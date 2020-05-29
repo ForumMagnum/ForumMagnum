@@ -39,7 +39,7 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId}: {
     imageStyle.objectFit = objectFit
   }
 
-  const imageUrl = `http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`;
+  const imageUrl = `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`;
 
   return <img
     src={imageUrl}

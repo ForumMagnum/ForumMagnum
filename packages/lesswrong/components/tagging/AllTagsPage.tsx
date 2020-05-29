@@ -4,34 +4,22 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import Typography from '@material-ui/core/Typography';
 import AddBoxIcon from '@material-ui/icons/AddBox';
-
-const styles = theme => ({
-  tag: {
-    display: "fle",
-  },
-  count: {
-    color: theme.palette.grey[600],
-    fontSize: "1rem",
-    position: "relative",
-  }
-});
 
 const AllTagsPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { results, loading } = useMulti({
+  const { results, loading, loadMoreProps } = useMulti({
     terms: {
       view: "allTagsAlphabetical",
     },
     collection: Tags,
-    fragmentName: "TagFragment",
-    limit: 100,
+    fragmentName: "TagPreviewFragment",
+    limit: 200,
     ssr: true,
   });
-  const { SingleColumnSection, SectionTitle, SectionButton, Loading } = Components;
+  const { SingleColumnSection, TagsListItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
   
   return (
     <SingleColumnSection>
@@ -42,21 +30,22 @@ const AllTagsPage = ({classes}: {
         </SectionButton>}
       </SectionTitle>
       {loading && <Loading/>}
-      {results && <ul>{results.map(tag => {
-        return <Typography key={tag._id} variant="body2" component="li" className={classes.tag}>
-          <Link to={`/tag/${tag.slug}`}>
-            {tag.name} {tag.postCount && <span className={classes.count}>({tag.postCount})</span>}
-          </Link>
-        </Typography>
-      })}</ul>}
-      {results && !results.length && <div>
-        There aren't any tags yet.
-      </div>}
+      <div>
+        {results && results.map(tag => {
+          return <div key={tag._id}>
+              <TagsListItem tag={tag}/>
+            </div>
+        })}
+        {results && !results.length && <div>
+          There aren't any tags yet.
+        </div>}
+      </div>
+      <LoadMore {...loadMoreProps}/>
     </SingleColumnSection>
   );
 }
 
-const AllTagsPageComponent = registerComponent("AllTagsPage", AllTagsPage, {styles});
+const AllTagsPageComponent = registerComponent("AllTagsPage", AllTagsPage);
 
 declare global {
   interface ComponentTypes {

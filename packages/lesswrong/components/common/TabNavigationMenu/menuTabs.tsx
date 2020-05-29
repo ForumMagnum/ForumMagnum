@@ -149,6 +149,9 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'subscribeWidget',
+      customComponent: Components.SubscribeWidget,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -160,12 +163,16 @@ export default {
       title: 'FAQ',
       link: '/faq',
       subItem: true,
-    },
-    {
+    }, {
       id: 'donate',
       title: "Donate",
       link: '/donate',
       subItem: true
+    }, {
+      id: 'tags',
+      title: 'Tags',
+      link: '/tags',
+      subItem: true,
     }
   ],
   AlignmentForum: [

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { InstantSearch, SearchBox, Hits } from 'react-instantsearch-dom';
+import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
+import Divider from '@material-ui/core/Divider';
 
 const styles = theme => ({
   root: {
@@ -28,6 +29,7 @@ const AddTag = ({onTagSelected, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
 }) => {
+  const { TagSearchHit } = Components
   const currentUser = useCurrentUser();
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState) => {
@@ -78,20 +80,23 @@ const AddTag = ({onTagSelected, classes}: {
       onSearchStateChange={searchStateChanged}
     >
       <SearchBox reset={null} focusShortcuts={[]}/>
-      
-      {searchOpen && <Hits hitComponent={({hit}) =>
-        <Components.TagSearchHit hit={hit}
-          onClick={ev => {
-            onTagSelected({tagId: hit._id, tagName: hit.name});
-            ev.stopPropagation();
-          }}
-        />
-      }/>}
+      <Configure hitsPerPage={searchOpen ? 12 : 6} />
+      <Hits hitComponent={({hit}) =>
+        <TagSearchHit hit={hit}
+            onClick={ev => {
+              onTagSelected({tagId: hit._id, tagName: hit.name});
+              ev.stopPropagation();
+            }}
+          />
+        }/>
     </InstantSearch>
-    {currentUser?.isAdmin &&
-      <Link to="/tag/create" className={classes.newTag}>
-        New Tag
-      </Link>}
+    <Divider/>
+    <Link to="/tags/all" className={classes.newTag}>
+      View All Tags
+    </Link>
+    {currentUser?.isAdmin && <Link to="/tag/create" className={classes.newTag}>
+      Create Tag
+    </Link>}
   </div>
 }
 

@@ -4,7 +4,6 @@ import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import Notifications from '../../lib/collections/notifications/collection';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -28,8 +27,11 @@ const styles = theme => ({
   },
 });
 
-const NotificationsList = ({ terms, classes }) => {
-  const currentUser = useCurrentUser();
+const NotificationsList = ({ terms, currentUser, classes }: {
+  terms: any,
+  currentUser: UsersCurrent,
+  classes: ClassesType,
+}) => {
   const { results, loadMore } = useMulti({
     terms,
     collection: Notifications,
@@ -48,6 +50,7 @@ const NotificationsList = ({ terms, classes }) => {
           <Components.NotificationsItem
             notification={notification}
             lastNotificationsCheck={lastNotificationsCheck}
+            currentUser={currentUser}
             key={notification._id}
           />
         )}

@@ -3,12 +3,22 @@ import { registerFragment } from '../../vulcan-lib';
 
 
 registerFragment(`
-  fragment PostsBase on Post {
-    # Core fields
+  fragment PostsMinimumInfo on Post {
     _id
-    title
-    url
     slug
+    title
+    draft
+    hideCommentKarma
+    af
+  }
+`);
+
+registerFragment(`
+  fragment PostsBase on Post {
+    ...PostsMinimumInfo
+    
+    # Core fields
+    url
     postedAt
     createdAt
     modifiedAt
@@ -32,6 +42,7 @@ registerFragment(`
     lastVisitedAt
     isRead
     lastCommentedAt
+    lastCommentPromotedAt
     canonicalCollectionSlug
     curatedDate
     commentsLocked
@@ -67,7 +78,6 @@ registerFragment(`
     authorIsUnreviewed
 
     # Alignment Forum
-    af
     afDate
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
@@ -83,6 +93,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     canonicalSource
+    noIndex
 
     shareWithUsers
     
@@ -92,6 +103,9 @@ registerFragment(`
     group {
       _id
       name
+    }
+    bestAnswer {
+      ...CommentsList
     }
   }
 `);
@@ -304,6 +318,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    coauthorUserIds
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -355,5 +370,24 @@ registerFragment(`
     slug
     _id
     bannedUserIds
+  }
+`)
+
+registerFragment(`
+  fragment SunshinePostsList on Post {
+    ...PostsList
+    
+    user {
+      ...UsersMinimumInfo
+      
+      # Author moderation info
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
+      
+      moderationGuidelines {
+        html
+      }
+    }
   }
 `)

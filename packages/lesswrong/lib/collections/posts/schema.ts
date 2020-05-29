@@ -1,10 +1,11 @@
 import Users from '../users/collection';
 import { Utils, getCollection } from '../../vulcan-lib';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { TagRels } from "../tagRels/collection";
+import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
 
 const formGroups = {
@@ -497,6 +498,13 @@ const schema = {
     canRead: ['guests'],
   },
 
+  lastCommentPromotedAt: {
+    type: Date,
+    optional: true,
+    hidden: true,
+    canRead: ['guests']
+  },
+
   tagRel: resolverOnlyField({
     type: "TagRel",
     graphQLtype: "TagRel",
@@ -510,8 +518,9 @@ const schema = {
         },
         'postId', post._id
       );
-      if (tagRels?.length) {
-        return Users.restrictViewableFields(currentUser, TagRels, tagRels)[0]
+      const filteredTagRels = accessFilterMultiple(currentUser, TagRels, tagRels)
+      if (filteredTagRels?.length) {
+        return filteredTagRels[0]
       }
     }
   }),
@@ -528,6 +537,37 @@ const schema = {
     type: Number,
     optional: true,
     hidden: true,
+  },
+
+  bestAnswer: resolverOnlyField({
+    type: "Comment",
+    graphQLtype: "Comment",
+    viewableBy: ['guests'],
+    resolver: async (post, args, { currentUser }) => {
+      if (post.question) {
+        if (post.lastCommentPromotedAt) {
+          const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
+          return accessFilterSingle(currentUser, Comments, comment)
+        } else {
+          const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+          return accessFilterSingle(currentUser, Comments, comment)
+        }
+      }
+    }
+  }),
+
+  // Tell search engines not to index this post. Useful for old posts that were
+  // from a time with different quality standards. Posts will still be findable
+  // in algolia. See PostsPage and HeadTags for their use of this field and the
+  // noIndexLowKarma migration for the setting of it.
+  noIndex: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
   },
 };
 
