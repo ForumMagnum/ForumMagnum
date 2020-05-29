@@ -210,12 +210,6 @@ addRoute([
     subtitleComponentName: 'TagPageTitle',
   },
   {
-    name: 'tagIndex',
-    path: '/tags',
-    componentName: 'PostsSingleRoute',
-    _id:"DHJBEsi4XJDw2fRFq"
-  },
-  {
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
@@ -286,6 +280,12 @@ if (forumTypeSetting.get() !== 'EAForum') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    },
+    {
+      name: 'tagIndex',
+      path: '/tags',
+      componentName: 'PostsSingleRoute',
+      _id:"DHJBEsi4XJDw2fRFq"
     },
   ])
 }
@@ -546,6 +546,11 @@ switch (forumTypeSetting.get()) {
         path: '/sequences',
         componentName: 'EASequencesHome'
       },
+      {
+        name: "TagsAll",
+        path:'/tags',
+        redirect: () => `/tags/all`,
+      }
       // {
       //   name: 'eaHandbookHome',
       //   path: '/handbook',
