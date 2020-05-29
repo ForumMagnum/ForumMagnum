@@ -1,3 +1,4 @@
+import { HTTP } from 'meteor/http'
 import * as _ from 'underscore';
 
 // Bulk apply a js function to a mongo collection; this is possibly less
@@ -44,7 +45,7 @@ export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, u
 // In the meteor shell:
 //
 // > Vulcan.fixAllTheThings('fee', 'bee')
-export const wrapVulcanAsyncScript = (name, scriptFunc) => async (...args) => {
+export const wrapVulcanAsyncScript = (name: string, scriptFunc: Function) => async (...args) => {
   try {
     // eslint-disable-next-line no-console
     console.log(`================ ${name} ================`)
@@ -64,4 +65,23 @@ export const wrapVulcanAsyncScript = (name, scriptFunc) => async (...args) => {
 
 export function getFieldsWithAttribute(schema, attributeName) {
   return _.filter(Object.keys(schema), (fieldName) => !!schema[fieldName][attributeName])
+}
+
+export async function urlIsBroken(url: string): Promise<boolean> {
+  try {
+    let result = HTTP.call('GET', url, {timeout: 5000});
+    if (result.statusCode >= 300 && result.statusCode <= 399) {
+      // Redirect. In principle this shouldn't happen because meteor's HTTP.call
+      // is documented to follow redirects by default. But maybe it does happen.
+      //eslint-disable-next-line no-console
+      console.log("Got "+result.statusCode+" redirect on "+url)
+      return false
+    } else if (result.statusCode !== 200) {
+      return true
+    } else {
+      return false
+    }
+  } catch(e) {
+    return true
+  }
 }
