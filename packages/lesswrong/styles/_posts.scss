@@ -27,10 +27,11 @@
 
 .posts-load-more, .comments-load-more {
   font-size: 16px;
-  color: rgba(100, 169, 105, 0.6);
+  color: #0C869B;
 
   margin-left: 10px;
   padding-top: 5px;
+
   @include max-small() {
     margin-top:20px;
   }

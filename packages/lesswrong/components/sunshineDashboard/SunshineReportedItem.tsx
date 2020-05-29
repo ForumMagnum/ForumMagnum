@@ -99,7 +99,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
           <SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
             <DoneIcon/>
           </SidebarAction>
-          <SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
+          <SidebarAction title="Spam (delete immediately)" onClick={this.handleDelete} warningHighlight>
             <DeleteIcon/>
           </SidebarAction>
         </SidebarActionMenu>

@@ -210,9 +210,6 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
             }}
           />}
         </div>
-        <div className={classes.divider}>
-          <Divider wings={false} />
-        </div>
       </div>
     );
   }

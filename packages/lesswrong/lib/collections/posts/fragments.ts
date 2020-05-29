@@ -318,6 +318,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    coauthorUserIds
     moderationGuidelines {
       ...RevisionEdit
     }

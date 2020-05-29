@@ -84,3 +84,6 @@ registerSetting('eaHomeSequenceFirstPostId', null, 'Post ID for the first post i
 // Custom analytics
 registerSetting('analytics.connectionString', null, 'Postgres connection string to the analytics database');
 registerSetting('analytics.environment', 'misconfigured', 'Environment being used to view the site');
+
+// Tags
+registerSetting('coronavirusTagId', 'tNsqhzTibgGJKPEWB', 'Id for the coronavirus tag in your database');

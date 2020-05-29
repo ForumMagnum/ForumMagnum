@@ -33,3 +33,4 @@ Accounts.validateLoginAttempt((attempt) => {
     return true;
   }
 })
+

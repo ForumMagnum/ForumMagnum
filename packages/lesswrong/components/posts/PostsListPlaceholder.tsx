@@ -12,8 +12,7 @@ const PostsListPlaceholder = ({count, classes}: {
     placeholders.push(
       <div key={i} className={classNames(
         classes.root,
-        classes.background,
-        {[classes.bottomBorder]: i !== count-1}
+        classes.background
       )}>
         <div className={classes.postsItem}>
           <span className={classes.title}>

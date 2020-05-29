@@ -8,7 +8,7 @@ const Meta = () => {
   const { SingleColumnSection, SectionTitle, PostsList2 } = Components
   return (
     <SingleColumnSection>
-      <SectionTitle title="Recent Meta Posts" />
+      <SectionTitle title="Recent Community Posts" />
       <PostsList2 terms={recentPostsTerms} />
     </SingleColumnSection>
   )

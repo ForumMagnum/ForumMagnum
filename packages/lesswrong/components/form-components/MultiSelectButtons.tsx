@@ -7,14 +7,14 @@ import * as _ from 'underscore';
 
 const styles = theme => ({
   button: {
-    
+
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
     fontWeight: 500,
     fontSize: "16px",
     fontFamily: "Roboto, sans-serif",
   },
-  
+
   selected: {
     color: "white",
     textTransform: "none",
@@ -25,12 +25,12 @@ const styles = theme => ({
       backgroundColor: "rgba(100,169,105, 0.5)",
     },
   },
-  
+
   notSelected: {
     textTransform: "none",
     color: "rgba(0,0,0,0.6)",
     backgroundColor: "rgba(0,0,0, 0)",
-    
+
     "&:hover": {
       backgroundColor: "rgba(0,0,0, 0.1)",
     },
@@ -41,7 +41,7 @@ const styles = theme => ({
 class MultiSelectButtons extends Component<any> {
   handleClick = (option) => {
     const { value } = this.props;
-    
+
     if (value && value.includes(option)) {
       this.context.updateCurrentValues({
         [this.props.path]: _.without(value, option)
@@ -55,7 +55,7 @@ class MultiSelectButtons extends Component<any> {
 
   render() {
     const { value, classes } = this.props;
-    
+
     return <div className="multi-select-buttons">
       {this.props.label && <label className="multi-select-buttons-label">{this.props.label}</label>}
       {this.props.options.map((option) => {

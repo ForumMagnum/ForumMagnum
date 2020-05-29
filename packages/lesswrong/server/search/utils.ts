@@ -178,6 +178,10 @@ Tags.toAlgolia = (tag: DbTag): Array<Record<string,any>>|null => {
     _id: tag._id,
     name: tag.name,
     slug: tag.slug,
+    core: tag.core,
+    defaultOrder: tag.defaultOrder,
+    suggestedAsFilter: tag.suggestedAsFilter,
+    postCount: tag.postCount,
     description,
   }];
 }

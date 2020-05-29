@@ -14,11 +14,12 @@ import { newDocumentMaybeTriggerReview } from './postCallbacks';
 const MINIMUM_APPROVAL_KARMA = 5
 
 const getLessWrongAccount = async () => {
-  let account = Users.findOne({username: "LessWrong"});
+  let account = Users.findOne({username: "AdminTeam"});
   if (!account) {
     const userData = {
-      username: "LessWrong",
-      email: "lesswrong@lesswrong.com",
+      // TODO nicer solution
+      username: "AdminTeam",
+      email: "forum@effectivealtruism.org",
     }
     const newAccount = await newMutation({
       collection: Users,

@@ -98,12 +98,14 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 
+importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
+
 // Outgoing RSS Feed builder
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget'));
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount'));
@@ -341,7 +343,6 @@ importComponent("SidebarInfo", () => require('../components/sunshineDashboard/Si
 importComponent("SidebarActionMenu", () => require('../components/sunshineDashboard/SidebarActionMenu'));
 importComponent("SidebarAction", () => require('../components/sunshineDashboard/SidebarAction'));
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount'));
-importComponent("LastCuratedDate", () => require('../components/sunshineDashboard/LastCuratedDate'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));

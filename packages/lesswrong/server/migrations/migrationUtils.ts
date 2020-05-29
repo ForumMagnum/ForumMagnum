@@ -127,7 +127,7 @@ export async function fillDefaultValues({ collection, fieldName, batchSize, load
 
   // eslint-disable-next-line no-console
   console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
-  
+
   let nModified = 0;
   
   await forEachBucketRangeInCollection({

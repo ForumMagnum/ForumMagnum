@@ -225,7 +225,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const standaloneNavigation = !location.currentRoute ||
       standaloneNavMenuRouteNames[getSetting<string>('forumType')]
         .includes(location.currentRoute.name)
-    
+
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>

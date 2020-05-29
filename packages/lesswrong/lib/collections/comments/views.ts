@@ -169,7 +169,7 @@ Comments.addView("recentComments", function (terms) {
 ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
 
 Comments.addView("recentDiscussionThread", function (terms) {
-  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+  const eighteenHoursAgo = moment().subtract(36, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -281,7 +281,7 @@ Comments.addView('topShortform', function (terms) {
     } }
     : null
   );
-  
+
   return {
     selector: {
       shortform: true,

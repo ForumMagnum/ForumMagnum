@@ -20,7 +20,7 @@ const serifStack = [
   'serif'
 ].join(',')
 
-
+// TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Merriweather Sans',
@@ -65,8 +65,11 @@ const theme = createLWTheme({
     fontDownloads: [
       "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
       "https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700",
+      // TODO we use these?
       "https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700",
       "https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,500,600,700",
+      // TODO we need to find where this is used in material ui and remove
+      "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
     ],
     fontFamily: sansSerifStack,
     body1: {
@@ -208,12 +211,6 @@ const theme = createLWTheme({
         fontWeight: 500,
       }
     },
-    SunshineSidebar: {
-      root: {
-        top: 30,
-        marginTop: 63
-      }
-    },
     FilterMode: {
       selected: {
         color: palette.primary.main
@@ -258,6 +255,12 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
+      }
+    },
+    SunshineSidebar: {
+      root: {
+        top: 30,
+        marginTop: 63
       }
     },
     PostsPageTitle: {

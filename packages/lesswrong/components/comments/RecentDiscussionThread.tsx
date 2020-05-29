@@ -66,12 +66,12 @@ const styles = theme => ({
     opacity: 0,
   },
   content :{
-    [theme.breakpoints.up('lg')]: {
+    [theme.breakpoints.up('md')]: {
       marginLeft: theme.spacing.unit*3,
     }
   },
   commentsList: {
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
       marginRight: 0
     }

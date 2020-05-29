@@ -418,7 +418,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
-    label: "I'm happy for LW site moderators to help enforce my policy",
+    label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -842,7 +842,7 @@ addFieldsDict(Users, {
   },
 
   mapLocationSet: {
-    type: Boolean, 
+    type: Boolean,
     canRead: ['guests'],
     ...denormalizedField({
       needsUpdate: data => ('mapLocation' in data),
@@ -867,7 +867,7 @@ addFieldsDict(Users, {
   htmlMapMarkerText: {
     type: String,
     canRead: ['guests'],
-    optional: true, 
+    optional: true,
     denormalized: true
   },
 
@@ -926,7 +926,7 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageMap: {
-    type: Boolean, 
+    type: Boolean,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -1026,7 +1026,7 @@ addFieldsDict(Users, {
         cancelled: false,
       }).fetch();
       if (!votes.length) return [];
-      return Users.restrictViewableFields(currentUser, Votes, votes);
+      return accessFilterMultiple(currentUser, Votes, votes);
     },
   }),
 

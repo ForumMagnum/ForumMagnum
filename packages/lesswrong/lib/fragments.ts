@@ -11,7 +11,7 @@ registerFragment(`
     slug
     groups
     services
-    
+
     karma
   }
 `);
@@ -77,7 +77,7 @@ registerFragment(`
 registerFragment(`
   fragment UsersCurrent on User {
     ...UsersMinimumInfo
-  
+
     _id
     username
     createdAt
