@@ -90,6 +90,9 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
           webSocketUrl: ckEditorWebsocketUrlSetting.get(),
           documentId: getCKEditorDocumentId(documentId, userId, formType)
         } : undefined,
+        collaboration: ckEditorCloudConfigured ? {
+          channelId: getCKEditorDocumentId(documentId, userId, formType)
+        } : undefined,
         sidebar: {
           container: sidebarRef.current
         },
