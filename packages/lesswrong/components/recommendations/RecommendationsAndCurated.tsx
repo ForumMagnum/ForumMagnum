@@ -42,7 +42,7 @@ const styles = theme => ({
     marginLeft: "auto"
   },
   sequenceGrid: {
-    // marginBottom: 8
+    marginTop: 8
   },
   loggedOutCustomizeLabel: {
     fontSize: "1rem",
@@ -151,7 +151,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
                 terms={{'view':'curatedSequences', limit:3}}
                 showAuthor={true}
                 showLoadMore={false}
-                smallerHeight
               />
             </div>
           </Hidden>

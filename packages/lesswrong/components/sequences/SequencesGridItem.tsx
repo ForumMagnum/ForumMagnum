@@ -5,15 +5,18 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { useHover } from '../common/withHover';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
     ...theme.typography.postStyle,
 
-    width: "33%",
-    padding: 15,
+    width: "calc(33% - 5px)",
+    boxShadow: "0 0 3px rgba(0,0,0,.2)",
     paddingBottom: 0,
     marginBottom: 10,
+    display: "flex",
+    flexDirection: "column",
 
     "&:hover": {
       boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
@@ -56,12 +59,20 @@ const styles = theme => ({
   },
 
   meta: {
-    marginTop: 10,
-    marginBottom: 8,
+    paddingLeft: 12,
+    paddingTop: 12,
+    paddingRight: 8,
+    paddingBottom: 5,
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center"
   },
-
+  hiddenAuthor: {
+    paddingBottom: 8
+  },
   image: {
-    backgroundColor: "#b4a78f",
+    backgroundColor: "#bbbbbb",
     display: 'block',
     height: 95,
     "& img": {
@@ -79,11 +90,10 @@ const styles = theme => ({
   }
 })
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight }: {
+const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  classes: ClassesType,
-  smallerHeight?: boolean
+  classes: ClassesType
 
 }) => {
   const getSequenceUrl = () => {
@@ -103,7 +113,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, smallerHeight 
         />
       </NoSSR>
     </div>
-    <div className={classes.meta}>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor})}>
       <Link key={sequence._id} to={url}>
         <Typography variant='title' className={classes.title}>
           {sequence.draft && <span className={classes.draft}>[Draft] </span>}
