@@ -11,8 +11,6 @@ import * as _ from 'underscore';
 import { defaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 const styles = theme => ({
   toggleFilters: {
@@ -41,7 +39,6 @@ const useFilterSettings = (currentUser: UsersCurrent|null) => {
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
-  const { captureEvent } = useTracking()
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -81,34 +78,32 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     </div>
   )
 
-  const filterTooltip = "Tag Filters let you adjust how much you see of different types of content in the Latest Posts section."
-
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
-        <SingleColumnSection>
-          <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
-          </SectionTitle>
-          <AnalyticsContext pageSectionContext="tagFilterSettings">
-                <TagFilterSettings
-                  filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                    setFilterSettings(newSettings)
-                    if (currentUser) {
-                      updateUser({
-                        selector: { _id: currentUser._id},
-                        data: {
-                          frontpageFilterSettings: newSettings
-                        },
-                      })
-                    }
-                  }}
-              />
-            </AnalyticsContext>
-          <AnalyticsContext listContext={"latestPosts"}>
-            <PostsList2 terms={recentPostsTerms}>
-              <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-            </PostsList2>
+      <SingleColumnSection>
+        <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
+        </SectionTitle>
+        <AnalyticsContext pageSectionContext="tagFilterSettings">
+              <TagFilterSettings
+                filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+                  setFilterSettings(newSettings)
+                  if (currentUser) {
+                    updateUser({
+                      selector: { _id: currentUser._id},
+                      data: {
+                        frontpageFilterSettings: newSettings
+                      },
+                    })
+                  }
+                }}
+            />
           </AnalyticsContext>
-        </SingleColumnSection>
+        <AnalyticsContext listContext={"latestPosts"}>
+          <PostsList2 terms={recentPostsTerms}>
+            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+          </PostsList2>
+        </AnalyticsContext>
+      </SingleColumnSection>
     </AnalyticsContext>
   )
 }

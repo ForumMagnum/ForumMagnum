@@ -131,7 +131,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
   
-  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
+  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -203,97 +203,6 @@ const RecentDiscussionThread = ({
     </div>
   )
 };
-
-/*class RecentDiscussionThread extends PureComponent {
-  state = { highlightVisible: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false }
-
-  showHighlight = () => {
-    this.setState(prevState => ({highlightVisible:!prevState.highlightVisible}));
-    this.markAsRead()
-  }
-
-  markAsRead = async () => {
-    this.setState({readStatus:true, markedAsVisitedAt: new Date(), expandAllThreads: true});
-    this.props.recordPostView({post:this.props.post})
-  }
-
-  render() {
-    const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
-    const { readStatus, showHighlight, markedAsVisitedAt, showSnippet } = this.state
-    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
-
-    const lastCommentId = comments && comments[0]?._id
-    const nestedComments = unflattenComments(comments);
-
-    const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
-
-    if (comments && !comments.length && post.commentCount != null) {
-      // New posts should render (to display their highlight).
-      // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
-      return null
-    }
-
-    const highlightClasses = classNames({
-      [classes.noComments]: post.commentCount === null
-    })
-
-    return (
-      <div className={classes.root}>
-        <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
-          <div className={classes.postItem}>
-            <PostsTitle wrap post={post} tooltip={false} read={userHasBoldPostItems(currentUser)}/>
-            <div className={classes.threadMeta} onClick={this.showHighlight}>
-              <PostsItemMeta post={post}/>
-              <ShowOrHideHighlightButton
-                className={classes.showHighlight}
-                open={highlightVisible}/>
-            </div>
-          </div>
-          { highlightVisible ?
-            <div className={highlightClasses}>
-              <PostsHighlight post={post} />
-            </div>
-            : <div className={highlightClasses} onClick={this.showHighlight}>
-                { showSnippet &&
-                  <ContentItemBody
-                    className={classes.postHighlight}
-                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
-                    description={`post ${post._id}`}
-                  />
-                }
-              </div>
-          }
-        </div>
-        <div className={classes.content}>
-          <div className={classes.commentsList}>
-            {nestedComments.map(comment =>
-              <div key={comment.item._id}>
-                <CommentsNode
-                  startThreadTruncated={true}
-                  expandAllThreads={this.props.expandAllThreads || this.state.expandAllThreads}
-                  scrollOnExpand
-                  nestingLevel={1}
-                  lastCommentId={lastCommentId}
-                  currentUser={currentUser}
-                  comment={comment.item}
-                  markAsRead={this.markAsRead}
-                  highlightDate={lastVisitedAt}
-                  //eslint-disable-next-line react/no-children-prop
-                  children={comment.children}
-                  key={comment.item._id}
-                  updateComment={updateComment}
-                  post={post}
-                  refetch={refetch}
-                  condensed
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-}*/
 
 const RecentDiscussionThreadComponent = registerComponent<ExternalProps>(
   'RecentDiscussionThread', RecentDiscussionThread, {
