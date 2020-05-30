@@ -14,7 +14,7 @@ const COMMENT_BORDER_GREY = "rgba(72,94,144,0.16)"
 
 const styles = theme => ({
   node: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: `solid 1px ${COMMENT_BORDER_GREY}`,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {

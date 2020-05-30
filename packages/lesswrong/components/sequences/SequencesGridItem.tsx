@@ -73,7 +73,7 @@ const styles = theme => ({
     paddingBottom: 8
   },
   image: {
-    backgroundColor: "#efefef",
+    backgroundColor: "#eee",
     display: 'block',
     height: 95,
     "& img": {

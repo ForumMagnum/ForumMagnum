@@ -18,7 +18,8 @@ const styles = (theme) => ({
   },
   title: {
     margin:0,
-    fontFamily: theme.typography.postStyle.fontFamily
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: "2.2rem"
   },
   rightDivider: {
     flexGrow: 1,

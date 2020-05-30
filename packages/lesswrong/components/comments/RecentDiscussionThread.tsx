@@ -14,6 +14,7 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
+    marginTop: 8,
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 50,
@@ -45,7 +46,7 @@ const styles = theme => ({
   },
   postHighlight: {
     ...postHighlightStyles(theme),
-    marginTop:5,
+    marginTop:12,
     maxWidth:600,
     maxHeight: 1000,
     marginBottom: 16,
@@ -88,7 +89,7 @@ const styles = theme => ({
     ...theme.typography.postStyle,
     marginTop: 0,
     marginBottom: 12,
-    fontSize: "1.85rem",
+    fontSize: "1.75rem",
   }
 })
 
@@ -160,7 +161,7 @@ const RecentDiscussionThread = ({
               open={highlightVisible}/>
           </div>
         </div>
-        { highlightVisible ?
+        { post.contents?.htmlHighlight && highlightVisible ?
           <div className={highlightClasses}>
             <PostsHighlight post={post} />
           </div>
@@ -168,7 +169,7 @@ const RecentDiscussionThread = ({
               { showSnippet &&
                 <ContentItemBody
                   className={classes.postHighlight}
-                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
+                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents.htmlHighlight)}}
                   description={`post ${post._id}`}
                 />
               }
