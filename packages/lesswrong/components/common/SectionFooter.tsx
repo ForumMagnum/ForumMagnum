@@ -6,10 +6,10 @@ const styles = (theme) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit*1.5,
-    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit/2,
+    marginLeft: theme.spacing.unit/2,
     color: theme.palette.lwTertiary.main,
     flexWrap: "wrap",
     '& > *': {

@@ -49,7 +49,7 @@ const styles = theme => ({
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[800],
     textTransform: "none !important",
   },
   homeIcon: {

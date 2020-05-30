@@ -14,10 +14,12 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 50,
+    boxShadow: "0 0 2px rgba(0,0,0,.2)",
+    borderRadius: 3,
+    background: "white",
   },
   postStyle: theme.typography.postStyle,
   postBody: {
@@ -45,7 +47,6 @@ const styles = theme => ({
     ...postHighlightStyles(theme),
     marginTop:5,
     maxWidth:600,
-    marginBottom:16,
     maxHeight: 1000,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
@@ -66,15 +67,28 @@ const styles = theme => ({
     opacity: 0,
   },
   content :{
-    [theme.breakpoints.up('md')]: {
-      marginLeft: theme.spacing.unit*3,
-    }
+    backgroundColor: "rgba(0,0,0,.025)",
+    padding: 12,
+    paddingBottom: 8
   },
   commentsList: {
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
       marginRight: 0
     }
+  },
+  post: {
+    paddingTop: 18,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingBottom: 12,
+  },
+  title: {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    marginTop: 0,
+    marginBottom: 12,
+    fontSize: "1.85rem",
   }
 })
 
@@ -134,9 +148,11 @@ const RecentDiscussionThread = ({
   })
   return (
     <div className={classes.root}>
-      <div>
+      <div className={classes.post}>
         <div className={classes.postItem}>
-          <PostsTitle wrap post={post}/>
+          <div className={classes.title}>
+            {post.title}
+          </div>
           <div className={classes.threadMeta} onClick={showHighlight}>
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton

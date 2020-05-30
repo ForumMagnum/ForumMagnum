@@ -18,10 +18,10 @@ const styles = theme => ({
   },
   addButton: {
     border: "solid 1px rgba(0,0,0,.15)",
-    paddingLeft: 12,
+    paddingLeft: 16,
     paddingTop: 4,
     paddingBottom: 4,
-    paddingRight: 18,
+    paddingRight: 22,
     borderRadius: 3
   }
 });

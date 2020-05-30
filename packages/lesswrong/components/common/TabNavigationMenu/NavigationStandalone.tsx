@@ -15,7 +15,7 @@ const styles = theme => ({
     top: 0,
     left:0,
     paddingTop: 15,
-    backgroundColor: "#ffffffd4",
+    // backgroundColor: "#ffffffd4",
   },
   footerBar: {
     [theme.breakpoints.up('lg')]: {

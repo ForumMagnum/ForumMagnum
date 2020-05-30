@@ -14,6 +14,7 @@ const styles = theme => ({
     cursor: "pointer",
   },
   commentInfo: {
+    borderRadius: 3,
     backgroundColor: "#f0f0f0",
     '&:hover': {
       backgroundColor: "#e0e0e0",
