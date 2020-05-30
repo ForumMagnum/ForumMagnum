@@ -48,6 +48,7 @@ const styles = theme => ({
     marginTop:5,
     maxWidth:600,
     maxHeight: 1000,
+    marginBottom: 16,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
@@ -81,7 +82,6 @@ const styles = theme => ({
     paddingTop: 18,
     paddingLeft: 12,
     paddingRight: 12,
-    paddingBottom: 12,
   },
   title: {
     ...theme.typography.display2,
