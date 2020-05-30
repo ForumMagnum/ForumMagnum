@@ -72,7 +72,7 @@ const styles = theme => ({
     paddingBottom: 8
   },
   image: {
-    backgroundColor: "#bbbbbb",
+    backgroundColor: "#efefef",
     display: 'block',
     height: 95,
     "& img": {
@@ -80,7 +80,6 @@ const styles = theme => ({
         width: "305px !important",
         height: "auto !important",
       },
-      opacity: .93,
       width: "100%",
       height: 95,
       [legacyBreakpoints.maxTiny]: {
