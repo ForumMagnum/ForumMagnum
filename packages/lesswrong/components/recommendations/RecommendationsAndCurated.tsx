@@ -19,7 +19,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*2,
   },
   subsection: {
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit,
   },
   footerWrapper: {
     display: "flex",
