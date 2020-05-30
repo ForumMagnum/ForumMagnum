@@ -86,22 +86,23 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
         <SingleColumnSection>
-          <SectionTitle divider={false} title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}/>
+          <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
+          </SectionTitle>
           <AnalyticsContext pageSectionContext="tagFilterSettings">
-              <TagFilterSettings
-                filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                  setFilterSettings(newSettings)
-                  if (currentUser) {
-                    updateUser({
-                      selector: { _id: currentUser._id},
-                      data: {
-                        frontpageFilterSettings: newSettings
-                      },
-                    })
-                  }
-                }}
-            />
-          </AnalyticsContext>
+                <TagFilterSettings
+                  filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+                    setFilterSettings(newSettings)
+                    if (currentUser) {
+                      updateUser({
+                        selector: { _id: currentUser._id},
+                        data: {
+                          frontpageFilterSettings: newSettings
+                        },
+                      })
+                    }
+                  }}
+              />
+            </AnalyticsContext>
           <AnalyticsContext listContext={"latestPosts"}>
             <PostsList2 terms={recentPostsTerms}>
               <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>

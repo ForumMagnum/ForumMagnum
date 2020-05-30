@@ -14,8 +14,7 @@ const styles = theme => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "flex-start",
-    paddingBottom: 4,
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    paddingBottom: 4
   },
   addButton: {
     border: "solid 1px rgba(0,0,0,.15)",

@@ -32,6 +32,9 @@ export const styles = (theme) => ({
   },
   background: {
     width: "100%",
+    background: "white",
+    boxShadow: '0 0 2px rgba(0,0,0,.1)',
+    marginBottom: 2,
   },
   postsItem: {
     display: "flex",
@@ -57,7 +60,7 @@ export const styles = (theme) => ({
     }
   },
   bottomBorder: {
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    // borderBottom: "solid 1px rgba(0,0,0,.2)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,

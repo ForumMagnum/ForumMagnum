@@ -51,7 +51,7 @@ const styles = (theme) => ({
   },
 })
 
-const SectionTitle = ({children, classes, className, title, divider=true}: {
+const SectionTitle = ({children, classes, className, title, divider=false}: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,

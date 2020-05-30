@@ -55,9 +55,13 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
 
 const styles = theme => ({
   main: {
-    margin: '50px auto 15px auto',
+    paddingTop: 50,
+    paddingBottom: 15,
+    marginLeft: "auto",
+    marginRight: "auto",
+    background: "rgba(0,0,0,.05)",
     [theme.breakpoints.down('sm')]: {
-      marginTop: 0,
+      paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
