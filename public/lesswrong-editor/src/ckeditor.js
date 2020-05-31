@@ -55,6 +55,8 @@ import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar'
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
+//
+import { CleanStyleTags } from './clean-styles-plugin'
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -114,7 +116,8 @@ const postEditorPlugins = [
 	TableToolbar,
 	Underline,
 	UploadAdapter,
-	Mathematics
+	Mathematics,
+	CleanStyleTags
 ];
 
 PostEditor.builtinPlugins = [
@@ -218,7 +221,8 @@ CommentEditor.builtinPlugins = [
 	Table,
 	Underline,
 	UploadAdapter,
-	// Mathematics
+	Mathematics,
+	CleanStyleTags
 ];
 
 CommentEditor.defaultConfig = {
