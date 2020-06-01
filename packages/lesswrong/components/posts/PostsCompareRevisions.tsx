@@ -18,6 +18,8 @@ const PostsCompareRevisions = ({ classes }: {
     documentId: postId,
     collection: Posts,
     fragmentName: "PostsWithNavigation",
+    extraVariables: { sequenceId: 'String' },
+    extraVariablesValues: { sequenceId: null },
   });
   
   const { CompareRevisions, PostsPagePostHeader, RevisionComparisonNotice, Loading } = Components;
