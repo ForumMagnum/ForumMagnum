@@ -8,7 +8,8 @@ export const subscriptionTypes = {
   newPosts: 'newPosts',
   newRelatedQuestions: 'newRelatedQuestions',
   newEvents: 'newEvents',
-  newReplies: 'newReplies'
+  newReplies: 'newReplies',
+  newTagPosts: 'newTagPosts'
 }
 
 const schema = {

@@ -21,7 +21,7 @@ Tags.addView('allTagsAlphabetical', terms => {
 Tags.addView('tagBySlug', terms => {
   return {
     selector: {
-      slug: terms.slug,
+      $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
       adminOnly: viewFieldAllowAny
     },
   };
@@ -56,5 +56,6 @@ Tags.addView('suggestedFilterTags', terms => {
 });
 
 ensureIndex(Tags, {slug:1, deleted:1});
+ensureIndex(Tags, {oldSlugs:1, deleted:1});
 ensureIndex(Tags, {core:1, deleted:1});
 ensureIndex(Tags, {suggestedAsFilter:1, deleted:1});

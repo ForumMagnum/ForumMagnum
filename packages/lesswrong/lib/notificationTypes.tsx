@@ -1,7 +1,9 @@
 import React from 'react';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { Comments } from './collections/comments'
+import { Comments } from './collections/comments';
+import { TagRels } from './collections/tagRels/collection';
+import { Tags } from './collections/tags/collection';
 import Messages from './collections/messages/collection';
 import Localgroups from './collections/localgroups/collection';
 import Users from './collections/users/collection';
@@ -49,6 +51,8 @@ const getDocument = (documentType, documentId) => {
       return Users.findOne(documentId);
     case "message":
       return Messages.findOne(documentId);
+    case "tagRel":
+      return TagRels.findOne(documentId);
     default:
       //eslint-disable-next-line no-console
       console.error(`Invalid documentType type: ${documentType}`);
@@ -151,6 +155,24 @@ export const NewShortformNotification = registerNotificationType({
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
+  },
+});
+
+export const taggedPostMessage = ({documentType, documentId}) => {
+  const tagRel = getDocument(documentType, documentId) as DbTagRel;
+  const tag = Tags.findOne({_id: tagRel.tagId})
+  const post = Posts.findOne({_id: tagRel.postId})
+  return `New post tagged '${tag?.name}: ${post?.title}'`
+}
+
+export const NewTagPostsNotification = registerNotificationType({
+  name: "newTagPosts",
+  userSettingField: "notificationSubscribedTagPost",
+  getMessage({documentType, documentId}) {
+    return taggedPostMessage({documentType, documentId})
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles}/>
   },
 });
 

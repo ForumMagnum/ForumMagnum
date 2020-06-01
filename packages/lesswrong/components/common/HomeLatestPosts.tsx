@@ -81,7 +81,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     </div>
   )
 
-  const filterTooltip = "Change filters on coronavirus content and personal blogposts in the Latest Posts section."
+  const filterTooltip = "Tag Filters let you adjust how much you see of different types of content in the Latest Posts section."
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
@@ -97,7 +97,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                   })
                 }}>
               {filterSettingsVisible ? 
-                <><ExpandMoreIcon className={classes.downIcon}/> Hide Tag Filters</>
+                <><ExpandMoreIcon className={classes.downIcon}/> Hide Filters</>
                 : 
                 <><ChevronRightIcon className={classes.rightIcon} /> Show Tag Filters</>
               }                

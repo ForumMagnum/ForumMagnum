@@ -46,6 +46,7 @@ importComponent("newFeedButton", () => require('../components/feeds/newFeedButto
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
+importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));
 importComponent("SubscribeTo", () => require('../components/notifications/SubscribeTo'));

@@ -5,7 +5,10 @@
     "npm": "^3.0"
   },
   "scripts": {
-    "checktypes": "tsc --noEmit --skipLibCheck",
+    "checktypes": "scripts/lint_and_checktypes.sh",
+    "lint": "scripts/lint_and_checktypes.sh",
+    "tsc": "tsc --noEmit --skipLibCheck",
+    "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --exclude-archs web.browser.legacy --settings settings-dev.json",
     "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
@@ -16,7 +19,6 @@
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor meteor --settings settings-af.json --port 3030",
     "start-af-prod-db": "../LessWrong-Credentials/run-local-dev-af-proddb.sh",
     "debug-af": "meteor --settings settings-af.json --inspect run",
-    "lint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings sample_settings.json --port 3200 --full-app",
     "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings sample_settings.json --port 3200 --full-app --once",
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings settings.json --port 3200 --full-app --once",
@@ -24,7 +26,7 @@
     "generate": "scripts/generateTypes.sh"
   },
   "dependencies": {
-    "@babel/runtime": "7.7.7",
+    "@babel/runtime": "^7.7.7",
     "@ckeditor/ckeditor5-build-balloon-block": "./public/lesswrong-editor",
     "@google/maps": "^0.5.5",
     "@lesswrong/lesswrong-editor": "./public/lesswrong-editor/",

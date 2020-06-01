@@ -95,6 +95,23 @@ export default class MathEditing extends Plugin {
 						return modelWriter.createElement( 'mathtex', { equation, type } );
 					}
 				}
+			} )
+			// Mathjax-node way (e.g. <span class="mjx-chtml"><span aria-label="\sqrt{\frac{a}{b}}"/></span>)
+			.elementToElement( {
+				view: {
+					name: 'span',
+					classes: [ 'mjx-chtml' ]
+				},
+				model: ( viewElement, modelWriter ) => {
+					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
+					const firstChild = viewElement.getChild( 0 );
+					const classes = Array.from( viewElement.getClassNames() );
+					if ( classes.includes( 'MJXc-display' ) ) {
+						return modelWriter.createElement( 'mathtex-display', { equation: firstChild.getAttribute( 'aria-label' ), type } );
+					} else {
+						return modelWriter.createElement( 'mathtex', { equation: firstChild.getAttribute( 'aria-label' ), type } );
+					}
+				}
 			} );
 
 		// Model -> View (element)

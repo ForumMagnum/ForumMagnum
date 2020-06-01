@@ -18,10 +18,11 @@ import { defaultNotificationTypeSettings } from '../lib/collections/users/custom
 import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
-import { Components, addCallback, createMutator } from './vulcan-lib';
+import { Components, addCallback, createMutator, updateMutator } from './vulcan-lib';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
+import TagRels from '../lib/collections/tagRels/collection';
 
 // Return a list of users (as complete user objects) subscribed to a given
 // document. This is the union of users who have subscribed to it explicitly,
@@ -156,6 +157,15 @@ const createNotification = async (userId, notificationType, documentType, docume
   }
 }
 
+const removeNotification = async (notificationId) => {
+  updateMutator({
+    collection: Notifications,
+    documentId: notificationId,
+    data: { deleted: true },
+    validate: false
+  })
+}
+
 const sendPostByEmail = async (users, postId, reason) => {
   let post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
@@ -239,9 +249,13 @@ async function PostsUndraftNotification(post) {
 }
 addCallback("posts.undraft.async", PostsUndraftNotification);
 
+function postIsPublic (post) {
+  return !post.draft && post.status === Posts.config.STATUS_APPROVED
+}
+
 // Add new post notification callback on post submit
 async function postsNewNotifications (post) {
-  if (!post.draft && post.status === Posts.config.STATUS_APPROVED) {
+  if (postIsPublic(post)) {
 
     // add users who are subscribed to this post's author
     let usersToNotify = await getSubscribedUsers({
@@ -283,6 +297,24 @@ async function postsNewNotifications (post) {
   }
 }
 addCallback("posts.new.async", postsNewNotifications);
+
+async function RemoveRedraftNotifications(newPost, oldPost) {
+  if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
+      //eslint-disable-next-line no-console
+    console.info("Post redrafted, removing notifications");
+
+    // delete post notifications
+    const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
+    postNotifications.forEach(notification => removeNotification(notification._id))
+    // delete tagRel notifications
+    const tagRels = await TagRels.find({postId:newPost._id}).fetch()
+    tagRels.forEach(tagRel => {
+      const tagRelNotifications = Notifications.find({documentId: tagRel._id}).fetch()
+      tagRelNotifications.forEach(notification => removeNotification(notification._id))
+    })
+  }
+}
+addCallback("posts.edit.async", RemoveRedraftNotifications);
 
 function findUsersToEmail(filter) {
   let usersMatchingFilter = Users.find(filter).fetch();
@@ -343,6 +375,26 @@ function PostsCurateNotification (post, oldPost) {
   }
 }
 addCallback("posts.edit.async", PostsCurateNotification);
+
+async function TaggedPostNewNotifications(tagRel) {
+  const subscribedUsers = await getSubscribedUsers({
+    documentId: tagRel.tagId,
+    collectionName: "Tags",
+    type: subscriptionTypes.newTagPosts
+  })
+  const post = Posts.findOne({_id:tagRel.postId})
+  if (postIsPublic(post)) {
+    const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+    
+    // Don't notify the person who created the tagRel
+    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, [tagRel.userId])
+
+    //eslint-disable-next-line no-console
+    console.info("Post tagged, creating notifications");
+    await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'tagRel', tagRel._id);
+  }
+}
+addCallback("tagrels.new.async", TaggedPostNewNotifications);
 
 // add new comment notification callback on comment submit
 async function CommentsNewNotifications(comment) {
