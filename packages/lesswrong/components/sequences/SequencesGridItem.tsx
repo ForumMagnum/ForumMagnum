@@ -12,7 +12,7 @@ const styles = theme => ({
     ...theme.typography.postStyle,
 
     width: "calc(33% - 5px)",
-    boxShadow: "0 0 2px rgba(0,0,0,.1)",
+    boxShadow: theme.boxShadow,
     paddingBottom: 0,
     marginBottom: 10,
     display: "flex",

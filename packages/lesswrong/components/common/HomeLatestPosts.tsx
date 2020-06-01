@@ -11,6 +11,8 @@ import * as _ from 'underscore';
 import { defaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { sectionTitleStyle } from '../common/SectionTitle';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   toggleFilters: {
@@ -25,6 +27,17 @@ const styles = theme => ({
   downIcon: {
     marginLeft: -4,
     marginRight: 3
+  },
+  titleWrapper: {
+    display: "flex",
+    marginBottom: 4,
+    flexWrap: "wrap",
+    alignItems: "center"
+  },
+  title: {
+    ...sectionTitleStyle(theme),
+    display: "inline",
+    marginRight: 24
   }
 })
 
@@ -51,7 +64,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
 
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings } = Components
+  const { SingleColumnSection, PostsList2, LWTooltip, TagFilterSettings } = Components
   const limit = parseInt(query.limit) || 13
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
@@ -81,9 +94,11 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
-        </SectionTitle>
-        <AnalyticsContext pageSectionContext="tagFilterSettings">
+        <div className={classes.titleWrapper}>
+          <Typography variant='display1' className={classes.title}>
+            {latestPostsName}
+          </Typography>
+          <AnalyticsContext pageSectionContext="tagFilterSettings">
               <TagFilterSettings
                 filterSettings={filterSettings} setFilterSettings={(newSettings) => {
                   setFilterSettings(newSettings)
@@ -98,6 +113,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 }}
             />
           </AnalyticsContext>
+        </div>
         <AnalyticsContext listContext={"latestPosts"}>
           <PostsList2 terms={recentPostsTerms}>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>

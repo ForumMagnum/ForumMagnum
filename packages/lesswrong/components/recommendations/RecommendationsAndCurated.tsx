@@ -48,6 +48,9 @@ const styles = theme => ({
   loggedOutCustomizeLabel: {
     fontSize: "1rem",
     fontStyle: "italic"
+  },
+  posts: {
+    boxShadow: theme.boxShadow
   }
 });
 
@@ -201,14 +204,16 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             </SectionSubtitle>
           </Link>
         </LWTooltip>}
-        {!settings.hideFrontpage &&
-          <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-            <RecommendationsList algorithm={frontpageRecommendationSettings} />
+        <div className={classes.posts}>
+          {!settings.hideFrontpage &&
+            <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+              <RecommendationsList algorithm={frontpageRecommendationSettings} />
+            </AnalyticsContext>
+          }
+          <AnalyticsContext listContext={"curatedPosts"}>
+            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
           </AnalyticsContext>
-        }
-        <AnalyticsContext listContext={"curatedPosts"}>
-          <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
-        </AnalyticsContext>
+        </div>
       </div>
     </SingleColumnSection>
   }

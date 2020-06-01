@@ -18,11 +18,12 @@ const styles = theme => ({
   },
   addButton: {
     border: "solid 1px rgba(0,0,0,.15)",
-    paddingLeft: 16,
+    paddingLeft: 8,
     paddingTop: 4,
     paddingBottom: 4,
-    paddingRight: 22,
-    borderRadius: 3
+    paddingRight: 16,
+    borderRadius: 3,
+    marginBottom: 2,
   }
 });
 
@@ -91,7 +92,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       setFilterSettings(filterSettingsWithSuggestedTags);
   }
 
-  return <div className={classes.root}>
+  return <>
+    {loadingSuggestedTags && !filterSettings.tags.length && <Loading/>}
+
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
         label={tagSettings.tagName}
@@ -137,7 +140,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       }}
     />
 
-    {<div className={classes.addButton}>
+    {<span className={classes.addButton}>
       <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
@@ -148,9 +151,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
           captureEvent("tagAddedToFilters", {tagId, tagName})
         }
       }}/>
-    </div>}
-    {loadingSuggestedTags && <Loading/>}
-  </div>
+    </span>}
+  </>
 }
 
 const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagFragment>): FilterSettings => {

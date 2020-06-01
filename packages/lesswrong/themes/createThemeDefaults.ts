@@ -215,6 +215,7 @@ const createLWTheme = (theme) => {
         fontWeight: 600,
         marginBottom: ".5rem"
       },
+      boxShadow: "0 0 3px rgba(0,0,0,.2)",
       uiLink: {
         color: grey[500],
         '&:hover': {

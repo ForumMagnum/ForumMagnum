@@ -33,7 +33,6 @@ export const styles = (theme) => ({
   background: {
     width: "100%",
     background: "white",
-    boxShadow: '0 0 2px rgba(0,0,0,.1)',
     marginBottom: 2,
   },
   postsItem: {
@@ -441,6 +440,7 @@ const PostsItem2 = ({
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
+            [classes.isRead]: isRead
           })}
         >
           <PostsItemTooltipWrapper post={post}>
@@ -464,7 +464,7 @@ const PostsItem2 = ({
                     <PostsTitle
                         postLink={postLink}
                         post={post}
-                        read={isRead}
+                        // read={isRead}
                         sticky={isSticky(post, terms)}
                         showQuestionTag={showQuestionTag}
                     />

@@ -59,7 +59,7 @@ const styles = theme => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "rgba(0,0,0,.05)",
+    background: "rgba(0,0,0,.04)",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,

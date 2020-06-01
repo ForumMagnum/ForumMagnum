@@ -30,6 +30,9 @@ const styles = theme => ({
       marginLeft: 0,
       marginRight: 0,
     }
+  },
+  posts: {
+    boxShadow: theme.boxShadow,
   }
 })
 
@@ -160,24 +163,24 @@ const PostsList2 = ({
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
+      <div className={classes.posts}>
+        {orderedResults && orderedResults.map((post, i) => {
+          const props = {
+            post,
+            index: i,
+            terms, showNominationCount, showReviewCount, dense,
+            tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
+            defaultToShowUnreadComments, showPostedAt,
+            showQuestionTag: terms.filter!=="questions"
+          };
 
-      {orderedResults && orderedResults.map((post, i) => {
-        const props = {
-          post,
-          index: i,
-          terms, showNominationCount, showReviewCount, dense,
-          tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
-          defaultToShowUnreadComments, showPostedAt,
-          showQuestionTag: terms.filter!=="questions"
-        };
-
-        if (!(hidePosts && hidePosts[i])) {
-          return <PostsItem2 key={post._id} {...props} />
-        }
-      })}
+          if (!(hidePosts && hidePosts[i])) {
+            return <PostsItem2 key={post._id} {...props} />
+          }
+        })}
+      </div>
       {showLoadMore && <SectionFooter>
-        {(showLoadMore) &&
-          <div className={classes.loadMore}>
+        <div className={classes.loadMore}>
             <LoadMore
               loadMore={() => {
                 loadMore();
@@ -189,7 +192,6 @@ const PostsList2 = ({
             />
             { !dimWhenLoading && showLoading && loading && <Loading />}
           </div>
-        }
         { children }
       </SectionFooter>}
     </div>

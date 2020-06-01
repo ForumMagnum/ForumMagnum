@@ -6,13 +6,12 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 export const tagStyle = theme => ({
   display: "inline-block",
-  marginLeft: 1,
-  marginRight: 4,
+  marginRight: 3,
   padding: 5,
-  paddingLeft: 10,
-  paddingRight: 9,
+  paddingLeft: 8,
+  paddingRight: 7,
   marginBottom: 8,
-  backgroundColor: 'rgba(255,255,255,0.85)',
+  backgroundColor: 'rgba(0,0,0,0.07)',
   boxShadow: "0 0 2px rgba(0,0,0,.1)",
   borderRadius: 3,
   cursor: "pointer",

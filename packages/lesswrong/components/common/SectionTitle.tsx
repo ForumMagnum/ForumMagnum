@@ -5,6 +5,12 @@ import classNames from 'classnames'
 
 const borderStyle = "solid 2px rgba(0,0,0,.5)"
 
+export const sectionTitleStyle = theme => ({
+  margin:0,
+  ...theme.typography.postStyle,
+  fontSize: "2.2rem"
+})
+
 const styles = (theme) => ({
   root: {
     display: "flex",
@@ -17,9 +23,7 @@ const styles = (theme) => ({
     borderBottom: "solid 1px rgba(0,0,0,.15)"
   },
   title: {
-    margin:0,
-    fontFamily: theme.typography.postStyle.fontFamily,
-    fontSize: "2.2rem"
+    ...sectionTitleStyle(theme)
   },
   rightDivider: {
     flexGrow: 1,

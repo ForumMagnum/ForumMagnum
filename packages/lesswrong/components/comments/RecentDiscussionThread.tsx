@@ -18,7 +18,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 50,
-    boxShadow: "0 0 2px rgba(0,0,0,.2)",
+    boxShadow: theme.boxShadow,
     borderRadius: 3,
     background: "white",
   },
