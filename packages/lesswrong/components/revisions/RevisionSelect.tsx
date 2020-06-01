@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-core';
 import { Link } from '../../lib/reactRouterWrapper';
-import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
 import classNames from 'classnames';
