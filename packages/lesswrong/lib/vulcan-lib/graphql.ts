@@ -12,7 +12,6 @@ import GraphQLDate from 'graphql-date';
 import './config';
 import { Utils } from './utils';
 import { disableFragmentWarnings } from 'graphql-tag';
-import Users from '../collections/users/collection';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -211,6 +210,7 @@ export const GraphQLSchema: any = {
             [typeName]: {
               [resolverName]: (document, args, context: ResolverContext, info) => {
                 const { currentUser } = context;
+                const Users = context.Users as any; // Cast to any because monkeypatched functions aren't in the ResolverContext type definition
                 // check that current user has permission to access the original non-resolved field
                 const canReadField = Users.canReadField(currentUser, field, document);
                 return canReadField
