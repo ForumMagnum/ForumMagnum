@@ -92,3 +92,56 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment DeletedCommentsMetaData on Comment {
+    _id
+    deleted
+    deletedDate
+    deletedByUser {
+      _id
+      displayName
+    }
+    deletedReason
+    deletedPublic
+  }
+`)
+
+registerFragment(`
+  fragment DeletedCommentsModerationLog on Comment {
+    ...DeletedCommentsMetaData
+    user {
+      ...UsersMinimumInfo
+    }
+    post {
+      title
+      slug
+      _id
+    }
+  }
+`)
+
+registerFragment(`
+  fragment CommentsListWithPostMetadata on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment WithVoteComment on Comment {
+    __typename
+    _id
+    currentUserVotes{
+      _id
+      voteType
+      power
+    }
+    baseScore
+    score
+    afBaseScore
+    voteCount
+  }
+`);
