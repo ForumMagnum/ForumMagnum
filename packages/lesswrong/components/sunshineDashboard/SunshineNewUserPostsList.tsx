@@ -46,7 +46,7 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
             Post: {post.title} ({post.baseScore} karma)
           </Link>
         </MetaInfo>
-        <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
+        <div className={classes.postBody} dangerouslySetInnerHTML={{__html: post.contents?.htmlHighlight || ""}} />
       </div>)}
     </div>
   )

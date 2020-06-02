@@ -62,7 +62,7 @@ const styles = theme => ({
 const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
-  sequence: HasIdType,
+  sequence: HasIdType|null,
   classes: ClassesType,
 }) => {
   const { LoginPopupButton } = Components

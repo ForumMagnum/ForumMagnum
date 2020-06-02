@@ -405,7 +405,7 @@ const schema = {
 
   sourcePostRelations: resolverOnlyField({
     type: Array,
-    graphQLtype: '[PostRelation!]',
+    graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post, args, { Posts }: ResolverContext) => {
       return await PostRelations.find({targetPostId: post._id}).fetch()
@@ -418,7 +418,7 @@ const schema = {
 
   targetPostRelations: resolverOnlyField({
     type: Array,
-    graphQLtype: '[PostRelation!]',
+    graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post, args, { Posts }: ResolverContext) => {
       const postRelations = await Posts.rawCollection().aggregate([

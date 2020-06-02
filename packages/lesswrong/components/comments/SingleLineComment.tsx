@@ -122,7 +122,7 @@ interface SingleLineCommentProps extends ExternalProps, WithStylesProps, WithHov
 const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}: SingleLineCommentProps) => {
   if (!comment) return null
 
-  const { plaintextMainText } = comment.contents
+  const plaintextMainText = comment.contents?.plaintextMainText;
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview

@@ -45,7 +45,7 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
         <div className={classes.card}>
           {!tag && <Loading/>}
           {tag && <ContentItemBody
-            dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
+            dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight || ""}}
             description={`tag ${tag.name}`}
           />}
         </div>

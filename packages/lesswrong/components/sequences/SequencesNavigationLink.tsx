@@ -27,7 +27,7 @@ export const styles = theme => ({
 });
 
 const SequencesNavigationLink = ({ post, direction, classes }: {
-  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
+  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
   classes: ClassesType,
 }) => {

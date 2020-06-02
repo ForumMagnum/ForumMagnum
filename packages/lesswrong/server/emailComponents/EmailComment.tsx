@@ -73,7 +73,7 @@ const EmailComment = ({commentId, classes}) => {
         {comment.post.title}
       </a>
     </div>
-    <EmailContentItemBody dangerouslySetInnerHTML={{ __html: comment.contents.html }}/>
+    <EmailContentItemBody dangerouslySetInnerHTML={{ __html: comment.contents?.html }}/>
   </div>;
 }
 
