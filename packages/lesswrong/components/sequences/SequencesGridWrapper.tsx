@@ -13,14 +13,12 @@ const SequencesGridWrapper = ({
   classes,
   showLoadMore = false,
   showAuthor = false,
-  smallerHeight = false,
 }: {
   terms: any,
   className?: string,
   classes: ClassesType,
   showLoadMore?: boolean,
   showAuthor?: boolean,
-  smallerHeight?: boolean
 }) => {
   const { results, loading, count, totalCount, loadMore, loadingMore } = useMulti({
     terms,
@@ -32,7 +30,7 @@ const SequencesGridWrapper = ({
   
   if (results && results.length) {
     return (<div className={classNames(className, classes.gridWrapper)}>
-      <Components.SequencesGrid sequences={results} showAuthor={showAuthor} smallerHeight={smallerHeight} />
+      <Components.SequencesGrid sequences={results} showAuthor={showAuthor} />
       { showLoadMore && totalCount! > count! &&
           <div className={classes.loadMore}>
             <Components.LoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} />

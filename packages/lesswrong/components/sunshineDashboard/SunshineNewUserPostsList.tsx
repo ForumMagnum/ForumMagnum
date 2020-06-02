@@ -43,7 +43,7 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
         <MetaInfo>
           <Link to={`/posts/${post._id}`}>
             {(post.status !==2) && `[Spam] ${post.status}`}
-            Post: {post.title}
+            Post: {post.title} ({post.baseScore} karma)
           </Link>
         </MetaInfo>
         <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />

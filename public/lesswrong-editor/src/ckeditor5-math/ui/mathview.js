@@ -14,8 +14,9 @@ export default class MathView extends View {
 
 		this.on( 'change', async () => {
 			if ( this.isRendered ) {
-				await this.updateMath();
-				this.fire( 'updatedMath' );
+				this.updateMath().then( () => {
+					this.fire( 'updatedMath' );
+				} );
 			}
 		} );
 
