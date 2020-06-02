@@ -30,7 +30,7 @@ const PostsRevisionSelect = ({ classes }: {
       documentId: post?._id,
       fieldName: "contents",
     },
-    fetchMode: "cache-then-network",
+    fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
     ssr: true,
