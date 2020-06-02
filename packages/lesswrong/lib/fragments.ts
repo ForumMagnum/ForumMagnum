@@ -198,16 +198,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment CommentStats on Comment {
-    currentUserVotes{
-      ...VoteFragment
-    }
-    baseScore
-    score
-  }
-`);
-
-registerFragment(`
   fragment DeletedCommentsMetaData on Comment {
     _id
     deleted
@@ -334,46 +324,6 @@ registerFragment(`
     important
     properties
     intercom
-  }
-`);
-
-registerFragment(`
-  fragment commentWithContextFragment on Comment {
-    # example-forum
-    _id
-    parentCommentId
-    topLevelCommentId
-    contents {
-      ...RevisionDisplay
-    }
-    postedAt
-    # vulcan:users
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
-    # example-forum
-    # vulcan:voting
-    currentUserVotes{
-      ...VoteFragment
-    }
-    baseScore
-    score
-  }
-`);
-
-registerFragment(`
-  fragment commentInlineFragment on Comment {
-    # example-forum
-    _id
-    contents {
-      ...RevisionDisplay
-    }
-    # vulcan:users
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
   }
 `);
 

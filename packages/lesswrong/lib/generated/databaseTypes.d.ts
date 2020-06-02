@@ -161,11 +161,11 @@ interface DbNotification extends DbObject {
   createdAt: Date
   documentId: string
   documentType: string
-  deleted: boolean,
   link: string
   title: string
   message: string
   type: string
+  deleted: boolean
   viewed: boolean
   emailed: boolean
   waitingForBatch: boolean
@@ -394,13 +394,14 @@ interface TagsCollection extends CollectionBase<DbTag> {
 }
 
 interface DbTag extends DbObject {
+  createdAt: Date
   name: string
   slug: string
+  oldSlugs: Array<string>
   core: boolean
   suggestedAsFilter: boolean
   defaultOrder: number
   postCount: number
-  createdAt: Date
   createdBy: string
   adminOnly: boolean
   charsAdded: number
