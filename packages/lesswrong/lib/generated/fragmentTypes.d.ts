@@ -108,19 +108,30 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
-  readonly group: any,
+  readonly group: PostsBase_group|null,
   readonly bestAnswer: CommentsList,
 }
 
+interface PostsBase_group { // fragment on Localgroups
+  readonly _id: string,
+  readonly name: string,
+}
+
 interface PostsAuthors { // fragment on Posts
-  readonly user: any,
+  readonly user: PostsAuthors_user,
   readonly coauthors: Array<UsersMinimumInfo>,
 }
 
+interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean,
+}
+
 interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
-  readonly contents: PostsList_contents,
+  readonly contents: PostsList_contents|null,
   readonly moderationGuidelines: RevisionDisplay,
-  readonly customHighlight: PostsList_customHighlight,
+  readonly customHighlight: PostsList_customHighlight|null,
   readonly tags: Array<TagPreviewFragment>,
 }
 
@@ -147,12 +158,12 @@ interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
   readonly canonicalCollectionSlug: string,
   readonly canonicalSequenceId: string,
   readonly canonicalBookId: string,
-  readonly canonicalSequence: any,
-  readonly canonicalBook: any,
-  readonly canonicalCollection: PostsDetails_canonicalCollection,
+  readonly canonicalSequence: PostsDetails_canonicalSequence|null,
+  readonly canonicalBook: PostsDetails_canonicalBook|null,
+  readonly canonicalCollection: PostsDetails_canonicalCollection|null,
   readonly showModerationGuidelines: boolean,
   readonly moderationGuidelines: RevisionDisplay,
-  readonly customHighlight: PostsDetails_customHighlight,
+  readonly customHighlight: PostsDetails_customHighlight|null,
   readonly bannedUserIds: Array<string>,
   readonly hideAuthor: boolean,
   readonly moderationStyle: string,
@@ -161,6 +172,14 @@ interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
   readonly feed: RSSFeedMinimumInfo,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
   readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
+}
+
+interface PostsDetails_canonicalSequence { // fragment on Sequences
+  readonly title: string,
+}
+
+interface PostsDetails_canonicalBook { // fragment on Books
+  readonly title: string,
 }
 
 interface PostsDetails_canonicalCollection { // fragment on Collections
@@ -209,9 +228,9 @@ interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fra
 }
 
 interface PostSequenceNavigation { // fragment on Posts
-  readonly sequence: PostSequenceNavigation_sequence,
-  readonly prevPost: PostSequenceNavigation_prevPost,
-  readonly nextPost: PostSequenceNavigation_nextPost,
+  readonly sequence: PostSequenceNavigation_sequence|null,
+  readonly prevPost: PostSequenceNavigation_prevPost|null,
+  readonly nextPost: PostSequenceNavigation_nextPost|null,
 }
 
 interface PostSequenceNavigation_sequence { // fragment on Sequences
@@ -225,7 +244,7 @@ interface PostSequenceNavigation_prevPost { // fragment on Posts
   readonly slug: string,
   readonly commentCount: number,
   readonly baseScore: number,
-  readonly sequence: PostSequenceNavigation_prevPost_sequence,
+  readonly sequence: PostSequenceNavigation_prevPost_sequence|null,
 }
 
 interface PostSequenceNavigation_prevPost_sequence { // fragment on Sequences
@@ -238,7 +257,7 @@ interface PostSequenceNavigation_nextPost { // fragment on Posts
   readonly slug: string,
   readonly commentCount: number,
   readonly baseScore: number,
-  readonly sequence: PostSequenceNavigation_nextPost_sequence,
+  readonly sequence: PostSequenceNavigation_nextPost_sequence|null,
 }
 
 interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
@@ -282,7 +301,18 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 }
 
 interface SunshinePostsList extends PostsList { // fragment on Posts
-  readonly user: any,
+  readonly user: SunshinePostsList_user,
+}
+
+interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean,
+  readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
+}
+
+interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
+  readonly html: string,
 }
 
 interface CommentsList { // fragment on Comments
@@ -290,7 +320,7 @@ interface CommentsList { // fragment on Comments
   readonly postId: string,
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
-  readonly contents: CommentsList_contents,
+  readonly contents: CommentsList_contents|null,
   readonly postedAt: Date,
   readonly repliesBlockedUntil: Date,
   readonly userId: string,
@@ -350,9 +380,14 @@ interface DeletedCommentsMetaData { // fragment on Comments
   readonly _id: string,
   readonly deleted: boolean,
   readonly deletedDate: Date,
-  readonly deletedByUser: any,
+  readonly deletedByUser: DeletedCommentsMetaData_deletedByUser|null,
   readonly deletedReason: string,
   readonly deletedPublic: boolean,
+}
+
+interface DeletedCommentsMetaData_deletedByUser { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
 }
 
 interface DeletedCommentsModerationLog extends DeletedCommentsMetaData { // fragment on Comments
@@ -735,7 +770,7 @@ interface newConversationFragment { // fragment on Conversations
 interface messageListFragment { // fragment on Messages
   readonly _id: string,
   readonly user: UsersMinimumInfo,
-  readonly contents: messageListFragment_contents,
+  readonly contents: messageListFragment_contents|null,
   readonly createdAt: Date,
   readonly conversationId: string,
 }
@@ -1048,19 +1083,60 @@ interface UsersEdit extends UsersProfile { // fragment on Users
 interface unclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
-  readonly user: any,
+  readonly user: unclaimedReportsList_user,
   readonly commentId: string,
-  readonly comment: any,
+  readonly comment: unclaimedReportsList_comment|null,
   readonly postId: string,
-  readonly post: any,
+  readonly post: unclaimedReportsList_post|null,
   readonly closedAt: Date,
   readonly createdAt: Date,
   readonly claimedUserId: string,
-  readonly claimedUser: any,
+  readonly claimedUser: unclaimedReportsList_claimedUser|null,
   readonly link: string,
   readonly description: string,
   readonly reportedAsSpam: boolean,
   readonly markedAsSpam: boolean,
+}
+
+interface unclaimedReportsList_user { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly username: string,
+  readonly slug: string,
+}
+
+interface unclaimedReportsList_comment { // fragment on Comments
+  readonly _id: string,
+  readonly userId: string,
+  readonly user: UsersMinimumInfo,
+  readonly baseScore: number,
+  readonly contents: RevisionDisplay,
+  readonly postedAt: Date,
+  readonly deleted: boolean,
+  readonly postId: string,
+  readonly post: unclaimedReportsList_comment_post,
+}
+
+interface unclaimedReportsList_comment_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+  readonly title: string,
+  readonly isEvent: boolean,
+}
+
+interface unclaimedReportsList_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+  readonly title: string,
+  readonly isEvent: boolean,
+  readonly contents: RevisionDisplay,
+}
+
+interface unclaimedReportsList_claimedUser { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly username: string,
+  readonly slug: string,
 }
 
 interface WithVotePost { // fragment on Posts
@@ -1268,9 +1344,30 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
-  readonly post: any,
-  readonly tag: any,
+  readonly post: WithVoteTagRel_post,
+  readonly tag: WithVoteTagRel_tag,
   readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
+}
+
+interface WithVoteTagRel_post { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+  readonly title: string,
+}
+
+interface WithVoteTagRel_tag { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+  readonly slug: string,
+  readonly core: boolean,
+  readonly postCount: number,
+  readonly deleted: boolean,
+  readonly adminOnly: boolean,
+  readonly description: WithVoteTagRel_tag_description|null,
+}
+
+interface WithVoteTagRel_tag_description { // fragment on Revisions
+  readonly htmlHighlight: string,
 }
 
 interface WithVoteTagRel_currentUserVotes { // fragment on Votes
@@ -1292,7 +1389,7 @@ interface TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
-  readonly description: TagFragment_description,
+  readonly description: TagFragment_description|null,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -1301,7 +1398,7 @@ interface TagFragment_description { // fragment on Revisions
 }
 
 interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
-  readonly description: TagRevisionFragment_description,
+  readonly description: TagRevisionFragment_description|null,
 }
 
 interface TagRevisionFragment_description { // fragment on Revisions
@@ -1310,7 +1407,7 @@ interface TagRevisionFragment_description { // fragment on Revisions
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
-  readonly description: TagPreviewFragment_description,
+  readonly description: TagPreviewFragment_description|null,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions

@@ -13,6 +13,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     })
   },
   usedAt: {

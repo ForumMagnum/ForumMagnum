@@ -6,9 +6,10 @@ import { Meteor } from 'meteor/meteor';
 import { asyncFilter } from './asyncUtils';
 import * as _ from 'underscore';
 
-const generateIdResolverSingle = ({collectionName, fieldName}: {
+const generateIdResolverSingle = ({collectionName, fieldName, nullable}: {
   collectionName: CollectionNameString,
   fieldName: string,
+  nullable: boolean,
 }) => {
   return async (doc, args, context: ResolverContext) => {
     if (!doc[fieldName]) return null
@@ -18,8 +19,10 @@ const generateIdResolverSingle = ({collectionName, fieldName}: {
 
     const resolvedDoc = await collection.loader.load(doc[fieldName])
     if (!resolvedDoc) {
-      // eslint-disable-next-line no-console
-      console.error(`Broken foreign key reference: ${collectionName}.${fieldName}=${doc[fieldName]}`);
+      if (!nullable) {
+        // eslint-disable-next-line no-console
+        console.error(`Broken foreign key reference: ${collectionName}.${fieldName}=${doc[fieldName]}`);
+      }
       return null;
     }
 
@@ -79,11 +82,12 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   return restrictedDocs;
 }
 
-export const foreignKeyField = ({idFieldName, resolverName, collectionName, type}: {
+export const foreignKeyField = ({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
   resolverName: string,
   collectionName: CollectionNameString,
   type: string,
+  nullable?: boolean,
 }) => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
@@ -93,10 +97,11 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
     foreignKey: collectionName,
     resolveAs: {
       fieldName: resolverName,
-      type: type,
+      type: nullable ? type : `${type}!`,
       resolver: generateIdResolverSingle({
         collectionName,
         fieldName: idFieldName,
+        nullable,
       }),
       addOriginalField: true,
     },
@@ -117,7 +122,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
     type: Array,
     resolveAs: {
       fieldName: resolverName,
-      type: `[${type}]`,
+      type: `[${type}!]!`,
       resolver: generateIdResolverMulti({
         collectionName,
         fieldName: idFieldName,

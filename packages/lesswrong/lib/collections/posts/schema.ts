@@ -253,7 +253,8 @@ const schema = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: false,
     }),
     optional: true,
     control: 'select',
