@@ -12,7 +12,7 @@ deploy_config_path="$2";
 # sentry_version=$(sentry-cli releases propose-version);
 
 # Environment variables and secrets provided via travis-ci
-git clone https://Discordius:$GITHUB_TOKEN@github.com/LessWrong2/LessWrong-Credentials.git
+transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET
 
 # # Set up sentry configurations
 # sentry-cli releases new -p lesswrong $sentry_version;
