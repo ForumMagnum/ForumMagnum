@@ -6,7 +6,10 @@ import { Meteor } from 'meteor/meteor';
 import { asyncFilter } from './asyncUtils';
 import * as _ from 'underscore';
 
-const generateIdResolverSingle = ({collectionName, fieldName}) => {
+const generateIdResolverSingle = ({collectionName, fieldName}: {
+  collectionName: CollectionNameString,
+  fieldName: string,
+}) => {
   return async (doc, args, context: ResolverContext) => {
     if (!doc[fieldName]) return null
 
@@ -24,15 +27,21 @@ const generateIdResolverSingle = ({collectionName, fieldName}) => {
   }
 }
 
-const generateIdResolverMulti = ({collectionName, fieldName, getKey = (a=>a)}) => {
+const generateIdResolverMulti = <CollectionName extends keyof CollectionsByName>({collectionName, fieldName, getKey = (a=>a)}: {
+  collectionName: CollectionName,
+  fieldName: string,
+  getKey?: (key: string) => string,
+}) => {
+  type DbType = DbTypesByCollectionName[CollectionName];
+  
   return async (doc, args, context: ResolverContext) => {
     if (!doc[fieldName]) return []
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
-    const collection = context[collectionName]
+    const collection = context[collectionName] as CollectionBase<DbType>
 
-    const resolvedDocs = await collection.loader.loadMany(keys)
+    const resolvedDocs: Array<DbType> = await collection.loader.loadMany(keys)
 
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
@@ -70,7 +79,12 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   return restrictedDocs;
 }
 
-export const foreignKeyField = ({idFieldName, resolverName, collectionName, type}) => {
+export const foreignKeyField = ({idFieldName, resolverName, collectionName, type}: {
+  idFieldName: string,
+  resolverName: string,
+  collectionName: CollectionNameString,
+  type: string,
+}) => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
   
@@ -82,17 +96,17 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
       type: type,
       resolver: generateIdResolverSingle({
         collectionName,
-        fieldName: idFieldName
+        fieldName: idFieldName,
       }),
       addOriginalField: true,
     },
   }
 }
 
-export function arrayOfForeignKeysField({idFieldName, resolverName, collectionName, type, getKey}: {
+export function arrayOfForeignKeysField<CollectionName extends keyof CollectionsByName>({idFieldName, resolverName, collectionName, type, getKey}: {
   idFieldName: string,
   resolverName: string,
-  collectionName: CollectionNameString,
+  collectionName: CollectionName,
   type: string,
   getKey?: (string)=>string,
 }) {
