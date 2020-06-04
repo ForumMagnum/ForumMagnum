@@ -150,13 +150,13 @@ export default class MathEditing extends Plugin {
 			const classes = 'ck-math-tex ' + ( display ? 'ck-math-tex-display' : 'ck-math-tex-inline' );
 
 			// CKEngine render multiple times if using span instead of div
-			const mathtexView = viewWriter.createContainerElement( display ? 'div' : 'span', {
+			const mathtexView = viewWriter.createContainerElement( 'div', {
 				style: styles,
 				class: classes
 			} );
 
 			// Div is formatted as parent container
-			const uiElement = viewWriter.createUIElement( display ? 'div' : 'span', null, function( domDocument ) {
+			const uiElement = viewWriter.createUIElement( 'div', null, function( domDocument ) {
 				const domElement = this.toDomElement( domDocument );
 
 				renderEquation( equation, domElement, mathConfig.engine, display, false );
