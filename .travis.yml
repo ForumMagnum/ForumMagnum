@@ -16,12 +16,12 @@ jobs:
   - script: skip
     name: "Deploy Staging"
     # Maybe ea-forum-staging or ea-forum-devel
-    if: branch = encrypted-secrets AND type != pull_request
+    if: branch = ci-deploy AND type != pull_request
     deploy: &staging
       provider: script
       script: bash ./deploy.sh ./settings-staging.json ./config-staging.secret
       on:
-        branch: encrypted-secrets
+        branch: ci-deploy
   # - script: skip
   #   name: "Deploy LessWrong"
   #   if: branch = master AND type != pull_request
