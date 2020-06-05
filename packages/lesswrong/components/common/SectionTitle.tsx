@@ -17,7 +17,7 @@ const styles = (theme) => ({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: theme.spacing.unit*3,
-    paddingBottom: 4
+    paddingBottom: 8
   },
   divider: {
     borderBottom: "solid 1px rgba(0,0,0,.15)"

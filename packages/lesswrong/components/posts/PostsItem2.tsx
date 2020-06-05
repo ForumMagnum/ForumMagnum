@@ -63,9 +63,7 @@ export const styles = (theme) => ({
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
-    boxShadow: "0px 2px 3px rgba(0,0,0,.2)",
     marginTop: -1,
-    marginBottom: 16,
     border: "solid 1px #ccc",
     [theme.breakpoints.down('xs')]: {
       paddingLeft: theme.spacing.unit/2,
@@ -108,7 +106,8 @@ export const styles = (theme) => ({
     }
   },
   author: {
-    justifyContent: "flex-end",
+    justifyContent: "flex",
+    width: 140,
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
@@ -281,6 +280,9 @@ export const styles = (theme) => ({
     marginRight: theme.spacing.unit*1.5,
     position: "relative",
     top: 2,
+  },
+  isRead: {
+    backgroundColor: "rgba(255,255,255,.25)"
   }
 })
 
@@ -452,8 +454,12 @@ const PostsItem2 = ({
               })}>
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classes.karma}>
-                  <PostsItemKarma post={post} read={isRead} />
+                  <PostsItemKarma post={post} />
                 </PostsItem2MetaInfo>
+
+                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
+                </PostsItem2MetaInfo>}
 
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
@@ -486,11 +492,6 @@ const PostsItem2 = ({
                   </div>
                 
                 }
-                
-
-                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
-                </PostsItem2MetaInfo>}
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />

@@ -13,6 +13,7 @@ import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import Typography from '@material-ui/core/Typography';
+import HelpIcon from '@material-ui/icons/Help';
 
 const styles = theme => ({
   toggleFilters: {
@@ -30,14 +31,14 @@ const styles = theme => ({
   },
   titleWrapper: {
     display: "flex",
-    marginBottom: 4,
+    marginBottom: 8,
     flexWrap: "wrap",
     alignItems: "center"
   },
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
-    marginRight: 24
+    marginRight: "auto"
   }
 })
 
@@ -78,18 +79,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     limit:limit
   }
 
-  const latestTitle = (
-    <div>
-      <p>Recent posts, sorted by a mix of 'new' and 'highly upvoted'.</p>
-      <p>By default shows only frontpage posts, and can optionally include personal blogposts.</p>
-      <p><em>Moderators promote posts to frontpage if they seem to be:</em></p>
-      <ul>
-        <li>Aiming to explain rather than persuade</li>
-        <li>Relatively timeless (avoiding reference to current events or local social knowledge)</li>
-        <li>Reasonably relevant to the average LW user</li>
-      </ul>
-    </div>
-  )
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
@@ -98,6 +87,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           <Typography variant='display1' className={classes.title}>
             {latestPostsName}
           </Typography>
+         
           <AnalyticsContext pageSectionContext="tagFilterSettings">
               <TagFilterSettings
                 filterSettings={filterSettings} setFilterSettings={(newSettings) => {

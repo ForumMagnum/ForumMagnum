@@ -17,13 +17,15 @@ const styles = theme => ({
     paddingBottom: 4
   },
   addButton: {
-    border: "solid 1px rgba(0,0,0,.15)",
-    paddingLeft: 8,
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingRight: 16,
+    backgroundColor: theme.palette.grey[300],
+    paddingLeft: 9,
+    paddingTop: 5,
+    paddingBottom: 6,
+    paddingRight: 9,
     borderRadius: 3,
-    marginBottom: 2,
+    fontWeight: 700,
+    marginBottom: 4,
+    cursor: "pointer"
   }
 });
 
@@ -71,7 +73,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   setFilterSettings: (newSettings: FilterSettings)=>void,
   classes: ClassesType,
 }) => {
-  const { AddTagButton, FilterMode, Loading } = Components
+  const { AddTagButton, FilterMode, Loading, LWTooltip } = Components
   const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
 
   const { results: suggestedTags, loading: loadingSuggestedTags } = useMulti({
@@ -140,18 +142,18 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       }}
     />
 
-    {<span className={classes.addButton}>
-      <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
-        if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
-          const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
-          setFilterSettings({
-            personalBlog: filterSettings.personalBlog,
-            tags: [...filterSettings.tags, newFilter]
-          });
-          captureEvent("tagAddedToFilters", {tagId, tagName})
-        }
-      }}/>
-    </span>}
+    {<LWTooltip title="Add Tag Filter" className={classes.addButton}>
+        <AddTagButton smallVariant onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+          if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
+            const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
+            setFilterSettings({
+              personalBlog: filterSettings.personalBlog,
+              tags: [...filterSettings.tags, newFilter]
+            });
+            captureEvent("tagAddedToFilters", {tagId, tagName})
+          }
+        }}/>
+    </LWTooltip>}
   </>
 }
 

@@ -6,7 +6,7 @@ export const SECTION_WIDTH = 850
 
 const styles = (theme) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: theme.spacing.unit*6,
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: SECTION_WIDTH,
