@@ -23,7 +23,8 @@
     "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings sample_settings.json --port 3200 --full-app --once",
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings settings.json --port 3200 --full-app --once",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
-    "generate": "scripts/generateTypes.sh"
+    "generate": "scripts/generateTypes.sh",
+    "reinstall-ckeditor": "yarn add ./public/lesswrong-editor"
   },
   "dependencies": {
     "@babel/runtime": "^7.7.7",
