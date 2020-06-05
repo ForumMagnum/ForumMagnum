@@ -18,9 +18,9 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 50,
+    maxWidth: 700,
     boxShadow: theme.boxShadow,
     borderRadius: 3,
-    background: "white",
   },
   postStyle: theme.typography.postStyle,
   postBody: {
@@ -49,7 +49,7 @@ const styles = theme => ({
     marginTop:12,
     maxWidth:600,
     maxHeight: 1000,
-    marginBottom: 16,
+    paddingBottom: 12,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
@@ -69,9 +69,9 @@ const styles = theme => ({
     opacity: 0,
   },
   content :{
-    backgroundColor: "rgba(0,0,0,.025)",
-    padding: 12,
-    paddingBottom: 8
+    marginLeft: 4,
+    marginRight: 4,
+    paddingBottom: 1
   },
   commentsList: {
     [theme.breakpoints.down('sm')]: {
@@ -81,8 +81,10 @@ const styles = theme => ({
   },
   post: {
     paddingTop: 18,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 16,
+    paddingRight: 16,
+    background: "white",
+    marginBottom:4
   },
   title: {
     ...theme.typography.display2,
@@ -176,7 +178,7 @@ const RecentDiscussionThread = ({
             </div>
         }
       </div>
-      <div className={classes.content}>
+      {nestedComments.length ? <div className={classes.content}>
         <div className={classes.commentsList}>
           {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
             <div key={comment.item._id}>
@@ -199,7 +201,7 @@ const RecentDiscussionThread = ({
             </div>
           )}
         </div>
-      </div>
+      </div> : null}
     </div>
   )
 };

@@ -270,8 +270,8 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               </Link>
             </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.PostsList2 terms={draftTerms}/>
-              <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+              <Components.PostsList2 hideAuthor terms={draftTerms}/>
+              <Components.PostsList2 hideAuthor terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
@@ -290,7 +290,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
-              <PostsList2 terms={terms} />
+              <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
 

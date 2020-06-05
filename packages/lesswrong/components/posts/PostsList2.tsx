@@ -69,7 +69,8 @@ const PostsList2 = ({
   dense,
   defaultToShowUnreadComments,
   itemsPerPage=25,
-  boxShadow=true
+  boxShadow=true,
+  hideAuthor=false,
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -88,7 +89,8 @@ const PostsList2 = ({
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
-  boxShadow?: boolean
+  boxShadow?: boolean,
+  hideAuthor?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -177,7 +179,7 @@ const PostsList2 = ({
           };
 
           if (!(hidePosts && hidePosts[i])) {
-            return <PostsItem2 key={post._id} {...props} />
+            return <PostsItem2 key={post._id} {...props} hideAuthor />
           }
         })}
       </div>

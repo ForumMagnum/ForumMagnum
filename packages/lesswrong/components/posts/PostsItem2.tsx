@@ -342,6 +342,7 @@ const PostsItem2 = ({
   showReviewCount=false,
   recordPostView,
   isRead=false,
+  hideAuthor=false,
   classes,
 }: {
   post: PostsList,
@@ -362,7 +363,7 @@ const PostsItem2 = ({
   bookmark?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  
+  hideAuthor?: boolean,
   recordPostView?: any,
   isRead?: boolean,
   classes: ClassesType,
@@ -457,7 +458,7 @@ const PostsItem2 = ({
                   <PostsItemKarma post={post} />
                 </PostsItem2MetaInfo>
 
-                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
                 </PostsItem2MetaInfo>}
 

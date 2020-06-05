@@ -75,14 +75,14 @@ const styles = theme => ({
   image: {
     backgroundColor: "#eee",
     display: 'block',
-    height: 95,
+    height: 110,
     "& img": {
       [legacyBreakpoints.maxSmall]: {
         width: "305px !important",
         height: "auto !important",
       },
       width: "100%",
-      height: 95,
+      height: 110,
       [legacyBreakpoints.maxTiny]: {
         width: "100% !important",
       },
