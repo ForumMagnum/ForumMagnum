@@ -11,8 +11,9 @@ settings_path="$1";
 deploy_config_path="$2";
 # sentry_version=$(sentry-cli releases propose-version);
 
+git clone https://github.com/elasticdog/transcrypt.git
 # Environment variables and secrets provided via travis-ci
-transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET
+./transcrypt/transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET
 
 # # Set up sentry configurations
 # sentry-cli releases new -p lesswrong $sentry_version;
