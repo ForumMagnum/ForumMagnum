@@ -16,7 +16,7 @@ size=${#TRANSCRYPT_SECRET}
 echo 'secret size'
 echo $size
 # Environment variables and secrets provided via travis-ci
-./transcrypt/transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET
+./transcrypt/transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET -y
 
 # # Set up sentry configurations
 # sentry-cli releases new -p lesswrong $sentry_version;
