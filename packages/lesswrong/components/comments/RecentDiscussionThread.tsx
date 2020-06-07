@@ -14,13 +14,12 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
-    marginTop: 8,
     marginBottom: theme.spacing.unit*4,
     position: "relative",
-    minHeight: 50,
-    maxWidth: 700,
+    minHeight: 58,
     boxShadow: theme.boxShadow,
     borderRadius: 3,
+    backgroundColor: "white"
   },
   postStyle: theme.typography.postStyle,
   postBody: {

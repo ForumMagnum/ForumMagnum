@@ -33,7 +33,6 @@ export const styles = (theme) => ({
   background: {
     width: "100%",
     background: "white",
-    marginBottom: 2,
   },
   postsItem: {
     display: "flex",
@@ -59,7 +58,7 @@ export const styles = (theme) => ({
     }
   },
   bottomBorder: {
-    // borderBottom: "solid 1px rgba(0,0,0,.2)",
+    borderBottom: "solid 1px rgba(0,0,0,.09)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -107,13 +106,12 @@ export const styles = (theme) => ({
   },
   author: {
     justifyContent: "flex",
-    width: 140,
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
     [theme.breakpoints.down('xs')]: {
-      justifyContent: "flex-start",
+      justifyContent: "flex-end",
       width: "unset",
       marginLeft: 0,
       flex: "unset"
@@ -443,7 +441,6 @@ const PostsItem2 = ({
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
-            [classes.isRead]: isRead
           })}
         >
           <PostsItemTooltipWrapper post={post}>
@@ -458,10 +455,6 @@ const PostsItem2 = ({
                   <PostsItemKarma post={post} />
                 </PostsItem2MetaInfo>
 
-                { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
-                </PostsItem2MetaInfo>}
-
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
                       eventType={"postItem"}
@@ -471,7 +464,7 @@ const PostsItem2 = ({
                     <PostsTitle
                         postLink={postLink}
                         post={post}
-                        // read={isRead}
+                        read={isRead}
                         sticky={isSticky(post, terms)}
                         showQuestionTag={showQuestionTag}
                     />
@@ -496,6 +489,10 @@ const PostsItem2 = ({
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />
+                </PostsItem2MetaInfo>}
+
+                { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
                 </PostsItem2MetaInfo>}
 
                 {showPostedAt && !resumeReading && <PostsItemDate post={post} />}

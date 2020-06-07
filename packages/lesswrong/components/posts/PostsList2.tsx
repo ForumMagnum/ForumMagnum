@@ -179,7 +179,7 @@ const PostsList2 = ({
           };
 
           if (!(hidePosts && hidePosts[i])) {
-            return <PostsItem2 key={post._id} {...props} hideAuthor />
+            return <PostsItem2 key={post._id} {...props} hideAuthor={hideAuthor} />
           }
         })}
       </div>

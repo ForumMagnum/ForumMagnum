@@ -9,7 +9,7 @@ const styles = theme => ({
     maxWidth: 310,
     textOverflow: "ellipsis",
     overflowX: "hidden",
-    textAlign: "left",
+    textAlign: "right",
     [theme.breakpoints.down('xs')]: {
       maxWidth: 160
     },
