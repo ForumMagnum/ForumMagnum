@@ -280,7 +280,7 @@ export const styles = (theme) => ({
     top: 2,
   },
   isRead: {
-    backgroundColor: "rgba(255,255,255,.25)"
+    backgroundColor: "rgba(255,255,255,.4)"
   }
 })
 
@@ -441,6 +441,7 @@ const PostsItem2 = ({
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
+            // [classes.isRead]: isRead
           })}
         >
           <PostsItemTooltipWrapper post={post}>
