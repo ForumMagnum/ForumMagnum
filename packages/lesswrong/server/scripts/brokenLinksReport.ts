@@ -1,8 +1,8 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection';
+import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';
-import { HTTP } from 'meteor/http';
 import { URL } from 'url';
 import fs from 'fs';
 import * as _ from 'underscore';
@@ -52,27 +52,6 @@ function getLinksInHtml(html)
   return links;
 }
 
-async function urlIsBroken(url)
-{
-  try {
-    let absoluteUrl = new URL(url, baseUrl).toString();
-    let result = HTTP.call('GET', absoluteUrl, {timeout: 5000});
-    if (result.statusCode >= 300 && result.statusCode <= 399) {
-      // Redirect. In principle this shouldn't happen because meteor's HTTP.call
-      // is documented to follow redirects by default. But maybe it does happen.
-      //eslint-disable-next-line no-console
-      console.log("Got "+result.statusCode+" redirect on "+absoluteUrl);
-      return false;
-    } else if (result.statusCode !== 200) {
-      return true;
-    } else {
-      return false;
-    }
-  } catch(e) {
-    return true;
-  }
-}
-
 function imageIsOffsite(imageUrl)
 {
   const hostname = new URL(imageUrl, baseUrl).hostname;
@@ -109,14 +88,14 @@ const checkPost = async (post:DbPost) => {
   
   for(let i=0; i<images.length; i++) {
     let imageUrl = images[i];
-    if(await urlIsBroken(imageUrl))
+    if(await urlIsBroken(new URL(imageUrl, baseUrl).toString()))
       brokenImages.push(imageUrl);
     else if(imageIsOffsite(imageUrl))
       offsiteImages.push(imageUrl);
   }
   for(let i=0; i<links.length; i++) {
     let linkUrl = links[i];
-    if(await urlIsBroken(linkUrl))
+    if(await urlIsBroken(new URL(linkUrl, baseUrl).toString()))
       brokenLinks.push(linkUrl);
   }
   
