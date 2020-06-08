@@ -10,13 +10,9 @@ yarn global add @sentry/cli;
 settings_path="$1";
 deploy_config_path="$2";
 echo 'deploy_config_path'
-echo $deploy_config_path
 # sentry_version=$(sentry-cli releases propose-version);
 
 git clone https://github.com/elasticdog/transcrypt.git
-size=${#TRANSCRYPT_SECRET}
-echo 'secret size'
-echo $size
 # Environment variables and secrets provided via travis-ci
 ./transcrypt/transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET -y
 
@@ -28,7 +24,4 @@ echo $size
 # Deploy
 cp $deploy_config_path ./config.secret; # Have to copy this because mup deploy resolves in directory relative to config file
 
-mup deploy --config config.secret --settings $settings_path
-# bash ./travis_wait "mup deploy --config config.secret --settings $settings_path";
-
-echo 'oh bollucks'
+bash ./travis_wait "mup deploy --config config.secret --settings $settings_path";
