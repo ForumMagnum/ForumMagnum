@@ -45,10 +45,8 @@ const styles = theme => ({
   },
   postHighlight: {
     ...postHighlightStyles(theme),
-    marginTop:12,
     maxWidth:600,
     maxHeight: 1000,
-    paddingBottom: 12,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
@@ -73,9 +71,13 @@ const styles = theme => ({
     paddingBottom: 1
   },
   commentsList: {
+    marginTop: 12,
+    marginLeft: 12,
+    marginBottom: 8,
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
-      marginRight: 0
+      marginRight: 0,
+      marginBottom: 0
     }
   },
   post: {
@@ -145,7 +147,7 @@ const RecentDiscussionThread = ({
     return null
   }
 
-  const highlightClasses = classNames({
+  const highlightClasses = classNames(classes.highlight, {
     [classes.noComments]: post.commentCount === null
   })
   return (
