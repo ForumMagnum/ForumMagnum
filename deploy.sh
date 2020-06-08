@@ -2,7 +2,7 @@
 
 # Install dependencies
 yarn;
-yarn global add mup https://github.com/jimrandomh/mup-aws-beanstalk;
+yarn global add mup@1.4.6 https://github.com/jimrandomh/mup-aws-beanstalk;
 yarn global add json;
 yarn global add @sentry/cli;
 
@@ -27,8 +27,6 @@ echo $size
 
 # Deploy
 cp $deploy_config_path ./config.secret; # Have to copy this because mup deploy resolves in directory relative to config file
-
-head config.secret
 
 mup deploy --config config.secret --settings $settings_path
 # bash ./travis_wait "mup deploy --config config.secret --settings $settings_path";
