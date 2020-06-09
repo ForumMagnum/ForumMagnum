@@ -1,6 +1,6 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import withNewEvents from '../../../lib/events/withNewEvents';
+import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';
@@ -84,11 +84,11 @@ const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
   return { combinedGuidelines, truncatedGuidelines }
 }
 
-const ModerationGuidelinesBox = ({classes, post, recordEvent}: {
+const ModerationGuidelinesBox = ({classes, post}: {
   classes: ClassesType,
   post: PostsMinimumInfo,
-  recordEvent?: any,
 }) => {
+  const {recordEvent} = useNewEvents();
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
@@ -167,7 +167,7 @@ const moderationStyleLookup = {
 
 const ModerationGuidelinesBoxComponent = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   styles,
-  hocs: [withNewEvents, withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
 
 declare global {
