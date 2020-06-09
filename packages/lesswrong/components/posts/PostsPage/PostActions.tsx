@@ -108,7 +108,6 @@ class PostActions extends Component<PostActionsProps,{}> {
       data: {
         draft: false,
         meta: false,
-        curatedDate: null,
         frontpageDate: null
       },
     })
