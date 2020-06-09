@@ -35,6 +35,9 @@ const styles = theme => ({
     color: 'rgba(255,255,255, 0.7)'
   },
   messageBody: {
+    '& img': {
+      maxWidth: "100%"
+    },
     '& a': {
       color: theme.palette.primary.light
     }
