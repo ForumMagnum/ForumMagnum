@@ -134,7 +134,8 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
           onClose={this.handleClose}
         >
           {currentUser && <Components.LastVisitList
-            terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
+            postId={post._id}
+            currentUser={currentUser}
             clickCallback={this.handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {

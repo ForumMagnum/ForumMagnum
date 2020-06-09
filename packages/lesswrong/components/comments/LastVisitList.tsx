@@ -4,9 +4,18 @@ import { useMulti } from '../../lib/crud/withMulti';
 import MenuItem from '@material-ui/core/MenuItem'
 import { LWEvents } from '../../lib/collections/lwevents/collection'
 
-const LastVisitList = ({ terms, clickCallback }) => {
+const LastVisitList = ({ postId, currentUser, clickCallback }: {
+  postId: string,
+  currentUser: UsersCurrent,
+  clickCallback: (date: Date) => void,
+}) => {
   const { results, loading } = useMulti({
-    terms,
+    terms: {
+      view: "postVisits",
+      limit: 4,
+      postId: postId,
+      userId: currentUser._id
+    },
     collection: LWEvents,
     fragmentName: 'lastEventFragment',
     enableTotal: false,
