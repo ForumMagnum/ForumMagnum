@@ -528,21 +528,19 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     this.setState({ updateType: e.target.value })
   }
 
-  renderUpdateMetadata = () => {
+  renderUpdateTypeSelect = () => {
     const { currentUser, formType, classes } = this.props
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
-    return <>
-      <Select
-        value={this.state.updateType}
-        onChange={this.handleUpdateTypeSelect}
-        className={classes.select}
-        disableUnderline
-      >
-        <MenuItem value={'major'}>Major Update</MenuItem>
-        <MenuItem value={'minor'}>Minor Update</MenuItem>
-        <MenuItem value={'patch'}>Patch</MenuItem>
-      </Select>
-    </>
+    return <Select
+      value={this.state.updateType}
+      onChange={this.handleUpdateTypeSelect}
+      className={classes.select}
+      disableUnderline
+    >
+      <MenuItem value={'major'}>Major Update</MenuItem>
+      <MenuItem value={'minor'}>Minor Update</MenuItem>
+      <MenuItem value={'patch'}>Patch</MenuItem>
+    </Select>
   }
   
   renderCommitMessageInput = () => {
@@ -770,7 +768,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       <div className={classNames(classes.editor, this.getBodyStyles())}>
         { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
         { this.renderVersionSelect() }
-        { this.renderUpdateMetadata() }
+        { this.renderUpdateTypeSelect() }
         { this.renderEditorTypeSelect() }
       </div>
       { this.renderCommitMessageInput() }

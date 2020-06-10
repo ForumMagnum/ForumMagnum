@@ -148,7 +148,7 @@ function createToken(currentWord){
  * @param {number} length The number of consecutive matching tokens in this block.
  * @param {Segment} segment The segment where the match was found.
  */
-function Match(startInBefore, startInAfter, length, segment){
+function Match(this: any, startInBefore, startInAfter, length, segment){
     this.segment = segment;
     this.length = length;
 
@@ -170,11 +170,11 @@ function Match(startInBefore, startInAfter, length, segment){
  *
  * @return {Array.<string>} The list of tokens.
  */
-function htmlToTokens(html){
+function htmlToTokens(html: string){
     var mode = 'char';
     var currentWord = '';
     var currentAtomicTag = '';
-    var words = [];
+    var words: Array<any> = [];
     for (var i = 0; i < html.length; i++){
         var char = html[i];
         switch (mode){
@@ -372,7 +372,7 @@ function compareMatches(m1, m2){
  *
  * @constructor
  */
-function MatchBinarySearchTree(){
+function MatchBinarySearchTree(this: any){
     this._root = null;
 }
 
@@ -456,8 +456,8 @@ MatchBinarySearchTree.prototype = {
 function findBestMatch(segment){
     var beforeTokens = segment.beforeTokens;
     var afterMap = segment.afterMap;
-    var lastSpace = null;
-    var bestMatch = null;
+    var lastSpace: any = null;
+    var bestMatch: any = null;
 
     // Iterate through the entirety of the beforeTokens to find the best match.
     for (var beforeIndex = 0; beforeIndex < beforeTokens.length; beforeIndex++){
@@ -673,13 +673,13 @@ function findMatchingBlocks(segment){
  *      - {number} startInAfter The beginning of the range in the list of after tokens.
  *      - {number} endInAfter The end of the range in the list of after tokens.
  */
-function calculateOperations(beforeTokens, afterTokens){
+function calculateOperations(beforeTokens, afterTokens): Array<any> {
     if (!beforeTokens) throw new Error('Missing beforeTokens');
     if (!afterTokens) throw new Error('Missing afterTokens');
 
     var positionInBefore = 0;
     var positionInAfter = 0;
-    var operations = [];
+    var operations: Array<any> = [];
     var segment = createSegment(beforeTokens, afterTokens, 0, 0);
     var matches = findMatchingBlocks(segment);
     matches.push(new Match(beforeTokens.length, afterTokens.length, 0, segment));
@@ -721,8 +721,8 @@ function calculateOperations(beforeTokens, afterTokens){
         positionInAfter = match.endInAfter + 1;
     }
 
-    var postProcessed = [];
-    var lastOp = {action: 'none'};
+    var postProcessed: Array<any> = [];
+    var lastOp: any = {action: 'none'};
 
     function isSingleWhitespace(op){
         if (op.action !== 'equal'){
@@ -763,7 +763,7 @@ function calculateOperations(beforeTokens, afterTokens){
  * TokenWrapper has a method 'combine' which allows walking over the segments to wrap them in
  * tags.
  */
-function TokenWrapper(tokens){
+function TokenWrapper(this: any, tokens){
     this.tokens = tokens;
     this.notes = tokens.reduce(function(data, token, index){
         data.notes.push({
@@ -928,7 +928,7 @@ var OPS = {
  *
  * @return {string} The rendering of the list of operations.
  */
-function renderOperations(beforeTokens, afterTokens, operations, dataPrefix, className){
+function renderOperations(beforeTokens, afterTokens, operations, dataPrefix, className) {
     return operations.reduce(function(rendering, op, index){
         return rendering + OPS[op.action](
                 op, beforeTokens, afterTokens, index, dataPrefix, className);
@@ -950,7 +950,7 @@ function renderOperations(beforeTokens, afterTokens, operations, dataPrefix, cla
  *
  * @return {string} The combined HTML content with differences wrapped in <ins> and <del> tags.
  */
-export function diff(before, after, className, dataPrefix, atomicTags){
+export function diff(before: string, after: string, className?: string, dataPrefix?: string, atomicTags?: string): string {
     if (before === after) return before;
 
     // Enable user provided atomic tag list.
@@ -958,10 +958,10 @@ export function diff(before, after, className, dataPrefix, atomicTags){
         (atomicTagsRegExp = new RegExp('^<(' + atomicTags.replace(/\s*/g, '').replace(/,/g, '|') + ')'))
         : (atomicTagsRegExp = defaultAtomicTagsRegExp);
 
-    before = htmlToTokens(before);
-    after = htmlToTokens(after);
-    var ops = calculateOperations(before, after);
-    return renderOperations(before, after, ops, dataPrefix, className);
+    var beforeTokens = htmlToTokens(before);
+    var afterTokens = htmlToTokens(after);
+    var ops = calculateOperations(beforeTokens, afterTokens);
+    return renderOperations(beforeTokens, afterTokens, ops, dataPrefix, className);
 }
 
 diff.htmlToTokens = htmlToTokens;
