@@ -26,6 +26,14 @@ addStaticRoute('/robots.txt', ({query}, req, res, next) => {
   } else {
     // We block all request with query parameters to the allPosts page, since that results in a ton of Google requests
     // that don't really want to index or handle
-    res.end("User-agent: *\nDisallow: /allPosts?*");
+    res.end(
+`User-agent: *
+Disallow: /allPosts?*:qall
+Disallow: /graphiql
+Disallow: /debug
+Disallow: /admin
+Disallow: /compare
+Disallow: /emailToken
+`);
   }
 });
