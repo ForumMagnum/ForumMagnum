@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
 
-export const SECTION_WIDTH = 765
+export const SECTION_WIDTH = 800
 
 const styles = (theme) => ({
   root: {
@@ -10,6 +10,10 @@ const styles = (theme) => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: SECTION_WIDTH,
+    [theme.breakpoints.up('md')]: {
+      position: "relative",
+      left: 50
+    }
   }
 })
 

@@ -94,7 +94,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       setFilterSettings(filterSettingsWithSuggestedTags);
   }
 
-  return <>
+  return <span>
     {loadingSuggestedTags && !filterSettings.tags.length && <Loading/>}
 
     {filterSettings.tags.map(tagSettings =>
@@ -154,7 +154,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
           }
         }}/>
     </LWTooltip>}
-  </>
+  </span>
 }
 
 const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagFragment>): FilterSettings => {
