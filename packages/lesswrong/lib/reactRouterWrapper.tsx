@@ -8,6 +8,7 @@ import React from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouter from 'react-router';
+// eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink } from "../components/common/HashLink";
 import { parseQuery } from './routeUtil'

@@ -5,6 +5,7 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { runCallbacks, Components } from '../../lib/vulcan-lib';
 import { CookiesProvider } from 'react-cookie';
+// eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
 
 const AppGenerator = ({ apolloClient }) => {
