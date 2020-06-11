@@ -1,6 +1,4 @@
-import { Meteor } from 'meteor/meteor';
 import process from 'process';
-import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 
 // Database ID string that this config file should match with
