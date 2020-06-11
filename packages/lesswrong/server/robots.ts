@@ -1,12 +1,13 @@
 import { addStaticRoute } from './vulcan-lib';
 import { DatabaseServerSetting } from './databaseSettings';
+import { PublicInstanceSetting } from '../lib/instanceSettings';
 
 // disallowCrawlers: If set, robots.txt will request that no crawlers touch the
 // site at all. Use for test and staging servers like lessestwrong.com and
 // baserates.org, so that only the real site will be indexed by search engines.
 //
 // If set, this takes precedence over the robotsTxt setting.
-const disallowCrawlersSetting = new PublicInstanceSetting<boolean>('disallowCrawlers', false)
+const disallowCrawlersSetting = new PublicInstanceSetting<boolean>('disallowCrawlers', false, "optional")
 
 // robotsTxt: Optional setting to entirely replace the contents of robots.txt,
 // to allow quickly banning a bad crawler or a slow endpoint without a redeploy,
