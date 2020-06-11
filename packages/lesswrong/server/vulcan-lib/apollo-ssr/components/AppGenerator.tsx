@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
+// eslint-disable-next-line no-restricted-imports
 import { StaticRouter } from 'react-router';
 
 import { Components } from '../../../../lib/vulcan-lib/components';

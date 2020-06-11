@@ -18,7 +18,7 @@ const HeadTags = (props) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = tabTitleSetting.get()
     
-    const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
+    const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
     
     return (
