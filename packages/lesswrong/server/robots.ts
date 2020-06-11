@@ -6,7 +6,7 @@ import { DatabaseServerSetting } from './databaseSettings';
 // baserates.org, so that only the real site will be indexed by search engines.
 //
 // If set, this takes precedence over the robotsTxt setting.
-const disallowCrawlersSetting = new DatabaseServerSetting<boolean>('disallowCrawlers', false)
+const disallowCrawlersSetting = new PublicInstanceSetting<boolean>('disallowCrawlers', false)
 
 // robotsTxt: Optional setting to entirely replace the contents of robots.txt,
 // to allow quickly banning a bad crawler or a slow endpoint without a redeploy,
