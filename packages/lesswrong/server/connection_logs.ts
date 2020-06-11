@@ -15,17 +15,18 @@ getDummyUser();
 
 Meteor.onConnection(async (connection) => {
   let currentUser = await getDummyUser();
-  const document = {
-    name: 'newConnection',
-    important: false,
-    properties: {
-      ip: connection.clientAddress,
-      id: connection.id,
-    }
-  }
+  const ip = (connection.httpHeaders && connection.httpHeaders["x-real-ip"]) || connection.clientAddress;
+  
   newMutation({
     collection: LWEvents,
-    document: document,
+    document: {
+      name: 'newConnection',
+      important: false,
+      properties: {
+        ip: ip,
+        id: connection.id,
+      }
+    },
     currentUser: currentUser,
     validate: false,
   })
@@ -33,19 +34,18 @@ Meteor.onConnection(async (connection) => {
   console.info("new Meteor connection:", connection)
 
   connection.onClose(() => {
-    const document = {
-      name: 'closeConnection',
-      important: false,
-      properties: {
-        ip: connection.clientAddress,
-        id: connection.id,
-      }
-    }
     //eslint-disable-next-line no-console
     console.info("closed Meteor connection:", connection)
     newMutation({
       collection: LWEvents,
-      document: document,
+      document: {
+        name: 'closeConnection',
+        important: false,
+        properties: {
+          ip: ip,
+          id: connection.id,
+        }
+      },
       currentUser: currentUser,
       validate: false,
     })
