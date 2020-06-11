@@ -6,6 +6,7 @@ export const withRouter = reactRouter3.withRouter;*/
 
 import React from 'react';
 import { useTracking } from '../lib/analyticsEvents';
+// eslint-disable-next-line no-restricted-imports
 import * as reactRouter from 'react-router';
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink } from "../components/common/HashLink";
@@ -48,3 +49,5 @@ export const QueryLink = reactRouter.withRouter(({query, location, staticContext
     to={{...location, search: newSearchString}}
   />
 })
+
+export const Redirect = reactRouter.Redirect;
