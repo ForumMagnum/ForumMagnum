@@ -13,7 +13,7 @@ import { webAppConnectHandlersUse } from '../meteor_patch';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { createClient } from './apolloClient';
-import { cachedPageRender, recordCacheBypass, getCacheHitRate } from './pageCache';
+import { cachedPageRender, recordCacheBypass } from './pageCache';
 import Head from './components/Head';
 import ApolloState from './components/ApolloState';
 import AppGenerator from './components/AppGenerator';
