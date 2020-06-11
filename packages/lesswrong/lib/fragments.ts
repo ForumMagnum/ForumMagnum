@@ -65,6 +65,7 @@ registerFragment(`
     _id
     documentId
     documentType
+    deleted
     userId
     createdAt
     link
@@ -524,14 +525,13 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-
-    recommendationSettings
     
     notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
+    notificationSubscribedTagPost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe

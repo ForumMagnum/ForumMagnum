@@ -35,8 +35,6 @@ import makePageRenderer from '../apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
-import { getApolloApplyMiddlewareOptions, getApolloServerOptions } from './settings';
-
 import { formatError } from 'apollo-errors';
 
 import * as Sentry from '@sentry/node';
@@ -109,42 +107,13 @@ export const setupToolsMiddlewares = config => {
   WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
 };
 
-/**
- * Options: Apollo server usual options
- * Config: a config specific to Vulcan
- */
-export const createApolloServer = ({
-  apolloServerOptions = {}, // apollo options
-  config = {}, // Vulcan options
-}: {
-  apolloServerOptions: any,
-  config: any,
-}) => {
-  // given options contains the schema
-  const apolloServer = new ApolloServer({
-    // graphql playground (replacement to graphiql), available on the app path
-    playground: getPlaygroundConfig(config),
-    introspection: true,
-    // context optionbject or a function of the current request (+ maybe some other params)
-    debug: Meteor.isDevelopment,
-    ...apolloServerOptions,
-  });
-
-  // default function does nothing
-  config.configServer(apolloServer);
-
-  return apolloServer;
-};
-
 Meteor.startup(() => {
   // Vulcan specific options
   const config = {
     path: '/graphql',
     maxAccountsCacheSizeInMB: 1,
-    configServer: apolloServer => {},
     voyagerPath: '/graphql-voyager',
     graphiqlPath: '/graphiql',
-    // customConfigFromReq
   };
   const apolloApplyMiddlewareOptions = {
     // @see https://github.com/meteor/meteor/blob/master/packages/webapp/webapp_server.js
@@ -152,28 +121,31 @@ Meteor.startup(() => {
     bodyParser: false, // added manually later
     path: config.path,
     app: WebApp.connectHandlers,
-    ...getApolloApplyMiddlewareOptions(),
   };
 
   // define executableSchema
   initGraphQL();
+  
   // create server
-  const apolloServer = createApolloServer({
-    config,
-    apolloServerOptions: {
-      engine: engineConfig,
-      schema: GraphQLSchema.executableSchema,
-      formatError: (e) => {
-        Sentry.captureException(e);
-        // eslint-disable-next-line no-console
-        console.error(e.extensions.exception)
-        return formatError(e);
-      },
-      tracing: Meteor.isDevelopment,
-      cacheControl: true,
-      context: ({ req }) => computeContextFromReq(req),
-      ...getApolloServerOptions(),
+  // given options contains the schema
+  const apolloServer = new ApolloServer({
+    // graphql playground (replacement to graphiql), available on the app path
+    playground: getPlaygroundConfig(config),
+    introspection: true,
+    // context optionbject or a function of the current request (+ maybe some other params)
+    debug: Meteor.isDevelopment,
+    
+    engine: engineConfig,
+    schema: GraphQLSchema.executableSchema,
+    formatError: (e) => {
+      Sentry.captureException(e);
+      // eslint-disable-next-line no-console
+      console.error(e.extensions.exception)
+      return formatError(e);
     },
+    tracing: Meteor.isDevelopment,
+    cacheControl: true,
+    context: ({ req }) => computeContextFromReq(req),
   });
   
   WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());

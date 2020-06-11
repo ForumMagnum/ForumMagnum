@@ -568,6 +568,20 @@ const schema = {
       }
     }
   }),
+
+  // Tell search engines not to index this post. Useful for old posts that were
+  // from a time with different quality standards. Posts will still be findable
+  // in algolia. See PostsPage and HeadTags for their use of this field and the
+  // noIndexLowKarma migration for the setting of it.
+  noIndex: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

@@ -210,12 +210,6 @@ addRoute([
     subtitleComponentName: 'TagPageTitle',
   },
   {
-    name: 'tagIndex',
-    path: '/tags',
-    componentName: 'PostsSingleRoute',
-    _id:"DHJBEsi4XJDw2fRFq"
-  },
-  {
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
@@ -231,7 +225,7 @@ addRoute([
     name: 'search',
     path: '/search',
     componentName: 'SearchPage',
-    title: 'LW Search'
+    title: 'Search'
   }
 ]);
 
@@ -254,6 +248,7 @@ addRoute([
     path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
     componentName: "LegacyCommentRedirect",
     previewComponentName: "CommentLinkPreviewLegacy",
+    noIndex: true,
     // TODO: Pingback comment
   }
 ]);
@@ -286,6 +281,12 @@ if (forumTypeSetting.get() !== 'EAForum') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    },
+    {
+      name: 'tagIndex',
+      path: '/tags',
+      componentName: 'PostsSingleRoute',
+      _id:"DHJBEsi4XJDw2fRFq"
     },
   ])
 }
@@ -480,6 +481,7 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
+    noIndex: true,
     // TODO: Handle pingbacks leading to comments.
   }
 ]);
@@ -546,6 +548,11 @@ switch (forumTypeSetting.get()) {
         path: '/sequences',
         componentName: 'EASequencesHome'
       },
+      {
+        name: "TagsAll",
+        path:'/tags',
+        redirect: () => `/tags/all`,
+      }
       // {
       //   name: 'eaHandbookHome',
       //   path: '/handbook',

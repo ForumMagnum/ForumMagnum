@@ -6,6 +6,7 @@ const styles = theme => ({
   root: {
   },
   description: {
+    marginTop: theme.spacing.unit,
     marginBottom: 20,
     ...postBodyStyles(theme),
   },

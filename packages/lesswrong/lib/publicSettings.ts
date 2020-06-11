@@ -17,6 +17,23 @@ export function initializeSetting(settingName: string, settingType: "server" | "
   if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
   registeredSettings[settingName] = settingType
 }
+
+/* 
+  A setting which is stored in the database in the "databasemedata" collection, in a record with the `name` field set to "publicSettings" 
+  and the `value` field set to a JSON object with all the settings.
+
+  SETTINGS REGISTERED HERE ARE SENT TO THE CLIENT AND ARE NOT PRIVATE. DO NOT USE PUBLIC SETTINGS TO STORE SECRETS. TO STORE SECRETS, USE
+  `DatabaseServerSetting`, documented in `databaseSettings.ts`.
+  
+  For documentation on public instance settings, which are also sent to the client but can be customized per instance, see `instanceSettings.ts`
+  
+  arguments: 
+    settingName: JSON path to the setting in the settings.json file
+    defaultValue: What value <Setting>.get() returns when no value is found in the JSON file
+
+  Method: 
+    get: Returns the current value of the setting (either the value in the database or the default value)
+*/
 export class DatabasePublicSetting<SettingValueType> {
   constructor(
     private settingName: string, 

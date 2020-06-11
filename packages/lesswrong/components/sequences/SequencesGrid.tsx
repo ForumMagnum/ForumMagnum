@@ -12,21 +12,11 @@ export const styles = theme => ({
   },
 
   gridContent: {
-    marginLeft: -15,
-    marginRight: -24,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: 0,
-      marginRight: 0
-    },
-    paddingRight: 6,
-    [legacyBreakpoints.maxTiny]: {
-      paddingLeft: 0,
-    },
-
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
     flexFlow: "row wrap",
+    justifyContent: "space-between",
     [legacyBreakpoints.maxSmall]: {
       alignItems: "center",
       justifyContent: "center",
@@ -39,10 +29,10 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, classes}: {
+const SequencesGrid = ({sequences, showAuthor, classes }: {
   sequences: Array<SequencesPageFragment>,
   showAuthor?: boolean,
-  classes: ClassesType,
+  classes: ClassesType
 }) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
@@ -51,7 +41,8 @@ const SequencesGrid = ({sequences, showAuthor, classes}: {
           <Components.SequencesGridItem
             sequence={sequence}
             key={sequence._id}
-            showAuthor={showAuthor}/>
+            showAuthor={showAuthor}
+          />
         );
       })}
     </div>

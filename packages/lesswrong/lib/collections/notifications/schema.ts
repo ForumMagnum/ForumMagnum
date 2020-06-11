@@ -45,6 +45,12 @@ const schema = {
     optional: true,
     viewableBy: Users.owns,
   },
+  deleted: {
+    type: Boolean,
+    optional: true,
+    viewableBy: Users.owns,
+    ...schemaDefaultValue(false),
+  },
   viewed: {
     type: Boolean,
     optional: true,

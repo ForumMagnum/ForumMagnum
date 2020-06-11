@@ -9,6 +9,7 @@ import { commentBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
+import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 
@@ -78,17 +79,21 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404 } = Components;
+  const { SingleColumnSection, PostsListSortDropdown, PostsList2, AddPostsToTag, ContentItemBody, Loading, Error404, PermanentRedirect, SubscribeTo } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
   const [truncated, setTruncated] = useState(true)
   const { captureEvent } =  useTracking()
-
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
     return <Error404/>
+  // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
+  if (tag.slug !== slug) {
+    return <PermanentRedirect url={Tags.getUrl(tag)} />
+  }
 
   const terms = {
     ...query,

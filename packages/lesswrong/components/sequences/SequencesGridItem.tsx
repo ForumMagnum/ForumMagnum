@@ -2,16 +2,21 @@ import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import { useHover } from '../common/withHover';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
     ...theme.typography.postStyle,
 
-    width: "33%",
-    padding: 15,
+    width: "calc(33% - 5px)",
+    boxShadow: "0 0 3px rgba(0,0,0,.2)",
+    paddingBottom: 0,
+    marginBottom: 10,
+    display: "flex",
+    flexDirection: "column",
 
     "&:hover": {
       boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
@@ -27,17 +32,6 @@ const styles = theme => ({
     },
   },
 
-  top: {
-    height: 44,
-    lineHeight: 1.1,
-    borderTopStyle: "solid",
-    paddingTop: 7,
-  },
-
-  topWithAuthor: {
-    height: 68,
-  },
-
   title: {
     fontSize: 16,
     lineHeight: 1.0,
@@ -48,7 +42,7 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     overflow: "hidden",
     fontVariant: "small-caps",
-    marginRight: 5,
+    marginBottom: 0,
     "&:hover": {
       color: "inherit",
       textDecoration: "none",
@@ -61,23 +55,26 @@ const styles = theme => ({
   },
 
   author: {
-    marginTop: 3,
     color: "rgba(0,0,0,0.5)",
-
-    "&:hover": {
-      color: "rgba(0,0,0,0.3)",
-      "& a": {
-        color: "rgba(0,0,0,0.3)",
-      }
-    }
   },
 
+  meta: {
+    paddingLeft: 12,
+    paddingTop: 12,
+    paddingRight: 8,
+    paddingBottom: 5,
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center"
+  },
+  hiddenAuthor: {
+    paddingBottom: 8
+  },
   image: {
-    width: "100%",
+    backgroundColor: "#efefef",
     display: 'block',
-    [legacyBreakpoints.maxTiny]: {
-      width: "100%",
-    },
+    height: 95,
     "& img": {
       [legacyBreakpoints.maxSmall]: {
         width: "305px !important",
@@ -89,22 +86,33 @@ const styles = theme => ({
         width: "100% !important",
       },
     }
-  },
+  }
 })
 
 const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  classes: ClassesType,
+  classes: ClassesType
+
 }) => {
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { LinkCard, SequenceTooltip } = Components;
+  const { hover, anchorEl } = useHover()
+  const { PopperCard, SequenceTooltip, LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
-    <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
+  return <LinkCard className={classes.root} to={url}>
+    <div className={classes.image}>
+      <NoSSR>
+        <Components.CloudinaryImage
+          publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+          height={124}
+          width={315}
+        />
+      </NoSSR>
+    </div>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor})}>
       <Link key={sequence._id} to={url}>
         <Typography variant='title' className={classes.title}>
           {sequence.draft && <span className={classes.draft}>[Draft] </span>}
@@ -116,15 +124,9 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
           by <Components.UsersName user={sequence.user} />
         </div>}
     </div>
-    <div className={classes.image}>
-      <NoSSR>
-        <Components.CloudinaryImage
-          publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-          height={124}
-          width={315}
-        />
-      </NoSSR>
-    </div>
+    <PopperCard open={hover} anchorEl={anchorEl}>
+      <SequenceTooltip sequence={sequence}/>
+    </PopperCard>
   </LinkCard>
 }
 

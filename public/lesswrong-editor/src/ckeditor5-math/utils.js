@@ -72,6 +72,11 @@ export async function renderEquation( equation, element, engine = 'mathjax', dis
 	}
 }
 
+const replaceNodeDebounced = debounce( ( oldSheet, newSheet ) => {
+	oldSheet.parentNode.removeChild( oldSheet );
+	document.head.appendChild( newSheet );
+}, 100 );
+
 async function renderMathJax3( equation, element, display, isolateStyles ) {
 	let renderNode = element;
 	if ( isolateStyles ) {
@@ -84,9 +89,22 @@ async function renderMathJax3( equation, element, display, isolateStyles ) {
 		renderNode = element.shadowRoot;
 	}
 
+	// First, we clear the element of any remaining children
+	element.textContent = '';
+
 	const node = await MathJax.tex2chtmlPromise( equation, { em: 22, ex: 11, display: !!display } );
 	upsertNthChild( renderNode, node, 0 );
-	upsertNthChild( renderNode, MathJax.chtmlStylesheet(), 1 );
+
+	if ( !isolateStyles ) {
+		const sheet = document.querySelector( '#MJX-CHTML-styles' );
+		const newSheet = MathJax.chtmlStylesheet();
+		if ( !sheet ) {
+			document.head.appendChild( newSheet );
+		}
+		if ( sheet && !sheet.isEqualNode( newSheet ) ) {
+			replaceNodeDebounced( sheet, newSheet );
+		}
+	}
 
 	if ( isolateStyles ) { // If we isolate the styles, append another style tag with our overwritten styles
 		const styleNode = document.createElement( 'style' );
@@ -100,7 +118,7 @@ async function renderMathJax3( equation, element, display, isolateStyles ) {
 				background-color: transparent;
 			}
 		`;
-		document.body.appendChild( styleNode );
+		upsertNthChild( renderNode, MathJax.chtmlStylesheet(), 1 );
 		upsertNthChild( renderNode, styleNode, 2 );
 	}
 }
@@ -118,4 +136,14 @@ export function resizeInputElement( element ) {
 	const maxLines = Math.max( ...lines.map( line => line.length ) );
 	element.cols = maxLines || 1;
 	element.rows = lines.length || 1;
+}
+
+export function debounce( fn, time ) {
+	let timeout;
+
+	return function( ...args ) {
+		const functionCall = () => fn.apply( this, args );
+		clearTimeout( timeout );
+		timeout = setTimeout( functionCall, time );
+	};
 }

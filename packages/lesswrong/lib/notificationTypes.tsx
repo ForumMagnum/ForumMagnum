@@ -167,7 +167,7 @@ export const taggedPostMessage = ({documentType, documentId}) => {
 
 export const NewTagPostsNotification = registerNotificationType({
   name: "newTagPosts",
-  userSettingField: "notificationTagPosts",
+  userSettingField: "notificationSubscribedTagPost",
   getMessage({documentType, documentId}) {
     return taggedPostMessage({documentType, documentId})
   },

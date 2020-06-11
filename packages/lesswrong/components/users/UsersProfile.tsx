@@ -99,33 +99,6 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     showSettings: false
   }
 
-  componentDidMount() {
-    const { results } = this.props
-    const document = getUserFromResults(results)
-    if (document) {
-      this.setCanonicalUrl()
-    }
-  }
-
-  componentDidUpdate({results: previousResults}: Readonly<UsersProfileProps>) {
-    const { results } = this.props
-    const oldDocument = getUserFromResults(previousResults)
-    const newDocument = getUserFromResults(results)
-    if (oldDocument?.slug !== newDocument?.slug) {
-      this.setCanonicalUrl()
-    }
-  }
-
-  setCanonicalUrl = () => {
-    const { history, results, slug } = this.props
-    const document = getUserFromResults(results)
-    // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (document && slug !== document.slug) {
-      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
-      history.replace(canonicalUrl);
-    }
-  }
-
   displaySequenceSection = (canEdit, user)  => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
@@ -188,22 +161,23 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
   render() {
     const { slug, classes, currentUser, loading, results, location } = this.props;
     const { query } = location;
-    const document = getUserFromResults(results)
+    const user = getUserFromResults(results)
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
-        <Components.Loading/>
+        <Loading/>
       </div>
     }
 
-    if (!document || !document._id || document.deleted) {
+    if (!user || !user._id || user.deleted) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
-      return <Components.Error404/>
+      return <Error404/>
     }
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody } = Components
-
-    const user = document;
+    if (user.oldSlugs?.includes(slug)) {
+      return <PermanentRedirect url={Users.getProfileUrlFromSlug(user.slug)} />
+    }
 
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {

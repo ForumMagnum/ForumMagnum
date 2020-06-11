@@ -42,6 +42,23 @@ refreshSettingsCaches()
 // We use Meteor.setInterval to make sure the code runs in a Fiber
 Meteor.setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
 
+/* 
+  A setting which is stored in the database in the "databasemetadata" collection, with the key "serverSettings"
+
+  These settings are never sent to the client and so can be used for API secrets and other things that you never 
+  want anyone but you to access.
+
+  For documentation on public database settings, which are made available to the client (and so are not secret) see `publicSettings.ts`
+  
+  For documentation on public instance settings, which are also sent to the client but can be customized per instance, see `instanceSettings.ts`
+  
+  arguments: 
+    settingName: JSON path to the setting in the settings.json file
+    defaultValue: What value <Setting>.get() returns when no value is found in the JSON file
+
+  Method: 
+    get: Returns the current value of the setting (either the value in the database or the default value)
+*/
 export class DatabaseServerSetting<SettingValueType> {
   constructor(
     private settingName: string, 

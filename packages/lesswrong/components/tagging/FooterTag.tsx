@@ -5,10 +5,12 @@ import withHover from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 export const tagStyle = theme => ({
+  display: "inline-block",
   marginRight: 4,
   padding: 5,
   paddingLeft: 8,
   paddingRight: 7,
+  marginBottom: 8,
   backgroundColor: 'rgba(0,0,0,0.05)',
   borderRadius: 10,
   cursor: "pointer",
