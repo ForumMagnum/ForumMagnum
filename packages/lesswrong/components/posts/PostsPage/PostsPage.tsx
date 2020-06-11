@@ -321,7 +321,7 @@ class PostsPage extends Component<PostsPageProps> {
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags
                 url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource}
-                title={post.title} description={description} noIndex={post.noIndex}
+                title={post.title} description={description} noIndex={post.noIndex || commentId}
               />
               {/* Header/Title */}
               <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
