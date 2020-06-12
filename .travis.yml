@@ -17,19 +17,19 @@ jobs:
     # TODO: add 'stage' key = 'deploy' so that this step runs in series, not parallel
     #       See https://docs.travis-ci.com/user/build-stages/#how-do-build-stages-work
     name: "Deploy Staging"
-    # Maybe ea-forum-staging or ea-forum-devel
+    # TODO; Maybe ea-forum-staging or ea-forum-devel
     if: branch = ci-deploy AND type != pull_request
     deploy: &staging
       provider: script
       script: bash ./deploy.sh ./settings-staging.json ./config-staging.secret
       on:
         branch: ci-deploy
-  # - script: skip
-  #   name: "Deploy LessWrong"
-  #   if: branch = master AND type != pull_request
-  #   deploy: &lesswrong
-  #     provider: script
-  #     script:
-  #       bash ./deploy.sh ./LessWrong-Credentials/settings-production-lesswrong.json ./LessWrong-Credentials/mup-production.secret
-  #     on:
-  #       branch: master
+  - script: skip
+    name: "Deploy Production"
+    # TODO; Maybe ea-forum-master
+    if: branch = ci-deploy AND type != pull_request
+    deploy: &production
+      provider: script
+      script: bash ./deploy.sh ./settings-prod.json ./config-prod.secret
+      on:
+        branch: ci-deploy
