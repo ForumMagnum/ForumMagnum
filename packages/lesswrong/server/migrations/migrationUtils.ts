@@ -293,8 +293,8 @@ export async function dropUnusedField(collection, fieldName) {
 export async function forEachDocumentBatchInCollection({collection, batchSize, filter=null, callback, loadFactor=1.0}: {
   collection: any,
   batchSize?: number,
-  filter?: any,
-  callback: any,
+  filter?: MongoSelector<DbObject> | null,
+  callback: Function,
   loadFactor?: number
 })
 {
