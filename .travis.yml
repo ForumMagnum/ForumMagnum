@@ -17,19 +17,17 @@ jobs:
     # TODO: add 'stage' key = 'deploy' so that this step runs in series, not parallel
     #       See https://docs.travis-ci.com/user/build-stages/#how-do-build-stages-work
     name: "Deploy Staging"
-    # TODO; Maybe ea-forum-staging or ea-forum-devel
-    if: branch = ci-deploy AND type != pull_request
+    if: branch = ea-forum-devel AND type != pull_request
     deploy: &staging
       provider: script
       script: bash ./deploy.sh ./settings-staging.json ./config-staging.secret
       on:
-        branch: ci-deploy
+        branch: ea-forum-devel
   - script: skip
     name: "Deploy Production"
-    # TODO; Maybe ea-forum-master
-    if: branch = ci-deploy AND type != pull_request
+    if: branch = ea-forum-master AND type != pull_request
     deploy: &production
       provider: script
       script: bash ./deploy.sh ./settings-prod.json ./config-prod.secret
       on:
-        branch: ci-deploy
+        branch: ea-forum-master
