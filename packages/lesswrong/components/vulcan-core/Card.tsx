@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper';
 import without from 'lodash/without';
 
 const getLabel = (fieldName, collection, intl) => {

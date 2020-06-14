@@ -18,7 +18,7 @@ const HeadTags = (props) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = tabTitleSetting.get()
     
-    const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
+    const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
     
     return (
@@ -50,7 +50,7 @@ const HeadTags = (props) => {
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
 
-          {props.noIndex && <meta name='robots' content='noindex' />}
+          {(props.noIndex || currentRoute.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
