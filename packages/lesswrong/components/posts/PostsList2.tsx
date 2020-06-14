@@ -65,7 +65,8 @@ const PostsList2 = ({
   classes,
   dense,
   defaultToShowUnreadComments,
-  itemsPerPage=25
+  itemsPerPage=25,
+  previewPostItem=false
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -83,7 +84,8 @@ const PostsList2 = ({
   classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
-  itemsPerPage?: number
+  itemsPerPage?: number,
+  previewPostItem?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -134,7 +136,7 @@ const PostsList2 = ({
   //                     fix this for real when Apollo 2 comes out
   
 
-  const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
+  const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter, TagPostItem } = Components
 
 
   // We don't actually know if there are more posts here,
@@ -172,7 +174,7 @@ const PostsList2 = ({
         };
 
         if (!(hidePosts && hidePosts[i])) {
-          return <PostsItem2 key={post._id} {...props} />
+          return previewPostItem ? <TagPostItem key={post._id} /> : <PostsItem2 key={post._id} {...props} />
         }
       })}
       {showLoadMore && <SectionFooter>

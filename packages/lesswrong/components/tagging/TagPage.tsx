@@ -155,6 +155,7 @@ const TagPage = ({classes}: {
             enableTotal
             tagId={tag._id}
             itemsPerPage={200}
+            previewPostItem
           >
             <AddPostsToTag tag={tag} />
           </PostsList2>

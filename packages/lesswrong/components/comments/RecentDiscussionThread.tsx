@@ -93,7 +93,7 @@ const RecentDiscussionThread = ({
   comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
 }: RecentDiscussionThreadProps) => {
-  const [highlightVisible, setHighlightVisible] = useState(false);
+  const [highlightVisible, setHighlightVisible] = useState(false); 
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);

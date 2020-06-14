@@ -354,6 +354,7 @@ importComponent("SunshineListCount", () => require('../components/sunshineDashbo
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
+importComponent("TagPostItem", () => require('../components/tagging/TagPostItem'));
 importComponent("AddTagButton", () => require('../components/tagging/AddTagButton'));
 importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTagsChecklist'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
