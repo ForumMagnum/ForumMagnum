@@ -14,7 +14,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
-import { userHasCkEditor, userHasCkCollaboration } from '../../lib/betas';
+import { userHasCkEditor, userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -554,7 +554,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   
   renderCommitMessageInput = () => {
     const { currentUser, formType, fieldName, form, classes } = this.props
-    if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
+    if (!currentUser || !userCanCreateCommitMessages(currentUser) || formType !== "edit") { return null }
     
     const collectionName = form.collectionName;
     const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
