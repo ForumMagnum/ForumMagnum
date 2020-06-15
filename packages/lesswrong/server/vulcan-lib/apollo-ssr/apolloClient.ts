@@ -1,47 +1,21 @@
-/*
- * This client is used to prefetch data server side
- * (necessary for SSR)
- *
- * /!\ It must be recreated on every request
- */
-
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-
 import { SchemaLink } from 'apollo-link-schema';
 import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
-
 import { ApolloLink } from 'apollo-link';
 
-// @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#local-queries
-// import { createHttpLink } from 'apollo-link-http';
-// import fetch from 'node-fetch'
-
+// This client is used to prefetch data server side (necessary for SSR)
+// It is recreated on every request.
 export const createClient = async (context) => {
-  // init
   const cache = new InMemoryCache();
-  // schemaLink will fetch data directly based on the executable schema
   const schema = GraphQLSchema.getExecutableSchema();
-  // this is the resolver context
+  
+  // schemaLink will fetch data directly based on the executable schema
+  // context here is the resolver context
   const schemaLink = new SchemaLink({ schema, context });
   const client = new ApolloClient({
     ssrMode: true,
     link: ApolloLink.from([schemaLink]),
-    // @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#local-queries
-    // Remember that this is the interface the SSR server will use to connect to the
-    // API server, so we need to ensure it isn't firewalled, etc
-    //link: createHttpLink({
-    //    uri: 'http://localhost:3000',
-    //    credentials: 'same-origin',
-    //    headers: {
-    //        // NOTE: this is a Connect req, not an Express req,
-    //        // so req.header is not defined
-    //        // cookie: req.header('Cookie'),
-    //        cookie: req.headers['cookie'],
-    //    },
-    //    // need to explicitely pass fetch server side
-    //    fetch
-    //}),
     cache,
     assumeImmutableResults: true,
   });
