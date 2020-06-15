@@ -3,7 +3,6 @@ import { ApolloLink } from 'apollo-link';
 import httpLink from './links/http';
 import meteorAccountsLink from './links/meteor';
 import errorLink from './links/error';
-import { createStateLink } from '../../../lib/vulcan-lib/apollo-common';
 import cache from './cache';
 
 // these links do not change once created
@@ -11,9 +10,8 @@ const staticLinks = [errorLink, meteorAccountsLink, httpLink];
 
 let apolloClient;
 export const createApolloClient = () => {
-  const stateLink = createStateLink({ cache });
   const newClient = new ApolloClient({
-    link: ApolloLink.from([stateLink, ...staticLinks]),
+    link: ApolloLink.from([...staticLinks]),
     cache,
     ssrForceFetchDelay: 500,
   });

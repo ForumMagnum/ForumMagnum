@@ -11,7 +11,6 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { SchemaLink } from 'apollo-link-schema';
 import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 
-import { createStateLink } from '../../../lib/vulcan-lib/apollo-common';
 import { ApolloLink } from 'apollo-link';
 
 // @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#local-queries
@@ -20,16 +19,14 @@ import { ApolloLink } from 'apollo-link';
 
 export const createClient = async (context) => {
   // init
-  // stateLink will init the client internal state
   const cache = new InMemoryCache();
-  const stateLink = createStateLink({ cache });
   // schemaLink will fetch data directly based on the executable schema
   const schema = GraphQLSchema.getExecutableSchema();
   // this is the resolver context
   const schemaLink = new SchemaLink({ schema, context });
   const client = new ApolloClient({
     ssrMode: true,
-    link: ApolloLink.from([stateLink, schemaLink]),
+    link: ApolloLink.from([schemaLink]),
     // @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#local-queries
     // Remember that this is the interface the SSR server will use to connect to the
     // API server, so we need to ensure it isn't firewalled, etc

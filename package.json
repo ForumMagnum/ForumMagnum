@@ -80,7 +80,6 @@
     "apollo-link-batch-http": "^1.2.11",
     "apollo-link-error": "^1.1.5",
     "apollo-link-schema": "^1.1.1",
-    "apollo-link-state": "^0.4.2",
     "apollo-server": "2.3.3",
     "apollo-server-express": "2.3.3",
     "bcrypt": "^3.0.6",
