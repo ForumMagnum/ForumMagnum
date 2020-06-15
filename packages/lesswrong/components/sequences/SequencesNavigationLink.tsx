@@ -34,7 +34,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   classes: ClassesType,
 }) => {
   const { history } = useNavigation();
-  const updateContinueReading = useUpdateContinueReading(post._id, post.sequence?._id);
+  const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
   
   const icon = (
     <IconButton classes={{root: classnames(classes.root, {
