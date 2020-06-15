@@ -98,7 +98,7 @@ export const schema = {
     }),
     viewableBy: ['guests'],
   },
-  createdBy: {
+  userId: {
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
