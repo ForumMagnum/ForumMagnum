@@ -11,7 +11,6 @@ import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
 import './config';
 import { Utils } from './utils';
-import { disableFragmentWarnings } from 'graphql-tag';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -36,8 +35,6 @@ import {
   deleteMutationTemplate,
 } from './graphql_templates';
 import * as _ from 'underscore';
-
-disableFragmentWarnings();
 
 // get GraphQL type for a given schema and field name
 const getGraphQLType = (schema, fieldName, isInput = false) => {
