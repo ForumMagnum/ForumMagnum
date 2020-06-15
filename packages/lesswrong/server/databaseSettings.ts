@@ -1,4 +1,3 @@
-
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { Meteor } from 'meteor/meteor';
 import { publicSettings, initializeSetting, registeredSettings } from '../lib/publicSettings'
@@ -34,7 +33,7 @@ refreshSettingsCaches()
 Meteor.setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
 
 /* 
-  A setting which is stored in the database in the "databasemedata" collection, with the key "serverSettings"
+  A setting which is stored in the database in the "databasemetadata" collection, with the key "serverSettings"
 
   These settings are never sent to the client and so can be used for API secrets and other things that you never 
   want anyone but you to access.

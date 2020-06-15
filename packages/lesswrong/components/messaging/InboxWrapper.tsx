@@ -17,4 +17,10 @@ const InboxWrapper = () => {
   </div>
 }
 
-registerComponent('InboxWrapper', InboxWrapper);
+const InboxWrapperComponent = registerComponent('InboxWrapper', InboxWrapper);
+
+declare global {
+  interface ComponentTypes {
+    InboxWrapper: typeof InboxWrapperComponent
+  }
+}
