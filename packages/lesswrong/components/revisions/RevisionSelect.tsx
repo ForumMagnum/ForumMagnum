@@ -74,7 +74,9 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
           <Link to={getRevisionUrl(rev)}>
             {rev.version}{" "}
             <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
-            <UsersName documentId={rev.userId}/>{" "}
+          </Link>
+          <UsersName documentId={rev.userId}/>{" "}
+          <Link to={getRevisionUrl(rev)}>
             {(added>0 && removed>0)
               && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
             {(added>0 && removed==0)
