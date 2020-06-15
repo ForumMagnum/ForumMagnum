@@ -1,5 +1,4 @@
 import React from 'react';
-import { addCallback } from '../lib/vulcan-lib';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 import forumTheme from '../themes/forumTheme';

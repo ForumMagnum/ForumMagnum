@@ -1,7 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
-import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
