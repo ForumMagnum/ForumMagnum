@@ -13,7 +13,7 @@ import { webAppConnectHandlersUse } from '../meteor_patch';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { createClient } from './apolloClient';
-import { cachedPageRender, recordCacheBypass, getCacheHitRate } from './pageCache';
+import { cachedPageRender, recordCacheBypass } from './pageCache';
 import Head from './components/Head';
 import ApolloState from './components/ApolloState';
 import AppGenerator from './components/AppGenerator';
@@ -21,10 +21,19 @@ import Sentry from '@sentry/node';
 import { Random } from 'meteor/random';
 import { publicSettings } from '../../../lib/publicSettings'
 
+type RenderTimings = {
+  totalTime: number
+  prerenderTime: number
+  renderTime: number
+}
+
 const makePageRenderer = async sink => {
   const startTime = new Date();
   const req = sink.request;
   const user = await getUserFromReq(req);
+  
+  const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
+  const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
   // it into a global variable. In previous versions of Vulcan this would've
@@ -41,14 +50,13 @@ const makePageRenderer = async sink => {
     url: req.url.pathname,
     clientId: req.cookies && req.cookies.clientId,
     tabId: tabId,
-    userAgent: req.headers["user-agent"],
+    userAgent: userAgent,
   };
   
   if (user) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
-    console.log(`Rendering ${req.url} (logged in request; hit rate=${getCacheHitRate()})`);
     const rendered = await renderRequest({
       req, user, startTime
     });
@@ -62,6 +70,8 @@ const makePageRenderer = async sink => {
       timings: rendered.timings,
       cached: false,
     });
+    // eslint-disable-next-line no-console
+    console.log(`Rendered ${req.url.path} for ${user.username}: ${printTimings(rendered.timings)}`);
   } else {
     const rendered = await cachedPageRender(req, (req) => renderRequest({
       req, user: null, startTime
@@ -70,6 +80,8 @@ const makePageRenderer = async sink => {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     });
+    // eslint-disable-next-line no-console
+    console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
       userId: null,
@@ -176,14 +188,13 @@ const renderRequest = async ({req, user, startTime}) => {
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
   
   const finishedTime = new Date();
-  const timings = {
+  const timings: RenderTimings = {
     prerenderTime: afterPrerenderTime.valueOf() - startTime.valueOf(),
     renderTime: finishedTime.valueOf() - afterPrerenderTime.valueOf(),
     totalTime: finishedTime.valueOf() - startTime.valueOf()
   };
   
   // eslint-disable-next-line no-console
-  console.log(`preRender time: ${timings.prerenderTime}; render time: ${timings.renderTime}`);
   if (timings.totalTime > 3000) {
     Sentry.captureException(new Error("SSR time above 3 seconds"));
   }
@@ -214,6 +225,10 @@ const sendToSink = (sink, {
     sink.appendToHead(head);
   sink.appendToBody(serializedApolloState);
   sink.appendToHead(jssSheets);
+}
+
+const printTimings = (timings: RenderTimings): string => {
+  return `${timings.totalTime}ms (prerender: ${timings.prerenderTime}ms, render: ${timings.renderTime}ms)`;
 }
 
 export default makePageRenderer;

@@ -62,6 +62,16 @@ export default class MathUI extends Plugin {
 			return;
 		}
 
+		// When we press Ctrl+4 and have text-selected, initialize the mathCommand
+		// (and corresponding menu) with the selected text
+		const selection = editor.model.document.selection;
+		const range = selection.getFirstRange();
+		const selectedItems = range.getItems();
+		const concatenatedSelection = Array.from( selectedItems ).map( item => item.data ? item.data : '' ).join( '' );
+		if ( concatenatedSelection && concatenatedSelection.length ) {
+			mathCommand.value = concatenatedSelection;
+		}
+
 		this._addFormView();
 
 		this._balloon.showStack( 'main' );
@@ -96,6 +106,12 @@ export default class MathUI extends Plugin {
 			this.formView.fire( 'submit' );
 			this._closeFormView();
 		} );
+
+		// Close plugin ui, if Tab is pressed (while ui is focused)
+		formView.keystrokes.set( 'tab', ( data, cancel ) => {
+			this.formView.fire( 'submit' );
+			this._closeFormView();
+		}, { priority: 'high' } );
 
 		formView.keystrokes.set( 'Enter', ( data, cancel ) => {
 			this.formView.fire( 'submit' );

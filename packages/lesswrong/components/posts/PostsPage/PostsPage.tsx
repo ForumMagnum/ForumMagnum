@@ -143,7 +143,10 @@ class PostsPage extends Component<PostsPageProps> {
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-              <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
+              <HeadTags
+                url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource}
+                title={post.title} description={description} noIndex={post.noIndex || !!commentId}
+              />
               {/* Header/Title */}
               <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
                 <div className={classes.centralColumn}>
