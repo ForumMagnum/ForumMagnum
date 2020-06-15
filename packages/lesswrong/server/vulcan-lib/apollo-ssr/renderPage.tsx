@@ -15,7 +15,7 @@ import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass } from './pageCache';
 import Head from './components/Head';
-import ApolloState from './components/ApolloState';
+import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 import { Random } from 'meteor/random';
@@ -177,9 +177,7 @@ const renderRequest = async ({req, user, startTime}) => {
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
-  const serializedApolloState = ReactDOM.renderToString(
-    <ApolloState initialState={initialState} />
-  );
+  const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   
   // HACK: The sheets registry is created in a router.server.wrapper callback. The
   // resulting styles are extracted here, rather than in a callback, because the type
