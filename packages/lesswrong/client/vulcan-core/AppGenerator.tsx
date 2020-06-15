@@ -3,7 +3,8 @@
  */
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
-import { runCallbacks, Components } from '../../lib/vulcan-lib';
+import { Components } from '../../lib/vulcan-lib';
+import { wrapWithMuiTheme } from '../themeProvider';
 import { CookiesProvider } from 'react-cookie';
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
@@ -18,12 +19,6 @@ const AppGenerator = ({ apolloClient }) => {
         </CookiesProvider>
     </ApolloProvider>
   );
-  // run user registered callbacks to wrap the app
-  const WrappedApp = runCallbacks({
-    name: 'router.client.wrapper', 
-    iterator: App, 
-    properties: { apolloClient }
-  });
-  return WrappedApp;
+  return wrapWithMuiTheme(App);
 };
 export default AppGenerator;

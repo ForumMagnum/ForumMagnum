@@ -6,7 +6,7 @@ import forumTheme from '../themes/forumTheme';
 import JssCleanup from '../components/themes/JssCleanup';
 
 
-function wrapWithMuiTheme (app) {
+export function wrapWithMuiTheme (app) {
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });
@@ -20,6 +20,3 @@ function wrapWithMuiTheme (app) {
     </JssProvider>
   );
 }
-
-
-addCallback('router.client.wrapper', wrapWithMuiTheme);
