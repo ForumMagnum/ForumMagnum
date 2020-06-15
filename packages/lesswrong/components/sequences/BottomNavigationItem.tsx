@@ -1,7 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import classnames from 'classnames';
-import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { Posts } from '../../lib/collections/posts/collection';
 import { useNavigation } from '../../lib/routeUtil';
