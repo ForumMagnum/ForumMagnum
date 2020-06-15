@@ -21,6 +21,8 @@ const HeadTags = (props) => {
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
     
+    const rssUrl = `${Utils.getSiteUrl()}feed.xml`
+    
     return (
       <React.Fragment>
         { TitleComponent
@@ -54,6 +56,8 @@ const HeadTags = (props) => {
           <link rel='canonical' href={canonicalUrl}/>
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
+          <link name="rss" rel="alternate" type="application/rss+xml" href={rssUrl} />
+          
           {Head.meta.map((tag, index) => <meta key={index} {...tag}/>)}
           {Head.link.map((tag, index) => <link key={index} {...tag}/>)}
           {Head.script.map((tag, index) => <script key={index} {...tag}>{tag.contents}</script>)}
