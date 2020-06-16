@@ -50,7 +50,7 @@ const HeadTags = (props) => {
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
 
-          {(props.noIndex || currentRoute.noIndex) && <meta name='robots' content='noindex' />}
+          {(props.noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
