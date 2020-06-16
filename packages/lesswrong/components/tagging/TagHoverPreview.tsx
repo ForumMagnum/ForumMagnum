@@ -18,7 +18,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   classes: ClassesType,
 }) => {
   const { params: {slug} } = targetLocation;
-  const { tag } = useTagBySlug(slug);
+  const { tag } = useTagBySlug(slug, "TagFragment");
   const { PopperCard, TagPreview, Loading } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
   

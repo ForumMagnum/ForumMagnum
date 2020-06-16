@@ -94,8 +94,8 @@ const generateDataLoaders = (context) => {
 };
 
 
-export const computeContextFromUser = async (user, headers) => {
-  let context = {...GraphQLSchema.context};
+export const computeContextFromUser = async (user, headers): Promise<ResolverContext> => {
+  let context: ResolverContext = {...GraphQLSchema.context};
 
   generateDataLoaders(context);
 
@@ -110,7 +110,7 @@ export const computeContextFromUser = async (user, headers) => {
   //add the headers to the context
   context.headers = headers;
 
-  context.locale = getHeaderLocale(headers, context.currentUser && context.currentUser.locale);
+  context.locale = getHeaderLocale(headers, null);
 
   return context;
 }
@@ -120,7 +120,7 @@ export const getUserFromReq = async (req) => {
 }
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = async (req) => {
+export const computeContextFromReq = async (req): Promise<ResolverContext> => {
   const user = await getUserFromReq(req);
   return computeContextFromUser(user, req.headers);
 };

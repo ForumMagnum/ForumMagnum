@@ -231,12 +231,17 @@ async function getTocComments (document) {
   return [{anchor:"comments", level:0, title: Posts.getCommentCountStr(document, commentCount)}]
 }
 
-const getTableOfContentsData = async ({document, version, currentUser}) => {
+const getTableOfContentsData = async ({document, version, currentUser, context}: {
+  document: any,
+  version: string,
+  currentUser: DbUser|null,
+  context: ResolverContext,
+}) => {
   let html;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
     if (!revision) return null;
-    if (!Revisions.checkAccess(currentUser, revision))
+    if (!await Revisions.checkAccess(currentUser, revision, context))
       return null;
     html = revision.html;
   } else {

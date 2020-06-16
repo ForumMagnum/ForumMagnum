@@ -33,16 +33,23 @@ export const sanitize = function(s) {
   });
 };
 
-Utils.performCheck = (operation, user, checkedObject, context, documentId, operationName, collectionName) => {
-
+Utils.performCheck = async <T extends DbObject>(
+  operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>,
+  user: DbUser|null,
+  checkedObject: T,
+  
+  context: ResolverContext,
+  documentId: string,
+  operationName: string,
+  collectionName: CollectionNameString
+): Promise<void> => {
   if (!checkedObject) {
     throwError({ id: 'app.document_not_found', data: { documentId, operationName } });
   }
 
-  if (!operation(user, checkedObject, context)) {
+  if (!(await operation(user, checkedObject, context))) {
     throwError({ id: 'app.operation_not_allowed', data: { documentId, operationName } });
   }
-
 };
 
 export { Utils };

@@ -2,37 +2,52 @@ import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graph
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
+import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 addGraphQLResolvers({
   Query: {
-    async PostsDiff(root, {postId, beforeRev, afterRev}: { postId: string, beforeRev: string, afterRev: string }, context) {
-      const {currentUser, Posts}: {currentUser: DbUser|null, Posts: CollectionBase<DbPost>} = context;
-      const postUnfiltered: DbPost|null = await Posts.loader.load(postId);
-      if (!postUnfiltered) return null;
+    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string }, context: ResolverContext): Promise<string> {
+      const {currentUser}: {currentUser: DbUser|null} = context;
       
-      // Check that the user has access to the post
-      const post = accessFilterSingle(currentUser, Posts, postUnfiltered);
-      if (!post) return null;
+      // Validate collectionName, fieldName
+      if (!editableCollections.has(collectionName)) {
+        throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
+      }
+      if (!editableCollectionsFields[collectionName].find(f=>f===fieldName)) {
+        throw new Error(`Invalid field for RevisionsDiff: ${collectionName}.${fieldName}`);
+      }
+      
+      const collection = context[collectionName];
+      
+      const documentUnfiltered = await collection.loader.load(id);
+      
+      // Check that the user has access to the document
+      const document = await accessFilterSingle(currentUser, collection, documentUnfiltered, context);
+      if (!document) {
+        throw new Error(`Could not find document: ${id}`);
+      }
       
       // Load the revisions
       const beforeUnfiltered = await Revisions.findOne({
-        documentId: postId,
+        documentId: id,
         version: beforeRev,
-        fieldName: "contents",
+        fieldName: fieldName,
       });
       const afterUnfiltered = await Revisions.findOne({
-        documentId: postId,
+        documentId: id,
         version: afterRev,
-        fieldName: "contents",
+        fieldName: fieldName,
       });
-      if (!beforeUnfiltered || !afterUnfiltered) 
-        return null
-        
-      const before: DbRevision|null = accessFilterSingle(currentUser, Revisions, beforeUnfiltered);
-      const after: DbRevision|null = accessFilterSingle(currentUser, Revisions, afterUnfiltered);
-      if (!before || !after)
-        return null;
+      
+      const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
+      const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
+      if (!before || !beforeUnfiltered) {
+        throw new Error(`Could not find revision: ${beforeRev}`);
+      }
+      if (!after || !afterUnfiltered) {
+        throw new Error(`Could not find revision: ${afterRev}`);
+      }
       
       // Diff the revisions
       const diffHtmlUnsafe = diff(before.html, after.html);
@@ -44,5 +59,6 @@ addGraphQLResolvers({
     }
   },
 });
-addGraphQLQuery('PostsDiff(postId: String, beforeRev: String, afterRev: String): String');
+
+addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String): String');
 
