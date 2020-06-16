@@ -25,3 +25,5 @@ export const userCanCreateTags = moderatorOnly;
 export const userCanUseTags = shippedFeature;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
+export const userCanCreateCommitMessages = moderatorOnly;
+export const userCanViewRevisionHistory = moderatorOnly;

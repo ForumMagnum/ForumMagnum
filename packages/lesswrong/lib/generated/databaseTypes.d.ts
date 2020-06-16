@@ -402,7 +402,7 @@ interface DbTag extends DbObject {
   suggestedAsFilter: boolean
   defaultOrder: number
   postCount: number
-  createdBy: string
+  userId: string
   adminOnly: boolean
   charsAdded: number
   charsRemoved: number
@@ -445,6 +445,7 @@ interface DbPost extends DbObject {
   reviewCount2018: number
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
+  noIndex: boolean
   voteCount: number
   baseScore: number
   score: number

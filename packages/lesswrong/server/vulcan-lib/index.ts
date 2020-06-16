@@ -13,7 +13,6 @@ export * from './intl';
 export * from './accounts_helpers';
 export * from './staticRoutes';
 
-export * from './apollo-server/settings';
 export * from './apollo-server/context';
 export * from './apollo-ssr/apolloClient';
 

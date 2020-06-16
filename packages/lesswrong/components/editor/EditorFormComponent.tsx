@@ -14,7 +14,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
-import { userHasCkEditor, userHasCkCollaboration } from '../../lib/betas';
+import { userHasCkEditor, userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -121,9 +121,13 @@ const styles = theme => ({
   changeDescriptionInput: {
     flexGrow: 1,
   },
+  markdownImgErrText: {
+    margin: `${theme.spacing.unit * 3}px 0`
+  }
 })
 
 const autosaveInterval = 3000; //milliseconds
+const checkImgErrsInterval = 500; //milliseconds
 const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 const editorTypeToDisplay = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
@@ -160,15 +164,17 @@ interface EditorFormComponentState {
   ckEditorValue: any,
   markdownValue: any,
   htmlValue: any,
+  markdownImgErrs: boolean
 }
 
 class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormComponentState> {
   hasUnsavedData: boolean
   throttledSaveBackup: any
   throttledSetCkEditor: any
+  debouncedCheckMarkdownImgErrs: any
   unloadEventListener: any
   ckEditor: any
-  
+
   constructor(props: EditorFormComponentProps) {
     super(props)
     const editorType = this.getCurrentEditorType()
@@ -180,17 +186,19 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       commitMessage: "",
       ckEditorReference: null,
       loading: true,
-      ...this.getEditorStatesFromType(editorType)
+      ...this.getEditorStatesFromType(editorType),
+      markdownImgErrs: false
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
     this.throttledSetCkEditor = _.throttle(this.setCkEditor, autosaveInterval);
+    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
 
   }
 
   async componentDidMount() {
     const { currentUser, form } = this.props
-    
+
     this.context.addToSubmitForm(this.submitData);
 
     this.context.addToSuccessForm((result) => {
@@ -207,14 +215,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         }
       });
     }
-    
+
     if (userHasCkEditor(currentUser)) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
       this.setState({ckEditorLoaded: true})
     }
-    
+
     if (Meteor.isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
@@ -224,7 +232,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   getEditorStatesFromType = (editorType: string, contents?: any) => {
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
-    
+
     // if contents are manually specified, use those:
     const newValue = contents || value
 
@@ -240,7 +248,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         ckEditorValue: editorType === "ckEditorMarkup" ? newValue.originalContents.data : null
       }
     }
-    
+
     // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
@@ -250,12 +258,12 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       ckEditorValue: editorType === "ckEditorMarkup" ? ckEditorMarkup : null
     }
   }
-  
+
   getEditorStatesFromLocalStorage = (editorType: string): any => {
     const { document, name } = this.props;
     const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (!savedState) return null;
-    
+
     if (editorType === "draftJS") {
       try {
         // eslint-disable-next-line no-console
@@ -283,14 +291,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       }
     }
   }
-  
+
   restoreFromLocalStorage = () => {
     const savedState = this.getEditorStatesFromLocalStorage(this.getCurrentEditorType());
     if (savedState) {
       this.setState(savedState);
     }
   }
-  
+
 
   getStorageHandlers = () => {
     const { form } = this.props
@@ -313,7 +321,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     // And lastly, if the field is empty, create an empty draftJS object
     return EditorState.createEmpty();
   }
-  
+
   submitData = (submission) => {
     const { fieldName } = this.props
     let data: any = null
@@ -335,7 +343,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         if (!this.isDocumentCollaborative()) {
           this.context.addToSuccessForm((s) => {
             this.state.ckEditorReference.setData('')
-          }) 
+          })
         }
         data = ckEditorReference.getData()
         break
@@ -353,7 +361,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       } : undefined
     }
   }
-  
+
   resetEditor = () => {
     const { name, document } = this.props;
     // On Form submit, create a new empty editable
@@ -372,7 +380,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       window.removeEventListener("beforeunload", this.unloadEventListener);
     }
   }
-  
+
 
   setEditorType = (editorType) => {
     if (!editorType) throw new Error("Missing argument to setEditorType: editorType");
@@ -381,7 +389,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       editorOverride: targetEditorType,
       ...this.getEditorStatesFromType(targetEditorType)
     })
-    
+
     this.restoreFromLocalStorage();
   }
 
@@ -390,7 +398,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const currentContent = draftJSValue.getCurrentContent()
     const newContent = value.getCurrentContent()
     this.setState({draftJSValue: value})
-    
+
     if (currentContent !== newContent) {
       this.afterChange();
     }
@@ -406,6 +414,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   setMarkdown = (value) => {
     if (this.state.markdownValue !== value) {
       this.setState({markdownValue: value})
+      this.debouncedCheckMarkdownImgErrs()
       this.afterChange();
     }
   }
@@ -417,7 +426,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.afterChange();
     }
   }
-  
+
 
   afterChange = () => {
     this.hasUnsavedData = true;
@@ -469,7 +478,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       case "ckEditorMarkup": return "ckeditor_";
     }
   }
-  
+
 
   renderEditorWarning = () => {
     const { currentUser, classes } = this.props
@@ -490,21 +499,21 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         <br/>
       </div>
   }
-  
+
 
   getCurrentEditorType = () => {
     const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
-    
+
     // If there is an override, return that
     if (editorOverride)
       return editorOverride;
-    
+
     return this.getInitialEditorType();
   }
-  
+
   getInitialEditorType = () => {
     const { document, currentUser, fieldName, value } = this.props
-    
+
     // Check whether we are directly passed a value in the form context, with a type (as a default value for example)
     if (value?.originalContents?.type) {
       return value.originalContents.type
@@ -522,32 +531,30 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
-  
+
 
   handleUpdateTypeSelect = (e) => {
     this.setState({ updateType: e.target.value })
   }
 
-  renderUpdateMetadata = () => {
+  renderUpdateTypeSelect = () => {
     const { currentUser, formType, classes } = this.props
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
-    return <>
-      <Select
-        value={this.state.updateType}
-        onChange={this.handleUpdateTypeSelect}
-        className={classes.select}
-        disableUnderline
-      >
-        <MenuItem value={'major'}>Major Update</MenuItem>
-        <MenuItem value={'minor'}>Minor Update</MenuItem>
-        <MenuItem value={'patch'}>Patch</MenuItem>
-      </Select>
-    </>
+    return <Select
+      value={this.state.updateType}
+      onChange={this.handleUpdateTypeSelect}
+      className={classes.select}
+      disableUnderline
+    >
+      <MenuItem value={'major'}>Major Update</MenuItem>
+      <MenuItem value={'minor'}>Minor Update</MenuItem>
+      <MenuItem value={'patch'}>Patch</MenuItem>
+    </Select>
   }
   
   renderCommitMessageInput = () => {
     const { currentUser, formType, fieldName, form, classes } = this.props
-    if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
+    if (!currentUser || !userCanCreateCommitMessages(currentUser) || formType !== "edit") { return null }
     
     const collectionName = form.collectionName;
     const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
@@ -569,8 +576,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     return this.state.version || this.props.document.version
   }
 
-  handleUpdateVersionNumber = (version) => {   
-    // see SelectVersion component for additional details 
+  handleUpdateVersionNumber = (version) => {
+    // see SelectVersion component for additional details
     this.setState({ version: version })
   }
 
@@ -584,16 +591,16 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   renderVersionSelect = () => {
-    const { classes, document, currentUser } = this.props 
-    
+    const { classes, document, currentUser } = this.props
+
     if (!userHasCkEditor(currentUser)) return null
 
     if (!this.getCurrentRevision()) return null
     return <span className={classes.select}>
-        <Components.SelectVersion 
+        <Components.SelectVersion
           key={this.getCurrentRevision()}
-          documentId={document._id} 
-          revisionVersion={this.getCurrentRevision()} 
+          documentId={document._id}
+          revisionVersion={this.getCurrentRevision()}
           updateVersionNumber={this.handleUpdateVersionNumber}
           updateVersion={this.handleUpdateVersion}
         />
@@ -676,25 +683,36 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
-      // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document) 
+      // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document)
       //
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
-      
+
       const collaboration = this.isDocumentCollaborative()
-      
+
       return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
           { this.renderPlaceholder(!value, collaboration)}
-          { collaboration ? 
+          { collaboration ?
             <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
-            : 
+            :
             <CKEditor key="ck-default" { ...editorProps } />}
         </div>
     }
-  } 
+  }
+
+  checkMarkdownImgErrs = () => {
+    const { markdownValue } = this.state
+    // match markdown image tags of the form
+    // ![](http://example.com/example.jpg)
+    // ![Alt text](http://example.com/example.jpg)
+    const httpImageRE = /!\[[^\]]*?\]\(http:/g
+    this.setState({
+      markdownImgErrs: httpImageRE.test(markdownValue)
+    })
+  }
 
   renderPlaintextEditor = (editorType) => {
-    const { markdownValue, htmlValue } = this.state
+    const { markdownValue, htmlValue, markdownImgErrs } = this.state
     const { classes, document, form: { commentStyles }, label } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
@@ -714,6 +732,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           fullWidth={true}
           disableUnderline={true}
         />
+      {markdownImgErrs && editorType === 'markdown' && <Typography component='aside' variant='body2' color='error' className={classes.markdownImgErrText}>
+          Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
+          connection. You should update all links to images so that they are served over a{' '}
+          secure HTTPS connection (i.e. the links should start with <em>https://</em>).
+        </Typography>}
       </div>
   }
 
@@ -735,9 +758,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getMaxHeightClass = () => {
-    const { classes, formProps } = this.props 
+    const { classes, formProps } = this.props
     return formProps?.maxHeight ? classes.maxHeight : null
-  } 
+  }
 
   getHeightClass = () => {
     const { document, classes, form: { commentStyles } } = this.props
@@ -749,7 +772,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       return classes.postEditorHeight
     }
   }
-  
+
 
   render() {
     const { editorOverride, loading } = this.state
@@ -758,7 +781,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const currentEditorType = this.getCurrentEditorType()
 
     if (!document) return null;
-    
+
     const editorWarning =
       !editorOverride
       && formType !== "new"
@@ -770,7 +793,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       <div className={classNames(classes.editor, this.getBodyStyles())}>
         { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
         { this.renderVersionSelect() }
-        { this.renderUpdateMetadata() }
+        { this.renderUpdateTypeSelect() }
         { this.renderEditorTypeSelect() }
       </div>
       { this.renderCommitMessageInput() }

@@ -17,14 +17,6 @@ const styles = theme => ({
   }
 })
 
-interface PostsRevisionSelectorProps extends WithStylesProps {
-  post: PostsBase,
-  format: any,
-}
-interface PostsRevisionSelectorState {
-  anchorEl: any,
-}
-
 const PostsRevisionSelector = ({ post, format, classes }: {
   post: PostsBase,
   format: string,

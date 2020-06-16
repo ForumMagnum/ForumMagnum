@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
+import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 
@@ -141,9 +142,9 @@ const TagPage = ({classes}: {
             {Users.isAdmin(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
               <EditOutlinedIcon /> Edit Wiki
             </Link>}
-            <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
+            {userCanViewRevisionHistory(currentUser) && <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
-            </Link>
+            </Link>}
             <SubscribeTo 
               document={tag} 
               showIcon 

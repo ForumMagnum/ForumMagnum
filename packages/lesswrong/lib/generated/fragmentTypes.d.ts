@@ -105,6 +105,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly canonicalSource: string,
+  readonly noIndex: boolean,
   readonly shareWithUsers: Array<string>,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
@@ -608,7 +609,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly postCount: number,
-  readonly createdBy: string,
+  readonly userId: string,
   readonly adminOnly: boolean,
   readonly charsAdded: number,
   readonly charsRemoved: number,
@@ -647,6 +648,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewCount2018: number,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly noIndex: boolean,
 }
 
 interface ChaptersDefaultFragment { // fragment on Chapters
