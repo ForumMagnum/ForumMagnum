@@ -5,12 +5,13 @@ import { ReviewVotes } from './collection'
 
 addGraphQLResolvers({
   Mutation: {
-    submitReviewVote: async (root, { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment }, { currentUser }) => {
+    submitReviewVote: async (root, { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment }, context: ResolverContext) => {
+      const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to submit a review vote");
       if (!postId) throw new Error("Missing argument: postId");
       
       const post = Posts.findOne({_id: postId});
-      if (!accessFilterSingle(currentUser, Posts, post))
+      if (!await accessFilterSingle(currentUser, Posts, post, context))
         throw new Error("Invalid postId");
       
       // Check whether this post already has a review vote

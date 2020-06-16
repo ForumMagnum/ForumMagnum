@@ -25,6 +25,7 @@ import '../components/momentjs';
 
 import './collections/posts/fragments';
 import './collections/comments/fragments';
+import './collections/revisions/fragments';
 
 
 // Notifications
@@ -128,6 +129,7 @@ import './collections/posts/helpers';
 
 // Revisions
 import Revisions from './collections/revisions/collection'
+import './collections/revisions/views'
 //
 // Users
 import './collections/users/permissions';

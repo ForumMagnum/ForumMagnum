@@ -208,8 +208,9 @@ export const GraphQLSchema: any = {
           // then build actual resolver object and pass it to addGraphQLResolvers
           const resolver = {
             [typeName]: {
-              [resolverName]: (document, args, context, info) => {
-                const { Users, currentUser } = context;
+              [resolverName]: (document, args, context: ResolverContext, info) => {
+                const { currentUser } = context;
+                const Users = context.Users as any; // Cast to any because monkeypatched functions aren't in the ResolverContext type definition
                 // check that current user has permission to access the original non-resolved field
                 const canReadField = Users.canReadField(currentUser, field, document);
                 return canReadField

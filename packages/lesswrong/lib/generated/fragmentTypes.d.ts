@@ -210,23 +210,13 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay,
-  readonly revisions: Array<PostsRevision_revisions>,
-}
-
-interface PostsRevision_revisions { // fragment on Revisions
-  readonly version: string,
-  readonly editedAt: Date,
+  readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionEdit,
-  readonly revisions: Array<PostsRevisionEdit_revisions>,
-}
-
-interface PostsRevisionEdit_revisions { // fragment on Revisions
-  readonly version: string,
-  readonly editedAt: Date,
+  readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
@@ -296,12 +286,7 @@ interface EditModerationGuidelines { // fragment on Posts
 
 interface PostsRevisionsList { // fragment on Posts
   readonly _id: string,
-  readonly revisions: Array<PostsRevisionsList_revisions>,
-}
-
-interface PostsRevisionsList_revisions { // fragment on Revisions
-  readonly version: string,
-  readonly editedAt: Date,
+  readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
@@ -390,6 +375,17 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 
 interface CommentEdit extends CommentsList { // fragment on Comments
   readonly contents: RevisionEdit,
+}
+
+interface RevisionMetadata { // fragment on Revisions
+  readonly version: string,
+  readonly editedAt: Date,
+  readonly commitMessage: string,
+  readonly userId: string,
+}
+
+interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
+  readonly changeMetrics: any,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -559,14 +555,17 @@ interface CommentsDefaultFragment { // fragment on Comments
 }
 
 interface TagsDefaultFragment { // fragment on Tags
-  readonly createdAt: Date,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly postCount: number,
+  readonly createdAt: Date,
+  readonly createdBy: string,
   readonly adminOnly: boolean,
+  readonly charsAdded: number,
+  readonly charsRemoved: number,
   readonly deleted: boolean,
 }
 
@@ -1424,6 +1423,15 @@ interface TagFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
+interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
+  readonly description: TagRevisionFragment_description,
+}
+
+interface TagRevisionFragment_description { // fragment on Revisions
+  readonly html: string,
+  readonly htmlHighlight: string,
+}
+
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly description: TagPreviewFragment_description,
 }
@@ -1458,9 +1466,13 @@ interface SubscriptionState { // fragment on Subscriptions
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
   readonly editedAt: Date,
   readonly updateType: string,
   readonly version: string,
+  readonly commitMessage: string,
   readonly userId: string,
   readonly originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly html: string,
@@ -1471,6 +1483,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
+  readonly changeMetrics: any,
 }
 
 interface VoteMinimumInfo { // fragment on Votes
@@ -1562,6 +1575,8 @@ interface FragmentTypes {
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
+  RevisionMetadata: RevisionMetadata
+  RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -1637,6 +1652,7 @@ interface FragmentTypes {
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment

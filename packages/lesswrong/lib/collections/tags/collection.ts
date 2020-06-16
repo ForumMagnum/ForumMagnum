@@ -1,4 +1,4 @@
-import { createCollection} from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
@@ -29,7 +29,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
   }),
 });
 
-Tags.checkAccess = (currentUser, tag) => {
+Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser))
     return true;
   else if (tag.deleted || tag.adminOnly)
@@ -47,6 +47,7 @@ export const tagDescriptionEditableOptions = {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
     return {id: `tag:create`, verify:true}
   },
+  revisionsHaveCommitMessages: true,
 };
 
 makeEditable({

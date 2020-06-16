@@ -1,4 +1,4 @@
-import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
 
 const schema = {
 
@@ -47,15 +47,13 @@ const schema = {
     type: Array,
     graphQLtype: '[Book]',
     viewableBy: ['guests'],
-    resolver: (collection, args, context) => {
-      const books = context.Books.find(
+    resolver: async (collection, args, context: ResolverContext) => {
+      const { currentUser, Books } = context;
+      const books = Books.find(
         {collectionId: collection._id},
-        {
-          sort: {number: 1},
-          fields: context.Users.getViewableFields(context.currentUser, context.Books)
-        }
+        {sort: {number: 1}}
       ).fetch();
-      return books
+      return await accessFilterMultiple(currentUser, Books, books, context);
     }
   }),
 

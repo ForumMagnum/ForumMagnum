@@ -1,5 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from '../../vulcan-lib';
+import Users from "./collection";
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -216,7 +217,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, { Users }) => {
+      resolver: (user, args, context: ResolverContext) => {
         return Users.getProfileUrl(user, true);
       },
     },
@@ -228,7 +229,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, { Users }) => {
+      resolver: (user, args, context: ResolverContext) => {
         return Users.getProfileUrl(user, false);
       },
     },
@@ -240,7 +241,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, { Users }) => {
+      resolver: (user, args, context: ResolverContext) => {
         return Users.getEditUrl(user, true);
       },
     },

@@ -8,6 +8,7 @@ import SimpleSchema from 'simpl-schema'
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
+  commitMessage: {type: String, optional: true},
   html: {type: String, optional: true, denormalized: true},
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
   version: {type: String, optional: true},
@@ -39,6 +40,7 @@ const defaultOptions = {
     </div>
   ),
   pingbacks: false,
+  revisionsHaveCommitMessages: false,
 }
 
 export const editableCollections = new Set<string>()
@@ -60,15 +62,17 @@ export const makeEditable = ({collection, options = {}}: {
     hintText,
     order,
     pingbacks = false,
+    //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
 
-  editableCollections.add(collection.options.collectionName)
-  editableCollectionsFields[collection.options.collectionName] = [
-    ...(editableCollectionsFields[collection.options.collectionName] || []),
+  const collectionName = collection.options.collectionName;
+  editableCollections.add(collectionName)
+  editableCollectionsFields[collectionName] = [
+    ...(editableCollectionsFields[collectionName] || []),
     fieldName || "contents"
   ]
-  editableCollectionsFieldOptions[collection.options.collectionName] = {
-    ...editableCollectionsFieldOptions[collection.options.collectionName],
+  editableCollectionsFieldOptions[collectionName] = {
+    ...editableCollectionsFieldOptions[collectionName],
     [fieldName || "contents"]: options,
   };
 
@@ -84,16 +88,19 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc, { version }, { currentUser, Revisions }) => {
+        resolver: async (doc, { version }, context: ResolverContext) => {
+          const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
           if (version) {
             const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            return checkAccess(currentUser, revision) ? revision : null
+            if (!revision) return null;
+            return await checkAccess(currentUser, revision, context) ? revision : null
           }
           return {
             editedAt: (doc[field]?.editedAt) || new Date(),
             userId: doc[field]?.userId,
+            commitMessage: doc[field]?.commitMessage,
             originalContentsType: (doc[field]?.originalContentsType) || "html",
             originalContents: (doc[field]?.originalContents) || {},
             html: doc[field]?.html,
@@ -106,6 +113,7 @@ export const makeEditable = ({collection, options = {}}: {
       form: {
         hintText: hintText,
         fieldName: fieldName || "contents",
+        collectionName,
         commentEditor,
         commentStyles,
         getLocalStorageId,
@@ -119,10 +127,11 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: '[Revision]',
         arguments: 'limit: Int = 5',
-        resolver: async (post, { limit }, { currentUser, Revisions }) => {
+        resolver: async (post, { limit }, context: ResolverContext) => {
+          const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
-          return accessFilterMultiple(currentUser, Revisions, resolvedDocs);
+          return await accessFilterMultiple(currentUser, Revisions, resolvedDocs, context);
         }
       }
     },

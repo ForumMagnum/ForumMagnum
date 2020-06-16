@@ -34,7 +34,7 @@ Terms object can have the following properties:
 
 */
 
-import { WatchQueryFetchPolicy } from 'apollo-client';
+import { WatchQueryFetchPolicy, ApolloError } from 'apollo-client';
 import gql from 'graphql-tag';
 import qs from 'qs';
 import { useContext, useState } from 'react';
@@ -255,7 +255,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   results: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
-  error: any,
+  error: ApolloError|undefined,
   count?: number,
   showLoadMore: boolean,
   loadMoreProps: any,

@@ -10,7 +10,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 const styles = theme => ({
   root: {
     marginTop: 16,
-    marginBottom: 16,
+    marginBottom: 66,
   },
 });
 

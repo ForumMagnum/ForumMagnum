@@ -9,6 +9,7 @@ import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
+import * as _ from 'underscore';
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 
 import markdownIt from 'markdown-it'
@@ -246,8 +247,21 @@ function getInitialVersion(document) {
   }
 }
 
+async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
+  return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
+}
+
+/// Given a revision, return the last revision of the same document/field prior
+/// to it (null if the revision is the first).
+export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null> {
+  return await Revisions.findOne(
+    {documentId: rev.documentId, fieldName: rev.fieldName, editedAt: {$lt: rev.editedAt}},
+    {sort: {editedAt: -1}}
+  );
+}
+
 async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
-  const lastRevision = await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
+  const lastRevision = await getLatestRev(documentId, fieldName);
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision?.version || "1.0.0")
   switch (updateType) {
     case "patch":
@@ -277,6 +291,26 @@ async function buildRevision({ originalContents, currentUser }) {
   };
 }
 
+// Given a revised document, check whether fieldName (a content-editor field) is
+// different from the previous revision (or there is no previous revision).
+const revisionIsChange = async (doc, fieldName): Promise<boolean> => {
+  const id = doc._id;
+  const previousVersion = await getLatestRev(id, fieldName);
+  
+  if (!previousVersion)
+    return true;
+  
+  if (!_.isEqual(doc[fieldName].originalContents, previousVersion.originalContents)) {
+    return true;
+  }
+  
+  if (doc[fieldName].commitMessage && doc[fieldName].commitMessage.length>0) {
+    return true;
+  }
+  
+  return false;
+}
+
 export function addEditableCallbacks({collection, options = {}}: {
   collection: any,
   options: any
@@ -291,12 +325,14 @@ export function addEditableCallbacks({collection, options = {}}: {
     deactivateNewCallback,
   } = options
 
+  const collectionName = collection.collectionName;
   const { typeName } = collection.options
 
   async function editorSerializationBeforeCreate (doc, { currentUser }) {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
+      const commitMessage = doc[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
@@ -316,8 +352,10 @@ export function addEditableCallbacks({collection, options = {}}: {
           currentUser,
         }),
         fieldName,
+        collectionName,
         version,
-        updateType: 'initial'
+        updateType: 'initial',
+        commitMessage,
       });
       
       return {
@@ -341,9 +379,10 @@ export function addEditableCallbacks({collection, options = {}}: {
   }
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
-    if (docData[fieldName]?.originalContents) {
+    if (docData[fieldName]?.originalContents && await revisionIsChange(newDocument, fieldName)) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
+      const commitMessage = docData[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
@@ -365,8 +404,10 @@ export function addEditableCallbacks({collection, options = {}}: {
           currentUser,
         }),
         fieldName,
+        collectionName,
         version,
-        updateType
+        updateType,
+        commitMessage,
       });
       
       return {
