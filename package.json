@@ -81,7 +81,7 @@
     "apollo-link-error": "^1.1.5",
     "apollo-link-schema": "^1.1.1",
     "apollo-server": "2.3.3",
-    "apollo-server-express": "2.3.3",
+    "apollo-server-express": "2.14.2",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
     "bowser": "^1.9.4",
