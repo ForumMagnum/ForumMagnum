@@ -10,10 +10,6 @@ const styles = (theme) => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: SECTION_WIDTH,
-    [theme.breakpoints.up('md')]: {
-      position: "relative",
-      left: 50
-    }
   }
 })
 

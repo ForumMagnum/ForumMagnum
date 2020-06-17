@@ -59,12 +59,14 @@ const styles = theme => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "rgba(0,0,0,.04)",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
+  },
+  greyBackground: {
+    background: "rgba(0,0,0,.04)",
   },
   '@global': {
     p: pBodyStyle,
@@ -233,6 +235,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
         .includes(location.currentRoute.name)
     
+    const greyBackground = true
+
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -282,7 +286,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 sidebarHidden={hideNavigationSidebar}
               />}
               <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-              <div className={classes.main}>
+              <div className={classNames(classes.main, {[classes.background]:greyBackground})}>
                 <Components.ErrorBoundary>
                   <Components.FlashMessages />
                 </Components.ErrorBoundary>

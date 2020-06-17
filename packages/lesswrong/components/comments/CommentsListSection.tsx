@@ -22,7 +22,6 @@ const styles = theme => ({
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
 
-    background: "white",
     position: "relative"
   },
   inline: {

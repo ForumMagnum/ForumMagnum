@@ -11,6 +11,8 @@ import withRecordPostView from '../common/withRecordPostView';
 
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
+import { Link } from '../../lib/reactRouterWrapper';
+import { Posts } from '../../lib/collections/posts';
 
 const styles = theme => ({
   root: {
@@ -154,9 +156,9 @@ const RecentDiscussionThread = ({
     <div className={classes.root}>
       <div className={classes.post}>
         <div className={classes.postItem}>
-          <div className={classes.title}>
-            {post.title}
-          </div>
+          <Link to={Posts.getPageUrl(post)} className={classes.title}>
+              {post.title}
+          </Link>
           <div className={classes.threadMeta} onClick={showHighlight}>
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
