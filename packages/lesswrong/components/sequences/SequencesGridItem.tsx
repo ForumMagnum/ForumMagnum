@@ -19,7 +19,7 @@ const styles = theme => ({
     flexDirection: "column",
 
     "&:hover": {
-      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
       color: "rgba(0,0,0,0.87)",
     },
 

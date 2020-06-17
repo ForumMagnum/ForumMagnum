@@ -12,7 +12,7 @@ const styles = theme => ({
     position:"absolute",
     top:0,
     right:0,
-    width:250,
+    width:210,
     marginTop:63,
     zIndex: theme.zIndexes.sunshineSidebar,
     display:"none",
@@ -20,8 +20,8 @@ const styles = theme => ({
       display:"block"
     }
   },
-  showSidebar: {
-    background: "white",
+  background: {
+    background: "white"
   },
   toggle: {
     position: "relative",
@@ -46,8 +46,8 @@ const SunshineSidebar = ({classes}) => {
   const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
 
   return (
-    <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
-      {Users.canDo(currentUser, 'posts.moderate.all') && <div>
+    <div className={classes.root}>
+      {Users.canDo(currentUser, 'posts.moderate.all') && <div className={classes.background}>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
         <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>

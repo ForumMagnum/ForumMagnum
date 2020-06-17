@@ -17,9 +17,9 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    boxShadow: theme.boxShadow,
+    boxShadow: "0 1px 2px rgba(0,0,0,.1)",
     borderRadius: 3,
-    backgroundColor: "white"
+    backgroundColor: "rgba(253,253,253)",
   },
   postStyle: theme.typography.postStyle,
   postBody: {
