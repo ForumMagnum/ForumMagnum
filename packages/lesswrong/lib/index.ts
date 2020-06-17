@@ -10,9 +10,6 @@ import './utils/schemaUtils'
 // Permissions
 import './permissions';
 
-// Head tags
-import './headtags'
-
 // ## Accounts
 import './accounts/modify_accounts_ui';
 import './accounts/configuration';

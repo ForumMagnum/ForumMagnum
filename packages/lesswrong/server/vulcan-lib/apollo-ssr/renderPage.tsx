@@ -10,12 +10,12 @@ import { getDataFromTree } from 'react-apollo';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
 import { webAppConnectHandlersUse } from '../meteor_patch';
 
+import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
-import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass } from './pageCache';
 import Head from './components/Head';
-import ApolloState from './components/ApolloState';
+import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 import { Random } from 'meteor/random';
@@ -125,13 +125,7 @@ const renderRequest = async ({req, user, startTime}) => {
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
 
   const App = <AppGenerator req={req} apolloClient={client} serverRequestStatus={serverRequestStatus} />;
-
-  // run user registered callbacks that wraps the React app
-  const WrappedApp = runCallbacks({
-    name: 'router.server.wrapper',
-    iterator: App,
-    properties: { req, context, apolloClient: client },
-  });
+  const WrappedApp = wrapWithMuiTheme(App, context);
 
   let htmlContent = '';
   // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
@@ -177,13 +171,10 @@ const renderRequest = async ({req, user, startTime}) => {
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
-  const serializedApolloState = ReactDOM.renderToString(
-    <ApolloState initialState={initialState} />
-  );
+  const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   
-  // HACK: The sheets registry is created in a router.server.wrapper callback. The
-  // resulting styles are extracted here, rather than in a callback, because the type
-  // signature of the callback didn't fit.
+  // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
+  // context.
   const sheetsRegistry = context.sheetsRegistry;
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
   

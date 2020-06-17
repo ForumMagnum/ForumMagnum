@@ -5,7 +5,7 @@ import AppGenerator from './AppGenerator';
 import { Meteor } from 'meteor/meteor';
 
 import { createApolloClient } from '../vulcan-lib/apollo-client/apolloClient';
-import { populateComponentsApp, runCallbacks } from '../../lib/vulcan-lib';
+import { populateComponentsApp } from '../../lib/vulcan-lib';
 
 Meteor.startup(() => {
   // init the application components and routes, including components & routes from 3rd-party packages
@@ -25,6 +25,5 @@ Meteor.startup(() => {
 
   onPageLoad(() => {
     ReactDOM.hydrate(<Main />, document.getElementById('react-app'));
-    runCallbacks({ name: 'client.hydrate.after', iterator: null});
   });
 });

@@ -1,5 +1,4 @@
 import React from 'react';
-import { addCallback } from '../../lib/vulcan-lib';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 import forumTheme from '../../themes/forumTheme'
@@ -19,7 +18,7 @@ MuiThemeProviderWrapper.contextTypes = {
   isGetDataFromTree: PropTypes.bool
 };
 
-function wrapWithMuiTheme (app, { context }) {
+export function wrapWithMuiTheme (app, context) {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({
@@ -36,4 +35,3 @@ function wrapWithMuiTheme (app, { context }) {
   );
 }
 
-addCallback('router.server.wrapper', wrapWithMuiTheme);
