@@ -15,7 +15,7 @@ const SunshineNewPostsList = ({ terms, classes }) => {
   const { results, totalCount } = useMulti({
     terms,
     collection: Posts,
-    fragmentName: 'PostsWithNavigation',
+    fragmentName: 'SunshinePostsList',
     enableTotal: true,
     ssr: true
   });

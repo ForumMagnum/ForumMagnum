@@ -38,7 +38,7 @@ const styles = theme => ({
 })
 
 const SunshineNewPostsItem = ({post, classes}: {
-  post: PostsWithNavigation,
+  post: SunshinePostsList,
   classes: ClassesType
 }) => {
   const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
