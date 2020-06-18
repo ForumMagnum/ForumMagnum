@@ -47,7 +47,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const {mutate: updatePost} = useUpdate({
     collection: Posts,
-    fragmentName: 'PostsWithNavigation',
+    fragmentName: 'PostsList',
   });
   const [addTagsMutation] = useMutation(gql`
     mutation addTagsMutation($postId: String, $tagIds: [String]) {
