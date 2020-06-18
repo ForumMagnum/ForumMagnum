@@ -1,7 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Components, registerComponent, Utils, Head } from '../../lib/vulcan-lib';
-import compose from 'lodash/flowRight';
+import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
@@ -20,6 +19,8 @@ const HeadTags = (props) => {
     
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
+    
+    const rssUrl = `${Utils.getSiteUrl()}feed.xml`
     
     return (
       <React.Fragment>
@@ -54,24 +55,8 @@ const HeadTags = (props) => {
           <link rel='canonical' href={canonicalUrl}/>
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
-          {Head.meta.map((tag, index) => <meta key={index} {...tag}/>)}
-          {Head.link.map((tag, index) => <link key={index} {...tag}/>)}
-          {Head.script.map((tag, index) => <script key={index} {...tag}>{tag.contents}</script>)}
-
+          <link rel="alternate" type="application/rss+xml" href={rssUrl} />
         </Helmet>
-
-        {Head.components.map((componentOrArray, index) => {
-          let HeadComponent;
-          if (Array.isArray(componentOrArray)) {
-            const [component, ...hocs] = componentOrArray;
-            // @ts-ignorets-ignore // Typechecking compose sadly isn't yet really feasible, so we have to deactivate it here
-            HeadComponent = compose(...hocs)(component);
-          } else {
-            HeadComponent = componentOrArray;
-          }
-          return <HeadComponent key={index} />
-        })}
-
       </React.Fragment>
     );
 }
