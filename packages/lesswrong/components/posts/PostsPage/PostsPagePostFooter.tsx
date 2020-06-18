@@ -31,6 +31,10 @@ const styles = theme => ({
       maxWidth: MAX_COLUMN_WIDTH
     }
   },
+  footerTagList: {
+    marginTop: 16,
+    marginBottom: 66,
+  }
 });
 
 const PostsPagePostFooter = ({post, sequenceId, classes}: {
@@ -44,7 +48,9 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   
   return <>
     {!post.shortform && <AnalyticsContext pageSectionContext="tagFooter">
-      <FooterTagList post={post}/>
+      <div className={classes.footerTagList}>
+        <FooterTagList post={post}/>
+      </div>
     </AnalyticsContext>}
     {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
       <div className={classes.footerSection}>
