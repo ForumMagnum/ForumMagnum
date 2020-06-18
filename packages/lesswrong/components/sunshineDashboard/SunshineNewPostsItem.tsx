@@ -16,6 +16,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
 import ClearIcon from '@material-ui/icons/Clear';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   icon: {
@@ -24,12 +25,20 @@ const styles = theme => ({
   },
   buttonRow: {
     ...theme.typography.commentStyle,
-    marginBottom: 12
+    marginTop: 12
+  },
+  post: {
+    ...postHighlightStyles(theme)
+  },
+  title: {
+    borderTop: "solid 1px rgba(0,0,0,.1)",
+    paddingTop: 12,
+    marginTop: 12
   }
 })
 
 const SunshineNewPostsItem = ({post, classes}: {
-  post: SunshinePostsList,
+  post: PostsWithNavigation,
   classes: ClassesType
 }) => {
   const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
@@ -38,7 +47,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const {mutate: updatePost} = useUpdate({
     collection: Posts,
-    fragmentName: 'SunshinePostsList',
+    fragmentName: 'PostsWithNavigation',
   });
   const [addTagsMutation] = useMutation(gql`
     mutation addTagsMutation($postId: String, $tagIds: [String]) {
@@ -110,7 +119,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, FooterTagList, PostsHighlight, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
+  const { MetaInfo, PostBodyPrefix, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
 
@@ -118,31 +127,10 @@ const SunshineNewPostsItem = ({post, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <Typography variant="title">
-            <Link to={Posts.getPageUrl(post)}>
-              { post.title }
-            </Link>
-          </Typography>
-          {(post.moderationStyle || post.user.moderationStyle) && <div>
-            <MetaInfo>
-              <span>Mod Style: </span>
-              { post.moderationStyle || post.user.moderationStyle }
-              {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
-            </MetaInfo>
-          </div>}
-          {(modGuidelinesHtml || userGuidelinesHtml) && <div>
-            <MetaInfo>
-              <span>Mod Guidelines: </span>
-              <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
-              {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
-            </MetaInfo>
-          </div>}
-          <FooterTagList post={post} />
-          <CoreTagsChecklist onSetTagsSelected={(selectedTags) => {
+          <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
             setSelectedTags(selectedTags);
           }}/>
           <div className={classes.buttonRow}>
-              Move to:
               <Button onClick={handleReview}>
                 <PersonIcon className={classes.icon} /> Personal
               </Button>
@@ -156,8 +144,28 @@ const SunshineNewPostsItem = ({post, classes}: {
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
             </div>
-          <PostsHighlight post={post}/>
-
+            <Typography variant="title" className={classes.title}>
+              <Link to={Posts.getPageUrl(post)}>
+                { post.title }
+              </Link>
+            </Typography>
+            {(post.moderationStyle || post.user.moderationStyle) && <div>
+              <MetaInfo>
+                <span>Mod Style: </span>
+                { post.moderationStyle || post.user.moderationStyle }
+                {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
+              </MetaInfo>
+            </div>}
+            {(modGuidelinesHtml || userGuidelinesHtml) && <div>
+              <MetaInfo>
+                <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+                {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
+              </MetaInfo>
+            </div>}
+            <div className={classes.post}>
+              <PostBodyPrefix post={post} />
+              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html}} description={`post ${post._id}`}/> }
+            </div>
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>
           {post.title}
