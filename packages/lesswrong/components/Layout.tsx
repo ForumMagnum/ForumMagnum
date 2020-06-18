@@ -59,14 +59,18 @@ const styles = theme => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
+    background: "rgba(0,0,0,.04)",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
   },
-  greyBackground: {
-    background: "rgba(0,0,0,.04)",
+  whiteBackground: {
+    background: "white",
+  },
+  lightGreyBackground: {
+    background: "rgba(0,0,0,.025)",
   },
   '@global': {
     p: pBodyStyle,
@@ -235,7 +239,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
         .includes(location.currentRoute.name)
     
-    const greyBackground = true
+    const whiteBackground = ["posts.single"].includes(location.currentRoute?.name)
+    const lightGreyBackground = ["sequences.single"].includes(location.currentRoute?.name)
 
     return (
       <AnalyticsContext path={location.pathname}>
@@ -286,15 +291,19 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 sidebarHidden={hideNavigationSidebar}
               />}
               <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-              <div className={classNames(classes.main, {[classes.background]:greyBackground})}>
+              <div className={classNames(classes.main, {
+                [classes.whiteBackground]:whiteBackground,
+                [classes.lightGreyBackground]:lightGreyBackground
+              })}>
                 <Components.ErrorBoundary>
                   <Components.FlashMessages />
                 </Components.ErrorBoundary>
                 <Components.ErrorBoundary>
                   {children}
                 </Components.ErrorBoundary>
+                <Components.Footer />
+
               </div>
-              <Components.Footer />
             </CommentBoxManager>
           </DialogManager>
         </div>

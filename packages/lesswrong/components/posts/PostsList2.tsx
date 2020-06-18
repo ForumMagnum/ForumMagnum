@@ -175,7 +175,8 @@ const PostsList2 = ({
             terms, showNominationCount, showReviewCount, dense,
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
-            showQuestionTag: terms.filter!=="questions"
+            showQuestionTag: terms.filter!=="questions",
+            showBottomBorder: i !== (orderedResults.length - 1)
           };
 
           if (!(hidePosts && hidePosts[i])) {

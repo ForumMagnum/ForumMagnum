@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
 
-export const SECTION_WIDTH = 800
+export const SECTION_WIDTH = 765
 
 const styles = (theme) => ({
   root: {

@@ -42,7 +42,7 @@ const styles = theme => ({
   }
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
   const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : defaultFilterSettings;
@@ -65,7 +65,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
 
   const { query } = location;
-  const { SingleColumnSection, PostsList2, LWTooltip, TagFilterSettings } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings } = Components
   const limit = parseInt(query.limit) || 13
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");

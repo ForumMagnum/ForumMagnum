@@ -12,7 +12,6 @@ export const tagStyle = theme => ({
   paddingRight: 5,
   marginBottom: 8,
   backgroundColor: 'rgba(0,0,0,0.07)',
-  boxShadow: "0 0 2px rgba(0,0,0,.1)",
   borderRadius: 3,
   cursor: "pointer",
   ...theme.typography.commentStyle,

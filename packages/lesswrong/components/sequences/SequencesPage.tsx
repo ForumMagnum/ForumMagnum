@@ -25,7 +25,7 @@ const styles = theme => ({
     paddingTop: 380,
   },
   titleWrapper: {
-    paddingLeft: theme.spacing.unit
+    paddingLeft: theme.spacing.unit/2
   },
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
@@ -34,7 +34,7 @@ const styles = theme => ({
   },
   description: {
     marginTop: theme.spacing.unit * 2,
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing.unit/2,
     marginBottom: theme.spacing.unit * 2,
     ...postBodyStyles(theme),
   },

@@ -58,8 +58,7 @@ export const styles = (theme) => ({
     }
   },
   bottomBorder: {
-    marginBottom: 4
-    // borderBottom: "solid 1px rgba(0,0,0,.09)",
+    borderBottom: "solid 2px rgba(0,0,0,.07)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
