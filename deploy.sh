@@ -2,7 +2,7 @@
 
 # Install dependencies
 yarn;
-yarn global add mup@1.4.6 https://github.com/jimrandomh/mup-aws-beanstalk;
+yarn global add mup@1.5 mup-aws-beanstalk@0.6
 yarn global add json;
 yarn global add @sentry/cli;
 
