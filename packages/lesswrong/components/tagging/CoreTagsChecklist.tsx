@@ -25,7 +25,7 @@ const styles = theme => ({
 const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
   onSetTagsSelected: (selectedTags: Record<string,boolean>)=>void,
   classes: ClassesType,
-  post: PostsWithNavigation
+  post: PostsList
 }) => {
   const { results, loading } = useMulti({
     terms: {
