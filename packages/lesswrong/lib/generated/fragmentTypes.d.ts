@@ -301,7 +301,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly bannedUserIds: Array<string>,
 }
 
-interface SunshinePostsList extends PostsWithNavigation { // fragment on Posts
+interface SunshinePostsList extends PostsList { // fragment on Posts
   readonly user: SunshinePostsList_user,
 }
 
