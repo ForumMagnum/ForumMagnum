@@ -203,6 +203,9 @@ const getLink = (notificationType, documentType, documentId) => {
       return Users.getProfileUrl(document as DbUser);
     case "message":
       return Messages.getLink(document as DbMessage);
+    case "tagRel":
+      const post = Posts.findOne({_id: (document as DbTagRel).postId})
+      return Posts.getPageUrl(post as DbPost);
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
@@ -226,6 +229,8 @@ const getDocument = (documentType, documentId) => {
       return Users.findOne(documentId);
     case "message":
       return Messages.findOne(documentId);
+    case "tagRel": 
+      return TagRels.findOne(documentId)
     default:
       //eslint-disable-next-line no-console
       console.error(`Invalid documentType type: ${documentType}`);
