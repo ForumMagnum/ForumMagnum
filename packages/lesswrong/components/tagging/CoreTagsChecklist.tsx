@@ -6,7 +6,9 @@ import { Tags } from '../../lib/collections/tags/collection';
 
 const styles = theme => ({
   root: {
-    marginBottom: 8
+    marginBottom: 8,
+    display: "flex",
+    flexWrap: "wrap"
   },
   checkbox: {
     padding: "0 8px 2px 0",
@@ -16,9 +18,12 @@ const styles = theme => ({
     }
   },
   tag: {
+    minWidth: "25%",
+    display: "inline-block",
     ...theme.typography.commentStyle,
     marginRight: 16,
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    marginTop: 4
   }
 });
 
@@ -39,7 +44,6 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
   
   const { Loading } = Components;
   const [selections, setSelections] = useState<Record<string,boolean>>({});
-  const { FooterTagList } = Components
   if (loading)
     return <Loading/>
   
@@ -56,7 +60,6 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
       />
       {tag.name}
     </span>)}
-    <FooterTagList post={post} />
   </div>
 }
 
