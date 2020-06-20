@@ -47,7 +47,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const {mutate: updatePost} = useUpdate({
     collection: Posts,
-    fragmentName: 'PostsWithNavigation',
+    fragmentName: 'PostsList',
   });
   const [addTagsMutation] = useMutation(gql`
     mutation addTagsMutation($postId: String, $tagIds: [String]) {
@@ -119,7 +119,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, PostBodyPrefix, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
 
@@ -163,7 +163,7 @@ const SunshineNewPostsItem = ({post, classes}: {
               </MetaInfo>
             </div>}
             <div className={classes.post}>
-              <PostBodyPrefix post={post} />
+              <LinkPostMessage post={post} />
               <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html}} description={`post ${post._id}`}/> }
             </div>
         </SidebarHoverOver>
