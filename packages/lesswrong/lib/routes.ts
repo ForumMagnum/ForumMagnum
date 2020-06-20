@@ -50,8 +50,7 @@ addRoute(
     path:'/users/:slug',
     componentName: 'UsersSingle',
     //titleHoC: userPageTitleHoC,
-    titleComponentName: 'UserPageTitle',
-    subtitleComponentName: 'UserPageTitle',
+    titleComponentName: 'UserPageTitle'
   },
   {
     name:'users.single.user',

@@ -20,7 +20,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.grey[300],
     paddingLeft: 9,
     paddingTop: 5,
-    paddingBottom: 6,
+    paddingBottom: 5,
     paddingRight: 9,
     borderRadius: 3,
     fontWeight: 700,

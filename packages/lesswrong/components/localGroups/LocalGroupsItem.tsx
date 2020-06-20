@@ -11,10 +11,11 @@ export const postsItemLikeStyles = theme => ({
     padding: theme.spacing.unit*1.5,
     alignItems: "center",
     flexWrap: "nowrap",
+    background: "white",
+    borderBottom: "solid 2px rgba(0,0,0,.07)",
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
     },
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
     [legacyBreakpoints.maxTiny]: {
       marginLeft: 0,
       paddingLeft: 0,

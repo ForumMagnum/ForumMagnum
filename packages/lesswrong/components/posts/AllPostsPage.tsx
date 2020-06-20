@@ -12,12 +12,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 
 const styles = theme => ({
-  timeframe: {
-    padding: theme.spacing.unit,
-    [theme.breakpoints.down('xs')]: {
-      padding: 0,
-    }
-  },
   title: {
     cursor: "pointer",
   }
@@ -115,7 +109,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
       postListParameters.limit = parseInt(query.limit)
     }
 
-    return <div className={classes.timeframe}>
+    return <div>
       <AnalyticsContext
         listContext={"allPostsPage"}
         terms={postListParameters}

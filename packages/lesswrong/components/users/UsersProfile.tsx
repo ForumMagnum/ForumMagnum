@@ -16,6 +16,8 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { hasEventsSetting } from '../../lib/publicSettings';
+import Typography from '@material-ui/core/Typography';
+import { separatorBulletStyles } from '../common/SectionFooter';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -31,6 +33,28 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       margin: 0,
     }
+  },
+  headerSection: {
+    background: "white",
+    marginLeft: -20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginBottom: -10,
+    paddingBottom: 15,
+    marginRight: -14,
+    paddingTop: 20
+  },
+  usernameTitle: {
+    fontSize: "3rem",
+    ...theme.typography.display3,
+    ...theme.typography.postStyle,
+    marginTop: 0
+  },
+  userInfo: {
+    display: "flex",
+    color: theme.palette.lwTertiary.main,
+    marginTop: 8,
+    ...separatorBulletStyles(theme)
   },
   meta: {
     ...sectionFooterLeftStyles,
@@ -51,7 +75,7 @@ const styles = theme => ({
   },
   bio: {
     marginTop: theme.spacing.unit*3,
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit,
     ...postBodyStyles(theme)
   },
@@ -208,17 +232,13 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     
     const username = Users.getDisplayName(user)
 
-    const userPostsTitle = username.slice(-1) === "s" ? `${username}' Posts` :`${username}'s Posts`
-    const userCommentsTitle = username.slice(-1) === "s" ? `${username}' Comments` :`${username}'s Comments`
-
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <SectionTitle title={username}/>
-
-            <SectionFooter>
+            <div className={classes.usernameTitle}>{username}</div>
+            <Typography variant="body2" className={classes.userInfo}>
               { this.renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
@@ -244,10 +264,9 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
                 <FormattedMessage id="users.edit_account"/>
               </Link>}
-            </SectionFooter>
+            </Typography>
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
-
           </SingleColumnSection>
 
           {/* Sequences Section */}
@@ -278,7 +297,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-              <SectionTitle title={userPostsTitle}>
+              <SectionTitle title={"Posts"}>
                 <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
             </div>
@@ -297,7 +316,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={userCommentsTitle} />
+              <SectionTitle title={"Comments"} />
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>

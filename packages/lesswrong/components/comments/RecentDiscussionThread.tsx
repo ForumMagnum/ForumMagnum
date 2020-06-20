@@ -55,7 +55,7 @@ const styles = theme => ({
     }
   },
   noComments: {
-    // borderBottom: "solid 1px rgba(0,0,0,.2)"
+    paddingBottom: 16
   },
   threadMeta: {
     cursor: "pointer",

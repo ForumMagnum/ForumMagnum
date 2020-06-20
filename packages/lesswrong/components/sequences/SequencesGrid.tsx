@@ -6,11 +6,6 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 export const styles = theme => ({
   grid: {
   },
-
-  loadMore: {
-    marginTop: theme.spacing.unit,
-  },
-
   gridContent: {
     display: "flex",
     flexDirection: "row",
