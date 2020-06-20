@@ -34,16 +34,6 @@ const styles = theme => ({
       margin: 0,
     }
   },
-  headerSection: {
-    background: "white",
-    marginLeft: -20,
-    paddingLeft: 20,
-    paddingRight: 20,
-    marginBottom: -10,
-    paddingBottom: 15,
-    marginRight: -14,
-    paddingTop: 20
-  },
   usernameTitle: {
     fontSize: "3rem",
     ...theme.typography.display3,
