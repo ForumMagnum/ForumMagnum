@@ -1,8 +1,9 @@
 import React from 'react';
 import { Components, Routes } from '../vulcan-lib';
+// eslint-disable-next-line no-restricted-imports
 import { matchPath } from 'react-router';
 import qs from 'qs'
-import Sentry from '@sentry/node';
+import Sentry from '@sentry/core';
 import { Meteor } from 'meteor/meteor';
 
 export const LocationContext = React.createContext<any>(null);

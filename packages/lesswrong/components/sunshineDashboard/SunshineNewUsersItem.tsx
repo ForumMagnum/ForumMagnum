@@ -14,6 +14,7 @@ import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import classNames from 'classnames';
+import DescriptionIcon from '@material-ui/icons/Description'
 
 const styles = theme => ({
   negativeKarma: {
@@ -27,6 +28,15 @@ const styles = theme => ({
   truncated: {
     maxHeight: 800,
     overflow: "hidden"
+  },
+  postIcon: {
+    height: 13,
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 3
+  },
+  reviewed: {
+    backgroundColor: theme.palette.grey[100]
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
@@ -109,7 +119,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                 { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
               </div>
               <hr />
-              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
               <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
               <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
               <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
@@ -133,9 +143,10 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
           <MetaInfo className={classes.info}>
             <FormatDate date={user.createdAt}/>
           </MetaInfo>
-          <MetaInfo className={classes.info}>
+          {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.postIcon}/>}
+          {!user.reviewedByUserId && <MetaInfo className={classes.info}>
             { user.email }
-          </MetaInfo>
+          </MetaInfo>}
         </div>
         {showNewUserContent &&
           <div className={classNames({[classes.truncated]:truncated})} onClick={() => setTruncated(false)}>

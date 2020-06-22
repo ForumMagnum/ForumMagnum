@@ -26,7 +26,7 @@ export const highlightFromHTML = (html) => {
 
 export const truncate = (html: string, truncateLength: number, truncateBy?: string, suffix?: string) => {
   const newTruncateBy = truncateBy || "characters"
-  const newSuffix = suffix || "..."
+  const newSuffix = (suffix !== undefined) ? suffix : "..."
 
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""

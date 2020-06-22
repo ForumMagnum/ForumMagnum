@@ -12,6 +12,7 @@ const NewShortformDialog = ({onClose}) => {
     <Dialog open={true}
       onClose={onClose}
       fullWidth maxWidth="sm"
+      disableEnforceFocus
     >
       <DialogContent>
         <ShortformSubmitForm

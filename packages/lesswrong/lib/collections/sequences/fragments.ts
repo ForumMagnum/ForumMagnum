@@ -1,15 +1,21 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment SequencesPageFragment on Sequence {
+  fragment SequencesPageTitleFragment on Sequence {
     _id
+    title
+  }
+`);
+
+registerFragment(`
+  fragment SequencesPageFragment on Sequence {
+    ...SequencesPageTitleFragment
     createdAt
     userId
     user {
       ...UsersMinimumInfo
     }
-    title
-    contents { 
+    contents {
       ...RevisionDisplay
     }
     gridImageId
@@ -20,6 +26,7 @@ registerFragment(`
     isDeleted
     hidden
     curatedOrder
+    userProfileOrder
     af
   }
 `);

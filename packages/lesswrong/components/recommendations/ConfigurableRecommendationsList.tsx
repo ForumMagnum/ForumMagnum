@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const recommendedName = getSetting('forumType') === 'EAForum' ? 'Forum Favorites' : 'Recommended'
+const recommendedName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Recommended'
 
 interface ExternalProps {
   configName: string,

@@ -7,7 +7,6 @@ import ArchiveIcon from '@material-ui/icons/Archive';
 import UnarchiveIcon from '@material-ui/icons/Unarchive';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames'
-import { useCurrentUser } from '../common/withUser';
 import * as _ from 'underscore';
 
 const styles = theme => ({
@@ -23,16 +22,20 @@ const styles = theme => ({
   }
 });
 
-const ConversationItem = ({conversation, classes, updateConversation}) => {
-  const currentUser = useCurrentUser()
+const ConversationItem = ({conversation, updateConversation, currentUser, classes}: {
+  conversation: conversationsListFragment,
+  updateConversation: any,
+  currentUser: UsersCurrent,
+  classes: ClassesType,
+}) => {
   const { PostsItem2MetaInfo, UsersName, FormatDate } = Components
-  const isArchived = conversation?.archivedByIds?.includes(currentUser!._id)
+  const isArchived = conversation?.archivedByIds?.includes(currentUser._id)
   if (!conversation) return null
 
   const archiveIconClick = () => {
     const newArchivedByIds = isArchived ?
-      _.without(conversation.archivedByIds || [] , currentUser!._id) :
-      [...(conversation.archivedByIds || []), currentUser!._id]
+      _.without(conversation.archivedByIds || [] , currentUser._id) :
+      [...(conversation.archivedByIds || []), currentUser._id]
 
     updateConversation({
       selector: { _id: conversation._id },
@@ -44,7 +47,7 @@ const ConversationItem = ({conversation, classes, updateConversation}) => {
     <div className={classNames(classes.root, {[classes.archivedItem]: isArchived})}>
       <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.commentFont)}>{Conversations.getTitle(conversation, currentUser)}</Link>
       { conversation.participants
-        .filter(user => user._id !== currentUser!._id)
+        .filter(user => user._id !== currentUser._id)
         .map(user => <span key={user._id} className={classes.leftMargin}>
           <PostsItem2MetaInfo> <UsersName user={user} /> </PostsItem2MetaInfo>
         </span>)

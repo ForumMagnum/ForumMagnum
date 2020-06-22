@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { addCallback, getSetting, editMutation } from '../vulcan-lib';
+import { addCallback, editMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
@@ -11,15 +11,16 @@ const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
+import { DatabaseServerSetting } from "../databaseSettings";
 
 function updateTrustedStatus ({newDocument, vote}) {
 
   const user = Users.findOne(newDocument.userId)
-  if (user.karma >= TRUSTLEVEL1_THRESHOLD && (!Users.getGroups(user).includes('trustLevel1'))) {
+  if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!Users.getGroups(user).includes('trustLevel1'))) {
     Users.update(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
-    console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
+    console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
   }
 }
 addCallback("votes.smallUpvote.async", updateTrustedStatus);
@@ -27,9 +28,11 @@ addCallback("votes.bigUpvote.async", updateTrustedStatus);
 
 function updateModerateOwnPersonal({newDocument, vote}) {
   const user = Users.findOne(newDocument.userId)
+  if (!user) throw Error("Couldn't find user")
   if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!Users.getGroups(user).includes('canModeratePersonal'))) {
     Users.update(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = Users.findOne(newDocument.userId)
+    if (!updatedUser) throw Error("Couldn't find user to update")
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
@@ -53,9 +56,10 @@ addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration}
 function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
-  {
-    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
-    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+  {                               
+    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}}, {multi: true})
+    // We don't want to reset the postedAt for comments, since those are by default visible almost everywhere                                                                                                    
+    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 }
 addCallback("users.edit.async", approveUnreviewedSubmissions);
@@ -88,13 +92,13 @@ function clearKarmaChangeBatchOnSettingsChange (modifier, user)
 }
 addCallback("users.edit.sync", clearKarmaChangeBatchOnSettingsChange);
 
-const reCaptchaSecret = getSetting('reCaptcha.secret')
+const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
 const getCaptchaRating = async (token): Promise<string> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
     request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
         form: {
-          secret: reCaptchaSecret,
+          secret: reCaptchaSecretSetting.get(),
           response: token
         }
       },
@@ -106,7 +110,7 @@ const getCaptchaRating = async (token): Promise<string> => {
   });
 }
 async function addReCaptchaRating (user) {
-  if (reCaptchaSecret) {
+  if (reCaptchaSecretSetting.get()) {
     const reCaptchaToken = user?.profile?.reCaptchaToken 
     if (reCaptchaToken) {
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)

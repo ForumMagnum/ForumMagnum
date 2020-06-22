@@ -1,15 +1,16 @@
-import { Posts } from "../../lib/collections/posts";
-import { Comments } from '../../lib/collections/comments/collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from '../vulcan-lib';
-import Users from "../../lib/collections/users/collection";
-import { performVoteServer } from '../voteServer';
-import Messages from '../../lib/collections/messages/collection';
-import Conversations from '../../lib/collections/conversations/collection';
 import * as _ from 'underscore';
-
-import { addEditableCallbacks } from '../editor/make_editable_callbacks'
-import { makeEditableOptions } from '../../lib/collections/comments/custom_fields'
+import { Comments } from '../../lib/collections/comments/collection';
+import { makeEditableOptions } from '../../lib/collections/comments/custom_fields';
+import Conversations from '../../lib/collections/conversations/collection';
+import Messages from '../../lib/collections/messages/collection';
+import { Posts } from "../../lib/collections/posts";
+import Users from "../../lib/collections/users/collection";
+import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { addEditableCallbacks } from '../editor/make_editable_callbacks';
+import { performVoteServer } from '../voteServer';
+import { addCallback, editMutation, newMutation, removeMutation, runCallbacksAsync } from '../vulcan-lib';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
+
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -164,11 +165,11 @@ function UsersRemoveDeleteComments (user, options) {
 addCallback('users.remove.async', UsersRemoveDeleteComments);
 
 
-
+const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
 function CommentsNewRateLimit (comment, user) {
   if (!Users.isAdmin(user)) {
     const timeSinceLastComment = Users.timeSinceLast(user, Comments);
-    const commentInterval = Math.abs(parseInt(""+getSetting<string|number>('forum.commentInterval',15)));
+    const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
     // check that user waits more than 15 seconds between comments
     if((timeSinceLastComment < commentInterval)) {
@@ -194,8 +195,8 @@ addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 function ModerateCommentsPostUpdate (comment, oldComment) {
   const comments = Comments.find({postId:comment.postId, deleted: false}).fetch()
 
-  const lastComment = _.max(comments, (c) => c.postedAt)
-  const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId}).postedAt
+  const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
+  const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId})?.postedAt || new Date()
 
   editMutation({
     collection:Posts,
@@ -226,7 +227,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
 
     const conversationData = {
       participantIds: [newComment.userId, lwAccount._id],
-      title: `Comment deleted on ${originalPost.title}`
+      title: `Comment deleted on ${originalPost?.title}`
     }
     const conversation = await newMutation({
       collection: Conversations,
@@ -236,7 +237,7 @@ export async function CommentsDeleteSendPMAsync (newComment) {
     });
 
     let firstMessageContents =
-        `One of your comments on "${originalPost.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
+        `One of your comments on "${originalPost?.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
       firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
     }
@@ -281,7 +282,7 @@ addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
 // Duplicate of PostsNewUserApprovedStatus
 function CommentsNewUserApprovedStatus (comment) {
   const commentAuthor = Users.findOne(comment.userId);
-  if (!commentAuthor.reviewedByUserId && (commentAuthor.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+  if (!commentAuthor?.reviewedByUserId && (commentAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...comment, authorIsUnreviewed: true}
   }
 }
@@ -300,7 +301,7 @@ addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
 
 function NewCommentNeedsReview (comment) {
   const user = Users.findOne({_id:comment.userId})
-  const karma = user.karma || 0
+  const karma = user?.karma || 0
   if (karma < 100) {
     Comments.update({_id:comment._id}, {$set: {needsReview: true}});
   }
@@ -324,7 +325,7 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
       if (
         (comment.deleted || comment.deletedPublic) &&
         (deletedPublic || deletedReason) &&
-        !Users.canDo('comments.remove.all') &&
+        !Users.canDo(currentUser, 'comments.remove.all') &&
         comment.deletedByUserId !== currentUser._id) {
           throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
       }
@@ -339,7 +340,7 @@ async function validateDeleteOperations (modifier, comment, currentUser) {
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&
         (deletedPublic || deleted) &&
-        !Users.canDo('comment.remove.all')
+        !Users.canDo(currentUser, 'comment.remove.all')
       ) {
         throw new Error("You cannot delete a comment that has children")
       }

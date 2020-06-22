@@ -55,8 +55,9 @@ const transferEditableField = ({documentId, targetUserId, collection, fieldName 
 const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}) => {
   const sourceUserStatus = ReadStatuses.findOne({userId: sourceUserId, postId})
   const targetUserStatus = ReadStatuses.findOne({userId: targetUserId, postId})
-  const readStatus = new Date(sourceUserStatus?.lastUpdated) > new Date(targetUserStatus?.lastUpdated) ? sourceUserStatus?.isRead : targetUserStatus?.isRead
-  const lastUpdated = new Date(sourceUserStatus?.lastUpdated) > new Date(targetUserStatus?.lastUpdated) ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
+  const sourceMostRecentlyUpdated = (sourceUserStatus && targetUserStatus) ? (new Date(sourceUserStatus.lastUpdated) > new Date(targetUserStatus.lastUpdated)) : !!sourceUserStatus
+  const readStatus = sourceMostRecentlyUpdated ? sourceUserStatus?.isRead : targetUserStatus?.isRead
+  const lastUpdated = sourceMostRecentlyUpdated ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
   if (targetUserStatus) {
     ReadStatuses.update({_id: targetUserStatus._id}, {$set: {isRead: readStatus, lastUpdated}})
   } else if (sourceUserStatus) {
@@ -69,6 +70,8 @@ const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}) => {
 Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
   const sourceUser = Users.findOne({_id: sourceUserId})
   const targetUser = Users.findOne({_id: targetUserId})
+  if (!sourceUser) throw Error(`Can't find sourceUser with Id: ${sourceUserId}`)
+  if (!targetUser) throw Error(`Can't find targetUser with Id: ${targetUserId}`)
 
   // Transfer posts
   await transferCollection({sourceUserId, targetUserId, collectionName: "Posts"})

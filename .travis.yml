@@ -18,7 +18,7 @@ jobs:
   include:
   - stage: everything
     name: "Tests"
-    script: yarn run test && yarn run lint && yarn run checktypes
+    script: yarn run test && yarn run lint
   - script: skip
     name: "Deploy LessestWrong"
     if: branch = devel AND type != pull_request

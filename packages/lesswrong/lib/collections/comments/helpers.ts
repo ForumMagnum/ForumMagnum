@@ -1,14 +1,15 @@
-import { Posts } from '../posts'
-import { Comments } from './collection'
-import Users from "../users/collection"
-import { Utils, getSetting } from '../../vulcan-lib';
+import { forumTypeSetting } from '../../instanceSettings';
+import { Utils } from '../../vulcan-lib';
+import { Posts } from '../posts';
+import Users from "../users/collection";
+import { Comments } from './collection';
 
 
 /**
  * @summary Get a comment author's name
  * @param {Object} comment
  */
-Comments.getAuthorName = function (comment) {
+Comments.getAuthorName = function (comment: DbComment): string {
   var user = Users.findOne(comment.userId);
   return user ? Users.getDisplayName(user) : comment.author;
 };
@@ -18,12 +19,16 @@ Comments.getAuthorName = function (comment) {
  * @param {Object} comment
  */
 // LW: Overwrite the original example-forum Comments.getPageUrl
-Comments.getPageUrl = function(comment, isAbsolute = false) {
+Comments.getPageUrl = function(comment: CommentsList|DbComment, isAbsolute = false): string {
   const post = Posts.findOne(comment.postId);
-  return `${Posts.getPageUrl(post, isAbsolute)}#${comment._id}`;
+  if (!post) throw Error(`Unable to find post for comment: ${comment}`)
+  return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
 };
 
-Comments.getPageUrlFromIds = function({postId, postSlug, commentId, permalink=true, isAbsolute=false}) {
+Comments.getPageUrlFromIds = function({postId, postSlug, commentId, permalink=true, isAbsolute=false}: {
+  postId: string, postSlug: string, commentId: string,
+  permalink: boolean, isAbsolute: boolean,
+}): string {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   if (permalink) {
@@ -34,25 +39,25 @@ Comments.getPageUrlFromIds = function({postId, postSlug, commentId, permalink=tr
 }
 
 // URL for RSS feed of all direct replies
-Comments.getRSSUrl = function(comment, isAbsolute = false) {
+Comments.getRSSUrl = function(comment: HasIdType, isAbsolute = false): string {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
   return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
 };
 
-Comments.defaultToAlignment = (currentUser, post, comment) => {
-  if (getSetting('forumType') === 'AlignmentForum') { return true }
+Comments.defaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
+  if (forumTypeSetting.get() === 'AlignmentForum') { return true }
   if (comment) {
-    return (Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
+    return !!(Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
-    return (Users.canDo(currentUser, "comments.alignment.new") && post?.af)
+    return !!(Users.canDo(currentUser, "comments.alignment.new") && post?.af)
   }
 }
 
-Comments.getDefaultView = (post, currentUser) => {
-  return (post && post.commentSortOrder) || (currentUser && currentUser.commentSorting) || "postCommentsTop"
+Comments.getDefaultView = (post: PostsDetails|DbPost, currentUser: UsersCurrent|null): string => {
+  return (post?.commentSortOrder) || (currentUser?.commentSorting) || "postCommentsTop"
 }
 
-Comments.getKarma = (comment) => {
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+Comments.getKarma = (comment: CommentsList|DbComment): number => {
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }

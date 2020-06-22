@@ -42,7 +42,7 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
     captureEvent("continueReadingDismissed", {"postId": postId});
   }
   
-  limitResumeReading(resumeReadingList) {
+  limitResumeReading(resumeReadingList: Array<any>): { entries: Array<any>, showAllLink: boolean } {
     const { dismissedRecommendations } = this.state;
     
     // Filter out dismissed recommendations
@@ -68,14 +68,11 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
   
   render() {
     const { continueReading, continueReadingLoading } = this.props;
-    const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
+    const { PostsItem2, PostsLoading, SectionFooter } = Components;
     if (continueReadingLoading || !continueReading)
       return <PostsLoading/>
     
     const { entries, showAllLink } = this.limitResumeReading(continueReading);
-    const saveLeftOffTooltip = <div>
-      Logging in helps you keep track of which sequences you've started reading, so that you can continue reading them when you return to LessWrong.
-    </div>
 
     return <div>
       <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
@@ -89,17 +86,12 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
             key={sequence?._id || collection?._id}
           />
         })}
+        {showAllLink && <SectionFooter>
+          <a onClick={this.showAll}>
+            Show All
+          </a>
+        </SectionFooter>}
       </AnalyticsContext>
-      
-      
-      <SectionFooter>
-        {showAllLink && <a onClick={this.showAll}>
-          Show All
-        </a>}
-        <LoginPopupButton title={saveLeftOffTooltip}>
-          Log in to save where you left off
-        </LoginPopupButton>
-      </SectionFooter>
     </div>
   }
 }

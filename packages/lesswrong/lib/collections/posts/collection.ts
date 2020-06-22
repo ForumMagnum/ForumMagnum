@@ -36,32 +36,31 @@ export interface PostsMinimumForGetPageUrl {
 interface ExtendedPostsCollection extends PostsCollection {
   // Functions in lib/collections/posts/helpers.ts
   getLink: (post: PostsBase|DbPost, isAbsolute?: boolean, isRedirected?: boolean) => string
-  getShareableLink: any
-  getLinkTarget: any
+  getLinkTarget: (post: PostsBase|DbPost) => string
   getAuthorName: (post: DbPost) => string
-  getDefaultStatus: any
-  getStatusName: any
-  isApproved: any
-  isPending: any
-  current: any
-  getTwitterShareUrl: any
-  getFacebookShareUrl: any
-  getEmailShareUrl: any
+  getDefaultStatus: (user: DbUser) => number
+  getStatusName: (post: DbPost) => string
+  isApproved: (post: DbPost) => boolean
+  isPending: (post: DbPost) => boolean
+  getTwitterShareUrl: (post: DbPost) => string
+  getFacebookShareUrl: (post: DbPost) => string
+  getEmailShareUrl: (post: DbPost) => string
   getPageUrl: (post: PostsMinimumForGetPageUrl, isAbsolute?: boolean, sequenceId?: string|null) => string
   getCommentCount: (post: PostsBase|DbPost) => number
   getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
-  getLastCommentedAt: any
-  canEdit: any
-  canDelete: any
-  getKarma: any
-  canEditHideCommentKarma: any
+  getLastCommentedAt: (post: PostsBase|DbPost) => Date
+  getLastCommentPromotedAt: (post: PostsBase|DbPost) => Date | null
+  canEdit: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
+  canDelete: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
+  getKarma: (post: PostsBase|DbPost) => number
+  canEditHideCommentKarma: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   
   // In lib/alignment-forum/posts/helpers.ts
   suggestForAlignment: any
   unSuggestForAlignment: any
   
   // In search/utils.ts
-  toAlgolia: any
+  toAlgolia: (post: DbPost) => Array<Record<string,any>>|null
   
   // Things in lib/collections/posts/collection.ts
   config: Record<string,number>

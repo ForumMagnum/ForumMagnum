@@ -7,7 +7,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 
 const RepliesToCommentList = ({ terms, post, parentCommentId }: {
   terms: any,
-  post: PostsList,
+  post: PostsBase,
   parentCommentId: string,
 }) => {
   const { CommentsList, Loading } = Components;

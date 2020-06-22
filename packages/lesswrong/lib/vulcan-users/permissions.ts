@@ -27,7 +27,6 @@ class Group {
     actions = Array.isArray(actions) ? actions : [actions];
     this.actions = _.difference(this.actions, actions);
   }
-
 }
 
 ////////////////////
@@ -38,7 +37,7 @@ class Group {
  * @summary create a new group
  * @param {String} groupName
  */
-Users.createGroup = groupName => {
+Users.createGroup = (groupName: string): void => {
   Users.groups[groupName] = new Group();
 };
 
@@ -46,7 +45,7 @@ Users.createGroup = groupName => {
  * @summary get a list of a user's groups
  * @param {Object} user
  */
-Users.getGroups = user => {
+Users.getGroups = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
   let userGroups: Array<string> = [];
 
   if (!user) { // guests user
@@ -71,7 +70,7 @@ Users.getGroups = user => {
  * @summary get a list of all the actions a user can perform
  * @param {Object} user
  */
-Users.getActions = user => {
+Users.getActions = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
   let userGroups = Users.getGroups(user);
   if (!userGroups.includes('guests')) {
     // always give everybody permission for guests actions, too
@@ -90,7 +89,7 @@ Users.getActions = user => {
  * @param {Array} user
  * @param {String} group or array of groups
  */
-Users.isMemberOf = (user, groupOrGroups) => {
+Users.isMemberOf = (user: UsersCurrent|DbUser|null, groupOrGroups: string|Array<string>): boolean => {
   const groups = Array.isArray(groupOrGroups) ? groupOrGroups : [groupOrGroups];
   return intersection(Users.getGroups(user), groups).length > 0;
 };
@@ -100,49 +99,18 @@ Users.isMemberOf = (user, groupOrGroups) => {
  * @param {Object} user
  * @param {String/Array} action or actions
  */
-Users.canDo = (user, actionOrActions) => {
+Users.canDo = (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>): boolean => {
   const authorizedActions = Users.getActions(user);
   const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
   return Users.isAdmin(user) || intersection(authorizedActions, actions).length > 0;
 };
-
-// DEPRECATED
-// TODO: remove this
-/**
- * @summary Check if a user can edit a document
- * @param {Object} user - The user performing the action
- * @param {Object} document - The document being edited
- */
-// Users.canEdit = function (user, document) {
-
-//   user = (typeof user === 'undefined') ? Meteor.user() : user;
-
-//   // note(apollo): use of `__typename` given by react-apollo
-//   //const collectionName = document.getCollectionName();
-//   const collectionName = document.__typename ? Utils.getCollectionNameFromTypename(document.__typename) : document.getCollectionName();
-
-//   if (!user || !document) {
-//     return false;
-//   }
-
-//   if (document.hasOwnProperty('isDeleted') && document.isDeleted) return false;
-
-//   if (Users.owns(user, document)) {
-//     // if this is user's document, check if user can edit own documents
-//     return Users.canDo(user, `${collectionName}.edit.own`);
-//   } else {
-//     // if this is not user's document, check if they can edit all documents
-//     return Users.canDo(user, `${collectionName}.edit.all`);
-//   }
-
-// };
 
 /**
  * @summary Check if a user owns a document
  * @param {Object|string} userOrUserId - The user or their userId
  * @param {Object} document - The document to check (post, comment, user object, etc.)
  */
-Users.owns = function (user, document) {
+Users.owns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo): boolean {
   if (!user) {
     // not logged in
     return false;
@@ -152,12 +120,13 @@ Users.owns = function (user, document) {
     return false;
   }
   
-  if (!!document.userId) {
+  if ((document as HasUserIdType).userId) {
     // case 1: document is a post or a comment, use userId to check
-    return user._id === document.userId;
+    return user._id === (document as HasUserIdType).userId;
   } else {
     // case 2: document is a user, use _id or slug to check
-    return document.slug ? user.slug === document.slug : user._id === document._id;
+    const documentUser = document as (DbUser|UsersMinimumInfo);
+    return documentUser.slug ? user.slug === documentUser.slug : user._id === documentUser._id;
   }
 };
 
@@ -165,7 +134,7 @@ Users.owns = function (user, document) {
  * @summary Check if a user is an admin
  * @param {Object|string} userOrUserId - The user or their userId
  */
-Users.isAdmin = function (user) {
+Users.isAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {
   try {
     //LESSWRONG: This function no longer takes a userId, and instead just works if you provide the user object
     return !!user && !!user.isAdmin;
@@ -173,7 +142,6 @@ Users.isAdmin = function (user) {
     return false; // user not logged in
   }
 };
-Users.isAdminById = Users.isAdmin;
 
 export const isAdmin = Users.isAdmin;
 
@@ -182,22 +150,22 @@ export const isAdmin = Users.isAdmin;
  * @param {Object} user - The user performing the action
  * @param {Object} field - The field being edited or inserted
  */
- Users.canReadField = function (user, field, document) {
-   const canRead = field.canRead || field.viewableBy; //OpenCRUD backwards compatibility
-   if (canRead) {
-     if (typeof canRead === 'function') {
-       // if canRead is a function, execute it with user and document passed. it must return a boolean
-       return canRead(user, document);
-     } else if (typeof canRead === 'string') {
-       // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
-       return canRead === 'guests' || Users.isMemberOf(user, canRead);
-     } else if (Array.isArray(canRead) && canRead.length > 0) {
-       // if canRead is an array, we do a recursion on every item and return true if one of the items return true
-       return canRead.some(group => Users.canReadField(user, { canRead: group }, document));
+Users.canReadField = function (user: UsersCurrent|DbUser|null, field: any, document: any): boolean {
+  const canRead = field.canRead || field.viewableBy; //OpenCRUD backwards compatibility
+  if (canRead) {
+    if (typeof canRead === 'function') {
+      // if canRead is a function, execute it with user and document passed. it must return a boolean
+      return canRead(user, document);
+    } else if (typeof canRead === 'string') {
+      // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
+      return canRead === 'guests' || Users.isMemberOf(user, canRead);
+    } else if (Array.isArray(canRead) && canRead.length > 0) {
+      // if canRead is an array, we do a recursion on every item and return true if one of the items return true
+      return canRead.some(group => Users.canReadField(user, { canRead: group }, document));
     }
-   }
-   return false;
- };
+  }
+  return false;
+};
 
 /**
  * @summary Get a list of fields viewable by a user
@@ -205,9 +173,9 @@ export const isAdmin = Users.isAdmin;
  * @param {Object} collection - The collection
  * @param {Object} document - Optionally, get a list for a specific document
  */
-Users.getViewableFields = function (user, collection, document) {
+Users.getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T): any {
   return Utils.arrayToFields(_.compact(_.map(collection.simpleSchema()._schema,
-    (field, fieldName) => {
+    (field: any, fieldName: string) => {
       if (fieldName.indexOf('.$') > -1) return null;
       return Users.canReadField(user, field, document) ? fieldName : null;
     }
@@ -227,18 +195,19 @@ Users.helpers({
  * @param {Object} collection - The collection
  * @param {Object} document - The document being returned by the resolver
  */
-Users.restrictViewableFields = function (user, collection, docOrDocs) {
+// TODO: Integrate permissions-filtered DbObjects into the type system
+Users.restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>): any {
 
   if (!docOrDocs) return {};
 
   const restrictDoc = document => {
 
     // get array of all keys viewable by user
-    const viewableKeys = _.keys(Users.getViewableFields(user, collection, document));
-    const restrictedDocument = _.clone(document);
+    const viewableKeys: Array<string> = _.keys(Users.getViewableFields(user, collection, document));
+    const restrictedDocument: Record<string,any> = _.clone(document);
 
     // loop over each property in the document and delete it if it's not viewable
-    _.forEach(restrictedDocument, (value, key) => {
+    _.forEach(restrictedDocument, (value: any, key: string) => {
       if (!viewableKeys.includes(key)) {
         delete restrictedDocument[key];
       }

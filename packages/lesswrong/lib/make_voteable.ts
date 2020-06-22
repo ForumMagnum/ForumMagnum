@@ -1,4 +1,4 @@
-import { addFieldsDict, denormalizedCountOfReferences } from './utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 
 export const VoteableCollections: Array<any> = [];
@@ -20,7 +20,8 @@ export const makeVoteable = (collection, options?: any) => {
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document, args, { Users, Votes, currentUser }) => {
+        resolver: async (document, args, context: ResolverContext) => {
+          const { Votes, currentUser } = context;
           if (!currentUser) return [];
           const votes = await getWithLoader(Votes,
             `votesByUser${currentUser._id}`,
@@ -32,7 +33,7 @@ export const makeVoteable = (collection, options?: any) => {
           );
           
           if (!votes.length) return [];
-          return Users.restrictViewableFields(currentUser, Votes, votes);
+          return await accessFilterMultiple(currentUser, Votes, votes, context);
         },
       }
     },
@@ -46,7 +47,8 @@ export const makeVoteable = (collection, options?: any) => {
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document, args, { Users, Votes, currentUser }) => {
+        resolver: async (document, args, context: ResolverContext) => {
+          const { Votes, currentUser } = context;
           const votes = await getWithLoader(Votes,
             "votesByDocument",
             {
@@ -56,7 +58,7 @@ export const makeVoteable = (collection, options?: any) => {
           );
           
           if (!votes.length) return [];
-          return Users.restrictViewableFields(currentUser, Votes, votes);
+          return await accessFilterMultiple(currentUser, Votes, votes, context);
         },
       }
     },

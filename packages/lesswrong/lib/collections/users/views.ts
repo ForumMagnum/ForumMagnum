@@ -1,5 +1,6 @@
 import Users from "../users/collection";
 import { ensureIndex } from '../../collectionUtils';
+import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 
 // Auto-generated indexes from production
 ensureIndex(Users, {username:1}, {unique:true,sparse:1});
@@ -70,17 +71,20 @@ Users.addView("sunshineNewUsers", function (terms) {
   return {
     selector: {
       needsReview: true,
-      reviewedByUserId: null
+      reviewedByUserId: null,
+      $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}} ]
     },
     options: {
       sort: {
+        reviewedByUserId: 1,
+        postCount: -1,
         signUpReCaptchaRating: -1,
         createdAt: -1
       }
     }
   }
 })
-ensureIndex(Users, {needsReview: 1, createdAt: -1})
+ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
 
 Users.addView("allUsers", function (terms) {
   return {

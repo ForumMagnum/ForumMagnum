@@ -38,23 +38,22 @@ import {
   dataToModifier,
   modifierToData,
 } from '../../lib/vulcan-lib/validation';
-import { registerSetting } from '../../lib/vulcan-lib/settings';
 import { debug, debugGroup, debugGroupEnd } from '../../lib/vulcan-lib/debug';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
-import pickBy from 'lodash/pickBy';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
+import pickBy from 'lodash/pickBy';
 
-registerSetting('database', 'mongo', 'Which database to use for your back-end');
-
-/*
-
-Create
-
-*/
-export const createMutator = async ({
+//
+// Create mutation
+// Inserts an entry in a collection, and runs a bunch of callback functions to
+// fill in its denormalized fields etc. Input is a Partial<T>, because some
+// fields will be filled in by those callbacks; result is a T, but nothing
+// in the type system ensures that everything actually gets filled in.
+//
+export const createMutator = async <T extends DbObject>({
   collection,
   document,
   data,
@@ -62,13 +61,15 @@ export const createMutator = async ({
   validate=true,
   context,
 }: {
-  collection: any,
-  document: any,
-  data?: any,
-  currentUser?: UsersCurrent|DbUser|null,
+  collection: CollectionBase<T>,
+  document: Partial<T>,
+  data?: Partial<T>,
+  currentUser?: DbUser|null,
   validate?: boolean,
   context?: any,
-}) => {
+}): Promise<{
+  data: T
+}> => {
   // OpenCRUD backwards compatibility: accept either data or document
   // we don't want to modify the original document
   document = data || document;
@@ -121,16 +122,17 @@ export const createMutator = async ({
     }
   }
 
-  /*
-
-  userId
-
-  If user is logged in, check if userId field is in the schema and add it to document if needed
-
-  */
+  // userId
+  // 
+  // If user is logged in, check if userId field is in the schema and add it to
+  // document if needed.
+  // FIXME: This is a horrible hack; there's no good reason for this not to be
+  // using the same callbacks as everything else.
   if (currentUser) {
     const userIdInSchema = Object.keys(schema).find(key => key === 'userId');
-    if (!!userIdInSchema && !document.userId) document.userId = currentUser._id;
+    if (!!userIdInSchema && !(document as any).userId) {
+      (document as any).userId = currentUser._id;
+    }
   }
 
   /*
@@ -188,7 +190,7 @@ export const createMutator = async ({
   DB Operation
 
   */
-  document._id = await Connectors.create(collection, document);
+  document._id = await Connectors.create(collection, document as T);
 
   /*
 
@@ -206,7 +208,9 @@ export const createMutator = async ({
   document = await runCallbacks(`${collectionName.toLowerCase()}.new.after`, document, currentUser);
 
   // note: query for document to get fresh document with collection-hooks effects applied
-  document = await Connectors.get(collection, document._id);
+  const queryResult = await Connectors.get(collection, document._id);
+  if (queryResult)
+    document = queryResult;
 
   /*
 
@@ -229,15 +233,17 @@ export const createMutator = async ({
 
   endDebugMutator(collectionName, 'Create', { document });
 
-  return { data: document };
+  return { data: document as T };
 };
 
-/*
-
-Update
-
-*/
-export const updateMutator = async ({
+//
+// Update mutation
+// Updates a single database entry, and runs callbacks/etc to update its
+// denormalized fields. The preferred way to do this is with a documentId;
+// in theory you can use a selector, but you should only do this if you're sure
+// there's only one matching document (eg, slug). Returns the modified document.
+//
+export const updateMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
@@ -249,17 +255,19 @@ export const updateMutator = async ({
   context,
   document: oldDocument,
 }: {
-  collection: any,
+  collection: CollectionBase<T>,
   documentId: string,
   selector?: any,
-  data?: any,
-  set?: any,
+  data?: Partial<T>,
+  set?: Partial<T>,
   unset?: any,
-  currentUser?: UsersCurrent|DbUser|null,
+  currentUser?: DbUser|null,
   validate?: boolean,
   context?: any,
-  document?: any,
-}) => {
+  document?: T|null,
+}): Promise<{
+  data: T
+}> => {
   const { collectionName, typeName } = collection.options;
   const schema = collection.simpleSchema()._schema;
 
@@ -281,8 +289,11 @@ export const updateMutator = async ({
   }
 
   // get a "preview" of the new document
-  let document = { ...oldDocument, ...data };
-  document = pickBy(document, f => f !== null);
+  let document: T = { ...oldDocument, ...data };
+  // FIXME: Filtering out null-valued fields here is a very sketchy, probably
+  // wrong thing to do. This originates from Vulcan, and it's not clear why it's
+  // doing it. Explicit cast to make it type-check anyways.
+  document = pickBy(document, f => f !== null) as any;
 
   /*
 
@@ -353,7 +364,7 @@ export const updateMutator = async ({
       );
     }
     if (typeof autoValue !== 'undefined') {
-      data[fieldName] = autoValue;
+      data![fieldName] = autoValue;
     }
   }
 
@@ -409,7 +420,10 @@ export const updateMutator = async ({
     await Connectors.update(collection, selector, modifier, { removeEmptyStrings: false });
 
     // get fresh copy of document from db
-    document = await Connectors.get(collection, selector);
+    const fetched = await Connectors.get(collection, selector);
+    if (!fetched)
+      throw new Error("Could not find updated document after applying update");
+    document = fetched;
 
     // TODO: add support for caching by other indexes to Dataloader
     // https://github.com/VulcanJS/Vulcan/issues/2000
@@ -460,12 +474,12 @@ export const updateMutator = async ({
   return { data: document };
 };
 
-/*
-
-Delete
-
-*/
-export const deleteMutator = async ({
+//
+// Delete mutation
+// Deletes a single database entry, and runs any callbacks/etc that trigger on
+// that. Returns the entry that was deleted.
+//
+export const deleteMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
@@ -474,14 +488,16 @@ export const deleteMutator = async ({
   context,
   document,
 }: {
-  collection: any,
+  collection: CollectionBase<T>,
   documentId: string,
-  selector?: any,
-  currentUser?: UsersCurrent|DbUser|null,
+  selector?: MongoSelector<T>,
+  currentUser?: DbUser|null,
   validate?: boolean,
   context?: any,
-  document?: any,
-}) => {
+  document?: T|null,
+}): Promise<{
+  data: T|null|undefined
+}> => {
   const { collectionName, typeName } = collection.options;
   const schema = collection.simpleSchema()._schema;
   // OpenCRUD backwards compatibility

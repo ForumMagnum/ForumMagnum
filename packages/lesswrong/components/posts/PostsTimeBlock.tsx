@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Components, registerComponent, getSetting
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
@@ -11,6 +9,7 @@ import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -136,7 +135,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       return null
     }
 
-    const postGroups = postTypes[getSetting<string>('forumType')].map(type => ({
+    const postGroups = postTypes[forumTypeSetting.get()].map(type => ({
       ...type,
       posts: posts?.filter(type.postIsType)
     }))

@@ -78,7 +78,7 @@ class Datatable extends PureComponent<any,any> {
         ...this.props.options
       };
 
-      const DatatableWithMulti = withMulti(options)(Components.DatatableContents);
+      const DatatableWithMulti: any = withMulti(options)(Components.DatatableContents);
 
       const canInsert = collection.options && collection.options.mutations && collection.options.mutations.new && collection.options.mutations.new.check(this.props.currentUser);
       

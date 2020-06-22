@@ -1,62 +1,14 @@
-import { createCollection, Utils } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
+import { createCollection } from '../../vulcan-lib';
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 import { makeEditable } from '../../editor/make_editable'
+import { userCanCreateTags } from '../../betas';
 import Users from '../users/collection';
-
-const formGroups = {
-  advancedOptions: {
-    name: "advancedOptions",
-    order: 20,
-    label: "Advanced Options",
-    startCollapsed: true,
-  },
-};
-
-const schema = {
-  name: {
-    type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins'],
-  },
-  slug: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: (tag) => {
-      return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(tag.name))
-    },
-    onEdit: (modifier, tag) => {
-      if (modifier.$set.name) {
-        return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(modifier.$set.name), false, tag._id)
-      }
-    }
-  },
-  postCount: {
-    ...denormalizedCountOfReferences({
-      fieldName: "postCount",
-      collectionName: "Tags",
-      foreignCollectionName: "TagRels",
-      foreignTypeName: "TagRel",
-      foreignFieldName: "tagId",
-      //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
-    }),
-    viewableBy: ['guests'],
-  },
-  deleted: {
-    type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    optional: true,
-    group: formGroups.advancedOptions,
-    ...schemaDefaultValue(false),
-  },
-};
+import { schema } from './schema';
 
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
-  toAlgolia: any
+  toAlgolia: (tag: DbTag) => Array<Record<string,any>>|null
+  getUrl: (tag: DbTag | TagPreviewFragment) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -66,10 +18,10 @@ export const Tags: ExtendedTagsCollection = createCollection({
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanCreateTags(user);
     },
     editCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanCreateTags(user);
     },
     removeCheck: (user, tag) => {
       return false;
@@ -77,10 +29,10 @@ export const Tags: ExtendedTagsCollection = createCollection({
   }),
 });
 
-Tags.checkAccess = (currentUser, tag) => {
+Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser))
     return true;
-  else if (tag.deleted)
+  else if (tag.deleted || tag.adminOnly)
     return false;
   else
     return true;
@@ -89,11 +41,13 @@ Tags.checkAccess = (currentUser, tag) => {
 addUniversalFields({collection: Tags})
 
 export const tagDescriptionEditableOptions = {
+  commentStyles: true,
   fieldName: "description",
   getLocalStorageId: (tag, name) => {
     if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
     return {id: `tag:create`, verify:true}
   },
+  revisionsHaveCommitMessages: true,
 };
 
 makeEditable({

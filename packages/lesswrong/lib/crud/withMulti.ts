@@ -34,16 +34,16 @@ Terms object can have the following properties:
 
 */
 
-import { useState, useContext } from 'react';
-import { graphql, useQuery } from 'react-apollo';
+import { WatchQueryFetchPolicy, ApolloError } from 'apollo-client';
 import gql from 'graphql-tag';
-import { getSetting, Utils, multiClientTemplate, extractCollectionInfo, extractFragmentInfo, } from '../vulcan-lib';
-import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
+import qs from 'qs';
+import { useContext, useState } from 'react';
+import { graphql, useQuery } from 'react-apollo';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
-import qs from 'qs';
 import * as _ from 'underscore';
-import { WatchQueryFetchPolicy } from 'apollo-client';
+import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
+import { extractCollectionInfo, extractFragmentInfo, multiClientTemplate, Utils } from '../vulcan-lib';
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -65,7 +65,7 @@ function getGraphQLQueryFromOptions({
 
 export function withMulti({
   limit = 10, // Only used as a fallback if terms.limit is not specified
-  pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
+  pollInterval = 0, //LESSWRONG: Polling is disabled, and by now it would probably horribly break if turned on
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
@@ -108,7 +108,7 @@ export function withMulti({
 
   return compose(
     // wrap component with HoC that manages the terms object via its state
-    withState('paginationTerms', 'setPaginationTerms', props => {
+    withState('paginationTerms', 'setPaginationTerms', (props: any) => {
       // get initial limit from props, or else options
       const paginationLimit = (props.terms && props.terms.limit) || limit;
       const paginationTerms = {
@@ -128,7 +128,7 @@ export function withMulti({
 
         // graphql query options
         options(props: any) {
-          const { terms, paginationTerms, currentUser, ...rest } = props;
+          const { terms, paginationTerms, ...rest } = props;
           // get terms from options, then props, then pagination
           const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
           const graphQLOptions: any = {
@@ -217,7 +217,7 @@ export function withMulti({
 export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   terms,
   extraVariablesValues,
-  pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
+  pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
@@ -255,7 +255,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   results: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
-  error: any,
+  error: ApolloError|undefined,
   count?: number,
   showLoadMore: boolean,
   loadMoreProps: any,

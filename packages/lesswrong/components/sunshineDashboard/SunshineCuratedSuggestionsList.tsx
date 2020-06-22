@@ -3,7 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 
-const SunshineCuratedSuggestionsList = ({ terms }) => {
+const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
+  terms: any,
+  belowFold?: boolean
+}) => {
   const { results, loading, count, totalCount, loadMore, showLoadMore } = useMulti({
     terms,
     collection: Posts,
@@ -11,17 +14,29 @@ const SunshineCuratedSuggestionsList = ({ terms }) => {
     enableTotal: true,
     itemsPerPage: 60
   });
-  
+
+  const { results: curatedResults } = useMulti({
+    terms: {view:'curated', limit:1},
+    collection: Posts,
+    fragmentName: 'PostsList',
+  });
+  const curatedDate = new Date(curatedResults && curatedResults[0]?.curatedDate)
+  const twoDaysAgo = new Date(new Date().getTime()-(2*24*60*60*1000));
+
+  if (!belowFold && (curatedDate > twoDaysAgo)) return null
+
   if (loading) return <Components.Loading/>;
   
-  const { SunshineListTitle, SunshineCuratedSuggestionsItem, LastCuratedDate, LoadMore } = Components
+  const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate, LoadMore } = Components
     
   if (results && results.length) {
     return (
       <div>
         <SunshineListTitle>
           Suggestions for Curated
-          <LastCuratedDate terms={{view:'curated', limit:1}}/>
+          <MetaInfo>
+            <FormatDate date={curatedDate}/>
+          </MetaInfo>
         </SunshineListTitle>
         {results.map(post =>
           <div key={post._id} >
@@ -42,7 +57,7 @@ const SunshineCuratedSuggestionsList = ({ terms }) => {
   }
 }
 
-const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList);
+const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList)
 
 declare global {
   interface ComponentTypes {

@@ -53,7 +53,7 @@ const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
 
 // Cancel votes of a specific type on a given document (client)
 const cancelVoteClient = ({ document, voteType }) => {
-  const vote = _.findWhere(document.currentUserVotes, { voteType });
+  const vote: any = _.findWhere(document.currentUserVotes, { voteType });
   const newDocument = _.clone(document);
   if (vote) {
     // subtract vote scores
@@ -62,7 +62,7 @@ const cancelVoteClient = ({ document, voteType }) => {
 
     newDocument.voteCount--;
     
-    const newVotes = _.reject(document.currentUserVotes, vote => vote.voteType === voteType);
+    const newVotes = _.reject(document.currentUserVotes, (vote: any) => vote.voteType === voteType);
 
     // clear out vote of this type
     newDocument.currentUserVotes = newVotes;

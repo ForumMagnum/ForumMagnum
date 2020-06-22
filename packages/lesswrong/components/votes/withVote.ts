@@ -42,7 +42,7 @@ export const useVote = (collectionName: CollectionNameString) => {
         }
       })
     } catch(e) {
-      const errorMessage = _.map(e.graphQLErrors, gqlErr=>gqlErr.message).join("; ");
+      const errorMessage = _.map(e.graphQLErrors, (gqlErr: any)=>gqlErr.message).join("; ");
       messages.flash({ messageString: errorMessage });
     }
   }, [messages, mutate]);

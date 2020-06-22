@@ -46,12 +46,9 @@ const NewRelatedQuestionForm = ({ post, classes, refetch }: {
         fieldName="hiddenRelatedQuestion"
         tooltip={<div>
           <div>
-            To avoid cluttering the home page with questions (while encouraging people to liberally use the "related question" feature), related questions by default are hidden from the 'Latest Posts' section. 
+            Hide this question from the home page
           </div>
-          <br/>
-          <div>
-            Toggle this off if you'd like to display your question.
-          </div>
+          <div><em>(useful if you have lots of related questions and want to avoid spamming)</em></div>
         </div>}
       />
       <PostSubmit {...props} />
@@ -68,7 +65,7 @@ const NewRelatedQuestionForm = ({ post, classes, refetch }: {
         prefilledProps={{
           userId: currentUser._id,
           question: true,
-          hiddenRelatedQuestion: true,
+          hiddenRelatedQuestion: false,
           originalPostRelationSourceId: post._id
         }}
         successCallback={(...args) => {
@@ -91,4 +88,3 @@ declare global {
     NewRelatedQuestionForm: typeof NewRelatedQuestionFormComponent
   }
 }
-

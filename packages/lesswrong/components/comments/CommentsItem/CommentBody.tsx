@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
+import { commentBodyStyles, answerStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
@@ -13,7 +13,7 @@ const styles = theme => ({
     overflowY: "hidden",
   },
   answerStyling: {
-    ...postHighlightStyles(theme),
+    ...answerStyles(theme),
     maxWidth: "100%",
     overflowX: "auto",
     overflowY: "hidden",

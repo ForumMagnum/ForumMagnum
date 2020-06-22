@@ -1,14 +1,18 @@
-import { Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale } from '../../lib/vulcan-lib';
-import { LocationContext, SubscribeLocationContext, NavigationContext, ServerRequestStatusContext, parseRoute } from '../../lib/vulcan-core/appContext';
-import { MessageContext } from '../common/withMessages';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { PureComponent } from 'react';
-import { withCurrentUser } from '../../lib/crud/withCurrentUser';
-import PropTypes from 'prop-types';
-import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { withApollo } from 'react-apollo';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import React, { PureComponent } from 'react';
+import { withApollo } from 'react-apollo';
+// eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
+import { withCurrentUser } from '../../lib/crud/withCurrentUser';
+import { withUpdate } from '../../lib/crud/withUpdate';
+import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
+import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext } from '../../lib/vulcan-core/appContext';
+import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
+import { Components, detectLocale, registerComponent, runCallbacks, Strings } from '../../lib/vulcan-lib';
+import { MessageContext } from '../common/withMessages';
+
+const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', null) // An image used to represent the site on social media
 
 class App extends PureComponent<any,any> {
   locationContext: any
@@ -87,7 +91,7 @@ class App extends PureComponent<any,any> {
     if (availableLocale) {
       return { locale: availableLocale, localeMethod };
     } else {
-      return { locale: getSetting('locale', 'en-US'), localeMethod: 'setting' };
+      return { locale: localeSetting.get(), localeMethod: 'setting' };
     }
   };
 
@@ -151,7 +155,7 @@ class App extends PureComponent<any,any> {
       <ServerRequestStatusContext.Provider value={serverRequestStatus}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
-          <Components.HeadTags image={getSetting('siteImage')} />
+          <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
           <Components.Layout currentUser={currentUser} messages={messages}>
             {this.props.currentUserLoading

@@ -12,7 +12,7 @@ const TagPageTitle = ({isSubtitle, classes}: {
 }) => {
   const { params } = useLocation();
   const { slug } = params;
-  const { tag } = useTagBySlug(slug);
+  const { tag } = useTagBySlug(slug, "TagFragment");
   
   if (isSubtitle) {
     return (<span className={classes.subtitle}>

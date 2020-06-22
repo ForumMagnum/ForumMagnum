@@ -257,8 +257,11 @@ const ReviewVotingPage = ({classes}) => {
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }
 
+  // Re-sort in response to changes. (But we don't need to re-sort in response
+  // to everything exhaustively)
   useEffect(() => {
     if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
   if (!currentUser || currentUser.karma < 1000) {
@@ -402,10 +405,12 @@ function getVoteForPost(votes, postId) {
 
 function CommentTextField({startValue, updateValue, postId}) {
   const [text, setText] = useState(startValue)
+  // Reset text when postId changes
   useEffect(() => {
     setText(startValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId])
-  const debouncedUpdateValue = useCallback(_.debounce((value) => {
+  const debouncedUpdateValue = useCallback(_.debounce((value: any) => {
     updateValue(value)
   }, 500), [postId])
   return <TextField
@@ -461,7 +466,7 @@ const qualitativeScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: String, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
+const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: string, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
   const sumScaled = sumBy(votes, vote => Math.abs(qualitativeScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
     if (vote) {
@@ -481,7 +486,7 @@ const computeQuadraticVoteScore = (qualitativeScore: 0|1|2|3|4, totalCost: numbe
 }
 
 const inverseSumOf1ToN = (x:number) => {
-  return Math.sign(x)*(1/2 * (Math.sqrt(8 * Math.abs(x) + 1) - 1))
+  return Math.sign(x)*(1/2 * (Math.sqrt((8 * Math.abs(x)) + 1) - 1))
 }
 
 const sumOf1ToN = (x:number) => {

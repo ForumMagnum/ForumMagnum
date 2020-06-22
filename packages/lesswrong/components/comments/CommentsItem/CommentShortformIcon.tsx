@@ -19,7 +19,7 @@ const styles = theme => ({
 
 const CommentShortformIcon = ({comment, post, classes, simple}: {
   comment: CommentsList,
-  post: PostsBase,
+  post: PostsMinimumInfo,
   classes: ClassesType,
   simple?: boolean,
 }) => {

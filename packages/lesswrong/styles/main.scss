@@ -30,7 +30,7 @@ h3 {
 
 // Deactivate intercom on smaller devices
 
-#intercom-container {
+#intercom-container, .intercom-lightweight-app {
   @include mui-breakpoint-down-sm {
     display: none;
   }

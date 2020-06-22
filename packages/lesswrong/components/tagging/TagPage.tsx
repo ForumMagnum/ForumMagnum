@@ -1,69 +1,183 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useTagBySlug } from './useTag';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { commentBodyStyles } from '../../themes/stylePiping'
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import Typography from '@material-ui/core/Typography';
+import { truncate } from '../../lib/editor/ellipsize';
+import { Tags } from '../../lib/collections/tags/collection';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
+import { userCanViewRevisionHistory } from '../../lib/betas';
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import HistoryIcon from '@material-ui/icons/History';
 
-const styles = theme => ({
+// Also used in TagCompareRevisions
+export const styles = theme => ({
+  tagPage: {
+    ...commentBodyStyles(theme),
+    color: theme.palette.grey[600]
+  },
   description: {
-    ...postBodyStyles(theme),
+    marginTop: 18,
+    ...commentBodyStyles(theme),
+    marginBottom: 18,
+  },
+  loadMore: {
+    flexGrow: 1,
+    textAlign: "left"
+  },
+  title: {
+    ...theme.typography.display3,
+    ...theme.typography.commentStyle,
+    marginTop: 0,
+    fontWeight: 600,
+    fontVariant: "small-caps"
+  },
+  wikiSection: {
+    marginRight: 32,
+    marginBottom: 24,
+  },
+  tagHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+  },
+  postsTaggedTitle: {
+    color: theme.palette.grey[600]
+  },
+  disabledButton: {
+    '&&': {
+      color: theme.palette.grey[500],
+      cursor: "default",
+      marginBottom: 12
+    }
+  },
+  buttonsRow: {
+    ...theme.typography.body2,
+    ...theme.typography.uiStyle,
+    marginTop: 2,
     marginBottom: 16,
+    color: theme.palette.grey[700],
+    display: "flex",
+    '& svg': {
+      height: 20,
+      width: 20,
+      marginRight: 4,
+      cursor: "pointer",
+      color: theme.palette.grey[700]
+    }
+  },
+  editButton: {
+    display: "flex",
+    alignItems: "center",
+    marginRight: 16
+  },
+  historyButton: {
+    display: "flex",
+    alignItems: "center",
+    marginRight: 16
   },
 });
 
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect } = Components;
   const currentUser = useCurrentUser();
-  const { params } = useLocation();
-  const { slug } = params;
-  const { tag, loading: loadingTag } = useTagBySlug(slug);
-  
-  const { results, loading: loadingPosts, loadMoreProps } = useMulti({
-    skip: !(tag?._id),
-    terms: {
-      view: "postsWithTag",
-      tagId: tag?._id,
-    },
-    collection: TagRels,
-    fragmentName: "TagRelFragment",
-    limit: 20,
-    ssr: true,
+  const { query, params: { slug } } = useLocation();
+  const { revision } = query;
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision?"TagRevisionFragment":"TagFragment", {
+    extraVariables: revision ? {version: 'String'} : {},
+    extraVariablesValues: revision ? {version: revision} : {},
   });
+  const [truncated, setTruncated] = useState(true)
+  const { captureEvent } =  useTracking()
   
   if (loadingTag)
     return <Loading/>
   if (!tag)
     return <Error404/>
-  
-  return <SingleColumnSection>
-    <SectionTitle title={`Posts Tagged #${tag.name}`}>
-      {Users.isAdmin(currentUser) && <SectionButton>
-        <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
-      </SectionButton>}
-    </SectionTitle>
-    <ContentItemBody
-      dangerouslySetInnerHTML={{__html: tag.description?.html}}
-      description={`tag ${tag.name}`}
-      className={classes.description}
-    />
-    {results && results.length === 0 && <div>
-      There are no posts with this tag yet.
-    </div>}
-    {loadingPosts && <Loading/>}
-    {results && results.map((result,i) =>
-      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
-    )}
-    <SectionFooter>
-      <Components.LoadMore {...loadMoreProps} />
-    </SectionFooter>
-  </SingleColumnSection>
+  // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
+  if (tag.slug !== slug) {
+    return <PermanentRedirect url={Tags.getUrl(tag)} />
+  }
+
+  const terms = {
+    ...query,
+    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
+    view: "tagRelevance",
+    limit: 15,
+    tagId: tag._id,
+  }
+
+  const clickReadMore = () => {
+    setTruncated(false)
+    captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
+  }
+
+  const description = truncated ? truncate(tag.description?.html, 1400, "characters", "... <a>(Read More)</a>") : tag.description?.html
+
+  return <AnalyticsContext
+    pageContext='tagPage'
+    tagName={tag.name}
+    tagId={tag._id}
+    sortedBy={query.sortedBy || "relevance"}
+    limit={terms.limit}
+  >
+    <SingleColumnSection>
+      <div className={classes.wikiSection}>
+        <AnalyticsContext pageSectionContext="wikiSection">
+          <div className={classes.titleSection}>
+            <Typography variant="display3" className={classes.title}>
+              {tag.name}
+            </Typography>
+          </div>
+          <div className={classes.buttonsRow}>
+            {Users.isAdmin(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+              <EditOutlinedIcon /> Edit Wiki
+            </Link>}
+            {userCanViewRevisionHistory(currentUser) && <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
+              <HistoryIcon /> History
+            </Link>}
+            <SubscribeTo 
+              document={tag} 
+              showIcon 
+              subscribeMessage="Subscribe to Tag"
+              unsubscribeMessage="Unsubscribe from Tag"
+              subscriptionType={subscriptionTypes.newTagPosts}
+            />
+          </div>
+          <div onClick={clickReadMore}>
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: description}}
+              description={`tag ${tag.name}`}
+              className={classes.description}
+            />
+          </div>
+        </AnalyticsContext>
+      </div>
+      <AnalyticsContext pageSectionContext="tagsSection">
+        <div className={classes.tagHeader}>
+          <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+          <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+        </div>
+        <PostsList2
+          terms={terms}
+          enableTotal
+          tagId={tag._id}
+          itemsPerPage={200}
+        >
+          <AddPostsToTag tag={tag} />
+        </PostsList2>
+      </AnalyticsContext>
+    </SingleColumnSection>
+  </AnalyticsContext>
 }
 
 const TagPageComponent = registerComponent("TagPage", TagPage, {styles});

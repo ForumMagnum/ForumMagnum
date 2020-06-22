@@ -45,6 +45,11 @@ registerFragment(`
     moderatorHat
     nominatedForReview
     reviewingForReview
+    promoted
+    promotedByUserId
+    promotedByUser {
+      ...UsersMinimumInfo
+    }
   }
 `);
 
@@ -61,10 +66,7 @@ registerFragment(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {
-      _id
-      slug
-      title
-      draft
+      ...PostsMinimumInfo
     }
   }
 `)
@@ -77,11 +79,7 @@ registerFragment(`
       ...CommentsList
     }
     post {
-      title
-      _id
-      slug
-      lastVisitedAt
-      draft
+      ...PostsBase
     }
   }
 `);

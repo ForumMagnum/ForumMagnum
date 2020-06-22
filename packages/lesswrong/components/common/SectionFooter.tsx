@@ -6,7 +6,6 @@ const styles = (theme) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
-    alignItems: "center",
     marginTop: theme.spacing.unit*1.5,
     marginBottom: theme.spacing.unit,
     marginRight: theme.spacing.unit*1.5,

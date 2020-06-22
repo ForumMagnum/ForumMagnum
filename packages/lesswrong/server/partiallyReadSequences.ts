@@ -1,4 +1,4 @@
-import { addCallback, editMutation } from './vulcan-lib';
+import { addCallback, editMutation, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import Sequences from '../lib/collections/sequences/collection';
 import Posts from '../lib/collections/posts/collection';
@@ -11,13 +11,14 @@ import * as _ from 'underscore';
 // that they read it in the context of, determine whether this means they have
 // a partially-read sequence, and update their user object to reflect this
 // status.
-const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) => {
+const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string) => {
   const user = Users.getUser(userId);
+  if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
   const postIDs = await Sequences.getAllPostIDs(sequenceId);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);
   const anyUnread = _.some(postIDs, postID => !postReadStatuses[postID]);
   const sequence = await Sequences.findOne({_id: sequenceId});
-  const collection = sequence.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
+  const collection = sequence?.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
   const now = new Date();
   
   const partiallyReadMinusThis = _.filter(user.partiallyReadSequences,
@@ -102,13 +103,28 @@ export const setUserPartiallyReadSequences = async (userId, newPartiallyReadSequ
   });
 }
 
-const EventUpdatePartialReadStatusCallback = (event) => {
-  if (event.name === 'post-view' && event.properties.sequenceId) {
-    // Deliberately lacks an await - this runs concurrently in the background
-    updateSequenceReadStatusForPostRead(event.userId, event.documentId, event.properties.sequenceId);
-  }
+const userHasPartiallyReadSequence = (user: DbUser, sequenceId: string): boolean => {
+  if (!user.partiallyReadSequences)
+    return false;
+  return _.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId);
 }
 
+const EventUpdatePartialReadStatusCallback = async (event) => {
+  if (event.name === 'post-view' && event.properties.sequenceId) {
+    const user = await Users.findOne({_id: event.userId});
+    if (!user) return;
+    const { sequenceId } = event.properties;
+    
+    // Don't add posts to the continue reading section just because a user reads
+    // a post. But if the sequence is already there, update their position in
+    // the sequence.
+    if (userHasPartiallyReadSequence(user, sequenceId)) {
+      // Deliberately lacks an await - this runs concurrently in the background
+      updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId);
+    }
+  }
+}
+ 
 addCallback('lwevents.new.async', EventUpdatePartialReadStatusCallback);
 
 // Given a user and an array of post IDs, return a dictionary from
@@ -152,3 +168,19 @@ const postsToReadStatuses = async (user, postIDs) => {
     resultDict[readPost._id] = true;
   return resultDict;
 }
+
+
+
+addGraphQLMutation('updateContinueReading(sequenceId: String!, postId: String!): Boolean');
+addGraphQLResolvers({
+  Mutation: {
+    async updateContinueReading(root, {sequenceId, postId}: {sequenceId: string, postId: string}, context: ResolverContext) {
+      const { currentUser } = context;
+      if (!currentUser) throw new Error("Must be logged in to record continue-reading status");
+      
+      updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId);
+      
+      return true;
+    }
+  }
+});

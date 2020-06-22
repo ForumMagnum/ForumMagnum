@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 //
 // Button used to add a new feed to a user profile
 //
-const newFeedButton = ({user, closeModal}: {
+const NewFeedButton = ({user, closeModal}: {
   user: any,
   closeModal?: any
 }) => {
@@ -33,7 +33,7 @@ const newFeedButton = ({user, closeModal}: {
   }
 }
 
-const newFeedButtonComponent = registerComponent('newFeedButton', newFeedButton);
+const newFeedButtonComponent = registerComponent('newFeedButton', NewFeedButton);
 
 declare global {
   interface ComponentTypes {

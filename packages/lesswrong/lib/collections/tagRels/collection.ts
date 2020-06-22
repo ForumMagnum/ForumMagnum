@@ -2,9 +2,15 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
-import Users from '../users/collection';
+import { userCanUseTags } from '../../betas';
 
 const schema = {
+  createdAt: {
+    optional: true,
+    type: Date,
+    canRead: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
+  },
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",
@@ -28,7 +34,7 @@ const schema = {
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -60,10 +66,10 @@ export const TagRels: TagRelsCollection = createCollection({
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
     newCheck: (user, tag) => {
-      return !!user;
+      return userCanUseTags(user);
     },
     editCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanUseTags(user);
     },
     removeCheck: (user, tag) => {
       return false;
@@ -71,8 +77,8 @@ export const TagRels: TagRelsCollection = createCollection({
   }),
 });
 
-TagRels.checkAccess = (currentUser, tagRel) => {
-  if (Users.isAdmin(currentUser))
+TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context: ResolverContext|null): Promise<boolean> => {
+  if (userCanUseTags(currentUser))
     return true;
   else if (tagRel.deleted)
     return false;

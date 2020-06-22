@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -55,7 +56,7 @@ const SequencesHome = ({classes}) => {
         </div>
       </SingleColumnSection>
 
-      {getSetting('forumType') === 'LessWrong' && <SingleColumnSection>
+      {forumTypeSetting.get() === 'LessWrong' && <SingleColumnSection>
         <SectionTitle title="Core Reading" />
         <Components.CoreReading />
         <Divider />

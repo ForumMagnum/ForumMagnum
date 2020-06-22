@@ -18,9 +18,10 @@ const styles = theme => ({
 
 interface ExternalProps {
   comment: CommentWithRepliesFragment,
-  post?: PostsBase,
+  post: PostsBase,
   refetch: any,
-  showTitle?: boolean
+  showTitle?: boolean,
+  expandByDefault?: boolean
 }
 interface CommentWithRepliesProps extends ExternalProps, WithUserProps, WithStylesProps {
   recordPostView: any,
@@ -34,21 +35,20 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   state: CommentWithRepliesState = { markedAsVisitedAt: null, maxChildren: 3 }
 
   markAsRead = async () => {
-    const { comment, post, recordPostView } = this.props
+    const { post, recordPostView } = this.props
     this.setState({markedAsVisitedAt: new Date()});
-    recordPostView({post: post ? post : comment.post})
+    recordPostView({post})
   }
 
   render () {
-    const { classes, comment, refetch, post: propsPost, showTitle=true } = this.props
+    const { classes, comment, refetch, post, showTitle=true, expandByDefault } = this.props
     const { CommentsNode } = Components
     const { markedAsVisitedAt, maxChildren } = this.state
 
-    if (!comment || !comment.post)
+    if (!comment || !post)
       return null;
 
     const lastCommentId = comment.latestChildren[0]?._id
-    const post = propsPost || comment.post
 
     const renderedChildren = comment.latestChildren.slice(0, maxChildren)
     const extraChildrenCount = (comment.latestChildren.length > renderedChildren.length) && (comment.latestChildren.length - renderedChildren.length)
@@ -58,7 +58,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
       nestedComments = addGapIndicators(nestedComments)
     }
 
-    const lastVisitedAt = markedAsVisitedAt || comment.post.lastVisitedAt
+    const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
     const showExtraChildrenButton = (extraChildrenCount>0) ? 
       <a className={classes.showChildren} onClick={()=>this.setState({maxChildren: 500})}>
@@ -82,6 +82,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
           condensed
           shortform
           refetch={refetch}
+          expandByDefault={expandByDefault}
           showExtraChildrenButton={showExtraChildrenButton}
         />
       </div>

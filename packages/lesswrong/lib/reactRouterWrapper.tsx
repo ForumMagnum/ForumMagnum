@@ -6,8 +6,11 @@ export const withRouter = reactRouter3.withRouter;*/
 
 import React from 'react';
 import { useTracking } from '../lib/analyticsEvents';
+// eslint-disable-next-line no-restricted-imports
 import * as reactRouter from 'react-router';
+// eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
+import { HashLink } from "../components/common/HashLink";
 import { parseQuery } from './routeUtil'
 import qs from 'qs'
 
@@ -36,7 +39,7 @@ export const Link = (props) => {
     console.error("Props 'to' for Link components only accepts strings or objects, passed type: ", typeof props.to)
     return <span>Broken Link</span>
   }
-  return <reactRouterDom.Link {...props} onMouseDown={handleClick}/>
+  return <HashLink {...props} onMouseDown={handleClick}/>
 }
 
 export const QueryLink = reactRouter.withRouter(({query, location, staticContext, merge=false, ...rest}) => {
@@ -47,3 +50,5 @@ export const QueryLink = reactRouter.withRouter(({query, location, staticContext
     to={{...location, search: newSearchString}}
   />
 })
+
+export const Redirect = reactRouter.Redirect;

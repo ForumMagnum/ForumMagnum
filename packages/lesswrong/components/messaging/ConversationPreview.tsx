@@ -5,7 +5,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import Messages from "../../lib/collections/messages/collection";
 import Conversations from '../../lib/collections/conversations/collection';
 import Card from '@material-ui/core/Card';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -22,8 +21,11 @@ const styles = theme => ({
   }
 })
 
-const ConversationPreview = ({classes, conversationId}) => {
-  const currentUser = useCurrentUser();
+const ConversationPreview = ({conversationId, currentUser, classes}: {
+  conversationId: string,
+  currentUser: UsersCurrent,
+  classes: ClassesType,
+}) => {
   const { Loading, MessageItem } = Components
 
   const { document: conversation, loading: conversationLoading } = useSingle({

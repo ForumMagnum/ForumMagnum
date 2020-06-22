@@ -57,12 +57,6 @@ const SequencesListEditorItem = ({documentId, classes, ...props}) => {
           <div className="sequences-list-edit-item-author">
             {(document.user && document.user.displayName) || "Undefined Author"}
           </div>
-          <div className="sequences-list-edit-item-karma">
-            {document.karma || "undefined"} points
-          </div>
-          <div className="sequences-list-edit-item-comments">
-            {document.commentCount || "?"} comments
-          </div>
           <div className={classes.remove}>
             <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(documentId)} />
           </div>

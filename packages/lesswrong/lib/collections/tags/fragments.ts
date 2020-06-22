@@ -1,12 +1,22 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment TagFragment on Tag {
+  fragment TagBasicInfo on Tag {
     _id
     name
     slug
+    core
     postCount
     deleted
+    adminOnly
+    defaultOrder
+    suggestedAsFilter
+  }
+`);
+
+registerFragment(`
+  fragment TagFragment on Tag {
+    ...TagBasicInfo
     description {
       html
       htmlHighlight
@@ -15,12 +25,27 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRevisionFragment on Tag {
+    ...TagBasicInfo
+    description(version: $version) {
+      html
+      htmlHighlight
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPreviewFragment on Tag {
+    ...TagBasicInfo
+    description {
+      htmlHighlight
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagEditFragment on Tag {
-    _id
-    name
-    slug
-    postCount
-    deleted
+    ...TagBasicInfo
     description {
       ...RevisionEdit
     }

@@ -110,10 +110,13 @@ const styles = theme => ({
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
+  },
+  promoted: {
+    border: `solid 1px ${theme.palette.lwTertiary.main}`,
   }
 })
 
-interface ExternalProps {
+type ExternalProps = ({
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
   condensed?: boolean,
@@ -121,16 +124,15 @@ interface ExternalProps {
   lastCommentId?: string,
   shortform?: any,
   nestingLevel?: number,
-  post: PostsList,
   highlightDate?: Date,
   expandAllThreads?:boolean,
+  expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
   muiTheme?: any,
   child?: any,
   showPostTitle?: boolean,
   unreadComments?: any,
   parentAnswerId?: string|null,
   markAsRead?: any,
-  loadChildrenSeparately?: boolean,
   refetch?: any,
   parentCommentId?: string,
   showExtraChildrenButton?: any,
@@ -144,9 +146,18 @@ interface ExternalProps {
   postPage?: boolean,
   children?: Array<CommentTreeNode<CommentsList>>,
   hideReply?: boolean,
-}
-interface CommentsNodeProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps {
-}
+} & ({
+  // Type of "post" needs to have more metadata if the loadChildrenSeparately
+  // option is passed
+  post: PostsMinimumInfo,
+  loadChildrenSeparately?: undefined|false,
+} | {
+  loadChildrenSeparately: true,
+  post: PostsBase,
+}))
+
+type CommentsNodeProps = ExternalProps & WithUserProps & WithStylesProps & WithLocationProps;
+
 interface CommentsNodeState {
   collapsed: boolean,
   truncated: boolean,
@@ -287,17 +298,14 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   }
 
   isSingleLine = (): boolean => {
-    const { forceSingleLine, forceNotSingleLine, postPage, currentUser } = this.props
+    const { forceSingleLine, forceNotSingleLine, currentUser } = this.props
     const { singleLine } = this.state
 
     if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    // highlighted new comments on post page should always be expanded (and it needs to live here instead of "beginSingleLine" since the highlight status can change after the fact)
-    const postPageAndNew = this.isNewComment() && postPage
-
-    return this.isTruncated() && !postPageAndNew
+    return this.isTruncated() && !this.isNewComment()
   }
 
   render() {
@@ -305,7 +313,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       comment, children, nestingLevel=1, highlightDate, post,
       muiTheme, postPage=false, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply, expandByDefault
     } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
@@ -349,11 +357,12 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
         [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
         [classes.hoverPreview]: hoverPreview,
         [classes.moderatorHat]: comment.moderatorHat,
+        [classes.promoted]: comment.promoted
       }
     )
 
     const passedThroughItemProps = { post, postPage, comment, showPostTitle, collapsed, refetch, hideReply }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview }
+    const passedThroughNodeProps = { postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -377,7 +386,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                     </AnalyticsTracker>
                   </AnalyticsContext>
                 : <CommentsItem
-                    truncated={this.isTruncated()}
+                    truncated={this.isTruncated() && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
                     nestingLevel={updatedNestingLevel}
                     parentCommentId={parentCommentId}
                     parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
@@ -402,6 +411,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                   //eslint-disable-next-line react/no-children-prop
                   children={child.children}
                   key={child.item._id}
+                  post={post}
                   {...passedThroughNodeProps}
                 />)}
             </div>}
@@ -416,7 +426,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                     limit: 500
                   }}
                   parentCommentId={comment._id}
-                  post={post}
+                  post={post as PostsBase}
                 />
               </div>
             }

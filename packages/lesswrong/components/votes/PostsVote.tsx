@@ -1,10 +1,11 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   upvote: {
@@ -46,7 +47,7 @@ const PostsVote = ({ post, classes, collection }: {
 }) => {
   const currentUser = useCurrentUser();
   const vote = useVote("Posts");
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
 
   return (
       <div className={classes.voteBlock}>
@@ -76,7 +77,7 @@ const PostsVote = ({ post, classes, collection }: {
             <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
           </Tooltip>
 
-          {!!post.af && !!post.afBaseScore && getSetting('forumType') !== 'AlignmentForum' &&
+          {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
             <Tooltip
               title="AI Alignment Forum karma"
               placement="right"

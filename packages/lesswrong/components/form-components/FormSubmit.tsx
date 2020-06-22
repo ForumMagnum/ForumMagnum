@@ -6,12 +6,11 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 
-const commentFonts = '"freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 const styles = theme => ({
   formButton: {
     paddingBottom: "2px",
-    fontFamily: commentFonts,
+    fontFamily: theme.typography.fontFamily,
     fontSize: "16px",
     marginLeft: "5px",
 

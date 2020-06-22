@@ -1,6 +1,7 @@
-import React from 'react';
-import { addRoute, getSetting } from './vulcan-lib';
 import { Posts } from './collections/posts/collection';
+import { forumTypeSetting, PublicInstanceSetting } from './instanceSettings';
+import { hasEventsSetting, legacyRouteAcronymSetting } from './publicSettings';
+import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -8,7 +9,14 @@ const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 
-function getPostPingbackById(parsedUrl, postId) {
+const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
+const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional") 
+
+function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): PingbackDocument|null {
+  if (!postId)
+    return null;
+  
   if (parsedUrl.hash) {
     // If the URL contains a hash, it leads to either a comment or a landmark
     // within the post.
@@ -21,22 +29,22 @@ function getPostPingbackById(parsedUrl, postId) {
   }
 }
 
-async function getPostPingbackByLegacyId(parsedUrl, legacyId) {
+async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string) {
   const parsedId = parseInt(legacyId, 36);
   const post = Posts.findOne({"legacyId": parsedId.toString()});
   if (!post) return null;
   return getPostPingbackById(parsedUrl, post._id);
 }
 
-async function getPostPingbackBySlug(parsedUrl, slug) {
+async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
   const post = Posts.findOne({slug: slug});
   if (!post) return null;
   return getPostPingbackById(parsedUrl, post._id);
 }
 
 
-addRoute([
-  // User-profile routes
+// User-profile routes
+addRoute(
   {
     name:'users.single',
     path:'/users/:slug',
@@ -205,18 +213,30 @@ addRoute([
     subtitleComponentName: 'TagPageTitle',
   },
   {
-    name: 'tagIndex',
-    path: '/tags',
+    name: 'allTags',
+    path: '/tags/all',
     componentName: 'AllTagsPage',
     title: "All Tags",
   },
-]);
+  {
+    name: 'tagVoting',
+    path: '/tagVoting',
+    componentName: 'TagVoteActivity',
+    title: 'Tag Voting Activity'
+  },
+  {
+    name: 'search',
+    path: '/search',
+    componentName: 'SearchPage',
+    title: 'Search'
+  }
+);
 
 
-// Because the EA Forum was identical except for the change from /lw/ to /ea/
-const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
 
-addRoute([
+const legacyRouteAcronym = legacyRouteAcronymSetting.get()
+
+addRoute(
   // Legacy (old-LW, also old-EAF) routes
   // Note that there are also server-side-only routes in server/legacy-redirects/routes.js.
   {
@@ -231,12 +251,13 @@ addRoute([
     path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
     componentName: "LegacyCommentRedirect",
     previewComponentName: "CommentLinkPreviewLegacy",
+    noIndex: true,
     // TODO: Pingback comment
   }
-]);
+);
 
-if (getSetting('forumType') !== 'EAForum') {
-  addRoute([
+if (forumTypeSetting.get() !== 'EAForum') {
+  addRoute(
     {
       name: 'sequencesHome',
       path: '/library',
@@ -264,11 +285,17 @@ if (getSetting('forumType') !== 'EAForum') {
       ...rationalitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
-  ])
+    {
+      name: 'tagIndex',
+      path: '/tags',
+      componentName: 'PostsSingleRoute',
+      _id:"DHJBEsi4XJDw2fRFq"
+    },
+  )
 }
 
-if (getSetting('forumType') === 'LessWrong') {
-  addRoute([
+if (forumTypeSetting.get() === 'LessWrong') {
+  addRoute(
     {
       name: 'HPMOR',
       path: '/hpmor',
@@ -300,10 +327,10 @@ if (getSetting('forumType') === 'LessWrong') {
       ...codexSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
-  ]);
+  );
 }
 
-addRoute([
+addRoute(
   {
     name: 'AllComments',
     path: '/allComments',
@@ -316,10 +343,10 @@ addRoute([
     componentName: 'ShortformPage',
     title: "Shortform"
   },
-]);
+);
 
-if (getSetting('hasEvents', true)) {
-  addRoute([
+if (hasEventsSetting.get()) {
+  addRoute(
     {
       name: 'EventsPast',
       path: '/pastEvents',
@@ -376,10 +403,10 @@ if (getSetting('hasEvents', true)) {
       ...communitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
-  ]);
+  );
 }
 
-addRoute([
+addRoute(
   {
     name: 'searchTest',
     path: '/searchTest',
@@ -395,9 +422,9 @@ addRoute([
     path: '/imageUpload',
     componentName: 'ImageUpload'
   },
-]);
+);
 
-addRoute([
+addRoute(
   {
     name:'posts.single',
     path:'/posts/:_id/:slug?',
@@ -406,6 +433,36 @@ addRoute([
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+  },
+  {
+    name: 'posts.revisioncompare',
+    path: '/compare/post/:_id/:slug',
+    componentName: 'PostsCompareRevisions',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
+    name: 'tags.revisioncompare',
+    path: '/compare/tag/:slug',
+    componentName: 'TagCompareRevisions',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
+    name: 'post.revisionsselect',
+    path: '/revisions/post/:_id/:slug',
+    componentName: 'PostsRevisionSelect',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
+    name: 'tag.revisionsselect',
+    path: '/revisions/tag/:slug',
+    componentName: 'TagPageRevisionSelect',
+    titleComponentName: 'TagPageTitle',
+  },
+  {
+    name:'coronavirus.link.db',
+    path:'/coronavirus-link-database',
+    componentName: 'SpreadsheetPage',
+    title: "COVID-19 Link Database"
   },
   {
     name: 'admin',
@@ -435,9 +492,9 @@ addRoute([
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
-]);
+);
 
-addRoute([
+addRoute(
   {
     path:'/posts/:_id/:slug/comment/:commentId?',
     name: 'comment.greaterwrong',
@@ -445,13 +502,14 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
+    noIndex: true,
     // TODO: Handle pingbacks leading to comments.
   }
-]);
+);
 
-switch (getSetting('forumType')) {
+switch (forumTypeSetting.get()) {
   case 'AlignmentForum':
-    addRoute([
+    addRoute(
       {
         name:'alignment.home',
         path:'/',
@@ -461,7 +519,7 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id:"FoiiRDC3EhjHx7ayY"
+        _id: aboutPostIdSetting.get()
       },
       {
         name: 'Meta',
@@ -470,10 +528,10 @@ switch (getSetting('forumType')) {
         title: "Meta",
         ...metaSubtitle
       },
-    ]);
+    );
     break
   case 'EAForum':
-    addRoute([
+    addRoute(
       {
         name: 'home',
         path: '/',
@@ -483,16 +541,23 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id: getSetting('aboutPostId'),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
+        _id: aboutPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       },
-      // {
-      //   name:'intro',
-      //   path:'/intro',
-      //   componentName: 'PostsSingleRoute',
-      //   _id: getSetting('introPostId'),
-      //   getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
-      // },
+      {
+        name: 'intro',
+        path: '/intro',
+        componentName: 'PostsSingleRoute',
+        _id: introPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, introPostIdSetting.get()),
+      },
+      {
+        name: 'contact',
+        path:'/contact',
+        componentName: 'PostsSingleRoute',
+        _id: contactPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      },
       {
         name: 'Community',
         path: '/meta',
@@ -504,16 +569,21 @@ switch (getSetting('forumType')) {
         path: '/sequences',
         componentName: 'EASequencesHome'
       },
+      {
+        name: "TagsAll",
+        path:'/tags',
+        redirect: () => `/tags/all`,
+      }
       // {
       //   name: 'eaHandbookHome',
       //   path: '/handbook',
       //   componentName: 'EASequencesHome'
       // }
-    ]);
+    );
     break
   default:
     // Default is Vanilla LW
-    addRoute([
+    addRoute(
       {
         name: 'home',
         path: '/',
@@ -523,8 +593,8 @@ switch (getSetting('forumType')) {
         name: 'about',
         path: '/about',
         componentName: 'PostsSingleRoute',
-        _id:"bJ2haLkcGeLtTWaD5",
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "bJ2haLkcGeLtTWaD5"),
+        _id: aboutPostIdSetting.get(),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       },
       {
         name: 'faq',
@@ -534,16 +604,23 @@ switch (getSetting('forumType')) {
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
       },
       {
+        name: 'donate',
+        path: '/donate',
+        componentName: 'PostsSingleRoute',
+        _id:"LcpQQvcpWfPXvW7R9",
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
+      },
+      {
         name: 'Meta',
         path: '/meta',
         componentName: 'Meta',
         title: "Meta"
       },
-    ]);
+    );
     break;
 }
 
-addRoute([
+addRoute(
   {
     name: 'home2',
     path: '/home2',
@@ -591,4 +668,4 @@ addRoute([
     componentName: 'Reviews2018',
     title: "2018 Reviews",
   },
-]);
+);

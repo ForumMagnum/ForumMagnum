@@ -4,7 +4,7 @@ import { Accounts } from 'meteor/accounts-base'
 // From https://github.com/apollographql/meteor-integration/blob/master/src/client.js
 const DEFAULT_HEADER = 'authorization'
 
-const MeteorAccountsLink = ({ headerName = DEFAULT_HEADER } = {}) =>
+const createMeteorAccountsLink = ({ headerName = DEFAULT_HEADER } = {}) =>
   new ApolloLink((operation: any, forward: any) => {
     const token = Accounts._storedLoginToken()
 
@@ -19,5 +19,5 @@ const MeteorAccountsLink = ({ headerName = DEFAULT_HEADER } = {}) =>
     return forward(operation)
   })
 
-const meteorAccountsLink = MeteorAccountsLink();
+const meteorAccountsLink = createMeteorAccountsLink();
 export default meteorAccountsLink;

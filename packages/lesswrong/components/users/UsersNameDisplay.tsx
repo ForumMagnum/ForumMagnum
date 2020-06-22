@@ -50,7 +50,7 @@ interface UsersNameDisplayProps extends ExternalProps, WithStylesProps, WithHove
 const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}: UsersNameDisplayProps) => {
 
   if (!user) return <Components.UserNameDeleted/>
-  const { FormatDate, LWPopper } = Components
+  const { FormatDate, LWTooltip } = Components
   const { htmlBio } = user
 
   const truncatedBio = truncate(htmlBio, 500)
@@ -61,10 +61,10 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   const tooltip = <span>
     <div className={classes.joined}>Joined on <FormatDate date={user.createdAt} format="MMM Do YYYY" /></div>
     { !!sequenceCount && <div>
-        <BookIcon className={classNames(classes.icon, classes.bookIcon)}/> { sequenceCount } sequences
+        <BookIcon className={classNames(classes.icon, classes.bookIcon)}/> { sequenceCount } sequence{sequenceCount !== 1 && 's'}
       </div>}
-    { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
-    { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
+    { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } post{postCount !== 1 && 's'}</div>}
+    { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comment{commentCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </span>
 
@@ -73,14 +73,13 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   }
 
   return <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+    <LWTooltip title={tooltip} placement="left">
       <Link to={Users.getProfileUrl(user)} className={classes.userName}
-        {...(nofollow ? {rel:"nofollow"} : {})}
-      >
-        <LWPopper className={classes.tooltip} placement="top" open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
-          {tooltip}
-        </LWPopper>
+          {...(nofollow ? {rel:"nofollow"} : {})}
+        >
         {Users.getDisplayName(user)}
       </Link>
+    </LWTooltip>
   </AnalyticsContext>
 }
 

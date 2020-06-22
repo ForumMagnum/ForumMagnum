@@ -43,7 +43,7 @@ const styles = theme => ({
     fontSize: "14px",
     lineHeight: "18px",
     paddingRight: theme.spacing.unit*2,
-    color: "rgba(0,0,0, 0.54)",
+    color: "rgba(0,0,0, 0.66)",
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
     // inherited from old-Material-UI (where it also doesn't work in Firefox,
@@ -60,6 +60,7 @@ const styles = theme => ({
 interface ExternalProps {
   notification: any,
   lastNotificationsCheck: any,
+  currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
 }
 interface NotificationsItemProps extends ExternalProps, WithHoverProps, WithNavigationProps, WithStylesProps {
 }
@@ -76,21 +77,35 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
   }
 
   renderPreview = () => {
-    const { notification } = this.props
-    const { PostsPreviewTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const { notification, currentUser } = this.props
+    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
 
     switch (notification.documentType) {
+      case 'tagRel':
+        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
       case 'post':
         return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
       case 'comment':
         return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
       case 'message':
         return <Card>
-          <ConversationPreview conversationId={parsedPath?.params?._id} />
+          <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
         </Card>
       default:
         return null
+    }
+  }
+
+  renderMessage = () => {
+    const { notification } = this.props
+    const { TagRelNotificationItem } = Components
+    switch (notification.documentType) {
+      // TODO: add case for tagRel
+      case 'tagRel': 
+        return <TagRelNotificationItem tagRelId={notification.documentId}/>
+      default:
+        return notification.message
     }
   }
 
@@ -98,7 +113,6 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
     const { classes, notification, lastNotificationsCheck, hover, anchorEl, history } = this.props;
     const { LWPopper } = Components
     const UrlClass = getUrlClass()
-
     return (
       <a
         href={notification.link}
@@ -140,7 +154,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
         </LWPopper>
         {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabel}>
-          {notification.message}
+          {this.renderMessage()}
         </div>
       </a>
     )

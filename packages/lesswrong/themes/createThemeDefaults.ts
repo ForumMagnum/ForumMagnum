@@ -190,7 +190,7 @@ const createLWTheme = (theme) => {
       },
       code: {
         fontFamily: monoStack,
-        fontSize: ".9em",
+        fontSize: ".7em",
         fontWeight: 400,
         backgroundColor: grey[100],
         borderRadius: 2,
@@ -232,6 +232,19 @@ const createLWTheme = (theme) => {
       MuiSelect: {
         selectMenu: {
           paddingLeft: spacingUnit
+        }
+      },
+      MuiTableCell: {
+        body: {
+          ...body2FontSize,
+          ...typography.fontFamily,
+          paddingLeft: 16,
+          paddingRight: 16,
+          paddingTop: 12,
+          paddingBottom: 12,
+          marginTop: 0,
+          marginBottom: 0,
+          wordBreak: "normal",
         }
       }
     }

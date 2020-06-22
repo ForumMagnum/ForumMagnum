@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components, addCallback, removeCallback } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
-import { addCallback, removeCallback } from '../../lib/vulcan-lib';
-import { withLocation } from '../../lib/routeUtil';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import qs from 'qs'
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -93,14 +94,14 @@ const styles = theme => ({
     "& .ais-SearchBox-input::placeholder": {
       color: "rgba(255,255,255, 0.5)",
     },
-  },
+  },  
 })
 
 interface ExternalProps {
   onSetIsActive: (active: boolean)=>void,
   searchResultsArea: any,
 }
-interface SearchBarProps extends ExternalProps, WithStylesProps, WithLocationProps {
+interface SearchBarProps extends ExternalProps, WithStylesProps, WithLocationProps, WithNavigationProps {
 }
 
 interface SearchBarState {
@@ -121,6 +122,13 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     }
   }
 
+  handleSubmit = () => {
+    const { history } = this.props
+    const { currentQuery } = this.state
+    history.push({pathname: `/search`, search: `?${qs.stringify({terms: currentQuery})}`});
+    this.closeSearch()
+  }
+  
   componentDidMount() {
     let _this = this;
     this.routerUpdateCallback = function closeSearchOnNavigate() {
@@ -159,6 +167,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
 
   handleKeyDown = (event) => {
     if (event.key === 'Escape') this.closeSearch();
+    if (event.keyCode === 13) this.handleSubmit()
   }
 
   queryStateControl = (searchState) => {
@@ -173,10 +182,11 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   }
 
   render() {
-    const alignmentForum = getSetting<string>('forumType') === 'AlignmentForum';
+    const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
-    const { searchOpen, inputOpen } = this.state
+    const { searchOpen, inputOpen, currentQuery } = this.state
+    const { SearchBarResults } = Components
 
     if(!isAlgoliaEnabled) {
       return <div>Search is disabled (Algolia App ID not configured on server)</div>
@@ -197,14 +207,17 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             <div onClick={this.handleSearchTap}>
               <SearchIcon className={classes.searchIcon}/>
-              { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
+              {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+                * null is the only option that actually suppresses the extra X button.
+               // @ts-ignore */}
+              {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
             </div>
             { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
               <CloseIcon className={classes.closeSearchIcon}/>
             </div>}
             <div>
               { searchOpen && <Portal container={searchResultsArea.current}>
-                  <Components.SearchBarResults closeSearch={this.closeSearch} />
+                  <SearchBarResults closeSearch={this.closeSearch} currentQuery={currentQuery} />
                 </Portal> }
             </div>
           </div>
@@ -216,7 +229,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
 
 const SearchBarComponent = registerComponent<ExternalProps>("SearchBar", SearchBar, {
   styles,
-  hocs: [withLocation, withErrorBoundary],
+  hocs: [withLocation, withErrorBoundary, withNavigation],
 });
 
 declare global {

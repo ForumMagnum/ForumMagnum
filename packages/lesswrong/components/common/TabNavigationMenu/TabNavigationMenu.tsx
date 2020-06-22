@@ -1,4 +1,4 @@
-import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../withUser';
 import { iconWidth } from './TabNavigationItem'
@@ -6,6 +6,7 @@ import { iconWidth } from './TabNavigationItem'
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -38,7 +39,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
-          {menuTabs[getSetting<string>('forumType')].map(tab => {
+          {menuTabs[forumTypeSetting.get()].map(tab => {
             if (tab.divider) {
               return <div key={tab.id} className={classes.divider} />
             }

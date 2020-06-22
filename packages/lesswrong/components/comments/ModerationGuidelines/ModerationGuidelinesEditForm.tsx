@@ -38,6 +38,7 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }) => {
     <Dialog
       open={true}
       onClose={onClose}
+      disableEnforceFocus
     >
       <DialogTitle>
         Moderation Guidelines Edit Form

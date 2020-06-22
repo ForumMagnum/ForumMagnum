@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import Sentry from '@sentry/node';
+import Sentry from '@sentry/core';
 import { Meteor } from 'meteor/meteor';
 
 const scrollIndicatorColor = "#ddd";
@@ -113,6 +113,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
 
   componentDidUpdate(prevProps) {
     if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
+      this.replacedElements = [];
       this.applyLocalModifications();
     }
   }

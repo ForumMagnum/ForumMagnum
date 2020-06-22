@@ -9,7 +9,8 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*2
   },
   snippet: {
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing.unit,
+    wordBreak: "break-word"
   }
 })
 
@@ -17,10 +18,14 @@ const isLeftClick = (event) => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes}) => {
+const CommentsSearchHit = ({hit, clickAction, classes}: {
+  hit: any,
+  clickAction?: any,
+  classes: ClassesType,
+}) => {
   const url = "/posts/" + hit.postId + "/" + hit.postSlug + "#" + hit._id
   return <div className={classes.root}>
-    <Link to={url} onClick={(event) => isLeftClick(event) && clickAction()}>
+    <Link to={url} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{hit.authorDisplayName}</Components.MetaInfo>
         <Components.MetaInfo>{hit.baseScore} points </Components.MetaInfo>

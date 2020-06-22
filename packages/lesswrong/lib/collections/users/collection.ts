@@ -110,69 +110,70 @@ const mutations = {
   remove: deleteMutation,
 };
 
+export interface UserLocation {
+  lat: number,
+  lng: number,
+  loading: boolean,
+  known: boolean,
+}
+
 interface ExtendedUsersCollection extends UsersCollection {
   // Functions from lib/collections/users/helpers.ts
-  getDisplayName: any
-  ownsAndInGroup: any
-  isSharedOn: any
-  canCollaborate: any
-  canEditUsersBannedUserIds: any
-  canModeratePost: any
-  canCommentLock: any
-  userIsBannedFromPost: any
-  userIsBannedFromAllPosts: any
-  userIsBannedFromAllPersonalPosts: any
-  isAllowedToComment: any
-  blockedCommentingReason: any
-  emailAddressIsVerified: any
-  getProfileUrl: any
-  getProfileUrlFromSlug: any
-  useMarkdownCommentEditor: any
-  useMarkdownPostEditor: any
+  getDisplayName: (user: UsersMinimumInfo|DbUser|null) => string
+  ownsAndInGroup: (group: string) => (user: DbUser, document: HasUserIdType) => boolean
+  isSharedOn: (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase | DbPost) => boolean
+  canCollaborate: (currentUser: UsersCurrent|null, document: PostsBase) => boolean
+  canEditUsersBannedUserIds: (currentUser: DbUser|null, targetUser: DbUser) => boolean
+  canModeratePost: (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null) => boolean
+  canCommentLock: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
+  userIsBannedFromPost: (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost) => boolean
+  userIsBannedFromAllPosts: (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => boolean
+  userIsBannedFromAllPersonalPosts: (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => boolean
+  isAllowedToComment: (user: UsersMinimumInfo|DbUser|null, post: PostsDetails|DbPost) => boolean
+  blockedCommentingReason: (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost) => string
+  emailAddressIsVerified: (user: UsersCurrent|DbUser|null) => boolean
+  getProfileUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
+  getProfileUrlFromSlug: (userSlug: string, isAbsolute?: boolean) => string
+  useMarkdownPostEditor: (user: UsersCurrent|null) => boolean
   canEdit: any
-  getLocation: any
-  getAggregateKarma: any
-  getPostCount: any
-  getCommentCount: any
+  getLocation: (currentUser: UsersCurrent|null) => UserLocation
+  getAggregateKarma: (user: DbUser) => Promise<number>
+  getPostCount: (user: UsersMinimumInfo|DbUser|null) => number
+  getCommentCount: (user: UsersMinimumInfo|DbUser|null) => number
   
   // From lib/alignment-forum/users/helpers.ts
   canSuggestPostForAlignment: any
   canMakeAlignmentPost: any
   
-  // From lib/helpers.ts
-  isSubscribedTo: any
-  
   // From lib/vulcan-users/permissions.ts
-  groups: any
-  createGroup: any
-  getGroups: any
-  getActions: any
-  isMemberOf: any
-  canDo: any
-  owns: any
-  isAdmin: any
-  isAdminById: any
-  canReadField: any
-  getViewableFields: any
-  restrictViewableFields: any
+  groups: Record<string,any>
+  createGroup: (groupName: string) => void
+  getGroups: (user: UsersMinimumInfo|DbUser|null) => Array<string>
+  getActions: (user: UsersMinimumInfo|DbUser|null) => Array<string>
+  isMemberOf: (user: UsersCurrent|DbUser|null, groupOrGroups: string|Array<string>) => boolean
+  canDo: (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>) => boolean
+  owns: (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|UsersMinimumInfo) => boolean
+  isAdmin: (user: UsersMinimumInfo|DbUser|null) => boolean
+  canReadField: (user: UsersCurrent|DbUser|null, field: any, document: any) => boolean
+  getViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T) => any
+  restrictViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>) => any
   canCreateField: any
   canUpdateField: any
   
   // From lib/vulcan-users/helpers.ts
-  getUser: any
-  getUserName: any
-  getDisplayNameById: any
-  getEditUrl: any
-  getTwitterName: any
-  getGitHubName: any
-  getEmail: any
-  findLast: any
-  timeSinceLast: any
-  numberOfItemsInPast24Hours: any
-  findByEmail: any
+  getUser: (userOrUserId: DbUser|string|undefined) => DbUser|null
+  getUserName: (user: UsersMinimumInfo|DbUser|null) => string|null
+  getDisplayNameById: (userId: string) => string
+  getEditUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
+  getGitHubName: (user: DbUser) => string|null
+  getEmail: (user: DbUser) => string|null
+  findLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any) => T|null
+  timeSinceLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any) => number
+  numberOfItemsInPast24Hours: <T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter: Record<string,any>) => number
+  findByEmail: (email: string) => DbUser|null
   
   // Fron search/utils.ts
-  toAlgolia: any
+  toAlgolia: (user: DbUser) => Array<Record<string,any>>|null
 }
 
 export const Users: ExtendedUsersCollection = createCollection({

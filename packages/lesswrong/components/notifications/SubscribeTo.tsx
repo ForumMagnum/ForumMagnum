@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getCollectionName } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
@@ -44,8 +44,8 @@ const SubscribeTo = ({
     fragmentName: 'SubscriptionState',
   });
   
-  const documentType = Utils.getCollectionNameFromTypename(document.__typename);
-  const collectionName = Utils.capitalize(documentType);
+  const collectionName = getCollectionName(document.__typename);
+  const documentType = collectionName.toLowerCase();
   const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
 
   const { captureEvent } = useTracking({eventType: "subscribeClicked", eventProps: {documentId: document._id, documentType: documentType}})

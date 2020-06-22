@@ -1,18 +1,24 @@
 import React from 'react';
-import { getSetting, registerComponent, Components } from '../vulcan-lib';
+import { registerComponent, Components } from '../vulcan-lib';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { useCurrentUser } from '../../components/common/withUser';
 import * as _ from 'underscore';
 import './EmailUsername';
 import './EmailFormatDate';
 import './EmailContentItemBody';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   message: {
   },
 });
 
-const PrivateMessagesEmail = ({conversations, messages, participantsById, classes}) => {
+const PrivateMessagesEmail = ({conversations, messages, participantsById, classes}: {
+  conversations: Array<DbConversation>,
+  messages: Array<DbMessage>,
+  participantsById: Record<string,DbUser>,
+  classes: ClassesType,
+}) => {
   if (conversations.length == 1) {
     return <React.Fragment>
       <p>
@@ -64,7 +70,7 @@ const EmailListOfUsersComponent = registerComponent("EmailListOfUsers", EmailLis
 const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}) => {
   const currentUser = useCurrentUser();
   const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;
-  const sitename = getSetting('siteNameWithArticle');
+  const sitename = siteNameWithArticleSetting.get()
   const conversationLink = Conversations.getPageUrl(conversation, true);
   
   return (<React.Fragment>

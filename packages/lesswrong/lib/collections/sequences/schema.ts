@@ -70,8 +70,10 @@ const schema = {
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
-      resolver: (sequence, args, context) => {
-        const books = context.Chapters.find({sequenceId: sequence._id}, {fields: context.Users.getViewableFields(context.currentUser, context.Chapters), sort: {number: 1}}).fetch();
+      resolver: (sequence, args, context: ResolverContext) => {
+        const books = context.Chapters.find(
+          {sequenceId: sequence._id},
+        ).fetch();
         return books;
       }
     }
@@ -112,6 +114,14 @@ const schema = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
+  },
+
+  userProfileOrder: {
+    type: Number,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
   },
 
   draft: {
@@ -155,7 +165,7 @@ const schema = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (sequence, args, context) => {
+      resolver: (sequence, args, context: ResolverContext) => {
         if (!sequence.canonicalCollectionSlug) return null;
         return context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
       }

@@ -1,9 +1,10 @@
-import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import Divider from '@material-ui/core/Divider';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme) => ({
   root: {
@@ -26,7 +27,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
 
   return (
     <div className={classes.root}>
-      {menuTabs[getSetting<string>('forumType')].map(tab => {
+      {menuTabs[forumTypeSetting.get()].map(tab => {
         if (!tab.showOnCompressed) {
           return
         }

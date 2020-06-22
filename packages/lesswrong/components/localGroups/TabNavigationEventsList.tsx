@@ -71,6 +71,9 @@ const styles = createStyles(theme => ({
     width: 25,
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2
+  },
+  event: {
+    textOverflow: "ellipsis",
   }
 }))
 
@@ -137,12 +140,12 @@ const TabNavigationEventsList = ({ terms, onClick, classes }) => {
               component={Link} to={Posts.getPageUrl(event)}
               classes={{root: classes.subItemOverride}}
             >
-              <TabNavigationSubItem>
+              <TabNavigationSubItem className={classes.event}>
                 {(displayTime && displayTime !== " ") && <span className={classNames(
                     classes.displayTime, {[classes.yesterday]: displayTime === YESTERDAY_STRING})
                   }>
                     {displayTime}
-                </span>}
+                </span>} 
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
             </MenuItemUntyped>

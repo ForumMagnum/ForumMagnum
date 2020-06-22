@@ -1,8 +1,10 @@
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { addCronJob } from '../cronUtil';
-import { algoliaExportAll, algoliaCleanAll } from '../scripts/algoliaExport';
-import { getSetting } from '../vulcan-lib';
+import { algoliaCleanAll, algoliaExportAll } from '../scripts/algoliaExport';
 
-if (getSetting('algolia.autoSyncIndexes', false)) {
+const algoliaAutoSyncIndexesSetting = new DatabasePublicSetting<boolean>('algolia.autoSyncIndexes', false)
+
+if (algoliaAutoSyncIndexesSetting.get()) {
   addCronJob({
     name: 'updateAlgoliaIndex',
     schedule(parser) {

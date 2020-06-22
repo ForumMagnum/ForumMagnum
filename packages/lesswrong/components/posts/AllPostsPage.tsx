@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { withLocation } from '../../lib/routeUtil';
@@ -9,6 +9,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 
 const styles = theme => ({
   timeframe: {
@@ -30,11 +31,15 @@ export const timeframes = {
   yearly: 'Yearly',
 }
 
+const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>('forum.numberOfWeeks', 4) // Number of weeks to display in the timeframe view
+const forumAllPostsNumMonthsSetting = new DatabasePublicSetting<number>('forum.numberOfMonths', 4) // Number of months to display in the timeframe view
+const forumAllPostsNumYearsSetting = new DatabasePublicSetting<number>('forum.numberOfYears', 4) // Number of years to display in the timeframe view
+
 const timeframeToNumTimeBlocks = {
-  daily: getSetting('forum.numberOfDays'),
-  weekly: getSetting('forum.numberOfWeeks'),
-  monthly: getSetting('forum.numberOfMonths'),
-  yearly: getSetting('forum.numberOfYears'),
+  daily: forumAllPostsNumDaysSetting.get(),
+  weekly: forumAllPostsNumWeeksSetting.get(),
+  monthly: forumAllPostsNumMonthsSetting.get(),
+  yearly: forumAllPostsNumYearsSetting.get(),
 }
 
 export const sortings = {
@@ -136,18 +141,11 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const { showSettings } = this.state
     const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings, HeadTags } = Components
 
-    const currentTimeframe = query.timeframe ||
-      (currentUser && currentUser.allPostsTimeframe) ||
-      'daily'
-    const currentSorting = query.sortedBy ||
-      (currentUser && (currentUser.allPostsSorting)) ||
-      'magic'
-    const currentFilter = query.filter ||
-      (currentUser && currentUser.allPostsFilter) ||
-      'all'
+    const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily'
+    const currentSorting = query.sortedBy    || currentUser?.allPostsSorting   || 'magic'
+    const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all'
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
-      (currentUser && currentUser.allPostsShowLowKarma) ||
-      false
+      currentUser?.allPostsShowLowKarma || false
 
     return (
       <React.Fragment>

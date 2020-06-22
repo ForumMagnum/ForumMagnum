@@ -8,13 +8,15 @@ import * as _ from 'underscore';
 async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
     let rssPageImports: Array<any> = [];
-    let rssFeed = RSSFeeds.findOne({nickname: feedName});
-    if (!rssFeed) {
-      rssFeed = (await newMutation({
+    let maybeRSSFeed = RSSFeeds.findOne({nickname: feedName});
+    if (!maybeRSSFeed) {
+      maybeRSSFeed = (await newMutation({
         collection: RSSFeeds,
         document: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink}
       })).data;
     }
+    if (!maybeRSSFeed) throw Error("Failed to create new rssFeed for rssImport")
+    const rssFeed = maybeRSSFeed
     //eslint-disable-next-line no-console
     console.log(rssFeed);
     for (let i of _.range(1,pages)) {

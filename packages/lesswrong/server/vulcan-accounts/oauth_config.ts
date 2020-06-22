@@ -1,7 +1,8 @@
-import { getSetting } from '../vulcan-lib';
 import { ServiceConfiguration } from 'meteor/service-configuration';
+import { DatabaseServerSetting } from '../databaseSettings';
 
-const services = getSetting<any>('oAuth');
+const oAuthServicesSetting = new DatabaseServerSetting<any>('oAuth', null)
+const services = oAuthServicesSetting.get()
 
 if (services) {
   Object.keys(services).forEach(serviceName => {

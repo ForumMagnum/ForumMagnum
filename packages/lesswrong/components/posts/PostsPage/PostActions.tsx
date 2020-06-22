@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
-import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
 import Users from '../../../lib/collections/users/collection'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
+import { withPostsRead, PostsReadContextType } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -14,9 +15,11 @@ import EditIcon from '@material-ui/icons/Edit'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
+import { withDialog } from '../../common/withDialog';
+import { tagStyle } from '../../tagging/FooterTag';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-
-const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -38,13 +41,16 @@ const styles = theme => ({
   promoteWarning: {
     fontSize: 20,
     marginLeft: 4,
+  },
+  editTags: {
+    ...tagStyle(theme)
   }
 })
 
 interface ExternalProps {
   post: PostsList,
 }
-interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps {
+interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps, PostsReadContextType {
   markAsReadOrUnread: any,
   setAlignmentPostMutation: any,
 }
@@ -52,17 +58,21 @@ interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserP
 class PostActions extends Component<PostActionsProps,{}> {
 
   handleMarkAsRead = () => {
-    this.props.markAsReadOrUnread({
-      postId: this.props.post._id,
+    const {markAsReadOrUnread, post, setPostRead} = this.props;
+    markAsReadOrUnread({
+      postId: post._id,
       isRead: true,
     });
+    setPostRead(post._id, true);
   }
   
   handleMarkAsUnread = () => {
-    this.props.markAsReadOrUnread({
-      postId: this.props.post._id,
+    const {markAsReadOrUnread, post, setPostRead} = this.props;
+    markAsReadOrUnread({
+      postId: post._id,
       isRead: false,
     });
+    setPostRead(post._id, false);
   }
   
   handleMoveToMeta = () => {
@@ -98,7 +108,6 @@ class PostActions extends Component<PostActionsProps,{}> {
       data: {
         draft: false,
         meta: false,
-        curatedDate: null,
         frontpageDate: null
       },
     })
@@ -138,10 +147,23 @@ class PostActions extends Component<PostActionsProps,{}> {
     })
   }
 
+  handleOpenTagDialog = async () => {
+    const { post, openDialog } = this.props
+    openDialog({
+      componentName: "EditTagsDialog",
+      componentProps: {
+        post
+      }
+    });
+  }
+
   render() {
-    const { classes, post, currentUser } = this.props
+    const { classes, post, postsRead, currentUser } = this.props
     const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    if (!post) return null;
     const postAuthor = post.user;
+    
+    const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
     
     return (
       <div className={classes.actions}>
@@ -194,7 +216,14 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
-        { post.isRead
+        { Users.canDo(currentUser, "posts.edit.all") &&
+          <div onClick={this.handleOpenTagDialog}>
+            <MenuItem>
+              <div className={classes.editTags}>Edit Tags</div>
+            </MenuItem>
+          </div>
+        }
+        { isRead
           ? <div onClick={this.handleMarkAsUnread}>
               <MenuItem>
                 Mark as Unread
@@ -214,12 +243,12 @@ class PostActions extends Component<PostActionsProps,{}> {
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
                 <Tooltip placement="left" title={
-                  getSetting('forumType') === 'EAForum' && post.submitToFrontpage ?
+                  forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage ?
                     'user did not select "Moderators may promote to Frontpage" option':''
                 }>
                   <MenuItem>
                     Move to {metaName}
-                    {getSetting('forumType') === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                    {forumTypeSetting.get() === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
                   </MenuItem>
                 </Tooltip>
               </div>
@@ -286,6 +315,7 @@ const PostActionsComponent = registerComponent<ExternalProps>('PostActions', Pos
   styles,
   hocs: [
     withUser,
+    withDialog,
     withUpdate({
       collection: Posts,
       fragmentName: 'PostsList',
@@ -300,7 +330,8 @@ const PostActionsComponent = registerComponent<ExternalProps>('PostActions', Pos
     }),
     withSetAlignmentPost({
       fragmentName: "PostsList"
-    })
+    }),
+    withPostsRead,
   ]
 });
 

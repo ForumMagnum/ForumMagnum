@@ -61,7 +61,7 @@ export class EmailTokenType
 addGraphQLMutation('useEmailToken(token: String): JSON');
 addGraphQLResolvers({
   Mutation: {
-    async useEmailToken(root, {token}, context) {
+    async useEmailToken(root, {token}, context: ResolverContext) {
       try {
         const results = await EmailTokens.find({ token }).fetch();
         if (results.length != 1)
@@ -73,7 +73,6 @@ addGraphQLResolvers({
         
         const tokenType = emailTokenTypesByName[tokenObj.tokenType];
         
-        // @ts-ignore FIXME: usedAt is checked and set correctly, but is missing from the schema
         if (tokenObj.usedAt && !tokenType.reusable)
           throw new Error("This email link has already been used.");
         

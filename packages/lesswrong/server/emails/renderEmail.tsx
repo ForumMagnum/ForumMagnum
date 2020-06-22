@@ -1,21 +1,23 @@
-import React from 'react';
-import { renderToString } from 'react-dom/server';
-import { ApolloProvider, getDataFromTree } from 'react-apollo';
-import Juice from 'juice';
-import { createClient, computeContextFromUser, getSetting, newMutation } from '../vulcan-lib';
-import JssProvider from 'react-jss/lib/JssProvider';
-import { SheetsRegistry } from 'react-jss/lib/jss';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
-import { UserContext } from '../../components/common/withUser';
-import { TimezoneContext } from '../../components/common/withTimezone';
-import Users from '../../lib/collections/users/collection';
-import moment from '../../lib/moment-timezone';
-import LWEvents from '../../lib/collections/lwevents/collection'
-import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
+import Juice from 'juice';
 import { Email } from 'meteor/email';
+import React from 'react';
+import { ApolloProvider, getDataFromTree } from 'react-apollo';
+import { renderToString } from 'react-dom/server';
+import { SheetsRegistry } from 'react-jss/lib/jss';
+import JssProvider from 'react-jss/lib/JssProvider';
+import { TimezoneContext } from '../../components/common/withTimezone';
+import { UserContext } from '../../components/common/withUser';
+import LWEvents from '../../lib/collections/lwevents/collection';
+import Users from '../../lib/collections/users/collection';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import moment from '../../lib/moment-timezone';
+import forumTheme from '../../themes/forumTheme';
+import { DatabaseServerSetting } from '../databaseSettings';
+import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
+import { computeContextFromUser, createClient, newMutation } from '../vulcan-lib';
 
-import forumTheme from '../../themes/forumTheme'
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -107,6 +109,8 @@ function addEmailBoilerplate({ css, title, body })
 //   * While any JSS in withStyles will be included in the email, only a very
 //     limited and inconsistent subset is supported by mail clients
 //
+
+const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 export async function generateEmail({user, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate})
 {
   if (!user) throw new Error("Missing required argument: user");
@@ -164,12 +168,12 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     wordwrap: plainTextWordWrap
   });
   
-  const from = getSetting("defaultEmail", null);
+  const from = defaultEmailSetting.get()
   if (!from) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
   
-  const sitename = getSetting("title", null);
+  const sitename = forumTitleSetting.get();
   if (!sitename) {
     throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
   }
@@ -198,9 +202,11 @@ function validateSheets(sheetsRegistry)
   }
 }
 
+
+const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 export async function sendEmail(renderedEmail)
 {
-  if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {
+  if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line

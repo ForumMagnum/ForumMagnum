@@ -1,5 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from '../../vulcan-lib';
+import Users from "./collection";
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -150,13 +151,11 @@ const schema = {
     order: 20,
     onCreate: ({ document: user }) => {
       // look in a few places for the user email
-      const meteorEmails = Utils.getNestedProperty(user, 'services.meteor-developer.emails');
-      const facebookEmail = Utils.getNestedProperty(user, 'services.facebook.email');
-      const githubEmail = Utils.getNestedProperty(user, 'services.github.email');
-      const googleEmail = Utils.getNestedProperty(user, 'services.google.email');
-      const linkedinEmail = Utils.getNestedProperty(user, 'services.linkedin.emailAddress');
+      const facebookEmail: any = Utils.getNestedProperty(user, 'services.facebook.email');
+      const githubEmail: any = Utils.getNestedProperty(user, 'services.github.email');
+      const googleEmail: any = Utils.getNestedProperty(user, 'services.google.email');
+      const linkedinEmail: any = Utils.getNestedProperty(user, 'services.linkedin.emailAddress');
 
-      if (meteorEmails) return _.findWhere(meteorEmails, { primary: true }).address;
       if (facebookEmail) return facebookEmail;
       if (githubEmail) return githubEmail;
       if (googleEmail) return googleEmail;
@@ -178,29 +177,6 @@ const schema = {
       const displayName = createDisplayName(user);
       const basicSlug = Utils.slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug);
-    },
-  },
-  /**
-  The user's Twitter username
-*/
-  twitterUsername: {
-    type: String,
-    optional: true,
-    control: 'text',
-    canCreate: ['members'],
-    canUpdate: ['members'],
-    canRead: ['guests'],
-    order: 60,
-    resolveAs: {
-      type: 'String',
-      resolver: async (user, args, { Users }) => {
-        return Users.getTwitterName(await Utils.Connectors.get(Users, user._id));
-      },
-    },
-    onInsert: user => {
-      if (user.services && user.services.twitter && user.services.twitter.screenName) {
-        return user.services.twitter.screenName;
-      }
     },
   },
   /**
@@ -241,7 +217,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, { Users }) => {
+      resolver: (user, args, context: ResolverContext) => {
         return Users.getProfileUrl(user, true);
       },
     },
@@ -253,7 +229,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, { Users }) => {
+      resolver: (user, args, context: ResolverContext) => {
         return Users.getProfileUrl(user, false);
       },
     },
@@ -265,7 +241,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, { Users }) => {
+      resolver: (user, args, context: ResolverContext) => {
         return Users.getEditUrl(user, true);
       },
     },

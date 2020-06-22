@@ -1,15 +1,17 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, useCallback } from 'react';
-import { postHighlightStyles } from '../../themes/stylePiping'
+import { answerStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import classNames from 'classnames';
+import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 
 const styles = theme => ({
   postContent: {
-    ...postHighlightStyles(theme),
+    ...answerStyles(theme),
   },
   root: {
     marginBottom: theme.spacing.unit*4,
@@ -93,6 +95,15 @@ const styles = theme => ({
   metaData: {
     textAlign: 'right'
   },
+  promoted: {
+    border: `solid 2px ${theme.palette.lwTertiary.main}`,
+  },
+  metaNotice: {
+    ...commentsItemStyles(theme).metaNotice,
+    ...theme.typography.commentStyle,
+    marginTop: -12,
+    marginBottom: 10
+  },
 })
 
 const Answer = ({ comment, post, classes }: {
@@ -114,7 +125,7 @@ const Answer = ({ comment, post, classes }: {
   const { html = "" } = comment.contents || {}
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
       { comment.deleted ?
         <div className={classes.deletedSection} id={comment._id}>
           <Typography variant="body2" className={classes.deleted}>
@@ -150,6 +161,9 @@ const Answer = ({ comment, post, classes }: {
                   />
                 </span>
               </div>
+              { comment.promotedByUser && <div className={classes.metaNotice}>
+                Promoted by {comment.promotedByUser.displayName}
+              </div>}
               { showEdit ?
                 <Components.CommentsEditForm
                   comment={comment}

@@ -24,10 +24,11 @@ const adminMetadataQuery = gql`query AdminMetadataQuery {
 }`;
 
 const AdminMetadata = ({ classes }) => {
-  const { data: adminMetadata, loading } = useQuery(adminMetadataQuery, { ssr: true });
+  const { data, loading } = useQuery(adminMetadataQuery, { ssr: true });
   if (loading)
     return <Components.Loading/>
   
+  const adminMetadata = data.AdminMetadata;
   let missingIndexes = JSON.parse(adminMetadata.missingIndexes);
   let extraIndexes = JSON.parse(adminMetadata.extraIndexes);
   

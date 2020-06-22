@@ -5,7 +5,7 @@ import Sequences from '../sequences/collection';
 import toDictionary from '../../utils/toDictionary';
 import * as _ from 'underscore';
 
-Collections.getAllPostIDs = async (collectionID) => {
+Collections.getAllPostIDs = async (collectionID: string): Promise<Array<string>> => {
   const books = await Books.find({collectionId: collectionID}).fetch();
   const sequenceIDs = _.flatten(books.map(book=>book.sequenceIds));
   
@@ -26,7 +26,7 @@ Collections.getAllPostIDs = async (collectionID) => {
   return posts;
 };
 
-Collections.getPageUrl = (collection, isAbsolute) => {
+Collections.getPageUrl = (collection: CollectionsPageFragment|DbCollection, isAbsolute?: boolean): string => {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
   return `${prefix}/${collection.slug}`;
 }

@@ -21,7 +21,11 @@ const isLeftClick = (event) => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const PostsSearchHit = ({hit, clickAction, classes}) => {
+const PostsSearchHit = ({hit, clickAction, classes}: {
+  hit: any,
+  clickAction?: any,
+  classes: ClassesType,
+}) => {
   // If clickAction is provided, disable link and replace with Click of the action
   return <div className={classes.root}>
     <Link

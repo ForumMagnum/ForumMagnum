@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
@@ -14,6 +14,8 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { hasEventsSetting } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -57,18 +59,7 @@ const styles = theme => ({
     color: theme.palette.primary.light
   },
   title: {
-    cursor: "pointer",
-    '&:hover $settingsIcon, &:hover $settingsText': {
-      color: theme.palette.grey[800]
-    }
-  },
-  settingsText: {
-    marginLeft: theme.spacing.unit,
-    fontStyle: "italic",
-    display: "inline-block",
-    ...theme.typography.commentStyle,
-    fontSize: "1rem",
-    color: theme.palette.grey[700]
+    cursor: "pointer"
   },
   // Dark Magick
   // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
@@ -108,35 +99,8 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     showSettings: false
   }
 
-  componentDidMount() {
-    const { results } = this.props
-    const document = getUserFromResults(results)
-    if (document) {
-      this.setCanonicalUrl()
-    }
-  }
-
-  componentDidUpdate({results: previousResults}: Readonly<UsersProfileProps>) {
-    const { results } = this.props
-    const oldDocument = getUserFromResults(previousResults)
-    const newDocument = getUserFromResults(results)
-    if (oldDocument?.slug !== newDocument?.slug) {
-      this.setCanonicalUrl()
-    }
-  }
-
-  setCanonicalUrl = () => {
-    const { history, results, slug } = this.props
-    const document = getUserFromResults(results)
-    // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (document && slug !== document.slug) {
-      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
-      history.replace(canonicalUrl);
-    }
-  }
-
   displaySequenceSection = (canEdit, user)  => {
-    if (getSetting('forumType') === 'AlignmentForum') {
+    if (forumTypeSetting.get() === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -151,12 +115,12 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = getSetting('forumType') !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0
-    const userCommentCount = getSetting('forumType') !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = forumTypeSetting.get() !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0
+    const userCommentCount = forumTypeSetting.get() !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { getSetting('forumType') !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
+        { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
           <span className={classes.userMetaInfo}>
             <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Karma">
@@ -165,7 +129,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           </span>
         </Tooltip>}
 
-        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(getSetting('forumType') !== 'AlignmentForum') ? " on alignmentforum.org" : ""}`}>
+        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(forumTypeSetting.get() !== 'AlignmentForum') ? " on alignmentforum.org" : ""}`}>
           <span className={classes.userMetaInfo}>
             <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Alignment Karma">
@@ -197,22 +161,23 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
   render() {
     const { slug, classes, currentUser, loading, results, location } = this.props;
     const { query } = location;
-    const document = getUserFromResults(results)
+    const user = getUserFromResults(results)
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
-        <Components.Loading/>
+        <Loading/>
       </div>
     }
 
-    if (!document || !document._id || document.deleted) {
+    if (!user || !user._id || user.deleted) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
-      return <Components.Error404/>
+      return <Error404/>
     }
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody } = Components
-
-    const user = document;
+    if (user.oldSlugs?.includes(slug)) {
+      return <PermanentRedirect url={Users.getProfileUrlFromSlug(user.slug)} />
+    }
 
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {
@@ -240,13 +205,18 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
+    
+    const username = Users.getDisplayName(user)
+
+    const userPostsTitle = username.slice(-1) === "s" ? `${username}' Posts` :`${username}'s Posts`
+    const userCommentsTitle = username.slice(-1) === "s" ? `${username}' Comments` :`${username}'s Comments`
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <SectionTitle title={Users.getDisplayName(user)}/>
+            <SectionTitle title={username}/>
 
             <SectionFooter>
               { this.renderMeta() }
@@ -263,7 +233,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
+              { currentUser && currentUser._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton>}
               { currentUser && currentUser._id !== user._id && <SubscribeTo
@@ -303,12 +273,12 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               <Components.PostsList2 terms={draftTerms}/>
               <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
+            {hasEventsSetting.get() && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-              <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
+              <SectionTitle title={userPostsTitle}>
                 <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
             </div>
@@ -327,7 +297,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
+              <SectionTitle title={userCommentsTitle} />
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>

@@ -1,6 +1,7 @@
 import { addCallback } from '../../lib/vulcan-lib';
 import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
+import { Posts } from '../../lib/collections/posts/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
@@ -15,6 +16,18 @@ function normalizeTagName(name) {
     return name.substr(1);
   else
     return name;
+}
+
+export async function updatePostDenormalizedTags(postId) {
+  const tagRels: Array<DbTagRel> = await TagRels.find({postId: postId, deleted:false}).fetch();
+  const tagRelDict = {};
+  
+  for (let tagRel of tagRels) {
+    if (tagRel.baseScore > 0)
+      tagRelDict[tagRel.tagId] = tagRel.baseScore;
+  }
+  
+  await Posts.update({_id:postId}, {$set: {tagRelevance: tagRelDict}});
 }
 
 addCallback("tag.create.validate", (validationErrors, { document: tag }) => {
@@ -71,8 +84,22 @@ addCallback("tagRels.new.after", async (tagRel) => {
   // When you add a tag, vote for it as relevant
   var tagCreator = Users.findOne(tagRel.userId);
   const votedTagRel = await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
+  updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel};
 });
+
+function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
+  newDocument: DbTagRel,
+  vote: DbVote
+}) {
+  updatePostDenormalizedTags(tagRel.postId);
+}
+
+addCallback("votes.cancel.sync", voteUpdatePostDenormalizedTags);
+addCallback("votes.smallUpvote.async", voteUpdatePostDenormalizedTags);
+addCallback("votes.bigUpvote.async", voteUpdatePostDenormalizedTags);
+addCallback("votes.smallDownvote.async", voteUpdatePostDenormalizedTags);
+addCallback("votes.bigDownvote.async", voteUpdatePostDenormalizedTags);
 
 addEditableCallbacks({
   collection: Tags,

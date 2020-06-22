@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 /**
  * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
  * This file is licensed under the terms of the MIT License (see LICENSE.md).
@@ -22,14 +23,28 @@ import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
+import Code from '@ckeditor/ckeditor5-basic-styles/src/code';
+import Subscript from '@ckeditor/ckeditor5-basic-styles/src/subscript';
+import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
+import CodeBlock from '@ckeditor/ckeditor5-code-block/src/codeblock';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
 // import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
-import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
+import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
+
+// The following plugin enables real-time collaborative comments.
+// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
+
+// The following plugin enables real-time collaborative track changes and is optional.
+// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
+
+// The following plugin enables users presence list and is optional.
+// You do not need to import it if you do not want to integrate it.
+import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
@@ -38,10 +53,10 @@ import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
-import Watchdog from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-
-// import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
-// current version of MathpreviewPlugin (1.1.3) breaks ckeditor
+import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
+import Mathematics from './ckeditor5-math/math';
+//
+import { CleanStyleTags } from './clean-styles-plugin'
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -88,6 +103,10 @@ const postEditorPlugins = [
 	Italic,
 	Link,
 	List,
+	Code,
+	CodeBlock,
+	Subscript,
+	Superscript,
 	// MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
@@ -97,7 +116,8 @@ const postEditorPlugins = [
 	TableToolbar,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	Mathematics,
+	CleanStyleTags
 ];
 
 PostEditor.builtinPlugins = [
@@ -106,6 +126,7 @@ PostEditor.builtinPlugins = [
 
 PostEditorCollaboration.builtinPlugins = [
 	...postEditorPlugins,
+	RealTimeCollaborativeEditing,
 	RealTimeCollaborativeComments,
 	RealTimeCollaborativeTrackChanges,
 	PresenceList
@@ -116,6 +137,7 @@ const postEditorConfig = {
 		'imageUpload',
 		'insertTable',
 		'horizontalLine',
+		'mathDisplay'
 		// 'mediaEmbed',
 	],
 	toolbar: [
@@ -125,15 +147,18 @@ const postEditorConfig = {
 		'italic',
 		'strikethrough',
 		'|',
+		'alignment',
+		'|',
 		'link',
 		'|',
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
+		'codeBlock',
 		'|',
 		'trackChanges',
-		// 'mathpreview',
 		'comment',
+		'math'
 	],
 	image: {
 		toolbar: [
@@ -150,6 +175,12 @@ const postEditorConfig = {
 		],
 		tableToolbar: [ 'comment' ]
 	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'span',
+		forceOutputType: true,
+		enablePreview: true
+	}
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
@@ -183,13 +214,15 @@ CommentEditor.builtinPlugins = [
 	Link,
 	List,
 	Paragraph,
+	CodeBlock,
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
 	Table,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	Mathematics,
+	CleanStyleTags
 ];
 
 CommentEditor.defaultConfig = {
@@ -206,12 +239,18 @@ CommentEditor.defaultConfig = {
 		'bulletedList',
 		'numberedList',
 		'|',
-		'mathpreview'
+		'math'
 	],
 	image: {
 		toolbar: [
 			'imageTextAlternative'
 		]
+	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'span',
+		forceOutputType: true,
+		enablePreview: true
 	},
 	heading: headingOptions,
 	table: {
@@ -224,4 +263,4 @@ CommentEditor.defaultConfig = {
 	},
 };
 
-export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, Watchdog };
+export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, EditorWatchdog };

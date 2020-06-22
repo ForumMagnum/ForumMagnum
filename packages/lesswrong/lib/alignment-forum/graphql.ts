@@ -6,10 +6,11 @@ GraphQL config
 
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../vulcan-lib';
 import Users from "../collections/users/collection";
+import { accessFilterSingle } from '../utils/schemaUtils';
 
 const alignmentCommentResolvers = {
   Mutation: {
-    alignmentComment(root, { commentId, af }, context) {
+    async alignmentComment(root, { commentId, af }, context: ResolverContext) {
       const comment = context.Comments.findOne(commentId)
 
       if (Users.canDo(context.currentUser, "comments.alignment.move.all")) {
@@ -18,7 +19,7 @@ const alignmentCommentResolvers = {
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
         runCallbacksAsync('comments.alignment.async', updatedComment, comment, context);
-        return context.Users.restrictViewableFields(context.currentUser, context.Comments, updatedComment);
+        return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
       } else {
         throw new Error({id: `app.user_cannot_edit_comment_alignment_forum_status`} as any);
       }
@@ -32,7 +33,7 @@ addGraphQLMutation('alignmentComment(commentId: String, af: Boolean): Comment');
 
 const alignmentPostResolvers = {
   Mutation: {
-    alignmentPost(root, { postId, af }, context) {
+    async alignmentPost(root, { postId, af }, context: ResolverContext) {
       const post = context.Posts.findOne(postId)
 
       if (Users.canMakeAlignmentPost(context.currentUser, post)) {
@@ -41,7 +42,7 @@ const alignmentPostResolvers = {
         context.Posts.update({_id: postId}, modifier);
         const updatedPost = context.Posts.findOne(postId)
         runCallbacksAsync('posts.alignment.async', updatedPost, post, context);
-        return context.Users.restrictViewableFields(context.currentUser, context.Posts, updatedPost);
+        return await accessFilterSingle(context.currentUser, context.Posts, updatedPost, context);
       } else {
         throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);
       }
@@ -55,7 +56,7 @@ addGraphQLMutation('alignmentPost(postId: String, af: Boolean): Post');
 
 // const suggestAlignmentPostResolvers = {
 //   Mutation: {
-//     suggestAlignmentPost(root, { postId, suggestForAlignmentUserIds }, context) {
+//     suggestAlignmentPost(root, { postId, suggestForAlignmentUserIds }, context: ResolverContext) {
 //       const post = context.Posts.findOne(postId)
 //
 //       if (Users.canDo(context.currentUser, "posts.alignment.new")) {

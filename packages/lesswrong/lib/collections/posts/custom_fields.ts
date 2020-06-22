@@ -1,14 +1,17 @@
-import { Posts } from './collection';
-import Users from "../users/collection";
-import { makeEditable } from '../../editor/make_editable'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, accessFilterSingle, denormalizedField, denormalizedCountOfReferences, googleLocationToMongoLocation } from '../../utils/schemaUtils'
-import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { Utils, getSetting } from '../../vulcan-lib';
 import GraphQLJSON from 'graphql-type-json';
-import { schemaDefaultValue } from '../../collectionUtils';
-import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { schemaDefaultValue } from '../../collectionUtils';
+import { makeEditable } from '../../editor/make_editable';
+import { forumTypeSetting } from '../../instanceSettings';
+import { getWithLoader } from '../../loaders';
+import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
+import { Utils } from '../../vulcan-lib';
+import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
+import Users from "../users/collection";
+import { Posts } from './collection';
+import { Sequences } from '../sequences/collection';
+import Sentry from '@sentry/core';
 
 export const formGroups = {
   default: {
@@ -159,7 +162,8 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
 
       const readStatus = await getWithLoader(ReadStatuses,
@@ -175,7 +179,8 @@ addFieldsDict(Posts, {
   isRead: resolverOnlyField({
     type: Boolean,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+    resolver: async (post, args, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;
       
       const readStatus = await getWithLoader(ReadStatuses,
@@ -229,7 +234,7 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: async (post, args, context) => {
+      resolver: async (post, args, context: ResolverContext) => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
@@ -347,7 +352,7 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post, args, context) => {
+      resolver: (post, args, context: ResolverContext) => {
         if (!post.canonicalCollectionSlug) return null;
         return context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
@@ -408,23 +413,24 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+      const { currentUser, Posts } = context;
       if (sequenceId) {
         const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
         if (nextPostID) {
           const nextPost = await Posts.loader.load(nextPostID);
-          return accessFilterSingle(currentUser, Posts, nextPost);
+          return await accessFilterSingle(currentUser, Posts, nextPost, context);
         }
       }
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
-        return accessFilterSingle(currentUser, Posts, nextPost);
+        return await accessFilterSingle(currentUser, Posts, nextPost, context);
       }
       if(post.canonicalSequenceId) {
         const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
         if (!nextPostID) return null;
         const nextPost = await Posts.loader.load(nextPostID);
-        return accessFilterSingle(currentUser, Posts, nextPost);
+        return await accessFilterSingle(currentUser, Posts, nextPost, context);
       }
 
       return null;
@@ -439,23 +445,24 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+      const { currentUser, Posts } = context;
       if (sequenceId) {
         const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
         if (prevPostID) {
           const prevPost = await Posts.loader.load(prevPostID);
-          return accessFilterSingle(currentUser, Posts, prevPost);
+          return await accessFilterSingle(currentUser, Posts, prevPost, context);
         }
       }
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
-        return accessFilterSingle(currentUser, Posts, prevPost);
+        return await accessFilterSingle(currentUser, Posts, prevPost, context);
       }
       if(post.canonicalSequenceId) {
         const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
         if (!prevPostID) return null;
         const prevPost = await Posts.loader.load(prevPostID);
-        return accessFilterSingle(currentUser, Posts, prevPost);
+        return await accessFilterSingle(currentUser, Posts, prevPost, context);
       }
 
       return null;
@@ -472,15 +479,16 @@ addFieldsDict(Posts, {
     graphQLtype: "Sequence",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, { currentUser, Sequences }) => {
+    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+      const { currentUser, Sequences: SequencesContext } = context;
       let sequence = null;
       if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
-        sequence = await Sequences.loader.load(sequenceId);
+        sequence = await SequencesContext.loader.load(sequenceId);
       } else if (post.canonicalSequenceId) {
-        sequence = await Sequences.loader.load(post.canonicalSequenceId);
+        sequence = await SequencesContext.loader.load(post.canonicalSequenceId);
       }
 
-      return accessFilterSingle(currentUser, Sequences, sequence);
+      return await accessFilterSingle(currentUser, Sequences, sequence, context);
     }
   }),
 
@@ -608,10 +616,8 @@ addFieldsDict(Posts, {
     type: Array,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    //insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
-    //editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    insertableBy: [Users.canModeratePost],
+    editableBy: [Users.canModeratePost],
     hidden: true,
     optional: true,
     label: "Users banned from commenting on this post",
@@ -912,8 +918,14 @@ addFieldsDict(Posts, {
     type: Object,
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
-    resolver: async (document, args, { currentUser }) => {
-      return await Utils.getTableOfContentsData({document, version: null, currentUser});
+    resolver: async (document, args, context: ResolverContext) => {
+      const { currentUser } = context;
+      try {
+        return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
+      } catch(e) {
+        Sentry.captureException(e);
+        return null;
+      }
     },
   }),
 
@@ -922,8 +934,14 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
     graphqlArguments: 'version: String',
-    resolver: async (document, { version=null }, { currentUser }) => {
-      return await Utils.getTableOfContentsData({document, version, currentUser});
+    resolver: async (document, { version=null }, context: ResolverContext) => {
+      const { currentUser } = context;
+      try {
+        return await Utils.getTableOfContentsData({document, version, currentUser, context});
+      } catch(e) {
+        Sentry.captureException(e);
+        return null;
+      }
     },
   }),
 
@@ -935,7 +953,8 @@ addFieldsDict(Posts, {
     canRead: ['guests'],
     resolveAs: {
       type: 'Boolean',
-      resolver: async (post, args, { LWEvents, currentUser }) => {
+      resolver: async (post, args, context: ResolverContext) => {
+        const { LWEvents, currentUser } = context;
         if(currentUser){
           const query = {
             name:'toggled-user-moderation-guidelines',
@@ -948,7 +967,7 @@ addFieldsDict(Posts, {
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
-            return !!(author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
+            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
           }
         } else {
           return false
@@ -989,7 +1008,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['admins', Posts.canEditHideCommentKarma],
     editableBy: ['admins', Posts.canEditHideCommentKarma],
-    hidden: getSetting('forumType') !== 'EAForum',
+    hidden: forumTypeSetting.get() !== 'EAForum',
     denormalized: true,
     ...schemaDefaultValue(false),
   },
@@ -1015,9 +1034,10 @@ addFieldsDict(Posts, {
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, { currentUser, Comments }) => {
+    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
       const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
-      const comments = Comments.find({
+      const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         postId: post._id,
         score: {$gt:0},
@@ -1028,7 +1048,7 @@ addFieldsDict(Posts, {
         limit: commentsLimit,
         sort: {postedAt:-1}
       }).fetch();
-      return accessFilterMultiple(currentUser, Comments, comments);
+      return await accessFilterMultiple(currentUser, Comments, comments, context);
     }
   }),
   'recentComments.$': {

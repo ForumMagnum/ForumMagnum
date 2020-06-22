@@ -153,7 +153,7 @@ describe('Voting', async function() {
         endDate: new Date("1980-01-01T13:40:00Z"),
       });
       
-      karmaChanges.totalChange.should.equal(1);
+      (karmaChanges.totalChange as any).should.equal(1);
       
       karmaChanges.posts.length.should.equal(1);
       karmaChanges.posts[0].should.deep.equal({

@@ -49,8 +49,9 @@ const SunshineSidebar = ({classes}) => {
     <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
       {Users.canDo(currentUser, 'posts.moderate.all') && <div>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30}}/>
+        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
         <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         
         {/* alignmentForumAdmins see AF content above the fold */}
         { currentUser?.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
@@ -71,9 +72,9 @@ const SunshineSidebar = ({classes}) => {
         </div>}
 
       { showSidebar && <div>
-        {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}}/>
-        
+        {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}        
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} />
+
         {/* regular admins (but not sunshines) see AF content below the fold */}
         { Users.isAdmin(currentUser) && <div>
           <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>

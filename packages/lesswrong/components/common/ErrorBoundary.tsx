@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/core';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode,

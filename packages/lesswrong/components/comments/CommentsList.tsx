@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
-import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
@@ -26,7 +25,7 @@ interface ExternalProps {
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
   highlightDate?: Date,
-  post: PostsList,
+  post: PostsBase,
   postPage?: boolean,
   condensed?: boolean,
   startThreadTruncated?: boolean,
@@ -71,8 +70,11 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
       return true;
     }
 
-    if(this.props.post==null || nextProps.post==null || this.props.post._id != nextProps.post._id ||
-      (this.props.post.contents && this.props.post.contents.version !== nextProps.post.contents && nextProps.post.contents.version))
+    if ((this.props.post==null) != (nextProps.post==null))
+      return true;
+    if (this.props.post && this.props.post._id != nextProps.post._id)
+      return true;
+    if ((this.props.post as any)?.contents?.version != (nextProps.post as any)?.contents?.version)
       return true;
 
     if(this.commentTreesDiffer(this.props.comments, nextProps.comments))

@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../lib/vulcan-lib';
+import { Components, registerComponent } from '../lib/vulcan-lib';
 import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import Users from '../lib/collections/users/collection';
@@ -21,8 +21,11 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
-const googleTagManagerId = getSetting('googleTagManager.apiKey')
+import { DatabasePublicSetting, googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
+import { forumTypeSetting } from '../lib/instanceSettings';
+
+const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
+const logRocketSampleDensitySetting = new DatabasePublicSetting<number>('logRocket.sampleDensity', 5)
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
@@ -161,7 +164,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
   initializeLogRocket = () => {
     const { currentUser } = this.props
-    const logRocketKey = getSetting<string|null>('logRocket.apiKey')
+    const logRocketKey = logRocketApiKeySetting.get()
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
       if (currentUser) {
@@ -172,7 +175,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       // If the user is not logged in, only track 1/5 of the sessions
       const clientId = this.getUniqueClientId()
       const hash = hashCode(clientId)
-      if (hash % getSetting<number>('logRocket.sampleDensity') === 0) {
+      if (hash % logRocketSampleDensitySetting.get() === 0) {
         LogRocket.init(logRocketKey)
       }
     }
@@ -200,7 +203,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         return <div id="intercome-outer-frame">
           <Components.ErrorBoundary>
             <Intercom
-              appID={intercomAppId}
+              appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
               email={currentUser.email}
               name={currentUser.displayName}/>
@@ -209,7 +212,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       } else if (!currentUser) {
         return <div id="intercome-outer-frame">
             <Components.ErrorBoundary>
-              <Intercom appID={intercomAppId}/>
+              <Intercom appID={intercomAppIdSetting.get()}/>
             </Components.ErrorBoundary>
           </div>
       } else {
@@ -223,7 +226,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
     const standaloneNavigation = !location.currentRoute ||
-      standaloneNavMenuRouteNames[getSetting<string>('forumType')]
+      standaloneNavMenuRouteNames[forumTypeSetting.get()]
         .includes(location.currentRoute.name)
     
     return (
@@ -239,7 +242,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         }
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <CssBaseline />
@@ -264,7 +267,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               {showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
-              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
               <Components.Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}

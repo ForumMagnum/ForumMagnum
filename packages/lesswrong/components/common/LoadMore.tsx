@@ -20,15 +20,23 @@ const styles = theme => ({
 })
 
 
-const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, loading=false, hidden=false }: {
+// Load More button. The simplest way to use this is to take `loadMoreProps`
+// from the return value of `useMulti` and spread it into this component's
+// props.
+const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hidden=false, classes }: {
+  // loadMore: Callback when clicked.
   loadMore: any,
+  // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,
-  classes: ClassesType,
+  // className: If provided, replaces the root style (default typography).
+  className?: string|null|undefined,
+  // disabled: If true, this is grayed out (eg because everything's already loaded).
   disabled?: boolean,
   networkStatus?: any,
   loading?: boolean,
   hidden?: boolean,
+  classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking()
 
@@ -49,11 +57,11 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
 
   return (
     <a
-      className={classNames(classes.root, {[classes.disabled]: disabled})}
+      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled})}
       href="#"
       onClick={handleClickLoadMore}
     >
-      Load More {totalCount && <span> ({count}/{totalCount})</span>}
+      Load More {totalCount ? <span> ({count}/{totalCount})</span> : ""}
     </a>
   )
 }

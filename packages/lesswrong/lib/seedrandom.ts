@@ -27,10 +27,10 @@
 function Alea(seed: string) {
   // @ts-ignore
   var me = this,
-      mash = Mash();
+      mash = getMash();
 
   me.next = function() {
-    var t = 2091639 * me.s0 + me.c * 2.3283064365386963e-10; // 2^-32
+    var t = (2091639 * me.s0) + (me.c * 2.3283064365386963e-10); // 2^-32
     me.s0 = me.s1;
     me.s1 = me.s2;
     return me.s2 = t - (me.c = t | 0);
@@ -62,13 +62,13 @@ function impl(seed: string) {
       prng = xg.next;
   prng.int32 = function() { return (xg.next() * 0x100000000) | 0; }
   prng.double = function() {
-    return prng() + (prng() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
+    return prng() + ((prng() * 0x200000 | 0) * 1.1102230246251565e-16); // 2^-53
   };
   prng.quick = prng;
   return prng;
 }
 
-function Mash() {
+function getMash() {
   var n = 0xefc8249d;
 
   var mash = function(data: string): number {

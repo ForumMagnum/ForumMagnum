@@ -2,12 +2,8 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
-import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../../common/withUser';
-import Users from '../../../lib/collections/users/collection';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
 const styles = theme => ({
   icon: {
@@ -22,20 +18,22 @@ const styles = theme => ({
   }
 })
 
-const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}: {
-  children?: React.ReactNode,
+const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
   classes: ClassesType,
   className?: string,
   comment: CommentsList,
-  post: PostsList,
+  post: PostsMinimumInfo,
   showEdit: ()=>void,
   icon?: any,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
+  
+  // Render menu-contents if the menu has ever been opened (keep rendering
+  // contents when closed after open, because of closing animation).
+  const [everOpened, setEverOpened] = useState(false);
+  
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
-  
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment } = Components
   
   if (!currentUser) return null
   
@@ -44,6 +42,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
       <span onClick={event => {
         captureEvent("commentMenuClicked", {open: true})
         setAnchorEl(event.currentTarget)
+        setEverOpened(true);
       }}>
         {icon ? icon : <MoreVertIcon
           className={classes.icon}/>}
@@ -56,42 +55,12 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
       >
-        <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
-        {comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
-          <MenuItem>
-            <SubscribeTo document={post} showIcon
-              subscriptionType={subscriptionTypes.newShortform}
-              subscribeMessage={`Subscribe to ${post.title}`}
-              unsubscribeMessage={`Unsubscribe from ${post.title}`}
-            />
-          </MenuItem>
-        }
-        <MenuItem>
-          <SubscribeTo document={comment} showIcon
-            subscribeMessage="Subscribe to comment replies"
-            unsubscribeMessage="Unsubscribe from comment replies"
-          />
-        </MenuItem>
-        {comment.user?._id && (comment.user._id !== currentUser._id) &&
-          <MenuItem>
-            <SubscribeTo document={comment.user} showIcon
-              subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(comment.user)}
-              unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(comment.user)}
-            />
-          </MenuItem>
-        }
-        <ReportCommentMenuItem comment={comment}/>
-        <MoveToAlignmentMenuItem comment={comment} post={post}/>
-        <SuggestAlignmentMenuItem comment={comment} post={post}/>
-        { Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post) && <Divider />}
-        <MoveToAnswersMenuItem comment={comment} post={post}/>
-        <DeleteCommentMenuItem comment={comment} post={post}/>
-        <RetractCommentMenuItem comment={comment}/>
-        <BanUserFromPostMenuItem comment={comment} post={post}/>
-        <BanUserFromAllPostsMenuItem comment={comment} post={post}/>
-        <BanUserFromAllPersonalPostsMenuItem comment={comment} post={post}/>
-        <ToggleIsModeratorComment comment={comment}/>
-        {children}
+        {everOpened && <Components.CommentActions
+          currentUser={currentUser}
+          comment={comment}
+          post={post}
+          showEdit={showEdit}
+        />}
       </Menu>
     </span>
   )

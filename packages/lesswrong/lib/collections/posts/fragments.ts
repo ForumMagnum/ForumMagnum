@@ -3,12 +3,22 @@ import { registerFragment } from '../../vulcan-lib';
 
 
 registerFragment(`
-  fragment PostsBase on Post {
-    # Core fields
+  fragment PostsMinimumInfo on Post {
     _id
-    title
-    url
     slug
+    title
+    draft
+    hideCommentKarma
+    af
+  }
+`);
+
+registerFragment(`
+  fragment PostsBase on Post {
+    ...PostsMinimumInfo
+    
+    # Core fields
+    url
     postedAt
     createdAt
     modifiedAt
@@ -32,6 +42,7 @@ registerFragment(`
     lastVisitedAt
     isRead
     lastCommentedAt
+    lastCommentPromotedAt
     canonicalCollectionSlug
     curatedDate
     commentsLocked
@@ -67,7 +78,6 @@ registerFragment(`
     authorIsUnreviewed
 
     # Alignment Forum
-    af
     afDate
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
@@ -83,6 +93,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     canonicalSource
+    noIndex
 
     shareWithUsers
     
@@ -92,6 +103,9 @@ registerFragment(`
     group {
       _id
       name
+    }
+    bestAnswer {
+      ...CommentsList
     }
   }
 `);
@@ -128,8 +142,21 @@ registerFragment(`
       version
       html
     }
+
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `);
+
+registerFragment(`
+  fragment PostsListTag on Post {
+    ...PostsList
+    tagRel(tagId: $tagId) {
+      ...WithVoteTagRel
+    }
+  }
+`)
 
 registerFragment(`
   fragment PostsDetails on Post {
@@ -181,8 +208,7 @@ registerFragment(`
       _id
       sourcePostId
       sourcePost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }
@@ -191,8 +217,7 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }
@@ -211,8 +236,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -227,8 +251,7 @@ registerFragment(`
       ...RevisionEdit
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -238,6 +261,9 @@ registerFragment(`
     ...PostsRevision
     ...PostSequenceNavigation
     
+    tags {
+      ...TagPreviewFragment
+    }
     tableOfContentsRevision(version: $version)
   }
 `)
@@ -289,12 +315,16 @@ registerFragment(`
     contents {
       ...RevisionDisplay
     }
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `)
 
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    coauthorUserIds
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -321,12 +351,10 @@ registerFragment(`
   fragment PostsRevisionsList on Post {
     _id
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
-
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
@@ -346,5 +374,24 @@ registerFragment(`
     slug
     _id
     bannedUserIds
+  }
+`)
+
+registerFragment(`
+  fragment SunshinePostsList on Post {
+    ...PostsWithNavigation
+    
+    user {
+      ...UsersMinimumInfo
+      
+      # Author moderation info
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
+      
+      moderationGuidelines {
+        html
+      }
+    }
   }
 `)

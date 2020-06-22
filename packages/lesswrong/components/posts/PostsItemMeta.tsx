@@ -1,9 +1,10 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent} from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   read: {
@@ -28,12 +29,12 @@ const PostsItemMeta = ({post, read, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { wordCount = 0 } = post.contents || {}
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
-  const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
   const { MetaInfo, FormatDate, PostsStats, PostsUserAndCoauthors, LWTooltip } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
-      <MetaInfo>
+      {!post.shortform && <MetaInfo>
         <LWTooltip title={<div>
           This post has { baseScore || 0 } karma<br/>
           ({ post.voteCount} votes)
@@ -42,7 +43,7 @@ const PostsItemMeta = ({post, read, classes}: {
             { baseScore || 0 }
           </span>
         </LWTooltip>
-      </MetaInfo>
+      </MetaInfo>}
 
       { post.isEvent && <MetaInfo>
         {post.startTime

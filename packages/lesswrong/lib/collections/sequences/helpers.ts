@@ -13,14 +13,14 @@ Sequences.getPageUrl = function(sequence, isAbsolute = false){
   return `${prefix}/s/${sequence._id}`;
 };
 
-Sequences.getAllPostIDs = async (sequenceId) => {
+Sequences.getAllPostIDs = async (sequenceId: string): Promise<Array<string>> => {
   const chapters = await Chapters.find({sequenceId: sequenceId}, {sort: {number: 1}}).fetch()
   let allPostIds = _.flatten(_.pluck(chapters, 'postIds'))
   const validPostIds = _.filter(allPostIds, postId=>!!postId);
   return validPostIds;
 }
 
-Sequences.getAllPosts = async (sequenceId) => {
+Sequences.getAllPosts = async (sequenceId: string): Promise<Array<DbPost>> => {
   // Get the set of post IDs in the sequence (by joining against the Chapters
   // table), sorted in reading order
   const allPostIds = await Sequences.getAllPostIDs(sequenceId);
@@ -37,7 +37,7 @@ Sequences.getAllPosts = async (sequenceId) => {
 // next post in the sequence, or null if it was the last post. Does not handle
 // cross-sequence boundaries. If the given post ID is not in the sequence,
 // returns null.
-Sequences.getNextPostID = async function(sequenceId, postId) {
+Sequences.getNextPostID = async function(sequenceId: string, postId: string): Promise<string|null> {
   const postIDs = await Sequences.getAllPostIDs(sequenceId);
   const postIndex = _.indexOf(postIDs, postId);
   
@@ -57,7 +57,7 @@ Sequences.getNextPostID = async function(sequenceId, postId) {
 // previous post in the sequence, or null if it was the first post. Does not
 // handle cross-sequence boundaries. If the given post ID is not in the
 // sequence, returns null.
-Sequences.getPrevPostID = async function(sequenceId, postId) {
+Sequences.getPrevPostID = async function(sequenceId: string, postId: string): Promise<string|null> {
   const postIDs = await Sequences.getAllPostIDs(sequenceId);
   const postIndex = _.indexOf(postIDs, postId);
   
@@ -73,7 +73,7 @@ Sequences.getPrevPostID = async function(sequenceId, postId) {
   }
 }
 
-Sequences.sequenceContainsPost = async function(sequenceId, postId) {
+Sequences.sequenceContainsPost = async function(sequenceId: string, postId: string): Promise<boolean> {
   const postIDs = await Sequences.getAllPostIDs(sequenceId);
   const postIndex = _.indexOf(postIDs, postId);
   return postIndex >= 0;

@@ -6,12 +6,16 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 
 export const commentMutationOptions = {
   newCheck: (user, document) => {
-    if (!user || !document) return false;
+    if (!user) return false;
+
+    if (!document || !document.postId) return Users.canDo(user, 'comments.new')
     const post = Posts.findOne(document.postId)
+    if (!post) return true
 
     if (!Users.isAllowedToComment(user, post)) {
       return Users.canDo(user, `posts.moderate.all`)
     }
+
     return Users.canDo(user, 'comments.new')
   },
 
@@ -32,20 +36,20 @@ export const commentMutationOptions = {
 
 interface ExtendedCommentsCollection extends CommentsCollection {
   // Functions in lib/collections/comments/helpers.ts
-  getAuthorName: any
-  getPageUrl: any
-  getPageUrlFromIds: any
-  getRSSUrl: any
-  defaultToAlignment: any
-  getDefaultView: any
-  getKarma: any
+  getAuthorName: (comment: DbComment) => string
+  getPageUrl: (comment: CommentsList|DbComment, isAbsolute?: boolean) => string
+  getPageUrlFromIds: (args: { postId: string, postSlug: string, commentId: string, permalink?: boolean, isAbsolute?: boolean }) => string
+  getRSSUrl: (comment: HasIdType, isAbsolute?: boolean) => string
+  defaultToAlignment: (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList) => boolean
+  getDefaultView: (post: PostsDetails|DbPost, currentUser: UsersCurrent|null) => string
+  getKarma: (comment: CommentsList|DbComment) => number
   
   // Functions in lib/alignment-forum/comments/helpers.ts
   suggestForAlignment: any
   unSuggestForAlignment: any
   
   // Functions in server/search/utils.ts
-  toAlgolia: any
+  toAlgolia: (comment: DbComment) => Array<Record<string,any>>|null
 }
 
 export const Comments: ExtendedCommentsCollection = createCollection({
@@ -56,7 +60,7 @@ export const Comments: ExtendedCommentsCollection = createCollection({
   mutations: getDefaultMutations('Comments', commentMutationOptions),
 });
 
-Comments.checkAccess = (currentUser, comment) => {
+Comments.checkAccess = async (currentUser: DbUser|null, comment: DbComment, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser) || Users.owns(currentUser, comment)) { // admins can always see everything, users can always see their own posts
     return true;
   } else if (comment.isDeleted) {

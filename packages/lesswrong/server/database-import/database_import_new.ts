@@ -96,21 +96,22 @@ Vulcan.postgresImport = async () => {
   let rawCommentData = await database.any('SELECT thing_id, key, value from reddit_data_comment', [true]);
   let rawCommentMetadata = await database.any('SELECT thing_id, ups, downs, deleted, spam, date from reddit_thing_comment', [true]);
   // Process comment data
-  let commentData = groupBy(rawCommentData, (row) => row.thing_id);
+  let commentData: any = groupBy(rawCommentData, (row) => row.thing_id);
   commentData = mapValues(commentData, keyValueArraytoObject);
   // Process post metadata
-  let commentMetaData = groupBy(rawCommentMetadata, (row) => row.thing_id);
+  let commentMetaData: any = groupBy(rawCommentMetadata, (row) => row.thing_id);
   commentMetaData = mapValues(commentMetaData, (v) => pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'date'));
   // Merge data
   commentData = deepObjectExtend(commentData, commentMetaData);
   // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
+  // @ts-ignore
   commentData = mapValues(commentData,
     (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
   );
 
   let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
-  commentData = _.map(commentData, (comment, id) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
+  commentData = _.map(commentData, (comment: any, id: any) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
 
   //eslint-disable-next-line no-console
   console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
@@ -164,7 +165,7 @@ const deepObjectExtend = (target, source) => {
 }
 
 const upsertProcessedPosts = async (posts, postMap) => {
-  const postUpdates = _.map(posts, (post) => {
+  const postUpdates = _.map(posts, (post: any) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
       let set: any = {legacyData: post.legacyData};
@@ -192,10 +193,10 @@ const upsertProcessedPosts = async (posts, postMap) => {
 const upsertProcessedUsers = async (users, userMap) => {
   let userCounter = 0;
   // We first find all the users for which we already have an existing user in the DB
-  const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
+  const usersToUpdate = _.filter(users, (user: any) => userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
   //console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
-  const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
+  const usersToInsert = _.filter(users, (user: any) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
   //console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
   if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
@@ -267,7 +268,7 @@ const upsertProcessedComments = async (comments, commentMap) => {
   let postUpdates: Array<any> = [];
   let userUpdates: Array<any> = [];
   let commentUpdates: Array<any> = [];
-  _.map(comments, (comment) => {
+  _.map(comments, (comment: any) => {
     const existingComment = commentMap.get(comment.legacyId);
     if (existingComment) {
       let set: any = {legacyData: comment.legacyData, parentCommentId: comment.parentCommentId, topLevelCommentId: comment.topLevelCommentId};

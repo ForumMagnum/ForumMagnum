@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -35,7 +36,7 @@ const ShortformSubmitForm = ({ classes, successCallback}) => {
         successCallback={successCallback}
         type="comment"
         formProps={{
-          editorHintText: forumHintText[getSetting('forumType', 'LessWrong')]
+          editorHintText: forumHintText[forumTypeSetting.get()]
         }}
       />
     </div>

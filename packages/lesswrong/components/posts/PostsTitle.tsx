@@ -21,7 +21,7 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     alignItems: "center",
     fontSize: "1.3rem",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
@@ -52,8 +52,8 @@ const styles = theme => ({
     opacity: 1,
     color: "rgba(0,0,0,.75)",
   },
-  hideSmDown: {
-    [theme.breakpoints.down('sm')]: {
+  hideSmDown: { // TODO FIX NAME
+    [theme.breakpoints.down('xs')]: {
       display: "none",
     }
   },
@@ -88,46 +88,37 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
   const shared = post.draft && (post.userId !== currentUser?._id)
 
-  const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
+  // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = pathname !== "/community"
 
   const url = postLink || Posts.getPageUrl(post)
 
-  const title = <span className={classNames(
-      classes.root,
-      {
-        [classes.read]: read,
-        [classes.wrap]: wrap,
-        [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
-        [classes.adminRead]: read && userHasBoldPostItems(currentUser),
-      }
-    )}>
+  const title = <span>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
     {shared && <span className={classes.tag}>[Shared]</span>}
 
-    {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
-
-    {post.url && showLinkTag && <span className={classes.tag}>[Link]</span>}
-
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
     <span>{post.title}</span>
-
-    {showIcons && <span className={classes.hideSmDown}>
-      <PostsItemIcons post={post}/>
-    </span>}
   </span>
 
-  if (isLink) {
-    return <Link to={url}>
-      {title}
-    </Link>
-  } else {
-    return <span>{title}</span>
-  }
+  return (
+    <span className={classNames(classes.root, {
+      [classes.read]: read,
+      [classes.wrap]: wrap,
+      [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
+      [classes.adminRead]: read && userHasBoldPostItems(currentUser),
+    })}>
+      {isLink ? <Link to={url}>{title}</Link> : title }
+      {showIcons && <span className={classes.hideSmDown}>
+        <PostsItemIcons post={post}/>
+      </span>}
+    </span>
+  )
+
 }
 
 const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});

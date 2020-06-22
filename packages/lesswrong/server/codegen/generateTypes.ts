@@ -11,7 +11,9 @@ export function generateTypes(repoRoot?: string) {
     } else {
       // If repoRoot is not provided, it means we were invoked from meteor shell
       // for debugging, and we should output to console.log instead of to files
+      // eslint-disable-next-line no-console
       console.log(`======== ${path} ========`);
+      // eslint-disable-next-line no-console
       console.log(contents);
     }
   }
@@ -20,6 +22,7 @@ export function generateTypes(repoRoot?: string) {
     writeFile(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeFile(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
   } catch(e) {
+    // eslint-disable-next-line no-console
     console.error(e);
   }
 }

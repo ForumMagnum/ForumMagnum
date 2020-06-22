@@ -17,18 +17,18 @@ import * as _ from 'underscore';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id, projection=undefined)
+export async function getWithLoader<T extends DbObject>(collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: string, id: string, projection:any=undefined): Promise<Array<T>>
 {
   if (!collection.extraLoaders) {
     collection.extraLoaders = {};
   }
   if (!collection.extraLoaders[loaderName]) {
-    collection.extraLoaders[loaderName] = new DataLoader(async docIDs => {
+    collection.extraLoaders[loaderName] = new DataLoader(async (docIDs: Array<string>) => {
       let query = {
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults = await Utils.Connectors.find(collection, query, projection);
+      const queryResults: Array<T> = await Utils.Connectors.find(collection, query, projection);
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {
@@ -39,7 +39,7 @@ export async function getWithLoader(collection, loaderName, baseQuery={}, groupB
   return await collection.extraLoaders[loaderName].load(id);
 }
 
-export async function getWithCustomLoader(collection, loaderName, id, idsToResults)
+export async function getWithCustomLoader<T extends DbObject, ID>(collection: CollectionBase<T>, loaderName: string, id: ID, idsToResults: (ids: Array<ID>)=>Promise<Array<T>>): Promise<Array<T>>
 {
   if (!collection.extraLoaders[loaderName]) {
     collection.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });

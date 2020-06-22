@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import classNames from 'classnames'
@@ -6,11 +6,12 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Users from '../../lib/collections/users/collection';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
-
+import Tooltip from '@material-ui/core/Tooltip';
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage'
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const FILTERS_ALL = {
   "AlignmentForum": {
@@ -72,7 +73,7 @@ const FILTERS_ALL = {
     },
   }
 }
-const FILTERS = FILTERS_ALL[getSetting<string>('forumType')]
+const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
 
 const styles = theme => ({
   root: {
@@ -112,6 +113,7 @@ const styles = theme => ({
   selectionList: {
     marginRight: theme.spacing.unit*2,
     [theme.breakpoints.down('xs')]: {
+      marginTop: theme.spacing.unit,
       flex: `1 0 calc(50% - ${theme.spacing.unit*4}px)`,
       order: 1
     }
@@ -148,7 +150,7 @@ const styles = theme => ({
 })
 
 const SettingsColumn = ({type, title, options, currentOption, classes, setSetting}) => {
-  const { MetaInfo, LWTooltip } = Components
+  const { MetaInfo } = Components
 
   return <div className={classes.selectionList}>
     <MetaInfo className={classes.selectionTitle}>
@@ -166,9 +168,9 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
-              <LWTooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
+              <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
                 <span>{ label }</span>
-              </LWTooltip> :
+              </Tooltip> :
               <span>{ label }</span>
             }
           </MetaInfo>
@@ -218,7 +220,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
       classes, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma,
       timeframes = defaultTimeframs, sortings = defaultSortings, showTimeframe
     } = this.props
-    const { MetaInfo, LWTooltip } = Components
+    const { MetaInfo } = Components
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
@@ -249,7 +251,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
           classes={classes}
         />
 
-        <LWTooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
+        <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>}>
           <QueryLink
             className={classes.checkboxGroup}
             onClick={() => this.setSetting('showLowKarma', !currentShowLowKarma)}
@@ -262,7 +264,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
               Show Low Karma
             </MetaInfo>
           </QueryLink>
-        </LWTooltip>
+        </Tooltip>
       </div>
     );
   }
