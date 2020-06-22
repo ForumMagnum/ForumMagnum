@@ -46,7 +46,7 @@ const PostsVote = ({ post, classes, collection }: {
   collection: any,
 }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const vote = useVote("Posts");
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
 
   return (

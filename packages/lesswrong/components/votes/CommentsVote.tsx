@@ -42,7 +42,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const vote = useVote("Comments");
   const {eventHandlers, hover} = useHover();
   
   if (!comment) return null;

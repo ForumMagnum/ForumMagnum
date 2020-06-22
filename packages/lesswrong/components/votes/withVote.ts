@@ -4,30 +4,27 @@ import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { performVoteClient } from '../../lib/voting/vote';
 import { VoteableCollections } from '../../lib/make_voteable';
-import { getFragmentText } from '../../lib/vulcan-lib';
+import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { Random } from 'meteor/random';
 
-const getVoteMutationQuery = () => {
+const getVoteMutationQuery = (collection) => {
   return gql`
     mutation vote($documentId: String, $voteType: String, $collectionName: String, $voteId: String) {
       vote(documentId: $documentId, voteType: $voteType, collectionName: $collectionName, voteId: $voteId) {
-        ${VoteableCollections.map(collection => `
-          ... on ${collection.typeName} {
-            ...WithVote${collection.typeName}
-          }
-        `).join('\n')}
+        ... on ${collection.typeName} {
+          ...WithVote${collection.typeName}
+        }
       }
     }
-    ${VoteableCollections.map(collection => `
-      ${getFragmentText(`WithVote${collection.typeName}`)}
-    `).join("\n")}
+    ${getFragmentText(`WithVote${collection.typeName}`)}
   `
 }
 
-export const useVote = () => {
+export const useVote = (collectionName: CollectionNameString) => {
   const messages = useMessages();
-  const query = getVoteMutationQuery();
+  const collection = getCollection(collectionName);
+  const query = getVoteMutationQuery(collection);
   const [mutate] = useMutation(query);
   
   const vote = React.useCallback(({document, voteType, collection, currentUser, voteId = Random.id()}) => {

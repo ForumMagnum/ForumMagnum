@@ -30,7 +30,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   relevance?: boolean
 }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const vote = useVote("TagRels");
   const { VoteButton, TagPreview } = Components;
   
   return <div>

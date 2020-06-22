@@ -44,7 +44,7 @@ const TagVoteActivity = ({classes}:{
     limit: 200,
     ssr: true
   })
-  const castVote = useVote()
+  const castVote = useVote("TagRels")
 
   const currentUser = useCurrentUser();
 
