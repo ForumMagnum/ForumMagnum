@@ -97,7 +97,7 @@ Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbP
   )
 }
 
-Users.canDeleteComment = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList) => {
+Users.canModerateComment = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList|DbComment) => {
   if (Users.canModeratePost(user, post)) return true 
   if (Users.owns(user, comment) && !comment.directChildrenCount) return true 
   return false
