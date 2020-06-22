@@ -97,6 +97,12 @@ Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbP
   )
 }
 
+Users.canDeleteComment = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList) => {
+  if (Users.canModeratePost(user, post)) return true 
+  if (Users.owns(user, comment) && !comment.directChildrenCount) return true 
+  return false
+}
+
 Users.canCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   if (Users.canDo(user,"posts.commentLock.all")) {
     return true

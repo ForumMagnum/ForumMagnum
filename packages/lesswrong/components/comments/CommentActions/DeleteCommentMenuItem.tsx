@@ -39,7 +39,7 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
 
   render() {
     const { currentUser, comment, post } = this.props
-    if (Users.canModeratePost(currentUser, post)) {
+    if (Users.canDeleteComment(currentUser, post, comment)) {
       if (!comment.deleted) {
         return (
           <MenuItem onClick={ this.showDeleteDialog}>
