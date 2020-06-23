@@ -18,7 +18,7 @@ export const Components: ComponentTypes = new Proxy({}, componentsProxyHandler);
 const PreparedComponents = {};
 
 // storage for infos about components
-const ComponentsTable = {};
+export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
 const DeferredComponentsTable = {};
 
@@ -46,67 +46,36 @@ const coreComponents = [
 type C<T=any> = React.ComponentType<T>
 type HoC<O,T> = (component: C<O>) => C<T>
 
-/**
- * Register a Vulcan component with a name, a raw component than can be extended
- * and one or more optional higher order components.
- *
- * @param {String} name The name of the component to register.
- * @param {React Component} rawComponent Interchangeable/extendable component.
- * @param {...Function} hocs The HOCs to compose with the raw component.
- *
- * Note: when a component is registered without higher order component, `hocs` will be
- * an empty array, and it's ok!
- * See https://github.com/reactjs/redux/blob/master/src/compose.js#L13-L15
- *
- * @returns Structure of a component in the list:
- *
- * ComponentsTable.Foo = {
- *    name: 'Foo',
- *    hocs: [fn1, fn2],
- *    rawComponent: React.Component,
- *    call: () => compose(...hocs)(rawComponent),
- * }
- *
- */
-/*export function registerComponent<PropType>(name, rawComponent, ...hocs): React.ComponentType<Omit<PropType,"classes">> {
-  var styles = null;
-  
-  // support single-argument syntax
-  if (typeof arguments[0] === 'object') {
-    // note: cannot use `const` because name, components, hocs are already defined
-    // as arguments so destructuring cannot work
-    // eslint-disable-next-line no-redeclare
-    var { name, component, hocs = [], styles } = arguments[0];
-    rawComponent = component;
-  } else if (typeof arguments[2] === 'object' && (arguments[2].hocs || arguments[2].styles)) {
-    styles = arguments[2].styles;
-    hocs = arguments[2].hocs || [];
+const addClassnames = (componentName: string) => {
+  const classesProxy = new Proxy({}, {
+    get: function(obj: any, prop: any) {
+      return `${componentName}-${prop}`;
+    }
+  });
+  return (WrappedComponent) => (props) => {
+    return <WrappedComponent {...props} classes={classesProxy}/>
   }
-  
-  if (styles) {
-    hocs.push(withStyles(styles, {name: name}));
-  }
-  
-  rawComponent.displayName = name;
-  
-  if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
-    throw new Error(`Two components with the same name: ${name}`);
-  }
-  
-  // store the component in the table
-  ComponentsTable[name] = {
-    name,
-    rawComponent,
-    hocs,
-  };
-}*/
+}
 
-export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>,
-  options?: {styles?: any, hocs?: Array<any>}): React.ComponentType<Omit<PropType,"classes">>
+// Register a component. Takes a name, a raw component, and ComponentOptions
+// (see above). Components should be in their own file, imported with
+// `importComponent`, and registered in that file; components that are
+// registered this way can be accessed via the Components object and are lazy-
+// loaded.
+//
+// Returns a dummy value--null, but coerced to a type that you can add to the
+// ComponentTypes interface to type-check usages of the component in other
+// files.
+export function registerComponent<PropType>(name: keyof ComponentTypes, rawComponent: React.ComponentType<PropType>,
+  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">>
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    hocs.push(withStyles(styles, {name: name}));
+    if (Meteor.isClient && (window as any).missingMainStylesheet) {
+      hocs.push(withStyles(styles, {name: name}));
+    } else {
+      hocs.push(addClassnames(name));
+    }
   }
   
   rawComponent.displayName = name;
@@ -120,6 +89,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
     name,
     rawComponent,
     hocs,
+    styles,
   };
   
   return (null as any as React.ComponentType<Omit<PropType,"classes">>);
