@@ -243,7 +243,7 @@ const getDefaultResumeSequence = () => {
   ]
 }
 
-const getResumeSequences = async (currentUser, context) => {
+const getResumeSequences = async (currentUser, context: ResolverContext) => {
   const sequences = currentUser ? currentUser.partiallyReadSequences : getDefaultResumeSequence()
 
   if (!sequences)
@@ -277,16 +277,16 @@ const getResumeSequences = async (currentUser, context) => {
 
 addGraphQLResolvers({
   Query: {
-    async ContinueReading(root, args, context) {
+    async ContinueReading(root, args, context: ResolverContext) {
       const { currentUser } = context;
 
       return await getResumeSequences(currentUser, context);
     },
 
-    async Recommendations(root, {count,algorithm}, context) {
+    async Recommendations(root, {count,algorithm}, context: ResolverContext) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
-      const accessFilteredPosts = accessFilterMultiple(currentUser, Posts, recommendedPosts);
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
@@ -295,8 +295,9 @@ addGraphQLResolvers({
     }
   },
   Mutation: {
-    async dismissRecommendation(root, {postId}, context) {
+    async dismissRecommendation(root, {postId}, context: ResolverContext) {
       const { currentUser } = context;
+      if (!currentUser) return false;
 
       if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,

@@ -113,7 +113,6 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
     const { classes, notification, lastNotificationsCheck, hover, anchorEl, history } = this.props;
     const { LWPopper } = Components
     const UrlClass = getUrlClass()
-
     return (
       <a
         href={notification.link}

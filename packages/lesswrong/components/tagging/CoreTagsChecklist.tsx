@@ -6,15 +6,26 @@ import { Tags } from '../../lib/collections/tags/collection';
 
 const styles = theme => ({
   root: {
+    marginBottom: 8
   },
   checkbox: {
-    padding: 4,
+    padding: "0 8px 2px 0",
+    '& svg': {
+      height:14,
+      width: 14
+    }
   },
+  tag: {
+    ...theme.typography.commentStyle,
+    marginRight: 16,
+    color: theme.palette.grey[600]
+  }
 });
 
-const CoreTagsChecklist = ({onSetTagsSelected, classes}: {
+const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
   onSetTagsSelected: (selectedTags: Record<string,boolean>)=>void,
   classes: ClassesType,
+  post: PostsList|SunshinePostsList
 }) => {
   const { results, loading } = useMulti({
     terms: {
@@ -28,12 +39,12 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes}: {
   
   const { Loading } = Components;
   const [selections, setSelections] = useState<Record<string,boolean>>({});
-  
+  const { FooterTagList } = Components
   if (loading)
     return <Loading/>
   
   return <div className={classes.root}>
-    {results.map(tag => <div key={tag._id}>
+    {results.map(tag => <span key={tag._id} className={classes.tag}>
       <Checkbox
         className={classes.checkbox}
         checked={selections[tag._id]}
@@ -44,7 +55,8 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes}: {
         }}
       />
       {tag.name}
-    </div>)}
+    </span>)}
+    <FooterTagList post={post} />
   </div>
 }
 

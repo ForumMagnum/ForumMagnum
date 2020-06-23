@@ -33,7 +33,8 @@ addGraphQLSchema(`
 
 addGraphQLResolvers({
   KarmaChanges: {
-    updateFrequency: async (karmaChangesJSON, args, {currentUser}) => {
+    updateFrequency: async (karmaChangesJSON, args, context: ResolverContext) => {
+      const { currentUser } = context;
       if (!currentUser) return null;
       const settings = currentUser.karmaChangeNotifierSettings
       return settings.updateFrequency;

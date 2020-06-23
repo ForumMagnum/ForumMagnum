@@ -25,6 +25,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRevisionFragment on Tag {
+    ...TagBasicInfo
+    description(version: $version) {
+      html
+      htmlHighlight
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     description {

@@ -3,6 +3,7 @@ import qs from 'qs';
 import React, { useContext } from 'react';
 import { forumTypeSetting } from './instanceSettings';
 import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext } from './vulcan-core/appContext';
+import { RouterLocation } from './vulcan-lib/routes';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -17,17 +18,6 @@ export function parseQuery(location): Record<string,string> {
     query = query.substr(1);
     
   return qs.parse(query);
-}
-
-type RouterLocation = {
-  currentRoute: any,
-  RouteComponent: any,
-  location: any,
-  pathname: string,
-  url: string,
-  hash: string,
-  params: Record<string,string>,
-  query: Record<string,string>,
 }
 
 // React Hook which returns the page location (parsed URL and route).

@@ -77,7 +77,9 @@ module.exports = {
     "import/no-cycle": 1,
     "import/no-mutable-exports": 1,
     "no-restricted-imports": ["error", {"paths": [
-      { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" }
+      { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
+      { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
+      { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
     ]}],
     
     // explicit-function-return-type: Disabled. Would forbid functions with

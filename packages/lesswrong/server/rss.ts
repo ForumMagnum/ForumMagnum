@@ -31,7 +31,7 @@ const roundKarmaThreshold = threshold => (threshold < 16 || !threshold) ? 2
                                        : (threshold < 60) ? 45
                                        : 75;
 
-export const servePostRSS = (terms, url?: string) => {
+export const servePostRSS = async (terms, url?: string) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
@@ -42,7 +42,7 @@ export const servePostRSS = (terms, url?: string) => {
   parameters.options.limit = 10;
 
   const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
-  const restrictedPosts = accessFilterMultiple(null, Posts, postsCursor);
+  const restrictedPosts = await accessFilterMultiple(null, Posts, postsCursor, null);
 
   restrictedPosts.forEach((post) => {
     // LESSWRONG - this was added to handle karmaThresholds
@@ -82,14 +82,14 @@ export const servePostRSS = (terms, url?: string) => {
   return feed.xml();
 };
 
-export const serveCommentRSS = (terms, url?: string) => {
+export const serveCommentRSS = async (terms, url?: string) => {
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
 
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
   const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
-  const restrictedComments = accessFilterMultiple(null, Comments, commentsCursor);
+  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);
 
   restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
@@ -109,13 +109,13 @@ export const serveCommentRSS = (terms, url?: string) => {
 };
 
 
-addStaticRoute('/feed.xml', function(params, req, res, next) {
+addStaticRoute('/feed.xml', async function(params, req, res, next) {
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
   }
   if (params.query.type && params.query.type === "comments") {
-    res.end(serveCommentRSS(params.query));
+    res.end(await serveCommentRSS(params.query));
   } else {
-    res.end(servePostRSS(params.query));
+    res.end(await servePostRSS(params.query));
   }
 });

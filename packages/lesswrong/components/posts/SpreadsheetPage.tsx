@@ -375,7 +375,7 @@ const styles = theme => ({
 })
 
 const SpreadsheetPage = ({classes}:{
-  classes: any
+  classes: ClassesType
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading, HeadTags } = Components
@@ -667,6 +667,6 @@ const SpreadsheetPageComponent = registerComponent('SpreadsheetPage', Spreadshee
 
 declare global {
   interface ComponentTypes {
-    PostsSingle:typeof SpreadsheetPageComponent
+    SpreadsheetPage: typeof SpreadsheetPageComponent
   }
 }

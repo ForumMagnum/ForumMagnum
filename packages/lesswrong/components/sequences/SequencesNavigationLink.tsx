@@ -5,7 +5,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
+import { useNavigation } from '../../lib/routeUtil';
+import { useUpdateContinueReading } from './useUpdateContinueReading';
 import classnames from 'classnames';
 
 // Shared with SequencesNavigationLinkDisabled
@@ -31,6 +32,9 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   direction: "left"|"right",
   classes: ClassesType,
 }) => {
+  const { history } = useNavigation();
+  const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
+  
   const icon = (
     <IconButton classes={{root: classnames(classes.root, {
       [classes.disabled]: !post,
@@ -42,9 +46,13 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   
   if (post) {
     const button = (
-      <Link to={Posts.getPageUrl(post, false, post.sequence?._id)}>
+      <a onClick={() => {
+        const url = Posts.getPageUrl(post, false, post.sequence?._id)
+        updateContinueReading();
+        history.push(url);
+      }}>
         {icon}
-      </Link>
+      </a>
     )
     if (post.title) {
       return <Tooltip title={post.title}>{button}</Tooltip>
