@@ -1,4 +1,4 @@
-import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from './vulcan-lib';
+import { Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from './vulcan-lib';
 import Votes from '../lib/collections/votes/collection';
 import Users from '../lib/collections/users/collection';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
@@ -21,7 +21,6 @@ const hasVotedServer = async ({ document, voteType, user }) => {
 
 // Add a vote of a specific type on the server
 const addVoteServer = async (voteOptions) => {
-
   const { document, collection, voteType, user, voteId, updateDocument } = voteOptions;
   const newDocument = _.clone(document);
 
@@ -187,15 +186,8 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   updateDocument?: boolean,
   toggleIfAlreadyVoted?: boolean,
 }) => {
-
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
-
-  debug('');
-  debugGroup('--------------- start \x1b[35mperformVoteServer\x1b[0m  ---------------');
-  debug('collectionName: ', collectionName);
-  debug('document: ', document);
-  debug('voteType: ', voteType);
 
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
@@ -210,22 +202,14 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   const existingVote = await hasVotedServer({document, voteType, user});
 
   if (existingVote) {
-
     if (toggleIfAlreadyVoted) {
-      // console.log('action: cancel')
-  
-      // runCallbacks(`votes.cancel.sync`, document, collection, user);
       let voteDocTuple = await cancelVoteServer(voteOptions);
       voteDocTuple = await runCallbacks(`votes.cancel.sync`, voteDocTuple, collection, user);
       document = voteDocTuple.newDocument;
       runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
     }
-
   } else {
-
     await checkRateLimit({ document, collection, voteType, user });
-
-    // console.log('action: vote')
 
     if (voteTypes[voteType].exclusive) {
       document = await clearVotesServer(voteOptions)
@@ -237,12 +221,6 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
     runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
   }
 
-  debug('document after vote: ', document);
-  debugGroupEnd();
-  debug('--------------- end \x1b[35m performVoteServer\x1b[0m ---------------');
-  debug('');
-
-  // const newDocument = collection.findOne(documentId);
   document.__typename = collection.options.typeName;
   return document;
 }
