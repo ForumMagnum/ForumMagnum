@@ -11,7 +11,7 @@ const specificResolvers = {
       const post = context.Posts.findOne(comment.postId)
       if (!post) throw new Error("Cannot find post");
       
-      if (currentUser && Users.canModeratePost(currentUser, post)) {
+      if (currentUser && Users.canModerateComment(currentUser, post, comment)) {
 
         let set: Record<string,any> = {deleted: deleted}
         if (deleted) {
