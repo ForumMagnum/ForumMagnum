@@ -53,16 +53,19 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
   const { VoteButton } = Components
   const voteCount = document.voteCount;
   let karma = 0
+  let moveToAlignnmentUserId = ""
   if (collection == Posts) {
     karma = Posts.getKarma(document as PostsBase)
   }
   if (collection == Comments) {
-    karma = Comments.getKarma(document as CommentsList)
+    const comment = document as CommentsList
+    karma = Comments.getKarma(comment)
+    moveToAlignnmentUserId = comment.moveToAlignmentUserId
   }
 
-  const moveToAfInfo = Users.isAdmin(currentUser) && !!document.moveToAlignmentUserId && (
+  const moveToAfInfo = Users.isAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
-      {hover && <span>Moved to AF by <Components.UsersName documentId={document.moveToAlignmentUserId }/> on { document.afDate && moment(new Date(document.afDate)).format('YYYY-MM-DD') }</span>}
+      {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { document.afDate && moment(new Date(document.afDate)).format('YYYY-MM-DD') }</span>}
     </div>
   )
 
