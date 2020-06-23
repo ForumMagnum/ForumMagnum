@@ -73,7 +73,7 @@ const SunshineSidebar = ({classes}) => {
 
       { showSidebar && <div>
         {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}        
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} />
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
 
         {/* regular admins (but not sunshines) see AF content below the fold */}
         { Users.isAdmin(currentUser) && <div>
