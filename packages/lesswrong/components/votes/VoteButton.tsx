@@ -10,6 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -67,7 +68,7 @@ const VoteButton = ({
   vote, collection, document, voteType,
   color = "secondary",
   orientation = "up",
-  currentUser, solidArrow,
+  solidArrow,
   theme,
   classes,
 }: {
@@ -77,12 +78,12 @@ const VoteButton = ({
   voteType: string,
   color: any,
   orientation: string,
-  currentUser: UsersCurrent|null,
   solidArrow?: boolean
   // From withTheme. TODO: Hookify this.
   theme?: any
   classes: ClassesType
 }) => {
+  const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const [votingTransition, setVotingTransition] = useState<any>(null);

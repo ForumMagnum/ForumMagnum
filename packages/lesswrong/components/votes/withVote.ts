@@ -48,5 +48,6 @@ export const useVote = (collectionName: CollectionNameString) => {
       messages.flash({ messageString: errorMessage });
     }
   }, [messages, mutate]);
+  
   return vote;
 }

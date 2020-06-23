@@ -71,7 +71,6 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
                 color="error"
                 voteType="Downvote"
                 document={comment}
-                currentUser={currentUser}
                 collection={Comments}
                 vote={vote}
               />
@@ -96,7 +95,6 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
                 color="secondary"
                 voteType="Upvote"
                 document={comment}
-                currentUser={currentUser}
                 collection={Comments}
                 vote={vote}
               />

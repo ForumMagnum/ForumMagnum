@@ -45,7 +45,6 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           color="error"
           voteType="Downvote"
           document={tagRel}
-          currentUser={currentUser}
           collection={TagRels}
           vote={vote}
         />
@@ -59,7 +58,6 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           color="secondary"
           voteType="Upvote"
           document={tagRel}
-          currentUser={currentUser}
           collection={TagRels}
           vote={vote}
         />

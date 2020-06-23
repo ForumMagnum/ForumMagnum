@@ -74,7 +74,6 @@ const TagVoteActivity = ({classes}:{
                   color="error"
                   voteType="Downvote"
                   document={vote.tagRel}
-                  currentUser={currentUser}
                   collection={TagRels}
                   vote={castVote}
                 />
@@ -86,7 +85,6 @@ const TagVoteActivity = ({classes}:{
                   color="secondary"
                   voteType="Upvote"
                   document={vote.tagRel}
-                  currentUser={currentUser}
                   collection={TagRels}
                   vote={castVote}
                 />

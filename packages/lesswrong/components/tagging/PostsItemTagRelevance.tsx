@@ -57,7 +57,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             color="error"
             voteType="Downvote"
             document={tagRel}
-            currentUser={currentUser}
             collection={TagRels}
             vote={vote}
             solidArrow
@@ -74,7 +73,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             color="secondary"
             voteType="Upvote"
             document={tagRel}
-            currentUser={currentUser}
             collection={TagRels}
             vote={vote}
             solidArrow

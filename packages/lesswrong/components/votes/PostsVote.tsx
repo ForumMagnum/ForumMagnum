@@ -62,7 +62,6 @@ const PostsVote = ({ post, classes, collection }: {
               color="secondary"
               voteType="Upvote"
               document={post}
-              currentUser={currentUser}
               collection={collection}
               vote={vote}
             />
@@ -102,7 +101,6 @@ const PostsVote = ({ post, classes, collection }: {
               color="error"
               voteType="Downvote"
               document={post}
-              currentUser={currentUser}
               collection={collection}
               vote={vote}
             />
