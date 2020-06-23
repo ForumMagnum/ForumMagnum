@@ -7,14 +7,19 @@ import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = theme => ({
+  root: {
+    marginTop: theme.spacing.unit
+  },
   comment: {
-    marginTop: theme.spacing.unit/2,
-    marginBottom: theme.spacing.unit/2,
+    marginTop: 4,
+    marginBottom: 4,
     color: "rgba(0,0,0,.7)",
     border: "solid 1px rgba(0,0,0,.15)",
     marginLeft: -12,
     marginRight: -12,
-    padding: theme.spacing.unit
+    padding: 12,
+    paddingTop: 8,
+    paddingBottom: 8
   },
   commentStyle: {
     ...commentBodyStyles(theme),
@@ -40,7 +45,7 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
   if (!results && loading && !truncated) return <Loading />
   if (!results) return null 
   return (
-    <div>
+    <div className={classes.root}>
       {loading && !truncated && <Loading />}
       {results.map(comment=><div className={classes.comment} key={comment._id}>
         <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>

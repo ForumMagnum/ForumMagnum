@@ -44,14 +44,16 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
     <div>
       {loading && !truncated && <Loading />}
       {results.map(post=><div className={classes.post} key={post._id}>
-        <Link to={`/posts/${post._id}`}>
-          <PostsTitle post={post} showIcons={false} /> 
-          {(post.status !==2) && <MetaInfo>`[Spam] ${post.status}`</MetaInfo>}
+        <div>
+          <Link to={`/posts/${post._id}`}>
+            <PostsTitle post={post} showIcons={false} wrap/> 
+            {(post.status !==2) && <MetaInfo>`[Spam] ${post.status}`</MetaInfo>}
+          </Link>
           <span className={classes.meta}>
             <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
             <SmallSideVote document={post} collection={Posts}/>
           </span>
-        </Link>
+        </div>
         <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
       </div>)}
     </div>
