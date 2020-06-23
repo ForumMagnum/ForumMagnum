@@ -98,6 +98,7 @@ Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbP
 }
 
 Users.canModerateComment = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList|DbComment) => {
+  if (!user || !post || !comment) return false
   if (Users.canModeratePost(user, post)) return true 
   if (Users.owns(user, comment) && !comment.directChildrenCount) return true 
   return false
