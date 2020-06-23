@@ -13,10 +13,14 @@ const styles = theme => ({
   },
   postBody: {
     ...postHighlightStyles(theme),
+    marginTop: 12,
     fontSize: "1rem",
     '& li, & h1, & h2, & h3': {
       fontSize: "1rem"
     }
+  },
+  meta: {
+    display: 'inline-block'
   }
 })
 
@@ -31,7 +35,7 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
-  const { Loading, MetaInfo } = Components
+  const { Loading, MetaInfo, FormatDate, PostsTitle, SmallSideVote } = Components
  
   if (!results && loading && !truncated) return <Loading />
   if (!results) return null
@@ -40,12 +44,14 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
     <div>
       {loading && !truncated && <Loading />}
       {results.map(post=><div className={classes.post} key={post._id}>
-        <MetaInfo>
-          <Link to={`/posts/${post._id}`}>
-            {(post.status !==2) && `[Spam] ${post.status}`}
-            Post: {post.title} ({post.baseScore} karma)
-          </Link>
-        </MetaInfo>
+        <Link to={`/posts/${post._id}`}>
+          <PostsTitle post={post} showIcons={false} /> 
+          {(post.status !==2) && <MetaInfo>`[Spam] ${post.status}`</MetaInfo>}
+          <span className={classes.meta}>
+            <SmallSideVote document={post} collection={Posts}/>
+            <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
+          </span>
+        </Link>
         <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
       </div>)}
     </div>

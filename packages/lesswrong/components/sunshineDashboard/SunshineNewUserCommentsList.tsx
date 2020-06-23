@@ -14,6 +14,9 @@ const styles = theme => ({
   },
   commentStyle: {
     ...commentBodyStyles(theme),
+  },
+  meta: {
+    display: "inline-block"
   }
 })
 
@@ -28,7 +31,7 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
     fragmentName: 'CommentsListWithPostMetadata',
     fetchPolicy: 'cache-and-network',
   });
-  const { FormatDate, MetaInfo, Loading } = Components
+  const { FormatDate, MetaInfo, Loading, SmallSideVote } = Components
 
   if (!results && loading && !truncated) return <Loading />
   if (!results) return null 
@@ -36,12 +39,16 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
     <div>
       {loading && !truncated && <Loading />}
       {results.map(comment=><div className={classes.comment} key={comment._id}>
-        <MetaInfo>
-          <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-            {comment.deleted && "[Deleted] "}Comment on '{comment.post.title}' (<FormatDate date={comment.postedAt}/>, {comment.baseScore} karma)
-          </Link>
-        </MetaInfo>
-        {!truncated && <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
+        <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+          <MetaInfo>
+            {comment.deleted && "[Deleted] "}Comment on '{comment.post.title}'
+          </MetaInfo>
+          <span className={classes.meta}>
+            <SmallSideVote document={comment} collection={Comments}/>
+            <MetaInfo><FormatDate date={comment.postedAt}/></MetaInfo>
+          </span>
+        </Link>
+        {!truncated && comment.deleted && <div><MetaInfo>`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]</MetaInfo></div>}
         <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>
