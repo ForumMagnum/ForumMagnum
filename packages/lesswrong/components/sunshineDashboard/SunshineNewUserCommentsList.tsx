@@ -8,9 +8,13 @@ import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = theme => ({
   comment: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
-    color: "rgba(0,0,0,.7)"
+    marginTop: theme.spacing.unit/2,
+    marginBottom: theme.spacing.unit/2,
+    color: "rgba(0,0,0,.7)",
+    border: "solid 1px rgba(0,0,0,.15)",
+    marginLeft: -12,
+    marginRight: -12,
+    padding: theme.spacing.unit
   },
   commentStyle: {
     ...commentBodyStyles(theme),
