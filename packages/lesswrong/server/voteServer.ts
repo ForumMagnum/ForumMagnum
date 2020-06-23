@@ -10,7 +10,11 @@ import * as _ from 'underscore';
 
 
 // Test if a user has voted on the server
-const hasVotedServer = async ({ document, voteType, user }) => {
+const hasVotedServer = async ({ document, voteType, user }: {
+  document: any,
+  voteType: string,
+  user: DbUser,
+}) => {
   const vote = await Connectors.get(Votes, {
     documentId: document._id,
     userId: user._id, voteType,
@@ -20,8 +24,14 @@ const hasVotedServer = async ({ document, voteType, user }) => {
 }
 
 // Add a vote of a specific type on the server
-const addVoteServer = async (voteOptions) => {
-  const { document, collection, voteType, user, voteId, updateDocument } = voteOptions;
+const addVoteServer = async ({ document, collection, voteType, user, voteId, updateDocument }: {
+  document: any,
+  collection: any,
+  voteType: string,
+  user: DbUser|null,
+  voteId: string,
+  updateDocument: boolean
+}) => {
   const newDocument = _.clone(document);
 
   // create vote and insert it
@@ -57,7 +67,12 @@ const addVoteServer = async (voteOptions) => {
 }
 
 // Clear all votes for a given document and user (server)
-const clearVotesServer = async ({ document, user, collection, updateDocument }) => {
+const clearVotesServer = async ({ document, user, collection, updateDocument }: {
+  document: any,
+  user: DbUser,
+  collection: any,
+  updateDocument: boolean,
+}) => {
   const newDocument = _.clone(document);
   const votes = await Connectors.find(Votes, {
     documentId: document._id,
@@ -112,8 +127,13 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
 }
 
 // Cancel votes of a specific type on a given document (server)
-export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }) => {
-
+export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }: {
+  document: any,
+  voteType: string,
+  collection: any,
+  user: DbUser,
+  updateDocument: boolean
+}) => {
   const newDocument = _.clone(document);
   const vote = Votes.findOne({
     documentId: document._id,
@@ -182,7 +202,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   voteType: string,
   collection: any,
   voteId?: string,
-  user: any,
+  user: DbUser,
   updateDocument?: boolean,
   toggleIfAlreadyVoted?: boolean,
 }) => {
@@ -225,7 +245,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   return document;
 }
 
-const getVotingRateLimits = async (user) => {
+const getVotingRateLimits = async (user: DbUser|null) => {
   if (user?.isAdmin) {
     // Very lax rate limiting for admins
     return {
@@ -243,7 +263,12 @@ const getVotingRateLimits = async (user) => {
 
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }):Promise<void> => {
+const checkRateLimit = async ({ document, collection, voteType, user }: {
+  document: any,
+  collection: any,
+  voteType: string,
+  user: DbUser
+}): Promise<void> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
     return;

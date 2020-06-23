@@ -294,7 +294,7 @@ addCallback("comments.new.sync", CommentsNewUserApprovedStatus);
  // LESSWRONG – bigUpvote
 async function LWCommentsNewUpvoteOwnComment(comment) {
   var commentAuthor = Users.findOne(comment.userId);
-  const votedComment = await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
+  const votedComment = commentAuthor && await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
   return {...comment, ...votedComment};
 }
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);

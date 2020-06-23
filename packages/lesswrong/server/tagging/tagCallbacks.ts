@@ -83,7 +83,7 @@ addCallback("tag.update.after", async (newDoc, {oldDocument}) => {
 addCallback("tagRels.new.after", async (tagRel) => {
   // When you add a tag, vote for it as relevant
   var tagCreator = Users.findOne(tagRel.userId);
-  const votedTagRel = await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
+  const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
   updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel};
 });
