@@ -50,6 +50,7 @@ registerFragment(`
     promotedByUser {
       ...UsersMinimumInfo
     }
+    directChildrenCount
   }
 `);
 
