@@ -7,6 +7,7 @@ import { VoteableCollections } from '../../lib/make_voteable';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { Random } from 'meteor/random';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const getVoteMutationQuery = (collection) => {
   return gql`
@@ -21,7 +22,13 @@ const getVoteMutationQuery = (collection) => {
   `
 }
 
-export const useVote = (collectionName: CollectionNameString) => {
+export const useVote = (document: any, collectionName: CollectionNameString): {
+  vote: any,
+  collection: any,
+  document: any,
+  baseScore: number,
+  voteCount: number,
+}=> {
   const messages = useMessages();
   const collection = getCollection(collectionName);
   const query = getVoteMutationQuery(collection);
@@ -49,5 +56,10 @@ export const useVote = (collectionName: CollectionNameString) => {
     }
   }, [messages, mutate]);
   
-  return vote;
+  const af = forumTypeSetting.get() === 'AlignmentForum'
+  return {
+    vote, collection, document,
+    baseScore: (af ? document.afBaseScore : document.baseScore) || 0,
+    voteCount: (af ? document.afVoteCount : document.voteCount) || 0,
+  };
 }

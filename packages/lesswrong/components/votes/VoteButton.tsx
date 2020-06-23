@@ -75,6 +75,7 @@ const VoteButton = ({
   vote: any,
   collection: any,
   document: any,
+  
   voteType: string,
   color: any,
   orientation: string,
@@ -129,7 +130,7 @@ const VoteButton = ({
   }
 
   const hasVoted = (type) => {
-    return hasVotedClient({document, voteType: type})
+    return hasVotedClient({userVotes: document.currentUserVotes, voteType: type})
   }
 
   const voted = hasVoted(`small${voteType}`) || hasVoted(`big${voteType}`)

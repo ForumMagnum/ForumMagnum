@@ -41,7 +41,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
 }) => {
   const { VoteButton, PostsItem2MetaInfo } = Components;
   const currentUser = useCurrentUser();
-  const vote = useVote("TagRels");
+  const voteProps = useVote(tagRel, "TagRels");
   
   const tooltip = <div>
     <div>{tagRel.baseScore} Relevance</div>
@@ -56,15 +56,13 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="down"
             color="error"
             voteType="Downvote"
-            document={tagRel}
-            collection={TagRels}
-            vote={vote}
             solidArrow
+            {...voteProps}
           />
         </div>
         
         <div className={classes.score}>
-          {tagRel.baseScore}
+          {voteProps.baseScore}
         </div>
       
         <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
@@ -72,10 +70,8 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="up"
             color="secondary"
             voteType="Upvote"
-            document={tagRel}
-            collection={TagRels}
-            vote={vote}
             solidArrow
+            {...voteProps}
           />
         </div>
       </span>

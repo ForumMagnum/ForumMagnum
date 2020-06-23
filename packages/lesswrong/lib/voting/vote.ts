@@ -15,8 +15,7 @@ addVoteType('upvote', {power: 1, exclusive: true});
 addVoteType('downvote', {power: -1, exclusive: true});
 
 // Test if a user has voted on the client
-export const hasVotedClient = ({ document, voteType }) => {
-  const userVotes = document.currentUserVotes;
+export const hasVotedClient = ({ userVotes, voteType }) => {
   if (voteType) {
     return _.where(userVotes, { voteType }).length
   } else {
@@ -127,7 +126,7 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
 
   let voteOptions = {document, collection, voteType, user, voteId};
 
-  if (hasVotedClient({document, voteType})) {
+  if (hasVotedClient({userVotes: document.currentUserVotes, voteType})) {
     returnedDocument = cancelVoteClient(voteOptions);
     returnedDocument = runCallbacks(`votes.cancel.client`, returnedDocument, collection, user, voteType);
   } else {

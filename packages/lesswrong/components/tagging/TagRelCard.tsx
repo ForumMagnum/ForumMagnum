@@ -30,7 +30,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   relevance?: boolean
 }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote("TagRels");
+  const voteProps = useVote(tagRel, "TagRels");
   const { VoteButton, TagPreview } = Components;
   
   return <div>
@@ -44,22 +44,18 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           orientation="left"
           color="error"
           voteType="Downvote"
-          document={tagRel}
-          collection={TagRels}
-          vote={vote}
+          {...voteProps}
         />
       </div>
       <span className={classes.score}>
-        {tagRel.baseScore}
+        {voteProps.baseScore}
       </span>
       <div className={classes.voteButton}>
         <VoteButton
           orientation="right"
           color="secondary"
           voteType="Upvote"
-          document={tagRel}
-          collection={TagRels}
-          vote={vote}
+          {...voteProps}
         />
       </div>
     </div>

@@ -46,8 +46,7 @@ const PostsVote = ({ post, classes, collection }: {
   collection: any,
 }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote("Posts");
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const voteProps = useVote(post, "Posts");
 
   return (
       <div className={classes.voteBlock}>
@@ -61,19 +60,17 @@ const PostsVote = ({ post, classes, collection }: {
               orientation="up"
               color="secondary"
               voteType="Upvote"
-              document={post}
-              collection={collection}
-              vote={vote}
+              {...voteProps}
             />
           </div>
         </Tooltip>
         <div className={classes.voteScores}>
           <Tooltip
-            title={`${post.voteCount} ${post.voteCount == 1 ? "Vote" : "Votes"}`}
+            title={`${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes"}`}
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
-            <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
+            <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
           </Tooltip>
 
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
@@ -100,9 +97,7 @@ const PostsVote = ({ post, classes, collection }: {
               orientation="down"
               color="error"
               voteType="Downvote"
-              document={post}
-              collection={collection}
-              vote={vote}
+              {...voteProps}
             />
           </div>
         </Tooltip>
