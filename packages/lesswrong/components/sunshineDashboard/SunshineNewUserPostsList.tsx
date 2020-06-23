@@ -48,8 +48,8 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
           <PostsTitle post={post} showIcons={false} /> 
           {(post.status !==2) && <MetaInfo>`[Spam] ${post.status}`</MetaInfo>}
           <span className={classes.meta}>
-            <SmallSideVote document={post} collection={Posts}/>
             <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
+            <SmallSideVote document={post} collection={Posts}/>
           </span>
         </Link>
         <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />

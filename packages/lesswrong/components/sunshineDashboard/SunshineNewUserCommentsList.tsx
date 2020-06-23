@@ -44,8 +44,8 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
             {comment.deleted && "[Deleted] "}Comment on '{comment.post.title}'
           </MetaInfo>
           <span className={classes.meta}>
-            <SmallSideVote document={comment} collection={Comments}/>
             <MetaInfo><FormatDate date={comment.postedAt}/></MetaInfo>
+            <SmallSideVote document={comment} collection={Comments}/>
           </span>
         </Link>
         {!truncated && comment.deleted && <div><MetaInfo>`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]</MetaInfo></div>}
