@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { Posts } from '../../lib/collections/posts';
 
 const styles = theme => ({
   upvote: {
@@ -40,10 +41,9 @@ const styles = theme => ({
   },
 })
 
-const PostsVote = ({ post, classes, collection }: {
+const PostsVote = ({ post, classes }: {
   post: PostsBase,
-  classes: ClassesType,
-  collection: any,
+  classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
   const vote = useVote();
@@ -63,7 +63,7 @@ const PostsVote = ({ post, classes, collection }: {
               voteType="Upvote"
               document={post}
               currentUser={currentUser}
-              collection={collection}
+              collection={Posts}
               vote={vote}
             />
           </div>
@@ -103,7 +103,7 @@ const PostsVote = ({ post, classes, collection }: {
               voteType="Downvote"
               document={post}
               currentUser={currentUser}
-              collection={collection}
+              collection={Posts}
               vote={vote}
             />
           </div>
