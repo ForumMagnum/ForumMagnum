@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -30,11 +30,16 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
   voteCount: number,
 }=> {
   const messages = useMessages();
+  const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const collection = getCollection(collectionName);
   const query = getVoteMutationQuery(collection);
-  const [mutate] = useMutation(query);
+  const [mutate] = useMutation(query, {
+    onCompleted: useCallback(() => {
+      setOptimisticResponseDocument(null)
+    }),
+  });
   
-  const vote = React.useCallback(({document, voteType, collection, currentUser, voteId = Random.id()}) => {
+  const vote = useCallback(({document, voteType, collection, currentUser, voteId = Random.id()}) => {
     const newDocument = performVoteClient({collection, document, user: currentUser, voteType, voteId});
 
     try {
@@ -45,11 +50,8 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
           collectionName: collection.options.collectionName,
           voteId,
         },
-        optimisticResponse: {
-          __typename: 'Mutation',
-          vote: newDocument,
-        }
       })
+      setOptimisticResponseDocument(newDocument);
     } catch(e) {
       const errorMessage = _.map(e.graphQLErrors, (gqlErr: any)=>gqlErr.message).join("; ");
       messages.flash({ messageString: errorMessage });
@@ -57,9 +59,11 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
   }, [messages, mutate]);
   
   const af = forumTypeSetting.get() === 'AlignmentForum'
+  const result = optimisticResponseDocument || document;
   return {
-    vote, collection, document,
-    baseScore: (af ? document.afBaseScore : document.baseScore) || 0,
-    voteCount: (af ? document.afVoteCount : document.voteCount) || 0,
+    vote, collection,
+    document: result,
+    baseScore: (af ? result.afBaseScore : result.baseScore) || 0,
+    voteCount: (af ? result.afVoteCount : result.voteCount) || 0,
   };
 }
