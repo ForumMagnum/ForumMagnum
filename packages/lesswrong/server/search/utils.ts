@@ -533,14 +533,15 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
     
-    let algoliaEntries: Array<AlgoliaDocument>|null = (collection.checkAccess && await collection.checkAccess(null, item, null)) ? collection.toAlgolia(item) : null;
+    const canAccess = collection.checkAccess ? await collection.checkAccess(null, item, null) : true;
+    let algoliaEntries: Array<AlgoliaDocument>|null = canAccess ? collection.toAlgolia(item) : null;
     if (algoliaEntries && algoliaEntries.length>0) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     } else {
       itemsToDelete.push(item._id);
     }
   }
-
+  
   if (importBatch.length > 0) {
     const subBatches = subBatchArray(importBatch, 1000)
     for (const subBatch of subBatches) {
