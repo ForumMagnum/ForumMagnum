@@ -59,18 +59,25 @@ const styles = theme => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "rgba(0,0,0,.04)",
+    background: "#f4f4f4",
+    minHeight: "100vh",
+    backgroundPositionX: "right",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
   },
+  scienceOrbs: {
+    backgroundImage: "url(https://i.imgur.com/5PvVnqT.jpg)",
+    backgroundRepeatX: "no-repeat",
+    backgroundPositionY: "top",
+  },
   whiteBackground: {
     background: "white",
   },
   lightGreyBackground: {
-    background: "rgba(0,0,0,.025)",
+    background: "#f9f9f9",
   },
   '@global': {
     p: pBodyStyle,
@@ -241,6 +248,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     
     const whiteBackground = ["posts.single"].includes(location.currentRoute?.name)
     const lightGreyBackground = ["sequences.single"].includes(location.currentRoute?.name)
+    const scienceOrbs = ["home"].includes(location.currentRoute?.name) //ea-forum-look-here
 
     return (
       <AnalyticsContext path={location.pathname}>
@@ -293,7 +301,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
               <div className={classNames(classes.main, {
                 [classes.whiteBackground]:whiteBackground,
-                [classes.lightGreyBackground]:lightGreyBackground
+                [classes.lightGreyBackground]:lightGreyBackground,
+                [classes.scienceOrbs]: scienceOrbs
               })}>
                 <Components.ErrorBoundary>
                   <Components.FlashMessages />

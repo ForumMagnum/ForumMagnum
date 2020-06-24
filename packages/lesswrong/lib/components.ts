@@ -55,6 +55,7 @@ importComponent("NotificationEmailPreviewPage", () => require('../components/not
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview'));
 
 importComponent("Layout", () => require('../components/Layout.tsx'));
+importComponent("ContentArea", () => require('../components/common/ContentArea.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
