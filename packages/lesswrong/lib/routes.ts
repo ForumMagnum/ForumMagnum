@@ -471,6 +471,12 @@ addRoute(
     title: "Admin"
   },
   {
+    name: 'newUsersDashboard',
+    path: '/newUsersDashboard',
+    componentName: 'NewUsersDashboard',
+    title: "New Users Dashboard"
+  },
+  {
     name: 'migrations',
     path: '/admin/migrations',
     componentName: 'MigrationsDashboard',

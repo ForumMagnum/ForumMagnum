@@ -323,6 +323,7 @@ importComponent("SearchBarResults", () => require('../components/search/SearchBa
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
 importComponent("SearchPage", () => require('../components/search/SearchPage'));
 
+importComponent("NewUsersDashboard", () => require('../components/sunshineDashboard/NewUsersDashboard'));
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
 importComponent("AdminHome", () => require('../components/sunshineDashboard/AdminHome'));
