@@ -227,7 +227,7 @@ async function algoliaAddObjects(algoliaIndex: algoliasearch.Index, objects) {
 // callback-accepting function. Returns a content object with a taskID
 // and a list objectIDs.
 // https://www.algolia.com/doc/api-reference/api-methods/delete-objects/
-export async function algoliaDeleteIds(algoliaIndex: algoliasearch.Index, ids)
+export async function algoliaDeleteIds(algoliaIndex: algoliasearch.Index, ids: Array<string>)
 {
   return new Promise((resolve,reject) => {
     algoliaIndex.deleteObjects(ids, (err, content) => {
@@ -270,6 +270,9 @@ export async function algoliaDoSearch(algoliaIndex: algoliasearch.Index, query) 
 // Because it does multiple queries for different pages, this may return
 // duplicate results or omit results, if the index is modified while it is
 // running.
+//
+// IMPORTANT CAVEAT: If this index uses 'distinct', only one entry from each
+// group will be returned.
 async function algoliaDoCompleteSearch(algoliaIndex: algoliasearch.Index, query) {
   let allResults: Array<any> = [];
   let pageSize = 1000; // Max permitted by API
@@ -361,6 +364,35 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   }
 }
 
+// Given an objectID from an Algolia record, figure out whether this record is
+// part of a group of records merged by `distinct`, and if so, return the set
+// of objectIDs of records in that group. Otherwise return the given ID.
+async function algoliaObjectIDtoIDgroup(algoliaIndex: algoliasearch.Index, id: string): Promise<Array<string>> {
+  // Does the ID have an underscore in it? If so, it's (_id)_(group index)
+  if (id.indexOf('_') >= 0) {
+    const [mongoID, groupIndexStr] = id.split('_');
+    const groupIndex = parseInt(groupIndexStr);
+    
+    // Find the largest ID in this group. Unfortunately the only way to do this
+    // is to try retrieving different IDs, and see what does and doesn't come
+    // back.
+    let largestIndex = groupIndex;
+    while (await algoliaIdExists(algoliaIndex, `${mongoID}_${largestIndex+1}`)) {
+      largestIndex++;
+    }
+    
+    return _.map(_.range(largestIndex+1), index=>`${mongoID}_${index}`);
+  } else {
+    return [id];
+  }
+}
+
+async function algoliaIdExists(algoliaIndex: algoliasearch.Index, id: string): Promise<boolean> {
+  const response = await algoliaGetObjects(algoliaIndex, [id]);
+  const nonnullResults = _.filter(response.results, r=>!!r);
+  return nonnullResults.length>0;
+}
+
 // Given a list of mongo IDs that should *not* be in the Algolia index, check
 // whether any are, and (if any are), delete them.
 //
@@ -376,8 +408,11 @@ async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids) {
       restrictSearchableAttributes: ["_id"],
       attributesToRetrieve: ['objectID','_id'],
     });
-    for (const hit of results)
-      algoliaIdsToDelete.push(hit.objectID);
+    for (const hit of results) {
+      const idGroup = await algoliaObjectIDtoIDgroup(algoliaIndex, hit.objectID)
+      for (const id of idGroup)
+        algoliaIdsToDelete.push(id);
+    }
   }
   
   if (algoliaIdsToDelete.length > 0) {
