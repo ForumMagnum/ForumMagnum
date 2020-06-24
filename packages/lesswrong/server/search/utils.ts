@@ -119,6 +119,8 @@ Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
 Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
   if (post.status !== Posts.config.STATUS_APPROVED)
     return null;
+  if (post.authorIsUnreviewed)
+    return null;
   
   const algoliaMetaInfo: AlgoliaDocument = {
     _id: post._id,
