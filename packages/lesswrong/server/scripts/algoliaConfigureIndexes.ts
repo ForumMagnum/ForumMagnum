@@ -100,6 +100,7 @@ export const algoliaConfigureIndexes = async () => {
       'desc(core)',
       'desc(postCount)',
     ],
+    distinct: false,
   });
   
   console.log("Done"); //eslint-disable-line no-console
