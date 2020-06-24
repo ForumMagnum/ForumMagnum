@@ -13,6 +13,7 @@ import red from '@material-ui/core/colors/red';
 import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import classNames from 'classnames';
 import DescriptionIcon from '@material-ui/icons/Description'
 
@@ -72,6 +73,22 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
         sunshineSnoozed: true
       }
     })
+  }
+
+  const handleBan = async () => {
+    if (confirm("Ban this user?")) {
+      setHidden(true)
+      await updateUser({
+        selector: {_id: user._id},
+        data: {
+          reviewedByUserId: currentUser!._id,
+          voteBanned: true,
+          needsReview: false,
+          reviewedAt: new Date(),
+          banned: moment().add(3, 'months').toDate()
+        }
+      })
+    }
   }
 
   const handlePurge = async () => {
@@ -163,9 +180,12 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
           <SidebarAction title="Snooze" onClick={handleSnooze}>
             <SnoozeIcon />
           </SidebarAction>
-          <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={handlePurge}>
+          {!user.reviewedByUserId && <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={handlePurge}>
             <DeleteForeverIcon />
-          </SidebarAction>
+          </SidebarAction>}
+          {user.reviewedByUserId && <SidebarAction warningHighlight={true} title="Ban User for 3 months" onClick={handleBan}>
+            <RemoveCircleOutlineIcon />
+          </SidebarAction>}
         </SidebarActionMenu>}
       </SunshineListItem>
     </span>
