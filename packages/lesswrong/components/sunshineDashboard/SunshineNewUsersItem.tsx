@@ -76,7 +76,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   }
 
   const handleBan = async () => {
-    if (confirm("Ban this user?")) {
+    if (confirm("Ban this user for 3 months?")) {
       setHidden(true)
       await updateUser({
         selector: {_id: user._id},
