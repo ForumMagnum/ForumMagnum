@@ -3,7 +3,7 @@ import Votes from '../lib/collections/votes/collection';
 import Users from '../lib/collections/users/collection';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
 import { voteTypes, createVote } from '../lib/voting/vote';
-import { algoliaDocumentExport } from './search/utils';
+import { algoliaExportById } from './search/utils';
 import moment from 'moment';
 import { Random } from 'meteor/random';
 import * as _ from 'underscore';
@@ -52,7 +52,7 @@ const addVoteServer = async (voteOptions) => {
       },
       {}, true
     );
-    algoliaDocumentExport({ documents: [newDocument], collection });
+    await algoliaExportById(collection, newDocument._id);
   }
   return {newDocument, vote};
 }
@@ -107,7 +107,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
-    algoliaDocumentExport({ documents: [newDocument], collection });
+    await algoliaExportById(collection, newDocument._id);
   }
   return newDocument;
 }
@@ -167,7 +167,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
       {},
       true
     );
-    algoliaDocumentExport({ documents: [newDocument], collection });
+    await algoliaExportById(collection, newDocument._id);
   }
   return {newDocument, vote};
 }

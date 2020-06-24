@@ -502,6 +502,13 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   }
 }
 
+export async function algoliaExportById(collection, documentId: string) {
+  const document = await collection.findOne({_id: documentId});
+  if (document) {
+    algoliaDocumentExport({ documents: [document], collection });
+  }
+}
+
 // Sometimes 100 posts generate more index requests than algolia will willingly
 // handle - split them up in that case
 // Export for testing

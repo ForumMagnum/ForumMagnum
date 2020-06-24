@@ -45,9 +45,9 @@ function userEditVoteBannedCallbacksAsync(user, oldUser) {
 }
 addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
 
-function userEditNullifyVotesCallbacksAsync(user, oldUser) {
+async function userEditNullifyVotesCallbacksAsync(user, oldUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    runCallbacksAsync('users.nullifyVotes.async', user);
+    await runCallbacksAsync('users.nullifyVotes.async', user);
   }
   return user;
 }
@@ -72,14 +72,14 @@ addCallback("users.edit.async", userEditBannedCallbacksAsync);
 
 // document, voteType, collection, user, updateDocument
 
-const reverseVote = (vote) => {
+const reverseVote = async (vote) => {
   const collection = getCollection(vote.collectionName);
   const document = collection.findOne({_id: vote.documentId});
   const voteType = vote.type;
   const user = Users.findOne({_id: vote.userId});
   if (document && user) {
     // { document, voteType, collection, user, updateDocument }
-    cancelVoteServer({document, voteType, collection, user, updateDocument: true})
+    await cancelVoteServer({document, voteType, collection, user, updateDocument: true})
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user, voteType);
@@ -93,35 +93,35 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
     userId: user._id,
     cancelled: false,
   }).fetch();
-  votes.forEach((vote) => {
+  for (let vote of votes) {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    reverseVote(vote);
-  });
+    await reverseVote(vote);
+  };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-function nullifyCommentVotes(user) {
-  nullifyVotesForUserAndCollection(user, Comments);
+async function nullifyCommentVotes(user) {
+  await nullifyVotesForUserAndCollection(user, Comments);
   return user;
 }
 addCallback("users.nullifyVotes.async", nullifyCommentVotes)
 
-function nullifyPostVotes(user) {
-  nullifyVotesForUserAndCollection(user, Posts);
+async function nullifyPostVotes(user) {
+  await nullifyVotesForUserAndCollection(user, Posts);
   return user;
 }
 addCallback("users.nullifyVotes.async", nullifyPostVotes)
 
-function userDeleteContent(user) {
+async function userDeleteContent(user) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = Posts.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);
-  posts.forEach((post) => {
-    editMutation({
+  for (let post of posts) {
+    await editMutation({
       collection: Posts,
       documentId: post._id,
       set: {status: 5},
@@ -133,19 +133,19 @@ function userDeleteContent(user) {
     const notifications = Notifications.find({documentId: post._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for post ${post._id}: `, notifications);
-    notifications.forEach((notification) => {
-      removeMutation({
+    for (let notification of notifications) {
+      await removeMutation({
         collection: Notifications,
         documentId: notification._id,
         validate: false,
       })
-    })
+    }
 
     const reports = Reports.find({postId: post._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for post ${post._id}: `, reports);
-    reports.forEach((report) => {
-      editMutation({
+    for (let report of reports) {
+      await editMutation({
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
@@ -153,17 +153,17 @@ function userDeleteContent(user) {
         currentUser: user,
         validate: false,
       })
-    })
+    }
     
-    runCallbacksAsync('posts.purge.async', post)
-  })
+    await runCallbacksAsync('posts.purge.async', post)
+  }
 
   const comments = Comments.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting comments: ", comments);
-  comments.forEach((comment) => {
+  for (let comment of comments) {
     if (!comment.deleted) {
-      editMutation({
+      await editMutation({
         collection: Comments,
         documentId: comment._id,
         set: {deleted: true, deletedDate: new Date()},
@@ -176,19 +176,19 @@ function userDeleteContent(user) {
     const notifications = Notifications.find({documentId: comment._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for comment ${comment._id}: `, notifications);
-    notifications.forEach((notification) => {
-      removeMutation({
+    for (let notification of notifications) {
+      await removeMutation({
         collection: Notifications,
         documentId: notification._id,
         validate: false,
       })
-    })
+    }
 
     const reports = Reports.find({commentId: comment._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for comment ${comment._id}: `, reports);
-    reports.forEach((report) => {
-      editMutation({
+    for (let report of reports) {
+      await editMutation({
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
@@ -196,10 +196,10 @@ function userDeleteContent(user) {
         currentUser: user,
         validate: false,
       })
-    })
+    }
 
     runCallbacksAsync('comments.purge.async', comment)
-  })
+  }
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
 }
