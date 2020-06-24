@@ -16,6 +16,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { Globals } from '../../lib/vulcan-lib';
+import { asyncFilter } from '../../lib/utils/asyncUtils';
 
 type AlgoliaDocument = {
   _id: string,
@@ -23,14 +24,14 @@ type AlgoliaDocument = {
 }
 
 interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
-  toAlgolia: (document: T) => Array<AlgoliaDocument>|null
+  toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
-Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
+Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaDocument>|null> => {
   if (comment.deleted) return null;
   
   const algoliaComment: AlgoliaDocument = {
@@ -48,13 +49,13 @@ Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
     postedAt: comment.postedAt,
     af: comment.af
   };
-  const commentAuthor = Users.findOne({_id: comment.userId});
+  const commentAuthor = await Users.findOne({_id: comment.userId});
   if (commentAuthor && !commentAuthor.deleted) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
   }
-  const parentPost = Posts.findOne({_id: comment.postId});
+  const parentPost = await Posts.findOne({_id: comment.postId});
   if (parentPost) {
     algoliaComment.postId = comment.postId;
     algoliaComment.postTitle = parentPost.title;
@@ -71,7 +72,7 @@ Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
   return [algoliaComment]
 }
 
-Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
+Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaDocument>|null> => {
   if (sequence.isDeleted || sequence.draft || sequence.hidden)
     return null;
   
@@ -84,7 +85,7 @@ Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
     createdAt: sequence.createdAt,
     af: sequence.af
   };
-  const sequenceAuthor = Users.findOne({_id: sequence.userId});
+  const sequenceAuthor = await Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
     algoliaSequence.authorDisplayName = sequenceAuthor.displayName;
     algoliaSequence.authorUserName = sequenceAuthor.username;
@@ -98,7 +99,7 @@ Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
   return [algoliaSequence]
 }
 
-Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
+Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaDocument>|null> => {
   if (user.deleted) return null;
   if (user.deleteContent) return null;
   
@@ -120,7 +121,7 @@ Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
 }
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
-Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
+Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => {
   if (post.status !== Posts.config.STATUS_APPROVED)
     return null;
   if (post.authorIsUnreviewed)
@@ -145,13 +146,13 @@ Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
     draft: post.draft,
     af: post.af
   };
-  const postAuthor = Users.findOne({_id: post.userId});
+  const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
     algoliaMetaInfo.authorFullName = postAuthor.fullName;
   }
-  const postFeed = RSSFeeds.findOne({_id: post.feedId});
+  const postFeed = await RSSFeeds.findOne({_id: post.feedId});
   if (postFeed) {
     algoliaMetaInfo.feedName = postFeed.nickname;
     algoliaMetaInfo.feedLink = post.feedLink;
@@ -180,7 +181,7 @@ Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
   return postBatch;
 }
 
-Tags.toAlgolia = (tag: DbTag): Array<AlgoliaDocument>|null => {
+Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
   if (tag.deleted) return null;
   
   let description = ""
@@ -534,7 +535,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
     if (updateFunction) updateFunction(item)
     
     const canAccess = collection.checkAccess ? await collection.checkAccess(null, item, null) : true;
-    let algoliaEntries: Array<AlgoliaDocument>|null = canAccess ? collection.toAlgolia(item) : null;
+    let algoliaEntries: Array<AlgoliaDocument>|null = canAccess ? await collection.toAlgolia(item) : null;
     if (algoliaEntries && algoliaEntries.length>0) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     } else {
@@ -579,7 +580,7 @@ export async function subsetOfIdsAlgoliaShouldntIndex<T extends DbObject>(collec
   
   for (let page of pages) {
     let items: Array<T> = await collection.find({ _id: {$in: page} }).fetch();
-    let itemsToIndex = _.filter(items, (item: T) => !!collection.toAlgolia(item));
+    let itemsToIndex = await asyncFilter(items, async (item: T) => !!(await collection.toAlgolia(item)));
     for (let item of itemsToIndex) {
       itemsToIndexById[item._id] = true;
     }

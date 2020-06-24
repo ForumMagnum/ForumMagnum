@@ -31,7 +31,7 @@ interface ExtendedSequencesCollection extends SequencesCollection {
   sequenceContainsPost: (sequenceId: string, postId: string) => Promise<boolean>
   
   // Functions in search/utils.ts
-  toAlgolia: (sequence: DbSequence) => Array<Record<string,any>>|null
+  toAlgolia: (sequence: DbSequence) => Promise<Array<Record<string,any>>|null>
 }
 
 export const Sequences: ExtendedSequencesCollection = createCollection({
