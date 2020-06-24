@@ -15,6 +15,7 @@ import { algoliaAppIdSetting } from '../../lib/publicSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
+import { Globals } from '../../lib/vulcan-lib';
 
 type AlgoliaDocument = {
   _id: string,
@@ -370,21 +371,49 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
 async function algoliaObjectIDtoIDgroup(algoliaIndex: algoliasearch.Index, id: string): Promise<Array<string>> {
   // Does the ID have an underscore in it? If so, it's (_id)_(group index)
   if (id.indexOf('_') >= 0) {
-    const [mongoID, groupIndexStr] = id.split('_');
+    const [mongoId, groupIndexStr] = id.split('_');
     const groupIndex = parseInt(groupIndexStr);
+    const largestIndex = await getHighestGroupIndexInGroup(algoliaIndex, mongoId, groupIndex);
     
-    // Find the largest ID in this group. Unfortunately the only way to do this
-    // is to try retrieving different IDs, and see what does and doesn't come
-    // back.
-    let largestIndex = groupIndex;
-    while (await algoliaIdExists(algoliaIndex, `${mongoID}_${largestIndex+1}`)) {
-      largestIndex++;
-    }
-    
-    return _.map(_.range(largestIndex+1), index=>`${mongoID}_${index}`);
+    return _.map(_.range(largestIndex+1), index=>`${mongoId}_${index}`);
   } else {
     return [id];
   }
+}
+
+// Find the largest ID in this group. Unfortunately the only way to do this is
+// to try retrieving different IDs, and see what does and doesn't come back.
+async function getHighestGroupIndexInGroup(algoliaIndex: algoliasearch.Index, mongoId: string, lowerBound: number): Promise<number> {
+  let largestIndex = lowerBound;
+  while (await algoliaIdExists(algoliaIndex, `${mongoId}_${largestIndex+1}`)) {
+    largestIndex++;
+  }
+  return largestIndex;
+}
+
+// Given a set of objectIDs, some of which are of the form (mongoId)_(groupIndex)
+// and some of which aren't, some of which share mongoIds but not groupIndexes,
+// return all objectIDs in the algolia index which share a mongoId with one of
+// the provided objectIDs, but have a higher groupIndex than any in the input.
+async function algoliaObjectIDsToHigherIDSet(algoliaIndex: algoliasearch.Index, ids: Array<string>): Promise<Array<string>> {
+  const highestGroupIndexes: Record<string,number> = {};
+  for (let id of ids) {
+    if (id.indexOf('_') >= 0) {
+      const [mongoId, groupIndexStr] = id.split('_');
+      const groupIndex = parseInt(groupIndexStr);
+      if (!(mongoId in highestGroupIndexes) || (groupIndex > highestGroupIndexes[mongoId]))
+        highestGroupIndexes[mongoId] = groupIndex;
+    }
+  }
+  
+  let result: Array<string> = [];
+  for (let mongoId of Object.keys(highestGroupIndexes)) {
+    const largestIndexInInput = highestGroupIndexes[mongoId];
+    const largestIndexInAlgolia = await getHighestGroupIndexInGroup(algoliaIndex, mongoId, largestIndexInInput);
+    for (let i=largestIndexInInput+1; i<=largestIndexInAlgolia; i++)
+      result.push(`${mongoId}_${i}`);
+  }
+  return result;
 }
 
 async function algoliaIdExists(algoliaIndex: algoliasearch.Index, id: string): Promise<boolean> {
@@ -399,7 +428,7 @@ async function algoliaIdExists(algoliaIndex: algoliasearch.Index, id: string): P
 // We first do a series of queries, one per mongo ID, to collect the indexed
 // pieces of the deleted documents (since they're split into multiple index
 // entries by paragraph).
-async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids) {
+async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids: Array<string>) {
   let algoliaIdsToDelete: Array<any> = [];
   
   for (const mongoId of ids) {
@@ -491,7 +520,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
     if (updateFunction) updateFunction(item)
     
     let algoliaEntries: Array<AlgoliaDocument>|null = (collection.checkAccess && await collection.checkAccess(null, item, null)) ? collection.toAlgolia(item) : null;
-    if (algoliaEntries) {
+    if (algoliaEntries && algoliaEntries.length>0) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     } else {
       itemsToDelete.push(item._id);
@@ -501,8 +530,16 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   if (importBatch.length > 0) {
     const subBatches = subBatchArray(importBatch, 1000)
     for (const subBatch of subBatches) {
+      const objectIdsAdded = _.map(subBatch, doc=>doc.objectID);
+      const excessIdsToDelete = await algoliaObjectIDsToHigherIDSet(algoliaIndex, objectIdsAdded);
+      
       let err
       try {
+        if (excessIdsToDelete.length > 0) {
+          const deleteResponse: any = await algoliaDeleteIds(algoliaIndex, excessIdsToDelete);
+          await algoliaWaitForTask(algoliaIndex, deleteResponse.taskID);
+        }
+        
         err = await addOrUpdateIfNeeded(algoliaIndex, _.map(subBatch, _.clone));
       } catch (uncaughtErr) {
         err = uncaughtErr
