@@ -72,13 +72,15 @@ Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
 }
 
 Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
+  if (sequence.isDeleted)
+    return null;
+  
   const algoliaSequence: AlgoliaDocument = {
     objectID: sequence._id,
     _id: sequence._id,
     title: sequence.title,
     userId: sequence.userId,
     baseScore: sequence.baseScore,
-    isDeleted: sequence.isDeleted,
     createdAt: sequence.createdAt,
     af: sequence.af
   };
