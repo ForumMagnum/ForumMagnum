@@ -27,6 +27,7 @@ interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T>
 }
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
+const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
 Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
@@ -106,7 +107,7 @@ Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
     displayName: user.displayName,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
-    bio: user.bio,
+    bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
     website: user.website,
