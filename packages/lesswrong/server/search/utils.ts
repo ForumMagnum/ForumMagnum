@@ -190,6 +190,7 @@ Tags.toAlgolia = (tag: DbTag): Array<AlgoliaDocument>|null => {
   
   return [{
     _id: tag._id,
+    objectID: tag._id,
     name: tag.name,
     slug: tag.slug,
     core: tag.core,
