@@ -97,6 +97,7 @@ Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
 
 Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
   if (user.deleted) return null;
+  if (user.deleteContent) return null;
   
   const algoliaUser = {
     _id: user._id,
