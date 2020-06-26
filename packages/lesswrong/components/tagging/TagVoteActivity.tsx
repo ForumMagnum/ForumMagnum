@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Votes } from '../../lib/collections/votes';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useVote } from '../votes/withVote';
@@ -72,7 +71,7 @@ const TagVoteActivityRow = ({vote, classes}: {
 const TagVoteActivity = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Error404, VoteButton, LoadMore } = Components
+  const { SingleColumnSection, Error404, LoadMore } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
     collection: Votes,

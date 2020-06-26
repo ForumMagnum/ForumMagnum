@@ -1,8 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
-import { useCurrentUser } from '../common/withUser';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = theme => ({
   relevance: {
@@ -29,7 +27,6 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   classes: ClassesType,
   relevance?: boolean
 }) => {
-  const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");
   const { VoteButton, TagPreview } = Components;
   

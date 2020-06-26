@@ -3,7 +3,6 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -45,7 +44,6 @@ const PostsVote = ({ post, classes, collection }: {
   classes: ClassesType,
   collection: any,
 }) => {
-  const currentUser = useCurrentUser();
   const voteProps = useVote(post, "Posts");
 
   return (

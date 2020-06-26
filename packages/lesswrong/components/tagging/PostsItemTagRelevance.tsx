@@ -1,7 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -40,7 +38,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   classes: ClassesType,
 }) => {
   const { VoteButton, PostsItem2MetaInfo } = Components;
-  const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");
   
   const tooltip = <div>

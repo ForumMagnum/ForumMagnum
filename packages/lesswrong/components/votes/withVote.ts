@@ -1,9 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { performVoteClient } from '../../lib/voting/vote';
-import { VoteableCollections } from '../../lib/make_voteable';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { Random } from 'meteor/random';
@@ -36,7 +35,7 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
   const [mutate] = useMutation(query, {
     onCompleted: useCallback(() => {
       setOptimisticResponseDocument(null)
-    }),
+    }, []),
   });
   
   const vote = useCallback(({document, voteType, collection, currentUser, voteId = Random.id()}) => {
