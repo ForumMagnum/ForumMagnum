@@ -1,6 +1,8 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Slide from '@material-ui/core/Slide'
+import { useLocation } from '../../../lib/routeUtil';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -29,13 +31,20 @@ const styles = theme => ({
   },
   "@media print": {
     display: "none"
+  },
+  background: {
+    background: "rgba(255,255,255,.75)"
   }
 })
 
 const NavigationStandalone = ({sidebarHidden, classes}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
+  const { location } = useLocation();
+
+  const background = ["/community"].includes(location.pathname)
+
   return <div className={classes.root}>
-    <div className={classes.sidebar}>
+    <div className={classNames(classes.sidebar, {[classes.background]: background})}>
       <Slide
         direction='right'
         in={!sidebarHidden}

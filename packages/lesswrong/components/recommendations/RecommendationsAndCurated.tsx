@@ -30,7 +30,7 @@ const styles = theme => ({
     }
   },
   footer: {
-    color: theme.palette.lwTertiary.main,
+    color: theme.palette.grey[600],
     flexGrow: 1,
     flexWrap: "wrap",
     maxWidth: 450,
@@ -129,13 +129,15 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
  
     return <SingleColumnSection className={classes.section}>
-      <SectionTitle title="Recommendations" divider={false}>
-        {currentUser && 
-          <LWTooltip title="Customize your recommendations">
-            <SettingsIcon showIcon={false} onClick={this.toggleSettings} label="Customize"/>
-          </LWTooltip>
-        }
-      </SectionTitle>
+      <Link to={"/recommendations"}>
+        <SectionTitle title="Recommendations">
+          {currentUser && 
+            <LWTooltip title="Customize your recommendations">
+              <SettingsIcon showIcon={false} onClick={this.toggleSettings} label="Customize"/>
+            </LWTooltip>
+          }
+        </SectionTitle>
+      </Link>
 
       {showSettings &&
         <RecommendationsAlgorithmPicker
@@ -158,6 +160,20 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             <ContinueReadingList continueReading={continueReading} />
           </Hidden>
         </div>}
+
+      {/* Disabled during 2018 Review [and coronavirus season] */}
+      <div className={currentUser ? classes.subsection : null}>
+        <div className={classes.posts}>
+          {!settings.hideFrontpage &&
+            <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+              <RecommendationsList algorithm={frontpageRecommendationSettings} />
+            </AnalyticsContext>
+          }
+          <AnalyticsContext listContext={"curatedPosts"}>
+            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} boxShadow={false} />
+          </AnalyticsContext>
+        </div>
+      </div>
 
       {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
           <LWTooltip placement="top-start" title={continueReadingTooltip}>
@@ -194,27 +210,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
       </AnalyticsContext> */}
-
-      {/* Disabled during 2018 Review [and coronavirus season] */}
-      <div className={currentUser ? classes.subsection : null}>
-        {currentUser && (renderBookmarks || renderContinueReading) && <LWTooltip placement="top-start" title={allTimeTooltip}>
-          <Link to={"/recommendations"}>
-            <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
-              Curated and Archives
-            </SectionSubtitle>
-          </Link>
-        </LWTooltip>}
-        <div className={classes.posts}>
-          {!settings.hideFrontpage &&
-            <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-              <RecommendationsList algorithm={frontpageRecommendationSettings} />
-            </AnalyticsContext>
-          }
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} boxShadow={false} />
-          </AnalyticsContext>
-        </div>
-      </div>
     </SingleColumnSection>
   }
 }

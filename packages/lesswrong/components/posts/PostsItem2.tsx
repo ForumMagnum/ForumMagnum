@@ -62,8 +62,6 @@ export const styles = (theme) => ({
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
-    marginTop: -1,
-    border: "solid 1px #ccc",
     [theme.breakpoints.down('xs')]: {
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2

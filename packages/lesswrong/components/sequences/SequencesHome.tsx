@@ -43,7 +43,7 @@ const SequencesHome = ({classes}) => {
         <SectionTitle title="Core Reading" />
         <Components.CoreReading />
       </SingleColumnSection>}
-
+      <Divider />
       <SingleColumnSection>
         <SectionTitle title="Curated Sequences" />
         <div className={classes.sequencesGridWrapperWrapper}>
@@ -53,9 +53,8 @@ const SequencesHome = ({classes}) => {
             showLoadMore={true}
           />
         </div>
-        <Divider />
       </SingleColumnSection>
-
+      <Divider />
       <SingleColumnSection>
         <SectionTitle  title="Community Sequences" >
           <SequencesNewButton />

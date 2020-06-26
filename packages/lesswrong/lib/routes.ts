@@ -190,7 +190,7 @@ addRoute(
 
   // Tags
   {
-    name: 'tags',
+    name: 'tags.single',
     path: '/tag/:slug',
     componentName: 'TagPage',
     titleComponentName: 'TagPageTitle',

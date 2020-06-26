@@ -59,7 +59,8 @@ const styles = theme => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "rgba(0,0,0,.04)",
+    background: "#f4f4f4",
+    minHeight: "100vh",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
@@ -70,7 +71,7 @@ const styles = theme => ({
     background: "white",
   },
   lightGreyBackground: {
-    background: "rgba(0,0,0,.025)",
+    background: "#f9f9f9",
   },
   '@global': {
     p: pBodyStyle,
@@ -239,7 +240,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
         .includes(location.currentRoute.name)
     
-    const whiteBackground = ["posts.single"].includes(location.currentRoute?.name)
+    const whiteBackground = ["posts.single", "events.single", "tagIndex", "donate", "about", "faq", "CommunityHome"].includes(location.currentRoute?.name)
     const lightGreyBackground = ["sequences.single"].includes(location.currentRoute?.name)
 
     return (

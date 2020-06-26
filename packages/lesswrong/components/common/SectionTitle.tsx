@@ -19,9 +19,6 @@ const styles = (theme) => ({
     marginTop: theme.spacing.unit*3,
     paddingBottom: 8
   },
-  divider: {
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
-  },
   title: {
     ...sectionTitleStyle(theme)
   },
@@ -64,11 +61,11 @@ const SectionTitle = ({children, classes, className, title, divider=false}: {
   divider?: boolean,
 }) => {
   return (
-    <div className={classNames(classes.root, {[classes.divider]: divider})}>
+    <div className={classes.root}>
       <Typography variant='display1' className={classNames(classes.title, className)}>
         {title}
       </Typography>
-      {/* { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>} */}
+      { divider && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>}
       
       <div className={classes.children}>{ children }</div>
     </div>
