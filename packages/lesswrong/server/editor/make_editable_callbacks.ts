@@ -379,8 +379,9 @@ export function addEditableCallbacks({collection, options = {}}: {
   }
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
-    if (docData[fieldName]?.originalContents && await revisionIsChange(newDocument, fieldName)) {
+    if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
+      
       const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
@@ -394,21 +395,27 @@ export function addEditableCallbacks({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       
-      // FIXME: See comment on the other Connectors.create call in this file.
-      // Missing _id and schemaVersion.
-      // @ts-ignore
-      const newRevision = await Connectors.create(Revisions, {
-        documentId: document._id,
-        ...await buildRevision({
-          originalContents: newDocument[fieldName].originalContents,
-          currentUser,
-        }),
-        fieldName,
-        collectionName,
-        version,
-        updateType,
-        commitMessage,
-      });
+      let newRevisionId;
+      if (await revisionIsChange(newDocument, fieldName)) {
+        // FIXME: See comment on the other Connectors.create call in this file.
+        // Missing _id and schemaVersion.
+        // @ts-ignore
+        const newRevision = await Connectors.create(Revisions, {
+          documentId: document._id,
+          ...await buildRevision({
+            originalContents: newDocument[fieldName].originalContents,
+            currentUser,
+          }),
+          fieldName,
+          collectionName,
+          version,
+          updateType,
+          commitMessage,
+        });
+        newRevisionId = newRevision._id;
+      } else {
+        newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
+      }
       
       return {
         ...docData,
@@ -416,7 +423,7 @@ export function addEditableCallbacks({collection, options = {}}: {
           ...docData[fieldName],
           html, version, userId, editedAt, wordCount
         },
-        [`${fieldName}_latest`]: newRevision,
+        [`${fieldName}_latest`]: newRevisionId,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, [{
               collectionName: collection.collectionName,
