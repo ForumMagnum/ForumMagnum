@@ -10,21 +10,30 @@ import { getDataFromTree } from 'react-apollo';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
 import { webAppConnectHandlersUse } from '../meteor_patch';
 
+import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
-import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { createClient } from './apolloClient';
-import { cachedPageRender, recordCacheBypass, getCacheHitRate } from './pageCache';
+import { cachedPageRender, recordCacheBypass } from './pageCache';
 import Head from './components/Head';
-import ApolloState from './components/ApolloState';
+import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 import { Random } from 'meteor/random';
 import { publicSettings } from '../../../lib/publicSettings'
 
+type RenderTimings = {
+  totalTime: number
+  prerenderTime: number
+  renderTime: number
+}
+
 const makePageRenderer = async sink => {
   const startTime = new Date();
   const req = sink.request;
   const user = await getUserFromReq(req);
+  
+  const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
+  const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
   // it into a global variable. In previous versions of Vulcan this would've
@@ -41,14 +50,13 @@ const makePageRenderer = async sink => {
     url: req.url.pathname,
     clientId: req.cookies && req.cookies.clientId,
     tabId: tabId,
-    userAgent: req.headers["user-agent"],
+    userAgent: userAgent,
   };
   
   if (user) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
-    console.log(`Rendering ${req.url} (logged in request; hit rate=${getCacheHitRate()})`);
     const rendered = await renderRequest({
       req, user, startTime
     });
@@ -62,6 +70,8 @@ const makePageRenderer = async sink => {
       timings: rendered.timings,
       cached: false,
     });
+    // eslint-disable-next-line no-console
+    console.log(`Rendered ${req.url.path} for ${user.username}: ${printTimings(rendered.timings)}`);
   } else {
     const rendered = await cachedPageRender(req, (req) => renderRequest({
       req, user: null, startTime
@@ -70,6 +80,8 @@ const makePageRenderer = async sink => {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     });
+    // eslint-disable-next-line no-console
+    console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
       userId: null,
@@ -113,13 +125,7 @@ const renderRequest = async ({req, user, startTime}) => {
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
 
   const App = <AppGenerator req={req} apolloClient={client} serverRequestStatus={serverRequestStatus} />;
-
-  // run user registered callbacks that wraps the React app
-  const WrappedApp = runCallbacks({
-    name: 'router.server.wrapper',
-    iterator: App,
-    properties: { req, context, apolloClient: client },
-  });
+  const WrappedApp = wrapWithMuiTheme(App, context);
 
   let htmlContent = '';
   // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
@@ -165,25 +171,21 @@ const renderRequest = async ({req, user, startTime}) => {
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
-  const serializedApolloState = ReactDOM.renderToString(
-    <ApolloState initialState={initialState} />
-  );
+  const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   
-  // HACK: The sheets registry is created in a router.server.wrapper callback. The
-  // resulting styles are extracted here, rather than in a callback, because the type
-  // signature of the callback didn't fit.
+  // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
+  // context.
   const sheetsRegistry = context.sheetsRegistry;
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
   
   const finishedTime = new Date();
-  const timings = {
+  const timings: RenderTimings = {
     prerenderTime: afterPrerenderTime.valueOf() - startTime.valueOf(),
     renderTime: finishedTime.valueOf() - afterPrerenderTime.valueOf(),
     totalTime: finishedTime.valueOf() - startTime.valueOf()
   };
   
   // eslint-disable-next-line no-console
-  console.log(`preRender time: ${timings.prerenderTime}; render time: ${timings.renderTime}`);
   if (timings.totalTime > 3000) {
     Sentry.captureException(new Error("SSR time above 3 seconds"));
   }
@@ -214,6 +216,10 @@ const sendToSink = (sink, {
     sink.appendToHead(head);
   sink.appendToBody(serializedApolloState);
   sink.appendToHead(jssSheets);
+}
+
+const printTimings = (timings: RenderTimings): string => {
+  return `${timings.totalTime}ms (prerender: ${timings.prerenderTime}ms, render: ${timings.renderTime}ms)`;
 }
 
 export default makePageRenderer;

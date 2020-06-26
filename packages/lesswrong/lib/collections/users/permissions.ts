@@ -6,7 +6,7 @@ const sunshineRegimentActions = [
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 
-Users.checkAccess = (user, document) => {
+Users.checkAccess = async (user: DbUser|null, document: DbUser, context: ResolverContext|null): Promise<boolean> => {
   if (document && document.deleted) return Users.canDo(user, 'users.view.deleted')
   return true
 };

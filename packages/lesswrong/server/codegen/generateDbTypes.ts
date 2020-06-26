@@ -15,6 +15,8 @@ export function generateDbTypes(): string {
     sb.push(generateCollectionType(collection));
     sb.push(generateCollectionDbType(collection));
   }
+  
+  sb.push(generateNameMapTypes());
   return sb.join('');
 }
 
@@ -62,4 +64,16 @@ function generateCollectionDbType(collection: any): string {
   
   return sb.join('');
 }
+
+function generateNameMapTypes(): string {
+  let sb: Array<string> = [];
+  sb.push('interface CollectionsByName {\n');
+  for (let collection of Collections) {
+    const collectionName = collection.collectionName;
+    sb.push(`  ${collectionName}: ${collectionName}Collection\n`);
+  }
+  sb.push('}\n\n');
+  return sb.join('');
+}
+
 

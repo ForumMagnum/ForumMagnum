@@ -100,7 +100,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
     </span>
   </span>
 
-  const otherValue = ["Hidden", -30,-10,0,10,30,"Required"].includes(mode) ? "" : (mode || "")
+  const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
   return <span>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ? <Link to={`tag/${tag.slug}`}>
@@ -135,8 +135,8 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(-25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-30})} onClick={ev => onChangeMode(-25)}>
-                -30
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-25})} onClick={ev => onChangeMode(-25)}>
+                -25
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(-10)}>
@@ -155,8 +155,8 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===30})} onClick={ev => onChangeMode(25)}>
-                +30
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode===25})} onClick={ev => onChangeMode(25)}>
+                +25
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip("Required")}>

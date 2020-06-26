@@ -16,7 +16,7 @@ const isValidEventAge = (age) => age>=0 && age<=60*60*1000;
 
 addGraphQLResolvers({
   Mutation: {
-    analyticsEvent(root, { events, now: clientTime }, context) {
+    analyticsEvent(root, { events, now: clientTime }, context: ResolverContext) {
       // Adjust timestamps to account for server-client clock skew
       // The mutation comes with a timestamp on each event from the client
       // clock, and a timestamp representing when events were flushed, also

@@ -7,10 +7,8 @@
   "scripts": {
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
-    
     "tsc": "tsc --noEmit --skipLibCheck",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
-    
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --exclude-archs web.browser.legacy --settings settings-dev.json",
     "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
@@ -25,10 +23,11 @@
     "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings sample_settings.json --port 3200 --full-app --once",
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --exclude-archs web.browser.legacy --settings settings.json --port 3200 --full-app --once",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
-    "generate": "scripts/generateTypes.sh"
+    "generate": "scripts/generateTypes.sh",
+    "reinstall-ckeditor": "yarn add ./public/lesswrong-editor"
   },
   "dependencies": {
-    "@babel/runtime": "7.7.7",
+    "@babel/runtime": "^7.7.7",
     "@ckeditor/ckeditor5-build-balloon-block": "./public/lesswrong-editor",
     "@google/maps": "^0.5.5",
     "@lesswrong/lesswrong-editor": "./public/lesswrong-editor/",
@@ -81,7 +80,6 @@
     "apollo-link-batch-http": "^1.2.11",
     "apollo-link-error": "^1.1.5",
     "apollo-link-schema": "^1.1.1",
-    "apollo-link-state": "^0.4.2",
     "apollo-server": "2.3.3",
     "apollo-server-express": "2.3.3",
     "bcrypt": "^3.0.6",
@@ -169,13 +167,10 @@
     "react-instantsearch-dom": "^6.1.0",
     "react-intercom": "^1.0.13",
     "react-jss": "^8.1.0",
-    "react-loadable": "^4.0.3",
     "react-map-gl": "^5.0.10",
     "react-no-ssr": "^1.1.0",
-    "react-places-autocomplete": "^5.0.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "react-router-scroll": "^0.4.4",
     "react-sortable-hoc": "^1.10.1",
     "react-test-renderer": "^16.8.0",
     "recompose": "^0.26.0",

@@ -93,6 +93,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     canonicalSource
+    noIndex
 
     shareWithUsers
     
@@ -235,8 +236,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -251,8 +251,7 @@ registerFragment(`
       ...RevisionEdit
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -352,12 +351,10 @@ registerFragment(`
   fragment PostsRevisionsList on Post {
     _id
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
-
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
@@ -383,6 +380,10 @@ registerFragment(`
 registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsList
+
+    contents {
+      html
+    }
     
     user {
       ...UsersMinimumInfo
@@ -398,4 +399,3 @@ registerFragment(`
     }
   }
 `)
-

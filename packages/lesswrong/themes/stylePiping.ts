@@ -78,6 +78,7 @@ const hrStyles = {
   height: "100%",
   margin: "32px 0",
   border: "none", /* strip default hr styling */
+  background: "transparent",
   textAlign: "center",
   '&:after': {
     marginLeft: 12,

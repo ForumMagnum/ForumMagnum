@@ -38,7 +38,7 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
       {results.map(comment=><div className={classes.comment} key={comment._id}>
         <MetaInfo>
           <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-            {comment.deleted && "[Deleted] "}Comment on '{comment.post.title}' (<FormatDate date={comment.postedAt}/>)
+            {comment.deleted && "[Deleted] "}Comment on '{comment.post.title}' (<FormatDate date={comment.postedAt}/>, {comment.baseScore} karma)
           </Link>
         </MetaInfo>
         {!truncated && <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}

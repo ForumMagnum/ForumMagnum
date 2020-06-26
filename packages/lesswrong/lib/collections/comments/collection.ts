@@ -60,7 +60,7 @@ export const Comments: ExtendedCommentsCollection = createCollection({
   mutations: getDefaultMutations('Comments', commentMutationOptions),
 });
 
-Comments.checkAccess = (currentUser, comment) => {
+Comments.checkAccess = async (currentUser: DbUser|null, comment: DbComment, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser) || Users.owns(currentUser, comment)) { // admins can always see everything, users can always see their own posts
     return true;
   } else if (comment.isDeleted) {

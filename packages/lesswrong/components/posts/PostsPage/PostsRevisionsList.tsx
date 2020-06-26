@@ -4,6 +4,7 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
 import { QueryLink } from '../../../lib/reactRouterWrapper';
+import { useNavigation } from '../../../lib/routeUtil';
 
 
 const styles = theme => ({
@@ -12,12 +13,13 @@ const styles = theme => ({
   }
 })
 
-const PostsRevisionsList = ({documentId, classes}: {
-  documentId: string,
+const PostsRevisionsList = ({post, classes}: {
+  post: PostsBase,
   classes: ClassesType,
 }) => {
+  const { history } = useNavigation();
   const { document, loading } = useSingle({
-    documentId,
+    documentId: post._id,
     collection: Posts,
     fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
     fragmentName: 'PostsRevisionsList'
@@ -28,14 +30,18 @@ const PostsRevisionsList = ({documentId, classes}: {
   
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
-  // Case to any to work around it, to be able to pass a "to" parameter.
+  // Cast to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
   
   return <React.Fragment>
     {revisions.map(({editedAt, version}) =>
       <MenuItemUntyped key={version} component={QueryLink} query={{revision: version}} merge>
-        <span className={classes.version}>v{version}</span> <FormatDate date={editedAt}/>
+        <span className={classes.version}>View v{version}</span> (<FormatDate date={editedAt}/>)
       </MenuItemUntyped>)}
+    
+    <MenuItem onClick={ev => history.push(`/revisions/post/${post._id}/${post.slug}`)}>
+      Compare Revisions
+    </MenuItem>
   </React.Fragment>
 }
 

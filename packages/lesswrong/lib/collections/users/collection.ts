@@ -125,6 +125,7 @@ interface ExtendedUsersCollection extends UsersCollection {
   canCollaborate: (currentUser: UsersCurrent|null, document: PostsBase) => boolean
   canEditUsersBannedUserIds: (currentUser: DbUser|null, targetUser: DbUser) => boolean
   canModeratePost: (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null) => boolean
+  canModerateComment: (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: DbComment|CommentsList) => boolean
   canCommentLock: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   userIsBannedFromPost: (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost) => boolean
   userIsBannedFromAllPosts: (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => boolean

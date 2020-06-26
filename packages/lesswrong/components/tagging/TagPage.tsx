@@ -11,9 +11,12 @@ import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
+import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import HistoryIcon from '@material-ui/icons/History';
 
-const styles = theme => ({
+// Also used in TagCompareRevisions
+export const styles = theme => ({
   tagPage: {
     ...commentBodyStyles(theme),
     color: theme.palette.grey[600]
@@ -28,8 +31,9 @@ const styles = theme => ({
     textAlign: "left"
   },
   title: {
-    marginTop: 0,
+    ...theme.typography.display3,
     ...theme.typography.commentStyle,
+    marginTop: 0,
     fontWeight: 600,
     fontVariant: "small-caps"
   },
@@ -73,16 +77,25 @@ const styles = theme => ({
     display: "flex",
     alignItems: "center",
     marginRight: 16
-  }
+  },
+  historyButton: {
+    display: "flex",
+    alignItems: "center",
+    marginRight: 16
+  },
 });
 
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, PostsListSortDropdown, PostsList2, AddPostsToTag, ContentItemBody, Loading, Error404, PermanentRedirect, SubscribeTo } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { tag, loading: loadingTag } = useTagBySlug(slug);
+  const { revision } = query;
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision?"TagRevisionFragment":"TagFragment", {
+    extraVariables: revision ? {version: 'String'} : {},
+    extraVariablesValues: revision ? {version: revision} : {},
+  });
   const [truncated, setTruncated] = useState(true)
   const { captureEvent } =  useTracking()
   
@@ -126,7 +139,12 @@ const TagPage = ({classes}: {
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
-            {Users.isAdmin(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}><EditOutlinedIcon /> Edit Wiki</Link>}
+            {Users.isAdmin(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+              <EditOutlinedIcon /> Edit Wiki
+            </Link>}
+            {userCanViewRevisionHistory(currentUser) && <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
+              <HistoryIcon /> History
+            </Link>}
             <SubscribeTo 
               document={tag} 
               showIcon 
@@ -144,23 +162,20 @@ const TagPage = ({classes}: {
           </div>
         </AnalyticsContext>
       </div>
-      <div>
-        <AnalyticsContext pageSectionContext="tagsSection">
-          <div className={classes.tagHeader}>
-            <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-            <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-          </div>
-          <PostsList2
-            terms={terms}
-            enableTotal
-            tagId={tag._id}
-            itemsPerPage={200}
-          >
-            <AddPostsToTag tag={tag} />
-          </PostsList2>
-          
-        </AnalyticsContext>
-      </div>
+      <AnalyticsContext pageSectionContext="tagsSection">
+        <div className={classes.tagHeader}>
+          <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+          <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+        </div>
+        <PostsList2
+          terms={terms}
+          enableTotal
+          tagId={tag._id}
+          itemsPerPage={200}
+        >
+          <AddPostsToTag tag={tag} />
+        </PostsList2>
+      </AnalyticsContext>
     </SingleColumnSection>
   </AnalyticsContext>
 }

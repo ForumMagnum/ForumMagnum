@@ -525,8 +525,6 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-
-    recommendationSettings
     
     notificationShortformContent
     notificationCommentsOnSubscribedPost
