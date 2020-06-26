@@ -30,9 +30,6 @@ const styles = theme => ({
       marginLeft: 0,
       marginRight: 0,
     }
-  },
-  posts: {
-    boxShadow: theme.boxShadow,
   }
 })
 
@@ -69,7 +66,6 @@ const PostsList2 = ({
   dense,
   defaultToShowUnreadComments,
   itemsPerPage=25,
-  boxShadow=true,
   hideAuthor=false,
 }: {
   children?: React.ReactNode,
@@ -89,7 +85,6 @@ const PostsList2 = ({
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
-  boxShadow?: boolean,
   hideAuthor?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
@@ -167,7 +162,7 @@ const PostsList2 = ({
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
-      <div className={boxShadow ? classes.posts : null}>
+      <div>
         {orderedResults && orderedResults.map((post, i) => {
           const props = {
             post,
@@ -176,7 +171,7 @@ const PostsList2 = ({
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",
-            showBottomBorder: i !== (orderedResults.length - 1)
+            showBottomBorder: (orderedResults.length > 1) && i < (orderedResults.length - 1)
           };
 
           if (!(hidePosts && hidePosts[i])) {

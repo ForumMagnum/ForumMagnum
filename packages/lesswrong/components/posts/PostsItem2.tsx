@@ -18,7 +18,7 @@ export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
+const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 
 export const styles = (theme) => ({
   root: {
@@ -49,7 +49,7 @@ export const styles = (theme) => ({
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: "#efefef"
+      backgroundColor: "#fafafa"
     },
   },
   hasSmallSubtitle: {
@@ -278,7 +278,6 @@ export const styles = (theme) => ({
     top: 2,
   },
   isRead: {
-    backgroundColor: "rgba(255,255,255,.4)"
   }
 })
 
@@ -439,7 +438,7 @@ const PostsItem2 = ({
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
-            // [classes.isRead]: isRead
+            [classes.isRead]: isRead
           })}
         >
           <PostsItemTooltipWrapper post={post}>

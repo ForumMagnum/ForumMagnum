@@ -22,14 +22,6 @@ const styles = (theme) => ({
   title: {
     ...sectionTitleStyle(theme)
   },
-  rightDivider: {
-    flexGrow: 1,
-    marginLeft: theme.spacing.unit*1.5,
-    borderTop: borderStyle,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    },
-  },
   rightMargin: {
     marginRight: theme.spacing.unit*1.5
   },
@@ -42,31 +34,22 @@ const styles = (theme) => ({
       marginRight: 8,
       marginLeft: 16,
     },
-  },
-  tailDivider: {
-    marginLeft: theme.spacing.unit*1.5,
-    borderTop: borderStyle,
-    width: theme.spacing.unit*4,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    },
-  },
+  }
 })
 
-const SectionTitle = ({children, classes, className, title, divider=false}: {
+const SectionTitle = ({children, classes, className, title }: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
-  title: React.ReactNode,
-  divider?: boolean,
+  title: React.ReactNode
 }) => {
+
+  
   return (
     <div className={classes.root}>
       <Typography variant='display1' className={classNames(classes.title, className)}>
         {title}
-      </Typography>
-      { divider && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>}
-      
+      </Typography>      
       <div className={classes.children}>{ children }</div>
     </div>
   )

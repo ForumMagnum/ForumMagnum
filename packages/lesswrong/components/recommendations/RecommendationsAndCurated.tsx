@@ -109,7 +109,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     </div>
 
     // Disabled during 2018 Review [and coronavirus]
-    const allTimeTooltip = <div>
+    const recommendationsTooltip = <div>
       <div>
         Recently curated posts, as well as a random sampling of top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
@@ -129,15 +129,15 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
  
     return <SingleColumnSection className={classes.section}>
-      <Link to={"/recommendations"}>
-        <SectionTitle title="Recommendations">
-          {currentUser && 
-            <LWTooltip title="Customize your recommendations">
-              <SettingsIcon showIcon={false} onClick={this.toggleSettings} label="Customize"/>
-            </LWTooltip>
-          }
-        </SectionTitle>
-      </Link>
+      <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
+        <Link to={"/recommendations"}>Recommendations</Link>
+      </LWTooltip>}>
+        {currentUser && 
+          <LWTooltip title="Customize your recommendations">
+            <SettingsIcon showIcon={false} onClick={this.toggleSettings} label="Customize"/>
+          </LWTooltip>
+        }
+      </SectionTitle>
 
       {showSettings &&
         <RecommendationsAlgorithmPicker
@@ -170,7 +170,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} boxShadow={false} />
+            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
           </AnalyticsContext>
         </div>
       </div>
