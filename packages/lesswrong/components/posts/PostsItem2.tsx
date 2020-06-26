@@ -67,9 +67,6 @@ export const styles = (theme) => ({
       paddingRight: theme.spacing.unit/2
     }
   },
-  firstItem: {
-    borderTop: "solid 1px rgba(0,0,0,.2)"
-  },
   karma: {
     width: KARMA_WIDTH,
     justifyContent: "center",
@@ -207,15 +204,6 @@ export const styles = (theme) => ({
     "& a": {
       color: theme.palette.primary.main,
     },
-  },
-  nominationCount: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    [theme.breakpoints.up('xs')]: {
-      position: "absolute",
-      bottom: 2,
-      left: KARMA_WIDTH
-    }
   },
   sequenceImage: {
     position: "relative",
@@ -437,7 +425,6 @@ const PostsItem2 = ({
           {
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
-            [classes.firstItem]: (index===0) && showComments,
             [classes.isRead]: isRead
           })}
         >
