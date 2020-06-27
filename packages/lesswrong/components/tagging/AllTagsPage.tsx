@@ -12,7 +12,7 @@ const AllTagsPage = ({classes}: {
   const currentUser = useCurrentUser();
   const { results, loading, loadMoreProps } = useMulti({
     terms: {
-      view: "allTagsAlphabetical",
+      view: "allTagsHierarchical",
     },
     collection: Tags,
     fragmentName: "TagPreviewFragment",
@@ -33,7 +33,7 @@ const AllTagsPage = ({classes}: {
       <div>
         {results && results.map(tag => {
           return <div key={tag._id}>
-              <TagsListItem tag={tag}/>
+              <TagsListItem tag={tag} />
             </div>
         })}
         {results && !results.length && <div>

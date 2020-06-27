@@ -1,46 +1,58 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
+import { Tags } from '../../lib/collections/tags/collection';
+import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
-import Typography from '@material-ui/core/Typography';
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 
 const styles = theme => ({
   tag: {
-    display: "inline-block",
-    width: 250,
+    display: "flex",
+    width: "100%",
+    borderBottom: "solid 2px rgba(0,0,0,.05)",
+    backgroundColor: "white",
+    paddingLeft: 12,
+    paddingRight: 12,
     paddingTop: 3,
-    paddingBottom: 3,
-    paddingLeft: 6,
-    borderBottom: "solid 1px rgba(0,0,0,.1)"
+    paddingBottom: 6,
+    justifyContent: "space-between",
+    alignItems: "center"
   },
-  count: {
+  description: {
+    maxWidth: 640
+  },
+  meta: {
+    ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     fontSize: "1rem",
     position: "relative",
+    textAlign: "right"
+  },
+  editIcon: {
+    height: 16,
+    width: 16,
+    marginLeft: 12,
+    color: theme.palette.grey[500]
   }
 });
 
-const TagsListItem = ({tag, classes}: {
+const TagsListItem = ({tag, classes }: {
   tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
-  const { PopperCard, TagPreview } = Components;
-  const { hover, anchorEl, eventHandlers } = useHover();
+  const { LinkCard, TagPreviewDescription } = Components;
   
-  return <span {...eventHandlers}>
-    <PopperCard 
-      open={hover} 
-      anchorEl={anchorEl} 
-      placement="right-start"
-    >
-      <TagPreview tag={tag}/>
-    </PopperCard>
-    <Typography key={tag._id} variant="body2" className={classes.tag}>
-      <Link to={`/tag/${tag.slug}`}>
-        {tag.name} {tag.postCount && <span className={classes.count}>({tag.postCount})</span>}
+  return <div className={classes.tag}>
+    <LinkCard to={Tags.getUrl(tag)} className={classes.description}>
+      <TagPreviewDescription tag={tag} />
+    </LinkCard>
+    <div className={classes.meta}>
+      {tag.postCount} Posts 
+      <Link to={`${Tags.getUrl(tag)}/edit`}>
+        {Users.isAdmin(currentUser) && <EditOutlinedIcon className={classes.editIcon}/>}
       </Link>
-    </Typography>
-  </span>;
+    </div>
+  </div>
 }
 
 const TagsListItemComponent = registerComponent("TagsListItem", TagsListItem, {styles});

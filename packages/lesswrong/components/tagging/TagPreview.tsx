@@ -4,7 +4,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
@@ -42,6 +41,11 @@ const styles = theme => ({
     marginTop: 6,
     marginBottom: 2,
     marginRight: 6
+  },
+  smallPost: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.smallText,
+    color: theme.palette.grey[600]
   }
 });
 
@@ -52,7 +56,7 @@ const TagPreview = ({tag, classes, showCount=true}: {
   classes: ClassesType,
   showCount?: boolean
 }) => {
-  const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
+  const { TagPreviewDescription, PostsItem2, PostsListPlaceholder } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
     terms: {
@@ -66,19 +70,16 @@ const TagPreview = ({tag, classes, showCount=true}: {
   });
 
   if (!tag) return null
-  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs", "")
 
   return (<div className={classes.card}>
-    {tag.description?.htmlHighlight ? <ContentItemBody
-      className={classes.tagDescription}
-      dangerouslySetInnerHTML={{__html: highlight}}
-      description={`tag ${tag.name}`}
-    /> : <div className={classes.tagDescription}><b>{tag.name}</b></div>
-    }
+    <TagPreviewDescription tag={tag}/>
     {!results && <PostsListPlaceholder count={previewPostCount} />}
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={showCount || i!=2}/>
     )}
+    {/* {!showPosts && results && results.map((result, i) => {
+      return <span key={result.post._id} className={classes.smallPost}>{result.post.title}, </span>
+    })} */}
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
     </div>}
