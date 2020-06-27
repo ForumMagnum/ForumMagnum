@@ -53,11 +53,6 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const MIN_NAV_WIDTH = 150
-const MAX_NAV_WIDTH = 250
-const DEFAULT_NAV_MARGIN = 100
-const MAX_COLUMN_WIDTH = 760
-
 const styles = theme => ({
   main: {
     paddingTop: 50,
@@ -77,8 +72,15 @@ const styles = theme => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
-        "navSidebar ... main ..."
+        "navSidebar ... main ... sunshine"
       `,
+      gridTemplateColumns: `
+      minmax(0, 250px)
+      minmax(0, 1fr)
+      minmax(0px, 800px)
+      minmax(0, 1fr)
+      minmax(0, 1fr)
+    `,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -231,7 +233,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -260,12 +262,16 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // then it should.
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
+
+    const routeName = location.currentRoute?.name
     const standaloneNavigation = !location.currentRoute ||
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
-        .includes(location.currentRoute.name)
+        .includes(routeName)
     
-    const whiteBackground = ["posts.single", "events.single", "tagIndex", "donate", "about", "faq", "CommunityHome"].includes(location.currentRoute?.name)
-    const lightGreyBackground = ["sequences.single"].includes(location.currentRoute?.name)
+    const whiteBackground = ["posts.single", "events.single", "tagIndex", "donate", "about", "faq", "CommunityHome"].includes(routeName)
+    const lightGreyBackground = ["sequences.single"].includes(routeName)
+    
+    const shouldRenderSidebar = ["home"].includes(routeName) && (Users.canDo(currentUser, 'posts.moderate.all') || Users.canDo(currentUser, 'alignment.sidebar'))
 
     return (
       <AnalyticsContext path={location.pathname}>
@@ -328,7 +334,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     {children}
                   </ErrorBoundary>
                   <Footer />
-
+                  {shouldRenderSidebar && <div className={classes.sunshine}>
+                    <SunshineSidebar/>
+                  </div>
+                  }
                 </div>
               </div>
             </CommentBoxManager>

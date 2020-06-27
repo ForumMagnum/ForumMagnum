@@ -8,13 +8,9 @@ const Home2 = () => {
   const currentUser = useCurrentUser();
   const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker } = Components
 
-  const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
-      Users.canDo(currentUser, 'alignment.sidebar')
-
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          {shouldRenderSidebar && <Components.SunshineSidebar/>}
           <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
