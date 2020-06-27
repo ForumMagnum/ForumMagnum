@@ -5,7 +5,6 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
-import classNames from 'classnames';
 
 const styles = theme => ({
   addTagButton: {
