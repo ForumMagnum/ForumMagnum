@@ -1,9 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Tags } from '../../lib/collections/tags/collection';
-import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import { useCurrentUser } from '../common/withUser';
+import { userCanManageTags } from '../../lib/betas';
 
 const styles = theme => ({
   tag: {
@@ -31,7 +32,7 @@ const styles = theme => ({
   editIcon: {
     height: 16,
     width: 16,
-    marginLeft: 12,
+    marginTop: 4,
     color: theme.palette.grey[500]
   }
 });
@@ -42,16 +43,16 @@ const TagsListItem = ({tag, classes }: {
 }) => {
   const { LinkCard, TagPreviewDescription } = Components;
   const currentUser = useCurrentUser();
-  
+
   return <div className={classes.tag}>
     <LinkCard to={Tags.getUrl(tag)} className={classes.description}>
       <TagPreviewDescription tag={tag} />
     </LinkCard>
     <div className={classes.meta}>
-      {tag.postCount} Posts 
-      <Link to={`${Tags.getUrl(tag)}/edit`}>
-        {Users.isAdmin(currentUser) && <EditOutlinedIcon className={classes.editIcon}/>}
-      </Link>
+      <div>{tag.postCount} Posts </div>
+      {userCanManageTags(currentUser) && <Link to={`${Tags.getUrl(tag)}/edit`}>
+        <EditOutlinedIcon className={classes.editIcon}/>
+      </Link>}
     </div>
   </div>
 }
