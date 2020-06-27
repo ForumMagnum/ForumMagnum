@@ -53,6 +53,11 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
+const MIN_NAV_WIDTH = 150
+const MAX_NAV_WIDTH = 250
+const DEFAULT_NAV_MARGIN = 100
+const MAX_COLUMN_WIDTH = 760
+
 const styles = theme => ({
   main: {
     paddingTop: 50,
@@ -61,11 +66,29 @@ const styles = theme => ({
     marginRight: "auto",
     background: "#f4f4f4",
     minHeight: "100vh",
+    gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
+  },
+  gridActivated: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main ..."
+      `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  navSidebar: {
+    gridArea: 'navSidebar'
+  },
+  sunshine: {
+    gridArea: 'sunshine'
   },
   whiteBackground: {
     background: "white",
@@ -208,23 +231,24 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
+    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame">
-          <Components.ErrorBoundary>
+          <ErrorBoundary>
             <Intercom
               appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
               email={currentUser.email}
               name={currentUser.displayName}/>
-          </Components.ErrorBoundary>
+          </ErrorBoundary>
         </div>
       } else if (!currentUser) {
         return <div id="intercome-outer-frame">
-            <Components.ErrorBoundary>
+            <ErrorBoundary>
               <Intercom appID={intercomAppIdSetting.get()}/>
-            </Components.ErrorBoundary>
+            </ErrorBoundary>
           </div>
       } else {
         return null
@@ -273,37 +297,39 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
-              <Components.AnalyticsClient/>
-              <Components.AnalyticsPageInitializer/>
-              <Components.NavigationEventSender/>
+              <AnalyticsClient/>
+              <AnalyticsPageInitializer/>
+              <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
               {showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              <Components.Header
+              <Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              {standaloneNavigation && <Components.NavigationStandalone
-                sidebarHidden={hideNavigationSidebar}
-              />}
-              <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-              <div className={classNames(classes.main, {
-                [classes.whiteBackground]:whiteBackground,
-                [classes.lightGreyBackground]:lightGreyBackground
-              })}>
-                <Components.ErrorBoundary>
-                  <Components.FlashMessages />
-                </Components.ErrorBoundary>
-                <Components.ErrorBoundary>
-                  {children}
-                </Components.ErrorBoundary>
-                <Components.Footer />
+              <div className={(standaloneNavigation && !hideNavigationSidebar) ? classes.gridActivated : null}>
+                {standaloneNavigation && <div className={classes.navSidebar}>
+                  <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
+                </div>}
+                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+                <div className={classNames(classes.main, {
+                  [classes.whiteBackground]:whiteBackground,
+                  [classes.lightGreyBackground]:lightGreyBackground
+                })}>
+                  <ErrorBoundary>
+                    <FlashMessages />
+                  </ErrorBoundary>
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                  <Footer />
 
+                </div>
               </div>
             </CommentBoxManager>
           </DialogManager>
