@@ -176,7 +176,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const { slug, classes, currentUser, loading, results, location } = this.props;
     const { query } = location;
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>

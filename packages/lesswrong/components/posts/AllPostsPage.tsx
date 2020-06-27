@@ -72,7 +72,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
   }
 
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
-    const { timezone, classes, location } = this.props
+    const { timezone, location } = this.props
     const { query } = location
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
@@ -148,7 +148,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
           <SingleColumnSection>
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
-                <SectionTitle title="All Posts" divider>
+                <SectionTitle title="All Posts">
                   <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
                 </SectionTitle>
               </div>
