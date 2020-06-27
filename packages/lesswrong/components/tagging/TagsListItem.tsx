@@ -41,6 +41,7 @@ const TagsListItem = ({tag, classes }: {
   classes: ClassesType,
 }) => {
   const { LinkCard, TagPreviewDescription } = Components;
+  const currentUser = useCurrentUser();
   
   return <div className={classes.tag}>
     <LinkCard to={Tags.getUrl(tag)} className={classes.description}>
