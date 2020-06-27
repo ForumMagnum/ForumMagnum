@@ -77,7 +77,7 @@ const styles = theme => ({
       gridTemplateColumns: `
       minmax(0, 250px)
       minmax(0, 1fr)
-      minmax(0px, 800px)
+      minmax(800px, 800px)
       minmax(0, 1fr)
       minmax(0, 1fr)
     `,
@@ -271,7 +271,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const whiteBackground = ["posts.single", "events.single", "tagIndex", "donate", "about", "faq", "CommunityHome"].includes(routeName)
     const lightGreyBackground = ["sequences.single"].includes(routeName)
     
-    const shouldRenderSidebar = ["home"].includes(routeName) && (Users.canDo(currentUser, 'posts.moderate.all') || Users.canDo(currentUser, 'alignment.sidebar'))
+    const shouldRenderSunshineSidebar = ["home"].includes(routeName) && (Users.canDo(currentUser, 'posts.moderate.all') || Users.canDo(currentUser, 'alignment.sidebar'))
+
+    const shouldUseGridLayout = (standaloneNavigation && !hideNavigationSidebar) && !["CommunityHome"].includes(routeName)
 
     return (
       <AnalyticsContext path={location.pathname}>
@@ -318,7 +320,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              <div className={(standaloneNavigation && !hideNavigationSidebar) ? classes.gridActivated : null}>
+              <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
@@ -334,7 +336,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     {children}
                   </ErrorBoundary>
                   <Footer />
-                  {shouldRenderSidebar && <div className={classes.sunshine}>
+                  {shouldRenderSunshineSidebar && <div className={classes.sunshine}>
                     <SunshineSidebar/>
                   </div>
                   }
