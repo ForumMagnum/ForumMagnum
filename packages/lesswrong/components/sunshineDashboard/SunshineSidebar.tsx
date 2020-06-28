@@ -4,7 +4,6 @@ import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({

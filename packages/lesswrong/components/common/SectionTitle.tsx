@@ -3,8 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-const borderStyle = "solid 2px rgba(0,0,0,.5)"
-
 export const sectionTitleStyle = theme => ({
   margin:0,
   ...theme.typography.postStyle,

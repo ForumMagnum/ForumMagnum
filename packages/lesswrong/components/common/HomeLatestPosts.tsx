@@ -13,7 +13,6 @@ import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import Typography from '@material-ui/core/Typography';
-import HelpIcon from '@material-ui/icons/Help';
 
 const styles = theme => ({
   toggleFilters: {

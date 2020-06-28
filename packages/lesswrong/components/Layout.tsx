@@ -61,11 +61,36 @@ const styles = theme => ({
     marginRight: "auto",
     background: "#f4f4f4",
     minHeight: "100vh",
+    gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
+  },
+  gridActivated: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main ... sunshine"
+      `,
+      gridTemplateColumns: `
+      minmax(0, 250px)
+      minmax(0, 1fr)
+      minmax(800px, 800px)
+      minmax(0, 1fr)
+      minmax(0, 1fr)
+    `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  navSidebar: {
+    gridArea: 'navSidebar'
+  },
+  sunshine: {
+    gridArea: 'sunshine'
   },
   whiteBackground: {
     background: "white",
@@ -208,23 +233,24 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame">
-          <Components.ErrorBoundary>
+          <ErrorBoundary>
             <Intercom
               appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
               email={currentUser.email}
               name={currentUser.displayName}/>
-          </Components.ErrorBoundary>
+          </ErrorBoundary>
         </div>
       } else if (!currentUser) {
         return <div id="intercome-outer-frame">
-            <Components.ErrorBoundary>
+            <ErrorBoundary>
               <Intercom appID={intercomAppIdSetting.get()}/>
-            </Components.ErrorBoundary>
+            </ErrorBoundary>
           </div>
       } else {
         return null
@@ -236,12 +262,18 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // then it should.
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
+
+    const routeName = location.currentRoute?.name
     const standaloneNavigation = !location.currentRoute ||
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
-        .includes(location.currentRoute.name)
+        .includes(routeName)
     
-    const whiteBackground = ["posts.single", "events.single", "tagIndex", "donate", "about", "faq", "CommunityHome"].includes(location.currentRoute?.name)
-    const lightGreyBackground = ["sequences.single"].includes(location.currentRoute?.name)
+    const whiteBackground = ["posts.single", "events.single", "tagIndex", "donate", "about", "faq", "CommunityHome"].includes(routeName)
+    const lightGreyBackground = ["sequences.single"].includes(routeName)
+    
+    const shouldRenderSunshineSidebar = ["home"].includes(routeName) && (Users.canDo(currentUser, 'posts.moderate.all') || Users.canDo(currentUser, 'alignment.sidebar'))
+
+    const shouldUseGridLayout = (standaloneNavigation && !hideNavigationSidebar) && !["CommunityHome"].includes(routeName)
 
     return (
       <AnalyticsContext path={location.pathname}>
@@ -273,37 +305,42 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
-              <Components.AnalyticsClient/>
-              <Components.AnalyticsPageInitializer/>
-              <Components.NavigationEventSender/>
+              <AnalyticsClient/>
+              <AnalyticsPageInitializer/>
+              <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
               {showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              <Components.Header
+              <Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              {standaloneNavigation && <Components.NavigationStandalone
-                sidebarHidden={hideNavigationSidebar}
-              />}
-              <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-              <div className={classNames(classes.main, {
-                [classes.whiteBackground]:whiteBackground,
-                [classes.lightGreyBackground]:lightGreyBackground
-              })}>
-                <Components.ErrorBoundary>
-                  <Components.FlashMessages />
-                </Components.ErrorBoundary>
-                <Components.ErrorBoundary>
-                  {children}
-                </Components.ErrorBoundary>
-                <Components.Footer />
-
+              <div className={shouldUseGridLayout ? classes.gridActivated : null}>
+                {standaloneNavigation && <div className={classes.navSidebar}>
+                  <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
+                </div>}
+                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+                <div className={classNames(classes.main, {
+                  [classes.whiteBackground]:whiteBackground,
+                  [classes.lightGreyBackground]:lightGreyBackground
+                })}>
+                  <ErrorBoundary>
+                    <FlashMessages />
+                  </ErrorBoundary>
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                  <Footer />
+                  {shouldRenderSunshineSidebar && <div className={classes.sunshine}>
+                    <SunshineSidebar/>
+                  </div>
+                  }
+                </div>
               </div>
             </CommentBoxManager>
           </DialogManager>
