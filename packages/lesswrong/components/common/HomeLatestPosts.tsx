@@ -15,19 +15,6 @@ import { sectionTitleStyle } from '../common/SectionTitle';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  toggleFilters: {
-    display: "flex",
-    alignItems: "center",
-    color: theme.palette.grey[600],
-    fontStyle: "italic"
-  },
-  rightIcon: {
-    marginLeft: -6,
-  },
-  downIcon: {
-    marginLeft: -4,
-    marginRight: 3
-  },
   titleWrapper: {
     display: "flex",
     marginBottom: 8,
