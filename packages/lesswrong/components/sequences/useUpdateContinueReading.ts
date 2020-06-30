@@ -10,8 +10,10 @@ export const useUpdateContinueReading = (postId: string, sequenceId: string): ()
   `);
   
   return useCallback(() => {
-    updateContinueReading({
-      variables: { postId, sequenceId }
-    });
+    if (postId && sequenceId) {
+      updateContinueReading({
+        variables: { postId, sequenceId }
+      });
+    }
   }, [updateContinueReading, postId, sequenceId]);
 }
