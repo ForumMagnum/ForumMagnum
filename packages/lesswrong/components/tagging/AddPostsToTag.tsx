@@ -36,9 +36,10 @@ const styles = theme => ({
 
 
 
-const AddPostsToTag = ({classes, tag}: {
+const AddPostsToTag = ({classes, tag, showIcon=true}: {
   classes: ClassesType,
-  tag: TagPreviewFragment
+  tag: TagPreviewFragment,
+  showIcon?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const { captureEvent } = useTracking()
@@ -69,7 +70,7 @@ const AddPostsToTag = ({classes, tag}: {
   const { PostsSearchAutoComplete, Loading } = Components
   return <div className={classNames(classes.root, {[classes.open]: searchOpen})} onClick={() => setSearchOpen(true)} onBlur={() => setSearchOpen(false)}>
     {searchOpen && <SearchIcon className={classes.icon}/>}
-    {!searchOpen && !isAwaiting && <AddBoxIcon className={classes.icon}/>}
+    {!searchOpen && !isAwaiting && showIcon && <AddBoxIcon className={classes.icon}/>}
     {isAwaiting 
       ? <Loading/> 
       : <PostsSearchAutoComplete 

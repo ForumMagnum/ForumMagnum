@@ -381,6 +381,7 @@ importComponent("TagRelCard", () => require('../components/tagging/TagRelCard'))
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit'));
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
+importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));

@@ -5,6 +5,15 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+
+const styles = theme => ({
+  root: {
+    margin: "auto",
+    maxWidth: 1000
+  }
+})
 
 const AllTagsPage = ({classes}: {
   classes: ClassesType,
@@ -19,10 +28,10 @@ const AllTagsPage = ({classes}: {
     limit: 200,
     ssr: true,
   });
-  const { SingleColumnSection, TagsListItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
+  const { TagsListItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
   
   return (
-    <SingleColumnSection>
+    <div className={classes.root}>
       <SectionTitle title="All Tags">
         {currentUser?.isAdmin && <SectionButton>
           <AddBoxIcon/>
@@ -30,22 +39,22 @@ const AllTagsPage = ({classes}: {
         </SectionButton>}
       </SectionTitle>
       {loading && <Loading/>}
-      <div>
-        {results && results.map(tag => {
-          return <div key={tag._id}>
-              <TagsListItem tag={tag} />
-            </div>
-        })}
-        {results && !results.length && <div>
-          There aren't any tags yet.
-        </div>}
-      </div>
+      <Table>
+        <TableBody>
+          {results && results.map(tag => {
+            return <TagsListItem key={tag._id} tag={tag} />
+          })}
+          {results && !results.length && <div>
+            There aren't any tags yet.
+          </div>}
+        </TableBody>
+      </Table>
       <LoadMore {...loadMoreProps}/>
-    </SingleColumnSection>
+    </div>
   );
 }
 
-const AllTagsPageComponent = registerComponent("AllTagsPage", AllTagsPage);
+const AllTagsPageComponent = registerComponent("AllTagsPage", AllTagsPage, {styles});
 
 declare global {
   interface ComponentTypes {
