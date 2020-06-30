@@ -10,11 +10,10 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
-const COMMENT_BORDER_GREY = "rgba(72,94,144,0.16)"
 
 const styles = theme => ({
   node: {
-    border: `solid 1px ${COMMENT_BORDER_GREY}`,
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -27,9 +26,9 @@ const styles = theme => ({
   child: {
     marginLeft: theme.spacing.unit,
     marginBottom: 6,
-    borderLeft: `solid 1px ${COMMENT_BORDER_GREY}`,
-    borderTop: `solid 1px ${COMMENT_BORDER_GREY}`,
-    borderBottom: `solid 1px ${COMMENT_BORDER_GREY}`,
+    borderLeft: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
     borderRight: "none",
     borderRadius: "2px 0 0 2px"
   },
@@ -54,11 +53,11 @@ const styles = theme => ({
     }
   },
   isAnswer: {
-    border: `solid 2px ${COMMENT_BORDER_GREY}`,
+    border: `solid 2px ${theme.palette.commentBorderGrey}`,
   },
   answerChildComment: {
     marginBottom: theme.spacing.unit,
-    border: `solid 1px ${COMMENT_BORDER_GREY}`,
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
   },
   childAnswerComment: {
     borderRight: "none"
@@ -72,10 +71,10 @@ const styles = theme => ({
   isSingleLine: {
     marginBottom: 0,
     borderBottom: "none",
-    borderTop: `solid 1px ${COMMENT_BORDER_GREY}`,
+    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
     '&.comments-node-root':{
       marginBottom: 4,
-      borderBottom: `solid 1px ${COMMENT_BORDER_GREY}`,
+      borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
     }
   },
   condensed: {
@@ -117,7 +116,7 @@ const styles = theme => ({
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
-    border: `solid 1px ${COMMENT_BORDER_GREY}`,
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
