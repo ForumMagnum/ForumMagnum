@@ -64,7 +64,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
 
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip } = Components
   const limit = parseInt(query.limit) || 13
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
@@ -78,13 +78,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     limit:limit
   }
 
-
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
         <div className={classes.titleWrapper}>
           <Typography variant='display1' className={classes.title}>
-            {latestPostsName}
+            <LWTooltip title="Recent posts, sorted by a combination of 'new' and 'highly upvoted'" placement="left">
+              {latestPostsName}
+            </LWTooltip>
           </Typography>
          
           <AnalyticsContext pageSectionContext="tagFilterSettings">
