@@ -133,7 +133,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const { classes, currentUser } = this.props
     const { query } = this.props.location;
     const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings, HeadTags } = Components
+    const { SingleColumnSection, SectionTitle, SettingsButton, PostsListSettings, HeadTags } = Components
 
     const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily'
     const currentSorting = query.sortedBy    || currentUser?.allPostsSorting   || 'magic'
@@ -149,7 +149,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
                 <SectionTitle title="All Posts">
-                  <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
+                  <SettingsButton label={`Sorted by ${ sortings[currentSorting] }`}/>
                 </SectionTitle>
               </div>
             </Tooltip>

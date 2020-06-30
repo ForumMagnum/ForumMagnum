@@ -95,7 +95,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -134,7 +134,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       </LWTooltip>}>
         {currentUser && 
           <LWTooltip title="Customize your recommendations">
-            <SettingsIcon showIcon={false} onClick={this.toggleSettings} label="Customize"/>
+            <SettingsButton showIcon={false} onClick={this.toggleSettings} label="Customize"/>
           </LWTooltip>
         }
       </SectionTitle>
