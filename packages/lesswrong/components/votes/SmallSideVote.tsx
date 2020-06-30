@@ -54,7 +54,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
   const voteCount = document.voteCount;
   let karma = 0
   let moveToAlignnmentUserId = ""
-  if (collection == Posts) {
+  if (collection === Posts) {
     karma = Posts.getKarma(document as PostsBase)
   }
   if (collection == Comments) {
