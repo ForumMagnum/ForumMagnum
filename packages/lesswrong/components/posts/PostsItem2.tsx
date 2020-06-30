@@ -266,6 +266,7 @@ export const styles = (theme) => ({
     top: 2,
   },
   isRead: {
+    background: "white" // this is just a placeholder, enabling easier theming.
   }
 })
 
