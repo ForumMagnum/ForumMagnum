@@ -302,7 +302,12 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 }
 
 interface SunshinePostsList extends PostsList { // fragment on Posts
+  readonly contents: SunshinePostsList_contents,
   readonly user: SunshinePostsList_user,
+}
+
+interface SunshinePostsList_contents { // fragment on Revisions
+  readonly html: string,
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
@@ -353,6 +358,7 @@ interface CommentsList { // fragment on Comments
   readonly promoted: boolean,
   readonly promotedByUserId: string,
   readonly promotedByUser: UsersMinimumInfo,
+  readonly directChildrenCount: number,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -589,6 +595,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly authorIsUnreviewed: boolean,
   readonly answer: boolean,
   readonly parentAnswerId: string,
+  readonly directChildrenCount: number,
   readonly shortform: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,

@@ -1,16 +1,20 @@
-import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from './vulcan-lib';
+import { Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from './vulcan-lib';
 import Votes from '../lib/collections/votes/collection';
 import Users from '../lib/collections/users/collection';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
 import { voteTypes, createVote } from '../lib/voting/vote';
-import { algoliaDocumentExport } from './search/utils';
+import { algoliaExportById } from './search/utils';
 import moment from 'moment';
 import { Random } from 'meteor/random';
 import * as _ from 'underscore';
 
 
 // Test if a user has voted on the server
-const hasVotedServer = async ({ document, voteType, user }) => {
+const hasVotedServer = async ({ document, voteType, user }: {
+  document: any,
+  voteType: string,
+  user: DbUser,
+}) => {
   const vote = await Connectors.get(Votes, {
     documentId: document._id,
     userId: user._id, voteType,
@@ -20,9 +24,14 @@ const hasVotedServer = async ({ document, voteType, user }) => {
 }
 
 // Add a vote of a specific type on the server
-const addVoteServer = async (voteOptions) => {
-
-  const { document, collection, voteType, user, voteId, updateDocument } = voteOptions;
+const addVoteServer = async ({ document, collection, voteType, user, voteId, updateDocument }: {
+  document: any,
+  collection: any,
+  voteType: string,
+  user: DbUser|null,
+  voteId: string,
+  updateDocument: boolean
+}) => {
   const newDocument = _.clone(document);
 
   // create vote and insert it
@@ -52,13 +61,18 @@ const addVoteServer = async (voteOptions) => {
       },
       {}, true
     );
-    algoliaDocumentExport({ documents: [newDocument], collection });
+    await algoliaExportById(collection, newDocument._id);
   }
   return {newDocument, vote};
 }
 
 // Clear all votes for a given document and user (server)
-const clearVotesServer = async ({ document, user, collection, updateDocument }) => {
+const clearVotesServer = async ({ document, user, collection, updateDocument }: {
+  document: any,
+  user: DbUser,
+  collection: any,
+  updateDocument: boolean,
+}) => {
   const newDocument = _.clone(document);
   const votes = await Connectors.find(Votes, {
     documentId: document._id,
@@ -107,14 +121,19 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
-    algoliaDocumentExport({ documents: [newDocument], collection });
+    await algoliaExportById(collection, newDocument._id);
   }
   return newDocument;
 }
 
 // Cancel votes of a specific type on a given document (server)
-export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }) => {
-
+export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }: {
+  document: any,
+  voteType: string,
+  collection: any,
+  user: DbUser,
+  updateDocument: boolean
+}) => {
   const newDocument = _.clone(document);
   const vote = Votes.findOne({
     documentId: document._id,
@@ -167,7 +186,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
       {},
       true
     );
-    algoliaDocumentExport({ documents: [newDocument], collection });
+    await algoliaExportById(collection, newDocument._id);
   }
   return {newDocument, vote};
 }
@@ -183,19 +202,12 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   voteType: string,
   collection: any,
   voteId?: string,
-  user: any,
+  user: DbUser,
   updateDocument?: boolean,
   toggleIfAlreadyVoted?: boolean,
 }) => {
-
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
-
-  debug('');
-  debugGroup('--------------- start \x1b[35mperformVoteServer\x1b[0m  ---------------');
-  debug('collectionName: ', collectionName);
-  debug('document: ', document);
-  debug('voteType: ', voteType);
 
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
@@ -210,22 +222,14 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   const existingVote = await hasVotedServer({document, voteType, user});
 
   if (existingVote) {
-
     if (toggleIfAlreadyVoted) {
-      // console.log('action: cancel')
-  
-      // runCallbacks(`votes.cancel.sync`, document, collection, user);
       let voteDocTuple = await cancelVoteServer(voteOptions);
       voteDocTuple = await runCallbacks(`votes.cancel.sync`, voteDocTuple, collection, user);
       document = voteDocTuple.newDocument;
       runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
     }
-
   } else {
-
     await checkRateLimit({ document, collection, voteType, user });
-
-    // console.log('action: vote')
 
     if (voteTypes[voteType].exclusive) {
       document = await clearVotesServer(voteOptions)
@@ -237,17 +241,11 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
     runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
   }
 
-  debug('document after vote: ', document);
-  debugGroupEnd();
-  debug('--------------- end \x1b[35m performVoteServer\x1b[0m ---------------');
-  debug('');
-
-  // const newDocument = collection.findOne(documentId);
   document.__typename = collection.options.typeName;
   return document;
 }
 
-const getVotingRateLimits = async (user) => {
+const getVotingRateLimits = async (user: DbUser|null) => {
   if (user?.isAdmin) {
     // Very lax rate limiting for admins
     return {
@@ -265,7 +263,12 @@ const getVotingRateLimits = async (user) => {
 
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }):Promise<void> => {
+const checkRateLimit = async ({ document, collection, voteType, user }: {
+  document: any,
+  collection: any,
+  voteType: string,
+  user: DbUser
+}): Promise<void> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
     return;

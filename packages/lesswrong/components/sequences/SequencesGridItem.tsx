@@ -28,7 +28,6 @@ const styles = theme => ({
     },
     [legacyBreakpoints.maxTiny]: {
       width: "100% !important",
-      padding: "14px 10px 12px 10px !important",
     },
   },
 
@@ -75,13 +74,16 @@ const styles = theme => ({
     backgroundColor: "#efefef",
     display: 'block',
     height: 95,
+    [legacyBreakpoints.maxSmall]: {
+      height: "124px !important",
+    },
     "& img": {
-      [legacyBreakpoints.maxSmall]: {
-        width: "305px !important",
-        height: "auto !important",
-      },
       width: "100%",
       height: 95,
+      [legacyBreakpoints.maxSmall]: {
+        width: "335px !important",
+        height: "124px !important",
+      },
       [legacyBreakpoints.maxTiny]: {
         width: "100% !important",
       },

@@ -219,8 +219,8 @@ function NewCommentsEmptyCheck (comment) {
 }
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
-export async function CommentsDeleteSendPMAsync (newComment) {
-  if (newComment.deleted && newComment.contents && newComment.contents.html) {
+export async function CommentsDeleteSendPMAsync (newComment, oldComment, {currentUser}) {
+  if (currentUser._id !== newComment.userId && newComment.deleted && newComment.contents && newComment.contents.html) {
     const originalPost = await Posts.findOne(newComment.postId);
     const moderatingUser = await Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
@@ -294,7 +294,7 @@ addCallback("comments.new.sync", CommentsNewUserApprovedStatus);
  // LESSWRONG – bigUpvote
 async function LWCommentsNewUpvoteOwnComment(comment) {
   var commentAuthor = Users.findOne(comment.userId);
-  const votedComment = await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
+  const votedComment = commentAuthor && await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
   return {...comment, ...votedComment};
 }
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);

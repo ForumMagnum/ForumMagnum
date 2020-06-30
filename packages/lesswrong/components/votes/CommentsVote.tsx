@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Comments } from "../../lib/collections/comments";
 import Users from '../../lib/collections/users/collection';
 import moment from '../../lib/moment-timezone';
 import { useHover } from '../common/withHover';
@@ -42,14 +41,14 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const voteProps = useVote(comment, "Comments");
   const {eventHandlers, hover} = useHover();
   
   if (!comment) return null;
 
   const { VoteButton } = Components
-  const voteCount = comment.voteCount;
-  const karma = Comments.getKarma(comment)
+  const voteCount = voteProps.voteCount;
+  const karma = voteProps.baseScore;
 
   const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (
     <div className={classes.tooltipHelp}>
@@ -70,10 +69,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
                 orientation="left"
                 color="error"
                 voteType="Downvote"
-                document={comment}
-                currentUser={currentUser}
-                collection={Comments}
-                vote={vote}
+                {...voteProps}
               />
             </span>
           </Tooltip>
@@ -95,10 +91,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
                 orientation="right"
                 color="secondary"
                 voteType="Upvote"
-                document={comment}
-                currentUser={currentUser}
-                collection={Comments}
-                vote={vote}
+                {...voteProps}
               />
             </span>
           </Tooltip>

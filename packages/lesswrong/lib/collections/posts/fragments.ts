@@ -380,6 +380,10 @@ registerFragment(`
 registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsList
+
+    contents {
+      html
+    }
     
     user {
       ...UsersMinimumInfo
