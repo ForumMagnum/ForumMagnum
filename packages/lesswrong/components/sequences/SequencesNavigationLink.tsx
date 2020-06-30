@@ -28,12 +28,11 @@ export const styles = theme => ({
 });
 
 const SequencesNavigationLink = ({ post, direction, classes }: {
-  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
+  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
   classes: ClassesType,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
-  const url = Posts.getPageUrl(post, false, post?.sequence?._id);
   
   const icon = (
     <IconButton classes={{root: classnames(classes.root, {
@@ -45,6 +44,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   );
   
   if (post) {
+    const url = Posts.getPageUrl(post, false, post?.sequence?._id);
     const button = (
       <Link onClick={() => updateContinueReading()} to={url}>
         {icon}

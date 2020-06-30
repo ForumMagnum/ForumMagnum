@@ -48,7 +48,6 @@ Posts.getAuthorName = function (post: DbPost) {
  * @summary Get default status for new posts.
  * @param {Object} user
  */
-
 Posts.getDefaultStatus = function (user: DbUser): number {
   return Posts.config.STATUS_APPROVED;
 };
@@ -82,7 +81,6 @@ Posts.isPending = function (post: DbPost): boolean {
  * @summary Get URL for sharing on Twitter.
  * @param {Object} post
  */
-
 Posts.getTwitterShareUrl = (post: DbPost): string => {
   return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(Posts.getLink(post, true)) }`;
 };
@@ -112,11 +110,9 @@ ${Posts.getLink(post, true, false)}
 };
 
 
-/**
- * @summary Get URL of a post page.
- * @param {Object} post
- */
+// @summary Get URL of a post page.
 Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
+  if (!post) return "/";
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
