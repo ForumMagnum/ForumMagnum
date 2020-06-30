@@ -46,7 +46,8 @@ const styles = theme => ({
   },
   postCount: {
     display: "block",
-    marginBottom: 8,
+    marginTop: 3,
+    marginBottom: 12,
     fontSize: "1rem",
     color: theme.palette.grey[500],
   },
