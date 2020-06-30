@@ -1,5 +1,5 @@
 import Users from '../users/collection';
-import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { Comments } from '../comments/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -168,7 +168,19 @@ const schema = {
     optional: true,
     hidden: true,
   },
-  
+
+
+  directChildrenCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "directChildrenCount",
+      collectionName: "Comments",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "parentCommentId",
+      filterFn: comment => !comment.deleted
+    }),
+    canRead: ['guests'],
+  },
   
   latestChildren: resolverOnlyField({
     type: Array,

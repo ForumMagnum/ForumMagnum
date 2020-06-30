@@ -24,8 +24,7 @@ const styles = theme => ({
     marginRight: 4
   },
   buttonRow: {
-    ...theme.typography.commentStyle,
-    marginTop: 12
+    ...theme.typography.commentStyle
   },
   post: {
     ...postHighlightStyles(theme)
@@ -34,6 +33,9 @@ const styles = theme => ({
     borderTop: "solid 1px rgba(0,0,0,.1)",
     paddingTop: 12,
     marginTop: 12
+  },
+  moderation: {
+    marginBottom: 12
   }
 })
 
@@ -119,9 +121,11 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
+
+  const moderationSection = post.moderationStyle || post.user.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
 
   return (
     <span {...eventHandlers}>
@@ -130,6 +134,7 @@ const SunshineNewPostsItem = ({post, classes}: {
           <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
             setSelectedTags(selectedTags);
           }}/>
+          <FooterTagList post={post} />
           <div className={classes.buttonRow}>
               <Button onClick={handleReview}>
                 <PersonIcon className={classes.icon} /> Personal
@@ -149,18 +154,20 @@ const SunshineNewPostsItem = ({post, classes}: {
                 { post.title }
               </Link>
             </Typography>
-            {(post.moderationStyle || post.user.moderationStyle) && <div>
-              <MetaInfo>
-                <span>Mod Style: </span>
-                { post.moderationStyle || post.user.moderationStyle }
-                {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
-              </MetaInfo>
-            </div>}
-            {(modGuidelinesHtml || userGuidelinesHtml) && <div>
-              <MetaInfo>
-                <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
-                {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
-              </MetaInfo>
+            {moderationSection && <div className={classes.moderation}>
+              {(post.moderationStyle || post.user.moderationStyle) && <div>
+                <MetaInfo>
+                  <span>Mod Style: </span>
+                  { post.moderationStyle || post.user.moderationStyle }
+                  {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
+                </MetaInfo>
+              </div>}
+              {(modGuidelinesHtml || userGuidelinesHtml) && <div>
+                <MetaInfo>
+                  <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+                  {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
+                </MetaInfo>
+              </div>}
             </div>}
             <div className={classes.post}>
               <LinkPostMessage post={post} />
