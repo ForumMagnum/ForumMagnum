@@ -112,7 +112,6 @@ ${Posts.getLink(post, true, false)}
 
 // @summary Get URL of a post page.
 Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
-  if (!post) return "/";
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
