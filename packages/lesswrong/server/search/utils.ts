@@ -15,7 +15,6 @@ import { algoliaAppIdSetting } from '../../lib/publicSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
-import { Globals } from '../../lib/vulcan-lib';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
 
 type AlgoliaDocument = {

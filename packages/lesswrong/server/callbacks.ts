@@ -47,7 +47,7 @@ addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
 
 async function userEditNullifyVotesCallbacksAsync(user, oldUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    await runCallbacksAsync('users.nullifyVotes.async', user);
+    runCallbacksAsync('users.nullifyVotes.async', user);
   }
   return user;
 }
@@ -155,7 +155,7 @@ async function userDeleteContent(user) {
       })
     }
     
-    await runCallbacksAsync('posts.purge.async', post)
+    runCallbacksAsync('posts.purge.async', post)
   }
 
   const comments = Comments.find({userId: user._id}).fetch();
