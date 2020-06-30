@@ -49,7 +49,7 @@ export const styles = (theme) => ({
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: "#fafafa"
+      backgroundColor: "#fafafa" // note: this is not intended to be the same as the COMMENTS_BACKGROUND_COLOR, it just happens to be
     },
   },
   hasSmallSubtitle: {
