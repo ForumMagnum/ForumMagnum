@@ -395,12 +395,11 @@ export function addEditableCallbacks({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       
-      // FIXME: See comment on the other Connectors.create call in this file.
-      // Missing _id and schemaVersion.
-      // @ts-ignore
-      
       let newRevisionId;
       if (await revisionIsChange(newDocument, fieldName)) {
+        // FIXME: See comment on the other Connectors.create call in this file.
+        // Missing _id and schemaVersion.
+        // @ts-ignore
         const newRevision = await Connectors.create(Revisions, {
           documentId: document._id,
           ...await buildRevision({
@@ -415,7 +414,7 @@ export function addEditableCallbacks({collection, options = {}}: {
         });
         newRevisionId = newRevision._id;
       } else {
-        newRevisionId = (await getLatestRev(newDocument._id, fieldName))._id;
+        newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
       
       return {
