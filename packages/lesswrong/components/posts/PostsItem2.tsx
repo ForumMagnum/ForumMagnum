@@ -58,7 +58,7 @@ export const styles = (theme) => ({
     }
   },
   bottomBorder: {
-    borderBottom: "solid 2px rgba(0,0,0,.07)",
+    borderBottom: theme.itemBorderBottom,
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
