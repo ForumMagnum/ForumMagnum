@@ -231,7 +231,8 @@ addRoute(
     name: 'search',
     path: '/search',
     componentName: 'SearchPage',
-    title: 'Search'
+    title: 'Search',
+    background: "white"
   }
 );
 
