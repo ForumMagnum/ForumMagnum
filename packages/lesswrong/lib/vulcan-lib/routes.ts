@@ -36,6 +36,8 @@ export type Route = {
   previewComponentName?: keyof ComponentTypes,
   _id?: string|null,
   noIndex?: boolean,
+  background?: string,
+  sunshineSidebar?: boolean
 };
 
 // populated by calls to addRoute

@@ -3,20 +3,17 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Slide from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
+import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 
 const styles = theme => ({
   root: {
-    position: "absolute",
-    zIndex: theme.zIndexes.tabNavigation,
+    width: TAB_NAVIGATION_MENU_WIDTH
   },
   sidebar: {
-    position: "absolute",
+    paddingTop: 15,
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
-    top: 0,
-    left:0,
-    paddingTop: 15,
   },
   footerBar: {
     [theme.breakpoints.up('lg')]: {
