@@ -18,17 +18,18 @@ const monoStack = [
 const titleDividerSpacing = 20
 
 export const zIndexes = {
-  continueReadingImage: -1,
   commentsMenu: 1,
   sequencesPageContent: 1,
   sequencesImageScrim: 1,
   postsVote: 1,
+  postItemAuthor: 1,
   singleLineCommentMeta: 2,
   postItemTitle: 2,
-  reviewVotingMenu: 3,
   sidebarHoverOver: 2,
+  reviewVotingMenu: 3,
   singleLineCommentHover: 3,
   questionPageWhitescreen: 3,
+  footerNav: 3,
   textbox: 4,
   styledMapPopup: 5,
   nextUnread: 999,
