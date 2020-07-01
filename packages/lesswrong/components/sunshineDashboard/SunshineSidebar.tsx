@@ -8,11 +8,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   root: {
-    position:"absolute",
-    top:0,
-    right:0,
-    width:210,
-    marginTop:63,
     zIndex: theme.zIndexes.sunshineSidebar,
     display:"none",
     [theme.breakpoints.up('lg')]: {
@@ -29,7 +24,7 @@ const styles = theme => ({
     justifyContent: "flex-end",
     alignItems: "center",
     padding: 8,
-    width: "100%",
+    whiteSpace: "nowrap",
     fontSize: "1rem",
     ...theme.typography.commentStyle,
     color: theme.palette.grey[400],

@@ -24,8 +24,6 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
   const twoDaysAgo = new Date(new Date().getTime()-(2*24*60*60*1000));
 
   if (!belowFold && (curatedDate > twoDaysAgo)) return null
-
-  if (loading) return <Components.Loading/>;
   
   const { SunshineListTitle, SunshineCuratedSuggestionsItem, MetaInfo, FormatDate, LoadMore } = Components
     
