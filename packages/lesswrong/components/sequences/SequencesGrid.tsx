@@ -24,10 +24,11 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, classes }: {
+const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
   sequences: Array<SequencesPageFragment>,
   showAuthor?: boolean,
-  classes: ClassesType
+  classes: ClassesType,
+  bookItemStyle?: boolean
 }) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
@@ -37,6 +38,7 @@ const SequencesGrid = ({sequences, showAuthor, classes }: {
             sequence={sequence}
             key={sequence._id}
             showAuthor={showAuthor}
+            bookItemStyle={bookItemStyle}
           />
         );
       })}

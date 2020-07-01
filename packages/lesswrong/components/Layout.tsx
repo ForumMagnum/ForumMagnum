@@ -78,7 +78,7 @@ const styles = theme => ({
       minmax(0, min-content)
       minmax(0, 1fr)
       minmax(0, 765px)
-      minmax(0, 1fr)
+      minmax(0, 1.5fr)
       minmax(0, min-content)
     `,
     },
