@@ -24,6 +24,7 @@ const styles = theme => ({
     left: 0,
     backgroundColor: theme.palette.grey[300],
     width: "100%",
+    zIndex: theme.zIndexes.footerNav
   },
   "@media print": {
     display: "none"

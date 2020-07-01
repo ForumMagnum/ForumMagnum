@@ -105,6 +105,7 @@ export const styles = (theme) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
+    zIndex: theme.zIndexes.postItemAuthor,
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -208,7 +209,6 @@ export const styles = (theme) => ({
   sequenceImage: {
     position: "relative",
     marginLeft: -60,
-    zIndex: theme.zIndexes.continueReadingImage,
     opacity: 0.6,
     height: 48,
     width: 146,
