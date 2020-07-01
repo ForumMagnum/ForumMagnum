@@ -56,9 +56,27 @@ addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration}
 function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
-  {                               
-    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}}, {multi: true})
-    // We don't want to reset the postedAt for comments, since those are by default visible almost everywhere                                                                                                    
+  {
+    // For each post by this author which has the authorIsUnreviewed flag set,
+    // clear the authorIsUnreviewed flag so it's visible, and update postedAt
+    // to now so that it goes to the right place int he latest posts list.
+    const unreviewedPosts = Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
+    for (let post of unreviewedPosts) {
+      editMutation<DbPost>({
+        collection: Posts,
+        documentId: post._id,
+        set: {
+          authorIsUnreviewed: false,
+          postedAt: new Date(),
+        },
+        validate: false
+      });
+    }
+    
+    // Also clear the authorIsUnreviewed flag on comments. We don't want to
+    // reset the postedAt for comments, since those are by default visible
+    // almost everywhere. This can bypass the mutation system fine, because the
+    // flag doesn't control whether they're indexed in Algolia.
     Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 }

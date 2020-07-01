@@ -174,7 +174,7 @@ interface ExtendedUsersCollection extends UsersCollection {
   findByEmail: (email: string) => DbUser|null
   
   // Fron search/utils.ts
-  toAlgolia: (user: DbUser) => Array<Record<string,any>>|null
+  toAlgolia: (user: DbUser) => Promise<Array<Record<string,any>>|null>
 }
 
 export const Users: ExtendedUsersCollection = createCollection({

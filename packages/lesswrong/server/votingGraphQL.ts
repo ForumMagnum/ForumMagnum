@@ -23,14 +23,25 @@ addGraphQLMutation('vote(documentId: String, voteType: String, collectionName: S
 
 const voteResolver = {
   Mutation: {
+    // vote: Voting mutation. Voting toggles, like the vote button UI: if the
+    // given vote type is different from the user's previous vote, change to the
+    // new vote type, but if it's the same as the user's previous vote, cancel
+    // that vote.
+    //
+    // The voteId argument is ignored (we don't actually want to give clients
+    // control over database IDs), but still exists as an option for legacy
+    // compatibility.
+    //
+    // Returns the document that was voted upon, with its score updated.
     async vote(root, {documentId, voteType, collectionName, voteId}, context: ResolverContext) {
-      
       const { currentUser } = context;
       const collection = context[collectionName];
+      
+      if (!collection) throw new Error("Error casting vote: Invalid collectionName");
+      if (!currentUser) throw new Error("Error casting vote: Not logged in.");
 
-      const document = await performVoteServer({documentId, voteType, collection, voteId, user: currentUser});
+      const document = await performVoteServer({documentId, voteType, collection, user: currentUser});
       return document;
-
     },
   },
 };

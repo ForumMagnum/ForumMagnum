@@ -49,7 +49,7 @@ interface ExtendedCommentsCollection extends CommentsCollection {
   unSuggestForAlignment: any
   
   // Functions in server/search/utils.ts
-  toAlgolia: (comment: DbComment) => Array<Record<string,any>>|null
+  toAlgolia: (comment: DbComment) => Promise<Array<Record<string,any>>|null>
 }
 
 export const Comments: ExtendedCommentsCollection = createCollection({
