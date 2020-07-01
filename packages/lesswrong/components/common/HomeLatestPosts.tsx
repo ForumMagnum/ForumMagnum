@@ -25,6 +25,16 @@ const styles = theme => ({
     ...sectionTitleStyle(theme),
     display: "inline",
     marginRight: "auto"
+  },
+  toggleFilters: {
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    },
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   }
 })
 
@@ -48,10 +58,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
-  useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
-
+  const { captureEvent } = useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
   const limit = parseInt(query.limit) || 13
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
@@ -75,20 +84,35 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             </LWTooltip>
           </Typography>
          
-          <AnalyticsContext pageSectionContext="tagFilterSettings">
-              <TagFilterSettings
-                filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                  setFilterSettings(newSettings)
-                  if (currentUser) {
-                    updateUser({
-                      selector: { _id: currentUser._id},
-                      data: {
-                        frontpageFilterSettings: newSettings
-                      },
+          <AnalyticsContext pageSectionContext="tagFilterSettings">   
+              <div className={classes.toggleFilters}>
+                <SettingsButton 
+                  label={filterSettingsVisible  ? "Hide Filters" : "Show Tag Filters"}
+                  showIcon={false}
+                  onClick={() => {
+                    setFilterSettingsVisible(!filterSettingsVisible)
+                    captureEvent("filterSettingsClicked", {
+                      settingsVisible: !filterSettingsVisible,
+                      settings: filterSettings,
+                      pageSectionContext: "latestPosts"
                     })
-                  }
-                }}
-            />
+                  }} /> 
+              </div>
+              <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
+                <TagFilterSettings
+                  filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+                    setFilterSettings(newSettings)
+                    if (currentUser) {
+                      updateUser({
+                        selector: { _id: currentUser._id},
+                        data: {
+                          frontpageFilterSettings: newSettings
+                        },
+                      })
+                    }
+                  }}
+                />
+              </span>
           </AnalyticsContext>
         </div>
         <AnalyticsContext listContext={"latestPosts"}>
