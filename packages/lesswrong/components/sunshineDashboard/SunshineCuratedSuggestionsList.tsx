@@ -7,7 +7,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
   terms: any,
   belowFold?: boolean
 }) => {
-  const { results, loading, count, totalCount, loadMore, showLoadMore } = useMulti({
+  const { results, count, totalCount, loadMore, showLoadMore } = useMulti({
     terms,
     collection: Posts,
     fragmentName: 'PostsList',
