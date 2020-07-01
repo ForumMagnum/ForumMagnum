@@ -12,6 +12,7 @@ const styles = theme => ({
     maxWidth: 347,
     marginRight: 12,
     background: "white",
+    marginBottom: 12,
     "&:hover": {
       boxShadow: "0 0 3px rgba(0,0,0,.1)"
     },

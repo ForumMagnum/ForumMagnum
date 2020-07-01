@@ -46,7 +46,7 @@ const hashCode = function(str: string): number {
 // like to include
 const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
+    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
@@ -75,11 +75,11 @@ const styles = theme => ({
         "navSidebar ... main ... sunshine"
       `,
       gridTemplateColumns: `
-      minmax(0, 250px)
+      minmax(0, min-content)
       minmax(0, 1fr)
-      minmax(800px, 800px)
-      minmax(0, 1fr)
-      minmax(0, 1fr)
+      minmax(0, 765px)
+      minmax(0, 1.25fr)
+      minmax(0, min-content)
     `,
     },
     [theme.breakpoints.down('md')]: {
@@ -263,17 +263,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
 
-    const routeName = location.currentRoute?.name
-    const standaloneNavigation = !location.currentRoute ||
+    const currentRoute = location.currentRoute
+    const standaloneNavigation = !currentRoute ||
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
-        .includes(routeName)
-    
-    const whiteBackground = ["posts.single", "events.single", "tagIndex", "donate", "about", "faq", "CommunityHome"].includes(routeName)
-    const lightGreyBackground = ["sequences.single"].includes(routeName)
-    
-    const shouldRenderSunshineSidebar = ["home"].includes(routeName) && (Users.canDo(currentUser, 'posts.moderate.all') || Users.canDo(currentUser, 'alignment.sidebar'))
-
-    const shouldUseGridLayout = (standaloneNavigation && !hideNavigationSidebar) && !["CommunityHome"].includes(routeName)
+        .includes(currentRoute?.name)
+        
+    const shouldUseGridLayout = standaloneNavigation
 
     return (
       <AnalyticsContext path={location.pathname}>
@@ -326,8 +321,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]:whiteBackground,
-                  [classes.lightGreyBackground]:lightGreyBackground
+                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.lightGreyBackground]: currentRoute?.background === "lightGrey"
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />
@@ -336,11 +331,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     {children}
                   </ErrorBoundary>
                   <Footer />
-                  {shouldRenderSunshineSidebar && <div className={classes.sunshine}>
+                </div>
+                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
                     <SunshineSidebar/>
                   </div>
                   }
-                </div>
               </div>
             </CommentBoxManager>
           </DialogManager>

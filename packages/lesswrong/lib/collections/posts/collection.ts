@@ -60,7 +60,7 @@ interface ExtendedPostsCollection extends PostsCollection {
   unSuggestForAlignment: any
   
   // In search/utils.ts
-  toAlgolia: (post: DbPost) => Array<Record<string,any>>|null
+  toAlgolia: (post: DbPost) => Promise<Array<Record<string,any>>|null>
   
   // Things in lib/collections/posts/collection.ts
   config: Record<string,number>

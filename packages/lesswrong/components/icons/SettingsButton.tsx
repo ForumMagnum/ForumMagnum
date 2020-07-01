@@ -24,7 +24,7 @@ const styles = (theme) => ({
   }
 })
 
-const SettingsIcon = ({classes, className, onClick, showIcon=true, label=""}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: {
   classes: ClassesType,
   className?: string,
   onClick?: any,
@@ -40,10 +40,10 @@ const SettingsIcon = ({classes, className, onClick, showIcon=true, label=""}: {
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-const SettingsIconComponent = registerComponent('SettingsIcon', SettingsIcon, {styles});
+const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    SettingsIcon: typeof SettingsIconComponent
+    SettingsButton: typeof SettingsButtonComponent
   }
 }

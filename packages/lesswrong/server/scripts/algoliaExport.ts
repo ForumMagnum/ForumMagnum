@@ -83,14 +83,17 @@ Vulcan.algoliaExportAll = algoliaExportAll
 // don't exist in mongodb or which exist but shouldn't be indexed. This plus
 // algoliaExport together should result in a fully up to date Algolia index,
 // regardless of the starting state.
-async function algoliaCleanIndex(collection)
+async function algoliaCleanIndex(collectionName: CollectionNameString)
 {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
+  const collection = getCollection(collectionName);
+  if (!collection) throw new Error("Invalid collection name");
+  
   // eslint-disable-next-line no-console
-  console.log(`Deleting spurious documents from Algolia index ${algoliaIndexNames[collection.collectionName]} for ${collection.collectionName}`);
-  let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
+  console.log(`Deleting spurious documents from Algolia index ${algoliaIndexNames[collectionName]} for ${collectionName}`);
+  let algoliaIndex = client.initIndex(algoliaIndexNames[collectionName]);
   
   // eslint-disable-next-line no-console
   console.log("Downloading the full index...");

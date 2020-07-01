@@ -37,8 +37,12 @@ export const styles = theme => ({
     fontVariant: "small-caps"
   },
   wikiSection: {
-    marginRight: 32,
     marginBottom: 24,
+    paddingTop: 19,
+    paddingBottom: 12,
+    paddingLeft: 42,
+    paddingRight: 42,
+    background: "white"
   },
   tagHeader: {
     display: "flex",

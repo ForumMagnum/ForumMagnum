@@ -31,8 +31,9 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    border: 'solid 1px rgba(0,0,0,.2)',
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
     position: 'relative',
+    borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"

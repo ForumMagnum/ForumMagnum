@@ -68,6 +68,10 @@ const styles = theme => ({
     justifyContent: "center",
     background: "white",
   },
+  bookItemStyle: {
+    paddingLeft: 0,
+    paddingRight: 0
+  },
   hiddenAuthor: {
     paddingBottom: 8
   },
@@ -92,11 +96,11 @@ const styles = theme => ({
   }
 })
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
+const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  classes: ClassesType
-
+  classes: ClassesType,
+  bookItemStyle?: boolean
 }) => {
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
@@ -104,8 +108,8 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
   const { hover, anchorEl } = useHover()
   const { PopperCard, SequenceTooltip, LinkCard } = Components;
   const url = getSequenceUrl()
-
-  return <LinkCard className={classes.root} to={url}>
+  console.log(sequence)
+  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -115,13 +119,11 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
         />
       </NoSSR>
     </div>
-    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor})}>
-      <Link key={sequence._id} to={url}>
-        <Typography variant='title' className={classes.title}>
-          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-          {sequence.title}
-        </Typography>
-      </Link>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemStyle]: bookItemStyle})}>
+      <Typography variant='title' className={classes.title}>
+        {sequence.draft && <span className={classes.draft}>[Draft] </span>}
+        {sequence.title}
+      </Typography>
       { showAuthor &&
         <div className={classes.author}>
           by <Components.UsersName user={sequence.user} />

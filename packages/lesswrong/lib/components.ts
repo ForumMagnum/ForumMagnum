@@ -153,7 +153,7 @@ importComponent("ResendVerificationEmailPage", () => require('../components/user
 importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
-importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon'));
+importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
 importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
 
 // posts

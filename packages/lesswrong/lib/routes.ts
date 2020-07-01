@@ -43,6 +43,8 @@ async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
 }
 
 
+const postBackground = "white"
+
 // User-profile routes
 addRoute(
   {
@@ -138,7 +140,8 @@ addRoute(
   {
     name: 'sequences.single.old',
     path: '/sequences/:_id',
-    componentName: 'SequencesSingle'
+    componentName: 'SequencesSingle',
+    background: "lightGrey"
   },
   {
     name: 'sequences.single',
@@ -146,6 +149,7 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
+    background: "lightGrey"
   },
   {
     name: 'sequencesEdit',
@@ -227,7 +231,8 @@ addRoute(
     name: 'search',
     path: '/search',
     componentName: 'SearchPage',
-    title: 'Search'
+    title: 'Search',
+    background: "white"
   }
 );
 
@@ -283,12 +288,14 @@ if (forumTypeSetting.get() !== 'EAForum') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
     },
     {
       name: 'tagIndex',
       path: '/tags',
       componentName: 'PostsSingleRoute',
-      _id:"DHJBEsi4XJDw2fRFq"
+      _id:"DHJBEsi4XJDw2fRFq",
+      background: postBackground
     },
   )
 }
@@ -309,6 +316,7 @@ if (forumTypeSetting.get() === 'LessWrong') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...hpmorSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
     },
 
     {
@@ -325,6 +333,7 @@ if (forumTypeSetting.get() === 'LessWrong') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...codexSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
     },
   );
 }
@@ -364,7 +373,8 @@ if (hasEventsSetting.get()) {
       path: '/community',
       componentName: 'CommunityHome',
       title: "Community",
-      ...communitySubtitle
+      ...communitySubtitle,
+      background: "white"
     },
     {
       name: 'MeetupsHome',
@@ -393,6 +403,7 @@ if (hasEventsSetting.get()) {
       previewComponentName: 'PostLinkPreview',
       ...communitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+      background: postBackground
     },
     {
       name: 'groups.post',
@@ -432,6 +443,7 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+    background: postBackground
   },
   {
     name: 'posts.revisioncompare',
@@ -586,7 +598,8 @@ switch (forumTypeSetting.get()) {
       {
         name: 'home',
         path: '/',
-        componentName: 'Home2'
+        componentName: 'Home2',
+        sunshineSidebar: true
       },
       {
         name: 'about',
@@ -594,6 +607,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'faq',
@@ -601,6 +615,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id:"2rWKkWuPrgTMpLRbp",
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+        background: postBackground
       },
       {
         name: 'donate',
@@ -608,6 +623,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id:"LcpQQvcpWfPXvW7R9",
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
+        background: postBackground
       },
       {
         name: 'Meta',

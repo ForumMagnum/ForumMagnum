@@ -12,7 +12,7 @@ export const postsItemLikeStyles = theme => ({
     alignItems: "center",
     flexWrap: "nowrap",
     background: "white",
-    borderBottom: "solid 2px rgba(0,0,0,.07)",
+    borderBottom: theme.itemBorderBottom,
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
     },

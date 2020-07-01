@@ -49,7 +49,7 @@ export const styles = (theme) => ({
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: "#fafafa"
+      backgroundColor: "#fafafa" // note: this is not intended to be the same as the COMMENTS_BACKGROUND_COLOR, it just happens to be
     },
   },
   hasSmallSubtitle: {
@@ -58,7 +58,7 @@ export const styles = (theme) => ({
     }
   },
   bottomBorder: {
-    borderBottom: "solid 2px rgba(0,0,0,.07)",
+    borderBottom: theme.itemBorderBottom,
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -105,6 +105,7 @@ export const styles = (theme) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
+    zIndex: theme.zIndexes.postItemAuthor,
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -208,7 +209,6 @@ export const styles = (theme) => ({
   sequenceImage: {
     position: "relative",
     marginLeft: -60,
-    zIndex: theme.zIndexes.continueReadingImage,
     opacity: 0.6,
     height: 48,
     width: 146,
@@ -266,6 +266,7 @@ export const styles = (theme) => ({
     top: 2,
   },
   isRead: {
+    background: "white" // this is just a placeholder, enabling easier theming.
   }
 })
 
