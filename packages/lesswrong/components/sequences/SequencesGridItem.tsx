@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { useHover } from '../common/withHover';
