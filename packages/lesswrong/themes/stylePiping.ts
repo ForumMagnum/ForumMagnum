@@ -271,12 +271,7 @@ const smallPostStyles = theme => ({
   ...theme.typography.postStyle,
   '& blockquote': {
     ...theme.typography.body2,
-    ...theme.typography.postStyle,
-    fontSize: "1.2rem",
-    lineHeight: "1.8rem",
-    '& > p': {
-      margin:0
-    },
+    ...theme.typography.postStyle
   },
   '& ul': {
     paddingInlineStart: 30
