@@ -140,8 +140,11 @@ Meteor.startup(() => {
     formatError: (e) => {
       Sentry.captureException(e);
       // eslint-disable-next-line no-console
-      console.error(e.extensions.exception)
-      return formatError(e);
+      console.error(e?.extensions?.exception)
+      // FIXME: Type coercion because this is the wrong type. This formatError
+      // function comes from apollo-errors which is a little-used third-party
+      // library, which I think we inherited from Vulcan.
+      return formatError(e) as any;
     },
     tracing: Meteor.isDevelopment,
     cacheControl: true,
