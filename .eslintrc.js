@@ -10,7 +10,8 @@ module.exports = {
   "parserOptions": {
     "allowImportExportEverywhere": true,
     "ecmaVersion": 6,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
   "rules": {
     "babel/generator-star-spacing": 0,
@@ -81,6 +82,14 @@ module.exports = {
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
     ]}],
+
+    // Warn on missing await
+    // The ignoreVoid option makes it so that
+    //   void someAwaitableFunction()
+    // can be used as a way of marking a function as deliberately not-awaited.
+    "@typescript-eslint/no-floating-promises": [1, {
+      ignoreVoid: true
+    }],
     
     // explicit-function-return-type: Disabled. Would forbid functions with
     // undeclared return type.
