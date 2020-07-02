@@ -1,4 +1,4 @@
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { withLocation } from '../../lib/routeUtil';
@@ -149,7 +149,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 
     return (
       <React.Fragment>
-        <HeadTags url={Utils.getSiteUrl() + "allPosts"} description={"All of LessWrong's posts, filtered and sorted however you want"}/>
+        <HeadTags description={"All of LessWrong's posts, filtered and sorted however you want"}/>
         <AnalyticsContext pageContext="allPostsPage">
           <SingleColumnSection>
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">

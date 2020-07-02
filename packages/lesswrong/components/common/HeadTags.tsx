@@ -11,10 +11,13 @@ const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitl
 
 
 const HeadTags = (props) => {
-    const url = props.url || Utils.getSiteUrl();
+    const { currentRoute, pathname } = useSubscribedLocation();
+    // The default url we want to use for our cannonical and og:url tags uses
+    // the "base" path, site url and path without query or hash
+    const url = Utils.combineUrls(Utils.getSiteUrl(), Utils.getBasePath(pathname))
+    const ogUrl = props.ogUrl || url
     const canonicalUrl = props.canonicalUrl || url
     const description = props.description || taglineSetting.get()
-    const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = tabTitleSetting.get()
     
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
@@ -40,7 +43,7 @@ const HeadTags = (props) => {
 
           {/* facebook */}
           <meta property='og:type' content='article'/>
-          <meta property='og:url' content={url}/>
+          <meta property='og:url' content={ogUrl}/>
           {props.image && <meta property='og:image' content={props.image}/>}
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
