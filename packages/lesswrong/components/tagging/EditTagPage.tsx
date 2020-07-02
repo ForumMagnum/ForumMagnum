@@ -4,12 +4,25 @@ import { useLocation, useNavigation } from '../../lib/routeUtil'
 import { Tags } from '../../lib/collections/tags/collection';
 import { useTagBySlug } from './useTag';
 
+export const EditTagForm = ({tag, successCallback}: {
+    tag: TagFragment|TagPreviewFragment,
+    successCallback?: any
+  }) => {
+  return <Components.WrappedSmartForm
+    collection={Tags}
+    documentId={tag._id}
+    queryFragment={getFragment('TagEditFragment')}
+    mutationFragment={getFragment('TagEditFragment')}
+    successCallback={successCallback}
+  />
+}
+
 const EditTagPage = () => {
   const { params } = useLocation();
-  const { history } = useNavigation();
   const { slug } = params;
   const { tag, loading } = useTagBySlug(slug, "TagFragment");
-  
+  const { history } = useNavigation();
+
   if (loading)
     return <Components.Loading/>
   if (!tag)
@@ -18,14 +31,9 @@ const EditTagPage = () => {
   return (
     <Components.SingleColumnSection>
       <Components.SectionTitle title={`Edit Tag #${tag.name}`}/>
-      <Components.WrappedSmartForm
-        collection={Tags}
-        documentId={tag._id}
-        queryFragment={getFragment('TagEditFragment')}
-        mutationFragment={getFragment('TagEditFragment')}
-        successCallback={tag => {
-          history.push({pathname: `/tag/${tag.slug}`}); //TODO: Util function for tag URL
-        }}
+      <EditTagForm 
+        tag={tag} 
+        successCallback={tag => history.push({pathname: Tags.getUrl(tag)})}
       />
     </Components.SingleColumnSection>
   );

@@ -11,7 +11,7 @@ import TableBody from '@material-ui/core/TableBody';
 const styles = theme => ({
   root: {
     margin: "auto",
-    maxWidth: 1000
+    maxWidth: 900
   }
 })
 

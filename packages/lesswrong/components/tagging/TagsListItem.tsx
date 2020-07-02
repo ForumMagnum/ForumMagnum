@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,15 +8,19 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import { EditTagForm } from './EditTagPage';
+import EditOutlinedButton from '@material-ui/icons/EditOutlined';
 
 const styles = theme => ({
   root: {
     background: "white",
     ...theme.typography.commentStyle,
+    '&:hover $editIcon': {
+      color: theme.palette.grey[700]
+    }
   },
   description: {
     width: 540,
-    position: "relative",
     paddingRight: 20,
     paddingTop: 8,
     paddingBottom: 8,
@@ -38,11 +42,13 @@ const styles = theme => ({
   },
   posts: {
     verticalAlign: "top",
+    position: "relative"
   },
   post: {
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
-    marginBottom: 4,
+    lineHeight: "1.1em",
+    marginBottom: 6,
   },
   postCount: {
     display: "block",
@@ -51,9 +57,19 @@ const styles = theme => ({
     fontSize: "1rem",
     color: theme.palette.grey[500],
   },
+  metaInfo: {
+    display: "flex",
+    justifyContent: "space-between", 
+    alignItems: "flex-start"
+  },
   edit: {
-    color: theme.palette.grey[500],
-    fontSize: "1rem"
+    position: "absolute",
+    top: 12,
+    right: 10
+  },
+  editIcon: {
+    height: 16,
+    color: theme.palette.grey[400]
   }
 });
 
@@ -63,6 +79,7 @@ const TagsListItem = ({tag, classes }: {
 }) => {
   const { LinkCard, TagPreviewDescription, TagSmallPostLink } = Components;
   const currentUser = useCurrentUser();
+  const [ editing, setEditing ] = useState(false)
 
   const { results } = useMulti({
     skip: !(tag._id),
@@ -73,18 +90,18 @@ const TagsListItem = ({tag, classes }: {
     collection: TagRels,
     fragmentName: "TagRelFragment",
     limit: 3,
-    itemsPerPage: 20,
     ssr: true,
   });
 
   return <TableRow className={classes.root}>
     <TableCell className={classes.description}>
-      <LinkCard to={Tags.getUrl(tag)}>
-        <TagPreviewDescription tag={tag} />
-      </LinkCard>
-      {userCanManageTags(currentUser) && <Link to={`${Tags.getUrl(tag)}/edit`} className={classes.edit}>
-        Edit
-      </Link>}
+      {editing ? 
+        <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+        :
+        <LinkCard to={Tags.getUrl(tag)}>
+          <TagPreviewDescription tag={tag} />
+        </LinkCard>
+      }
     </TableCell>
 
     <TableCell className={classes.posts}>
@@ -96,6 +113,11 @@ const TagsListItem = ({tag, classes }: {
           <TagSmallPostLink post={result.post} />
         </div>
       )}
+      {userCanManageTags(currentUser) && 
+        <a onClick={() => setEditing(true)} className={classes.edit}>
+          <EditOutlinedButton className={classes.editIcon} />
+        </a>
+      }
     </TableCell>
   </TableRow>
 }
