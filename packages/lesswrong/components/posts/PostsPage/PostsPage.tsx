@@ -140,13 +140,13 @@ class PostsPage extends Component<PostsPageProps> {
 
       const description = this.getDescription(post)
       const ogUrl = Posts.getPageUrl(post, true) // open graph
-      const canoncialUrl = post.canonicalSource || ogUrl
+      const canonicalUrl = post.canonicalSource || ogUrl
 
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags
-                ogUrl={ogUrl} canonicalUrl={canoncialUrl}
+                ogUrl={ogUrl} canonicalUrl={canonicalUrl}
                 title={post.title} description={description} noIndex={post.noIndex || !!commentId}
               />
               {/* Header/Title */}
