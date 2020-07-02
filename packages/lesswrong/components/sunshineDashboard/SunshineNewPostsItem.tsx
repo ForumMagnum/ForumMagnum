@@ -63,7 +63,7 @@ const SunshineNewPostsItem = ({post, classes}: {
       if (selectedTags[tagId])
         tagsApplied.push(tagId);
     }
-    addTagsMutation({
+    void addTagsMutation({
       variables: {
         postId: post._id,
         tagIds: tagsApplied,
@@ -73,7 +73,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const handleReview = () => {
     applyTags();
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         reviewedByUserId: currentUser!._id,
@@ -85,7 +85,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const handlePromote = () => {
     applyTags();
     
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         frontpageDate: new Date(),
@@ -98,7 +98,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const handleMoveToCommunity = () => {
     applyTags();
     
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         meta: true,
@@ -112,7 +112,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
       window.open(Users.getProfileUrl(post.user), '_blank');
-      updatePost({
+      void updatePost({
         selector: { _id: post._id},
         data: {
           draft: true,

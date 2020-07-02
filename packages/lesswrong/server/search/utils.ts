@@ -509,7 +509,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
 export async function algoliaExportById(collection, documentId: string) {
   const document = await collection.findOne({_id: documentId});
   if (document) {
-    algoliaDocumentExport({ documents: [document], collection });
+    await algoliaDocumentExport({ documents: [document], collection });
   }
 }
 

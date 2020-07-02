@@ -14,7 +14,7 @@ addCronJob({
   },
   job() {
     VoteableCollections.forEach(collection => {
-      batchUpdateScore({collection});
+      void batchUpdateScore({collection});
     });
   }
 });
@@ -25,7 +25,7 @@ addCronJob({
   },
   job() {
     VoteableCollections.forEach(collection => {
-      batchUpdateScore({collection, inactive: true});
+      void batchUpdateScore({collection, inactive: true});
     });
   }
 });

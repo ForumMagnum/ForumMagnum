@@ -109,7 +109,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 filterSettings={filterSettings} setFilterSettings={(newSettings) => {
                   setFilterSettings(newSettings)
                   if (currentUser) {
-                    updateUser({
+                    void updateUser({
                       selector: { _id: currentUser._id},
                       data: {
                         frontpageFilterSettings: newSettings

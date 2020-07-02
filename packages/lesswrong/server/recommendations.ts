@@ -303,7 +303,7 @@ addGraphQLResolvers({
       if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
           (s:any)=>s.nextPostId !== postId);
-        setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;
       }
       return false;

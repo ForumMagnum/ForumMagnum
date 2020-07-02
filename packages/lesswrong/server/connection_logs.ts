@@ -11,13 +11,13 @@ async function getDummyUser(): Promise<DbUser> {
   if (!dummyUser) throw Error("No users in the database, can't get dummy user")
   return dummyUser;
 }
-getDummyUser();
+void getDummyUser();
 
 Meteor.onConnection(async (connection) => {
   let currentUser = await getDummyUser();
   const ip = (connection.httpHeaders && connection.httpHeaders["x-real-ip"]) || connection.clientAddress;
   
-  newMutation({
+  void newMutation({
     collection: LWEvents,
     document: {
       name: 'newConnection',
@@ -36,7 +36,7 @@ Meteor.onConnection(async (connection) => {
   connection.onClose(() => {
     //eslint-disable-next-line no-console
     console.info("closed Meteor connection:", connection)
-    newMutation({
+    void newMutation({
       collection: LWEvents,
       document: {
         name: 'closeConnection',
@@ -65,7 +65,7 @@ Accounts.onLogin(async (login) => {
       referrer: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['referer']
     }
   }
-  newMutation({
+  void newMutation({
     collection: LWEvents,
     document: document,
     currentUser: await getDummyUser(),

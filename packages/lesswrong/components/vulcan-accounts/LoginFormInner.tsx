@@ -908,7 +908,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
       let promise = this.state.onPreSignUpHook(options);
       // LESSWRONG: allow preSignUpHook to return value that replaces options
       if (promise instanceof Promise) {
-        promise.then((value) => {doSignUp(value || options)});
+        promise.then(
+          (value) => {doSignUp(value || options)},
+          (err) => {}
+        );
       }
       else {
         // eslint-disable-next-line babel/new-cap

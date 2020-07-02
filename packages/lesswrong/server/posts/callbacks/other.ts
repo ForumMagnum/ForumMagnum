@@ -60,8 +60,8 @@ addCallback('users.remove.async', UsersRemoveDeletePosts);
 //  * @param {string} ip – the IP of the current user
 //  */
 
-function PostsClickTracking(post, ip) {
-  Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
+async function PostsClickTracking(post, ip) {
+  await Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
 }
 
 // track links clicked, locally in Events collection
