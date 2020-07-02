@@ -1,4 +1,4 @@
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { withLocation } from '../../lib/routeUtil';
