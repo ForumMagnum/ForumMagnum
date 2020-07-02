@@ -426,10 +426,29 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
   },
   {
+<<<<<<< HEAD
     name:'coronavirus.link.db',
     path:'/coronavirus-link-database',
     componentName: 'SpreadsheetPage',
     title: "COVID-19 Link Database"
+=======
+    name: 'tags.revisioncompare',
+    path: '/compare/tag/:slug',
+    componentName: 'TagCompareRevisions',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
+    name: 'post.revisionsselect',
+    path: '/revisions/post/:_id/:slug',
+    componentName: 'PostsRevisionSelect',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
+    name: 'tag.revisionsselect',
+    path: '/revisions/tag/:slug',
+    componentName: 'TagPageRevisionSelect',
+    titleComponentName: 'TagPageTitle',
+>>>>>>> 6eb4bc1b5... remove url parameter from HeadTags
   },
   {
     name: 'admin',
@@ -447,7 +466,8 @@ addRoute([
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
-    title: "Moderation Log"
+    title: "Moderation Log",
+    noIndex: true
   },
   {
     name: 'emailHistory',
@@ -587,18 +607,24 @@ switch (getSetting('forumType')) {
 }
 
 // LW and AF
-if (getSetting('forumType') !== 'EAForum') {
+if (['AlignmentForum', 'LessWrong'].includes(getSetting('forumType'))) {
   addRoute([
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database"
+    },
     {
       name: 'tagIndex',
       path: '/tags',
       componentName: 'PostsSingleRoute',
       _id:"DHJBEsi4XJDw2fRFq"
-    },
+    }
   ])
 }
 
-addRoute([
+addRoute(
   {
     name: 'home2',
     path: '/home2',
