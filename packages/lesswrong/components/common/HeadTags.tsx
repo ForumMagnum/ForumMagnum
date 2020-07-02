@@ -7,11 +7,19 @@ import { withApollo } from 'react-apollo';
 import '../../lib/registerSettings';
 
 const HeadTags = (props) => {
-    const url = props.url || Utils.getSiteUrl();
+    const { currentRoute, pathname } = useSubscribedLocation();
+    // The default url we want to use for our cannonical and og:url tags uses
+    // the "base" path, site url and path without query or hash
+    const url = props.url || Utils.combineUrls(Utils.getSiteUrl(), Utils.getBasePath(pathname))
     const canonicalUrl = props.canonicalUrl || url
+<<<<<<< HEAD
     const description = props.description || getSetting('tagline') || getSetting('description');
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+=======
+    const description = props.description || taglineSetting.get()
+    const siteName = tabTitleSetting.get()
+>>>>>>> ac47924c9... fix canonical url of user pages and others
     
     const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
