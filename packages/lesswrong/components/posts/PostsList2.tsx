@@ -176,7 +176,6 @@ const PostsList2 = ({
         }
       })}
       {showLoadMore && <SectionFooter>
-        {(showLoadMore) &&
           <div className={classes.loadMore}>
             <LoadMore
               loadMore={() => {
@@ -189,7 +188,6 @@ const PostsList2 = ({
             />
             { !dimWhenLoading && showLoading && loading && <Loading />}
           </div>
-        }
         { children }
       </SectionFooter>}
     </div>
