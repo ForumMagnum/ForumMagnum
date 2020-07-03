@@ -42,7 +42,7 @@ const styles = theme => ({
     overflow:"scroll",
     width: "100%",
     height: "calc(100vh - 48px)",
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: "white",
     paddingBottom: 100,
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,

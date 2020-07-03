@@ -16,9 +16,10 @@ const styles = theme => ({
   },
 });
 
-const AddTagButton = ({onTagSelected, classes}: {
+const AddTagButton = ({onTagSelected, classes, smallVariant}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
-  classes: ClassesType
+  classes: ClassesType,
+  smallVariant?: boolean
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
@@ -35,9 +36,9 @@ const AddTagButton = ({onTagSelected, classes}: {
       setIsOpen(true);
       captureEvent("addTagClicked")
     }}
-    className={classes.addTagButton}
+    className={smallVariant ? classes.small : classes.addTagButton}
   >
-    {"+ Add Tag"}
+    {smallVariant ? "+" : "+ Add Tag"}
 
     <Components.LWPopper
       open={isOpen}

@@ -13,8 +13,20 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "center"
+    alignItems: "flex-start",
+    paddingBottom: 4
   },
+  addButton: {
+    backgroundColor: theme.palette.grey[300],
+    paddingLeft: 9,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 9,
+    borderRadius: 3,
+    fontWeight: 700,
+    marginBottom: 4,
+    cursor: "pointer"
+  }
 });
 
 const lwafPersonalBlogpostInfo = {
@@ -61,7 +73,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   setFilterSettings: (newSettings: FilterSettings)=>void,
   classes: ClassesType,
 }) => {
-  const { AddTagButton, FilterMode, Loading } = Components
+  const { AddTagButton, FilterMode, Loading, LWTooltip } = Components
   const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
 
   const { results: suggestedTags, loading: loadingSuggestedTags } = useMulti({
@@ -71,6 +83,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     collection: Tags,
     fragmentName: "TagFragment",
     limit: 100,
+    ssr: true
   });
 
   const { captureEvent } = useTracking()
@@ -82,7 +95,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       setFilterSettings(filterSettingsWithSuggestedTags);
   }
 
-  return <div className={classes.root}>
+  return <span>
+    {loadingSuggestedTags && !filterSettings.tags.length && <Loading/>}
+
     {filterSettings.tags.map(tagSettings =>
       <FilterMode
         label={tagSettings.tagName}
@@ -128,18 +143,19 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       }}
     />
 
-    {<AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
-        if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
-          const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
-          setFilterSettings({
-            personalBlog: filterSettings.personalBlog,
-            tags: [...filterSettings.tags, newFilter]
-          });
-          captureEvent("tagAddedToFilters", {tagId, tagName})
-        }
-      }}/>}
-    {loadingSuggestedTags && <Loading/>}
-  </div>
+    {<LWTooltip title="Add Tag Filter" className={classes.addButton}>
+        <AddTagButton smallVariant onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+          if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
+            const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
+            setFilterSettings({
+              personalBlog: filterSettings.personalBlog,
+              tags: [...filterSettings.tags, newFilter]
+            });
+            captureEvent("tagAddedToFilters", {tagId, tagName})
+          }
+        }}/>
+    </LWTooltip>}
+  </span>
 }
 
 const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagFragment>): FilterSettings => {

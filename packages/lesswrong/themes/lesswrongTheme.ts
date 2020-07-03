@@ -43,7 +43,7 @@ const palette = {
     main: deepOrange[900]
   },
   background: {
-    default: '#fff'
+    default: '#f4f4f4'
   }
 }
 

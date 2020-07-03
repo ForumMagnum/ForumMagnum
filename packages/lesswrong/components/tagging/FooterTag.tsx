@@ -6,13 +6,13 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 export const tagStyle = theme => ({
   display: "inline-block",
-  marginRight: 4,
+  marginRight: 3,
   padding: 5,
-  paddingLeft: 8,
-  paddingRight: 7,
+  paddingLeft: 6,
+  paddingRight: 5,
   marginBottom: 8,
-  backgroundColor: 'rgba(0,0,0,0.05)',
-  borderRadius: 10,
+  backgroundColor: 'rgba(0,0,0,0.07)',
+  borderRadius: 3,
   cursor: "pointer",
   ...theme.typography.commentStyle,
   "&:hover": {

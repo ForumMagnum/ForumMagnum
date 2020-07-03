@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { useHover } from '../common/withHover';
@@ -12,14 +11,14 @@ const styles = theme => ({
     ...theme.typography.postStyle,
 
     width: "calc(33% - 5px)",
-    boxShadow: "0 0 3px rgba(0,0,0,.2)",
+    boxShadow: theme.boxShadow,
     paddingBottom: 0,
     marginBottom: 10,
     display: "flex",
     flexDirection: "column",
 
     "&:hover": {
-      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
       color: "rgba(0,0,0,0.87)",
     },
 
@@ -65,13 +64,18 @@ const styles = theme => ({
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center"
+    justifyContent: "center",
+    background: "white",
+  },
+  bookItemStyle: {
+    paddingLeft: 0,
+    paddingRight: 0
   },
   hiddenAuthor: {
     paddingBottom: 8
   },
   image: {
-    backgroundColor: "#efefef",
+    backgroundColor: "#eee",
     display: 'block',
     height: 95,
     [legacyBreakpoints.maxSmall]: {
@@ -91,11 +95,11 @@ const styles = theme => ({
   }
 })
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
+const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  classes: ClassesType
-
+  classes: ClassesType,
+  bookItemStyle?: boolean
 }) => {
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
@@ -104,7 +108,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
   const { PopperCard, SequenceTooltip, LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url}>
+  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -114,13 +118,11 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
         />
       </NoSSR>
     </div>
-    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor})}>
-      <Link key={sequence._id} to={url}>
-        <Typography variant='title' className={classes.title}>
-          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-          {sequence.title}
-        </Typography>
-      </Link>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemStyle]: bookItemStyle})}>
+      <Typography variant='title' className={classes.title}>
+        {sequence.draft && <span className={classes.draft}>[Draft] </span>}
+        {sequence.title}
+      </Typography>
       { showAuthor &&
         <div className={classes.author}>
           by <Components.UsersName user={sequence.user} />
