@@ -426,31 +426,6 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
   },
   {
-<<<<<<< HEAD
-    name:'coronavirus.link.db',
-    path:'/coronavirus-link-database',
-    componentName: 'SpreadsheetPage',
-    title: "COVID-19 Link Database"
-=======
-    name: 'tags.revisioncompare',
-    path: '/compare/tag/:slug',
-    componentName: 'TagCompareRevisions',
-    titleComponentName: 'PostsPageHeaderTitle',
-  },
-  {
-    name: 'post.revisionsselect',
-    path: '/revisions/post/:_id/:slug',
-    componentName: 'PostsRevisionSelect',
-    titleComponentName: 'PostsPageHeaderTitle',
-  },
-  {
-    name: 'tag.revisionsselect',
-    path: '/revisions/tag/:slug',
-    componentName: 'TagPageRevisionSelect',
-    titleComponentName: 'TagPageTitle',
->>>>>>> 6eb4bc1b5... remove url parameter from HeadTags
-  },
-  {
     name: 'admin',
     path: '/admin',
     componentName: 'AdminHome',
