@@ -599,7 +599,7 @@ if (['AlignmentForum', 'LessWrong'].includes(getSetting('forumType'))) {
   ])
 }
 
-addRoute(
+addRoute([
   {
     name: 'home2',
     path: '/home2',
