@@ -426,12 +426,6 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
   },
   {
-    name:'coronavirus.link.db',
-    path:'/coronavirus-link-database',
-    componentName: 'SpreadsheetPage',
-    title: "COVID-19 Link Database"
-  },
-  {
     name: 'admin',
     path: '/admin',
     componentName: 'AdminHome',
@@ -447,7 +441,8 @@ addRoute([
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
-    title: "Moderation Log"
+    title: "Moderation Log",
+    noIndex: true
   },
   {
     name: 'emailHistory',
@@ -587,14 +582,20 @@ switch (getSetting('forumType')) {
 }
 
 // LW and AF
-if (getSetting('forumType') !== 'EAForum') {
+if (['AlignmentForum', 'LessWrong'].includes(getSetting('forumType'))) {
   addRoute([
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database"
+    },
     {
       name: 'tagIndex',
       path: '/tags',
       componentName: 'PostsSingleRoute',
       _id:"DHJBEsi4XJDw2fRFq"
-    },
+    }
   ])
 }
 
