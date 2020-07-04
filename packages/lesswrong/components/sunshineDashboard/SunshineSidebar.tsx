@@ -39,6 +39,8 @@ const SunshineSidebar = ({classes}) => {
 
   const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
 
+  if (!currentUser) return null
+
   return (
     <div className={classes.root}>
       {Users.canDo(currentUser, 'posts.moderate.all') && <div className={classes.background}>
@@ -48,7 +50,7 @@ const SunshineSidebar = ({classes}) => {
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         
         {/* alignmentForumAdmins see AF content above the fold */}
-        { currentUser?.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
+        { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
           <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
           <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
           <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
