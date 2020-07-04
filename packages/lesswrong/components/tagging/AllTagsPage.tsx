@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
+import _sortBy from 'lodash/sortBy';
 
 const styles = theme => ({
   root: {
@@ -28,8 +29,10 @@ const AllTagsPage = ({classes}: {
     limit: 200,
     ssr: true,
   });
-  const { TagsListItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
+  const { TagsListItem, TagsDetailsItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
   
+  const alphabetical = _sortBy(results, tag=>tag.name)
+
   return (
     <div className={classes.root}>
       <SectionTitle title="All Tags">
@@ -39,10 +42,13 @@ const AllTagsPage = ({classes}: {
         </SectionButton>}
       </SectionTitle>
       {loading && <Loading/>}
+      <div className={classes.alphabetical}>
+        {alphabetical.map(tag => <TagsListItem key={tag._id} tag={tag}/>)}
+      </div>
       <Table>
         <TableBody>
           {results && results.map(tag => {
-            return <TagsListItem key={tag._id} tag={tag} />
+            return <TagsDetailsItem key={tag._id} tag={tag} />
           })}
           {results && !results.length && <div>
             There aren't any tags yet.

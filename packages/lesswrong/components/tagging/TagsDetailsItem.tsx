@@ -73,7 +73,7 @@ const styles = theme => ({
   }
 });
 
-const TagsListItem = ({tag, classes }: {
+const TagsDetailsItem = ({tag, classes }: {
   tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
@@ -122,10 +122,10 @@ const TagsListItem = ({tag, classes }: {
   </TableRow>
 }
 
-const TagsListItemComponent = registerComponent("TagsListItem", TagsListItem, {styles});
+const TagsDetailsItemComponent = registerComponent("TagsDetailsItem", TagsDetailsItem, {styles});
 
 declare global {
   interface ComponentTypes {
-    TagsListItem: typeof TagsListItemComponent
+    TagsDetailsItem: typeof TagsDetailsItemComponent
   }
 }
