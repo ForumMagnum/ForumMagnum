@@ -40,7 +40,7 @@ const styles = theme => ({
 })
 
 const PostsVote = ({ post, classes }: {
-  post: PostsBase,
+  post: PostsWithVotes,
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts");

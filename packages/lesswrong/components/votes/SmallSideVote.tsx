@@ -38,7 +38,7 @@ const styles = theme => ({
 })
 
 const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
-  document: CommentsList|PostsDetails,
+  document: CommentsList|PostsWithVotes,
   hideKarma?: boolean,
   classes: ClassesType,
   collection: any

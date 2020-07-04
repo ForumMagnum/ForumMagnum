@@ -32,7 +32,7 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
   const { results, loading } = useMulti({
     terms,
     collection: Posts,
-    fragmentName: 'PostsList',
+    fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
   });
   const { Loading, MetaInfo, FormatDate, PostsTitle, SmallSideVote } = Components

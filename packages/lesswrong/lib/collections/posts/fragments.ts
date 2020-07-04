@@ -111,6 +111,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsWithVotes on Post {
+    ...PostsBase
+    currentUserVotes{
+      ...VoteFragment
+    }
+  }
+`);
+
+
+registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
@@ -380,6 +390,10 @@ registerFragment(`
 registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsList
+
+    currentUserVotes{
+      ...VoteFragment
+    }
 
     contents {
       html
