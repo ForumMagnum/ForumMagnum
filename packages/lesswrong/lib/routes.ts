@@ -470,12 +470,6 @@ addRoute(
     titleComponentName: 'TagPageTitle',
   },
   {
-    name:'coronavirus.link.db',
-    path:'/coronavirus-link-database',
-    componentName: 'SpreadsheetPage',
-    title: "COVID-19 Link Database"
-  },
-  {
     name: 'admin',
     path: '/admin',
     componentName: 'AdminHome',
@@ -491,7 +485,8 @@ addRoute(
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
-    title: "Moderation Log"
+    title: "Moderation Log",
+    noIndex: true
   },
   {
     name: 'emailHistory',
@@ -633,6 +628,17 @@ switch (forumTypeSetting.get()) {
       },
     );
     break;
+}
+
+if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
+  addRoute(
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database"
+    }
+  )
 }
 
 addRoute(

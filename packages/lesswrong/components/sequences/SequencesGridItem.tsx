@@ -107,7 +107,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const { hover, anchorEl } = useHover()
   const { PopperCard, SequenceTooltip, LinkCard } = Components;
   const url = getSequenceUrl()
-  
+
   return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription}>
     <div className={classes.image}>
       <NoSSR>

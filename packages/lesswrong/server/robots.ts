@@ -23,18 +23,20 @@ addStaticRoute('/robots.txt', ({query}, req, res, next) => {
   if (disallowCrawlersSetting.get()) {
     res.end("User-agent: *\nDisallow: /");
   } else if (robotsTxtSetting.get()) {
-    return robotsTxtSetting.get();
+    res.end(robotsTxtSetting.get());
   } else {
     // We block all request with query parameters to the allPosts page, since that results in a ton of Google requests
     // that don't really want to index or handle
     res.end(
 `User-agent: *
-Disallow: /allPosts?*:qall
+Disallow: /allPosts?*
 Disallow: /graphiql
 Disallow: /debug
 Disallow: /admin
 Disallow: /compare
 Disallow: /emailToken
+Disallow: /*?commentId=*
+Crawl-Delay: 2
 `);
   }
 });
