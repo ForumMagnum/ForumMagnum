@@ -25,6 +25,8 @@ interface UtilsType {
   slugify: (s: string) => string
   getDomain: (url: string) => string|null
   addHttp: (url: string) => string|null
+  combineUrls: (baseUrl: string, path: string) => string
+  getBasePath: (path: string) => string
   
   checkNested: any
   getNestedProperty: any
@@ -178,6 +180,19 @@ Utils.addHttp = function (url: string): string|null {
     return null;
   }
 };
+
+// Combine urls without extra /s at the join
+// https://stackoverflow.com/questions/16301503/can-i-use-requirepath-join-to-safely-concatenate-urls
+Utils.combineUrls = (baseUrl: string, path:string) => {
+  return path
+    ? baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
+    : baseUrl;
+}
+
+// Remove query and anchor tags from path
+Utils.getBasePath = (path: string) => {
+  return path.split(/[?#]/)[0]
+}
 
 /////////////////////////////
 // String Helper Functions //

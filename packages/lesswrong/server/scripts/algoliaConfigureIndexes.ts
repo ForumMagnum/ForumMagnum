@@ -23,6 +23,17 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
+    ranking: [
+      'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(baseScore)'
+    ],
+    attributesForFaceting: [
+      'filterOnly(af)',
+      'postedAt',
+    ],
+    attributesToHighlight: ['authorDisplayName'],
+    attributesToSnippet: ['body:20'],
+    unretrievableAttributes: ['authorUserName'],
   });
   await algoliaSetIndexSettingsAndWait(postsIndex, {
     searchableAttributes: [
@@ -31,12 +42,40 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
+    ranking: ['typo','geo','words','filters','exact','proximity','attribute','custom'],
+    customRanking: [
+      'desc(baseScore)',
+      'desc(score)'
+    ],
+    attributesForFaceting: [
+      'af',
+      'searchable(authorDisplayName)',
+      'authorSlug',
+      'postedAt',
+    ],
+    attributesToHighlight: ['title'],
+    attributesToSnippet: ['body:20'],
+    unretrievableAttributes: [
+      'authorUserName',
+      'userIP',
+    ],
+    distinct: true,
+    attributeForDistinct: '_id',
+    advancedSyntax: true,
   });
   await algoliaSetIndexSettingsAndWait(usersIndex, {
     searchableAttributes: [
       'unordered(displayName)',
       'bio',
       'unordered(_id)',
+    ],
+    ranking: [
+      'desc(karma)',
+      'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(createdAt)'
+    ],
+    attributesForFaceting: [
+      'filterOnly(af)',
     ],
   });
   await algoliaSetIndexSettingsAndWait(sequencesIndex, {
@@ -46,6 +85,9 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
+    attributesForFaceting: [
+      'filterOnly(af)',
+    ],
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
     searchableAttributes: [
@@ -53,6 +95,12 @@ export const algoliaConfigureIndexes = async () => {
       'description',
       'unordered(_id)',
     ],
+    ranking: [
+      'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(core)',
+      'desc(postCount)',
+    ],
+    distinct: false,
   });
   
   console.log("Done"); //eslint-disable-line no-console

@@ -1,7 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Comments } from "../../lib/collections/comments";
-import { Posts } from "../../lib/collections/posts";
 import Users from '../../lib/collections/users/collection';
 import moment from '../../lib/moment-timezone';
 import { useHover } from '../common/withHover';
@@ -9,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import Tooltip from '@material-ui/core/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { Comments } from '../../lib/collections/comments';
 
 const styles = theme => ({
   vote: {
@@ -39,27 +38,25 @@ const styles = theme => ({
 })
 
 const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
-  document: CommentsList|PostsList,
+  document: CommentsList|PostsDetails,
   hideKarma?: boolean,
   classes: ClassesType,
   collection: any
 }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const voteProps = useVote(document, collection.options.collectionName);
   const {eventHandlers, hover} = useHover();
   
   if (!document) return null;
 
   const { VoteButton } = Components
-  const voteCount = document.voteCount;
-  let karma = 0
+
+  const voteCount = voteProps.voteCount;
+  const karma = voteProps.baseScore;
+
   let moveToAlignnmentUserId = ""
-  if (collection === Posts) {
-    karma = Posts.getKarma(document as PostsBase)
-  }
   if (collection == Comments) {
     const comment = document as CommentsList
-    karma = Comments.getKarma(comment)
     moveToAlignnmentUserId = comment.moveToAlignmentUserId
   }
 
@@ -82,10 +79,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
                 orientation="left"
                 color="error"
                 voteType="Downvote"
-                document={document}
-                currentUser={currentUser}
-                collection={collection}
-                vote={vote}
+                {...voteProps}
               />
             </span>
           </Tooltip>
@@ -107,10 +101,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
                 orientation="right"
                 color="secondary"
                 voteType="Upvote"
-                document={document}
-                currentUser={currentUser}
-                collection={collection}
-                vote={vote}
+                {...voteProps}
               />
             </span>
           </Tooltip>

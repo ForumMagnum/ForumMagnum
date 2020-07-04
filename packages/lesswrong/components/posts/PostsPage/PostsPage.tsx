@@ -23,7 +23,7 @@ export const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
-      marginTop: 12
+      paddingTop: 12
     }
   },
   tocActivated: {
@@ -139,12 +139,14 @@ class PostsPage extends Component<PostsPageProps> {
       const commentId = query.commentId || params.commentId
 
       const description = this.getDescription(post)
+      const ogUrl = Posts.getPageUrl(post, true) // open graph
+      const canonicalUrl = post.canonicalSource || ogUrl
 
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags
-                url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource}
+                ogUrl={ogUrl} canonicalUrl={canonicalUrl}
                 title={post.title} description={description} noIndex={post.noIndex || !!commentId}
               />
               {/* Header/Title */}

@@ -1,20 +1,13 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { useCurrentUser } from '../common/withUser';
-import Users from '../../lib/collections/users/collection';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {
-  const currentUser = useCurrentUser();
   const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker } = Components
-
-  const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
-      Users.canDo(currentUser, 'alignment.sidebar')
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          {shouldRenderSidebar && <Components.SunshineSidebar/>}
           <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}

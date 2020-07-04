@@ -13,10 +13,6 @@ const styles = theme => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
-  settingsButton: {
-    display: "flex",
-    alignItems: "center"
-  }
 })
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
@@ -101,7 +97,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   renderExpandOptions = () => {
     const { currentUser, classes, totalComments=0 } = this.props;
     const { expandAllThreads } = this.state
-    const { SettingsIcon, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
+    const { SettingsButton, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
 
       const expandTooltip = `Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`
@@ -116,12 +112,12 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
           ? 
             <LWTooltip title="Go to your settings page to update your Comment Truncation Options">
               <Link to="/account">
-                <SettingsIcon label="Change default truncation settings" />
+                <SettingsButton label="Change default truncation settings" />
               </Link>
             </LWTooltip>
           : 
             <LoginPopupButton title={"Login to change default truncation settings"}>
-              <SettingsIcon label="Change truncation settings" />
+              <SettingsButton label="Change truncation settings" />
             </LoginPopupButton>
         }
       </CommentsListMeta>

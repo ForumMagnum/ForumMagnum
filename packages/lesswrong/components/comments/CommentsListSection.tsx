@@ -22,7 +22,6 @@ const styles = theme => ({
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
 
-    background: "white",
     position: "relative"
   },
   inline: {
@@ -32,8 +31,9 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    border: 'solid 1px rgba(0,0,0,.2)',
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
     position: 'relative',
+    borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
