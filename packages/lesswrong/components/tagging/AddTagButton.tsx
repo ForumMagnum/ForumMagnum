@@ -21,7 +21,7 @@ const styles = theme => ({
 const AddTagButton = ({onTagSelected, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
-  children: any
+  children?: any
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
