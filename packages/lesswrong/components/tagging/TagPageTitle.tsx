@@ -16,7 +16,7 @@ const TagPageTitle = ({isSubtitle, classes}: {
   
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
-      <Link to="/tags">Tags</Link>
+      <Link to="/tags/all">Tags</Link>
     </span>);
   } else if (!tag) {
     return null;
