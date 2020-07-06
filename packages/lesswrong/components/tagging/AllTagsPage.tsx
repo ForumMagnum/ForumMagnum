@@ -34,7 +34,7 @@ const AllTagsPage = ({classes}: {
     },
     collection: Tags,
     fragmentName: "TagPreviewFragment",
-    limit: 200,
+    limit: 500,
     ssr: true,
   });
   const { TagsListItem, TagsDetailsItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
