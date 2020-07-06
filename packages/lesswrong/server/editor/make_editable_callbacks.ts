@@ -247,7 +247,7 @@ function getInitialVersion(document) {
   }
 }
 
-async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
+export async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
   return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
 }
 

@@ -50,6 +50,7 @@ import './server/scripts/recomputeDenormalized';
 import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
+import './server/scripts/checkRevisionsDataIntegrity';
 import './server/migrations';
 import './server/migrations/migrationsDashboardGraphql';
 
