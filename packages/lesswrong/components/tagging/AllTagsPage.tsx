@@ -12,7 +12,14 @@ import _sortBy from 'lodash/sortBy';
 const styles = theme => ({
   root: {
     margin: "auto",
-    maxWidth: 920
+    maxWidth: 900
+  },
+  alphabetical: {
+    display: "flex",
+    flexWrap: "wrap",
+    background: "white",
+    padding: 20,
+    marginBottom: 24  
   }
 })
 
@@ -35,7 +42,7 @@ const AllTagsPage = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <SectionTitle title="All Tags">
+      <SectionTitle title={`All Tags (${results?.length})`}>
         {currentUser?.isAdmin && <SectionButton>
           <AddBoxIcon/>
           <Link to="/tag/create">New Tag</Link>
@@ -45,6 +52,7 @@ const AllTagsPage = ({classes}: {
       <div className={classes.alphabetical}>
         {alphabetical.map(tag => <TagsListItem key={tag._id} tag={tag}/>)}
       </div>
+      <SectionTitle title="Tag Details"/>
       <Table>
         <TableBody>
           {results && results.map(tag => {
