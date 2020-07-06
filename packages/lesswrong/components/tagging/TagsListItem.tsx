@@ -7,7 +7,6 @@ const styles = theme => ({
   tag: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    width: 215,
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 6,
@@ -30,7 +29,7 @@ const TagsListItem = ({tag, classes}: {
   const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
 
-  return <span {...eventHandlers} className={classes.tag}>
+  return <div {...eventHandlers} className={classes.tag}>
     <PopperCard 
       open={hover} 
       anchorEl={anchorEl} 
@@ -42,7 +41,7 @@ const TagsListItem = ({tag, classes}: {
       {tag.name}
     </Link>
     {tag.postCount && <span className={classes.count}>({tag.postCount})</span>} 
-  </span>;
+  </div>;
 }
 
 const TagsListItemComponent = registerComponent("TagsListItem", TagsListItem, {styles});

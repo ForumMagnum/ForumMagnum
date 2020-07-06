@@ -12,11 +12,12 @@ import _sortBy from 'lodash/sortBy';
 const styles = theme => ({
   root: {
     margin: "auto",
-    maxWidth: 900
+    maxWidth: 840
   },
   alphabetical: {
-    display: "flex",
-    flexWrap: "wrap",
+    columns: 5,
+    columnWidth: 200,
+    columnGap: 0,
     background: "white",
     padding: 20,
     marginBottom: 24  
