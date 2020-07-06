@@ -320,10 +320,10 @@ const PostsItem2 = ({
   // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
   // icon.
   bookmark=false,
-  // recordPostView, isRead: From the withRecordPostView HoC.
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
+  // recordPostView, isRead: From the withRecordPostView HoC.
   recordPostView,
   isRead=false,
   hideAuthor=false,
