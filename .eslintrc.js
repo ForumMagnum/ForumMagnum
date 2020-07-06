@@ -90,7 +90,14 @@ module.exports = {
     "@typescript-eslint/no-floating-promises": [1, {
       ignoreVoid: true
     }],
-    
+
+    // Like no-implicit-any, but specifically for things that are exported. Turn
+    // on some day, but not yet.
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+
+    // Allow @ts-ignore
+    "@typescript-eslint/ban-ts-comment": 0,
+
     // explicit-function-return-type: Disabled. Would forbid functions with
     // undeclared return type.
     "@typescript-eslint/explicit-function-return-type": 0,
@@ -130,6 +137,10 @@ module.exports = {
     // no-empty-function: Disabled. Would forbid functions with empty bodies.
     "@typescript-eslint/no-empty-function": 0,
     
+    // ban-types: Disabled. Would forbid '{}' as a type, which means "any non-
+    // nullish value".
+    "@typescript-eslint/ban-types": 0,
+    
     // prefer-rest-params: Currently disabled. Would forbid use of the `arguments`
     // keyword.
     "prefer-rest-params": 0,
@@ -155,6 +166,7 @@ module.exports = {
     
     // no-extra-semi: Disabled. Would forbid semicolons after class declarations
     "no-extra-semi": 0,
+    "@typescript-eslint/no-extra-semi": 0,
     
     // no-var-requires: Disabled. Would forbid use of require() statements of
     // libraries from node_modules.
