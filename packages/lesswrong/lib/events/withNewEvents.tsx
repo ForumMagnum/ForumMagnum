@@ -1,8 +1,6 @@
-import { withCreate, useCreate } from '../crud/withCreate';
-import React, { Component, useCallback, useState, useEffect } from 'react';
+import { useCreate } from '../crud/withCreate';
+import React, { useState, useEffect } from 'react';
 import uuid from 'uuid/v4';
-import { LWEvents } from '../collections/lwevents/collection';
-import { shallowEqual } from '../utils/componentUtils';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
 

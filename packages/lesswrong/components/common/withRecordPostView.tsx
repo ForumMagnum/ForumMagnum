@@ -1,8 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import { useMutation } from 'react-apollo';
 import { useCurrentUser } from './withUser';
-import compose from 'recompose/compose';
-import { withNewEvents, useNewEvents } from '../../lib/events/withNewEvents';
+import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import gql from 'graphql-tag';
 
