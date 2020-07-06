@@ -1,5 +1,5 @@
 import { useCreate } from '../crud/withCreate';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import uuid from 'uuid/v4';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
