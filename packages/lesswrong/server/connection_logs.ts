@@ -31,11 +31,11 @@ Meteor.onConnection(async (connection) => {
     validate: false,
   })
   //eslint-disable-next-line no-console
-  console.info("new Meteor connection:", connection)
+  console.info(`new Meteor connection from ${connection.clientAddress}`);
 
   connection.onClose(() => {
     //eslint-disable-next-line no-console
-    console.info("closed Meteor connection:", connection)
+    console.info(`closed Meteor connection from ${connection.clientAddress}`);
     newMutation({
       collection: LWEvents,
       document: {
