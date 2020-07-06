@@ -38,7 +38,7 @@ const styles = theme => ({
 
 const AddPostsToTag = ({classes, tag}: {
   classes: ClassesType,
-  tag: TagPreviewFragment,
+  tag: TagPreviewFragment
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const { captureEvent } = useTracking()
