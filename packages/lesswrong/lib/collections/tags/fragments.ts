@@ -11,6 +11,7 @@ registerFragment(`
     adminOnly
     defaultOrder
     suggestedAsFilter
+    needsReview
   }
 `);
 
@@ -48,6 +49,15 @@ registerFragment(`
     ...TagBasicInfo
     description {
       ...RevisionEdit
+    }
+  }
+`);
+
+registerFragment(`
+  fragment SunshineTagFragment on Tag {
+    ...TagFragment
+    user {
+      ...UsersMinimumInfo
     }
   }
 `);

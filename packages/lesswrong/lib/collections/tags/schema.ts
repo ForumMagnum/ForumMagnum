@@ -134,4 +134,14 @@ export const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  needsReview: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+    onInsert: (document, currentUser) => !currentUser.isAdmin,
+  },
+
 }
