@@ -5,7 +5,6 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const PostsItemKarma = ({post, hover, anchorEl}: {
   post: PostsBase,
-  read?: boolean,
   hover?: any,
   anchorEl?: any,
 }) => {

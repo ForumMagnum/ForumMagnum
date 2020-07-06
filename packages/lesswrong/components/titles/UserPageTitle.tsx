@@ -33,6 +33,11 @@ const UserPageTitle = ({isSubtitle, siteName, classes}) => {
   const userNameString = user.displayName || user.slug;
   const titleString = `${userNameString} - ${siteName}`
   
+  // Ray note: I think it was just a mistake to have the User Profile subtitle 
+  // on the UsersProfile page, because it's just superfluous with the actual header
+  // title. I've removed that use of this component, and I don't think there's another
+  // currently-in-use subtitle version of this component. Probably should remove
+  // the option, unless we want to go back to using the User subtitle on personal blogposts.
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
       <Link to={userLink}>

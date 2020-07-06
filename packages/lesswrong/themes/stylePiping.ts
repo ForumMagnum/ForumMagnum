@@ -266,10 +266,12 @@ export const emailBodyStyles = baseBodyStyles
 
 const smallPostStyles = theme => ({
   ...theme.typography.body2,
+  fontSize: "1.2rem",
+  lineHeight: "1.8rem",
   ...theme.typography.postStyle,
   '& blockquote': {
     ...theme.typography.body2,
-    ...theme.typography.postStyle,
+    ...theme.typography.postStyle
   },
   '& ul': {
     paddingInlineStart: 30
@@ -277,6 +279,8 @@ const smallPostStyles = theme => ({
   '& li': {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    fontSize: "1.2rem",
+    lineHeight: "1.8rem",
   },
 })
 

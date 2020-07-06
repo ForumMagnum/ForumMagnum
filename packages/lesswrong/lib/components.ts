@@ -153,7 +153,7 @@ importComponent("ResendVerificationEmailPage", () => require('../components/user
 importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
-importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon'));
+importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
 importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
 
 // posts
@@ -371,15 +371,18 @@ importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
+importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));
+importComponent("TagPreviewDescription", () => require('../components/tagging/TagPreviewDescription'));
 importComponent("TagHoverPreview", () => require('../components/tagging/TagHoverPreview'));
 importComponent("TagRelCard", () => require('../components/tagging/TagRelCard'));
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit'));
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
+importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));

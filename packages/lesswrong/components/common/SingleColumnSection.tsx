@@ -7,9 +7,13 @@ export const SECTION_WIDTH = 765
 const styles = (theme) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
+    maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
-    maxWidth: SECTION_WIDTH,
+    [theme.breakpoints.up('md')]: {
+      width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
+      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    }
   }
 })
 

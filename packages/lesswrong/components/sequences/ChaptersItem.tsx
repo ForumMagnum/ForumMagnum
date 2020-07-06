@@ -37,7 +37,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
     setEdit(false);
   }, []);
 
-  const { ChaptersEditForm, SingleColumnSection, SectionTitle, SectionFooter,
+  const { ChaptersEditForm, SectionTitle, SectionFooter,
     SectionButton, SequencesPostsList, ContentItemBody } = Components
   const { html = "" } = chapter.contents
   if (edit) return (
@@ -52,7 +52,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   </SectionButton>
 
   return (
-    <SingleColumnSection>
+    <div>
       {chapter.title && <SectionTitle title={chapter.title}>
         {canEdit && editButton}
       </SectionTitle>}
@@ -68,7 +68,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
         </AnalyticsContext>
       </div>
       {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
-    </SingleColumnSection>
+    </div>
   )
 }
 

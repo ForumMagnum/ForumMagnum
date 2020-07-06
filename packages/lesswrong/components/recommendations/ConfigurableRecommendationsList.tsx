@@ -38,7 +38,7 @@ class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommen
   render() {
     const { currentUser, configName } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      RecommendationsList, SettingsIcon, LWTooltip } = Components;
+      RecommendationsList, SettingsButton, LWTooltip } = Components;
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
     return <SingleColumnSection>
@@ -51,7 +51,7 @@ class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommen
           </Link>
         </LWTooltip>}
       >
-        <SettingsIcon onClick={this.toggleSettings}/>
+        <SettingsButton onClick={this.toggleSettings}/>
       </SectionTitle>
       { this.state.settingsVisible &&
         <RecommendationsAlgorithmPicker
