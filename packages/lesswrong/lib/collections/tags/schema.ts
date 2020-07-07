@@ -21,8 +21,8 @@ export const schema = {
   name: {
     type: String,
     viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
   },
   slug: {
     type: String,
@@ -140,8 +140,20 @@ export const schema = {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     optional: true,
-    ...schemaDefaultValue(false),
-    onInsert: (document, currentUser) => !currentUser.isAdmin,
+    ...schemaDefaultValue(true)
+  },
+  reviewedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "reviewedByUserId",
+      resolverName: "reviewedByUser",
+      collectionName: "Users",
+      type: "User",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    hidden: true,
   },
 
 }

@@ -12,6 +12,7 @@ registerFragment(`
     defaultOrder
     suggestedAsFilter
     needsReview
+    reviewedByUserId
   }
 `);
 

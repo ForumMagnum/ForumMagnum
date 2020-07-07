@@ -577,6 +577,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly charsRemoved: number,
   readonly deleted: boolean,
   readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1423,6 +1424,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly defaultOrder: number,
   readonly suggestedAsFilter: boolean,
   readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags

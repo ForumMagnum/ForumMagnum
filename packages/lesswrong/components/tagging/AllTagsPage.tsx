@@ -27,7 +27,6 @@ const styles = theme => ({
 const AllTagsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
   const { results, loading, loadMoreProps } = useMulti({
     terms: {
       view: "allTagsHierarchical",
@@ -44,10 +43,10 @@ const AllTagsPage = ({classes}: {
   return (
     <div className={classes.root}>
       <SectionTitle title={`All Tags (${results?.length})`}>
-        {currentUser?.isAdmin && <SectionButton>
+        <SectionButton>
           <AddBoxIcon/>
           <Link to="/tag/create">New Tag</Link>
-        </SectionButton>}
+        </SectionButton>
       </SectionTitle>
       {loading && <Loading/>}
       <div className={classes.alphabetical}>
