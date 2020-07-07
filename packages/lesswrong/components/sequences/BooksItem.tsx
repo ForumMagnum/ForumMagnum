@@ -71,7 +71,7 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        <SequencesGrid sequences={book.sequences} />
+        <SequencesGrid sequences={book.sequences} bookItemStyle/>
       </SingleColumnSection>
       <Divider />
     </div>

@@ -11,19 +11,23 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     display: "inline-block",
-    textAlign: "center",
-    paddingLeft: 4
+    textAlign: "center"
   },
+  defaultButton: {
+    paddingLeft: 4
+  }
 });
 
-const AddTagButton = ({onTagSelected, classes}: {
+const AddTagButton = ({onTagSelected, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
-  classes: ClassesType
+  classes: ClassesType,
+  children?: any
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
+  const { LWPopper, AddTag } = Components
 
   if (!userCanUseTags(currentUser)) {
     return null;
@@ -37,9 +41,9 @@ const AddTagButton = ({onTagSelected, classes}: {
     }}
     className={classes.addTagButton}
   >
-    {"+ Add Tag"}
+    {children ? children : <span className={classes.defaultButton}>+ Add Tag</span>}
 
-    <Components.LWPopper
+    <LWPopper
       open={isOpen}
       anchorEl={anchorEl}
       placement="bottom-start"
@@ -53,7 +57,7 @@ const AddTagButton = ({onTagSelected, classes}: {
         onClickAway={() => setIsOpen(false)}
       >
         <Paper>
-          <Components.AddTag
+          <AddTag
             onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
               setAnchorEl(null);
               setIsOpen(false);
@@ -62,7 +66,7 @@ const AddTagButton = ({onTagSelected, classes}: {
           />
         </Paper>
       </ClickAwayListener>
-    </Components.LWPopper>
+    </LWPopper>
   </a>;
 }
 

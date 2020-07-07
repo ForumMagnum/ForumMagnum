@@ -65,7 +65,8 @@ const PostsList2 = ({
   classes,
   dense,
   defaultToShowUnreadComments,
-  itemsPerPage=25
+  itemsPerPage=25,
+  hideAuthor=false,
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -83,7 +84,8 @@ const PostsList2 = ({
   classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
-  itemsPerPage?: number
+  itemsPerPage?: number,
+  hideAuthor?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -160,34 +162,36 @@ const PostsList2 = ({
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
+      <div>
+        {orderedResults && orderedResults.map((post, i) => {
+          const props = {
+            post,
+            index: i,
+            terms, showNominationCount, showReviewCount, dense,
+            tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
+            defaultToShowUnreadComments, showPostedAt,
+            showQuestionTag: terms.filter!=="questions",
+            showBottomBorder: (orderedResults.length > 1) && i < (orderedResults.length - 1)
+          };
 
-      {orderedResults && orderedResults.map((post, i) => {
-        const props = {
-          post,
-          index: i,
-          terms, showNominationCount, showReviewCount, dense,
-          tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
-          defaultToShowUnreadComments, showPostedAt,
-          showQuestionTag: terms.filter!=="questions"
-        };
-
-        if (!(hidePosts && hidePosts[i])) {
-          return <PostsItem2 key={post._id} {...props} />
-        }
-      })}
+          if (!(hidePosts && hidePosts[i])) {
+            return <PostsItem2 key={post._id} {...props} hideAuthor={hideAuthor} />
+          }
+        })}
+      </div>
       {showLoadMore && <SectionFooter>
-          <div className={classes.loadMore}>
-            <LoadMore
-              loadMore={() => {
-                loadMore();
-                setHaveLoadedMore(true);
-              }}
-              disabled={!maybeMorePosts}
-              count={count}
-              totalCount={totalCount}
-            />
-            { !dimWhenLoading && showLoading && loading && <Loading />}
-          </div>
+        <div className={classes.loadMore}>
+          <LoadMore
+            loadMore={() => {
+              loadMore();
+              setHaveLoadedMore(true);
+            }}
+            disabled={!maybeMorePosts}
+            count={count}
+            totalCount={totalCount}
+          />
+          { !dimWhenLoading && showLoading && loading && <Loading />}
+        </div>
         { children }
       </SectionFooter>}
     </div>

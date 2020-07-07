@@ -185,9 +185,9 @@ addCallback('comments.new.validate', CommentsNewRateLimit);
 // LessWrong callbacks                              //
 //////////////////////////////////////////////////////
 
-function CommentsEditSoftDeleteCallback (comment, oldComment) {
+function CommentsEditSoftDeleteCallback (comment, oldComment, currentUser) {
   if (comment.deleted && !oldComment.deleted) {
-    runCallbacksAsync('comments.moderate.async', comment);
+    runCallbacksAsync('comments.moderate.async', comment, oldComment, {currentUser});
   }
 }
 addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);

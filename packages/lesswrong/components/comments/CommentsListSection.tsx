@@ -22,7 +22,6 @@ const styles = theme => ({
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
 
-    background: "white",
     position: "relative"
   },
   inline: {
@@ -32,8 +31,9 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    border: 'solid 1px rgba(0,0,0,.2)',
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
     position: 'relative',
+    borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
@@ -134,7 +134,8 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
           onClose={this.handleClose}
         >
           {currentUser && <Components.LastVisitList
-            terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
+            postId={post._id}
+            currentUser={currentUser}
             clickCallback={this.handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {

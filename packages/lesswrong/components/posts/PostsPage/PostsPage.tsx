@@ -23,7 +23,7 @@ export const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
-      marginTop: 12
+      paddingTop: 12
     }
   },
   tocActivated: {

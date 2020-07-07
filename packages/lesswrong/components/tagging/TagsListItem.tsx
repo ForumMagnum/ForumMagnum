@@ -2,21 +2,23 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   tag: {
-    display: "inline-block",
-    width: 250,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 6,
-    borderBottom: "solid 1px rgba(0,0,0,.1)"
+    whiteSpace: "nowrap",
+    ...theme.typography.smallText,
   },
   count: {
-    color: theme.palette.grey[600],
-    fontSize: "1rem",
+    color: theme.palette.grey[500],
+    fontSize: ".9em",
     position: "relative",
+    marginLeft: 4,
+    marginRight: 8
   }
 });
 
@@ -26,8 +28,8 @@ const TagsListItem = ({tag, classes}: {
 }) => {
   const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
-  
-  return <span {...eventHandlers}>
+
+  return <div {...eventHandlers} className={classes.tag}>
     <PopperCard 
       open={hover} 
       anchorEl={anchorEl} 
@@ -35,12 +37,11 @@ const TagsListItem = ({tag, classes}: {
     >
       <TagPreview tag={tag}/>
     </PopperCard>
-    <Typography key={tag._id} variant="body2" className={classes.tag}>
-      <Link to={`/tag/${tag.slug}`}>
-        {tag.name} {tag.postCount && <span className={classes.count}>({tag.postCount})</span>}
-      </Link>
-    </Typography>
-  </span>;
+    <Link to={`/tag/${tag.slug}`}>
+      {tag.name}
+    </Link>
+    {tag.postCount && <span className={classes.count}>({tag.postCount})</span>} 
+  </div>;
 }
 
 const TagsListItemComponent = registerComponent("TagsListItem", TagsListItem, {styles});
