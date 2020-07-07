@@ -118,6 +118,10 @@ interface PostsBase_group { // fragment on Localgroups
   readonly name: string,
 }
 
+interface PostsWithVotes extends PostsBase { // fragment on Posts
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
 interface PostsAuthors { // fragment on Posts
   readonly user: PostsAuthors_user,
   readonly coauthors: Array<UsersMinimumInfo>,
@@ -302,12 +306,14 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 }
 
 interface SunshinePostsList extends PostsList { // fragment on Posts
+  readonly currentUserVotes: Array<VoteFragment>,
   readonly contents: SunshinePostsList_contents,
   readonly user: SunshinePostsList_user,
 }
 
 interface SunshinePostsList_contents { // fragment on Revisions
   readonly html: string,
+  readonly htmlHighlight: string,
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
@@ -1563,6 +1569,7 @@ interface FragmentTypes {
   VotesDefaultFragment: VotesDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
+  PostsWithVotes: PostsWithVotes
   PostsAuthors: PostsAuthors
   PostsList: PostsList
   PostsListTag: PostsListTag

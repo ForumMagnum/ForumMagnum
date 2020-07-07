@@ -175,10 +175,7 @@ const PostsPagePostHeader = ({post, classes}: {
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
-        <PostsVote
-          collection={Posts}
-          post={post}
-          />
+        <PostsVote post={post} />
       </div>}
     </div>
     
