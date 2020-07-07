@@ -57,17 +57,20 @@ const SunshineSidebar = ({classes}) => {
         </div>}
       </div>}
 
-      { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
-        Hide Full Sidebar
-          <KeyboardArrowDownIcon />
-        </div>
-        :
-        <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
-          Show Full Sidebar
-          <KeyboardArrowRightIcon />
-        </div>}
+      {Users.canDo(currentUser, 'posts.moderate.all') && <div>
+        { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
+          Hide Full Sidebar
+            <KeyboardArrowDownIcon />
+          </div>
+          :
+          <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
+            Show Full Sidebar
+            <KeyboardArrowRightIcon />
+          </div>}
+      </div>}
 
-      { showSidebar && <div>
+
+      { showSidebar && Users.canDo(currentUser, 'posts.moderate.all') && <div>
         {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}        
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
 
