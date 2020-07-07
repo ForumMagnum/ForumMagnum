@@ -9,7 +9,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
-import withRecordPostView from '../common/withRecordPostView';
+import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
@@ -323,9 +323,6 @@ const PostsItem2 = ({
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
-  // recordPostView, isRead: From the withRecordPostView HoC.
-  recordPostView,
-  isRead=false,
   hideAuthor=false,
   classes,
 }: {
@@ -348,13 +345,12 @@ const PostsItem2 = ({
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   hideAuthor?: boolean,
-  recordPostView?: any,
-  isRead?: boolean,
   classes: ClassesType,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
   const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
+  const { isRead, recordPostView } = useRecordPostView(post);
 
   const currentUser = useCurrentUser();
 
@@ -559,7 +555,7 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
-  hocs: [withRecordPostView, withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
 
 declare global {
