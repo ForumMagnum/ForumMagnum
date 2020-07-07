@@ -9,9 +9,29 @@ import { useHover } from '../common/withHover'
 import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { commentBodyStyles, } from '../../themes/stylePiping'
+import { useMulti } from '../../lib/crud/withMulti';
+import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = theme => ({
-
+  tagInfo: {
+    ...commentBodyStyles(theme),
+    marginTop: 0,
+    marginBottom: 0
+  },
+  postCount: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.smallText,
+    marginTop: 12,
+    marginBottom: 8,
+    color: theme.palette.grey[600]
+  },
+  post: {
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    marginBottom: 4,
+    color: theme.palette.grey[700]
+  }
 })
 
 const SunshineNewTagsItem = ({tag, classes}: {
@@ -49,17 +69,36 @@ const SunshineNewTagsItem = ({tag, classes}: {
     })
   }
 
-  const { SidebarActionMenu, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList } = Components
+  const { SidebarActionMenu, TagSmallPostLink, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo } = Components
 
+  const { results } = useMulti({
+    skip: !(tag._id),
+    terms: {
+      view: "postsWithTag",
+      tagId: tag._id,
+    },
+    collection: TagRels,
+    fragmentName: "TagRelFragment",
+    limit: 3,
+    ssr: true,
+  });
 
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <Link to={Tags.getUrl(tag)}>
-            {tag.name}
-          </Link>
-          <ContentItemBody dangerouslySetInnerHTML={{__html: tag.description?.html}} description={`tag ${tag._id}`}/>
+          <div className={classes.tagInfo}>
+            <Link to={Tags.getUrl(tag)}>
+              <b>{tag.name}</b>
+            </Link>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: tag.description?.html}} description={`tag ${tag._id}`}/>
+          </div>
+          <div className={classes.postCount}>
+            {tag.postCount} posts
+          </div>
+          {results && results.map(tagRel=><div key={tagRel._id} className={classes.post}>
+            <TagSmallPostLink post={tagRel.post}/>
+          </div>)}
         </SidebarHoverOver>
         <Link to={Tags.getUrl(tag)}>
           {tag.name}
