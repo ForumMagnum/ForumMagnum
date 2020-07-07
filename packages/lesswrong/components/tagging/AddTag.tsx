@@ -97,9 +97,9 @@ const AddTag = ({onTagSelected, classes}: {
     <Link to="/tags/all" className={classes.newTag}>
       View All Tags
     </Link>
-    {currentUser?.isAdmin && <Link to="/tag/create" className={classes.newTag}>
+    <Link to="/tag/create" className={classes.newTag}>
       Create Tag
-    </Link>}
+    </Link>
   </div>
 }
 
