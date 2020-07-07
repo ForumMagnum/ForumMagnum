@@ -7,7 +7,7 @@ import {
 import classNames from 'classnames';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import withRecordPostView from '../common/withRecordPostView';
+import { useRecordPostView } from '../common/withRecordPostView';
 
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
@@ -98,25 +98,23 @@ const styles = theme => ({
   }
 })
 
-interface ExternalProps {
+const RecentDiscussionThread = ({
+  post,
+  comments, refetch,
+  expandAllThreads: initialExpandAllThreads,
+  classes,
+}: {
   post: PostsRecentDiscussion,
   comments: Array<CommentsList>,
   refetch: any,
   expandAllThreads?: boolean,
-}
-interface RecentDiscussionThreadProps extends ExternalProps, WithUpdateCommentProps, WithStylesProps {
-  isRead: any,
-  recordPostView: any,
-}
-const RecentDiscussionThread = ({
-  post, recordPostView,
-  comments, updateComment, classes, isRead, refetch,
-  expandAllThreads: initialExpandAllThreads,
-}: RecentDiscussionThreadProps) => {
+  classes: ClassesType,
+}) => {
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
+  const { isRead, recordPostView } = useRecordPostView(post);
   const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
   
   const markAsRead = useCallback(
@@ -210,13 +208,10 @@ const RecentDiscussionThread = ({
   )
 };
 
-const RecentDiscussionThreadComponent = registerComponent<ExternalProps>(
+const RecentDiscussionThreadComponent = registerComponent(
   'RecentDiscussionThread', RecentDiscussionThread, {
     styles,
-    hocs: [
-      withRecordPostView,
-      withErrorBoundary
-    ]
+    hocs: [withErrorBoundary]
   }
 );
 
