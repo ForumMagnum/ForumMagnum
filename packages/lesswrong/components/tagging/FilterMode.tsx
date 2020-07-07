@@ -39,6 +39,7 @@ const styles = theme => ({
     paddingTop: 12,
     paddingRight: 16,
     width: 500,
+    marginBottom: -4,
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('xs')]: {
       width: "calc(100% - 32px)",
