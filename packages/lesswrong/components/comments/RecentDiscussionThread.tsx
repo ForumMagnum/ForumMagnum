@@ -136,7 +136,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
   
-  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, LinkPostMessage } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -149,9 +149,10 @@ const RecentDiscussionThread = ({
     return null
   }
 
-  const highlightClasses = classNames(classes.highlight, {
+  const highlightClasses = classNames(classes.highlight, classes.postHighlight, {
     [classes.noComments]: post.commentCount === null
   })
+
   return (
     <div className={classes.root}>
       <div className={classes.post}>
@@ -171,12 +172,12 @@ const RecentDiscussionThread = ({
             <PostsHighlight post={post} />
           </div>
           : <div className={highlightClasses} onClick={showHighlight}>
-              { showSnippet &&
+              { showSnippet && <>
+                <LinkPostMessage post={post} noMargin />
                 <ContentItemBody
-                  className={classes.postHighlight}
                   dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents.htmlHighlight)}}
                   description={`post ${post._id}`}
-                />
+                /></>
               }
             </div>
         }

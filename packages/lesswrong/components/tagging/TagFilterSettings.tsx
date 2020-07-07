@@ -143,8 +143,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       }}
     />
 
-    {<LWTooltip title="Add Tag Filter" className={classes.addButton}>
-        <AddTagButton smallVariant onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+    {<LWTooltip title="Add Tag Filter">
+        <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
           if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
             const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
             setFilterSettings({
@@ -153,7 +153,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
             });
             captureEvent("tagAddedToFilters", {tagId, tagName})
           }
-        }}/>
+        }}>
+          <span className={classes.addButton}>+</span>
+        </AddTagButton>
     </LWTooltip>}
   </span>
 }

@@ -5,3 +5,4 @@ Users.createGroup("trustLevel1");
 Users.createGroup("canBypassPostRateLimit");
 Users.createGroup("canModeratePersonal");
 Users.createGroup("canCommentLock");
+Users.createGroup("tagManager");
