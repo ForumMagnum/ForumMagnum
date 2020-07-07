@@ -397,6 +397,7 @@ registerFragment(`
 
     contents {
       html
+      htmlHighlight
     }
     
     user {
