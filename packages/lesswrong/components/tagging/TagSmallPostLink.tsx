@@ -7,7 +7,12 @@ import { Posts } from '../../lib/collections/posts';
 const styles = theme => ({
   root: {
     display: "flex",
-    marginBottom: 2,
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+    color: theme.palette.grey[700], 
+    lineHeight: "1.1em",
+    marginTop: 8,
+    marginBottom: 8
   },
 });
 
