@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
@@ -38,6 +38,7 @@ const styles = theme => ({
     paddingLeft: 16,
     paddingTop: 12,
     paddingRight: 16,
+    width: 500,
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('xs')]: {
       width: "calc(100% - 32px)",
@@ -49,9 +50,6 @@ const styles = theme => ({
     paddingBottom: 2,
     paddingLeft: 2,
     paddingRight: 2
-  },
-  filterLabel: {
-    color: theme.palette.grey[600]
   },
   removeLabel: {
     color: theme.palette.grey[600],
@@ -65,9 +63,6 @@ const styles = theme => ({
     display: "inline-block",
     cursor: "pointer",
   },
-  label: {
-    marginRight: "auto"
-  },
   selected: {
     color: "black",
     backgroundColor: "rgba(0,0,0,.1)",
@@ -78,13 +73,10 @@ const styles = theme => ({
     marginBottom: -4,
     borderRadius: 2,
   },
-  filterInput: {
-    width: 50,
-    borderBottom: "none"
-  },
   input: {
     padding: 0,
     paddingBottom: 2,
+    width: 50,
     "-webkit-appearance": "none",
     "-moz-appearance": "textfield"
   }
