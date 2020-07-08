@@ -3,8 +3,8 @@ import React from 'react';
 import classnames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { Posts } from '../../lib/collections/posts/collection';
-import { useNavigation } from '../../lib/routeUtil';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   root: {
@@ -66,18 +66,14 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   sequence: HasIdType|null,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation();
-  const updateContinueReading = useUpdateContinueReading(post._id, sequence._id);
+  const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
   const { LoginPopupButton } = Components
   const commentCount = post.commentCount || "No"
+  const url = Posts.getPageUrl(post, false, sequence?._id);
   
   return (
     <span>
-      <a onClick={() => {
-        const url = Posts.getPageUrl(post, false, sequence?._id)
-        updateContinueReading();
-        history.push(url);
-      }}>
+      <Link onClick={() => updateContinueReading()} to={url}>
         <div className={classnames(
           classes.root,
           { [classes.previous]: direction==="Previous" }
@@ -89,7 +85,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
             <span className={classes.metaEntry}>{post.baseScore} points</span>
           </div>
         </div>
-      </a>
+      </Link>
       {direction==="Next" && <span className={classes.login}>
         <LoginPopupButton title="LessWrong keeps track of what posts logged in users have read, so you can keep reading wherever you've left off">
             Log in to save where you left off

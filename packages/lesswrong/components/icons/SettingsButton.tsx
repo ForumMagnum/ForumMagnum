@@ -24,25 +24,26 @@ const styles = (theme) => ({
   }
 })
 
-const SettingsIcon = ({classes, className, onClick, label=""}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: {
   classes: ClassesType,
   className?: string,
   onClick?: any,
   label?: string,
+  showIcon?: boolean
 }) => {
   if (label) {
     return <span className={classes.iconWithLabelGroup} onClick={onClick}>
-      <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/> 
+      {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
       <span className={classes.label}>{ label }</span>
     </span>
   }
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-const SettingsIconComponent = registerComponent('SettingsIcon', SettingsIcon, {styles});
+const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    SettingsIcon: typeof SettingsIconComponent
+    SettingsButton: typeof SettingsButtonComponent
   }
 }

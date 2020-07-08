@@ -43,6 +43,7 @@ const groupLayoutStyles = theme => ({
     fontFamily: theme.typography.fontFamily,
     border: `solid 1px ${theme.palette.grey[400]}`,
     marginBottom: theme.spacing.unit,
+    background: "white"
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,

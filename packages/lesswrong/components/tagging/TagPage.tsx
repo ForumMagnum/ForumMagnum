@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
-import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '../../themes/stylePiping'
@@ -11,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import { userCanViewRevisionHistory } from '../../lib/betas';
+import { userCanViewRevisionHistory, userCanManageTags} from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 
@@ -38,8 +37,12 @@ export const styles = theme => ({
     fontVariant: "small-caps"
   },
   wikiSection: {
-    marginRight: 32,
     marginBottom: 24,
+    paddingTop: 19,
+    paddingBottom: 12,
+    paddingLeft: 42,
+    paddingRight: 42,
+    background: "white"
   },
   tagHeader: {
     display: "flex",
@@ -121,7 +124,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const description = truncated ? truncate(tag.description?.html, 1400, "characters", "... <a>(Read More)</a>") : tag.description?.html
+  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
 
   return <AnalyticsContext
     pageContext='tagPage'
@@ -139,7 +142,7 @@ const TagPage = ({classes}: {
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
-            {Users.isAdmin(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+            {userCanManageTags(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
               <EditOutlinedIcon /> Edit Wiki
             </Link>}
             {userCanViewRevisionHistory(currentUser) && <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>

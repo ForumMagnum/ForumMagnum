@@ -13,10 +13,14 @@ const styles = theme => ({
   },
   postBody: {
     ...postHighlightStyles(theme),
+    marginTop: 12,
     fontSize: "1rem",
     '& li, & h1, & h2, & h3': {
       fontSize: "1rem"
     }
+  },
+  meta: {
+    display: 'inline-block'
   }
 })
 
@@ -28,10 +32,10 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
   const { results, loading } = useMulti({
     terms,
     collection: Posts,
-    fragmentName: 'PostsList',
+    fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
   });
-  const { Loading, MetaInfo } = Components
+  const { Loading, MetaInfo, FormatDate, PostsTitle, SmallSideVote } = Components
  
   if (!results && loading && !truncated) return <Loading />
   if (!results) return null
@@ -40,13 +44,17 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
     <div>
       {loading && !truncated && <Loading />}
       {results.map(post=><div className={classes.post} key={post._id}>
-        <MetaInfo>
+        <div>
           <Link to={`/posts/${post._id}`}>
-            {(post.status !==2) && `[Spam] ${post.status}`}
-            Post: {post.title} ({post.baseScore} karma)
+            <PostsTitle post={post} showIcons={false} wrap/> 
+            {(post.status !==2) && <MetaInfo>`[Spam] ${post.status}`</MetaInfo>}
           </Link>
-        </MetaInfo>
-        <div className={classes.postBody} dangerouslySetInnerHTML={{__html: post.contents?.htmlHighlight || ""}} />
+          <span className={classes.meta}>
+            <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
+            <SmallSideVote document={post} collection={Posts}/>
+          </span>
+        </div>
+        <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
       </div>)}
     </div>
   )

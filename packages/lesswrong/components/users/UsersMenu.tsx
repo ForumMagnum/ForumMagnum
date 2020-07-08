@@ -9,7 +9,7 @@ import { withApollo } from 'react-apollo';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import SettingsIcon from '@material-ui/icons/Settings';
+import SettingsButton from '@material-ui/icons/Settings';
 import EmailIcon from '@material-ui/icons/Email';
 import NotesIcon from '@material-ui/icons/Notes';
 import PersonIcon from '@material-ui/icons/Person';
@@ -160,7 +160,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
-                  <SettingsIcon className={classes.icon}/>
+                  <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
                 Edit Settings
               </MenuItem>

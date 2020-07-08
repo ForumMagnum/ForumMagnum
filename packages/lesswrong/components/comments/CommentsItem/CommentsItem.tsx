@@ -8,6 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Posts } from "../../../lib/collections/posts";
+import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
@@ -204,7 +205,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   render() {
     const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
 
-    const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components
+    const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
 
     if (!comment || !post) {
       return null;
@@ -263,8 +264,9 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 {comment.moderatorHat && <span className={classes.moderatorHat}>
                   Moderator Comment
                 </span>}
-                <Components.CommentsVote
-                  comment={comment}
+                <SmallSideVote
+                  document={comment}
+                  collection={Comments}
                   hideKarma={post.hideCommentKarma}
                 />
 

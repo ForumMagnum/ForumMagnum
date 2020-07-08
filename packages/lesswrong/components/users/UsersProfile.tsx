@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "../../lib/collections/users/collection";
@@ -16,6 +15,8 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { hasEventsSetting } from '../../lib/publicSettings';
+import Typography from '@material-ui/core/Typography';
+import { separatorBulletStyles } from '../common/SectionFooter';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -31,6 +32,18 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       margin: 0,
     }
+  },
+  usernameTitle: {
+    fontSize: "3rem",
+    ...theme.typography.display3,
+    ...theme.typography.postStyle,
+    marginTop: 0
+  },
+  userInfo: {
+    display: "flex",
+    color: theme.palette.lwTertiary.main,
+    marginTop: 8,
+    ...separatorBulletStyles(theme)
   },
   meta: {
     ...sectionFooterLeftStyles,
@@ -51,7 +64,7 @@ const styles = theme => ({
   },
   bio: {
     marginTop: theme.spacing.unit*3,
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit,
     ...postBodyStyles(theme)
   },
@@ -162,7 +175,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const { slug, classes, currentUser, loading, results, location } = this.props;
     const { query } = location;
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -208,17 +221,13 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     
     const username = Users.getDisplayName(user)
 
-    const userPostsTitle = username.slice(-1) === "s" ? `${username}' Posts` :`${username}'s Posts`
-    const userCommentsTitle = username.slice(-1) === "s" ? `${username}' Comments` :`${username}'s Comments`
-
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <SectionTitle title={username}/>
-
-            <SectionFooter>
+            <div className={classes.usernameTitle}>{username}</div>
+            <Typography variant="body2" className={classes.userInfo}>
               { this.renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
@@ -242,12 +251,11 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
-                <FormattedMessage id="users.edit_account"/>
+                Edit Account
               </Link>}
-            </SectionFooter>
+            </Typography>
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
-
           </SingleColumnSection>
 
           {/* Sequences Section */}
@@ -270,16 +278,16 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               </Link>
             </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.PostsList2 terms={draftTerms}/>
-              <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+              <Components.PostsList2 hideAuthor terms={draftTerms}/>
+              <Components.PostsList2 hideAuthor terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-              <SectionTitle title={userPostsTitle}>
-                <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
+              <SectionTitle title={"Posts"}>
+                <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
@@ -290,14 +298,14 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
-              <PostsList2 terms={terms} />
+              <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
 
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={userCommentsTitle} />
+              <SectionTitle title={"Comments"} />
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
