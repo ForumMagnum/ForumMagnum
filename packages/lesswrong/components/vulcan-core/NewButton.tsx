@@ -2,9 +2,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
 
-const NewButton = ({ collection, size, label, style = 'primary', formProps, ...props }, { intl }) => (
+const NewButton = ({ collection, size, label, style = 'primary', formProps, ...props }) => (
   <Components.ModalTrigger
-    label={label || intl.formatMessage({ id: 'datatable.new' })}
+    label={label || "New"}
     component={
       <Components.Button variant={style} size={size}>
        {label || <FormattedMessage id="datatable.new" />}
@@ -14,10 +14,6 @@ const NewButton = ({ collection, size, label, style = 'primary', formProps, ...p
     <Components.NewForm collection={collection} formProps={formProps} {...props} />
   </Components.ModalTrigger>
 );
-
-NewButton.contextTypes = {
-  intl: intlShape,
-};
 
 NewButton.displayName = 'NewButton';
 

@@ -10,7 +10,7 @@ class FormComponentInner extends PureComponent<any> {
       return (
         <a
           className="form-component-clear"
-          title={this.context.intl.formatMessage({ id: 'forms.clear_field' })}
+          title="Clear field"
           onClick={this.props.clearField}
         >
           <span>✕</span>
@@ -104,10 +104,6 @@ class FormComponentInner extends PureComponent<any> {
   charsCount: PropTypes.number,
   charsMax: PropTypes.number,
   inputComponent: PropTypes.func,
-};
-
-(FormComponentInner as any).contextTypes = {
-  intl: intlShape,
 };
 
 const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner);

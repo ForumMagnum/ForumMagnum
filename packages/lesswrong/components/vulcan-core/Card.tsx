@@ -133,7 +133,11 @@ const CardItem = ({ label, value, typeName }) =>
 const CardEdit = (props, context) =>
   <tr>
     <td colSpan={2}>
-      <Components.ModalTrigger label={context.intl.formatMessage({ id: 'cards.edit' })} component={<Components.Button variant="info"><FormattedMessage id="cards.edit" /></Components.Button>}>
+      <Components.ModalTrigger label="Edit" component={
+        <Components.Button variant="info">
+          <FormattedMessage id="cards.edit" />
+        </Components.Button>
+      }>
         <CardEditForm {...props} />
       </Components.ModalTrigger>
     </td>

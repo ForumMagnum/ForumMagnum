@@ -760,11 +760,7 @@ class SmartForm extends Component<any,any> {
   */
   handleRouteLeave = () => {
     if (this.isChanged()) {
-      const message = this.context.intl.formatMessage({
-        id: 'forms.confirm_discard',
-        defaultMessage: 'Are you sure you want to discard your changes?'
-      });
-      return message;
+      return "Discard changes?";
     }
   };
 
@@ -776,10 +772,7 @@ class SmartForm extends Component<any,any> {
    */
   handlePageLeave = (event) => {
     if (this.isChanged()) {
-      const message = this.context.intl.formatMessage({
-        id: 'forms.confirm_discard',
-        defaultMessage: 'Are you sure you want to discard your changes?'
-      });
+      const message = "Discard changes?"
       if (event) {
         event.returnValue = message;
       }
@@ -972,10 +965,7 @@ class SmartForm extends Component<any,any> {
     const documentId = this.props.document._id;
     const documentTitle = document.title || document.name || '';
 
-    const deleteDocumentConfirm = this.context.intl.formatMessage(
-      { id: 'forms.delete_confirm' },
-      { title: documentTitle }
-    );
+    const deleteDocumentConfirm = "Delete document?";
 
     if (window.confirm(deleteDocumentConfirm)) {
       this.props

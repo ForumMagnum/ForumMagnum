@@ -18,7 +18,7 @@ export class AccountsPasswordOrService extends PureComponent<any> {
     if (hasPasswordService() && services.length > 0) {
       return (
         <div style={style} className={className}>
-          { `${this.context.intl.formatMessage({id: 'accounts.or_use'})} ${ labels.join(' / ') }` }
+          { `or use ${ labels.join(' / ') }` }
         </div>
       );
     }
@@ -28,10 +28,6 @@ export class AccountsPasswordOrService extends PureComponent<any> {
 
 (AccountsPasswordOrService as any).propTypes = {
   oauthServices: PropTypes.object
-};
-
-(AccountsPasswordOrService as any).contextTypes = {
-  intl: intlShape
 };
 
 const AccountsPasswordOrServiceComponent = registerComponent('AccountsPasswordOrService', AccountsPasswordOrService);

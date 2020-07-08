@@ -102,10 +102,6 @@ UsersEditForm.propTypes = {
   terms: PropTypes.object, // a user is defined by its unique _id or its unique slug
 };
 
-UsersEditForm.contextTypes = {
-  intl: intlShape
-};
-
 const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {
   styles,
   hocs: [withMessages, withUser, withApollo]
