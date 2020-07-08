@@ -1,13 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
 
 const EditButton = ({ style = 'primary', label, size, showId, modalProps, formProps, ...props }) => (
   <Components.ModalTrigger
     label={label || "Edit"}
     component={
       <Components.Button size={size} variant={style}>
-        {label || <FormattedMessage id="datatable.edit" />}
+        {label || "Edit"}
       </Components.Button>
     }
     modalProps={modalProps}

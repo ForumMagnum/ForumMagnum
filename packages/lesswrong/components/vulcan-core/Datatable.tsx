@@ -3,7 +3,7 @@ import { withMulti } from '../../lib/crud/withMulti';
 import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
+import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 
@@ -297,7 +297,7 @@ const DatatableContents = (props) => {
                   toggleSort={toggleSort} currentSort={currentSort} />)
               )
           }
-          {showEdit ? <th><FormattedMessage id="datatable.edit" /></th> : null}
+          {showEdit ? <th>Edit</th> : null}
         </Components.DatatableContentsHeadLayout>
         <Components.DatatableContentsBodyLayout>
           {results.map((document, index) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} showEdit={showEdit} currentUser={currentUser} />)}

@@ -2,7 +2,6 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { withMessages } from '../common/withMessages';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
 import Users from '../../lib/collections/users/collection';
 import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
@@ -48,7 +47,7 @@ const UsersEditForm = (props) => {
   }
   if (!Users.canEdit(currentUser,
     terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
-    return <FormattedMessage id="app.noPermission"/>;
+    return <span>Sorry, you do not have permission to do this at this time.</span>
   }
 
   // currentUser will not be the user being edited in the case where current
@@ -71,7 +70,7 @@ const UsersEditForm = (props) => {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
+      <Typography variant="display2" className={classes.header}>Edit Account</Typography>
       {isCurrentUser && <Button
         color="secondary"
         variant="outlined"
