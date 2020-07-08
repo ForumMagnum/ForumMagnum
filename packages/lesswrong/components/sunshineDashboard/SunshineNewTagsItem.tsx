@@ -46,23 +46,23 @@ const SunshineNewTagsItem = ({tag, classes}: {
     fragmentName: 'SunshineTagFragment',
   });
 
-
-
   const handleApprove = () => {
+    if (!currentUser) return null
     updateTag({
       selector: { _id: tag._id},
       data: {
-        reviewedByUserId: currentUser!._id,
+        reviewedByUserId: currentUser._id,
         needsReview: false
       },
     })
   }
 
   const handleDelete = () => {
+    if (!currentUser) return null
     updateTag({
       selector: { _id: tag._id},
       data: {
-        reviewedByUserId: currentUser!._id,
+        reviewedByUserId: currentUser._id,
         needsReview: false,
         deleted: true
       },
@@ -82,7 +82,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
     limit: 3,
     ssr: true,
   });
-
+  
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
