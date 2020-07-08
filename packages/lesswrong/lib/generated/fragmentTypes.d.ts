@@ -576,6 +576,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
+  readonly descriptionTruncationCount: number,
   readonly postCount: number,
   readonly userId: string,
   readonly adminOnly: boolean,
@@ -1427,6 +1428,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly adminOnly: boolean,
   readonly defaultOrder: number,
   readonly suggestedAsFilter: boolean,
+  readonly descriptionTruncationCount: number,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags

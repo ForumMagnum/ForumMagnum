@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { intlShape } from '../../../lib/vulcan-i18n';
 import { registerComponent, instantiateComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 
@@ -10,7 +9,7 @@ class FormComponentInner extends PureComponent<any> {
       return (
         <a
           className="form-component-clear"
-          title={this.context.intl.formatMessage({ id: 'forms.clear_field' })}
+          title="Clear field"
           onClick={this.props.clearField}
         >
           <span>✕</span>
@@ -104,10 +103,6 @@ class FormComponentInner extends PureComponent<any> {
   charsCount: PropTypes.number,
   charsMax: PropTypes.number,
   inputComponent: PropTypes.func,
-};
-
-(FormComponentInner as any).contextTypes = {
-  intl: intlShape,
 };
 
 const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner);

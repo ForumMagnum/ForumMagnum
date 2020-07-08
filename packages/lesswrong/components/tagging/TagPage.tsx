@@ -124,7 +124,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const description = truncated ? truncate(tag.description?.html, 1400, "characters", "... <a>(Read More)</a>") : tag.description?.html
+  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
 
   return <AnalyticsContext
     pageContext='tagPage'

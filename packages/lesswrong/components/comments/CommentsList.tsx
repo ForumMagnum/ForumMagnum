@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
@@ -169,9 +168,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
     } else {
       return (
         <div>
-          <p>
-            <FormattedMessage id="comments.no_comments"/>
-          </p>
+          <p>No comments to display.</p>
         </div>
       )
     }
