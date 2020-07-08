@@ -583,6 +583,8 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly charsAdded: number,
   readonly charsRemoved: number,
   readonly deleted: boolean,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1428,6 +1430,8 @@ interface TagBasicInfo { // fragment on Tags
   readonly adminOnly: boolean,
   readonly defaultOrder: number,
   readonly suggestedAsFilter: boolean,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
   readonly descriptionTruncationCount: number,
 }
 
@@ -1459,6 +1463,10 @@ interface TagPreviewFragment_description { // fragment on Revisions
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly description: RevisionEdit,
+}
+
+interface SunshineTagFragment extends TagFragment { // fragment on Tags
+  readonly user: UsersMinimumInfo,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -1673,6 +1681,7 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
+  SunshineTagFragment: SunshineTagFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment

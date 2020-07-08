@@ -48,6 +48,20 @@ Tags.addView('coreTags', terms => {
   }
 });
 
+
+Tags.addView('unreviewedTags', terms => {
+  return {
+    selector: {
+      needsReview: true
+    },
+    options: {
+      sort: {
+        createdAt: 1
+      }
+    },
+  }
+});
+
 Tags.addView('suggestedFilterTags', terms => {
   return {
     selector: {
