@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "../../lib/collections/users/collection";
@@ -252,7 +251,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
-                <FormattedMessage id="users.edit_account"/>
+                Edit Account
               </Link>}
             </Typography>
 

@@ -10,8 +10,8 @@ const styles = theme => ({
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 6,
-    whiteSpace: "nowrap",
     ...theme.typography.smallText,
+
   },
   count: {
     color: theme.palette.grey[500],

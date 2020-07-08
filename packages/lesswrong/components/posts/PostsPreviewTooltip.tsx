@@ -8,7 +8,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-export const POST_PREVIEW_WIDTH = 435
+export const POST_PREVIEW_WIDTH = 400
 
 export const highlightStyles = theme => ({
   ...postHighlightStyles(theme),

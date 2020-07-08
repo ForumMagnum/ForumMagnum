@@ -5,11 +5,11 @@ interface WithStylesProps {
   classes: ClassesType,
 };
 
-type WithMessagesMessage = string|{id?: string, messageString?: string, type?: string};
+type WithMessagesMessage = string|{messageString?: string, type?: string, action?: any};
 
 interface WithMessagesProps {
   messages: Array<WithMessagesMessage>,
-  flash: (WithMessagesMessage)=>void,
+  flash: (message: WithMessagesMessage)=>void,
   clear: ()=>void,
 }
 

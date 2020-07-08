@@ -13,6 +13,7 @@ registerFragment(`
     suggestedAsFilter
     needsReview
     reviewedByUserId
+    descriptionTruncationCount
   }
 `);
 

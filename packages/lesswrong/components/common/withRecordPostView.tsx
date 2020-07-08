@@ -29,7 +29,7 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
   const {postsRead, setPostRead} = usePostsRead();
   const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
-  const recordPostView = useCallback(async ({extraEventProperties}) => {
+  const recordPostView = useCallback(async ({post, extraEventProperties}) => {
     try {
       if (!post) throw new Error("Tried to record view of null post");
       
@@ -68,7 +68,7 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent]);
   
   return { recordPostView, isRead };
 }
