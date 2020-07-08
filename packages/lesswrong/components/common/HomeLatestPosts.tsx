@@ -27,12 +27,12 @@ const styles = theme => ({
     marginRight: "auto"
   },
   toggleFilters: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       display: "none"
     },
   },
   hideOnMobile: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       display: "none"
     }
   }
