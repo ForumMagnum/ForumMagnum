@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { intlShape } from '../../../lib/vulcan-i18n';
 import { Components, registerComponent, instantiateComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 

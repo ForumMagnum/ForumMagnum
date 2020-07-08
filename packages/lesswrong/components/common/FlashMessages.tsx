@@ -19,7 +19,7 @@ class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
       }
     } else {
       // else return full error object after internationalizing message
-      const { id, messageString } = message;
+      const { messageString } = message;
       return {
         ...message,
         message: messageString,
