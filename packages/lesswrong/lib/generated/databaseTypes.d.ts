@@ -402,6 +402,7 @@ interface DbTag extends DbObject {
   core: boolean
   suggestedAsFilter: boolean
   defaultOrder: number
+  descriptionTruncationCount: number
   postCount: number
   userId: string
   adminOnly: boolean
