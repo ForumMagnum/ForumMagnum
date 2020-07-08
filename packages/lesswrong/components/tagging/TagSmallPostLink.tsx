@@ -9,18 +9,33 @@ const styles = theme => ({
     display: "flex",
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    color: theme.palette.grey[700], 
-    lineHeight: "1.1em",
-    marginTop: 8,
-    marginBottom: 8
+    color: theme.palette.grey[900],
   },
+  post: {
+    display: "flex",
+    width: "100%",
+    justifyContent: "space-between",
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  title: {
+    position: "relative",
+    top: 2,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
+  },
+  author: {
+    marginRight: 0,
+    marginLeft: 20
+  }
 });
 
 const TagSmallPostLink = ({classes, post}: {
   classes: ClassesType,
   post: PostsList,
 }) => {
-  const { LWPopper, PostsPreviewTooltip } = Components
+  const { LWPopper, PostsPreviewTooltip, UsersName, MetaInfo } = Components
   const { eventHandlers, hover, anchorEl } = useHover();
 
   return <span {...eventHandlers}>
@@ -38,7 +53,12 @@ const TagSmallPostLink = ({classes, post}: {
       >
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
-      <Link to={Posts.getPageUrl(post)}>{post.title}</Link>
+      <div className={classes.post}>
+        <Link to={Posts.getPageUrl(post)} className={classes.title}>{post.title}</Link>
+        <MetaInfo className={classes.author}>
+          <UsersName user={post.user} />
+        </MetaInfo>
+      </div>
     </div>
   </span>
 }

@@ -43,7 +43,10 @@ const styles = theme => ({
     marginRight: 6
   },
   posts: {
-    marginTop: 20,
+    marginTop: 12,
+    paddingTop: 8,
+    borderTop: "solid 1px rgba(0,0,0,.08)",
+    marginBottom: 8
   }
 });
 
@@ -71,11 +74,9 @@ const TagPreview = ({tag, classes, showCount=true}: {
 
   return (<div className={classes.card}>
     <TagPreviewDescription tag={tag}/>
-    <div className={classes.posts}>
-      {results ? results.map((result,i) =>
-        <TagSmallPostLink key={result.post._id} post={result.post} />
-      ) : <Loading /> }
-    </div>
+    {results ? <div className={classes.posts}>
+      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} />)}
+    </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
     </div>}

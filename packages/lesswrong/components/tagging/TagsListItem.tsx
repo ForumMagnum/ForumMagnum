@@ -38,7 +38,7 @@ const TagsListItem = ({tag, classes}: {
       <TagPreview tag={tag}/>
     </PopperCard>
     <Link to={`/tag/${tag.slug}`}>
-      {tag.name}
+      {tag.name} { tag.needsReview } { tag.reviewedByUserId }
     </Link>
     {tag.postCount && <span className={classes.count}>({tag.postCount})</span>} 
   </div>;

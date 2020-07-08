@@ -173,7 +173,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
 
               onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
             />
-            {canRemove &&
+            {canRemove && !tag?.core &&
               <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
                 <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
                   <a>Remove</a>
