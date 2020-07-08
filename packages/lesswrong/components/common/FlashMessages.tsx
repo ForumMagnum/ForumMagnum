@@ -3,7 +3,6 @@ import { withMessages } from './withMessages';
 import React, { PureComponent } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
-import { intlShape } from '../../lib/vulcan-i18n';
 
 interface ExternalProps {
 }
@@ -20,11 +19,10 @@ class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
       }
     } else {
       // else return full error object after internationalizing message
-      const { id, messageString, properties } = message;
-      const translatedMessage = this.context.intl.formatMessage({ id, defaultMessage: messageString }, properties);
+      const { messageString } = message;
       return {
         ...message,
-        message: translatedMessage || messageString,
+        message: messageString,
       };
     }
   }
@@ -44,10 +42,6 @@ class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
       </div>
     );
   }
-}
-
-(FlashMessages as any).contextTypes = {
-  intl: intlShape
 }
 
 const FlashMessagesComponent = registerComponent<ExternalProps>('FlashMessages', FlashMessages, {

@@ -54,7 +54,7 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
       },
     })
     client.resetStore()
-    flash({id:"alignment.move_comment"})
+    flash("Comment and its parents moved to AI Alignment Forum")
   }
 
   handleRemoveFromAlignmentForum = async () => {
@@ -70,7 +70,7 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
     })
 
     client.resetStore()
-    flash({id:"alignment.remove_comment"})
+    flash("Comment and its children removed from AI Alignment Forum")
   }
 
   render() {

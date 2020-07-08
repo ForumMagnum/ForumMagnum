@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import {
   Components,
   registerComponent
@@ -159,7 +158,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
 
         {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) && !post.draft &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
-            <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
+            <div className={classes.newCommentLabel}>New Comment</div>
             <Components.CommentsNewForm
               post={post}
               prefilledProps={{
