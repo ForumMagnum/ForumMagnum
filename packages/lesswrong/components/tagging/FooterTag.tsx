@@ -44,11 +44,11 @@ const newTagStyle = theme => ({
 const styles = theme => ({
   root: tagStyle(theme),
   score:  {
+    paddingLeft: 5,
     color: 'rgba(0,0,0,0.7)',
   },
   name: {
     display: 'inline-block',
-    paddingRight: 5
   },
   hovercard: {
   },
