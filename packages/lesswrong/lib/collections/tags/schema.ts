@@ -87,6 +87,15 @@ export const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(0),
   },
+  descriptionTruncationCount: {
+    // number of paragraphs to display above-the-fold
+    type: Number,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(0),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",

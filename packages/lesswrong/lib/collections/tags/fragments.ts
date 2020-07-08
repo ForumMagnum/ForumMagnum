@@ -11,6 +11,7 @@ registerFragment(`
     adminOnly
     defaultOrder
     suggestedAsFilter
+    descriptionTruncationCount
   }
 `);
 
