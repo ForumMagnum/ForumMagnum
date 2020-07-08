@@ -5,7 +5,7 @@ import withHover from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
-const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', true)
+const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
 export const tagStyle = theme => ({
   display: "inline-block",
