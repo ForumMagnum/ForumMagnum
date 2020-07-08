@@ -7,7 +7,6 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
-import { getContentType } from '../posts/PostsPage/PostsPagePostHeader';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle } from './FooterTag';
 
