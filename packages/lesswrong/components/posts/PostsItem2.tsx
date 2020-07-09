@@ -32,7 +32,7 @@ export const styles = (theme) => ({
   },
   background: {
     width: "100%",
-    background: "white",
+    background: "white"
   },
   postsItem: {
     display: "flex",
@@ -45,6 +45,7 @@ export const styles = (theme) => ({
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
+      paddingLeft: 5
     },
   },
   withGrayHover: {

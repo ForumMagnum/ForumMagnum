@@ -48,7 +48,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
 
   const handleApprove = () => {
     if (!currentUser) return null
-    updateTag({
+    void updateTag({
       selector: { _id: tag._id},
       data: {
         reviewedByUserId: currentUser._id,
@@ -59,7 +59,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
 
   const handleDelete = () => {
     if (!currentUser) return null
-    updateTag({
+    void updateTag({
       selector: { _id: tag._id},
       data: {
         reviewedByUserId: currentUser._id,
@@ -69,9 +69,9 @@ const SunshineNewTagsItem = ({tag, classes}: {
     })
   }
 
-  const { SidebarActionMenu, TagSmallPostLink, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo } = Components
+  const { SidebarActionMenu, TagSmallPostLink, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, Loading } = Components
 
-  const { results } = useMulti({
+  const { results, loading } = useMulti({
     skip: !(tag._id),
     terms: {
       view: "postsWithTag",
@@ -79,8 +79,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",
-    limit: 3,
-    ssr: true,
+    limit: 20,
   });
   
   return (
@@ -99,6 +98,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
           {results && results.map(tagRel=><div key={tagRel._id} className={classes.post}>
             <TagSmallPostLink post={tagRel.post}/>
           </div>)}
+          {!results && loading && <Loading/>}
         </SidebarHoverOver>
         <Link to={Tags.getUrl(tag)}>
           {tag.name}

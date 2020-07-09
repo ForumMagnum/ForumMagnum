@@ -41,6 +41,7 @@ const styles = theme => ({
   },
   userInfo: {
     display: "flex",
+    flexWrap: "wrap",
     color: theme.palette.lwTertiary.main,
     marginTop: 8,
     ...separatorBulletStyles(theme)
