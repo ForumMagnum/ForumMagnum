@@ -48,7 +48,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
 
   const handleApprove = () => {
     if (!currentUser) return null
-    updateTag({
+    void updateTag({
       selector: { _id: tag._id},
       data: {
         reviewedByUserId: currentUser._id,
@@ -59,7 +59,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
 
   const handleDelete = () => {
     if (!currentUser) return null
-    updateTag({
+    void updateTag({
       selector: { _id: tag._id},
       data: {
         reviewedByUserId: currentUser._id,
