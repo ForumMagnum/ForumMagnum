@@ -17,6 +17,10 @@ const styles = theme => ({
   },
   tag: {
     ...tagStyle(theme)
+  },
+  tagLoading: {
+    ...tagStyle(theme),
+    opacity: .8
   }
 });
 
@@ -68,7 +72,10 @@ const FooterTagList = ({post, classes, hideScore}: {
 
   const { Loading, FooterTag } = Components
   if (loading || !results)
-    return <Loading/>;
+    return <div className={classes.root}>
+       <div className={classes.tagLoading}>Tags Loading...</div>
+    </div>;
+  
 
   return <div className={classes.root}>
     {post.frontpageDate ?
