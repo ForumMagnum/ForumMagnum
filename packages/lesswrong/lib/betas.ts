@@ -20,13 +20,15 @@ const tagManager = (user: UsersCurrent|DbUser|null): boolean =>
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userHasPingbacks = shippedFeature;
 export const userHasCkEditor = optInOnly;
 export const userHasCkCollaboration = adminOnly;
-export const userCanManageTags = tagManager;
-export const userCanCreateTags = shippedFeature;
-export const userCanUseTags = shippedFeature;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
-export const userCanViewRevisionHistory = moderatorOnly;
+
+// Shipped Features
+export const userCanManageTags = shippedFeature;
+export const userCanCreateTags = shippedFeature;
+export const userCanUseTags = shippedFeature;
+export const userCanViewRevisionHistory = shippedFeature;
+export const userHasPingbacks = shippedFeature;
