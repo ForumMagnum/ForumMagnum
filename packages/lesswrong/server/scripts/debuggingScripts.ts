@@ -26,7 +26,7 @@ Vulcan.populateNotifications = async ({username,
     //eslint-disable-next-line no-console
     console.log("generating new posts...")
     try {
-      performSubscriptionAction('subscribe', Users, randomUser._id, user)
+      await performSubscriptionAction('subscribe', Users, randomUser._id, user)
     } catch(err) {
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
@@ -38,7 +38,7 @@ Vulcan.populateNotifications = async ({username,
     //eslint-disable-next-line no-console
     console.log("generating new comments...")
     try {
-      performSubscriptionAction('subscribe', Posts, post?._id, user)
+      await performSubscriptionAction('subscribe', Posts, post?._id, user)
     } catch(err) {
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
@@ -51,7 +51,7 @@ Vulcan.populateNotifications = async ({username,
     //eslint-disable-next-line no-console
     console.log("generating new replies...")
     try {
-      performSubscriptionAction('subscribe', Users, randomUser._id, user);
+      await performSubscriptionAction('subscribe', Users, randomUser._id, user);
     } catch(err) {
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");

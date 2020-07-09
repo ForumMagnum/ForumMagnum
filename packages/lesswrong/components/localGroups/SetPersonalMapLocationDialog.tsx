@@ -69,13 +69,13 @@ const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
           />
         <DialogActions className={classes.actions}>
           {currentUser?.mapLocation && <a className={classes.removeButton} onClick={()=>{
-            mutate({selector: {_id: currentUser._id}, data: {mapLocation: null}})
+            void mutate({selector: {_id: currentUser._id}, data: {mapLocation: null}})
             onClose()
           }}>
             Remove me from the map
           </a>}
           <a className={classes.submitButton} onClick={()=>{
-            mutate({selector: {_id: currentUser._id}, data: {mapLocation: location, mapMarkerText: mapText}})
+            void mutate({selector: {_id: currentUser._id}, data: {mapLocation: location, mapMarkerText: mapText}})
             onClose()
           }}>
             Submit

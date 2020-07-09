@@ -13,7 +13,9 @@
   },
   "include": [
     "packages/lesswrong/**/*.ts",
-    "packages/lesswrong/**/*.tsx"
+    "packages/lesswrong/**/*.tsx",
+    "packages/**/*.js",
+    "packages/**/*.jsx"
   ],
   "types": [
       "meteor-typings"

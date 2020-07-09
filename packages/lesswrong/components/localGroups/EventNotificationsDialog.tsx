@@ -196,7 +196,7 @@ const EventNotificationsDialog = ({ onClose, classes }) => {
         </div>
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{
-            mutate({selector: {_id: currentUser._id}, data: {
+            void mutate({selector: {_id: currentUser._id}, data: {
               nearbyEventsNotifications: false,
               nearbyEventsNotificationsLocation: null, 
               nearbyEventsNotificationsRadius: null, 
@@ -207,7 +207,7 @@ const EventNotificationsDialog = ({ onClose, classes }) => {
             Stop notifying me
           </a>}
           <a className={classes.submitButton} onClick={()=>{
-            mutate({selector: {_id: currentUser!._id}, data: {
+            void mutate({selector: {_id: currentUser!._id}, data: {
               nearbyEventsNotifications: true,
               nearbyEventsNotificationsLocation: location, 
               nearbyEventsNotificationsRadius: distance, 

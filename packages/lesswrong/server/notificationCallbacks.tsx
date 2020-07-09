@@ -82,7 +82,7 @@ async function getSubscribedUsers({
 const createNotifications = async (userIds, notificationType, documentType, documentId) => {
   return Promise.all(
     userIds.map(async userId => {
-      createNotification(userId, notificationType, documentType, documentId);
+      await createNotification(userId, notificationType, documentType, documentId);
     })
   );
 }
@@ -126,7 +126,7 @@ const createNotification = async (userId, notificationType, documentType, docume
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
   {
-    createMutator({
+    await createMutator({
       collection: Notifications,
       document: {
         ...notificationData,
@@ -158,7 +158,7 @@ const createNotification = async (userId, notificationType, documentType, docume
 }
 
 const removeNotification = async (notificationId) => {
-  updateMutator({
+  await updateMutator({
     collection: Notifications,
     documentId: notificationId,
     data: { deleted: true },
@@ -356,7 +356,7 @@ const curationEmailDelay = new EventDebouncer({
       // Email only non-admins (admins get emailed immediately, without the
       // delay).
       let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
-      sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+      await sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
     } else {
       //eslint-disable-next-line no-console
       console.log(`Not sending curation notice for ${post?.title} because it was un-curated during the delay period.`);
@@ -364,15 +364,15 @@ const curationEmailDelay = new EventDebouncer({
   }
 });
 
-function PostsCurateNotification (post, oldPost) {
+async function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email.
     
     const adminsToEmail = findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
-    sendPostByEmail(adminsToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
+    await sendPostByEmail(adminsToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
     
-    curationEmailDelay.recordEvent({
+    await curationEmailDelay.recordEvent({
       key: post._id,
       data: null,
       af: false
@@ -495,14 +495,14 @@ async function PostsEditNotifyUsersSharedOnPost (newPost, oldPost) {
     // because currently notifications are hidden from you if you don't have view-access to a post.
     // TODO: probably fix that, such that users can see when they've lost access to post. [but, eh, I'm not sure this matters that much]
     const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
-    createNotifications(sharedUsers, "postSharedWithUser", "post", newPost._id)
+    await createNotifications(sharedUsers, "postSharedWithUser", "post", newPost._id)
   }
 }
 addCallback("posts.edit.async", PostsEditNotifyUsersSharedOnPost);
 
 async function PostsNewNotifyUsersSharedOnPost (post) {
   if (post.shareWithUsers?.length) {
-    createNotifications(post.shareWithUsers, "postSharedWithUser", "post", post._id)
+    await createNotifications(post.shareWithUsers, "postSharedWithUser", "post", post._id)
   }
 }
 addCallback("posts.new.async", PostsNewNotifyUsersSharedOnPost);
@@ -535,7 +535,7 @@ async function PostsNewMeetupNotifications ({document: newPost}) {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
     const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    createNotifications(usersIdsWithoutAuthor, "newEventInRadius", "post", newPost._id)
+    await createNotifications(usersIdsWithoutAuthor, "newEventInRadius", "post", newPost._id)
   }
 }
 
@@ -556,7 +556,7 @@ async function PostsEditMeetupNotifications ({document: newPost, oldDocument: ol
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
     const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    createNotifications(usersIdsWithoutAuthor, "editedEventInRadius", "post", newPost._id)
+    await createNotifications(usersIdsWithoutAuthor, "editedEventInRadius", "post", newPost._id)
   }
 }
 

@@ -16,14 +16,14 @@ const RetractCommentMenuItem = ({comment}: {
   });
   
   const handleRetract = (event) => {
-    updateComment({
+    void updateComment({
       selector: {_id: comment._id},
       data: { retracted: true }
     });
   }
 
   const handleUnretract = (event) => {
-    updateComment({
+    void updateComment({
       selector: {_id: comment._id},
       data: { retracted: false }
     });

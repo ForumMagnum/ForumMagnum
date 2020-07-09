@@ -22,7 +22,7 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
         delayMinutes: 15,
       },
       callback: ({ userId, notificationType }, notificationIds) => {
-        sendNotificationBatch({userId, notificationIds});
+        void sendNotificationBatch({userId, notificationIds});
       }
     });
   }

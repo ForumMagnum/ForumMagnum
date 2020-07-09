@@ -41,7 +41,7 @@ if (hpmorImport) {
     const oldPost = Posts.findOne({title: post.title});
 
     if (!oldPost){
-      newMutation({
+      void newMutation({
         collection: Posts,
         document: post,
         currentUser: lwUser,

@@ -17,3 +17,14 @@ export const asyncFilter = async <T>(list: Array<T>, filter: (x:T)=>Promise<bool
   return result;
 }
 
+/// Like Array.forEach, but with an async function. Runs the function on elements
+/// sequentially (no parallelism).
+export const asyncForeachSequential = async <T>(list: Array<T>, fn: (x:T)=>Promise<void>): Promise<void> => {
+  for (let x of list)
+    await fn(x);
+}
+
+/// Like Array.forEach, but with an async function. Runs the function on elements in parallel.
+export const asyncForeachParallel = async <T>(list: Array<T>, fn: (x:T)=>Promise<void>): Promise<void> => {
+  await Promise.all(list.map(x => fn(x)));
+}

@@ -248,7 +248,7 @@ const insertUser = async (user) => {
     if (err.code == 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        newMutation({
+        await newMutation({
           collection: Users,
           document: newUser,
           validate: false
