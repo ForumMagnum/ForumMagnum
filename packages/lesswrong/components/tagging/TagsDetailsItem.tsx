@@ -4,8 +4,6 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanManageTags } from '../../lib/betas';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
 import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
@@ -16,7 +14,7 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
-    borderBottom: "solid 1px rgba(0,0,0,.09)"
+    borderBottom: "solid 1px rgba(0,0,0,.1)"
   },
   description: {
     maxWidth: 540,
@@ -45,7 +43,8 @@ const styles = theme => ({
     width: 410,
     padding: 20,
     [theme.breakpoints.down('xs')]: {
-      width: "100%"
+      width: "100%",
+      paddingTop: 8
     }
   }
 });
