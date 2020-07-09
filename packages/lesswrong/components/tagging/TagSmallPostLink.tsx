@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -23,7 +24,12 @@ const styles = theme => ({
     top: 2,
     overflow: "hidden",
     textOverflow: "ellipsis",
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
+  },
+  wrap: {
+    whiteSpace: "unset",
+    lineHeight: "1.1em",
+    marginBottom: 4,
   },
   author: {
     marginRight: 0,
@@ -31,9 +37,11 @@ const styles = theme => ({
   }
 });
 
-const TagSmallPostLink = ({classes, post}: {
+const TagSmallPostLink = ({classes, post, hideAuthor, wrap}: {
   classes: ClassesType,
   post: PostsList,
+  hideAuthor?: boolean,
+  wrap?: boolean
 }) => {
   const { LWPopper, PostsPreviewTooltip, UsersName, MetaInfo } = Components
   const { eventHandlers, hover, anchorEl } = useHover();
@@ -54,10 +62,10 @@ const TagSmallPostLink = ({classes, post}: {
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <div className={classes.post}>
-        <Link to={Posts.getPageUrl(post)} className={classes.title}>{post.title}</Link>
-        <MetaInfo className={classes.author}>
+        <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]:wrap})}>{post.title}</Link>
+        {!hideAuthor && <MetaInfo className={classes.author}>
           <UsersName user={post.user} />
-        </MetaInfo>
+        </MetaInfo>}
       </div>
     </div>
   </span>
