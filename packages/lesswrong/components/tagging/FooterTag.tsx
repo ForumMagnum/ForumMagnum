@@ -5,7 +5,7 @@ import withHover from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
-const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', true)
+const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
 export const tagStyle = theme => ({
   display: "inline-block",
@@ -44,11 +44,11 @@ const newTagStyle = theme => ({
 const styles = theme => ({
   root: tagStyle(theme),
   score:  {
+    paddingLeft: 5,
     color: 'rgba(0,0,0,0.7)',
   },
   name: {
     display: 'inline-block',
-    paddingRight: 5
   },
   hovercard: {
   },
@@ -67,7 +67,7 @@ const experimentalStyles = theme => ({
 })
 
 interface ExternalProps {
-  tagRel: TagRelMinimumFragment,
+  tagRel?: TagRelMinimumFragment,
   tag: TagPreviewFragment,
   hideScore?: boolean
 }
@@ -75,7 +75,7 @@ interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps 
 }
 
 const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
-  tagRel: TagRelMinimumFragment,
+  tagRel?: TagRelMinimumFragment,
   tag: TagFragment,
   hideScore?: boolean,
 
@@ -92,13 +92,13 @@ const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
     <span className={classes.root}>
       <Link to={`/tag/${tag.slug}`}>
         <span className={classes.name}>{tag.name}</span>
-        {!hideScore && <span className={classes.score}>{tagRel.baseScore}</span>}
+        {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>
-      <PopperCard open={hover} anchorEl={anchorEl}>
+      {tagRel && <PopperCard open={hover} anchorEl={anchorEl}>
         <div className={classes.hovercard}>
           <TagRelCard tagRel={tagRel} />
         </div>
-      </PopperCard>
+      </PopperCard>}
     </span>
   </AnalyticsContext>);
 }
