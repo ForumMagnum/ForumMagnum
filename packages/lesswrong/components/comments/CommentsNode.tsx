@@ -13,19 +13,24 @@ const HIGHLIGHT_DURATION = 3
 
 const styles = theme => ({
   node: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
       opacity: 0.6
     }
   },
+  commentsNodeRoot: {
+    borderRadius: 3,
+  },
   child: {
     marginLeft: theme.spacing.unit,
     marginBottom: 6,
-    borderLeft: `solid 1px ${theme.palette.grey[300]}`,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`,
-    borderBottom: `solid 1px ${theme.palette.grey[300]}`,
+    borderLeft: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderRight: "none",
+    borderRadius: "2px 0 0 2px"
   },
   new: {
     '&&': {
@@ -48,11 +53,11 @@ const styles = theme => ({
     }
   },
   isAnswer: {
-    border: `solid 2px ${theme.palette.grey[300]}`,
+    border: `solid 2px ${theme.palette.commentBorderGrey}`,
   },
   answerChildComment: {
     marginBottom: theme.spacing.unit,
-    border: `solid 1px ${theme.palette.grey[300]}`,
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
   },
   childAnswerComment: {
     borderRight: "none"
@@ -66,10 +71,15 @@ const styles = theme => ({
   isSingleLine: {
     marginBottom: 0,
     borderBottom: "none",
-    borderTop: "solid 1px rgba(0,0,0,.15)",
+    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
     '&.comments-node-root':{
       marginBottom: 4,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+      borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
+    }
+  },
+  condensed: {
+    '&.comments-node-root':{
+      marginBottom: 4,
     }
   },
   shortformTop: {
@@ -106,7 +116,7 @@ const styles = theme => ({
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
-    border: `solid 1px ${theme.palette.grey[300]}`,
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
@@ -332,6 +342,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       classes.node,
       {
         "af":comment.af,
+        [classes.commentsNodeRoot] : updatedNestingLevel === 1,
         "comments-node-root" : updatedNestingLevel === 1,
         "comments-node-even" : updatedNestingLevel % 2 === 0,
         "comments-node-odd"  : updatedNestingLevel % 2 !== 0,
@@ -354,6 +365,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
         [classes.oddAnswerComment]: (updatedNestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
         [classes.isSingleLine]: this.isSingleLine(),
+        [classes.condensed]: condensed,
         [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
         [classes.hoverPreview]: hoverPreview,
         [classes.moderatorHat]: comment.moderatorHat,

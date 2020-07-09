@@ -32,5 +32,5 @@ async function fixFrontpagePostCount() {
 }
 
 if (fixFrontpageCounts) {
-  fixFrontpagePostCount()
+  void fixFrontpagePostCount()
 }

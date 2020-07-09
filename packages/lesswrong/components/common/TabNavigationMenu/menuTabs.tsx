@@ -171,7 +171,7 @@ export default {
     }, {
       id: 'tags',
       title: 'Tags',
-      link: '/tags',
+      link: '/tags/all',
       subItem: true,
     }
   ],

@@ -11,26 +11,34 @@ import * as _ from 'underscore';
 import { defaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { sectionTitleStyle } from '../common/SectionTitle';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  toggleFilters: {
+  titleWrapper: {
     display: "flex",
-    alignItems: "center",
-    color: theme.palette.grey[600],
-    fontStyle: "italic"
+    marginBottom: 8,
+    flexWrap: "wrap",
+    alignItems: "center"
   },
-  rightIcon: {
-    marginLeft: -6,
+  title: {
+    ...sectionTitleStyle(theme),
+    display: "inline",
+    marginRight: "auto"
   },
-  downIcon: {
-    marginLeft: -4,
-    marginRight: 3
+  toggleFilters: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none"
+    },
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
+const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
   const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : defaultFilterSettings;
@@ -41,7 +49,6 @@ const useFilterSettings = (currentUser: UsersCurrent|null) => {
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
-  const { captureEvent } = useTracking()
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -51,10 +58,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
-  useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
-
+  const { captureEvent } = useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
   const limit = parseInt(query.limit) || 13
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
@@ -68,63 +74,53 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     limit:limit
   }
 
-  const latestTitle = (
-    <div>
-      <p>Recent posts, sorted by a mix of 'new' and 'highly upvoted'.</p>
-      <p>By default shows only frontpage posts, and can optionally include personal blogposts.</p>
-      <p><em>Moderators promote posts to frontpage if they seem to be:</em></p>
-      <ul>
-        <li>Aiming to explain rather than persuade</li>
-        <li>Relatively timeless (avoiding reference to current events or local social knowledge)</li>
-        <li>Reasonably relevant to the average LW user</li>
-      </ul>
-    </div>
-  )
-
-  const filterTooltip = "Tag Filters let you adjust how much you see of different types of content in the Latest Posts section."
-
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
-        <SingleColumnSection>
-          <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
-            <LWTooltip title={filterTooltip}>
-              <a className={classes.toggleFilters} onClick={() => {
-                  setFilterSettingsVisible(!filterSettingsVisible)
-                  captureEvent("filterSettingsClicked", {
-                    settingsVisible: !filterSettingsVisible,
-                    settings: filterSettings,
-                    pageSectionContext: "latestPosts"
-                  })
-                }}>
-              {filterSettingsVisible ? 
-                <><ExpandMoreIcon className={classes.downIcon}/> Hide Filters</>
-                : 
-                <><ChevronRightIcon className={classes.rightIcon} /> Show Tag Filters</>
-              }                
-              </a>
+      <SingleColumnSection>
+        <div className={classes.titleWrapper}>
+          <Typography variant='display1' className={classes.title}>
+            <LWTooltip title="Recent posts, sorted by a combination of 'new' and 'highly upvoted'" placement="left">
+              {latestPostsName}
             </LWTooltip>
-          </SectionTitle>
+          </Typography>
+         
           <AnalyticsContext pageSectionContext="tagFilterSettings">
-              {filterSettingsVisible && <TagFilterSettings
-                filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                  setFilterSettings(newSettings)
-                  if (currentUser) {
-                    updateUser({
-                      selector: { _id: currentUser._id},
-                      data: {
-                        frontpageFilterSettings: newSettings
-                      },
+              <div className={classes.toggleFilters}>
+                <SettingsButton 
+                  label={filterSettingsVisible  ? "Hide Filters" : "Show Tag Filters"}
+                  showIcon={false}
+                  onClick={() => {
+                    setFilterSettingsVisible(!filterSettingsVisible)
+                    captureEvent("filterSettingsClicked", {
+                      settingsVisible: !filterSettingsVisible,
+                      settings: filterSettings,
+                      pageSectionContext: "latestPosts"
                     })
-                  }
-                }}
-            />}
+                  }} />
+              </div>
+              <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
+                <TagFilterSettings
+                  filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+                    setFilterSettings(newSettings)
+                    if (currentUser) {
+                      void updateUser({
+                        selector: { _id: currentUser._id},
+                        data: {
+                          frontpageFilterSettings: newSettings
+                        },
+                      })
+                    }
+                  }}
+                />
+              </span>
           </AnalyticsContext>
-          <AnalyticsContext listContext={"latestPosts"}>
-            <PostsList2 terms={recentPostsTerms}>
-              <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-            </PostsList2>
-          </AnalyticsContext>
-        </SingleColumnSection>
+        </div>
+        <AnalyticsContext listContext={"latestPosts"}>
+          <PostsList2 terms={recentPostsTerms}>
+            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+          </PostsList2>
+        </AnalyticsContext>
+      </SingleColumnSection>
     </AnalyticsContext>
   )
 }

@@ -16,7 +16,7 @@ const DeleteDraft = ({ post }: {
   
   const handleDelete = useCallback(() => {
     if (confirm("Are you sure you want to delete this post?")) {
-      updatePost({
+      void updatePost({
         selector: {_id: post._id},
         data: {deletedDraft:true, draft: true}
       })

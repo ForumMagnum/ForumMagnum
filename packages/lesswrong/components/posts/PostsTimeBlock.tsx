@@ -19,20 +19,24 @@ const styles = theme => ({
     whiteSpace: "pre",
     textOverflow: "ellipsis",
     ...theme.typography.postStyle,
-    fontWeight: 600
+    position: "sticky",
+    paddingTop: 4,
+    paddingBottom: 4,
+    zIndex: 1
   },
   loadMore: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: 6,
   },
   noPosts: {
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
   frontpageSubtitle: {
-    marginTop: theme.spacing.unit
+    marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: theme.spacing.unit*1.5
+    marginTop: 6,
+    marginBottom: 6
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
 })
@@ -124,7 +128,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
-    const { PostsItem2, LoadMore, ShortformTimeBlock, SubSection, Loading, ContentType, Divider } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -182,11 +186,9 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
               >
                 <ContentType type={name} label={label} />
               </div>
-              <SubSection>
-                {posts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} index={i} dense />
-                )}
-              </SubSection>
+              {posts.map((post, i) =>
+                <PostsItem2 key={post._id} post={post} index={i} dense />
+              )}
             </div>
           })}
 
@@ -209,9 +211,9 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
             }}
           />}
         </div>
-        <div className={classes.divider}>
+        {!loading && <div className={classes.divider}>
           <Divider wings={false} />
-        </div>
+        </div>}
       </div>
     );
   }

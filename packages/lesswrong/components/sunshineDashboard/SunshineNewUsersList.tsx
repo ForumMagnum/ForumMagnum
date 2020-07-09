@@ -4,8 +4,18 @@ import React from 'react';
 import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 
-const SunshineNewUsersList = ({ terms, allowContentPreview }: {
+const styles = theme => ({
+  loadMore: {
+    fontSize: "1rem",
+    textAlign: "right",
+    paddingRight: 12,
+    paddingBottom: 8
+  }
+})
+
+const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
   terms: any,
+  classes: ClassesType,
   allowContentPreview?: boolean,
 }) => {
   const currentUser = useCurrentUser();
@@ -31,13 +41,15 @@ const SunshineNewUsersList = ({ terms, allowContentPreview }: {
             <SunshineNewUsersItem user={user} allowContentPreview={allowContentPreview}/>
           </div>
         )}
-        {showLoadMore && <LoadMore
-          loadMore={() => {
-            loadMore();
-          }}
-          count={count}
-          totalCount={totalCount}
-        />}
+        <div className={classes.loadMore}>
+          {showLoadMore && <LoadMore
+            loadMore={() => {
+              loadMore();
+            }}
+            count={count}
+            totalCount={totalCount}
+          />}
+        </div>
       </div>
     )
   } else {
@@ -45,7 +57,7 @@ const SunshineNewUsersList = ({ terms, allowContentPreview }: {
   }
 }
 
-const SunshineNewUsersListComponent = registerComponent('SunshineNewUsersList', SunshineNewUsersList);
+const SunshineNewUsersListComponent = registerComponent('SunshineNewUsersList', SunshineNewUsersList, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -43,6 +43,8 @@ async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
 }
 
 
+const postBackground = "white"
+
 // User-profile routes
 addRoute(
   {
@@ -50,8 +52,7 @@ addRoute(
     path:'/users/:slug',
     componentName: 'UsersSingle',
     //titleHoC: userPageTitleHoC,
-    titleComponentName: 'UserPageTitle',
-    subtitleComponentName: 'UserPageTitle',
+    titleComponentName: 'UserPageTitle'
   },
   {
     name:'users.single.user',
@@ -72,18 +73,21 @@ addRoute(
   {
     name:'users.account',
     path:'/account',
-    componentName: 'UsersAccount'
+    componentName: 'UsersAccount',
+    background: "white"
   },
   {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
     title: "Manage Subscriptions",
+    background: "white"
   },
   {
     name:'users.edit',
     path:'/users/:slug/edit',
-    componentName: 'UsersAccount'
+    componentName: 'UsersAccount',
+    background: "white"
   },
 
   // Miscellaneous LW2 routes
@@ -91,12 +95,14 @@ addRoute(
     name: 'login',
     path: '/login',
     componentName: 'LoginPage',
-    title: "Login"
+    title: "Login",
+    background: "white"
   },
   {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
-    componentName: 'ResendVerificationEmailPage'
+    componentName: 'ResendVerificationEmailPage',
+    background: "white"
   },
   {
     name: 'inbox',
@@ -115,12 +121,14 @@ addRoute(
     name: 'newPost',
     path: '/newPost',
     componentName: 'PostsNewForm',
-    title: "New Post"
+    title: "New Post",
+    background: "white"
   },
   {
     name: 'editPost',
     path: '/editPost',
-    componentName: 'PostsEditPage'
+    componentName: 'PostsEditPage',
+    background: "white"
   },
   {
     name: 'collaboratePost',
@@ -139,7 +147,8 @@ addRoute(
   {
     name: 'sequences.single.old',
     path: '/sequences/:_id',
-    componentName: 'SequencesSingle'
+    componentName: 'SequencesSingle',
+    background: "lightGrey"
   },
   {
     name: 'sequences.single',
@@ -147,17 +156,20 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
+    background: "lightGrey"
   },
   {
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
-    componentName: 'SequencesEditForm'
+    componentName: 'SequencesEditForm',
+    background: "white"
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     componentName: 'SequencesNewForm',
-    title: "New Sequence"
+    title: "New Sequence",
+    background: "white"
   },
   {
     name: 'sequencesPost',
@@ -167,13 +179,15 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+    background: "white"
   },
 
   {
     name: 'chaptersEdit',
     path: '/chaptersEdit/:_id',
     componentName: 'ChaptersEditForm',
-    title: "Edit Chapter"
+    title: "Edit Chapter",
+    background: "white"
   },
 
   // Collections
@@ -191,7 +205,7 @@ addRoute(
 
   // Tags
   {
-    name: 'tags',
+    name: 'tags.single',
     path: '/tag/:slug',
     componentName: 'TagPage',
     titleComponentName: 'TagPageTitle',
@@ -211,6 +225,7 @@ addRoute(
     componentName: 'NewTagPage',
     title: "New Tag",
     subtitleComponentName: 'TagPageTitle',
+    background: "white"
   },
   {
     name: 'allTags',
@@ -228,7 +243,8 @@ addRoute(
     name: 'search',
     path: '/search',
     componentName: 'SearchPage',
-    title: 'Search'
+    title: 'Search',
+    background: "white"
   }
 );
 
@@ -284,12 +300,14 @@ if (forumTypeSetting.get() !== 'EAForum') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
     },
     {
       name: 'tagIndex',
       path: '/tags',
       componentName: 'PostsSingleRoute',
-      _id:"DHJBEsi4XJDw2fRFq"
+      _id:"DHJBEsi4XJDw2fRFq",
+      background: postBackground
     },
   )
 }
@@ -310,6 +328,7 @@ if (forumTypeSetting.get() === 'LessWrong') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...hpmorSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
     },
 
     {
@@ -326,6 +345,7 @@ if (forumTypeSetting.get() === 'LessWrong') {
       previewComponentName: 'PostLinkPreviewSlug',
       ...codexSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
     },
   );
 }
@@ -365,7 +385,8 @@ if (hasEventsSetting.get()) {
       path: '/community',
       componentName: 'CommunityHome',
       title: "Community",
-      ...communitySubtitle
+      ...communitySubtitle,
+      background: "white"
     },
     {
       name: 'MeetupsHome',
@@ -394,6 +415,7 @@ if (hasEventsSetting.get()) {
       previewComponentName: 'PostLinkPreview',
       ...communitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+      background: postBackground
     },
     {
       name: 'groups.post',
@@ -433,6 +455,7 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+    background: postBackground
   },
   {
     name: 'posts.revisioncompare',
@@ -459,12 +482,6 @@ addRoute(
     titleComponentName: 'TagPageTitle',
   },
   {
-    name:'coronavirus.link.db',
-    path:'/coronavirus-link-database',
-    componentName: 'SpreadsheetPage',
-    title: "COVID-19 Link Database"
-  },
-  {
     name: 'admin',
     path: '/admin',
     componentName: 'AdminHome',
@@ -480,7 +497,8 @@ addRoute(
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
-    title: "Moderation Log"
+    title: "Moderation Log",
+    noIndex: true
   },
   {
     name: 'emailHistory',
@@ -587,7 +605,8 @@ switch (forumTypeSetting.get()) {
       {
         name: 'home',
         path: '/',
-        componentName: 'Home2'
+        componentName: 'Home2',
+        sunshineSidebar: true
       },
       {
         name: 'about',
@@ -595,6 +614,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'faq',
@@ -602,6 +622,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id:"2rWKkWuPrgTMpLRbp",
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+        background: postBackground
       },
       {
         name: 'donate',
@@ -609,6 +630,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id:"LcpQQvcpWfPXvW7R9",
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
+        background: postBackground
       },
       {
         name: 'Meta',
@@ -618,6 +640,17 @@ switch (forumTypeSetting.get()) {
       },
     );
     break;
+}
+
+if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
+  addRoute(
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database"
+    }
+  )
 }
 
 addRoute(

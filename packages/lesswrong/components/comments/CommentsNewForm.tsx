@@ -1,7 +1,6 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { Comments } from '../../lib/collections/comments';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -108,7 +107,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   };
 
   if (currentUser && !Users.canDo(currentUser, `posts.moderate.all`) && !Users.isAllowedToComment(currentUser, prefilledProps)) {
-    return <FormattedMessage id="users.cannot_comment"/>;
+    return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
   const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed

@@ -952,6 +952,7 @@ Posts.addView("pingbackPosts", terms => {
   return {
     selector: {
       "pingbacks.Posts": terms.postId,
+      baseScore: {$gt: 0}
     },
     options: {
       sort: { baseScore: -1 },

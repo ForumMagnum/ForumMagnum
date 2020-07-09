@@ -43,7 +43,7 @@ const palette = {
     main: deepOrange[900]
   },
   background: {
-    default: '#fff'
+    default: '#f4f4f4'
   }
 }
 
@@ -128,7 +128,6 @@ const theme = createLWTheme({
     MuiCard: {
       root: {
         borderRadius: 1,
-        border: `solid 1px rgba(0,0,0,.2)`,
         boxShadow: "0 0 10px rgba(0,0,0,.2)",
       }
     }

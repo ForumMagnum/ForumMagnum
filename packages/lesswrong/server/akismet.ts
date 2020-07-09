@@ -76,7 +76,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
       if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
-        editMutation({
+        await editMutation({
           collection: Posts,
           documentId: post._id,
           set: {status: 4},

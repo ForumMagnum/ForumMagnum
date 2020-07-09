@@ -18,6 +18,13 @@ Tags.addView('allTagsAlphabetical', terms => {
   }
 });
 
+Tags.addView('allTagsHierarchical', terms => {
+  return {
+    selector: {},
+    options: {sort: {defaultOrder: -1, postCount: -1, name: 1}}
+  }
+});
+
 Tags.addView('tagBySlug', terms => {
   return {
     selector: {
@@ -36,6 +43,20 @@ Tags.addView('coreTags', terms => {
     options: {
       sort: {
         name: 1
+      }
+    },
+  }
+});
+
+
+Tags.addView('unreviewedTags', terms => {
+  return {
+    selector: {
+      needsReview: true
+    },
+    options: {
+      sort: {
+        createdAt: 1
       }
     },
   }

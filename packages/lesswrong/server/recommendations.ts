@@ -16,11 +16,10 @@ const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaul
 
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
-// LWEvents collection and filter out any posts which have a corresponding
-// post-view event for the current user. Returns as an array, so you can spread
-// this into a pipeline with ...pipelineFilterUnread(currentUser). If
-// currentUser is null, returns an empty array (no aggregation pipeline stages),
-// so all posts are included.
+// ReadStatuses collection and filter out any posts which have been read by the
+// current user. Returns as an array, so you can spread this into a pipeline
+// with ...pipelineFilterUnread(currentUser). If currentUser is null, returns
+// an empty array (no aggregation pipeline stages), so all posts are included.
 const pipelineFilterUnread = ({currentUser}) => {
   if (!currentUser)
     return [];
@@ -303,7 +302,7 @@ addGraphQLResolvers({
       if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
           (s:any)=>s.nextPostId !== postId);
-        setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;
       }
       return false;

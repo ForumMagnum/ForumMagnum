@@ -118,6 +118,10 @@ interface PostsBase_group { // fragment on Localgroups
   readonly name: string,
 }
 
+interface PostsWithVotes extends PostsBase { // fragment on Posts
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
 interface PostsAuthors { // fragment on Posts
   readonly user: PostsAuthors_user,
   readonly coauthors: Array<UsersMinimumInfo>,
@@ -302,12 +306,14 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 }
 
 interface SunshinePostsList extends PostsList { // fragment on Posts
+  readonly currentUserVotes: Array<VoteFragment>,
   readonly contents: SunshinePostsList_contents,
   readonly user: SunshinePostsList_user,
 }
 
 interface SunshinePostsList_contents { // fragment on Revisions
   readonly html: string,
+  readonly htmlHighlight: string,
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
@@ -570,12 +576,15 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly core: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
+  readonly descriptionTruncationCount: number,
   readonly postCount: number,
   readonly userId: string,
   readonly adminOnly: boolean,
   readonly charsAdded: number,
   readonly charsRemoved: number,
   readonly deleted: boolean,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1421,6 +1430,9 @@ interface TagBasicInfo { // fragment on Tags
   readonly adminOnly: boolean,
   readonly defaultOrder: number,
   readonly suggestedAsFilter: boolean,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
+  readonly descriptionTruncationCount: number,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1451,6 +1463,10 @@ interface TagPreviewFragment_description { // fragment on Revisions
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly description: RevisionEdit,
+}
+
+interface SunshineTagFragment extends TagFragment { // fragment on Tags
+  readonly user: UsersMinimumInfo,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -1563,6 +1579,7 @@ interface FragmentTypes {
   VotesDefaultFragment: VotesDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
+  PostsWithVotes: PostsWithVotes
   PostsAuthors: PostsAuthors
   PostsList: PostsList
   PostsListTag: PostsListTag
@@ -1664,6 +1681,7 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
+  SunshineTagFragment: SunshineTagFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment

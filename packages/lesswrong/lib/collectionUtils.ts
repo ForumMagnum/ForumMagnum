@@ -62,7 +62,12 @@ async function conflictingIndexExists(collection, index, options)
   return false;
 }
 
-export async function ensureIndex(collection, index, options:any={})
+export function ensureIndex(collection, index, options:any={}): void
+{
+  void ensureIndexAsync(collection, index, options);
+}
+
+export async function ensureIndexAsync(collection, index, options:any={})
 {
   if (Meteor.isServer) {
     const buildIndex = async () => {

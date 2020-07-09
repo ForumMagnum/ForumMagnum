@@ -19,7 +19,7 @@ export const AnalyticsClient = () => {
   const [mutate] = useMutation(query);
   
   function flushEvents(events) {
-    mutate({
+    void mutate({
       variables: {
         events,
         now: new Date(),

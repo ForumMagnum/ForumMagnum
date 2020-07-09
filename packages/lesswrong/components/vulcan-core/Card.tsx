@@ -1,5 +1,5 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { intlShape, FormattedMessage } from '../../lib/vulcan-i18n';
+import { intlShape } from '../../lib/vulcan-i18n';
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -130,16 +130,19 @@ const CardItem = ({ label, value, typeName }) =>
     <td className="datacard-value">{getFieldValue(value, typeName)}</td>
   </tr>;
 
-const CardEdit = (props, context) =>
+const CardEdit = (props) =>
   <tr>
     <td colSpan={2}>
-      <Components.ModalTrigger label={context.intl.formatMessage({ id: 'cards.edit' })} component={<Components.Button variant="info"><FormattedMessage id="cards.edit" /></Components.Button>}>
+      <Components.ModalTrigger label="Edit" component={
+        <Components.Button variant="info">
+          Edit
+        </Components.Button>
+      }>
         <CardEditForm {...props} />
       </Components.ModalTrigger>
     </td>
   </tr>;
 
-CardEdit.contextTypes = { intl: intlShape };
 
 const CardEditForm = ({ collection, document, closeModal }) =>
   <Components.SmartForm

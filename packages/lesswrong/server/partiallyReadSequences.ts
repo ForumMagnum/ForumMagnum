@@ -45,7 +45,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
     // entry for this sequence or for the collection that contains it, and
     // adding a new entry for this sequence to the end.
     const newPartiallyReadSequences = [...partiallyReadMinusThis, sequenceReadStatus];
-    setUserPartiallyReadSequences(userId, newPartiallyReadSequences);
+    await setUserPartiallyReadSequences(userId, newPartiallyReadSequences);
     return;
   }
   
@@ -79,7 +79,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
       // if you are part-way through sequence A, and finish sequence B, A and
       // B in the same collection.
       const newPartiallyReadSequences = [...partiallyReadMinusThis, collectionReadStatus];
-      setUserPartiallyReadSequences(userId, newPartiallyReadSequences);
+      await setUserPartiallyReadSequences(userId, newPartiallyReadSequences);
       return;
     }
   }
@@ -87,12 +87,12 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   // Done reading! If the user previously had a partiallyReadSequences entry
   // for this sequence, remove it and update the user object.
   if (_.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId)) {
-    setUserPartiallyReadSequences(userId, partiallyReadMinusThis);
+    await setUserPartiallyReadSequences(userId, partiallyReadMinusThis);
   }
 }
 
 export const setUserPartiallyReadSequences = async (userId, newPartiallyReadSequences) => {
-  editMutation({
+  await editMutation({
     collection: Users,
     documentId: userId,
     set: {
@@ -120,7 +120,7 @@ const EventUpdatePartialReadStatusCallback = async (event) => {
     // the sequence.
     if (userHasPartiallyReadSequence(user, sequenceId)) {
       // Deliberately lacks an await - this runs concurrently in the background
-      updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId);
+      await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId);
     }
   }
 }
@@ -178,7 +178,7 @@ addGraphQLResolvers({
       const { currentUser } = context;
       if (!currentUser) throw new Error("Must be logged in to record continue-reading status");
       
-      updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId);
+      await updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId);
       
       return true;
     }
