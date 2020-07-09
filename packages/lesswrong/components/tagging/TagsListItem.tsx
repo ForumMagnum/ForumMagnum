@@ -8,10 +8,11 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     paddingTop: 3,
-    paddingBottom: 3,
     paddingLeft: 6,
-    paddingRight: 16,
-    fontSize: "1rem"
+    paddingRight: 12,
+    fontSize: "1.1rem",
+    lineHeight: "1.1em",
+    marginBottom: 8
 
   },
   count: {
