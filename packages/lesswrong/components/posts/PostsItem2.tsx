@@ -45,7 +45,7 @@ export const styles = (theme) => ({
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
-      paddingLeft: 4
+      paddingLeft: 5
     },
   },
   withGrayHover: {
