@@ -25,7 +25,7 @@ const styles = theme => ({
 });
 
 const FooterTagList = ({post, classes, hideScore}: {
-  post: PostsBase,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean
 }) => {
@@ -71,22 +71,25 @@ const FooterTagList = ({post, classes, hideScore}: {
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
 
   const { Loading, FooterTag } = Components
+
+  const postType = post.frontpageDate ?
+    <LWTooltip title={contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}>
+      <div className={classes.tag}>Frontpage</div>
+    </LWTooltip>
+    :
+    <LWTooltip title={contentTypes[forumTypeSetting.get()].personal.tooltipBody}>
+      <div className={classes.tag}>Personal Blog</div>
+    </LWTooltip>
+
   if (loading || !results)
     return <div className={classes.root}>
-       <div className={classes.tagLoading}>Tags Loading...</div>
+       {postType}
+       {post.tags.map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
     </div>;
   
 
   return <div className={classes.root}>
-    {post.frontpageDate ?
-      <LWTooltip title={contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}>
-        <div className={classes.tag}>Frontpage</div>
-      </LWTooltip>
-      :
-      <LWTooltip title={contentTypes[forumTypeSetting.get()].personal.tooltipBody}>
-        <div className={classes.tag}>Personal Blog</div>
-      </LWTooltip>
-    }
+    { postType }
     {results.filter(tagRel => !!tagRel?.tag).map(tagRel =>
       <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag} hideScore={hideScore}/>
     )}
