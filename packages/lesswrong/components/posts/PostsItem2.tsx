@@ -31,7 +31,7 @@ export const styles = (theme) => ({
     }
   },
   background: {
-    width: "calc(100% + 8px)",
+    width: "100%",
     background: "white"
   },
   postsItem: {
