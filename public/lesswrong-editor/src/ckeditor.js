@@ -49,6 +49,8 @@ import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import TableProperties from '@ckeditor/ckeditor5-table/src/tableproperties';
+import TableCellProperties from '@ckeditor/ckeditor5-table/src/tablecellproperties';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
@@ -114,6 +116,8 @@ const postEditorPlugins = [
 	Strikethrough,
 	Table,
 	TableToolbar,
+	TableProperties,
+	TableCellProperties,
 	Underline,
 	UploadAdapter,
 	Mathematics,
@@ -169,9 +173,8 @@ const postEditorConfig = {
 	heading: headingOptions,
 	table: {
 		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
+			'tableColumn', 'tableRow', 'mergeTableCells',
+			'tableProperties', 'tableCellProperties'
 		],
 		tableToolbar: [ 'comment' ]
 	},
@@ -219,6 +222,9 @@ CommentEditor.builtinPlugins = [
 	RemoveFormat,
 	Strikethrough,
 	Table,
+	TableToolbar,
+	TableProperties,
+	TableCellProperties,
 	Underline,
 	UploadAdapter,
 	Mathematics,
@@ -255,9 +261,8 @@ CommentEditor.defaultConfig = {
 	heading: headingOptions,
 	table: {
 		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
+			'tableColumn', 'tableRow', 'mergeTableCells',
+			'tableProperties', 'tableCellProperties'
 		],
 		tableToolbar: [ 'comment' ]
 	},
