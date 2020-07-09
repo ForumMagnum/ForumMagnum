@@ -13,23 +13,40 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 const styles = theme => ({
   root: {
     background: "white",
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    display: "flex",
+    flexWrap: "wrap",
+    borderBottom: "solid 1px rgba(0,0,0,.09)"
   },
   description: {
     maxWidth: 540,
     paddingRight: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 12,
+    paddingBottom: 10,
+    paddingLeft: 20,
     verticalAlign: "top",
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+      maxWidth: "unset"
+    }
   },
-  metaInfo: {
+  edit: {
     fontSize: "1rem",
     color: theme.palette.grey[500],
-    marginTop: 12,
-    marginRight: 8
+    marginTop: 10,
+  },
+  postCount: {
+    fontSize: "1rem",
+    color: theme.palette.grey[500],
+    marginBottom: 10,
+    display: "block"
   },
   posts: {
-    maxWidth: 200
+    width: 410,
+    padding: 20,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%"
+    }
   }
 });
 
@@ -52,8 +69,8 @@ const TagsDetailsItem = ({tag, classes }: {
     limit: 3,
   });
 
-  return <TableRow className={classes.root}>
-    <TableCell className={classes.description}>
+  return <div className={classes.root}>
+    <div className={classes.description}>
       {editing ? 
         <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
         :
@@ -62,13 +79,13 @@ const TagsDetailsItem = ({tag, classes }: {
         </LinkCard>
       }
       {userCanManageTags(currentUser) && 
-      <a onClick={() => setEditing(true)} className={classes.metaInfo}>
+      <a onClick={() => setEditing(true)} className={classes.edit}>
         Edit
       </a>}
-    </TableCell>
-    <TableCell className={classes.posts}>
+    </div>
+    <div className={classes.posts}>
       <div>
-        <Link to={Tags.getUrl(tag)} className={classes.metaInfo}>
+        <Link to={Tags.getUrl(tag)} className={classes.postCount}>
           {tag.postCount} posts tagged <em>{tag.name}</em>
         </Link>
         {!tagRels && loading && <Loading/>}
@@ -76,8 +93,8 @@ const TagsDetailsItem = ({tag, classes }: {
           <TagSmallPostLink key={tagRel._id} post={tagRel.post} hideAuthor wrap/>
         )}
       </div>
-    </TableCell>
-  </TableRow>
+    </div>
+  </div>
 }
 
 const TagsDetailsItemComponent = registerComponent("TagsDetailsItem", TagsDetailsItem, {styles});

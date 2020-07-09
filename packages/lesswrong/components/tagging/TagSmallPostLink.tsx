@@ -28,7 +28,8 @@ const styles = theme => ({
   },
   wrap: {
     whiteSpace: "unset",
-    lineHeight: "1.1em"
+    lineHeight: "1.1em",
+    marginBottom: 4,
   },
   author: {
     marginRight: 0,
