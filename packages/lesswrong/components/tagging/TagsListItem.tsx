@@ -43,7 +43,7 @@ const TagsListItem = ({tag, classes}: {
       <div className={classes.hideOnMobile}><TagPreview tag={tag}/></div>
     </PopperCard>
     <Link to={`/tag/${tag.slug}`}>
-      {tag.name} { tag.needsReview } { tag.reviewedByUserId }
+      {tag.name} { tag.needsReview }
     </Link>
     {tag.postCount && <span className={classes.count}>({tag.postCount})</span>} 
   </div>;
