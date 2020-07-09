@@ -179,6 +179,7 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+    background: "white"
   },
 
   {

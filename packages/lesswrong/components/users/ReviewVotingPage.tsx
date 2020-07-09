@@ -223,7 +223,7 @@ const ReviewVotingPage = ({classes}) => {
     }
 
     setUseQuadratic(newUseQuadratic)
-    updateUser({
+    void updateUser({
       selector: {_id: currentUser?._id},
       data: {
         reviewVotesQuadratic: newUseQuadratic,

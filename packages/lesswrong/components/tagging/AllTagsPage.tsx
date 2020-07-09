@@ -4,14 +4,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
 import _sortBy from 'lodash/sortBy';
 
 const styles = theme => ({
   root: {
     margin: "auto",
-    maxWidth: 840
+    maxWidth: 1040
   },
   alphabetical: {
     columns: 5,
@@ -41,7 +39,7 @@ const AllTagsPage = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <SectionTitle title={`All Tags (${results?.length})`}>
+      <SectionTitle title={`All Tags (${results?.length || "loading"})`}>
         <SectionButton>
           <AddBoxIcon/>
           <Link to="/tag/create">New Tag</Link>
@@ -52,16 +50,14 @@ const AllTagsPage = ({classes}: {
         {alphabetical.map(tag => <TagsListItem key={tag._id} tag={tag}/>)}
       </div>
       <SectionTitle title="Tag Details"/>
-      <Table>
-        <TableBody>
-          {results && results.map(tag => {
-            return <TagsDetailsItem key={tag._id} tag={tag} />
-          })}
-          {results && !results.length && <div>
-            There aren't any tags yet.
-          </div>}
-        </TableBody>
-      </Table>
+      <div>
+        {results && results.map(tag => {
+          return <TagsDetailsItem key={tag._id} tag={tag} />
+        })}
+        {results && !results.length && <div>
+          There aren't any tags yet.
+        </div>}
+      </div>
       <LoadMore {...loadMoreProps}/>
     </div>
   );

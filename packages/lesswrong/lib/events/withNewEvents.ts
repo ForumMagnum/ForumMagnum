@@ -30,7 +30,7 @@ export const useNewEvents = () => {
       setEvents({ ...events, eventId: event });
     }
     
-    createLWEvent({data: event});
+    void createLWEvent({data: event});
     return eventId;
   }
   
@@ -38,7 +38,7 @@ export const useNewEvents = () => {
     let event = events[eventId];
     let currentTime = new Date();
     
-    createLWEvent({data: {
+    void createLWEvent({data: {
       ...event,
       properties: {
         endTime: currentTime,

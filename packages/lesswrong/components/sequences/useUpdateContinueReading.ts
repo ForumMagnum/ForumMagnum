@@ -11,7 +11,7 @@ export const useUpdateContinueReading = (postId: string|null|undefined, sequence
   
   return useCallback(() => {
     if (postId && sequenceId) {
-      updateContinueReading({
+      void updateContinueReading({
         variables: { postId, sequenceId }
       });
     }
