@@ -87,6 +87,7 @@ const styles = theme => ({
     paddingLeft: 16,
     paddingRight: 16,
     background: "white",
+    borderRadius: 3,
     marginBottom:4
   },
   title: {
