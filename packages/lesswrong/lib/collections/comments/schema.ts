@@ -75,7 +75,7 @@ const schema = {
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
-      nullable: false,
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -211,7 +211,8 @@ const schema = {
     canUpdate: [Users.owns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async (comment) => {
+      getValue: async (comment: DbComment): Promise<boolean> => {
+        if (!comment.postId) return false;
         const post = await Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
@@ -254,6 +255,7 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     onCreate: async ({newDocument}) => {
+      if (!newDocument.postId) return "1.0.0";
       const post = await Posts.findOne({_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
@@ -279,8 +281,13 @@ const schema = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onUpdate: async ({data, currentUser, document, oldDocument}) => {
-      if (data?.promoted && !oldDocument.promoted) {
+    onUpdate: async ({data, currentUser, document, oldDocument}: {
+      data: Partial<DbComment>,
+      currentUser: DbUser,
+      document: DbComment,
+      oldDocument: DbComment,
+    }) => {
+      if (data?.promoted && !oldDocument.promoted && document.postId) {
         Utils.updateMutator({
           collection: Posts,
           selector: {_id:document.postId},
@@ -290,7 +297,7 @@ const schema = {
         })
         return currentUser._id
       }
-    }    
+    }
   },
 
   promotedAt: {
@@ -323,6 +330,7 @@ const schema = {
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async comment => {
+        if (!comment.postId) return false;
         const post = await Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
