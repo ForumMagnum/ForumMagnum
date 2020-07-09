@@ -50,5 +50,5 @@ async function slugDeduplication() {
 }
 
 if (runDeduplication) {
-  slugDeduplication()
+  void slugDeduplication()
 }

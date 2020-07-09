@@ -63,7 +63,7 @@ export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
       },
       conversationId: conversation.data._id
     }
-    newMutation({
+    void newMutation({
       collection: Messages,
       document: firstMessageData,
       currentUser: lwAccount,
@@ -78,7 +78,7 @@ addCallback("users.edit.async", NewAlignmentUserSendPMAsync);
 async function NewAlignmentUserMoveShortform(newUser, oldUser, context) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
-      editMutation({
+      await editMutation({
         collection:Posts,
         documentId: newUser.shortformFeedId,
         set: {

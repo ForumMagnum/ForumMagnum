@@ -84,7 +84,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             </LWTooltip>
           </Typography>
          
-          <AnalyticsContext pageSectionContext="tagFilterSettings">   
+          <AnalyticsContext pageSectionContext="tagFilterSettings">
               <div className={classes.toggleFilters}>
                 <SettingsButton 
                   label={filterSettingsVisible  ? "Hide Filters" : "Show Tag Filters"}
@@ -96,14 +96,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                       settings: filterSettings,
                       pageSectionContext: "latestPosts"
                     })
-                  }} /> 
+                  }} />
               </div>
               <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
                 <TagFilterSettings
                   filterSettings={filterSettings} setFilterSettings={(newSettings) => {
                     setFilterSettings(newSettings)
                     if (currentUser) {
-                      updateUser({
+                      void updateUser({
                         selector: { _id: currentUser._id},
                         data: {
                           frontpageFilterSettings: newSettings
