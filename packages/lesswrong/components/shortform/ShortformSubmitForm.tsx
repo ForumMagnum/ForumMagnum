@@ -4,8 +4,11 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
-    marginLeft: 12,
-    marginRight: 12
+    paddingLeft: 12,
+    paddingRight: 12,
+    background: "white",
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderRadius: 3
   }
 }) 
 
