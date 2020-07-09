@@ -122,7 +122,7 @@ function CommentsRemoveChildrenComments (comment, currentUser) {
   const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
 
   childrenComments.forEach(childComment => {
-    removeMutation({
+    void removeMutation({
       collection: Comments,
       documentId: childComment._id,
       currentUser: currentUser,
@@ -198,7 +198,7 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
   const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
   const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId})?.postedAt || new Date()
 
-  editMutation({
+  void editMutation({
     collection:Posts,
     documentId: comment.postId,
     set: {
@@ -259,14 +259,14 @@ export async function CommentsDeleteSendPMAsync (newComment, oldComment, {curren
       conversationId: conversation.data._id
     }
 
-    newMutation({
+    await newMutation({
       collection: Messages,
       document: firstMessageData,
       currentUser: lwAccount,
       validate: false
     })
 
-    newMutation({
+    await newMutation({
       collection: Messages,
       document: secondMessageData,
       currentUser: lwAccount,

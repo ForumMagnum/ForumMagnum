@@ -103,7 +103,7 @@ const PetrovDayButton = ({classes, refetch}: {
 
   const pressButton = () => {
     setPressed(true)
-    updateUser({
+    void updateUser({
       selector: {_id: currentUser!._id},
       data: { petrovPressedButtonDate: new Date() }
     });
