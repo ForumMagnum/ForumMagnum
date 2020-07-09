@@ -274,7 +274,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
         break;
     }
     this.setState({ [field]: value });
-    this.setDefaultFieldValues({ [field]: value });
   }
 
   fields() {
@@ -536,21 +535,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   /**
-   * Helper to store field values while using the form.
-   */
-  setDefaultFieldValues(defaults) {
-    if (typeof defaults !== 'object') {
-      throw new Error('Argument to setDefaultFieldValues is not of type object');
-    } else if (typeof localStorage !== 'undefined' && localStorage) {
-      localStorage.setItem('accounts_ui', JSON.stringify({
-        passwordSignupFields: passwordSignupFields(),
-        ...this.getDefaultFieldValues(),
-        ...defaults,
-      }));
-    }
-  }
-
-  /**
    * Helper to get field values when switching states in the form.
    */
   getDefaultFieldValues() {
@@ -562,24 +546,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
         defaultFieldValues[customSignupFields[i].id] = customSignupFields[i].defaultValue;
       }
     }
-    if (typeof localStorage !== 'undefined' && localStorage) {
-      const savedDefaultFieldValues = JSON.parse(localStorage.getItem('accounts_ui') || "null");
-      if (savedDefaultFieldValues
-        && savedDefaultFieldValues.passwordSignupFields === passwordSignupFields()) {
-        defaultFieldValues = {...defaultFieldValues, ...savedDefaultFieldValues};
-      }
-    }
     
     return defaultFieldValues;
-  }
-
-  /**
-   * Helper to clear field values when signing in, up or out.
-   */
-  clearDefaultFieldValues() {
-    if (typeof localStorage !== 'undefined' && localStorage) {
-      localStorage.removeItem('accounts_ui');
-    }
   }
 
   switchToSignUp(event) {
@@ -651,7 +619,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
       // });
       this.state.onSignedOutHook();
       this.clearMessages();
-      this.clearDefaultFieldValues();
     });
   }
 
@@ -718,7 +685,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
               if (!error) {
                 loginResultCallback(() => this.state.onSignedInHook(this.props));
                 self.props.handlers.switchToProfile();
-                self.clearDefaultFieldValues();
               } else {
                 //eslint-disable-next-line no-console
                 console.error(error)
@@ -736,7 +702,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
           //   formState: STATES.PROFILE,
           //   password: null,
           // });
-          self.clearDefaultFieldValues();
         }
       });
     }
@@ -800,7 +765,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
       } else {
         self.props.handlers.switchToProfile();
         // this.setState({ formState: STATES.PROFILE });
-        self.clearDefaultFieldValues();
         loginResultCallback(() => {
           Meteor.setTimeout(() => this.state.onSignedInHook(this.props), 100);
         });
@@ -898,7 +862,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
           // self.setState({ formState: STATES.PROFILE, password: null });
           let currentUser = Accounts.user();
           loginResultCallback(self.state.onPostSignUpHook.bind(self, _options, currentUser));
-          self.clearDefaultFieldValues();
         }
 
         self.setState({ waiting: false });
@@ -944,7 +907,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
         }
         else {
           this.showMessage('accounts.info_email_sent', 'success', 5000);
-          this.clearDefaultFieldValues();
         }
         onSubmitHook(error, formState);
         this.setState({ waiting: false });
@@ -998,7 +960,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
           onSubmitHook(null, formState);
           this.props.handlers.switchToProfile();
           // this.setState({ formState: STATES.PROFILE });
-          this.clearDefaultFieldValues();
         }
       });
     }
