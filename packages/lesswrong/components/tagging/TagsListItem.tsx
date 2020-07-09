@@ -10,8 +10,8 @@ const styles = theme => ({
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 6,
-    paddingRight: 12,
-    fontSize: "1.05rem"
+    paddingRight: 16,
+    fontSize: "1rem"
 
   },
   count: {
