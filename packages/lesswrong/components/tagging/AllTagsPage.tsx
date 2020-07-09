@@ -11,7 +11,7 @@ import _sortBy from 'lodash/sortBy';
 const styles = theme => ({
   root: {
     margin: "auto",
-    maxWidth: 840
+    maxWidth: 1040
   },
   alphabetical: {
     columns: 5,
@@ -41,7 +41,7 @@ const AllTagsPage = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <SectionTitle title={`All Tags (${results?.length})`}>
+      <SectionTitle title={`All Tags (${results?.length || "loading"})`}>
         <SectionButton>
           <AddBoxIcon/>
           <Link to="/tag/create">New Tag</Link>
