@@ -19,6 +19,11 @@ const styles = theme => ({
     position: "relative",
     marginLeft: 4,
     marginRight: 8
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 });
 
@@ -35,7 +40,7 @@ const TagsListItem = ({tag, classes}: {
       anchorEl={anchorEl} 
       placement="right-start"
     >
-      <TagPreview tag={tag}/>
+      <div className={classes.hideOnMobile}><TagPreview tag={tag}/></div>
     </PopperCard>
     <Link to={`/tag/${tag.slug}`}>
       {tag.name} { tag.needsReview } { tag.reviewedByUserId }
