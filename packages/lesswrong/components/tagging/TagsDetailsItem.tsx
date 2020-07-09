@@ -14,10 +14,11 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     display: "flex",
     flexWrap: "wrap",
+    justifyContent: "space-between",
     borderBottom: "solid 1px rgba(0,0,0,.1)"
   },
   description: {
-    maxWidth: 540,
+    maxWidth: 580,
     paddingRight: 20,
     paddingTop: 12,
     paddingBottom: 10,
@@ -42,9 +43,10 @@ const styles = theme => ({
   posts: {
     width: 410,
     padding: 20,
-    [theme.breakpoints.down('xs')]: {
+    paddingBottom: 10,
+    [theme.breakpoints.down('sm')]: {
       width: "100%",
-      paddingTop: 8
+      paddingTop: 0
     }
   }
 });
