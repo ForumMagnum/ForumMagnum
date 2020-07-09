@@ -32,11 +32,7 @@ export const styles = (theme) => ({
   },
   background: {
     width: "calc(100% + 8px)",
-    background: "white",
-    [theme.breakpoints.down('xs')]: {
-      marginLeft: -4,
-      marginRight: -4
-    }
+    background: "white"
   },
   postsItem: {
     display: "flex",
