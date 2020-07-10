@@ -56,7 +56,9 @@ const tableStyles = {
   borderCollapse: "collapse",
   borderSpacing: 0,
   border: "1px double #b3b3b3",
-  margin: "auto"
+  margin: "auto",
+  width: "100%",
+  height: "100%"
 }
 
 const tableCellStyles = {
@@ -365,7 +367,7 @@ export const ckEditorStyles = theme => {
           ...hrStyles
         }
       },
-      '&.ck-sidebar, &.ck-presence-list': { //\u25B6
+      '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
           // By default ckEditor elements get the styles from postBodyStyles li elements
           marginBottom: 'unset',
@@ -415,7 +417,7 @@ export const ckEditorStyles = theme => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main,
+        '--ck-color-comment-count': theme.palette.primary.main
       } 
     }
   }
