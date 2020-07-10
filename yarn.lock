@@ -1221,6 +1221,11 @@
   dependencies:
     ckeditor5-math "^1.0.3"
 
+"@lesswrong/lesswrong-editor@./public/lesswrong-editor/":
+  version "0.1.1"
+  dependencies:
+    ckeditor5-math "^1.0.3"
+
 "@mapbox/geojson-area@0.2.2":
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/@mapbox/geojson-area/-/geojson-area-0.2.2.tgz#18d7814aa36bf23fbbcc379f8e26a22927debf10"

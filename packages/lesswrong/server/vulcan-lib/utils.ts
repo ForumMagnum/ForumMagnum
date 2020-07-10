@@ -17,13 +17,46 @@ export const sanitize = function(s) {
       ...sanitizeHtml.defaults.allowedAttributes,
       img: [ 'src' , 'srcset'],
       figure: ['style'],
-      td: ['rowspan', 'colspan'],
+      table: ['style'],
+      tbody: ['style'],
+      tr: ['style'],
+      td: ['rowspan', 'colspan', 'style'],
+      th: ['rowspan', 'colspan', 'style'],
       span: ['style']
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,
-      'figure': {
-        'width': [/^(?:\d|\.)+(?:px|em|%)$/]
+      figure: {
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/]
+      },
+      table: {
+        'background-color': [/^.*$/],
+        'border-bottom': [/^.*$/],
+        'border-left': [/^.*$/],
+        'border-right': [/^.*$/],
+        'border-top': [/^.*$/],
+        'text-align': [/^.*$/]
+      },
+      td: {
+        'background-color': [/^.*$/],
+        'border-bottom': [/^.*$/],
+        'border-left': [/^.*$/],
+        'border-right': [/^.*$/],
+        'border-top': [/^.*$/],
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'text-align': [/^.*$/]
+      },
+      th: {
+        'background-color': [/^.*$/],
+        'border-bottom': [/^.*$/],
+        'border-left': [/^.*$/],
+        'border-right': [/^.*$/],
+        'border-top': [/^.*$/],
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'text-align': [/^.*$/]
       },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899

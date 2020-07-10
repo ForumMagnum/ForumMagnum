@@ -109,7 +109,11 @@ const styles = theme => ({
       fontFamily: "GreekFallback",
       src: "local('Arial')",
       unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-    }
+    },
+    // Hide the CKEditor table alignment menu
+    '.ck-table-properties-form__alignment-row': {
+      display: "none !important"
+    },
   },
   searchResultsArea: {
     position: "absolute",
