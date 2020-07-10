@@ -365,6 +365,9 @@ export const ckEditorStyles = theme => {
         },
         '& hr': {
           ...hrStyles
+        },
+        '& .table': {
+          textAlign: 'left'
         }
       },
       '&.ck-sidebar, &.ck-presence-list': {

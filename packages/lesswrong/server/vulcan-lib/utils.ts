@@ -36,6 +36,7 @@ export const sanitize = function(s) {
         'border-left': [/^.*$/],
         'border-right': [/^.*$/],
         'border-top': [/^.*$/],
+        'text-align': [/^.*$/]
       },
       td: {
         'background-color': [/^.*$/],
@@ -44,7 +45,8 @@ export const sanitize = function(s) {
         'border-right': [/^.*$/],
         'border-top': [/^.*$/],
         'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'height': [/^(?:\d|\.)+(?:px|em|%)$/]
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'text-align': [/^.*$/]
       },
       th: {
         'background-color': [/^.*$/],
@@ -53,7 +55,8 @@ export const sanitize = function(s) {
         'border-right': [/^.*$/],
         'border-top': [/^.*$/],
         'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'height': [/^(?:\d|\.)+(?:px|em|%)$/]
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'text-align': [/^.*$/]
       },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
