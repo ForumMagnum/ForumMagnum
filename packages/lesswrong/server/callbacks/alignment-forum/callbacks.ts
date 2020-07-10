@@ -92,7 +92,7 @@ addCallback("votes.cancel.async", cancelAlignmentUserKarmaServer);
 function updateAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
 
-  if (document?.af && Users.canDo(voter, "votes.alignment")) {
+  if (document.af && Users.canDo(voter, "votes.alignment")) {
     return {
       ...document,
       afBaseScore: (document.afBaseScore || 0) + (votePower || 0),

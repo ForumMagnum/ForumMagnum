@@ -17,7 +17,11 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   voted: {
-    color: theme.palette.grey[400]
+    color: theme.palette.grey[900],
+    borderRadius: 2,
+    backgroundColor: "rgba(0,0,0,.1)",
+    padding: 6,
+    marginTop: -6
   }
 })
 
