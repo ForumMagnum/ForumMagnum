@@ -10,7 +10,10 @@ const styles = theme => ({
   root: {
     width: "100%",
     maxWidth: 1200,
-    margin: "auto"
+    margin: "auto",
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 24,
+    }
   },
   header: {
     display: "flex",
