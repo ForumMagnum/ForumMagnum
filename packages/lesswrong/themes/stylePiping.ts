@@ -58,7 +58,8 @@ const tableStyles = {
   border: "1px double #b3b3b3",
   margin: "auto",
   width: "100%",
-  height: "100%"
+  height: "100%",
+  textAlign: "left"
 }
 
 const tableCellStyles = {
@@ -366,9 +367,6 @@ export const ckEditorStyles = theme => {
         '& hr': {
           ...hrStyles
         },
-        '& .table': {
-          textAlign: 'left'
-        }
       },
       '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
