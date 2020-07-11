@@ -106,7 +106,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription.slice(0, 750)}>
+  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription?.slice(0, 750)}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
