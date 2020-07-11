@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
+import { useTagBySlug } from './useTag';
+import { commentBodyStyles } from '../../themes/stylePiping'
+import { EditTagForm } from './EditTagPage';
+import { userCanEditTagPortal } from '../../lib/betas'
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -15,6 +20,20 @@ const styles = theme => ({
     background: "white",
     padding: 20,
     marginBottom: 24  
+  },
+  portal: {
+    marginTop: 18,
+    ...commentBodyStyles(theme),
+    marginBottom: 18,
+    background: "white",
+    padding: 20,
+    position: "relative"
+  },
+  edit: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    color: theme.palette.grey[600]
   }
 })
 
@@ -31,11 +50,29 @@ const AllTagsPage = ({classes}: {
     itemsPerPage: 100,
     ssr: true
   });
-  const { AllTagsAlphabetical, TagsDetailsItem, SectionTitle, LoadMore } = Components;
+
+  const currentUser = useCurrentUser()
+  const { tag } = useTagBySlug("portal", "TagFragment");
+  const [ editing, setEditing ] = useState(false)
+
+  const { AllTagsAlphabetical, TagsDetailsItem, SectionTitle, LoadMore, SectionFooter, ContentItemBody } = Components;
   
   return (
     <div className={classes.root}>
-      <AllTagsAlphabetical />
+      <SectionTitle title="Tag Portal"/>
+      <div className={classes.portal}>
+        {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
+          Edit
+        </a>}
+        {editing && tag ? 
+          <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+          :
+          <ContentItemBody 
+            dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
+            description={`tag ${tag?.name}`}
+          />
+        }
+      </div>
       <SectionTitle title="Tag Details"/>
       <div>
         {results && results.map(tag => {
@@ -45,11 +82,15 @@ const AllTagsPage = ({classes}: {
           There aren't any tags yet.
         </div>}
       </div>
-      <LoadMore 
-        {...loadMoreProps} 
-        totalCount={totalCount}
-        count={count}
-      />
+      <SectionFooter>
+        <LoadMore 
+          {...loadMoreProps} 
+          totalCount={totalCount}
+          count={count}
+        />
+      </SectionFooter>
+      <AllTagsAlphabetical />
+
     </div>
   );
 }
