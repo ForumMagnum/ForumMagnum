@@ -3,7 +3,6 @@ import NoSSR from 'react-no-ssr';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 
 const styles = theme => ({
