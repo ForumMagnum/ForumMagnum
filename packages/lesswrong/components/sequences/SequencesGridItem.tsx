@@ -104,11 +104,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { hover, anchorEl } = useHover()
-  const { PopperCard, SequenceTooltip, LinkCard } = Components;
+  const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription}>
+  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription.slice(0, 750)}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -128,9 +127,6 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
           by <Components.UsersName user={sequence.user} />
         </div>}
     </div>
-    <PopperCard open={hover} anchorEl={anchorEl}>
-      <SequenceTooltip sequence={sequence}/>
-    </PopperCard>
   </LinkCard>
 }
 
