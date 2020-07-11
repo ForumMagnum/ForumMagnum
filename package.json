@@ -30,7 +30,7 @@
     "@babel/runtime": "^7.7.7",
     "@ckeditor/ckeditor5-build-balloon-block": "./public/lesswrong-editor",
     "@google/maps": "^0.5.5",
-    "@lesswrong/lesswrong-editor": "./public/lesswrong-editor",
+    "@lesswrong/lesswrong-editor": "./public/lesswrong-editor/",
     "@material-ui/core": "3.1.2",
     "@material-ui/icons": "^3.0.0",
     "@material-ui/lab": "^3.0.0-alpha.30",
