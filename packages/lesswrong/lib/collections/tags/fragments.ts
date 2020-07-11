@@ -5,6 +5,7 @@ registerFragment(`
     _id
     name
     slug
+    oldSlugs
     core
     postCount
     deleted
