@@ -48,11 +48,16 @@ export const tagDescriptionEditableOptions = {
     return {id: `tag:create`, verify:true}
   },
   revisionsHaveCommitMessages: true,
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members']
+  },
 };
 
 makeEditable({
   collection: Tags,
-  options: tagDescriptionEditableOptions,
+  options: tagDescriptionEditableOptions
 });
 
 export default Tags;

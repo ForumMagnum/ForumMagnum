@@ -72,9 +72,6 @@ const styles = theme => ({
     marginRight: SECONDARY_SPACING,
     display: 'inline-block',
   },
-  postType: {
-    marginRight: SECONDARY_SPACING
-  },
   divider: {
     marginTop: theme.spacing.unit*2,
     marginLeft:0,
@@ -110,7 +107,7 @@ function getHostname(url) {
   return parser.hostname;
 }
 
-const getContentType = (post) => {
+export const getContentType = (post) => {
   if (forumTypeSetting.get() === 'EAForum') {
     return (post.frontpageDate && 'frontpage') ||
     (post.meta && 'meta') ||
@@ -125,13 +122,12 @@ const PostsPagePostHeader = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, ContentType, LWTooltip, PostsPageDate,
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData} = Components;
+    PostsPageEventData, FooterTagList} = Components;
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
-  const contentType = getContentType(post)
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
@@ -148,9 +144,6 @@ const PostsPagePostHeader = ({post, classes}: {
         <div className={classes.secondaryInfo}>
           <span className={classes.authors}>
             <PostsAuthors post={post}/>
-          </span>
-          <span className={classes.postType}>
-            <ContentType type={contentType}/>
           </span>
           { post.feed && post.feed.user &&
             <LWTooltip title={`Crossposted from ${feedLinkDescription}`}>
@@ -179,7 +172,9 @@ const PostsPagePostHeader = ({post, classes}: {
       </div>}
     </div>
     
-    {!post.shortform && <hr className={classes.divider}/>}
+    {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
+      <FooterTagList post={post} hideScore />
+    </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

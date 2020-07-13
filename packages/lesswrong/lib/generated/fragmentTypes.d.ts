@@ -1424,6 +1424,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,

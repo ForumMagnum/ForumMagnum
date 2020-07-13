@@ -27,7 +27,7 @@ const styles = theme => ({
   },
 })
 
-const contentTypes = {
+export const contentTypes = {
   LessWrong: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
