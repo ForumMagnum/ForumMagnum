@@ -1,11 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { getDataFromTree } from 'react-apollo';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
-import { Globals } from '../lib/vulcan-lib/config';
-import { createGenerateClassName, withStyles } from '@material-ui/core/styles';
-import forumTheme from '../themes/forumTheme';
-import { SheetsRegistry } from 'react-jss/lib/jss';
+import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib';
 import * as _ from 'underscore';
