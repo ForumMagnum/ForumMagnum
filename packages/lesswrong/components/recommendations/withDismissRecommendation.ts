@@ -1,20 +1,17 @@
+import { useCallback } from 'react';
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { useMutation } from 'react-apollo';
 
-export const withDismissRecommendation = component => {
-  return graphql(gql`
+export const useDismissRecommendation = () => {
+  const [mutate] = useMutation(gql`
     mutation dismissRecommendation($postId: String) {
       dismissRecommendation(postId: $postId)
     }
-  `, {
-    props: ({ownProps, mutate}: any): any => ({
-      dismissRecommendation: async ({postId}) => {
-        await mutate({
-          variables: {
-            postId: postId
-          },
-        });
-      }
-    })
-  })(component);
+  `);
+  
+  return useCallback(async (postId: string) => {
+    await mutate({
+      variables: { postId }
+    });
+  }, [mutate]);
 }
