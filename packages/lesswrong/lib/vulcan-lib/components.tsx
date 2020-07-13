@@ -18,7 +18,7 @@ export const Components: ComponentTypes = new Proxy({}, componentsProxyHandler);
 const PreparedComponents = {};
 
 // storage for infos about components
-export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
+export const ComponentsTable: Record<string, any> = {};
 
 const DeferredComponentsTable = {};
 
@@ -67,7 +67,7 @@ const addClassnames = (componentName: string) => {
 // ComponentTypes interface to type-check usages of the component in other
 // files.
 export function registerComponent<PropType>(name: keyof ComponentTypes, rawComponent: React.ComponentType<PropType>,
-  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">>
+  options?: {styles?: any, hocs?: Array<any>}): React.ComponentType<Omit<PropType,"classes">>
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {

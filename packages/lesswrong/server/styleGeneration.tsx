@@ -7,7 +7,7 @@ import { addStaticRoute } from './vulcan-lib';
 import * as _ from 'underscore';
 import crypto from 'crypto'; //nodejs core library
 
-const generateMergedStylesheet = () => {
+const generateMergedStylesheet = (): string => {
   importAllComponents();
   
   const context: any = {};
@@ -31,11 +31,11 @@ const generateMergedStylesheet = () => {
 let mergedStylesheet: string|null = null;
 let stylesheetHash: string|null = null;
 
-export const getMergedStylesheet = () => {
-  if (!mergedStylesheet) {
+export const getMergedStylesheet = (): {css: string, url: string, hash: string} => {
+  if (!mergedStylesheet)
     mergedStylesheet = generateMergedStylesheet();
+  if (!stylesheetHash)
     stylesheetHash = crypto.createHash('sha256').update(mergedStylesheet, 'utf8').digest('hex');
-  }
   return {
     css: mergedStylesheet,
     url: `/allStyles?hash=${stylesheetHash}`,
