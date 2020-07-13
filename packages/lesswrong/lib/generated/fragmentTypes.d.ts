@@ -135,7 +135,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 
 interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
   readonly contents: PostsList_contents,
-  readonly moderationGuidelines: RevisionDisplay,
+  readonly moderationGuidelines: PostsList_moderationGuidelines,
   readonly customHighlight: PostsList_customHighlight,
   readonly tags: Array<TagPreviewFragment>,
 }
@@ -146,8 +146,11 @@ interface PostsList_contents { // fragment on Revisions
   readonly version: string,
 }
 
+interface PostsList_moderationGuidelines { // fragment on Revisions
+  readonly html: string,
+}
+
 interface PostsList_customHighlight { // fragment on Revisions
-  readonly version: string,
   readonly html: string,
 }
 
@@ -367,7 +370,8 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
 }
 
-interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
+interface CommentsList_contents { // fragment on Revisions
+  readonly html: string,
   readonly plaintextMainText: string,
 }
 
