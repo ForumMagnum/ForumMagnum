@@ -8,13 +8,11 @@ import * as _ from 'underscore';
 import crypto from 'crypto'; //nodejs core library
 
 const generateMergedStylesheet = () => {
-  console.log("In generateMergedStylesheet");
   importAllComponents();
   
   const context: any = {};
   const componentsWithStyles = _.filter(Object.keys(ComponentsTable),
     componentName=>ComponentsTable[componentName].styles);
-  console.log(`${componentsWithStyles.length} components`);
   
   const DummyComponent = (props) => <div/>
   const DummyTree = <div>
@@ -27,7 +25,6 @@ const generateMergedStylesheet = () => {
   
   ReactDOM.renderToString(WrappedTree);
   const stylesheet = context.sheetsRegistry.toString()
-  console.log("generateMergedStylesheet returning length "+stylesheet.length);
   return stylesheet;
 }
 
