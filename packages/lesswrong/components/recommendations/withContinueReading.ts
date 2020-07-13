@@ -21,9 +21,6 @@ export const useContinueReading = () => {
           slug
           gridImageId
         }
-        lastReadPost {
-          ...PostsList
-        }
         nextPost {
           ...PostsList
         }

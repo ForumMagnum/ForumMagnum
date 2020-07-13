@@ -259,7 +259,6 @@ const getResumeSequences = async (currentUser, context: ResolverContext) => {
         collection: collectionId
           ? await context["Collections"].loader.load(collectionId)
           : null,
-        lastReadPost: lastReadPostId && await context["Posts"].loader.load(lastReadPostId),
         nextPost: await context["Posts"].loader.load(nextPostId),
         numRead: numRead,
         numTotal: numTotal,
@@ -314,7 +313,6 @@ addGraphQLSchema(`
   type RecommendResumeSequence {
     sequence: Sequence
     collection: Collection
-    lastReadPost: Post
     nextPost: Post!
     numRead: Int
     numTotal: Int
