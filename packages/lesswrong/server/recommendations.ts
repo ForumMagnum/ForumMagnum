@@ -251,7 +251,7 @@ const getResumeSequences = async (currentUser, context: ResolverContext) => {
 
   const results = await Promise.all(_.map(sequences,
     async (partiallyReadSequence: any) => {
-      const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
+      const { sequenceId, collectionId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
         sequence: sequenceId
           ? await context["Sequences"].loader.load(sequenceId)

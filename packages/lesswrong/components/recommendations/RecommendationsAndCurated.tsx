@@ -1,8 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
-import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
