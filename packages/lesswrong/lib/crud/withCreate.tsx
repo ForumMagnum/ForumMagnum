@@ -75,12 +75,14 @@ export default withCreate;
 
 export const useCreate = ({
   collectionName, collection,
-  fragmentName: fragmentNameArg, fragment: fragmentArg
+  fragmentName: fragmentNameArg, fragment: fragmentArg,
+  ignoreResults=false,
 }: {
   collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: string,
   fragment?: any,
+  ignoreResults?: boolean,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
@@ -91,7 +93,9 @@ export const useCreate = ({
     ${createClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
-  const [mutate, {loading, error, called, data}] = useMutation(query);
+  const [mutate, {loading, error, called, data}] = useMutation(query, {
+    ignoreResults: ignoreResults
+  });
   const wrappedCreate = ({ data }) => {
     return mutate({
       variables: { data },
