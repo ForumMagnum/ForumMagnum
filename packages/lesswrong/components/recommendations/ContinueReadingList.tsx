@@ -1,50 +1,29 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import withUser from '../common/withUser';
-import { withDismissRecommendation } from './withDismissRecommendation';
+import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
 const MAX_ENTRIES = 3;
 
-interface ExternalProps {
+const ContinueReadingList = ({ continueReading, continueReadingLoading }: {
   continueReading: any,
   continueReadingLoading?: boolean,
-}
-interface ContinueReadingListProps extends ExternalProps, WithUserProps {
-  dismissRecommendation: any
-}
-interface ContinueReadingListState {
-  dismissedRecommendations: Record<string,boolean>,
-  showAll: boolean,
-}
-
-class ContinueReadingList extends Component<ContinueReadingListProps,ContinueReadingListState> {
-  state: ContinueReadingListState = {
-    dismissedRecommendations: {},
-    showAll: false,
-  }
+}) => {
+  const dismissRecommendation = useDismissRecommendation();
+  const [dismissedRecommendations, setDismissedRecommendations] = useState<any>({});
+  const [showAll, setShowAll] = useState(false);
   
-  showAll = () => {
-    this.setState({
-      showAll: true
-    });
-  }
-
-  dismissAndHideRecommendation(postId) {
-    this.props.dismissRecommendation({postId: postId});
-    this.setState({
-      dismissedRecommendations: {
-        ...this.state.dismissedRecommendations,
-        [postId]: true
-      }
+  const dismissAndHideRecommendation = (postId: string) => {
+    void dismissRecommendation(postId);
+    setDismissedRecommendations({
+      ...dismissedRecommendations,
+      [postId]: true
     });
     captureEvent("continueReadingDismissed", {"postId": postId});
   }
   
-  limitResumeReading(resumeReadingList: Array<any>): { entries: Array<any>, showAllLink: boolean } {
-    const { dismissedRecommendations } = this.state;
-    
+  const limitResumeReading = (resumeReadingList: Array<any>): { entries: Array<any>, showAllLink: boolean } => {
     // Filter out dismissed recommendations
     const filtered = _.filter(resumeReadingList, r=>!dismissedRecommendations[r.nextPost._id]);
     
@@ -53,7 +32,7 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
     sorted.reverse(); //in-place
     
     // Limit to the three most recent
-    if (this.state.showAll || sorted.length <= MAX_ENTRIES) {
+    if (showAll || sorted.length <= MAX_ENTRIES) {
       return {
         entries: sorted,
         showAllLink: false,
@@ -64,41 +43,36 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
         showAllLink: true,
       }
     }
-  } 
-  
-  render() {
-    const { continueReading, continueReadingLoading } = this.props;
-    const { PostsItem2, PostsLoading, SectionFooter } = Components;
-    if (continueReadingLoading || !continueReading)
-      return <PostsLoading/>
-    
-    const { entries, showAllLink } = this.limitResumeReading(continueReading);
-
-    return <div>
-      <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
-        {entries.map(resumeReading => {
-          const { nextPost, sequence, collection } = resumeReading;
-          return <PostsItem2
-            post={nextPost}
-            sequenceId={sequence?._id}
-            resumeReading={resumeReading}
-            dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
-            key={sequence?._id || collection?._id}
-          />
-        })}
-        {showAllLink && <SectionFooter>
-          <a onClick={this.showAll}>
-            Show All
-          </a>
-        </SectionFooter>}
-      </AnalyticsContext>
-    </div>
   }
+  
+  const { PostsItem2, PostsLoading, SectionFooter } = Components;
+  if (continueReadingLoading || !continueReading)
+    return <PostsLoading/>
+  
+  const { entries, showAllLink } = limitResumeReading(continueReading);
+
+  return <div>
+    <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
+      {entries.map(resumeReading => {
+        const { nextPost, sequence, collection } = resumeReading;
+        return <PostsItem2
+          post={nextPost}
+          sequenceId={sequence?._id}
+          resumeReading={resumeReading}
+          dismissRecommendation={() => dismissAndHideRecommendation(nextPost._id)}
+          key={sequence?._id || collection?._id}
+        />
+      })}
+      {showAllLink && <SectionFooter>
+        <a onClick={() => setShowAll(true)}>
+          Show All
+        </a>
+      </SectionFooter>}
+    </AnalyticsContext>
+  </div>
 }
 
-const ContinueReadingListComponent = registerComponent<ExternalProps>('ContinueReadingList', ContinueReadingList, {
-  hocs: [withDismissRecommendation, withUser]
-});
+const ContinueReadingListComponent = registerComponent('ContinueReadingList', ContinueReadingList);
 
 declare global {
   interface ComponentTypes {
