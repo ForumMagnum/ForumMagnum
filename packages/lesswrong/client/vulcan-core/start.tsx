@@ -29,7 +29,6 @@ Meteor.startup(() => {
       <Main />,
       document.getElementById('react-app'),
       () => {
-        console.log("Finished hydration");
         apolloClient.disableNetworkFetches = false;
       }
     );
