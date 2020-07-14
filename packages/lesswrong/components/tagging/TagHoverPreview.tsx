@@ -8,16 +8,20 @@ import { linkStyle } from '../linkPreview/PostLinkPreview';
 const styles = theme => ({
   link: {
     ...linkStyle(theme),
+  },
+  linkWithoutDegreeSymbol: {
+    ...linkStyle(theme),
     '&:after': {}
   },
   count: {
-    color: theme.palette.grey[500],
+    color: theme.palette.secondary.main, // grey[500],
     fontSize: ".9em",
     position: "relative",
-    marginLeft: 2,
+    marginLeft: -2,
     marginRight: 0
   }
 });
+
 
 const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   href: string,
@@ -29,10 +33,8 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   const { tag } = useTagBySlug(slug, "TagFragment");
   const { PopperCard, TagPreview, Loading } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
-  console.log({href})
-  console.log({targetLocation})
-  console.log({showPostCount: targetLocation.query.showPostCount})
-  const { showPostCount } = targetLocation.query
+  const { showPostCount: showPostCountQuery } = targetLocation.query
+  const showPostCount = tag && tag.postCount && showPostCountQuery === "true" // query parameters are stored as strings
 
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
@@ -40,8 +42,8 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
         ? <TagPreview tag={tag}/>
         : <Loading/>}
     </PopperCard>
-    <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
-    {tag && tag.postCount && <span className={classes.count}>({tag.postCount})</span>}
+    <Link className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    {showPostCount && <span className={classes.count}>({tag?.postCount})</span>}
   </span>;
 }
 
