@@ -25,8 +25,7 @@ const styles = theme => ({
     marginTop: 18,
     ...commentBodyStyles(theme),
     marginBottom: 18,
-    background: "white",
-    padding: 20,
+    padding: 100,
     position: "relative"
   },
   edit: {
