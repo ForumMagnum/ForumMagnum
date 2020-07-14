@@ -223,7 +223,7 @@ const ReviewVotingPage = ({classes}) => {
     }
 
     setUseQuadratic(newUseQuadratic)
-    updateUser({
+    void updateUser({
       selector: {_id: currentUser?._id},
       data: {
         reviewVotesQuadratic: newUseQuadratic,
@@ -410,7 +410,7 @@ function CommentTextField({startValue, updateValue, postId}) {
     setText(startValue)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId])
-  const debouncedUpdateValue = useCallback(_.debounce((value) => {
+  const debouncedUpdateValue = useCallback(_.debounce((value: any) => {
     updateValue(value)
   }, 500), [postId])
   return <TextField

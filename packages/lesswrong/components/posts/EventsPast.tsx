@@ -1,7 +1,8 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
+import { forumAllPostsNumDaysSetting } from '../../lib/publicSettings';
 
 const styles = theme => ({
   daily: {
@@ -11,7 +12,7 @@ const styles = theme => ({
 const EventsPast = ({ classes }) => {
   const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
-  const numberOfDays = getSetting('forum.numberOfDays');
+  const numberOfDays = forumAllPostsNumDaysSetting.get();
   const terms = {
     view: 'pastEvents',
     timeField: 'startTime',

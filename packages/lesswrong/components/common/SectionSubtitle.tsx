@@ -7,11 +7,11 @@ const styles = (theme) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    fontSize: ".9rem",
+    fontSize: "1rem",
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
     lineHeight: "1rem",
-    marginBottom: -4
+    marginBottom: 8
   }
 })
 

@@ -175,7 +175,7 @@ Users.canReadField = function (user: UsersCurrent|DbUser|null, field: any, docum
  */
 Users.getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T): any {
   return Utils.arrayToFields(_.compact(_.map(collection.simpleSchema()._schema,
-    (field, fieldName) => {
+    (field: any, fieldName: string) => {
       if (fieldName.indexOf('.$') > -1) return null;
       return Users.canReadField(user, field, document) ? fieldName : null;
     }
@@ -203,11 +203,11 @@ Users.restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|
   const restrictDoc = document => {
 
     // get array of all keys viewable by user
-    const viewableKeys = _.keys(Users.getViewableFields(user, collection, document));
-    const restrictedDocument = _.clone(document);
+    const viewableKeys: Array<string> = _.keys(Users.getViewableFields(user, collection, document));
+    const restrictedDocument: Record<string,any> = _.clone(document);
 
     // loop over each property in the document and delete it if it's not viewable
-    _.forEach(restrictedDocument, (value, key) => {
+    _.forEach(restrictedDocument, (value: any, key: string) => {
       if (!viewableKeys.includes(key)) {
         delete restrictedDocument[key];
       }

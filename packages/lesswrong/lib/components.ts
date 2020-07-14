@@ -1,15 +1,24 @@
-import { getSetting, importComponent } from './vulcan-lib';
-
+import '../components/alignment-forum/withSetAlignmentComment';
+import '../components/alignment-forum/withSetAlignmentPost';
+import '../components/posts/PostsPage';
+import '../components/posts/TableOfContents';
+// vulcan:accounts
+import '../components/vulcan-accounts';
 import '../components/vulcan-core/vulcan-core-components';
+import { forumTypeSetting } from './instanceSettings';
+import { hasEventsSetting } from './publicSettings';
+// vulcan:forms
+import './vulcan-forms/components';
+import { importComponent } from './vulcan-lib';
 
-if(getSetting('forumType') === 'AlignmentForum') {
+if(forumTypeSetting.get() === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
   // imports not at top level, and it re-detects it every time the line number
   // changes. Putting it at the top makes its line number stable.
   importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 }
 
-if (getSetting('forumType') === 'EAForum') {
+if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
@@ -37,6 +46,7 @@ importComponent("newFeedButton", () => require('../components/feeds/newFeedButto
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
+importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));
 importComponent("SubscribeTo", () => require('../components/notifications/SubscribeTo'));
@@ -76,6 +86,11 @@ importComponent("ErrorMessage", () => require('../components/common/ErrorMessage
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage'));
 importComponent("CloudinaryImage2", () => require('../components/common/CloudinaryImage2'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
+importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
+importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
+importComponent("PostsRevisionSelect", () => require('../components/revisions/PostsRevisionSelect'));
+importComponent("RevisionComparisonNotice", () => require('../components/revisions/RevisionComparisonNotice'));
+importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
@@ -138,7 +153,7 @@ importComponent("ResendVerificationEmailPage", () => require('../components/user
 importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
-importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon'));
+importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
 importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
 
 // posts
@@ -176,7 +191,6 @@ importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKa
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
-import '../components/posts/PostsPage';
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
 importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
 
@@ -193,7 +207,6 @@ importComponent("PostCollaborationEditor", () => require('../components/posts/Po
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
-import '../components/posts/TableOfContents';
 importComponent("ShowOrHideHighlightButton", () => require('../components/posts/ShowOrHideHighlightButton'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
@@ -213,12 +226,12 @@ importComponent("ShortformSubmitForm", () => require('../components/shortform/Sh
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
-importComponent("CommentsVote", () => require('../components/votes/CommentsVote'));
+importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // events
 
-if (getSetting('hasEvents', true)) {
+if (hasEventsSetting.get()) {
   importComponent("EventsPast", () => require('../components/posts/EventsPast'));
   importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
   importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
@@ -335,6 +348,8 @@ importComponent("SunshineReportedContentList", () => require('../components/suns
 importComponent("SunshineReportedItem", () => require('../components/sunshineDashboard/SunshineReportedItem'));
 importComponent("SunshineCuratedSuggestionsItem", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsItem'));
 importComponent("SunshineCuratedSuggestionsList", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsList'));
+importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));
+importComponent("SunshineNewTagsItem", () => require('../components/sunshineDashboard/SunshineNewTagsItem'));
 importComponent("SunshineSidebar", () => require('../components/sunshineDashboard/SunshineSidebar'));
 importComponent("SunshineListTitle", () => require('../components/sunshineDashboard/SunshineListTitle'));
 importComponent("SunshineListItem", () => require('../components/sunshineDashboard/SunshineListItem'));
@@ -350,21 +365,30 @@ importComponent("AddTagButton", () => require('../components/tagging/AddTagButto
 importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTagsChecklist'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
+importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
+importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
+
+
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
+importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
+importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));
+importComponent("TagPreviewDescription", () => require('../components/tagging/TagPreviewDescription'));
 importComponent("TagHoverPreview", () => require('../components/tagging/TagHoverPreview'));
 importComponent("TagRelCard", () => require('../components/tagging/TagRelCard'));
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit'));
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
+importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
@@ -431,8 +455,6 @@ importComponent("ManageSubscriptionsLink", () => require('../components/form-com
 importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
-import '../components/alignment-forum/withSetAlignmentPost';
-import '../components/alignment-forum/withSetAlignmentComment';
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
 
 importComponent("NewQuestionDialog", () => require('../components/questions/NewQuestionDialog'));
@@ -486,8 +508,5 @@ importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Bu
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
 
-// vulcan:forms
-import './vulcan-forms/components';
 
-// vulcan:accounts
-import '../components/vulcan-accounts';
+

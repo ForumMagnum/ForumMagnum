@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, getAdminColumns, registerComponent, addAdminColumn } from '../../lib/vulcan-lib';
 import { Bans } from '../../lib/collections/bans';
 import { LWEvents } from '../../lib/collections/lwevents';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import Users from '../../lib/collections/users/collection';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -145,7 +144,7 @@ const AdminHome = ({ classes }: {
   if (!Users.isAdmin(currentUser)) {
     return (
       <div className="admin-home page">
-        <p className="admin-home-message"><FormattedMessage id="app.noPermission" /></p>
+        <p className="admin-home-message">Sorry, you do not have permission to do this at this time.</p>
       </div>
     );
   }

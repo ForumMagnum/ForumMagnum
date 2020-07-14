@@ -1,12 +1,13 @@
-import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
-import { registerSetting, getSetting } from './vulcan-lib';
-import process from 'process';
 import { Meteor } from 'meteor/meteor';
+import process from 'process';
+import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
+import { PublicInstanceSetting } from '../lib/instanceSettings';
 
-registerSetting('expectedDatabaseId', null, "Database ID string that this config file should match with");
+// Database ID string that this config file should match with
+const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning")
 
 Meteor.startup(() => {
-  const expectedDatabaseId = getSetting('expectedDatabaseId', null);
+  const expectedDatabaseId = expectedDatabaseIdSetting.get();
   const databaseIdObject = DatabaseMetadata.findOne({ name: "databaseId" });
   
   // If either the database or the settings config file contains an ID, then

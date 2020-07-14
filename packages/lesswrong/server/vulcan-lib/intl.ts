@@ -1,6 +1,6 @@
 // see https://github.com/apollographql/graphql-tools/blob/master/docs/source/schema-directives.md#marking-strings-for-internationalization
 
-import { getSetting } from '../../lib/vulcan-lib/settings';
+import { localeSetting } from '../../lib/publicSettings';
 import { debug } from '../../lib/vulcan-lib/debug';
 
 /*
@@ -42,7 +42,7 @@ export const getHeaderLocale = (headers, userLocale) => {
     locale = acceptedLocale;
     localeMethod = 'browser';
   } else {
-    locale = getSetting('locale', 'en-US');
+    locale = localeSetting.get();
     localeMethod = 'setting';
   }
 

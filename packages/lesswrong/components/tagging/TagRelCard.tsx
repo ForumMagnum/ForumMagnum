@@ -1,12 +1,11 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
-import { useCurrentUser } from '../common/withUser';
-import { TagRels } from '../../lib/collections/tagRels/collection';
+import { hasVotedClient } from '../../lib/voting/vote';
 
 const styles = theme => ({
   relevance: {
-    marginTop: 12,
+    marginTop: 2,
     marginLeft: 16,
     ...theme.typography.commentStyle,
   },
@@ -21,6 +20,16 @@ const styles = theme => ({
   score: {
     marginLeft: 4,
     marginRight: 4,
+  },
+  removeButton: {
+    float: "right",
+    marginTop: 12
+  },
+  removed: {
+    float: "right",
+    marginTop: 12,
+    marginRight: 16,
+    color: theme.palette.grey[400]
   }
 });
 
@@ -29,41 +38,43 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   classes: ClassesType,
   relevance?: boolean
 }) => {
-  const currentUser = useCurrentUser();
-  const vote = useVote();
-  const { VoteButton, TagPreview } = Components;
+  const voteProps = useVote(tagRel, "TagRels");
+  const newlyVoted = !!(hasVotedClient({userVotes: voteProps.document.currentUserVotes, voteType: "smallUpvote"}) && voteProps.voteCount === 1)
+
+  const { TagPreview, VoteButton, TagRelevanceButton, LWTooltip } = Components;
   
   return <div>
     <div className={classes.relevance}>
-      <span className={classes.relevanceLabel}>
-        Relevance
-      </span>
-      
+      <LWTooltip title="How relevant is this tag to this post?" placement="top">
+        <span className={classes.relevanceLabel}>
+          Relevance
+        </span>
+      </LWTooltip>
       <div className={classes.voteButton}>
         <VoteButton
           orientation="left"
           color="error"
           voteType="Downvote"
-          document={tagRel}
-          currentUser={currentUser}
-          collection={TagRels}
-          vote={vote}
+          {...voteProps}
         />
       </div>
       <span className={classes.score}>
-        {tagRel.baseScore}
+        {voteProps.baseScore}
       </span>
       <div className={classes.voteButton}>
         <VoteButton
           orientation="right"
           color="secondary"
           voteType="Upvote"
-          document={tagRel}
-          currentUser={currentUser}
-          collection={TagRels}
-          vote={vote}
+          {...voteProps}
         />
       </div>
+      {newlyVoted && <span className={classes.removeButton}>
+        <LWTooltip title={"Remove your relevance vote from this tag"} placement="top">
+          <TagRelevanceButton label="Remove Tag" {...voteProps} voteType="smallUpvote" cancelVote/>
+        </LWTooltip>
+      </span>}
+      {voteProps.baseScore <= 0 && <span className={classes.removed}>Removed (refresh page)</span>}
     </div>
     <TagPreview tag={tagRel.tag}/>
   </div>

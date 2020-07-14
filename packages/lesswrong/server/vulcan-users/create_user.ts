@@ -10,7 +10,7 @@ const createUser = user => {
 
   user.services = {};
 
-  newMutation({
+  void newMutation({
     collection: Users, 
     document: user,
     validate: false

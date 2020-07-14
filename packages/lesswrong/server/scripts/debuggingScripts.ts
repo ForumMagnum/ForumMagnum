@@ -13,7 +13,9 @@ Vulcan.populateNotifications = async ({username,
   replyNotifications = 3 }) =>
 {
   const user = Users.findOne({username});
+  if (!user) throw Error(`Can't find user with username: ${username}`)
   const randomUser = Users.findOne({_id: {$ne: user._id}});
+  if (!randomUser) throw Error("No users available in database to populate notifications")
   if (messageNotifications > 0) {
     //eslint-disable-next-line no-console
     console.log("generating new messages...")
@@ -24,7 +26,7 @@ Vulcan.populateNotifications = async ({username,
     //eslint-disable-next-line no-console
     console.log("generating new posts...")
     try {
-      performSubscriptionAction('subscribe', Users, randomUser._id, user)
+      await performSubscriptionAction('subscribe', Users, randomUser._id, user)
     } catch(err) {
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
@@ -36,12 +38,12 @@ Vulcan.populateNotifications = async ({username,
     //eslint-disable-next-line no-console
     console.log("generating new comments...")
     try {
-      performSubscriptionAction('subscribe', Posts, post._id, user)
+      await performSubscriptionAction('subscribe', Posts, post?._id, user)
     } catch(err) {
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
-    _.times(commentNotifications, () => createDummyComment(randomUser, {postId: post._id}));
+    _.times(commentNotifications, () => createDummyComment(randomUser, {postId: post?._id}));
 
   }
   if (replyNotifications > 0) {
@@ -49,13 +51,13 @@ Vulcan.populateNotifications = async ({username,
     //eslint-disable-next-line no-console
     console.log("generating new replies...")
     try {
-      performSubscriptionAction('subscribe', Users, randomUser._id, user);
+      await performSubscriptionAction('subscribe', Users, randomUser._id, user);
     } catch(err) {
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
-    const comment: any = await createDummyComment(user, {postId: post._id});
-    _.times(replyNotifications, () => createDummyComment(randomUser, {postId: post._id, parentCommentId: comment._id}));
+    const comment: any = await createDummyComment(user, {postId: post?._id});
+    _.times(replyNotifications, () => createDummyComment(randomUser, {postId: post?._id, parentCommentId: comment._id}));
   }
 }
 

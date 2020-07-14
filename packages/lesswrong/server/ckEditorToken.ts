@@ -1,12 +1,16 @@
-import { addStaticRoute, getUserFromReq, getSetting } from './vulcan-lib';
+import { addStaticRoute, getUserFromReq } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts'
 import { getCKEditorDocumentId } from '../lib/ckEditorUtils'
 import Users from '../lib/collections/users/collection';
 import jwt from 'jsonwebtoken'
+import { DatabaseServerSetting } from './databaseSettings';
+
+const ckEditorEnvironmentIdSetting = new DatabaseServerSetting<string | null>('ckEditor.environmentId', null)
+const ckEditorSecrretKeySetting = new DatabaseServerSetting<string | null>('ckEditor.secretKey', null)
 
 addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
-  const environmentId = getSetting('ckEditor.environmentId', null)
-  const secretKey = getSetting('ckEditor.secretKey', null)
+  const environmentId = ckEditorEnvironmentIdSetting.get()
+  const secretKey = ckEditorSecrretKeySetting.get()! // Assume nonnull; causes lack of encryption in development
   
   const documentId = req.headers['document-id']
   const userId = req.headers['user-id']
@@ -17,7 +21,7 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const user = await getUserFromReq(req)
   const post = await Posts.findOne(documentId)
   const canEdit = post && Posts.canEdit(user, post)  
-  const canView = post && Posts.checkAccess(user, post)
+  const canView = post && await Posts.checkAccess(user, post, null)
 
   let permissions = {}
   if (formType === "new" && userId) {

@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
 import Conversations from '../../lib/collections/conversations/collection';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 // Button used to start a new conversation for a given user
 const NewConversationButton = ({ user, currentUser, children }: {
@@ -16,7 +17,7 @@ const NewConversationButton = ({ user, currentUser, children }: {
   });
   const { history } = useNavigation();
   const newConversation = useCallback(async () => {
-    const alignmentFields = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
     const response = await createConversation({
       data: {participantIds:[user._id, currentUser._id], ...alignmentFields},

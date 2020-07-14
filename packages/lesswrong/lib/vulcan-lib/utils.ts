@@ -4,15 +4,14 @@ Utilities
 
 */
 
-import urlObject from 'url';
-import getSlug from 'speakingurl';
-import { getSetting, registerSetting } from './settings';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import getSlug from 'speakingurl';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
-
-registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
+import urlObject from 'url';
+import { siteUrlSetting } from '../instanceSettings';
+import { DatabasePublicSetting } from '../publicSettings';
+export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 interface UtilsType {
   // In vulcan-lib/utils.ts
@@ -77,7 +76,7 @@ interface UtilsType {
   getCurrentChapter: any
   
   // In server/vulcan-lib/utils.ts
-  performCheck: any
+  performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
   
   // In server/vulcan-lib/errors.ts
   throwError: any
@@ -128,7 +127,7 @@ Utils.capitalize = function(str: string): string {
  * @summary Returns the user defined site URL or Meteor.absoluteUrl. Add trailing '/' if missing
  */
 Utils.getSiteUrl = function (): string {
-  let url = getSetting('siteUrl', Meteor.absoluteUrl());
+  let url = siteUrlSetting.get();
   if (url.slice(-1) !== '/') {
     url += '/';
   }
@@ -221,7 +220,7 @@ Utils.getNestedProperty = function (obj, desc) {
 };
 
 Utils.getLogoUrl = (): string|undefined => {
-  const logoUrl = getSetting<string|null>('logoUrl');
+  const logoUrl = logoUrlSetting.get()
   if (logoUrl) {
     const prefix = Utils.getSiteUrl().slice(0,-1);
     // the logo may be hosted on another website

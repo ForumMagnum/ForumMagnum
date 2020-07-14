@@ -1,10 +1,11 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from './vulcan-lib';
+import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts';
-import { WeightedList } from './weightedList';
+import { ensureIndex } from '../lib/collectionUtils';
+import { forumTypeSetting } from '../lib/instanceSettings';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
-import { ensureIndex } from '../lib/collectionUtils';
-import * as _ from 'underscore';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
+import { WeightedList } from './weightedList';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -15,11 +16,10 @@ const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaul
 
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
-// LWEvents collection and filter out any posts which have a corresponding
-// post-view event for the current user. Returns as an array, so you can spread
-// this into a pipeline with ...pipelineFilterUnread(currentUser). If
-// currentUser is null, returns an empty array (no aggregation pipeline stages),
-// so all posts are included.
+// ReadStatuses collection and filter out any posts which have been read by the
+// current user. Returns as an array, so you can spread this into a pipeline
+// with ...pipelineFilterUnread(currentUser). If currentUser is null, returns
+// an empty array (no aggregation pipeline stages), so all posts are included.
 const pipelineFilterUnread = ({currentUser}) => {
   if (!currentUser)
     return [];
@@ -121,7 +121,7 @@ ensureIndex(Posts, {defaultRecommendation: 1})
 // scoreRelevantFields included (but other fields projected away). If
 // onlyUnread is true and currentUser is nonnull, posts that the user has
 // already read are filtered out.
-const allRecommendablePosts = async ({currentUser, algorithm}) => {
+const allRecommendablePosts = async ({currentUser, algorithm}): Promise<Array<DbPost>> => {
   return await Posts.aggregate([
     // Filter to recommendable posts
     { $match: {
@@ -192,7 +192,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
 const getModifierName = post => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
-  if (getSetting('forumType') === 'EAForum' && post.meta) return 'metaModifier'
+  if (forumTypeSetting.get() === 'EAForum' && post.meta) return 'metaModifier'
   return 'personalBlogpostModifier'
 }
 
@@ -243,14 +243,14 @@ const getDefaultResumeSequence = () => {
   ]
 }
 
-const getResumeSequences = async (currentUser, context) => {
+const getResumeSequences = async (currentUser, context: ResolverContext) => {
   const sequences = currentUser ? currentUser.partiallyReadSequences : getDefaultResumeSequence()
 
   if (!sequences)
     return [];
 
   const results = await Promise.all(_.map(sequences,
-    async partiallyReadSequence => {
+    async (partiallyReadSequence: any) => {
       const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
         sequence: sequenceId
@@ -277,16 +277,16 @@ const getResumeSequences = async (currentUser, context) => {
 
 addGraphQLResolvers({
   Query: {
-    async ContinueReading(root, args, context) {
+    async ContinueReading(root, args, context: ResolverContext) {
       const { currentUser } = context;
 
       return await getResumeSequences(currentUser, context);
     },
 
-    async Recommendations(root, {count,algorithm}, context) {
+    async Recommendations(root, {count,algorithm}, context: ResolverContext) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
-      const accessFilteredPosts = accessFilterMultiple(currentUser, Posts, recommendedPosts);
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
@@ -295,13 +295,14 @@ addGraphQLResolvers({
     }
   },
   Mutation: {
-    async dismissRecommendation(root, {postId}, context) {
+    async dismissRecommendation(root, {postId}, context: ResolverContext) {
       const { currentUser } = context;
+      if (!currentUser) return false;
 
-      if (_.some(currentUser.partiallyReadSequences, s=>s.nextPostId===postId)) {
+      if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
-          s=>s.nextPostId !== postId);
-        setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+          (s:any)=>s.nextPostId !== postId);
+        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;
       }
       return false;

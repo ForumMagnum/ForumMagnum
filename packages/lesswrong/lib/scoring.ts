@@ -1,7 +1,9 @@
-import { getSetting } from './vulcan-lib';
 import Votes from './collections/votes/collection';
+import { DatabasePublicSetting } from './publicSettings';
 
-export const TIME_DECAY_FACTOR = getSetting('timeDecayFactor', 1.15); //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
+const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15)
+
+export const TIME_DECAY_FACTOR = timeDecayFactorSetting.get()
 // Basescore bonuses for various categories
 export const FRONTPAGE_BONUS = 10;
 export const FEATURED_BONUS = 10;

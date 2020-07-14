@@ -3,13 +3,13 @@
 Run a GraphQL request from the server with the proper context
 
 */
-import { graphql } from 'graphql';
-import { Collections } from '../../lib/vulcan-lib/collections';
 import DataLoader from 'dataloader';
-import findByIds from './findbyids';
-import { getSetting } from '../../lib/vulcan-lib/settings';
+import { graphql } from 'graphql';
 import merge from 'lodash/merge';
+import { localeSetting } from '../../lib/publicSettings';
+import { Collections } from '../../lib/vulcan-lib/collections';
 import { GraphQLSchema } from '../../lib/vulcan-lib/graphql';
+import findByIds from './findbyids';
 
 function writeGraphQLErrorToStderr(errors)
 {
@@ -32,7 +32,7 @@ export function setOnGraphQLError(fn)
 export const runGraphQL = async (query: any, variables: any = {}, context?: any) => {
   const defaultContext = {
     currentUser: { isAdmin: true },
-    locale: getSetting('locale'),
+    locale: localeSetting.get(),
   };
   const queryContext = merge(defaultContext, context);
   const executableSchema = GraphQLSchema.getExecutableSchema();

@@ -4,18 +4,21 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 const specificResolvers = {
   Mutation: {
-    moderateComment(root, { commentId, deleted, deletedPublic, deletedReason}, context) {
+    async moderateComment(root, { commentId, deleted, deletedPublic, deletedReason}, context: ResolverContext) {
+      const {currentUser} = context;
       const comment = context.Comments.findOne(commentId)
+      if (!comment) throw new Error("Invalid commentId");
       const post = context.Posts.findOne(comment.postId)
-
-      if (Users.canModeratePost(context.currentUser, post)) {
+      if (!post) throw new Error("Cannot find post");
+      
+      if (currentUser && Users.canModerateComment(currentUser, post, comment)) {
 
         let set: Record<string,any> = {deleted: deleted}
         if (deleted) {
           set.deletedPublic = deletedPublic;
           set.deletedDate = comment.deletedDate || new Date();
           set.deletedReason = deletedReason;
-          set.deletedByUserId = context.currentUser._id;
+          set.deletedByUserId = currentUser._id;
         } else { //When you undo delete, reset all delete-related fields
           set.deletedPublic = false;
           set.deletedDate = null;
@@ -25,9 +28,9 @@ const specificResolvers = {
         let modifier = { $set: set };
         modifier = runCallbacks('comments.moderate.sync', modifier);
         context.Comments.update({_id: commentId}, modifier);
-        const updatedComment = context.Comments.findOne(commentId)
+        const updatedComment = await context.Comments.findOne(commentId)
         runCallbacksAsync('comments.moderate.async', updatedComment, comment, context);
-        return accessFilterSingle(context.currentUser, context.Comments, updatedComment);
+        return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
       } else {
         throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }

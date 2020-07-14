@@ -1,19 +1,20 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+import * as _ from 'underscore';
+import { DatabasePublicSetting } from '../publicSettings';
+import { runCallbacks } from './callbacks';
+import { getDefaultFragmentText, registerFragment } from './fragments';
+import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { Utils } from './utils';
-import { runCallbacks } from './callbacks';
-import { getSetting, registerSetting } from './settings';
-import { registerFragment, getDefaultFragmentText } from './fragments';
-import { Collections } from './getCollection';
 export * from './getCollection';
-import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
 
 const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;
 // import { debug } from './debug';
 
-registerSetting('maxDocumentsPerRequest', 5000, 'Maximum documents per request');
+// 'Maximum documents per request'
+const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
 
 // When used in a view, set the query so that it returns rows where a field is
 // null or is missing. Equivalent to a searech with mongo's `field:null`, except
@@ -271,7 +272,7 @@ export const createCollection = (options: any): any => {
     }
 
     // limit number of items to 1000 by default
-    const maxDocuments = getSetting('maxDocumentsPerRequest', 5000);
+    const maxDocuments = maxDocumentsPerRequestSetting.get();
     const limit = terms.limit || parameters.options.limit;
     parameters.options.limit = !limit || limit < 1 || limit > maxDocuments ? maxDocuments : limit;
 

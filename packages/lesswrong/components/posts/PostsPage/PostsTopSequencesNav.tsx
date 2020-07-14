@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
+import withErrorBoundary from '../../common/withErrorBoundary'
 import { Sequences } from '../../../lib/collections/sequences/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
 
@@ -84,7 +85,7 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
 const PostsTopSequencesNavComponent = registerComponent<ExternalProps>(
   'PostsTopSequencesNav', PostsTopSequencesNav, {
     styles,
-    hocs: [withNavigation, withGlobalKeydown]
+    hocs: [withNavigation, withGlobalKeydown, withErrorBoundary]
   }
 );
 

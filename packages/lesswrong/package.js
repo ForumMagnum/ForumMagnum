@@ -1,7 +1,7 @@
 Package.describe({
   name: "lesswrong",
-  summary: "Lesswrong extensions and customizations package",
-  version: "0.1.0"
+  summary: "The Lesswrong forum software",
+  version: "2.0.0"
 });
 
 Package.onUse( function(api) {
@@ -52,8 +52,6 @@ Package.onUse( function(api) {
 
   Npm.depends({
     "@babel/core": "7.7.7",
-    "@babel/plugin-proposal-optional-chaining": "7.2.0",
-    "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
 });
 
@@ -69,8 +67,6 @@ Package.onTest(function(api) {
 
   Npm.depends({
     "@babel/core": "7.7.7",
-    "@babel/plugin-proposal-optional-chaining": "7.2.0",
-    "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
   // Entry points for tests
   api.mainModule('./testing/client.tests.ts', 'client');

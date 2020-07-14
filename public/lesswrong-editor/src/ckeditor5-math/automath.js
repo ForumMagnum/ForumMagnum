@@ -111,7 +111,7 @@ export default class AutoMath extends Plugin {
 
 					editor.model.insertContent( mathElement, insertPosition );
 
-					writer.setSelection( mathElement, 'on' );
+					writer.setSelection( mathElement, 'after' );
 				} );
 
 				this._positionToInsert.detach();

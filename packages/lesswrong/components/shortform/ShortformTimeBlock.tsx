@@ -9,11 +9,12 @@ const styles = theme => ({
     marginTop: 12,
   },
   subtitle: {
-    [theme.breakpoints.down('sm')]:{
-      paddingBottom: theme.spacing.unit*1.5,
-    },
-    paddingBottom: theme.spacing.unit
+    marginTop: 6,
+    marginBottom: 6
   },
+  loadMore: {
+    marginTop: 6
+  }
 })
 
 interface ExternalProps {
@@ -54,28 +55,28 @@ class ShortformTimeBlock extends Component<ShortformTimeBlockProps> {
 
   render () {
     const { totalCount, loadMore, results: comments, classes } = this.props
-    const { CommentsNode, LoadMore, SectionSubtitle, SubSection, ContentType } = Components
+    const { CommentsNode, LoadMore, ContentType } = Components
     if (!comments?.length) return null
     return <div>
       <div className={classes.shortformGroup}>
-        <SectionSubtitle className={classes.subtitle}>
+        <div className={classes.subtitle}>
           <ContentType type="shortform" label="Shortform"/>
-        </SectionSubtitle>
-        <SubSection>
-          {comments?.map((comment, i) =>
-            <CommentsNode
-              comment={comment} post={comment.post}
-              key={comment._id}
-              forceSingleLine loadChildrenSeparately
-            />)}
-          {comments?.length < totalCount &&
-          <LoadMore
-            loadMore={loadMore}
-            count={comments.length}
-            totalCount={totalCount}
-          />
-          }
-        </SubSection>
+        </div>
+        {comments?.map((comment, i) =>
+          <CommentsNode
+            comment={comment} post={comment.post}
+            key={comment._id}
+            forceSingleLine loadChildrenSeparately
+          />)}
+        {comments?.length < totalCount &&
+          <div className={classes.loadMore}>
+            <LoadMore
+              loadMore={loadMore}
+              count={comments.length}
+              totalCount={totalCount}
+            />
+          </div>
+        }
       </div>
     </div>
   }

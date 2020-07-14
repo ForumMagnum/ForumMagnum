@@ -32,23 +32,33 @@ import List from '@ckeditor/ckeditor5-list/src/list';
 // import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
-import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
+import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
+
+// The following plugin enables real-time collaborative comments.
+// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
+
+// The following plugin enables real-time collaborative track changes and is optional.
+// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
+
+// The following plugin enables users presence list and is optional.
+// You do not need to import it if you do not want to integrate it.
+import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import TableProperties from '@ckeditor/ckeditor5-table/src/tableproperties';
+import TableCellProperties from '@ckeditor/ckeditor5-table/src/tablecellproperties';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
-import Watchdog from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-// Commented out because of competing MathJax bug with Draft-JS
-// import Mathematics from './ckeditor5-math/math';
-
-// import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
-// current version of MathpreviewPlugin (1.1.3) breaks ckeditor
+import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
+import Mathematics from './ckeditor5-math/math';
+//
+import { CleanStyleTags } from './clean-styles-plugin'
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -106,9 +116,12 @@ const postEditorPlugins = [
 	Strikethrough,
 	Table,
 	TableToolbar,
+	TableProperties,
+	TableCellProperties,
 	Underline,
 	UploadAdapter,
-	// Mathematics
+	Mathematics,
+	CleanStyleTags
 ];
 
 PostEditor.builtinPlugins = [
@@ -117,6 +130,7 @@ PostEditor.builtinPlugins = [
 
 PostEditorCollaboration.builtinPlugins = [
 	...postEditorPlugins,
+	RealTimeCollaborativeEditing,
 	RealTimeCollaborativeComments,
 	RealTimeCollaborativeTrackChanges,
 	PresenceList
@@ -159,9 +173,8 @@ const postEditorConfig = {
 	heading: headingOptions,
 	table: {
 		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
+			'tableColumn', 'tableRow', 'mergeTableCells',
+			'tableProperties', 'tableCellProperties'
 		],
 		tableToolbar: [ 'comment' ]
 	},
@@ -209,9 +222,13 @@ CommentEditor.builtinPlugins = [
 	RemoveFormat,
 	Strikethrough,
 	Table,
+	TableToolbar,
+	TableProperties,
+	TableCellProperties,
 	Underline,
 	UploadAdapter,
-	// Mathematics
+	Mathematics,
+	CleanStyleTags
 ];
 
 CommentEditor.defaultConfig = {
@@ -244,12 +261,11 @@ CommentEditor.defaultConfig = {
 	heading: headingOptions,
 	table: {
 		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
+			'tableColumn', 'tableRow', 'mergeTableCells',
+			'tableProperties', 'tableCellProperties'
 		],
 		tableToolbar: [ 'comment' ]
 	},
 };
 
-export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, Watchdog };
+export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, EditorWatchdog };

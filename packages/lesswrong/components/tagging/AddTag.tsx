@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
-import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import Divider from '@material-ui/core/Divider';
 
@@ -30,7 +29,6 @@ const AddTag = ({onTagSelected, classes}: {
   classes: ClassesType,
 }) => {
   const { TagSearchHit } = Components
-  const currentUser = useCurrentUser();
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState) => {
     setSearchOpen(searchState.query?.length > 0);
@@ -79,6 +77,9 @@ const AddTag = ({onTagSelected, classes}: {
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
+      {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+        * null is the only option that actually suppresses the extra X button.
+       // @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
       <Configure hitsPerPage={searchOpen ? 12 : 6} />
       <Hits hitComponent={({hit}) =>
@@ -94,9 +95,9 @@ const AddTag = ({onTagSelected, classes}: {
     <Link to="/tags/all" className={classes.newTag}>
       View All Tags
     </Link>
-    {currentUser?.isAdmin && <Link to="/tag/create" className={classes.newTag}>
+    <Link to="/tag/create" className={classes.newTag}>
       Create Tag
-    </Link>}
+    </Link>
   </div>
 }
 

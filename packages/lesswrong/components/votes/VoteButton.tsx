@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, { PureComponent } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { hasVotedClient } from '../../lib/voting/vote';
 import { isMobile } from '../../lib/utils/isMobile'
@@ -8,8 +8,9 @@ import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import withDialog from '../common/withDialog';
-import { withTracking } from "../../lib/analyticsEvents";
+import { useDialog } from '../common/withDialog';
+import { useTracking } from '../../lib/analyticsEvents';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -63,137 +64,122 @@ const styles = theme => ({
   }
 })
 
-interface ExternalProps {
+const VoteButton = ({
+  vote, collection, document, voteType,
+  color = "secondary",
+  orientation = "up",
+  solidArrow,
+  theme,
+  classes,
+}: {
   vote: any,
   collection: any,
   document: any,
+  
   voteType: string,
   color: any,
   orientation: string,
-  currentUser: UsersCurrent|null,
   solidArrow?: boolean
-}
-interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps, WithTrackingProps {
-  theme: any,
-}
-interface VoteButtonState {
-  voted: boolean,
-  bigVoted: boolean,
-  bigVotingTransition: boolean,
-  bigVoteCompleted: boolean,
-}
+  // From withTheme. TODO: Hookify this.
+  theme?: any
+  classes: ClassesType
+}) => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  const { captureEvent } = useTracking();
+  const [votingTransition, setVotingTransition] = useState<any>(null);
+  const [bigVotingTransition, setBigVotingTransition] = useState(false);
+  const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
 
-class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
-  votingTransition: any
-
-  constructor(props: VoteButtonProps) {
-    super(props);
-    this.votingTransition = null
-    this.state = {
-      voted: false,
-      bigVoted: false,
-      bigVotingTransition: false,
-      bigVoteCompleted: false,
-    };
-  }
-
-  handleMouseDown = () => { // This handler is only used on desktop
-    const { theme } = this.props
+  const handleMouseDown = () => { // This handler is only used on desktop
     if(!isMobile()) {
-      this.setState({bigVotingTransition: true})
-      this.votingTransition = setTimeout(() => {this.setState({bigVoteCompleted: true})}, theme.voting.strongVoteDelay)
+      setBigVotingTransition(true);
+      setVotingTransition(setTimeout(() => {
+        setBigVoteCompleted(true);
+      }, theme.voting.strongVoteDelay))
     }
   }
 
-  clearState = () => {
-    clearTimeout(this.votingTransition)
-    this.setState({bigVotingTransition: false, bigVoteCompleted: false})
+  const clearState = () => {
+    clearTimeout(votingTransition);
+    setBigVotingTransition(false);
+    setBigVoteCompleted(false);
   }
 
-  vote = (type) => {
-    const document = this.props.document;
-    const collection = this.props.collection;
-    const user = this.props.currentUser;
-    if(!user){
-      this.props.openDialog({
+  const wrappedVote = (type) => {
+    if(!currentUser){
+      openDialog({
         componentName: "LoginPopup",
         componentProps: {}
       });
     } else {
-      this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
-      this.props.captureEvent("vote", {collectionName: collection.collectionName});
+      vote({document, voteType: type, collection, currentUser});
+      captureEvent("vote", {collectionName: collection.collectionName});
     }
   }
 
-  handleMouseUp = () => { // This handler is only used on desktop
+  const handleMouseUp = () => { // This handler is only used on desktop
     if(!isMobile()) {
-      const { voteType } = this.props
-      const { bigVoteCompleted } = this.state
       if (bigVoteCompleted) {
-        this.vote(`big${voteType}`)
+        wrappedVote(`big${voteType}`)
       } else {
-        this.vote(`small${voteType}`)
+        wrappedVote(`small${voteType}`)
       }
-      this.clearState()
+      clearState()
     }
   }
 
-  handleClick = () => { // This handler is only used for mobile
+  const hasVoted = (type) => {
+    return hasVotedClient({userVotes: document.currentUserVotes, voteType: type})
+  }
+
+  const voted = hasVoted(`small${voteType}`) || hasVoted(`big${voteType}`)
+  const bigVoted = hasVoted(`big${voteType}`)
+  
+  const handleClick = () => { // This handler is only used for mobile
     if(isMobile()) {
-      const { voteType } = this.props
       // This causes the following behavior (repeating after 3rd click):
       // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
-      const voted = this.hasVoted(`big${voteType}`) || this.hasVoted(`small${voteType}`)
       if (voted) {
-        this.vote(`big${voteType}`)
+        wrappedVote(`big${voteType}`)
       } else {
-        this.vote(`small${voteType}`)
+        wrappedVote(`small${voteType}`)
       }
-      this.clearState()
+      clearState()
     }
   }
 
-  hasVoted = (type) => {
-    return hasVotedClient({document: this.props.document, voteType: type})
-  }
-
-  render() {
-    const { classes, orientation = 'up', theme, color = "secondary", voteType, solidArrow } = this.props
-    const voted = this.hasVoted(`small${voteType}`) || this.hasVoted(`big${voteType}`)
-    const bigVoted = this.hasVoted(`big${voteType}`)
-    const { bigVotingTransition, bigVoteCompleted } = this.state
-
-    const Icon = solidArrow ? ArrowDropUpIcon :UpArrowIcon
-    return (
-        <IconButton
-          className={classNames(classes.root, classes[orientation])}
-          onMouseDown={this.handleMouseDown}
-          onMouseUp={this.handleMouseUp}
-          onMouseOut={this.clearState}
-          onClick={this.handleClick}
-          disableRipple
-        >
-          <Icon
-            className={classes.smallArrow}
-            color={voted ? color : 'inherit'}
+  const Icon = solidArrow ? ArrowDropUpIcon :UpArrowIcon
+  return (
+    <IconButton
+      className={classNames(classes.root, classes[orientation])}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseOut={clearState}
+      onClick={handleClick}
+      disableRipple
+    >
+      <Icon
+        className={classes.smallArrow}
+        color={voted ? color : 'inherit'}
+        viewBox='6 6 12 12'
+      />
+      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
+        {(state) => (
+          <UpArrowIcon
+            style={{color: bigVoteCompleted && theme.palette[color].light}}
+            className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
+            color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
             viewBox='6 6 12 12'
-          />
-          <Transition in={!!(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
-            {(state) => (
-              <UpArrowIcon
-                style={{color: bigVoteCompleted && theme.palette[color].light}}
-                className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
-                color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
-                viewBox='6 6 12 12'
-              />)}
-          </Transition>
-        </IconButton>
-  )}
+          />)}
+      </Transition>
+    </IconButton>
+  )
 }
 
-const VoteButtonComponent = registerComponent<ExternalProps>('VoteButton', VoteButton, {
+const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {
   styles,
-  hocs: [withDialog, withTheme(), withTracking]
+  hocs: [withTheme()]
 });
 
 declare global {

@@ -1,9 +1,10 @@
-import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme) => ({
   root: {
@@ -20,7 +21,7 @@ const TabNavigationMenuFooter = ({classes}) => {
   return (
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
-          {menuTabs[getSetting<string>('forumType')].map(tab => {
+          {menuTabs[forumTypeSetting.get()].map(tab => {
             if (!tab.showOnMobileStandalone) {
               return
             }

@@ -5,22 +5,25 @@ interface CollectionBase<T extends DbObject> {
   
   addDefaultView: any
   addView: any
+  defaultView: (terms: any) => any
   views: any
   getParameters: any
   simpleSchema: any
   addField: any
   helpers: any
+  defaultView: any,
   
   // TODO: Type-system plumbing should handle the fact that loaders are available
   // if you get the collection via a resolver's context, but not available if you
   // just import the collection.
   loader: any
+  extraLoaders: Record<string,any>
   
   rawCollection: any
-  checkAccess: (user:DbUser|null, document: T) => boolean
+  checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
-  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T
-  update: (selector: string|MongoSelector<T>, modifier: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
+  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T | null
+  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
   remove: any
   insert: any
   aggregate: any
@@ -63,4 +66,10 @@ interface HasSlugType extends DbObject {
 
 interface HasCreatedAtType extends DbObject {
   createdAt: Date
+}
+
+interface ResolverContext extends CollectionsByName {
+  headers: any,
+  currentUser: DbUser|null,
+  locale: string,
 }

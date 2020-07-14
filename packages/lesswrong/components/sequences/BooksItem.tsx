@@ -6,6 +6,7 @@ const styles = theme => ({
   root: {
   },
   description: {
+    marginTop: theme.spacing.unit,
     marginBottom: 20,
     ...postBodyStyles(theme),
   },
@@ -70,7 +71,7 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        <SequencesGrid sequences={book.sequences} />
+        <SequencesGrid sequences={book.sequences} bookItemStyle/>
       </SingleColumnSection>
       <Divider />
     </div>

@@ -1,20 +1,23 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
     ...theme.typography.postStyle,
 
-    width: "33%",
-    padding: 15,
+    width: "calc(33% - 5px)",
+    boxShadow: theme.boxShadow,
+    paddingBottom: 0,
+    marginBottom: 10,
+    display: "flex",
+    flexDirection: "column",
 
     "&:hover": {
-      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
       color: "rgba(0,0,0,0.87)",
     },
 
@@ -23,19 +26,7 @@ const styles = theme => ({
     },
     [legacyBreakpoints.maxTiny]: {
       width: "100% !important",
-      padding: "14px 10px 12px 10px !important",
     },
-  },
-
-  top: {
-    height: 44,
-    lineHeight: 1.1,
-    borderTopStyle: "solid",
-    paddingTop: 7,
-  },
-
-  topWithAuthor: {
-    height: 68,
   },
 
   title: {
@@ -48,7 +39,7 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     overflow: "hidden",
     fontVariant: "small-caps",
-    marginRight: 5,
+    marginBottom: 0,
     "&:hover": {
       color: "inherit",
       textDecoration: "none",
@@ -61,61 +52,61 @@ const styles = theme => ({
   },
 
   author: {
-    marginTop: 3,
     color: "rgba(0,0,0,0.5)",
-
-    "&:hover": {
-      color: "rgba(0,0,0,0.3)",
-      "& a": {
-        color: "rgba(0,0,0,0.3)",
-      }
-    }
   },
 
+  meta: {
+    paddingLeft: 12,
+    paddingTop: 12,
+    paddingRight: 8,
+    paddingBottom: 5,
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    background: "white",
+  },
+  bookItemStyle: {
+    paddingLeft: 0,
+    paddingRight: 0
+  },
+  hiddenAuthor: {
+    paddingBottom: 8
+  },
   image: {
-    width: "100%",
+    backgroundColor: "#eee",
     display: 'block',
-    [legacyBreakpoints.maxTiny]: {
-      width: "100%",
+    height: 95,
+    [legacyBreakpoints.maxSmall]: {
+      height: "124px !important",
     },
     "& img": {
-      [legacyBreakpoints.maxSmall]: {
-        width: "305px !important",
-        height: "auto !important",
-      },
       width: "100%",
       height: 95,
+      [legacyBreakpoints.maxSmall]: {
+        width: "335px !important",
+        height: "124px !important",
+      },
       [legacyBreakpoints.maxTiny]: {
         width: "100% !important",
       },
     }
-  },
+  }
 })
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
+const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
   classes: ClassesType,
+  bookItemStyle?: boolean
 }) => {
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { LinkCard, SequenceTooltip } = Components;
+  const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
-    <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
-      <Link key={sequence._id} to={url}>
-        <Typography variant='title' className={classes.title}>
-          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-          {sequence.title}
-        </Typography>
-      </Link>
-      { showAuthor &&
-        <div className={classes.author}>
-          by <Components.UsersName user={sequence.user} />
-        </div>}
-    </div>
+  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription?.slice(0, 750)}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -124,6 +115,16 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
           width={315}
         />
       </NoSSR>
+    </div>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemStyle]: bookItemStyle})}>
+      <Typography variant='title' className={classes.title}>
+        {sequence.draft && <span className={classes.draft}>[Draft] </span>}
+        {sequence.title}
+      </Typography>
+      { showAuthor &&
+        <div className={classes.author}>
+          by <Components.UsersName user={sequence.user} />
+        </div>}
     </div>
   </LinkCard>
 }

@@ -43,6 +43,7 @@ const groupLayoutStyles = theme => ({
     fontFamily: theme.typography.fontFamily,
     border: `solid 1px ${theme.palette.grey[400]}`,
     marginBottom: theme.spacing.unit,
+    background: "white"
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,
@@ -127,8 +128,8 @@ class FormGroup extends PureComponent<any,any> {
 
   // if at least one of the fields in the group has an error, the group as a whole has an error
   hasErrors = () =>
-    _.some(this.props.fields, field => {
-      return !!this.props.errors.filter(error => error.path === field.path)
+    _.some(this.props.fields, (field: any) => {
+      return !!this.props.errors.filter((error: any) => error.path === field.path)
         .length;
     });
 

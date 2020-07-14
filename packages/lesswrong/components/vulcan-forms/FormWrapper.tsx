@@ -27,6 +27,10 @@ component is also added to wait for withSingle's loading prop to be false)
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from '../../lib/vulcan-i18n';
+// HACK: withRouter should be removed or turned into withLocation, but
+// FormWrapper passes props around in bulk, and Form has a bunch of prop-name
+// handling by string gluing, so it's hard to be sure this is safe.
+// eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { graphql, withApollo } from 'react-apollo';
 import compose from 'lodash/flowRight';
@@ -238,6 +242,7 @@ class FormWrapper extends PureComponent<any> {
         withSingle(queryOptions),
         withUpdate(mutationOptions),
         withDelete(mutationOptions)
+      // @ts-ignore
       )(Loader);
 
       return (
@@ -271,6 +276,7 @@ class FormWrapper extends PureComponent<any> {
         WrappedComponent = compose(
           extraQueriesHoC,
           withCreate(mutationOptions)
+        // @ts-ignore
         )(Loader);
       } else {
         WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);

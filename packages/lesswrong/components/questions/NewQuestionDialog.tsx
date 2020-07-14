@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 
 import Dialog from '@material-ui/core/Dialog';
@@ -9,6 +9,7 @@ import { Posts } from '../../lib/collections/posts/collection'
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   formSubmit: {
@@ -33,7 +34,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
       <PostSubmit {...props} />
     </div>
   }
-  const af = getSetting('forumType') === 'AlignmentForum'
+  const af = forumTypeSetting.get() === 'AlignmentForum'
 
   return (
     <Dialog
@@ -56,7 +57,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
           cancelCallback={onClose}
           successCallback={post => {
             history.push({pathname: Posts.getPageUrl(post)});
-            flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+            flash({ messageString: "Post created.", type: 'success'});
             onClose()
           }}
           formComponents={{

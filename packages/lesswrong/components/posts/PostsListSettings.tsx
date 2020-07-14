@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import classNames from 'classnames'
@@ -11,6 +11,7 @@ import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage'
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const FILTERS_ALL = {
   "AlignmentForum": {
@@ -72,25 +73,17 @@ const FILTERS_ALL = {
     },
   }
 }
-const FILTERS = FILTERS_ALL[getSetting<string>('forumType')]
+const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
 
 const styles = theme => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    borderBottom:"solid 2px rgba(0,0,0,.6)",
     marginBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*5,
-    paddingRight: theme.spacing.unit*4,
-    paddingTop: theme.spacing.unit/2,
-    paddingBottom: theme.spacing.unit*2,
     flexWrap: "wrap",
-    marginLeft: 3,
-    [theme.breakpoints.down('md')]: {
-      paddingLeft: theme.spacing.unit*2,
-      paddingRight: theme.spacing.unit*2,
-    }
+    background: "white",
+    padding: "12px 24px 8px 12px"
   },
   hidden: {
     display: "none", // Uses CSS to show/hide

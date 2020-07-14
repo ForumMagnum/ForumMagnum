@@ -54,14 +54,14 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
       const bookmarks = currentUser.bookmarkedPostsMetadata || []
       const newBookmarks = _.without(bookmarks, _.findWhere(bookmarks, {postId: post._id}))
 
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: { bookmarkedPostsMetadata: newBookmarks }
       });
     } else {
       setBookmarked(true)
       const bookmarks = currentUser.bookmarkedPostsMetadata || []
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
       });

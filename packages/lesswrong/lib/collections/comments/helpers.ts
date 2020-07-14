@@ -1,7 +1,8 @@
-import { Posts } from '../posts'
-import { Comments } from './collection'
-import Users from "../users/collection"
-import { Utils, getSetting } from '../../vulcan-lib';
+import { forumTypeSetting } from '../../instanceSettings';
+import { Utils } from '../../vulcan-lib';
+import { Posts } from '../posts';
+import Users from "../users/collection";
+import { Comments } from './collection';
 
 
 /**
@@ -20,6 +21,7 @@ Comments.getAuthorName = function (comment: DbComment): string {
 // LW: Overwrite the original example-forum Comments.getPageUrl
 Comments.getPageUrl = function(comment: CommentsList|DbComment, isAbsolute = false): string {
   const post = Posts.findOne(comment.postId);
+  if (!post) throw Error(`Unable to find post for comment: ${comment}`)
   return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
 };
 
@@ -43,7 +45,7 @@ Comments.getRSSUrl = function(comment: HasIdType, isAbsolute = false): string {
 };
 
 Comments.defaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
-  if (getSetting('forumType') === 'AlignmentForum') { return true }
+  if (forumTypeSetting.get() === 'AlignmentForum') { return true }
   if (comment) {
     return !!(Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
@@ -56,6 +58,6 @@ Comments.getDefaultView = (post: PostsDetails|DbPost, currentUser: UsersCurrent|
 }
 
 Comments.getKarma = (comment: CommentsList|DbComment): number => {
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }

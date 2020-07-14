@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { getSetting } from './settings';
+import { localeSetting } from '../publicSettings';
 import { debug } from './debug';
 
 export const Strings = {};
@@ -21,6 +21,7 @@ function replaceAll(target, search, replacement) {
 export const getString = ({id, values, defaultMessage, locale}) => {
   const messages = Strings[locale] || {};
   let message = messages[id];
+  const defaultLocale = localeSetting.get()
 
   // use default locale
   if(!message) {
@@ -39,8 +40,6 @@ export const getString = ({id, values, defaultMessage, locale}) => {
   }
   return message;
 };
-
-export const defaultLocale = getSetting('locale', 'en');
 
 /*
 

@@ -1,12 +1,13 @@
-import { Utils, getSetting } from '../lib/vulcan-lib';
 import cheerio from 'cheerio';
-import { Comments } from '../lib/collections/comments/collection'
+import htmlToText from 'html-to-text';
+import * as _ from 'underscore';
+import { Comments } from '../lib/collections/comments/collection';
+import { questionAnswersSort } from '../lib/collections/comments/views';
 import { Posts } from '../lib/collections/posts/collection';
 import { Revisions } from '../lib/collections/revisions/collection';
-import { questionAnswersSort } from '../lib/collections/comments/views';
-import { truncate, answerTocExcerptFromHTML } from '../lib/editor/ellipsize';
-import htmlToText from 'html-to-text'
-import * as _ from 'underscore';
+import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
+import { forumTypeSetting } from '../lib/instanceSettings';
+import { Utils } from '../lib/vulcan-lib';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -45,7 +46,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML)
+export function extractTableOfContents(postHTML: string)
 {
   if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
@@ -62,7 +63,7 @@ export function extractTableOfContents(postHTML)
       continue;
     }
 
-    let title = cheerio(tag).text();
+    let title = elementToToCText(tag);
     
     if (title && title.trim()!=="") {
       let anchor = titleToAnchor(title, usedAnchors);
@@ -103,6 +104,14 @@ export function extractTableOfContents(postHTML)
     sections: headings,
     headingsCount: headings.length
   }
+}
+
+function elementToToCText(cheerioTag: CheerioElement) {
+  const tagHtml = cheerio(cheerioTag).html();
+  if (!tagHtml) throw Error("Tag does not exist");
+  const tagClone = cheerio.load(tagHtml);
+  tagClone("style").remove();
+  return tagClone.root().text();
 }
 
 const reservedAnchorNames = ["top", "comments"];
@@ -174,7 +183,7 @@ async function getTocAnswers (document) {
     postId: document._id,
     deleted:false,
   }
-  if (getSetting('forumType') === 'AlignmentForum') {
+  if (forumTypeSetting.get() === 'AlignmentForum') {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
@@ -210,24 +219,31 @@ async function getTocAnswers (document) {
 
 async function getTocComments (document) {
   const commentSelector: any = {
+    ...Comments.defaultView({}).selector,
     answer: false,
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && getSetting('forumType') === 'AlignmentForum') {
+  if (document.af && forumTypeSetting.get() === 'AlignmentForum') {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()
   return [{anchor:"comments", level:0, title: Posts.getCommentCountStr(document, commentCount)}]
 }
 
-const getTableOfContentsData = async ({document, version, currentUser}) => {
+const getTableOfContentsData = async ({document, version, currentUser, context}: {
+  document: any,
+  version: string,
+  currentUser: DbUser|null,
+  context: ResolverContext,
+}) => {
   let html;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
-    if (!Revisions.checkAccess(currentUser, revision))
+    if (!revision) return null;
+    if (!await Revisions.checkAccess(currentUser, revision, context))
       return null;
-    html = revision?.html;
+    html = revision.html;
   } else {
     html = document?.contents?.html;
   }

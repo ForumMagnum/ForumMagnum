@@ -1,22 +1,30 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
-import { getSetting, addCallback } from '../lib/vulcan-lib';
+import { addCallback } from '../lib/vulcan-lib';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
+import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 
-const sentryUrl = getSetting<string|undefined>('sentry.url');
-const sentryEnvironment = getSetting<string|undefined>('sentry.environment');
-const sentryRelease = getSetting<string|undefined>('sentry.release')
+const sentryUrl = sentryUrlSetting.get()
+const sentryEnvironment = sentryEnvironmentSetting.get()
+const sentryRelease = sentryReleaseSetting.get()
 
-Sentry.init({
-  dsn: sentryUrl,
-  environment: sentryEnvironment,
-  release: sentryRelease,
-  integrations: [
-    new SentryIntegrations.Dedupe(),
-    new SentryIntegrations.ExtraErrorData(),
-  ],
-});
+if (sentryUrl && sentryEnvironment && sentryRelease) {
+  Sentry.init({
+    dsn: sentryUrl,
+    environment: sentryEnvironment,
+    release: sentryRelease,
+    integrations: [
+      new SentryIntegrations.Dedupe(),
+      new SentryIntegrations.ExtraErrorData(),
+    ],
+  });
+} else {
+  // eslint-disable-next-line no-console
+  console.log("Unable to find sentry credentials, so sentry logging is disabled")
+}
+
+
 // Initializing sentry on the client browser
 
 function identifyUserToSentry(user) {
