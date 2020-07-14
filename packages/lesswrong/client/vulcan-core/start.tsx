@@ -11,6 +11,7 @@ Meteor.startup(() => {
   // init the application components and routes, including components & routes from 3rd-party packages
   populateComponentsApp();
   const apolloClient = createApolloClient();
+  apolloClient.disableNetworkFetches = true;
 
   // Create the root element, if it doesn't already exist.
   if (!document.getElementById('react-app')) {
@@ -24,6 +25,13 @@ Meteor.startup(() => {
   );
 
   onPageLoad(() => {
-    ReactDOM.hydrate(<Main />, document.getElementById('react-app'));
+    ReactDOM.hydrate(
+      <Main />,
+      document.getElementById('react-app'),
+      () => {
+        console.log("Finished hydration");
+        apolloClient.disableNetworkFetches = false;
+      }
+    );
   });
 });
