@@ -14,7 +14,7 @@ const styles = theme => ({
   },
 });
 
-const EmailCommentBatch = ({comments, classes}) => {
+const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
   const { EmailComment, EmailCommentsOnPostHeader } = Components;
   const commentsByPostId = groupBy(comments, comment=>comment.postId);
   

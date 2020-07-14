@@ -46,7 +46,7 @@ const PostsEditForm = ({
           queryFragment={getFragment('PostsEdit')}
           mutationFragment={getFragment('PostsEdit')}
           successCallback={post => {
-            flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
+            flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             history.push({pathname: Posts.getPageUrl(post)});
           }}
           eventForm={eventForm}
@@ -57,7 +57,7 @@ const PostsEditForm = ({
               history.push('/');
             }
 
-            flash({ id: 'posts.delete_success', properties: { title: documentTitle }, type: 'success'});
+            flash({ messageString: `Post "${documentTitle}" deleted.`, type: 'success'});
             // todo: handle events in collection callbacks
             // this.context.events.track("post deleted", {_id: documentId});
           }}

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Watchdog } from '@lesswrong/lesswrong-editor'
+import { EditorWatchdog } from '@lesswrong/lesswrong-editor'
 
 interface CKEditorProps {
   data?: any,
@@ -31,7 +31,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     // @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
     this.editor = null;
     this.domContainer = React.createRef();
-    this.watchdog = new Watchdog()
+    this.watchdog = new EditorWatchdog()
   }
   
   // This component should never be updated by React itself.

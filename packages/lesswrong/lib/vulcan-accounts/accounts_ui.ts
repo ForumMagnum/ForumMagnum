@@ -106,7 +106,7 @@ Accounts.ui.config = function(options) {
 
   // Deal with `requestOfflineToken`
   if (options.requestOfflineToken) {
-    _.each(options.requestOfflineToken, function (value, service) {
+    _.each(options.requestOfflineToken, function (value, service: string) {
       if (service !== 'google')
         throw new Error('Accounts.ui.config: `requestOfflineToken` only supported for Google login at the moment.');
 
@@ -121,7 +121,7 @@ Accounts.ui.config = function(options) {
 
   // Deal with `forceApprovalPrompt`
   if (options.forceApprovalPrompt) {
-    _.each(options.forceApprovalPrompt, function (value, service) {
+    _.each(options.forceApprovalPrompt, function (value, service: string) {
       if (service !== 'google')
         throw new Error('Accounts.ui.config: `forceApprovalPrompt` only supported for Google login at the moment.');
 

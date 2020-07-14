@@ -76,6 +76,8 @@ Users.addView("sunshineNewUsers", function (terms) {
     },
     options: {
       sort: {
+        reviewedByUserId: 1,
+        postCount: -1,
         signUpReCaptchaRating: -1,
         createdAt: -1
       }

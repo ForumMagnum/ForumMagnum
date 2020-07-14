@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import Posts from '../../lib/collections/posts/collection';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
   const { params: {_id, postId} } = useLocation();
@@ -27,7 +28,7 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
       <meta property='og:title' content={titleString}/>
     </Helmet>
   
-  if (getSetting('forumType') !== 'AlignmentForum' && post.af) {
+  if (forumTypeSetting.get() !== 'AlignmentForum' && post.af) {
     // TODO: A (broken) bit of an earlier iteration of the header subtitle
     // tried to made AF posts have a subtitle which said "AGI Alignment" and
     // linked to /alignment. But that bit of code was broken, and also that URL

@@ -15,8 +15,7 @@ addVoteType('upvote', {power: 1, exclusive: true});
 addVoteType('downvote', {power: -1, exclusive: true});
 
 // Test if a user has voted on the client
-export const hasVotedClient = ({ document, voteType }) => {
-  const userVotes = document.currentUserVotes;
+export const hasVotedClient = ({ userVotes, voteType }) => {
   if (voteType) {
     return _.where(userVotes, { voteType }).length
   } else {
@@ -53,7 +52,7 @@ const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
 
 // Cancel votes of a specific type on a given document (client)
 const cancelVoteClient = ({ document, voteType }) => {
-  const vote = _.findWhere(document.currentUserVotes, { voteType });
+  const vote: any = _.findWhere(document.currentUserVotes, { voteType });
   const newDocument = _.clone(document);
   if (vote) {
     // subtract vote scores
@@ -62,7 +61,7 @@ const cancelVoteClient = ({ document, voteType }) => {
 
     newDocument.voteCount--;
     
-    const newVotes = _.reject(document.currentUserVotes, vote => vote.voteType === voteType);
+    const newVotes = _.reject(document.currentUserVotes, (vote: any) => vote.voteType === voteType);
 
     // clear out vote of this type
     newDocument.currentUserVotes = newVotes;
@@ -120,11 +119,6 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
   const collectionName = collection.options.collectionName;
   let returnedDocument;
 
-  // console.log('// voteOptimisticResponse')
-  // console.log('collectionName: ', collectionName)
-  // console.log('document:', document)
-  // console.log('voteType:', voteType)
-
   // make sure item and user are defined
   if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
     throw new Error(`Cannot perform operation '${collectionName.toLowerCase()}.${voteType}'`);
@@ -132,16 +126,10 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
 
   let voteOptions = {document, collection, voteType, user, voteId};
 
-  if (hasVotedClient({document, voteType})) {
-
-    // console.log('action: cancel')
+  if (hasVotedClient({userVotes: document.currentUserVotes, voteType})) {
     returnedDocument = cancelVoteClient(voteOptions);
     returnedDocument = runCallbacks(`votes.cancel.client`, returnedDocument, collection, user, voteType);
-
   } else {
-
-    // console.log('action: vote')
-
     if (voteTypes[voteType].exclusive) {
       const tempDocument = runCallbacks(`votes.clear.client`, voteOptions.document, collection, user);
       voteOptions.document = clearVotesClient({document:tempDocument})
@@ -150,8 +138,6 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
     returnedDocument = addVoteClient(voteOptions);
     returnedDocument = runCallbacks(`votes.${voteType}.client`, returnedDocument, collection, user, voteType);
   }
-
-  // console.log('returnedDocument:', returnedDocument)
 
   return returnedDocument;
 }

@@ -24,7 +24,7 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
         answer: true,
       },
     })
-    flash({id:"questions.comments.moved_to_answers"})
+    flash("Comment moved to the Answers section.")
     client.resetStore()
   }
 
@@ -36,7 +36,7 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
         answer: false,
       },
     })
-    flash({id:"questions.comments.moved_to_comments"})
+    flash("Answer moved to the Comments section.")
     client.resetStore()
   }
 

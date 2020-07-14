@@ -3,7 +3,7 @@ import { withMulti } from '../../lib/crud/withMulti';
 import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
+import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 
@@ -78,7 +78,7 @@ class Datatable extends PureComponent<any,any> {
         ...this.props.options
       };
 
-      const DatatableWithMulti = withMulti(options)(Components.DatatableContents);
+      const DatatableWithMulti: any = withMulti(options)(Components.DatatableContents);
 
       const canInsert = collection.options && collection.options.mutations && collection.options.mutations.new && collection.options.mutations.new.check(this.props.currentUser);
       
@@ -134,7 +134,7 @@ const DatatableLayoutComponent = registerComponent('DatatableLayout', DatatableL
 DatatableAbove Component
 
 */
-const DatatableAbove = (props, { intl }) => {
+const DatatableAbove = (props) => {
   const { collection, currentUser, showSearch, showNew, canInsert,
      value, updateQuery, options, newFormOptions } = props;
 
@@ -143,7 +143,7 @@ const DatatableAbove = (props, { intl }) => {
       {showSearch && (
         <Components.DatatableAboveSearchInput
           className="datatable-search form-control"
-          placeholder={`${intl.formatMessage({ id: 'datatable.search', defaultMessage: 'Search' })}…`}
+          placeholder="Search…"
           type="text"
           name="datatableSearchQuery"
           value={value}
@@ -153,9 +153,6 @@ const DatatableAbove = (props, { intl }) => {
       {showNew && canInsert && <Components.NewButton collection={collection} currentUser={currentUser} mutationFragmentName={options && options.fragmentName} {...newFormOptions}/>}
     </Components.DatatableAboveLayout>
   );
-};
-DatatableAbove.contextTypes = {
-  intl: intlShape,
 };
 DatatableAbove.propTypes = {
 };
@@ -300,7 +297,7 @@ const DatatableContents = (props) => {
                   toggleSort={toggleSort} currentSort={currentSort} />)
               )
           }
-          {showEdit ? <th><FormattedMessage id="datatable.edit" /></th> : null}
+          {showEdit ? <th>Edit</th> : null}
         </Components.DatatableContentsHeadLayout>
         <Components.DatatableContentsBodyLayout>
           {results.map((document, index) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} showEdit={showEdit} currentUser={currentUser} />)}
@@ -375,7 +372,7 @@ const DatatableTitleComponent = registerComponent('DatatableTitle', DatatableTit
 DatatableRow Component
 
 */
-const DatatableRow = (props, { intl }) => {
+const DatatableRow = (props) => {
 
   const { collection, columns, document, showEdit, 
     currentUser, options, editFormOptions, rowClass } = props;
@@ -407,9 +404,6 @@ DatatableRow.propTypes = {
 };
 const DatatableRowComponent = registerComponent('DatatableRow', DatatableRow);
 
-DatatableRow.contextTypes = {
-  intl: intlShape
-};
 const DatatableRowLayout = ({ children, ...otherProps }) => (
   <tr {...otherProps}>
     {children}

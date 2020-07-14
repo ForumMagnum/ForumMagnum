@@ -1,11 +1,14 @@
-import { addGraphQLMutation, addGraphQLResolvers, getSetting } from './vulcan-lib';
-import { Pool } from 'pg'
-import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
+import { Pool } from 'pg';
+import { AnalyticsUtil } from '../lib/analyticsEvents';
+import { PublicInstanceSetting } from '../lib/instanceSettings';
+import { DatabaseServerSetting } from './databaseSettings';
+import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 
-const connectionString = getSetting("analytics.connectionString", null);
-const environmentDescription = Meteor.isDevelopment ? "development" : getSetting("analytics.environment", "misconfigured");
+const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null)
+// Since different environments are connected to the same DB, this setting cannot be moved to the database
+const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
 const serverId = Random.id();
 
@@ -13,7 +16,7 @@ const isValidEventAge = (age) => age>=0 && age<=60*60*1000;
 
 addGraphQLResolvers({
   Mutation: {
-    analyticsEvent(root, { events, now: clientTime }, context) {
+    analyticsEvent(root, { events, now: clientTime }, context: ResolverContext) {
       // Adjust timestamps to account for server-client clock skew
       // The mutation comes with a timestamp on each event from the client
       // clock, and a timestamp representing when events were flushed, also
@@ -40,18 +43,18 @@ addGraphQLResolvers({
 });
 addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
 
-if (!connectionString) {
-  //eslint-disable-next-line no-console
-  console.log("Analytics logging disabled: analytics.connectionString is not configured");
-}
-
-let analyticsConnectionPool = null;
+let analyticsConnectionPool:Pool|null = null;
 // Return the Analytics database connection pool, if configured. If no
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
 const getAnalyticsConnection = (): Pool|null => {
-  if (!connectionString)
+  const connectionString = connectionStringSetting.get()
+  // We make sure that the settingsCache is initialized before we access the connection strings
+  if (!connectionString) {
+    //eslint-disable-next-line no-console
+    console.log("Analytics logging disabled: analytics.connectionString is not configured");
     return null;
+  } 
   if (!analyticsConnectionPool)
     analyticsConnectionPool = new Pool({ connectionString });
   return analyticsConnectionPool;
@@ -63,6 +66,7 @@ const getAnalyticsConnection = (): Pool|null => {
 // TODO: Defer/batch so that this doesn't affect SSR speed?
 function writeEventToAnalyticsDB({type, timestamp, props}) {
   const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
+  const environmentDescription = Meteor.isDevelopment ? "development" : environmentDescriptionSetting.get()
   const queryValues = [environmentDescription, type, timestamp, props];
   
   const connection = getAnalyticsConnection();

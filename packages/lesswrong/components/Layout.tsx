@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../lib/vulcan-lib';
+import { Components, registerComponent } from '../lib/vulcan-lib';
 import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import Users from '../lib/collections/users/collection';
@@ -21,8 +21,11 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
-const googleTagManagerId = getSetting('googleTagManager.apiKey')
+import { DatabasePublicSetting, googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
+import { forumTypeSetting } from '../lib/instanceSettings';
+
+const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
+const logRocketSampleDensitySetting = new DatabasePublicSetting<number>('logRocket.sampleDensity', 5)
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
@@ -43,7 +46,7 @@ const hashCode = function(str: string): number {
 // like to include
 const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
+    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
@@ -52,12 +55,48 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
 
 const styles = theme => ({
   main: {
-    margin: '50px auto 15px auto',
+    paddingTop: 50,
+    paddingBottom: 15,
+    marginLeft: "auto",
+    marginRight: "auto",
+    background: "#f4f4f4",
+    minHeight: "100vh",
+    gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
-      marginTop: 0,
+      paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
+  },
+  gridActivated: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main ... sunshine"
+      `,
+      gridTemplateColumns: `
+      minmax(0, min-content)
+      minmax(0, 1fr)
+      minmax(0, 765px)
+      minmax(0, 1.4fr)
+      minmax(0, min-content)
+    `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  navSidebar: {
+    gridArea: 'navSidebar'
+  },
+  sunshine: {
+    gridArea: 'sunshine'
+  },
+  whiteBackground: {
+    background: "white",
+  },
+  lightGreyBackground: {
+    background: "#f9f9f9",
   },
   '@global': {
     p: pBodyStyle,
@@ -70,7 +109,11 @@ const styles = theme => ({
       fontFamily: "GreekFallback",
       src: "local('Arial')",
       unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-    }
+    },
+    // Hide the CKEditor table alignment menu
+    '.ck-table-properties-form__alignment-row': {
+      display: "none !important"
+    },
   },
   searchResultsArea: {
     position: "absolute",
@@ -161,7 +204,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
   initializeLogRocket = () => {
     const { currentUser } = this.props
-    const logRocketKey = getSetting<string|null>('logRocket.apiKey')
+    const logRocketKey = logRocketApiKeySetting.get()
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
       if (currentUser) {
@@ -172,7 +215,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       // If the user is not logged in, only track 1/5 of the sessions
       const clientId = this.getUniqueClientId()
       const hash = hashCode(clientId)
-      if (hash % getSetting<number>('logRocket.sampleDensity') === 0) {
+      if (hash % logRocketSampleDensitySetting.get() === 0) {
         LogRocket.init(logRocketKey)
       }
     }
@@ -194,23 +237,24 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame">
-          <Components.ErrorBoundary>
+          <ErrorBoundary>
             <Intercom
-              appID={intercomAppId}
+              appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
               email={currentUser.email}
               name={currentUser.displayName}/>
-          </Components.ErrorBoundary>
+          </ErrorBoundary>
         </div>
       } else if (!currentUser) {
         return <div id="intercome-outer-frame">
-            <Components.ErrorBoundary>
-              <Intercom appID={intercomAppId}/>
-            </Components.ErrorBoundary>
+            <ErrorBoundary>
+              <Intercom appID={intercomAppIdSetting.get()}/>
+            </ErrorBoundary>
           </div>
       } else {
         return null
@@ -222,10 +266,14 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // then it should.
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
-    const standaloneNavigation = !location.currentRoute ||
-      standaloneNavMenuRouteNames[getSetting<string>('forumType')]
-        .includes(location.currentRoute.name)
-    
+
+    const currentRoute = location.currentRoute
+    const standaloneNavigation = !currentRoute ||
+      standaloneNavMenuRouteNames[forumTypeSetting.get()]
+        .includes(currentRoute?.name)
+        
+    const shouldUseGridLayout = standaloneNavigation
+
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -239,7 +287,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         }
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <CssBaseline />
@@ -256,34 +304,43 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
-              <Components.AnalyticsClient/>
-              <Components.AnalyticsPageInitializer/>
-              <Components.NavigationEventSender/>
+              <AnalyticsClient/>
+              <AnalyticsPageInitializer/>
+              <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
               {showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
-              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              <Components.Header
+              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              <Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              {standaloneNavigation && <Components.NavigationStandalone
-                sidebarHidden={hideNavigationSidebar}
-              />}
-              <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-              <div className={classes.main}>
-                <Components.ErrorBoundary>
-                  <Components.FlashMessages />
-                </Components.ErrorBoundary>
-                <Components.ErrorBoundary>
-                  {children}
-                </Components.ErrorBoundary>
+              <div className={shouldUseGridLayout ? classes.gridActivated : null}>
+                {standaloneNavigation && <div className={classes.navSidebar}>
+                  <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
+                </div>}
+                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+                <div className={classNames(classes.main, {
+                  [classes.whiteBackground]: currentRoute?.background === "white",
+                  [classes.lightGreyBackground]: currentRoute?.background === "lightGrey"
+                })}>
+                  <ErrorBoundary>
+                    <FlashMessages />
+                  </ErrorBoundary>
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                  <Footer />
+                </div>
+                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
+                    <SunshineSidebar/>
+                  </div>
+                  }
               </div>
-              <Components.Footer />
             </CommentBoxManager>
           </DialogManager>
         </div>

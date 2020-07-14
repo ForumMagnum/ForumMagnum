@@ -42,7 +42,7 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
     captureEvent("continueReadingDismissed", {"postId": postId});
   }
   
-  limitResumeReading(resumeReadingList) {
+  limitResumeReading(resumeReadingList: Array<any>): { entries: Array<any>, showAllLink: boolean } {
     const { dismissedRecommendations } = this.state;
     
     // Filter out dismissed recommendations
@@ -86,13 +86,12 @@ class ContinueReadingList extends Component<ContinueReadingListProps,ContinueRea
             key={sequence?._id || collection?._id}
           />
         })}
+        {showAllLink && <SectionFooter>
+          <a onClick={this.showAll}>
+            Show All
+          </a>
+        </SectionFooter>}
       </AnalyticsContext>
-      
-      {showAllLink && <SectionFooter>
-        <a onClick={this.showAll}>
-          Show All
-        </a>
-      </SectionFooter>}
     </div>
   }
 }

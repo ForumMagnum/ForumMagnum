@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
-import { Redirect } from 'react-router'
+import { Redirect } from '../../lib/reactRouterWrapper';
 
 const PermanentRedirect = ({url, status}: {
   url: string,

@@ -1,9 +1,10 @@
-import { getSetting } from '../lib/vulcan-lib';
-import { addInitFunction, addIdentifyFunction } from '../lib/vulcanEvents';
 import LogRocket from 'logrocket'
+import { googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
+import { addCallback } from '../lib/vulcan-lib/callbacks';
+
 
 function googleTagManagerInit() {
-  const googleTagManagerId = getSetting('googleTagManager.apiKey')
+  const googleTagManagerId = googleTagManagerIdSetting.get()
   if (googleTagManagerId) {
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
@@ -26,10 +27,10 @@ function googleTagManagerInit() {
   }
 }
 
-addInitFunction(googleTagManagerInit)
+googleTagManagerInit();
 
 const identifyLogRocketCallback = (currentUser) => {
-  const logRocketKey = getSetting<string|undefined>('logRocket.apiKey')
+  const logRocketKey = logRocketApiKeySetting.get()
   if (!logRocketKey) return
 
   LogRocket.init(logRocketKey)
@@ -44,4 +45,4 @@ const identifyLogRocketCallback = (currentUser) => {
   })
 }
 
-addIdentifyFunction(identifyLogRocketCallback)
+addCallback("events.identify", identifyLogRocketCallback);

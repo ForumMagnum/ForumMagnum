@@ -4,9 +4,11 @@ import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
+import { Posts } from "../posts/collection"
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
+import { Tags } from '../tags/collection';
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -272,25 +274,25 @@ const schema = {
   domain: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context) => Utils.getDomain(post.url),
+    resolver: (post, args, context: ResolverContext) => Utils.getDomain(post.url),
   }),
 
   pageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, true),
+    resolver: (post, args, context: ResolverContext) => Posts.getPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, {Posts}) => Posts.getPageUrl(post, false),
+    resolver: (post, args, context: ResolverContext) => Posts.getPageUrl(post, false),
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => {
+    resolver: (post, args, context: ResolverContext) => {
       return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
     },
   }),
@@ -298,7 +300,7 @@ const schema = {
   postedAtFormatted: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context) => {
+    resolver: (post, args, context: ResolverContext) => {
       return moment(post.postedAt).format('dddd, MMMM Do YYYY');
     }
   }),
@@ -306,19 +308,19 @@ const schema = {
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => Posts.getEmailShareUrl(post),
+    resolver: (post, args, context: ResolverContext) => Posts.getEmailShareUrl(post),
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => Posts.getTwitterShareUrl(post),
+    resolver: (post, args, context: ResolverContext) => Posts.getTwitterShareUrl(post),
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => Posts.getFacebookShareUrl(post),
+    resolver: (post, args, context: ResolverContext) => Posts.getFacebookShareUrl(post),
   }),
 
   question: {
@@ -345,7 +347,7 @@ const schema = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => {
+    resolver: (post, args, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -355,7 +357,7 @@ const schema = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }) => {
+    resolver: (post, args, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return "";
       return contents.html;
@@ -404,7 +406,7 @@ const schema = {
     type: Array,
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
-    resolver: async (post, args, { Posts }) => {
+    resolver: async (post, args, { Posts }: ResolverContext) => {
       return await PostRelations.find({targetPostId: post._id}).fetch()
     }
   }),
@@ -417,7 +419,7 @@ const schema = {
     type: Array,
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
-    resolver: async (post, args, { Posts }) => {
+    resolver: async (post, args, { Posts }: ResolverContext) => {
       const postRelations = await Posts.rawCollection().aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
@@ -510,7 +512,8 @@ const schema = {
     graphQLtype: "TagRel",
     viewableBy: ['guests'],
     graphqlArguments: 'tagId: String',
-    resolver: async (post, {tagId}, { Users, Posts, currentUser}) => {
+    resolver: async (post, {tagId}, context: ResolverContext) => {
+      const { currentUser } = context;
       const tagRels = await getWithLoader(TagRels,
         "tagRelByDocument",
         {
@@ -518,10 +521,23 @@ const schema = {
         },
         'postId', post._id
       );
-      const filteredTagRels = accessFilterMultiple(currentUser, TagRels, tagRels)
+      const filteredTagRels = await accessFilterMultiple(currentUser, TagRels, tagRels, context)
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
+    }
+  }),
+
+  tags: resolverOnlyField({
+    type: "[Tag]",
+    graphQLtype: "[Tag]",
+    viewableBy: ['guests'],
+    resolver: async (post:DbPost, args, context: ResolverContext) => {
+      const { currentUser } = context;
+      const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
+      const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
+      const tags = await Tags.loader.loadMany(tagIds)
+      return await accessFilterMultiple(currentUser, Tags, tags, context)
     }
   }),
   
@@ -543,18 +559,33 @@ const schema = {
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
-    resolver: async (post, args, { currentUser }) => {
+    resolver: async (post, args, context: ResolverContext) => {
+      const { currentUser } = context;
       if (post.question) {
         if (post.lastCommentPromotedAt) {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
-          return accessFilterSingle(currentUser, Comments, comment)
+          return await accessFilterSingle(currentUser, Comments, comment, context)
         } else {
           const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
-          return accessFilterSingle(currentUser, Comments, comment)
+          return await accessFilterSingle(currentUser, Comments, comment, context)
         }
       }
     }
   }),
+
+  // Tell search engines not to index this post. Useful for old posts that were
+  // from a time with different quality standards. Posts will still be findable
+  // in algolia. See PostsPage and HeadTags for their use of this field and the
+  // noIndexLowKarma migration for the setting of it.
+  noIndex: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { getSetting } from './vulcan-lib';
+import { forumTypeSetting } from './instanceSettings';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -39,7 +39,7 @@ const personalBlogpostFilterSummaries: {[forumType: string]: FilterSummary} = {
   }
 }
 
-const forumPersonBlogpostFilterSummary: FilterSummary = personalBlogpostFilterSummaries[getSetting('forumType') as string]
+const forumPersonBlogpostFilterSummary: FilterSummary = personalBlogpostFilterSummaries[forumTypeSetting.get()]
 
 export function filterSettingsToString(filterSettings: FilterSettings): string {
   let nonNeutralTagModifiers = _.filter(filterSettings.tags,

@@ -34,7 +34,7 @@ registerMigration({
         filter: { _id: post._id },
         update: {
           $set: {
-            url: post.legacyData.url,
+            url: (post as any).legacyData.url,
           }
         }
       }

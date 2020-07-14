@@ -1,15 +1,15 @@
-import { registerComponent, getSetting, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import withHover from '../common/withHover';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const PostsItemKarma = ({post, hover, anchorEl}: {
   post: PostsBase,
-  read?: boolean,
   hover?: any,
   anchorEl?: any,
 }) => {
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
-  const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
+  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
   const { LWPopper } = Components
   return (
     <span>

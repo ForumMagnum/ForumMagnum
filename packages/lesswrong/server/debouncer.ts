@@ -1,8 +1,9 @@
-import { Vulcan, getSetting } from './vulcan-lib';
-import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
-import { addCronJob } from './cronUtil';
-import moment from '../lib/moment-timezone';
 import Sentry from '@sentry/core';
+import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
+import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
+import moment from '../lib/moment-timezone';
+import { addCronJob } from './cronUtil';
+import { Vulcan } from './vulcan-lib';
 
 let eventDebouncersByName: Record<string,EventDebouncer> = {};
 
@@ -198,7 +199,7 @@ const dispatchEvent = async (event) => {
 
 export const dispatchPendingEvents = async () => {
   const now = new Date().getTime();
-  const af = getSetting('forumType') === 'AlignmentForum'
+  const af = forumTypeSetting.get() === 'AlignmentForum'
   let eventToHandle: any = null;
   
   do {
@@ -247,7 +248,7 @@ export const dispatchPendingEvents = async () => {
 // want to wait.
 export const forcePendingEvents = async (upToDate=null) => {
   let eventToHandle = null;
-  const af = getSetting('forumType') === 'AlignmentForum'
+  const af = forumTypeSetting.get() === 'AlignmentForum'
   
   do {
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
@@ -268,7 +269,8 @@ export const forcePendingEvents = async (upToDate=null) => {
 }
 Vulcan.forcePendingEvents = forcePendingEvents;
 
-if (!getSetting("testServer", false)) {
+const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
+if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
     schedule(parser) {
@@ -276,7 +278,7 @@ if (!getSetting("testServer", false)) {
       return parser.cron('* * * * * *');
     },
     job() {
-      dispatchPendingEvents();
+      void dispatchPendingEvents();
     }
   });
 }

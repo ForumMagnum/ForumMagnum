@@ -17,6 +17,8 @@ export function loadMathJax() {
 			},
 			startup: {
 				typeset: false,
+				// Ready callback is used by draft-js-mathjax to know when it's safe to run MathJax code
+				pageReady: () => { window.MathJaxReady = true; }
 			}
 		};
 		const script = document.createElement( 'script' );

@@ -159,4 +159,3 @@ declare global {
     ModerationLog: typeof ModerationLogComponent
   }
 }
-

@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { withLocation } from '../../lib/routeUtil';
@@ -9,14 +9,9 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 
 const styles = theme => ({
-  timeframe: {
-    padding: theme.spacing.unit,
-    [theme.breakpoints.down('xs')]: {
-      padding: 0,
-    }
-  },
   title: {
     cursor: "pointer",
   }
@@ -30,11 +25,15 @@ export const timeframes = {
   yearly: 'Yearly',
 }
 
+const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>('forum.numberOfWeeks', 4) // Number of weeks to display in the timeframe view
+const forumAllPostsNumMonthsSetting = new DatabasePublicSetting<number>('forum.numberOfMonths', 4) // Number of months to display in the timeframe view
+const forumAllPostsNumYearsSetting = new DatabasePublicSetting<number>('forum.numberOfYears', 4) // Number of years to display in the timeframe view
+
 const timeframeToNumTimeBlocks = {
-  daily: getSetting('forum.numberOfDays'),
-  weekly: getSetting('forum.numberOfWeeks'),
-  monthly: getSetting('forum.numberOfMonths'),
-  yearly: getSetting('forum.numberOfYears'),
+  daily: forumAllPostsNumDaysSetting.get(),
+  weekly: forumAllPostsNumWeeksSetting.get(),
+  monthly: forumAllPostsNumMonthsSetting.get(),
+  yearly: forumAllPostsNumYearsSetting.get(),
 }
 
 export const sortings = {
@@ -73,7 +72,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
   }
 
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
-    const { timezone, classes, location } = this.props
+    const { timezone, location } = this.props
     const { query } = location
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
@@ -110,7 +109,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
       postListParameters.limit = parseInt(query.limit)
     }
 
-    return <div className={classes.timeframe}>
+    return <div>
       <AnalyticsContext
         listContext={"allPostsPage"}
         terms={postListParameters}
@@ -134,7 +133,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const { classes, currentUser } = this.props
     const { query } = this.props.location;
     const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings, HeadTags } = Components
+    const { SingleColumnSection, SectionTitle, SettingsButton, PostsListSettings, HeadTags } = Components
 
     const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily'
     const currentSorting = query.sortedBy    || currentUser?.allPostsSorting   || 'magic'
@@ -144,13 +143,13 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 
     return (
       <React.Fragment>
-        <HeadTags url={Utils.getSiteUrl() + "allPosts"} description={"All of LessWrong's posts, filtered and sorted however you want"}/>
+        <HeadTags description={"All of LessWrong's posts, filtered and sorted however you want"}/>
         <AnalyticsContext pageContext="allPostsPage">
           <SingleColumnSection>
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
                 <SectionTitle title="All Posts">
-                  <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
+                  <SettingsButton label={`Sorted by ${ sortings[currentSorting] }`}/>
                 </SectionTitle>
               </div>
             </Tooltip>

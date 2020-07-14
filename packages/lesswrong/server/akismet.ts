@@ -1,23 +1,25 @@
 import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
 import { Comments } from '../lib/collections/comments/collection'
-import { editMutation, getSetting, addCallback, runCallbacksAsync } from './vulcan-lib';
+import { editMutation, addCallback, runCallbacksAsync } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 import { Meteor } from 'meteor/meteor';
+import { DatabaseServerSetting } from './databaseSettings';
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
 
 // Akismet API integration
-const akismetKey = getSetting('akismet.apiKey', false)
-const akismetURL = getSetting('akismet.url', false)
+const akismetKeySetting = new DatabaseServerSetting<string | null>('akismet.apiKey', null)
+const akismetURLSetting = new DatabaseServerSetting<string | null>('akismet.url', null)
 const client = akismet.client({
-  key  : akismetKey,                   
-  blog : akismetURL       
+  key  : akismetKeySetting.get(),                   
+  blog : akismetURLSetting.get()       
 });
 
 async function constructAkismetReport({document, type = "post"}) {
     const author = await Users.findOne(document.userId)
+    if (!author) throw Error("Couldn't find author for Akismet report")
     let post = document
     if (type !== "post") {
       post = await Posts.findOne(document.postId)
@@ -31,7 +33,7 @@ async function constructAkismetReport({document, type = "post"}) {
       user_ip : ip,              // Required!
       user_agent : userAgent,    // Required!
       referer: referrer,
-      permalink : akismetURL + link,
+      permalink : akismetURLSetting.get() + link,
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
@@ -56,25 +58,25 @@ async function checkForAkismetSpam({document, type = "post"}) {
 }
 
 client.verifyKey()
-.then(function(valid) {
-  //eslint-disable-next-line no-console
-  if (valid) console.log('Valid Akismet key!');
-  //eslint-disable-next-line no-console
-  else console.log('Invalid Akismet key. Please provide a key to activate spam detection.', akismetKey);
-})
-.catch(function(err) {
-  //eslint-disable-next-line no-console
-  console.log('Akismet key check failed: ' + err.message);
-});
+  .then(function(valid) {
+    //eslint-disable-next-line no-console
+    if (valid) console.log('Valid Akismet key!');
+    //eslint-disable-next-line no-console
+    else console.log('Invalid Akismet key. Please provide a key to activate spam detection.', akismetKeySetting.get());
+  })
+  .catch(function(err) {
+    //eslint-disable-next-line no-console
+    console.log('Akismet key check failed: ' + err.message);
+  });
 
 async function checkPostForSpamWithAkismet(post, currentUser) {
-  if (akismetKey) {
+  if (akismetKeySetting.get()) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
       if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
-        editMutation({
+        await editMutation({
           collection: Posts,
           documentId: post._id,
           set: {status: 4},
@@ -92,7 +94,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
 addCallback('posts.new.after', checkPostForSpamWithAkismet);
 
 async function checkCommentForSpamWithAkismet(comment, currentUser) {
-    if (akismetKey) {
+    if (akismetKeySetting.get()) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
       if (spam) {
         if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
@@ -128,7 +130,7 @@ addCallback('reports.edit.async', runReportCloseCallbacks)
 
 async function akismetReportSpamHam(report) {
   if (report.reportedAsSpam) {
-    let comment = {}
+    let comment
     const post = await Posts.findOne(report.postId)
     if (report.commentId) {
       comment = Comments.findOne(report.commentId)

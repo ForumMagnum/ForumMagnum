@@ -67,8 +67,8 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
-      {scrollOnClick ? <a href={url} onClick={handleLinkClick}>{ date } </a>
-        : <Link to={url}>{ date }</Link>
+      {scrollOnClick ? <a rel="nofollow" href={url} onClick={handleLinkClick}>{ date } </a>
+        : <Link rel="nofollow" to={url}>{ date }</Link>
       }
     </span>
   );

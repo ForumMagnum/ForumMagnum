@@ -1,4 +1,4 @@
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
@@ -9,6 +9,7 @@ import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const viewNames = {
   'postCommentsTop': 'top scoring',
@@ -78,7 +79,7 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
       views = views.concat(adminViews);
     }
 
-    const af = getSetting('forumType') === 'AlignmentForum'
+    const af = forumTypeSetting.get() === 'AlignmentForum'
     if (af) {
       views = views.concat(afViews);
     }

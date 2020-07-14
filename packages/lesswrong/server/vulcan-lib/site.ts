@@ -1,7 +1,6 @@
-import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
+import { forumTitleSetting, siteUrlSetting } from '../../lib/instanceSettings';
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { Utils } from '../../lib/vulcan-lib/utils';
-import { getSetting } from '../../lib/vulcan-lib/settings';
-import { Meteor } from 'meteor/meteor'
 
 const siteSchema = `type Site {
   title: String
@@ -12,10 +11,10 @@ addGraphQLSchema(siteSchema);
 
 const siteResolvers = {
   Query: {
-    SiteData(root, args, context) {
+    SiteData(root, args, context: ResolverContext) {
       return {
-        title: getSetting('title'),
-        url: getSetting('siteUrl', Meteor.absoluteUrl()),
+        title: forumTitleSetting.get(),
+        url: siteUrlSetting.get(),
         logoUrl: Utils.getLogoUrl(),
       };
     },

@@ -73,7 +73,9 @@ addCallback("posts.new.sync", PostsNewDefaultLocation);
 
 function PostsNewDefaultTypes (post) {
   if (post.isEvent && post.groupId && !post.types) {
-    const { types } = Localgroups.findOne(post.groupId)
+    const localgroup = Localgroups.findOne(post.groupId) 
+    if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
+    const { types } = localgroup
     post = {...post, types}
   }
   return post
@@ -84,7 +86,7 @@ addCallback("posts.new.sync", PostsNewDefaultTypes);
 // LESSWRONG – bigUpvote
 async function LWPostsNewUpvoteOwnPost(post) {
  var postAuthor = Users.findOne(post.userId);
- const votedPost = await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost};
 }
 
@@ -92,7 +94,7 @@ addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
 
 function PostsNewUserApprovedStatus (post) {
   const postAuthor = Users.findOne(post.userId);
-  if (!postAuthor.reviewedByUserId && (postAuthor.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+  if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...post, authorIsUnreviewed: true}
   }
 }
@@ -120,7 +122,7 @@ addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighl
 
 function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {
-    newMutation({
+    void newMutation({
       collection: PostRelations,
       document: {
         type: "subQuestion",
@@ -181,7 +183,7 @@ addCallback("posts.new.after", newDocumentMaybeTriggerReview);
 
 async function updatedPostMaybeTriggerReview (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    newDocumentMaybeTriggerReview(newPost)
+    await newDocumentMaybeTriggerReview(newPost)
   }
 }
 addCallback("posts.edit.async", updatedPostMaybeTriggerReview);

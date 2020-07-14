@@ -4,7 +4,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
@@ -13,7 +12,7 @@ const styles = theme => ({
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 6,
-    width: 600,
+    width: 500,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
@@ -42,6 +41,12 @@ const styles = theme => ({
     marginTop: 6,
     marginBottom: 2,
     marginRight: 6
+  },
+  posts: {
+    marginTop: 12,
+    paddingTop: 8,
+    borderTop: "solid 1px rgba(0,0,0,.08)",
+    marginBottom: 8
   }
 });
 
@@ -52,7 +57,7 @@ const TagPreview = ({tag, classes, showCount=true}: {
   classes: ClassesType,
   showCount?: boolean
 }) => {
-  const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
+  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
     terms: {
@@ -66,19 +71,12 @@ const TagPreview = ({tag, classes, showCount=true}: {
   });
 
   if (!tag) return null
-  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs", "")
 
   return (<div className={classes.card}>
-    {tag.description?.htmlHighlight ? <ContentItemBody
-      className={classes.tagDescription}
-      dangerouslySetInnerHTML={{__html: highlight}}
-      description={`tag ${tag.name}`}
-    /> : <div className={classes.tagDescription}><b>{tag.name}</b></div>
-    }
-    {!results && <PostsListPlaceholder count={previewPostCount} />}
-    {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={showCount || i!=2}/>
-    )}
+    <TagPreviewDescription tag={tag}/>
+    {results ? <div className={classes.posts}>
+      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} />)}
+    </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
     </div>}

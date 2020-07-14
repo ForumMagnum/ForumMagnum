@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -7,6 +7,25 @@ import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from '../../lib/collections/users/collection';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
+const styles = theme => ({
+  root: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexWrap: "wrap"
+  },
+  settingGroup: {
+    border:"solid 1px rgba(0,0,0,.15)",
+    borderRadius: 3,
+    padding: 8,
+    marginBottom: 10
+  },
+  setting: {
+    marginLeft: 20,
+    marginRight: 20
+  }
+})
 
 // Elements here should match switch cases in recommendations.ts
 const recommendationAlgorithms = [
@@ -41,19 +60,21 @@ export function getRecommendationSettings({settings, currentUser, configName})
 }
 
 const forumIncludeExtra = {
-  LessWrong: {humanName: 'Include Personal Blogposts', machineName: 'includePersonal'},
-  AlignmentForum: {humanName: 'Include Personal Blogposts', machineName: 'includePersonal'},
-  EAForum: {humanName: 'Include Community', machineName: 'includeMeta'},
+  LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
+  AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
+  EAForum: {humanName: 'Community', machineName: 'includeMeta'},
 }
 
-const includeExtra = forumIncludeExtra[getSetting('forumType', 'LessWrong')]
+const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 
-const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false }: {
+const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: any,
   configName: string,
   onChange: any,
   showAdvanced?: boolean,
+  classes: ClassesType
 }) => {
+  const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -66,7 +87,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         [configName]: newSettings
       };
     
-      updateUser({
+      void updateUser({
         selector: { _id: currentUser._id },
         data: {
           recommendationSettings: mergedSettings
@@ -75,19 +96,29 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     }
     onChange(newSettings);
   }
-  return <div>
-    {(configName === "frontpage") && <div> 
-      <Checkbox
-        checked={!settings.hideContinueReading}
-        onChange={(ev, checked) => applyChange({ ...settings, hideContinueReading: !checked })}
-      /> Show 'Continue Reading' (when you have partially finished sequences)
-    </div>}
-    {(configName === "frontpage") && <div> 
-      <Checkbox
-        checked={!settings.hideBookmarks}
-        onChange={(ev, checked) => applyChange({ ...settings, hideBookmarks: !checked })}
-      /> Show Bookmarks on home page
-    </div>}
+  return <div className={classes.root}>
+    <span className={classes.settingGroup}>
+      <span className={classes.setting}>
+        {(configName === "frontpage") &&
+          <SectionFooterCheckbox
+            value={!settings.hideContinueReading}
+            onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
+            label="Continue Reading"
+            tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
+          />
+        }
+      </span>
+      <span className={classes.setting}>
+        {(configName === "frontpage") && 
+          <SectionFooterCheckbox
+            value={!settings.hideBookmarks}
+            onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
+            label="Bookmarks"
+            tooltip="Posts that you have bookmarked will appear in Recommendations."
+          />
+        }
+      </span>
+    </span>
 
     {/* disabled except during review */}
     {/* {(configName === "frontpage") && <div> 
@@ -97,14 +128,6 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       /> Show 'The LessWrong 2018 Review'
     </div>} */}
 
-    {/* disabled during 2018 Review [and coronavirus]*/}
-    {(configName === "frontpage") && <div> 
-      <Checkbox
-        checked={!settings.hideFrontpage}
-        onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: !checked })}
-      /> Show 'From the Archives' recommendations
-    </div>}
-
     {/* <div> 
       <Checkbox
         checked={!settings.hideCoronavirus}
@@ -112,22 +135,41 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       /> Show 'Coronavirus' recommendations
     </div> */}
 
-    <div>
-      <Checkbox
-        disabled={!currentUser}
-        checked={settings.onlyUnread && !!currentUser}
-        onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
-      /> Only show unread posts {!currentUser && "(Requires login)"}
-    </div>
+    {/* disabled during 2018 Review [and coronavirus]*/}
+    <span className={classes.settingGroup}>
+      {(configName === "frontpage") && 
+        <span className={classes.setting}>
+          <SectionFooterCheckbox
+            value={!settings.hideFrontpage}
+            onClick={(ev, checked) => applyChange({ ...settings, hideFrontpage: !settings.hideFrontpage })}
+            label="Archives"
+            tooltip="Show randomized posts from the archives"
+          />
+        </span>
+      }
+    
+      <span className={classes.setting}>
+        <SectionFooterCheckbox
+          disabled={!currentUser}
+          value={settings.onlyUnread && !!currentUser}
+          onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
+          label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
+          tooltip="'Archive Recommendations' will only show unread posts"
+        />
+      </span>
 
-    {/* Include personal blogposts (LW) or meta (EA Forum) */}
-    <div>
-      <Checkbox
-        disabled={!currentUser}
-        checked={settings[includeExtra.machineName]}
-        onChange={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: checked })}
-      /> {includeExtra.humanName}
-    </div>
+      {/* Include personal blogposts (LW) or meta (EA Forum) */}
+      <span className={classes.setting}>
+        <SectionFooterCheckbox
+          disabled={!currentUser}
+          value={settings[includeExtra.machineName]}
+          onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
+          label={includeExtra.humanName}
+          tooltip={`'Archive Recommendations' will include ${includeExtra.humanName}`}
+        />
+      </span>
+    </span>
+    {/* ea-forum look here */}
     {showAdvanced && <div>
       <div>{"Algorithm "}
         <select
@@ -190,8 +232,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   </div>;
 }
 
-const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {
-});
+const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
 
 declare global {
   interface ComponentTypes {

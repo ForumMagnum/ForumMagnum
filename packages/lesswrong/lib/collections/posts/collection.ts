@@ -36,7 +36,6 @@ export interface PostsMinimumForGetPageUrl {
 interface ExtendedPostsCollection extends PostsCollection {
   // Functions in lib/collections/posts/helpers.ts
   getLink: (post: PostsBase|DbPost, isAbsolute?: boolean, isRedirected?: boolean) => string
-  getShareableLink: (post: PostsBase|DbPost) => string
   getLinkTarget: (post: PostsBase|DbPost) => string
   getAuthorName: (post: DbPost) => string
   getDefaultStatus: (user: DbUser) => number
@@ -50,7 +49,7 @@ interface ExtendedPostsCollection extends PostsCollection {
   getCommentCount: (post: PostsBase|DbPost) => number
   getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
   getLastCommentedAt: (post: PostsBase|DbPost) => Date
-  getLastCommentPromotedAt: (post: PostsList) => Date|null
+  getLastCommentPromotedAt: (post: PostsBase|DbPost) => Date | null
   canEdit: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   canDelete: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   getKarma: (post: PostsBase|DbPost) => number
@@ -61,7 +60,7 @@ interface ExtendedPostsCollection extends PostsCollection {
   unSuggestForAlignment: any
   
   // In search/utils.ts
-  toAlgolia: (post: DbPost) => Array<Record<string,any>>|null
+  toAlgolia: (post: DbPost) => Promise<Array<Record<string,any>>|null>
   
   // Things in lib/collections/posts/collection.ts
   config: Record<string,number>

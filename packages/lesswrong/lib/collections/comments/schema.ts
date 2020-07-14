@@ -1,6 +1,7 @@
 import Users from '../users/collection';
-import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
+import { Comments } from '../comments/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
@@ -131,16 +132,16 @@ const schema = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context) => {
-      return context.Comments.getPageUrl(comment, true)
+    resolver: (comment, args, context: ResolverContext) => {
+      return Comments.getPageUrl(comment, true)
     },
   }),
 
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context) => {
-      return context.Comments.getPageUrl(comment, false)
+    resolver: (comment, args, context: ResolverContext) => {
+      return Comments.getPageUrl(comment, false)
     },
   }),
 
@@ -167,13 +168,26 @@ const schema = {
     optional: true,
     hidden: true,
   },
-  
+
+
+  directChildrenCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "directChildrenCount",
+      collectionName: "Comments",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "parentCommentId",
+      filterFn: comment => !comment.deleted
+    }),
+    canRead: ['guests'],
+  },
   
   latestChildren: resolverOnlyField({
     type: Array,
     graphQLtype: '[Comment]',
     viewableBy: ['guests'],
-    resolver: async (comment, args, { Comments }) => {
+    resolver: async (comment, args, context: ResolverContext) => {
+      const { Comments } = context;
       const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
       return await Comments.find(params.selector, params.options).fetch()
     }
@@ -314,7 +328,7 @@ const schema = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (comment, args, { Comments }) => {
+    resolver: (comment, args, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -324,7 +338,7 @@ const schema = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (comment, args, { Comments }) => {
+    resolver: (comment, args, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;

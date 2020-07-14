@@ -36,4 +36,10 @@ const EASequencesHome = ({classes}) => {
   </AnalyticsContext>
 };
 
-registerComponent('EASequencesHome', EASequencesHome, {styles});
+const EASequencesHomeComponent = registerComponent('EASequencesHome', EASequencesHome, {styles});
+
+declare global {
+  interface ComponentTypes {
+    EASequencesHome: typeof EASequencesHomeComponent
+  }
+}
