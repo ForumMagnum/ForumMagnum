@@ -14,7 +14,7 @@ const styles = theme => ({
     columnGap: 0,
     background: "white",
     padding: 20,
-    marginBottom: 24  
+    marginBottom: 24
   }
 })
 
@@ -32,7 +32,7 @@ const AllTagsPage = ({classes}: {
     ssr: true
   });
   const { AllTagsAlphabetical, TagsDetailsItem, SectionTitle, LoadMore } = Components;
-  
+
   return (
     <div className={classes.root}>
       <AllTagsAlphabetical />
@@ -45,8 +45,8 @@ const AllTagsPage = ({classes}: {
           There aren't any tags yet.
         </div>}
       </div>
-      <LoadMore 
-        {...loadMoreProps} 
+      <LoadMore
+        {...loadMoreProps}
         totalCount={totalCount}
         count={count}
       />

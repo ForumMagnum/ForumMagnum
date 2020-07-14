@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component, useCallback} from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
@@ -65,7 +65,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
     setPostRead(post._id, true);
   }
-  
+
   handleMarkAsUnread = () => {
     const {markAsReadOrUnread, post, setPostRead} = this.props;
     markAsReadOrUnread({
@@ -74,7 +74,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
     setPostRead(post._id, false);
   }
-  
+
   handleMoveToMeta = () => {
     const { post, updatePost } = this.props
     updatePost({
@@ -112,7 +112,7 @@ class PostActions extends Component<PostActionsProps,{}> {
       },
     })
   }
-  
+
   handleMakeShortform = () => {
     const { post, updateUser } = this.props;
     updateUser({
@@ -147,6 +147,30 @@ class PostActions extends Component<PostActionsProps,{}> {
     })
   }
 
+  handleAddTag = async ({tagId, tagName}: {tagId:string, tagName: string}) => {
+    const { post, mutate } = this.props
+    await mutate({
+      variables: {
+        tagId: tagId,
+        postId: post._id
+    },
+  });
+
+  }
+
+  handleAddTag = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
+    setIsAwaiting(true)
+    await mutate({
+      variables: {
+        tagId: tagId,
+        postId: post._id,
+      },
+    });
+    setIsAwaiting(false)
+    refetch()
+    captureEvent("tagAddedToItem", {tagId, tagName})
+  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent])
+
   handleOpenTagDialog = async () => {
     const { post, openDialog } = this.props
     openDialog({
@@ -162,9 +186,9 @@ class PostActions extends Component<PostActionsProps,{}> {
     const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     if (!post) return null;
     const postAuthor = post.user;
-    
+
     const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
-    
+
     return (
       <div className={classes.actions}>
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
@@ -175,7 +199,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             Edit
           </MenuItem>
         </Link>}
-        { Users.canCollaborate(currentUser, post) && 
+        { Users.canCollaborate(currentUser, post) &&
           <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
               <ListItemIcon>
@@ -206,7 +230,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
             unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
         </MenuItem>}
-        
+
         {currentUser && <MenuItem>
           <SubscribeTo document={post} showIcon
             subscribeMessage="Subscribe to comments"
@@ -216,12 +240,14 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
+
         { Users.canDo(currentUser, "posts.edit.all") &&
-          <div onClick={this.handleOpenTagDialog}>
-            <MenuItem>
-              <div className={classes.editTags}>Edit Tags</div>
-            </MenuItem>
-          </div>
+        <Components.AddTagButton onTagSelected={onTagSelected} />
+        // <div onClick={this.handleOpenTagDialog}>
+        //     <MenuItem>
+        //       <div className={classes.editTags}>Edit Tags</div>
+        //     </MenuItem>
+        //   </div>
         }
         { isRead
           ? <div onClick={this.handleMarkAsUnread}>
@@ -274,7 +300,7 @@ class PostActions extends Component<PostActionsProps,{}> {
                  </MenuItem>
                </div>
             }
-            
+
             { !post.shortform &&
                <div onClick={this.handleMakeShortform}>
                  <MenuItem>

@@ -7,7 +7,15 @@ import { linkStyle } from '../linkPreview/PostLinkPreview';
 
 const styles = theme => ({
   link: {
-    ...linkStyle(theme)
+    ...linkStyle(theme),
+    '&:after': {}
+  },
+  count: {
+    color: theme.palette.grey[500],
+    fontSize: ".9em",
+    position: "relative",
+    marginLeft: 2,
+    marginRight: 0
   }
 });
 
@@ -21,7 +29,11 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   const { tag } = useTagBySlug(slug, "TagFragment");
   const { PopperCard, TagPreview, Loading } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
-  
+  console.log({href})
+  console.log({targetLocation})
+  console.log({showPostCount: targetLocation.query.showPostCount})
+  const { showPostCount } = targetLocation.query
+
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
       {tag
@@ -29,6 +41,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
         : <Loading/>}
     </PopperCard>
     <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    {tag && tag.postCount && <span className={classes.count}>({tag.postCount})</span>}
   </span>;
 }
 
