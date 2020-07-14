@@ -27,11 +27,6 @@ mdi.use(markdownItSub)
 
 import { mjpage }  from 'mathjax-node-page'
 
-const mjPageSettings = {
-  fragment: true, 
-  displayErrors: true,
-}
-
 function mjPagePromise(html, beforeSerializationCallback) {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
@@ -42,7 +37,7 @@ function mjPagePromise(html, beforeSerializationCallback) {
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
-    mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
+    mjpage(html, { fragment: true, errorHandler} , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
 }
