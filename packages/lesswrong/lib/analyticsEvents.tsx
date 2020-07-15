@@ -1,6 +1,6 @@
 import { addGraphQLSchema, Vulcan } from './vulcan-lib';
 import { RateLimiter } from './rateLimiter';
-import React, { useContext, useEffect, useState, useRef } from 'react'
+import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
@@ -91,13 +91,13 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip])
 
-  const track: (type?: string|undefined, trackingData?: Record<string,any>)=>void = (type, trackingData) => {
+  const track = useCallback((type?: string|undefined, trackingData?: Record<string,any>) => (type, trackingData) => {
     captureEvent(type || eventType, {
       ...trackingContext,
       ...eventProps,
       ...trackingData
     })
-  }
+  }, [trackingContext, eventProps, eventType])
   return {captureEvent: track}
 }
 

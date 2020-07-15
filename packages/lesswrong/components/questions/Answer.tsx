@@ -105,6 +105,9 @@ const styles = theme => ({
     marginTop: -12,
     marginBottom: 10
   },
+  retracted: {
+    textDecoration: "line-through",
+  },
 })
 
 const Answer = ({ comment, post, classes }: {
@@ -122,7 +125,7 @@ const Answer = ({ comment, post, classes }: {
     setShowEdit(false)
   }, [setShowEdit]);
 
-  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName } = Components
+  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats } = Components
   const { html = "" } = comment.contents || {}
 
   return (
@@ -174,11 +177,15 @@ const Answer = ({ comment, post, classes }: {
                   cancelCallback={hideEdit}
                 />
                 :
-                <ContentItemBody
-                  className={classes.postContent}
-                  dangerouslySetInnerHTML={{__html:html}}
-                  description={`comment ${comment._id} on post ${post._id}`}
-                />
+                <>
+                  <ContentItemBody
+                    className={classNames(classes.postContent,
+                      {[classes.retracted]: comment.retracted})}
+                    dangerouslySetInnerHTML={{__html:html}}
+                    description={`comment ${comment._id} on post ${post._id}`}
+                  />
+                  <CommentBottomCaveats comment={comment}/>
+                </>
               }
             </div>
           </AnalyticsContext>

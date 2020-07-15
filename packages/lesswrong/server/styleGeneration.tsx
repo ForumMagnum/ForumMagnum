@@ -12,12 +12,12 @@ const generateMergedStylesheet = (): string => {
   
   const context: any = {};
   const componentsWithStyles = _.filter(Object.keys(ComponentsTable),
-    componentName=>ComponentsTable[componentName].styles);
+    componentName=>ComponentsTable[componentName].options?.styles);
   
   const DummyComponent = (props) => <div/>
   const DummyTree = <div>
     {componentsWithStyles.map(componentName => {
-      const StyledComponent = withStyles(ComponentsTable[componentName].styles, {name: componentName})(DummyComponent)
+      const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
     })}
   </div>

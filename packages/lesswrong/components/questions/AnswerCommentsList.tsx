@@ -141,7 +141,12 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   );
 }
 
-const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
+const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {
+  styles,
+  areEqual: {
+    terms: "deep",
+  }
+});
 
 declare global {
   interface ComponentTypes {

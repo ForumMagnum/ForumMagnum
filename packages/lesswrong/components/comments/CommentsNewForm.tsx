@@ -115,8 +115,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
               componentProps: {}
             });
             ev.preventDefault();
-          } else {
-            setTimeout(() => setLoading(true), 0)
           }
         }}
       >
@@ -143,6 +141,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
           mutationFragment={getFragment(fragment)}
           successCallback={wrappedSuccessCallback}
           cancelCallback={wrappedCancelCallback}
+          submitCallback={(data) => { 
+            setLoading(true);
+            return data
+          }}
           errorCallback={() => setLoading(false)}
           prefilledProps={prefilledProps}
           layout="elementOnly"

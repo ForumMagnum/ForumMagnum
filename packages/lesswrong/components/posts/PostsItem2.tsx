@@ -556,7 +556,10 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
-  hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary],
+  areEqual: {
+    terms: "deep",
+  },
 });
 
 declare global {

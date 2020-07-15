@@ -59,7 +59,12 @@ const AnswersList = ({terms, post, classes}: {
   }
 };
 
-const AnswersListComponent = registerComponent('AnswersList', AnswersList, {styles});
+const AnswersListComponent = registerComponent('AnswersList', AnswersList, {
+  styles,
+  areEqual: {
+    terms: "deep",
+  }
+});
 
 declare global {
   interface ComponentTypes {
