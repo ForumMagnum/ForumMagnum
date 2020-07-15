@@ -61,7 +61,7 @@ export const Components: ComponentTypes = new Proxy({}, componentsProxyHandler);
 const PreparedComponents = {};
 
 // storage for infos about components
-const ComponentsTable: Record<string, ComponentsTableEntry> = {};
+export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
 const DeferredComponentsTable = {};
 
@@ -89,6 +89,17 @@ const coreComponents: Array<string> = [
 type C<T=any> = React.ComponentType<T>
 type HoC<O,T> = (component: C<O>) => C<T>
 
+const addClassnames = (componentName: string) => {
+  const classesProxy = new Proxy({}, {
+    get: function(obj: any, prop: any) {
+      return `${componentName}-${prop}`;
+    }
+  });
+  return (WrappedComponent) => (props) => {
+    return <WrappedComponent {...props} classes={classesProxy}/>
+  }
+}
+
 // Register a component. Takes a name, a raw component, and ComponentOptions
 // (see above). Components should be in their own file, imported with
 // `importComponent`, and registered in that file; components that are
@@ -103,7 +114,11 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    hocs.push(withStyles(styles, {name: name}));
+    if (Meteor.isClient && (window as any).missingMainStylesheet) {
+      hocs.push(withStyles(styles, {name: name}));
+    } else {
+      hocs.push(addClassnames(name));
+    }
   }
   
   rawComponent.displayName = name;
