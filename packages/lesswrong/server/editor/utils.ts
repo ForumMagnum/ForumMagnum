@@ -18,7 +18,7 @@ Utils.trimLatexAndAddCSS = (dom, css) => {
   }
   const [firstLatexElement] = dom.getElementsByClassName("mjx-chtml");
   const styleNode = dom.createElement("style");
-  styleNode.innerText = css;
+  styleNode.textContent = css;
   if (firstLatexElement) firstLatexElement.appendChild(styleNode);
   return dom
 }
