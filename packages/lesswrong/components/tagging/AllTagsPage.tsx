@@ -13,6 +13,12 @@ const styles = theme => ({
     margin: "auto",
     maxWidth: 1000
   },
+  topSection: {
+    maxWidth: 800,
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginBottom: theme.spacing.unit*8
+  },
   alphabetical: {
     columns: 5,
     columnWidth: 200,
@@ -25,7 +31,7 @@ const styles = theme => ({
     marginTop: 18,
     ...commentBodyStyles(theme),
     marginBottom: 18,
-    padding: 100,
+    // padding: 20,
     position: "relative"
   },
   edit: {
@@ -58,19 +64,21 @@ const AllTagsPage = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <SectionTitle title="Tag Portal"/>
-      <div className={classes.portal}>
-        {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
-          Edit
-        </a>}
-        {editing && tag ?
-          <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
-          :
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
-            description={`tag ${tag?.name}`}
-          />
-        }
+      <div className={classes.topSection}>
+        <SectionTitle title="Tag Portal"/>
+        <div className={classes.portal}>
+          {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
+            Edit
+          </a>}
+          {editing && tag ?
+            <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+            :
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
+              description={`tag ${tag?.name}`}
+            />
+          }
+        </div>
       </div>
       <SectionTitle title="Tag Details"/>
       <div>
@@ -89,7 +97,6 @@ const AllTagsPage = ({classes}: {
         />
       </SectionFooter>
       <AllTagsAlphabetical />
-
     </div>
   );
 }
