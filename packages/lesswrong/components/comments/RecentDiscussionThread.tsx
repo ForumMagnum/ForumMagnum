@@ -212,7 +212,11 @@ const RecentDiscussionThread = ({
 const RecentDiscussionThreadComponent = registerComponent(
   'RecentDiscussionThread', RecentDiscussionThread, {
     styles,
-    hocs: [withErrorBoundary]
+    hocs: [withErrorBoundary],
+    areEqual: {
+      post: (before, after) => (before?._id === after?._id),
+      refetch: "ignore",
+    },
   }
 );
 

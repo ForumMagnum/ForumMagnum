@@ -21,7 +21,6 @@ export const createApolloClient = () => {
   
   return new ApolloClient({
     link: ApolloLink.from([errorLink, meteorAccountsLink, httpLink]),
-    cache,
-    ssrForceFetchDelay: 500,
+    cache
   });
 };
