@@ -31,13 +31,17 @@ const styles = theme => ({
     marginTop: 18,
     ...commentBodyStyles(theme),
     marginBottom: 18,
-    // padding: 20,
-    position: "relative"
+    position: "relative",
+    [theme.breakpoints.down('sm')]: {
+      '& td': {
+        display: 'block',
+        width: '100% !important',
+      }
+    }
   },
   edit: {
     position: "absolute",
-    top: 20,
-    right: 20,
+    right: 5,
     color: theme.palette.grey[600]
   }
 })
