@@ -4,40 +4,74 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanManageTags } from '../../lib/betas';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
 import { EditTagForm } from './EditTagPage';
+import { useMulti } from '../../lib/crud/withMulti';
+import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = theme => ({
   root: {
     background: "white",
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    borderBottom: "solid 1px rgba(0,0,0,.1)"
   },
   description: {
-    width: 640,
+    maxWidth: 580,
     paddingRight: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 12,
+    paddingBottom: 10,
+    paddingLeft: 20,
     verticalAlign: "top",
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+      maxWidth: "unset"
+    }
   },
-  metaInfo: {
+  edit: {
     fontSize: "1rem",
     color: theme.palette.grey[500],
-    marginTop: 12,
-    marginRight: 8
+    marginTop: 10,
   },
+  postCount: {
+    fontSize: "1rem",
+    color: theme.palette.grey[500],
+    marginBottom: 10,
+    display: "block"
+  },
+  posts: {
+    width: 410,
+    padding: 20,
+    paddingBottom: 10,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      paddingTop: 0
+    }
+  }
 });
 
 const TagsDetailsItem = ({tag, classes }: {
   tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
-  const { LinkCard, TagPreviewDescription } = Components;
+  const { LinkCard, TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const currentUser = useCurrentUser();
   const [ editing, setEditing ] = useState(false)
 
-  return <TableRow className={classes.root}>
-    <TableCell className={classes.description}>
+  const { results: tagRels, loading } = useMulti({
+    skip: !(tag._id),
+    terms: {
+      view: "postsWithTag",
+      tagId: tag._id,
+    },
+    collection: TagRels,
+    fragmentName: "TagRelFragment",
+    limit: 3,
+  });
+
+  return <div className={classes.root}>
+    <div className={classes.description}>
       {editing ? 
         <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
         :
@@ -45,20 +79,23 @@ const TagsDetailsItem = ({tag, classes }: {
           <TagPreviewDescription tag={tag} />
         </LinkCard>
       }
-    </TableCell>
-    <TableCell>
+      {userCanManageTags(currentUser) && 
+      <a onClick={() => setEditing(true)} className={classes.edit}>
+        Edit
+      </a>}
+    </div>
+    <div className={classes.posts}>
       <div>
-        {userCanManageTags(currentUser) && 
-          <a onClick={() => setEditing(true)} className={classes.metaInfo}>
-            Edit
-          </a>
-        }
-        <Link to={Tags.getUrl(tag)} className={classes.metaInfo}>
-          {tag.postCount} posts
+        <Link to={Tags.getUrl(tag)} className={classes.postCount}>
+          {tag.postCount} posts tagged <em>{tag.name}</em>
         </Link>
+        {!tagRels && loading && <Loading/>}
+        {tagRels && tagRels.map(tagRel=>
+          <TagSmallPostLink key={tagRel._id} post={tagRel.post} hideAuthor wrap/>
+        )}
       </div>
-    </TableCell>
-  </TableRow>
+    </div>
+  </div>
 }
 
 const TagsDetailsItemComponent = registerComponent("TagsDetailsItem", TagsDetailsItem, {styles});

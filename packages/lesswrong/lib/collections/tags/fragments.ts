@@ -5,12 +5,16 @@ registerFragment(`
     _id
     name
     slug
+    oldSlugs
     core
     postCount
     deleted
     adminOnly
     defaultOrder
     suggestedAsFilter
+    needsReview
+    reviewedByUserId
+    descriptionTruncationCount
   }
 `);
 
@@ -48,6 +52,15 @@ registerFragment(`
     ...TagBasicInfo
     description {
       ...RevisionEdit
+    }
+  }
+`);
+
+registerFragment(`
+  fragment SunshineTagFragment on Tag {
+    ...TagFragment
+    user {
+      ...UsersMinimumInfo
     }
   }
 `);

@@ -8,10 +8,12 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     paddingTop: 3,
-    paddingBottom: 3,
     paddingLeft: 6,
-    whiteSpace: "nowrap",
-    ...theme.typography.smallText,
+    paddingRight: 12,
+    fontSize: "1.1rem",
+    lineHeight: "1.1em",
+    marginBottom: 8
+
   },
   count: {
     color: theme.palette.grey[500],
@@ -19,6 +21,11 @@ const styles = theme => ({
     position: "relative",
     marginLeft: 4,
     marginRight: 8
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 });
 
@@ -35,10 +42,10 @@ const TagsListItem = ({tag, classes}: {
       anchorEl={anchorEl} 
       placement="right-start"
     >
-      <TagPreview tag={tag}/>
+      <div className={classes.hideOnMobile}><TagPreview tag={tag}/></div>
     </PopperCard>
     <Link to={`/tag/${tag.slug}`}>
-      {tag.name}
+      {tag.name} { tag.needsReview }
     </Link>
     {tag.postCount && <span className={classes.count}>({tag.postCount})</span>} 
   </div>;

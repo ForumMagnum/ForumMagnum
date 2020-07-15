@@ -7,7 +7,7 @@ registerMigration({
   dateWritten: "2019-04-10",
   idempotent: true,
   action: async () => {
-    forEachDocumentBatchInCollection({
+    await forEachDocumentBatchInCollection({
       collection: Users,
       batchSize: 1000,
       callback: (users) => {

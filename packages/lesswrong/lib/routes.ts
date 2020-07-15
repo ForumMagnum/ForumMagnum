@@ -73,18 +73,21 @@ addRoute(
   {
     name:'users.account',
     path:'/account',
-    componentName: 'UsersAccount'
+    componentName: 'UsersAccount',
+    background: "white"
   },
   {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
     title: "Manage Subscriptions",
+    background: "white"
   },
   {
     name:'users.edit',
     path:'/users/:slug/edit',
-    componentName: 'UsersAccount'
+    componentName: 'UsersAccount',
+    background: "white"
   },
 
   // Miscellaneous LW2 routes
@@ -92,12 +95,14 @@ addRoute(
     name: 'login',
     path: '/login',
     componentName: 'LoginPage',
-    title: "Login"
+    title: "Login",
+    background: "white"
   },
   {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
-    componentName: 'ResendVerificationEmailPage'
+    componentName: 'ResendVerificationEmailPage',
+    background: "white"
   },
   {
     name: 'inbox',
@@ -109,19 +114,22 @@ addRoute(
     name: 'conversation',
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
-    title: "Private Conversation"
+    title: "Private Conversation",
+    background: "white"
   },
 
   {
     name: 'newPost',
     path: '/newPost',
     componentName: 'PostsNewForm',
-    title: "New Post"
+    title: "New Post",
+    background: "white"
   },
   {
     name: 'editPost',
     path: '/editPost',
-    componentName: 'PostsEditPage'
+    componentName: 'PostsEditPage',
+    background: "white"
   },
   {
     name: 'collaboratePost',
@@ -154,13 +162,15 @@ addRoute(
   {
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
-    componentName: 'SequencesEditForm'
+    componentName: 'SequencesEditForm',
+    background: "white"
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     componentName: 'SequencesNewForm',
-    title: "New Sequence"
+    title: "New Sequence",
+    background: "white"
   },
   {
     name: 'sequencesPost',
@@ -170,13 +180,15 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+    background: "white"
   },
 
   {
     name: 'chaptersEdit',
     path: '/chaptersEdit/:_id',
     componentName: 'ChaptersEditForm',
-    title: "Edit Chapter"
+    title: "Edit Chapter",
+    background: "white"
   },
 
   // Collections
@@ -214,6 +226,7 @@ addRoute(
     componentName: 'NewTagPage',
     title: "New Tag",
     subtitleComponentName: 'TagPageTitle',
+    background: "white"
   },
   {
     name: 'allTags',

@@ -1,7 +1,6 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { Comments } from '../../lib/collections/comments';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -12,6 +11,9 @@ import Users from '../../lib/collections/users/collection';
 
 const styles = theme => ({
   root: {
+  },
+  loadingRoot: {
+    opacity: 0.5
   },
   form: {
     padding: 10,
@@ -63,8 +65,22 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   };
   
   const [showGuidelines, setShowGuidelines] = useState(false)
-  
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning } = Components
+  const [loading, setLoading] = useState(false)
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+
+  const wrappedSuccessCallback = (...args) => {
+    if (successCallback) {
+      successCallback(...args)
+    }
+    setLoading(false)
+  };
+
+  const wrappedCancelCallback = (...args) => {
+    if (cancelCallback) {
+      cancelCallback(...args)
+    }
+    setLoading(false)
+  };
   
   if (post) {
     prefilledProps = {
@@ -102,18 +118,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
           }
         }}
       >
-        {submitLabel}
+        {loading ? <Loading /> : submitLabel}
       </Button>
     </div>
   };
 
   if (currentUser && !Users.canDo(currentUser, `posts.moderate.all`) && !Users.isAllowedToComment(currentUser, prefilledProps)) {
-    return <FormattedMessage id="users.cannot_comment"/>;
+    return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
   const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
   return (
-    <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
+    <div className={loading ? classes.loadingRoot : classes.root} onFocus={()=>setShowGuidelines(true)}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classes.form : null}>
         {commentWillBeHidden && <div className={classes.modNote}><em>
@@ -123,8 +139,13 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         <WrappedSmartForm
           collection={Comments}
           mutationFragment={getFragment(fragment)}
-          successCallback={successCallback}
-          cancelCallback={cancelCallback}
+          successCallback={wrappedSuccessCallback}
+          cancelCallback={wrappedCancelCallback}
+          submitCallback={(data) => { 
+            setLoading(true);
+            return data
+          }}
+          errorCallback={() => setLoading(false)}
           prefilledProps={prefilledProps}
           layout="elementOnly"
           formComponents={{

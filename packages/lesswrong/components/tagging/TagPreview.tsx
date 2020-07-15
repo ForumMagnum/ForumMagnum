@@ -12,7 +12,7 @@ const styles = theme => ({
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 6,
-    width: 600,
+    width: 500,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
@@ -42,10 +42,11 @@ const styles = theme => ({
     marginBottom: 2,
     marginRight: 6
   },
-  smallPost: {
-    ...theme.typography.commentStyle,
-    ...theme.typography.smallText,
-    color: theme.palette.grey[600]
+  posts: {
+    marginTop: 12,
+    paddingTop: 8,
+    borderTop: "solid 1px rgba(0,0,0,.08)",
+    marginBottom: 8
   }
 });
 
@@ -56,7 +57,7 @@ const TagPreview = ({tag, classes, showCount=true}: {
   classes: ClassesType,
   showCount?: boolean
 }) => {
-  const { TagPreviewDescription, PostsItem2, PostsListPlaceholder } = Components;
+  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
     terms: {
@@ -73,13 +74,9 @@ const TagPreview = ({tag, classes, showCount=true}: {
 
   return (<div className={classes.card}>
     <TagPreviewDescription tag={tag}/>
-    {!results && <PostsListPlaceholder count={previewPostCount} />}
-    {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={showCount || i!=2}/>
-    )}
-    {/* {!showPosts && results && results.map((result, i) => {
-      return <span key={result.post._id} className={classes.smallPost}>{result.post.title}, </span>
-    })} */}
+    {results ? <div className={classes.posts}>
+      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} />)}
+    </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
     </div>}

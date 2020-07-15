@@ -96,7 +96,11 @@ const RecentDiscussionThreadsList = ({
   )
 }
 
-const RecentDiscussionThreadsListComponent = registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList);
+const RecentDiscussionThreadsListComponent = registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, {
+  areEqual: {
+    terms: "deep",
+  },
+});
 
 declare global {
   interface ComponentTypes {

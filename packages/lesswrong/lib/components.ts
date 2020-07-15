@@ -226,7 +226,7 @@ importComponent("ShortformSubmitForm", () => require('../components/shortform/Sh
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
-importComponent("CommentsVote", () => require('../components/votes/CommentsVote'));
+importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // events
@@ -281,6 +281,7 @@ importComponent("CommentActions", () => require('../components/comments/CommentA
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
 importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentActions/ToggleIsModeratorComment'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
@@ -348,6 +349,8 @@ importComponent("SunshineReportedContentList", () => require('../components/suns
 importComponent("SunshineReportedItem", () => require('../components/sunshineDashboard/SunshineReportedItem'));
 importComponent("SunshineCuratedSuggestionsItem", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsItem'));
 importComponent("SunshineCuratedSuggestionsList", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsList'));
+importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));
+importComponent("SunshineNewTagsItem", () => require('../components/sunshineDashboard/SunshineNewTagsItem'));
 importComponent("SunshineSidebar", () => require('../components/sunshineDashboard/SunshineSidebar'));
 importComponent("SunshineListTitle", () => require('../components/sunshineDashboard/SunshineListTitle'));
 importComponent("SunshineListItem", () => require('../components/sunshineDashboard/SunshineListItem'));
@@ -370,6 +373,10 @@ importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'))
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
+importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
+
+
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));

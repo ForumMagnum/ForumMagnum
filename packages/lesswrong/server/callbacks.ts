@@ -10,24 +10,16 @@ import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
-import {
-  getCollection,
-  addCallback,
-  newMutation,
-  editMutation,
-  removeMutation,
-  Utils,
-  runCallbacksAsync,
-  runQuery
-} from './vulcan-lib';
+import { getCollection, addCallback, newMutation, editMutation, removeMutation, Utils, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 
-function updateConversationActivity (message) {
+async function updateConversationActivity (message) {
   // Update latest Activity timestamp on conversation when new message is added
   const user = Users.findOne(message.userId);
   const conversation = Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
-  editMutation({
+  await editMutation({
     collection: Conversations,
     documentId: conversation._id,
     set: {latestActivity: message.createdAt},
@@ -222,17 +214,17 @@ async function userIPBan(user) {
   `;
   const IPs: any = await runQuery(query, {userId: user._id});
   if (IPs) {
-    IPs.data.user.result.IPs.forEach(ip => {
+    await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const ban = {
+      const ban: Partial<DbBan> = {
         expirationDate: tomorrow,
         userId: user._id,
         reason: "User account banned",
         comment: "Automatic IP ban",
         ip: ip,
       }
-      newMutation({
+      await newMutation({
         collection: Bans,
         document: ban,
         currentUser: user,

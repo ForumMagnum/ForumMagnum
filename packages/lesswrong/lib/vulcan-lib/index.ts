@@ -12,7 +12,6 @@ export * from './admin';
 export * from './debug';
 export * from './errors';
 export * from './intl';
-export * from './detect_locale';
 export * from './graphql_templates';
 export * from './validation';
 export * from './handleOptions';

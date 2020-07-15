@@ -120,6 +120,7 @@ import './server/connection_logs';
 
 import './server/codegen/generateTypes';
 
+import './server/styleGeneration';
 
 // Algolia Search Integration
 import './server/search/utils';

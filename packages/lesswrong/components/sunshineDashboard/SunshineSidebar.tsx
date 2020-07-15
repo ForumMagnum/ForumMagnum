@@ -37,7 +37,7 @@ const SunshineSidebar = ({classes}) => {
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
 
-  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
+  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewTagsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
 
   if (!currentUser) return null
 
@@ -47,6 +47,7 @@ const SunshineSidebar = ({classes}) => {
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
         <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+        <SunshineNewTagsList />
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         
         {/* alignmentForumAdmins see AF content above the fold */}
@@ -57,17 +58,20 @@ const SunshineSidebar = ({classes}) => {
         </div>}
       </div>}
 
-      { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
-        Hide Full Sidebar
-          <KeyboardArrowDownIcon />
-        </div>
-        :
-        <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
-          Show Full Sidebar
-          <KeyboardArrowRightIcon />
-        </div>}
+      {Users.canDo(currentUser, 'posts.moderate.all') && <div>
+        { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
+          Hide Full Sidebar
+            <KeyboardArrowDownIcon />
+          </div>
+          :
+          <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
+            Show Full Sidebar
+            <KeyboardArrowRightIcon />
+          </div>}
+      </div>}
 
-      { showSidebar && <div>
+
+      { showSidebar && Users.canDo(currentUser, 'posts.moderate.all') && <div>
         {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}        
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
 

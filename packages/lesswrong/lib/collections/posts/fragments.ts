@@ -52,7 +52,6 @@ registerFragment(`
     hiddenRelatedQuestion
     originalPostRelationSourceId
 
-    # vulcan:users
     userId
     
     # Local Event data
@@ -111,6 +110,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsWithVotes on Post {
+    ...PostsBase
+    currentUserVotes{
+      ...VoteFragment
+    }
+  }
+`);
+
+
+registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
@@ -136,10 +145,9 @@ registerFragment(`
       version
     }
     moderationGuidelines {
-      ...RevisionDisplay
+      html
     }
     customHighlight {
-      version
       html
     }
 
@@ -381,8 +389,13 @@ registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsList
 
+    currentUserVotes{
+      ...VoteFragment
+    }
+
     contents {
       html
+      htmlHighlight
     }
     
     user {

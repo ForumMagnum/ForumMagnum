@@ -14,7 +14,7 @@ function GroupsNewDefaultPost (group, { currentUser }) {
   const post = {...groupWelcomePostTemplate, ...newFields};
   //eslint-disable-next-line no-console
   console.info("Creating new post for new group", post);
-  newMutation({
+  void newMutation({
     collection: Posts,
     document: post,
     currentUser,

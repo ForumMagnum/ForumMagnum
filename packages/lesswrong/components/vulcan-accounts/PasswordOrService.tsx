@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { hasPasswordService } from '../../lib/vulcan-accounts/helpers';
 import { registerComponent } from '../../lib/vulcan-core';
-import { intlShape } from '../../lib/vulcan-i18n';
 
 export class AccountsPasswordOrService extends PureComponent<any> {
   render () {
@@ -18,7 +17,7 @@ export class AccountsPasswordOrService extends PureComponent<any> {
     if (hasPasswordService() && services.length > 0) {
       return (
         <div style={style} className={className}>
-          { `${this.context.intl.formatMessage({id: 'accounts.or_use'})} ${ labels.join(' / ') }` }
+          { `or use ${ labels.join(' / ') }` }
         </div>
       );
     }
@@ -28,10 +27,6 @@ export class AccountsPasswordOrService extends PureComponent<any> {
 
 (AccountsPasswordOrService as any).propTypes = {
   oauthServices: PropTypes.object
-};
-
-(AccountsPasswordOrService as any).contextTypes = {
-  intl: intlShape
 };
 
 const AccountsPasswordOrServiceComponent = registerComponent('AccountsPasswordOrService', AccountsPasswordOrService);

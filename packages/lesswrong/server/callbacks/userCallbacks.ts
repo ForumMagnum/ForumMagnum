@@ -53,7 +53,7 @@ addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
-function approveUnreviewedSubmissions (newUser, oldUser)
+async function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
@@ -62,7 +62,7 @@ function approveUnreviewedSubmissions (newUser, oldUser)
     // to now so that it goes to the right place int he latest posts list.
     const unreviewedPosts = Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
     for (let post of unreviewedPosts) {
-      editMutation<DbPost>({
+      await editMutation<DbPost>({
         collection: Posts,
         documentId: post._id,
         set: {
@@ -158,7 +158,7 @@ async function subscribeOnSignup (user) {
     Accounts.sendVerificationEmail(user._id);
     
     if (subscribeToCurated) {
-      bellNotifyEmailVerificationRequired(user);
+      await bellNotifyEmailVerificationRequired(user);
     }
   }
 }

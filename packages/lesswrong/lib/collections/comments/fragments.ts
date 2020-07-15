@@ -2,18 +2,16 @@ import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
   fragment CommentsList on Comment {
-    # example-forum
     _id
     postId
     parentCommentId
     topLevelCommentId
     contents {
-      ...RevisionDisplay
+      html
       plaintextMainText
     }
     postedAt
     repliesBlockedUntil
-    # vulcan:users
     userId
     deleted
     deletedPublic
@@ -22,7 +20,6 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    # vulcan:voting
     currentUserVotes {
       ...VoteFragment
     }

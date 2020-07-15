@@ -32,7 +32,7 @@ export function setOnGraphQLError(fn)
 export const runGraphQL = async (query: any, variables: any = {}, context?: any) => {
   const defaultContext = {
     currentUser: { isAdmin: true },
-    locale: localeSetting,
+    locale: localeSetting.get(),
   };
   const queryContext = merge(defaultContext, context);
   const executableSchema = GraphQLSchema.getExecutableSchema();

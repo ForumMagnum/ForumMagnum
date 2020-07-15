@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
-import { Posts } from '../../../lib/collections/posts';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
@@ -47,7 +46,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const wordCount = post.contents?.wordCount || 0
   
   return <>
-    {!post.shortform && <AnalyticsContext pageSectionContext="tagFooter">
+    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) && <AnalyticsContext pageSectionContext="tagFooter">
       <div className={classes.footerTagList}>
         <FooterTagList post={post}/>
       </div>
@@ -56,10 +55,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>
           <AnalyticsContext pageSectionContext="lowerVoteButton">
-            <PostsVote
-              collection={Posts}
-              post={post}
-            />
+            <PostsVote post={post} />
           </AnalyticsContext>
         </div>
       </div>}

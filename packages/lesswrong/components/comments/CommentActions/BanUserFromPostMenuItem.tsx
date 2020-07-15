@@ -30,7 +30,10 @@ const BanUserFromPostMenuItem = ({ comment, post }: {
       updatePost({
         selector: {_id: comment.postId},
         data: {bannedUserIds:bannedUserIds}
-      }).then(()=>flash({messageString: `User ${comment.user.displayName} is now banned from commenting on ${post.title}`}))
+      }).then(
+        ()=>flash({messageString: `User ${comment.user.displayName} is now banned from commenting on ${post.title}`}),
+        ()=>flash({messageString: `Error banning user ${comment.user.displayName}`})
+      );
     }
   }
 

@@ -87,7 +87,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         [configName]: newSettings
       };
     
-      updateUser({
+      void updateUser({
         selector: { _id: currentUser._id },
         data: {
           recommendationSettings: mergedSettings

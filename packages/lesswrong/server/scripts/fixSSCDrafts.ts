@@ -73,7 +73,7 @@ if (runSSCFix) {
       console.log("Updated codex draft status");
     }
 
-    updateCodexDrafts()
+    void updateCodexDrafts()
   });
 
 }
