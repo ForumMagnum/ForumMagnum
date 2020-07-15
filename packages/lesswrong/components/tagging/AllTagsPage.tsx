@@ -32,10 +32,11 @@ const styles = theme => ({
     ...commentBodyStyles(theme),
     marginBottom: 18,
     position: "relative",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       '& td': {
         display: 'block',
         width: '100% !important',
+        height: 'inherit !important'
       }
     }
   },
