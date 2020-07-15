@@ -59,7 +59,7 @@ interface UtilsType {
   deepExtend: any
   
   // In server/editor/utils.ts
-  trimEmptyLatexParagraphs: any
+  trimLatexAndAddCSS: any
   preProcessLatex: any
   
   // In server/tableOfContents.ts
