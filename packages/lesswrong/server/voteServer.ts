@@ -61,7 +61,7 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId, upd
       },
       {}, true
     );
-    await algoliaExportById(collection, newDocument._id);
+    void algoliaExportById(collection, newDocument._id);
   }
   return {newDocument, vote};
 }
@@ -121,7 +121,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
-    await algoliaExportById(collection, newDocument._id);
+    void algoliaExportById(collection, newDocument._id);
   }
   return newDocument;
 }
@@ -186,7 +186,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
       {},
       true
     );
-    await algoliaExportById(collection, newDocument._id);
+    void algoliaExportById(collection, newDocument._id);
   }
   return {newDocument, vote};
 }
