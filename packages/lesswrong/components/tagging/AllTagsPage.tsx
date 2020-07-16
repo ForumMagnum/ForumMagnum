@@ -7,6 +7,7 @@ import { commentBodyStyles } from '../../themes/stylePiping'
 import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
 import { useCurrentUser } from '../common/withUser';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -68,41 +69,49 @@ const AllTagsPage = ({classes}: {
   const { AllTagsAlphabetical, TagsDetailsItem, SectionTitle, LoadMore, SectionFooter, ContentItemBody } = Components;
 
   return (
-    <div className={classes.root}>
-      <div className={classes.topSection}>
-        <SectionTitle title="Tag Portal"/>
-        <div className={classes.portal}>
-          {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
-            Edit
-          </a>}
-          {editing && tag ?
-            <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
-            :
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
-              description={`tag ${tag?.name}`}
-            />
-          }
+    <AnalyticsContext pageContext="allTagsPage">
+      <div className={classes.root}>
+        <div className={classes.topSection}>
+          <AnalyticsContext pageSectionContext="tagPortal">
+            <SectionTitle title="Tag Portal"/>
+            <div className={classes.portal}>
+              {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
+                Edit
+              </a>}
+              {editing && tag ?
+                <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+                :
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
+                  description={`tag ${tag?.name}`}
+                />
+              }
+            </div>
+          </AnalyticsContext>
         </div>
+        <AnalyticsContext pageSectionContext="tagDetails">
+          <SectionTitle title="Tag Details"/>
+          <div>
+            {results && results.map(tag => {
+              return <TagsDetailsItem key={tag._id} tag={tag} />
+            })}
+            {results && !results.length && <div>
+              There aren't any tags yet.
+            </div>}
+          </div>
+          <SectionFooter>
+            <LoadMore
+              {...loadMoreProps}
+              totalCount={totalCount}
+              count={count}
+            />
+          </SectionFooter>
+        </AnalyticsContext>
+        <AnalyticsContext pageSectionContext="allTagsAlphabetical">
+          <AllTagsAlphabetical />
+        </AnalyticsContext>
       </div>
-      <SectionTitle title="Tag Details"/>
-      <div>
-        {results && results.map(tag => {
-          return <TagsDetailsItem key={tag._id} tag={tag} />
-        })}
-        {results && !results.length && <div>
-          There aren't any tags yet.
-        </div>}
-      </div>
-      <SectionFooter>
-        <LoadMore
-          {...loadMoreProps}
-          totalCount={totalCount}
-          count={count}
-        />
-      </SectionFooter>
-      <AllTagsAlphabetical />
-    </div>
+    </AnalyticsContext>
   );
 }
 
