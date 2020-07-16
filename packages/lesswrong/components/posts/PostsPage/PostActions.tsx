@@ -1,4 +1,4 @@
-import React, {Component, useCallback} from 'react'
+import React, { Component } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
@@ -147,30 +147,6 @@ class PostActions extends Component<PostActionsProps,{}> {
     })
   }
 
-  handleAddTag = async ({tagId, tagName}: {tagId:string, tagName: string}) => {
-    const { post, mutate } = this.props
-    await mutate({
-      variables: {
-        tagId: tagId,
-        postId: post._id
-    },
-  });
-
-  }
-
-  handleAddTag = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
-    setIsAwaiting(true)
-    await mutate({
-      variables: {
-        tagId: tagId,
-        postId: post._id,
-      },
-    });
-    setIsAwaiting(false)
-    refetch()
-    captureEvent("tagAddedToItem", {tagId, tagName})
-  }, [setIsAwaiting, mutate, refetch, post._id, captureEvent])
-
   handleOpenTagDialog = async () => {
     const { post, openDialog } = this.props
     openDialog({
@@ -240,14 +216,12 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
-
         { Users.canDo(currentUser, "posts.edit.all") &&
-        <Components.AddTagButton onTagSelected={onTagSelected} />
-        // <div onClick={this.handleOpenTagDialog}>
-        //     <MenuItem>
-        //       <div className={classes.editTags}>Edit Tags</div>
-        //     </MenuItem>
-        //   </div>
+          <div onClick={this.handleOpenTagDialog}>
+            <MenuItem>
+              <div className={classes.editTags}>Edit Tags</div>
+            </MenuItem>
+          </div>
         }
         { isRead
           ? <div onClick={this.handleMarkAsUnread}>
