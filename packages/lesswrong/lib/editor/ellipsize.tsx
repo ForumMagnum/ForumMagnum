@@ -1,4 +1,4 @@
-import truncatise from 'truncatise';
+import truncatise from '../truncatise';
 
 const highlightMaxChars = 2400;
 export const GTP2_TRUNCATION_CHAR_COUNT = 400;
