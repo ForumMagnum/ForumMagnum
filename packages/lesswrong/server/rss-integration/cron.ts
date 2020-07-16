@@ -88,4 +88,4 @@ addCronJob({
   job: runRSSImport
 });
 
-Vulcan.runRSSImpoort = runRSSImport
+Vulcan.runRSSImport = runRSSImport
