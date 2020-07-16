@@ -87,6 +87,10 @@
                                 ? '...'
                                 : options.Suffix;
 
+        var matchByWords = options.TruncateBy==="word"||options.TruncateBy==="words";
+        var matchByCharacters = options.TruncateBy==="character"||options.TruncateBy==="characters";
+        var matchByParagraphs = options.TruncateBy==="paragraph"||options.TruncateBy==="paragraphs";
+        
         if(text === "" || (text.length <= options.TruncateLength && options.StripHTML === false)){
             return text;
         }
@@ -96,7 +100,7 @@
         }
 
         //If not splitting on paragraphs we can quickly remove tags using regex
-        if(options.StripHTML && !options.TruncateBy.match(/(paragraph(s)?)/)){
+        if(options.StripHTML && !matchByParagraphs){
             text = String(text).replace(/<!--(.*?)-->/gm, '').replace(/<\/?[^>]+>/gi, '');
         }
         //Remove newline seperating paragraphs
@@ -170,16 +174,18 @@
             }
 
             nextChar = text[pointer + 1] || "";
-            isEndOfWord = options.Strict ? true : (!currentChar.match(/[a-zA-ZÇ-Ü']/i) || !nextChar.match(/[a-zA-ZÇ-Ü']/i));
 
-            if(options.TruncateBy.match(/word(s)?/i) && options.TruncateLength <= wordCounter){
+            if(matchByWords && options.TruncateLength <= wordCounter){
                 truncatedText = truncatedText.replace(/\s+$/, '');
                 break;
             }
-            if(options.TruncateBy.match(/character(s)?/i) && options.TruncateLength <= charCounter && isEndOfWord){
+            if(matchByCharacters && options.TruncateLength <= charCounter) {
+              isEndOfWord = options.Strict ? true : (!currentChar.match(/[a-zA-ZÇ-Ü']/i) || !nextChar.match(/[a-zA-ZÇ-Ü']/i));
+              if (isEndOfWord) {
                 break;
+              }
             }
-            if(options.TruncateBy.match(/paragraph(s)?/i) && options.TruncateLength === paragraphCounter){
+            if(matchByParagraphs && options.TruncateLength === paragraphCounter){
                 break;
             }
         }
