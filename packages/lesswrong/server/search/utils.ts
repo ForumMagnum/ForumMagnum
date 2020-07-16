@@ -182,6 +182,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
   if (tag.deleted) return null;
+  if (tag.adminOnly) return null;
   
   let description = ""
   if (tag.description?.originalContents?.type) {
