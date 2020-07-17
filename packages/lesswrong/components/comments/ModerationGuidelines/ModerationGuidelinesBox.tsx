@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
-import truncatise from 'truncatise';
+import truncatise from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
 import Users from '../../../lib/collections/users/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
