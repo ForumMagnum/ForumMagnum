@@ -1,6 +1,47 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
+import * as _ from 'underscore';
+
+type ComparisonFn = (prev: any, next: any)=>boolean
+type ComparePropsDict = { [propName: string]: "shallow"|"ignore"|"deep"|ComparisonFn }
+type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
+
+// Options passed to registerComponent
+interface ComponentOptions {
+  // JSS styles for this component. These will generate class names, which will
+  // be passed as an extra prop named "classes".
+  styles?: any
+  
+  // Array of higher-order components that this component should be wrapped
+  // with.
+  hocs?: Array<any>
+  
+  // Determines what changes to props are considered relevant, for rerendering.
+  // Takes either "auto" (meaning a shallow comparison of all props), a function
+  // that takes before-and-after props, or an object where keys are names of
+  // props, values are how those props are handled, and props that are not
+  // mentioned are equality-compared. The options for handling a prop are a
+  // function or one of:
+  //   * ignore: Don't rerender this component on changes to this prop
+  //   * shallow: Shallow-compare this prop (this is one level deeper than the
+  //     shallow comparison of all props)
+  //   * deep: Perform a deep comparison of before and after values of this
+  //     prop. (Don't use on prop types that are or contain React components)
+  areEqual?: AreEqualOption
+  
+  // If set, output console log messages reporting when this component is
+  // rerendered, and which props changed to trigger it.
+  debugRerenders?: boolean,
+}
+
+interface ComponentsTableEntry {
+  name: string
+  rawComponent: any
+  hocs: Array<any>
+  options?: ComponentOptions,
+}
 
 const componentsProxyHandler = {
   get: function(obj, prop) {
@@ -12,17 +53,19 @@ const componentsProxyHandler = {
   }
 }
 
-// will be populated on startup (see vulcan:routing)
+// Acts like a mapping from component-name to component, based on
+// registerComponents calls. Lazily loads those components when you dereference,
+// using a proxy.
 export const Components: ComponentTypes = new Proxy({}, componentsProxyHandler);
 
 const PreparedComponents = {};
 
 // storage for infos about components
-const ComponentsTable = {};
+export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
 const DeferredComponentsTable = {};
 
-const coreComponents = [
+const coreComponents: Array<string> = [
   'Alert',
   'Button',
   'Modal',
@@ -46,67 +89,36 @@ const coreComponents = [
 type C<T=any> = React.ComponentType<T>
 type HoC<O,T> = (component: C<O>) => C<T>
 
-/**
- * Register a Vulcan component with a name, a raw component than can be extended
- * and one or more optional higher order components.
- *
- * @param {String} name The name of the component to register.
- * @param {React Component} rawComponent Interchangeable/extendable component.
- * @param {...Function} hocs The HOCs to compose with the raw component.
- *
- * Note: when a component is registered without higher order component, `hocs` will be
- * an empty array, and it's ok!
- * See https://github.com/reactjs/redux/blob/master/src/compose.js#L13-L15
- *
- * @returns Structure of a component in the list:
- *
- * ComponentsTable.Foo = {
- *    name: 'Foo',
- *    hocs: [fn1, fn2],
- *    rawComponent: React.Component,
- *    call: () => compose(...hocs)(rawComponent),
- * }
- *
- */
-/*export function registerComponent<PropType>(name, rawComponent, ...hocs): React.ComponentType<Omit<PropType,"classes">> {
-  var styles = null;
-  
-  // support single-argument syntax
-  if (typeof arguments[0] === 'object') {
-    // note: cannot use `const` because name, components, hocs are already defined
-    // as arguments so destructuring cannot work
-    // eslint-disable-next-line no-redeclare
-    var { name, component, hocs = [], styles } = arguments[0];
-    rawComponent = component;
-  } else if (typeof arguments[2] === 'object' && (arguments[2].hocs || arguments[2].styles)) {
-    styles = arguments[2].styles;
-    hocs = arguments[2].hocs || [];
+const addClassnames = (componentName: string) => {
+  const classesProxy = new Proxy({}, {
+    get: function(obj: any, prop: any) {
+      return `${componentName}-${prop}`;
+    }
+  });
+  return (WrappedComponent) => (props) => {
+    return <WrappedComponent {...props} classes={classesProxy}/>
   }
-  
-  if (styles) {
-    hocs.push(withStyles(styles, {name: name}));
-  }
-  
-  rawComponent.displayName = name;
-  
-  if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
-    throw new Error(`Two components with the same name: ${name}`);
-  }
-  
-  // store the component in the table
-  ComponentsTable[name] = {
-    name,
-    rawComponent,
-    hocs,
-  };
-}*/
+}
 
+// Register a component. Takes a name, a raw component, and ComponentOptions
+// (see above). Components should be in their own file, imported with
+// `importComponent`, and registered in that file; components that are
+// registered this way can be accessed via the Components object and are lazy-
+// loaded.
+//
+// Returns a dummy value--null, but coerced to a type that you can add to the
+// ComponentTypes interface to type-check usages of the component in other
+// files.
 export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>,
-  options?: {styles?: any, hocs?: Array<any>}): React.ComponentType<Omit<PropType,"classes">>
+  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">>
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    hocs.push(withStyles(styles, {name: name}));
+    if (Meteor.isClient && (window as any).missingMainStylesheet) {
+      hocs.push(withStyles(styles, {name: name}));
+    } else {
+      hocs.push(addClassnames(name));
+    }
   }
   
   rawComponent.displayName = name;
@@ -120,6 +132,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
     name,
     rawComponent,
     hocs,
+    options,
   };
   
   return (null as any as React.ComponentType<Omit<PropType,"classes">>);
@@ -146,7 +159,7 @@ export function importAllComponents() {
   }
 }
 
-function prepareComponent(componentName)
+function prepareComponent(componentName: string)
 {
   if (componentName in PreparedComponents) {
     return PreparedComponents[componentName];
@@ -166,19 +179,20 @@ function prepareComponent(componentName)
   }
 }
 
-/**
- * Get a component registered with registerComponent(name, component, ...hocs).
- *
- * @param {String} name The name of the component to get.
- * @returns {Function|React Component} A (wrapped) React component
- */
-const getComponent = name => {
-  const component = ComponentsTable[name];
-  if (!component) {
+// Get a component registered with registerComponent, applying HoCs and other
+// wrappings.
+const getComponent = (name: string): any => {
+  const componentMeta = ComponentsTable[name];
+  if (!componentMeta) {
     throw new Error(`Component ${name} not registered.`);
   }
-  if (component.hocs && component.hocs.length) {
-    const hocs = component.hocs.map(hoc => {
+  
+  const componentWithMemo = componentMeta.options?.areEqual
+    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, name, !!componentMeta.options.debugRerenders)
+    : componentMeta.rawComponent;
+  
+  if (componentMeta.hocs && componentMeta.hocs.length) {
+    const hocs = componentMeta.hocs.map(hoc => {
       if (!Array.isArray(hoc)) {
         if (typeof hoc !== 'function') {
           throw new Error(`In registered component ${name}, an hoc is of type ${typeof hoc}`);
@@ -192,17 +206,85 @@ const getComponent = name => {
       return actualHoc(...args);
     });
     // @ts-ignore
-    return compose(...hocs)(component.rawComponent);
+    return compose(...hocs)(componentWithMemo);
   } else {
-    return component.rawComponent;
+    return componentWithMemo;
   }
 };
+
+const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string, debugRerenders: boolean): any => {
+  if (areEqual === "auto") {
+    if (debugRerenders) {
+      return React.memo(component, (oldProps, newProps) => {
+        // eslint-disable-next-line no-console
+        return debugShouldComponentUpdate(name, console.log, oldProps, {}, newProps, {});
+      });
+    } else {
+      return React.memo(component);
+    }
+  } else if (typeof areEqual==='function') {
+    return React.memo(component, areEqual);
+  } else {
+    return React.memo(component, (oldProps, newProps) => {
+      const speciallyHandledKeys = Object.keys(areEqual);
+      if (!shallowEqualExcept(oldProps, newProps, speciallyHandledKeys)) {
+        if (debugRerenders) {
+          // eslint-disable-next-line no-console
+          debugShouldComponentUpdate(name, console.log, oldProps, {}, newProps, {});
+        }
+        return false;
+      }
+      for (let key of speciallyHandledKeys) {
+        if (typeof areEqual[key]==="function") {
+          if (!(areEqual[key] as ComparisonFn)(oldProps[key], newProps[key])) {
+            if (debugRerenders) {
+              // eslint-disable-next-line no-console
+              console.log(`Updating ${name} because props.${key} changed`);
+            }
+            return false;
+          }
+        } else switch(areEqual[key]) {
+          case "ignore":
+            break;
+          case "default":
+            if (oldProps[key] !== newProps[key]) {
+              if (debugRerenders) {
+                // eslint-disable-next-line no-console
+                console.log(`Updating ${name} because props.${key} changed`);
+              }
+              return false;
+            }
+            break;
+          case "shallow":
+            if (!shallowEqual(oldProps[key], newProps[key])) {
+              if (debugRerenders) {
+                // eslint-disable-next-line no-console
+                console.log(`Updating ${name} because props.${key} changed`);
+              }
+              return false;
+            }
+            break;
+          case "deep":
+            if (!_.isEqual(oldProps[key], newProps[key])) {
+              if (debugRerenders) {
+                // eslint-disable-next-line no-console
+                console.log(`Updating ${name} because props.${key} changed`);
+              }
+              return false;
+            }
+            break;
+        }
+      }
+      return true;
+    });
+  }
+}
 
 /**
  * Populate the lookup table for components to be callable
  * ℹ️ Called once on app startup
  **/
-export const populateComponentsApp = () => {
+export const populateComponentsApp = (): void => {
   const missingComponents: Array<string> = [];
   for (let coreComponent of coreComponents) {
     if (!(coreComponent in ComponentsTable) && !(coreComponent in DeferredComponentsTable)) {
@@ -224,12 +306,10 @@ export const populateComponentsApp = () => {
   }
 };
 
-/**
- * Returns an instance of the given component name of function
- * @param {string|function} component  A component or registered component name
- * @param {Object} [props]  Optional properties to pass to the component
- */
-//eslint-disable-next-line react/display-name
+// Returns an instance of the given component name of function
+//
+// @param {string|function} component  A component or registered component name
+// @param {Object} [props]  Optional properties to pass to the component
 export const instantiateComponent = (component, props) => {
   if (!component) {
     return null;

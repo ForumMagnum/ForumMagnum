@@ -41,9 +41,6 @@ export const styles = theme => ({
       display: 'block'
     }
   },
-  blockedReplies: {
-    padding: "5px 0",
-  },
   replyLink: {
     marginRight: 5,
     display: "inline",
@@ -333,7 +330,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
 
   renderCommentBottom = () => {
     const { comment, currentUser, collapsed, classes, hideReply } = this.props;
-    const { MetaInfo } = Components
+    const { CommentBottomCaveats } = Components
 
     if (!collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
@@ -352,19 +349,12 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
 
       return (
         <div className={classes.bottom}>
-          { blockedReplies &&
-            <div className={classes.blockedReplies}>
-              A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
-            </div>
+          <CommentBottomCaveats comment={comment}/>
+          { showReplyButton &&
+            <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
+              Reply
+            </a>
           }
-          <div>
-            { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
-            { showReplyButton &&
-              <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
-                Reply
-              </a>
-            }
-          </div>
         </div>
       )
     }

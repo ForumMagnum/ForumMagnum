@@ -66,6 +66,13 @@ const tableCellStyles = {
   minWidth: "2em",
   padding: ".4em",
   border: "1px double #d9d9d9",
+  '& p': {
+    marginTop: '0.5em',
+    marginBottom: '0.5em'
+  },
+  '& p:first-of-type': {
+    marginTop: 0
+  }
 }
 
 const tableHeadingStyles = {

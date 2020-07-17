@@ -20,6 +20,7 @@ import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 import { Random } from 'meteor/random';
 import { publicSettings } from '../../../lib/publicSettings'
+import { getMergedStylesheet } from '../../styleGeneration';
 
 type RenderTimings = {
   totalTime: number
@@ -177,6 +178,8 @@ const renderRequest = async ({req, user, startTime}) => {
   // context.
   const sheetsRegistry = context.sheetsRegistry;
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
+    +'<style id="jss-insertion-point"></style>'
+    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}"></link>`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {

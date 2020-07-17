@@ -44,6 +44,9 @@ addGraphQLResolvers({
 addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
 
 let analyticsConnectionPool:Pool|null = null;
+
+let missingConnectionStringWarned = false;
+
 // Return the Analytics database connection pool, if configured. If no
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
@@ -51,10 +54,13 @@ const getAnalyticsConnection = (): Pool|null => {
   const connectionString = connectionStringSetting.get()
   // We make sure that the settingsCache is initialized before we access the connection strings
   if (!connectionString) {
-    //eslint-disable-next-line no-console
-    console.log("Analytics logging disabled: analytics.connectionString is not configured");
+    if (!missingConnectionStringWarned) {
+      missingConnectionStringWarned = true;
+      //eslint-disable-next-line no-console
+      console.log("Analytics logging disabled: analytics.connectionString is not configured");
+    }
     return null;
-  } 
+  }
   if (!analyticsConnectionPool)
     analyticsConnectionPool = new Pool({ connectionString });
   return analyticsConnectionPool;

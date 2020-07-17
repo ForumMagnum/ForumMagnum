@@ -52,7 +52,6 @@ registerFragment(`
     hiddenRelatedQuestion
     originalPostRelationSourceId
 
-    # vulcan:users
     userId
     
     # Local Event data
@@ -146,10 +145,9 @@ registerFragment(`
       version
     }
     moderationGuidelines {
-      ...RevisionDisplay
+      html
     }
     customHighlight {
-      version
       html
     }
 

@@ -198,7 +198,12 @@ const PostsList2 = ({
   )
 }
 
-const PostsList2Component = registerComponent('PostsList2', PostsList2, {styles});
+const PostsList2Component = registerComponent('PostsList2', PostsList2, {
+  styles,
+  areEqual: {
+    terms: "deep",
+  },
+});
 
 declare global {
   interface ComponentTypes {
