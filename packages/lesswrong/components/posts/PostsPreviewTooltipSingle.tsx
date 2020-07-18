@@ -72,9 +72,10 @@ const PostsPreviewTooltipSingleWithCommentComponent = registerComponent(
   }
 );
 
-const TaggedPostTooltipSingle = ({tagRelId, classes}:{
+const TaggedPostTooltipSingle = ({tagRelId, classes, to = "post"}:{
     tagRelId:string,
-    classes: ClassesType
+    classes: ClassesType,
+    to: "tag" | "post"
   }) => {
   const { document: tagRel, loading: tagRelLoading } = useSingle({
     collection: TagRels,
@@ -83,11 +84,14 @@ const TaggedPostTooltipSingle = ({tagRelId, classes}:{
     documentId: tagRelId,
   });
 
-  const { PostsPreviewTooltip, Loading } = Components
+  const { PostsPreviewTooltip, Loading, TagPreview } = Components
   if (tagRelLoading) return <div className={classes.loading}>
     <Loading/>
   </div>
-  return <PostsPreviewTooltip post={tagRel.post} />
+
+  return (to === "tag") ? 
+    <TagPreview tag={tagRel.tag} showCount={true}/> : 
+    <PostsPreviewTooltip post={tagRel.post} />
 }
 
 const TaggedPostTooltipSingleComponent = registerComponent('TaggedPostTooltipSingle', TaggedPostTooltipSingle, {styles})

@@ -34,7 +34,6 @@ const NewPostEmail = ({documentId, classes, reason}: {
 }) => {
   const { document } = useSingle({
     documentId,
-    
     collection: Posts,
     fragmentName: "PostsRevision",
     extraVariables: {
@@ -44,6 +43,7 @@ const NewPostEmail = ({documentId, classes, reason}: {
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate } = Components;
   if (!document) return null;
   return (<React.Fragment>
+    {reason && `You are receiving this email because ${reason}.`}
     <div className={classes.heading}>
       <h1>
         <a href={Posts.getPageUrl(document, true)} className={classes.headingLink}>{document.title}</a>
@@ -69,7 +69,6 @@ const NewPostEmail = ({documentId, classes, reason}: {
     
     <a href={Posts.getPageUrl(document, true)}>Discuss</a><br/><br/>
     
-    {reason && `You are receiving this email because ${reason}.`}
   </React.Fragment>);
 }
 

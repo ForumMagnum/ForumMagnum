@@ -165,11 +165,29 @@ export const taggedPostMessage = ({documentType, documentId}) => {
   return `New post tagged '${tag?.name}: ${post?.title}'`
 }
 
+export const ownPostTaggedMessage = ({documentType, documentId}) => {
+  const tagRel = getDocument(documentType, documentId) as DbTagRel;
+  const tag = Tags.findOne({_id: tagRel.tagId})
+  const post = Posts.findOne({_id: tagRel.postId})
+  return `One of your posts was added to the tag '${tag?.name}: ${post?.title}'`
+}
+
 export const NewTagPostsNotification = registerNotificationType({
   name: "newTagPosts",
   userSettingField: "notificationSubscribedTagPost",
   getMessage({documentType, documentId}) {
     return taggedPostMessage({documentType, documentId})
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles}/>
+  },
+});
+
+export const OwnPostTaggedNotification = registerNotificationType({
+  name: "ownPostTagged",
+  userSettingField: "notificationOwnPostTagged",
+  getMessage({documentType, documentId}) {
+    return ownPostTaggedMessage({documentType, documentId})
   },
   getIcon() {
     return <PostsIcon style={iconStyles}/>

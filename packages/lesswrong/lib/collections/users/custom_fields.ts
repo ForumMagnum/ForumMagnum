@@ -679,6 +679,10 @@ addFieldsDict(Users, {
     label: "Posts added to tags I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
+  notificationOwnPostTagged: {
+    label: "Tags that are applied to my own posts",
+    ...notificationTypeSettingsField(),
+  },
   notificationPrivateMessage: {
     label: "Private messages",
     ...notificationTypeSettingsField({ channel: "both" }),
