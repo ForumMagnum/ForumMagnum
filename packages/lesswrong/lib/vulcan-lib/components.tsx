@@ -65,27 +65,6 @@ export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
 const DeferredComponentsTable = {};
 
-const coreComponents: Array<string> = [
-  'Alert',
-  'Button',
-  'Modal',
-  'ModalTrigger',
-  'FormComponentCheckbox',
-  'FormComponentCheckboxGroup',
-  'FormComponentDate',
-  'FormComponentDateTime',
-  'FormComponentDefault',
-  'FormComponentEmail',
-  'FormComponentNumber',
-  'FormComponentSelect',
-  'FormComponentTextarea',
-  'FormComponentUrl',
-  'FormComponentInner',
-  'FormControl',
-  'FormElement',
-  'FormItem',
-];
-
 type C<T=any> = React.ComponentType<T>
 type HoC<O,T> = (component: C<O>) => C<T>
 
@@ -285,22 +264,6 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
  * ℹ️ Called once on app startup
  **/
 export const populateComponentsApp = (): void => {
-  const missingComponents: Array<string> = [];
-  for (let coreComponent of coreComponents) {
-    if (!(coreComponent in ComponentsTable) && !(coreComponent in DeferredComponentsTable)) {
-      missingComponents.push(coreComponent);
-    }
-  }
-
-  if (missingComponents.length) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `Found the following missing core components: ${missingComponents.join(
-        ', '
-      )}. Include a UI package such as vulcan:ui-bootstrap to add them.`
-    );
-  }
-  
   if (debugComponentImports) {
     importAllComponents();
   }
