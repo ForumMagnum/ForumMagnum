@@ -1332,7 +1332,8 @@ addFieldsDict(Users, {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: async (user, { limit }, context: ResolverContext) => {
+      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
+        const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts, context);

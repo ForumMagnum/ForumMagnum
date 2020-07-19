@@ -47,8 +47,8 @@ export const editableCollections = new Set<string>()
 export const editableCollectionsFields: Record<string,Array<string>> = {}
 export const editableCollectionsFieldOptions: Record<string,any> = {};
 
-export const makeEditable = ({collection, options = {}}: {
-  collection: any,
+export const makeEditable = <T extends DbObject>({collection, options = {}}: {
+  collection: CollectionBase<T>,
   options: any,
 }) => {
   options = {...defaultOptions, ...options}
@@ -88,7 +88,8 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc, { version }, context: ResolverContext) => {
+        resolver: async (doc: T, args: {version: string}, context: ResolverContext): Promise<DbRevision|null> => {
+          const { version } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
@@ -101,7 +102,6 @@ export const makeEditable = ({collection, options = {}}: {
             editedAt: (doc[field]?.editedAt) || new Date(),
             userId: doc[field]?.userId,
             commitMessage: doc[field]?.commitMessage,
-            originalContentsType: (doc[field]?.originalContentsType) || "html",
             originalContents: (doc[field]?.originalContents) || {},
             html: doc[field]?.html,
             updateType: doc[field]?.updateType,
@@ -127,7 +127,8 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: '[Revision]',
         arguments: 'limit: Int = 5',
-        resolver: async (post, { limit }, context: ResolverContext) => {
+        resolver: async (post: T, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
+          const { limit } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
@@ -142,7 +143,7 @@ export const makeEditable = ({collection, options = {}}: {
       optional: true,
       resolveAs: {
         type: 'String',
-        resolver: (post) => {
+        resolver: (post: T): string => {
           return post[fieldName || "contents"]?.version
         }
       }

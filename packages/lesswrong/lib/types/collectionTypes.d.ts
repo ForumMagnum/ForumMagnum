@@ -1,6 +1,7 @@
 
 interface CollectionBase<T extends DbObject> {
-  collectionName: string
+  collectionName: CollectionNameString
+  typeName: string,
   options: any
   
   addDefaultView: any
