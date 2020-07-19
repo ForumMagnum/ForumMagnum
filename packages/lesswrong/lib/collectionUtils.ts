@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
+import { addFieldsDict } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
 
@@ -164,27 +165,24 @@ export function schemaDefaultValue(defaultValue) {
   }
 }
 
-export function addUniversalFields({ collection, schemaVersion=1 }) {
-  collection.addField([
-    {
-      fieldName: '_id',
-      fieldSchema: {
-        optional: true,
-        type: String,
-        viewableBy: ['guests'],
-      }
+export function addUniversalFields<T extends DbObject>({ collection, schemaVersion=1 }: {
+  collection: CollectionBase<T>,
+  schemaVersion?: number
+}) {
+  addFieldsDict(collection, {
+    _id: {
+      optional: true,
+      type: String,
+      viewableBy: ['guests'],
     },
-    {
-      fieldName: 'schemaVersion',
-      fieldSchema: {
-        type: Number,
-        canRead: ['guests'],
-        optional: true,
-        ...schemaDefaultValue(schemaVersion),
-        onUpdate: () => schemaVersion
-      }
+    schemaVersion: {
+      type: Number,
+      canRead: ['guests'],
+      optional: true,
+      ...schemaDefaultValue(schemaVersion),
+      onUpdate: () => schemaVersion
     }
-  ])
+  })
   ensureIndex(collection, {schemaVersion: 1});
 }
 
