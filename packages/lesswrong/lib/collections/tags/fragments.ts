@@ -22,6 +22,7 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagBasicInfo
     description {
+      _id
       html
       htmlHighlight
     }
@@ -32,6 +33,7 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagBasicInfo
     description(version: $version) {
+      _id
       html
       htmlHighlight
     }
@@ -42,6 +44,7 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     description {
+      _id
       htmlHighlight
     }
   }
