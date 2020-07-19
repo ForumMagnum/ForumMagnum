@@ -107,7 +107,8 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
             updateType: doc[field]?.updateType,
             version: doc[field]?.version,
             wordCount: doc[field]?.wordCount,
-          }
+          } as DbRevision;
+          //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
         }
       },
       form: {
