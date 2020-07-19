@@ -5,7 +5,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { KEY_PREFIX } from '../../lib/vulcan-accounts/login_session';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 import { intlShape } from '../../lib/vulcan-i18n';
-import { withApollo } from 'react-apollo';
+import { withApollo } from '@apollo/client/react/hoc';
 import TrackerComponent from './TrackerComponent';
 import sha1 from 'crypto-js/sha1';
 import { Meteor } from 'meteor/meteor';

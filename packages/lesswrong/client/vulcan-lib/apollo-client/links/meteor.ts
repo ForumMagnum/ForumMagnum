@@ -1,4 +1,4 @@
-import { ApolloLink } from 'apollo-link'
+import { ApolloLink } from '@apollo/client'
 import { Accounts } from 'meteor/accounts-base'
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/client.js

@@ -34,11 +34,11 @@ Terms object can have the following properties:
 
 */
 
-import { WatchQueryFetchPolicy, ApolloError } from 'apollo-client';
+import { WatchQueryFetchPolicy, ApolloError, useQuery } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import gql from 'graphql-tag';
 import qs from 'qs';
 import { useContext, useState } from 'react';
-import { graphql, useQuery } from 'react-apollo';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';

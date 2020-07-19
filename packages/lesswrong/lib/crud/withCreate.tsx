@@ -27,7 +27,8 @@ Child Props:
 */
 
 import React from 'react';
-import { Mutation, useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
+import { Mutation } from '@apollo/client/react/components';
 import gql from 'graphql-tag';
 import { createClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';

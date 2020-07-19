@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from '../../lib/collections/users/collection';
-import { withApollo } from 'react-apollo';
+import { withApollo } from '@apollo/client/react/hoc';
 
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';

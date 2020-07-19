@@ -1,6 +1,6 @@
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
-import { ApolloError } from 'apollo-client';
+import { ApolloError } from '@apollo/client';
 
 export const usePostBySlug = ({slug}: {slug: string}):
   {

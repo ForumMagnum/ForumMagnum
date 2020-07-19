@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useMessages } from '../common/withMessages';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import { performVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';

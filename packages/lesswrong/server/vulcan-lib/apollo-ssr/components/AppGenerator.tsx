@@ -2,7 +2,7 @@
  * The App + relevant wrappers
  */
 import React from 'react';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider } from '@apollo/client';
 // eslint-disable-next-line no-restricted-imports
 import { StaticRouter } from 'react-router';
 
