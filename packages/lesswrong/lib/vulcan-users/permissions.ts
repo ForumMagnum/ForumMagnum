@@ -1,5 +1,4 @@
 import Users from '../collections/users/collection';
-import { Utils } from '../vulcan-lib';
 import intersection from 'lodash/intersection';
 import * as _ from 'underscore';
 

@@ -7,7 +7,6 @@ Utilities
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import getSlug from 'speakingurl';
-import * as _ from 'underscore';
 import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
