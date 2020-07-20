@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
@@ -74,22 +74,25 @@ interface ExternalProps {
 interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }
 
-const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagFragment,
   hideScore?: boolean,
 
-  hover: boolean,
-  anchorEl: any,
   classes: ClassesType,
 }) => {
-
+  const { hover, anchorEl, eventHandlers } = useHover({
+    pageElementContext: "tagItem",
+    tagId: tag._id,
+    tagName: tag.name,
+    tagSlug: tag.slug
+  });
   const { PopperCard, TagRelCard } = Components
 
   if (tag.adminOnly) { return null }
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span className={classes.root}>
+    <span {...eventHandlers} className={classes.root}>
       <Link to={`/tag/${tag.slug}`}>
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
@@ -105,7 +108,6 @@ const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
 
 const FooterTagComponent = registerComponent<ExternalProps>("FooterTag", FooterTag, {
   styles: useExperimentalTagStyleSetting.get() ? experimentalStyles : styles,
-  hocs: [withHover({pageElementContext: "tagItem"}, ({tag}:{tag: TagFragment})=>({tagId: tag._id, tagName: tag.name, tagSlug: tag.slug}))]
 });
 
 declare global {
