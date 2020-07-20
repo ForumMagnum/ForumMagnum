@@ -21,6 +21,7 @@ import { Collections } from '../../../lib/vulcan-lib/collections';
 import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
+import Users from '../../../lib/collections/users/collection';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 const getUser = async loginToken => {
@@ -29,7 +30,7 @@ const getUser = async loginToken => {
 
     const hashedToken = Accounts._hashLoginToken(loginToken)
 
-    const user = await Meteor.users.rawCollection().findOne({
+    const user = Users.findOne({
       'services.resume.loginTokens.hashedToken': hashedToken
     })
 
@@ -98,12 +99,8 @@ export const computeContextFromUser = async (user, headers): Promise<ResolverCon
   let context: ResolverContext = {...GraphQLSchema.context};
 
   generateDataLoaders(context);
-
-  // note: custom default resolver doesn't currently work
-  // see https://github.com/apollographql/apollo-server/issues/716
-  // @options.fieldResolver = (source, args, context, info) => {
-  //   return source[info.fieldName];
-  // }
+  if (user)
+    context.Users.loader.prime(user._id, user);
 
   setupAuthToken(user, context);
 
