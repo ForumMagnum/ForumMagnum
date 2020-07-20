@@ -73,7 +73,7 @@ const AllTagsPage = ({classes}: {
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title="Tag Portal"/>
+            <SectionTitle title="Concepts Portal"/>
             <div className={classes.portal}>
               {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
                 Edit
