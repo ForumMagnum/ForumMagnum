@@ -209,15 +209,6 @@ figure:after {
   content: '•••';
 }
 
-.posts-new-form .alignment-checkbox-wrapper,
-.posts-edit-form .alignment-checkbox-wrapper {
-  margin-left:18px;
-
-  .alignment-checkbox-warning {
-    display:none;
-  }
-}
-
 
 :root {
   // This is the only place I could find that successfully overrode the ckEditor zIndex
