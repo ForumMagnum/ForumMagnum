@@ -23,9 +23,9 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
   classes: any,
   children: React.ReactNode
 }) => {
-  // if (!currentUser?.spamRiskScore || (currentUser.spamRiskScore > spamRiskScoreThreshold)) {
-  //   return <> { children } </>
-  // }
+  if (!currentUser?.spamRiskScore || (currentUser.spamRiskScore > spamRiskScoreThreshold)) {
+    return <> { children } </>
+  }
   switch (forumTypeSetting.get()) {
     case 'EAForum':
       return <div className={classes.warningText}>
