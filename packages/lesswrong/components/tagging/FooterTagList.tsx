@@ -9,6 +9,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle } from './FooterTag';
+import classNames from 'classnames';
 import * as _ from 'underscore';
 
 const styles = theme => ({
@@ -22,7 +23,10 @@ const styles = theme => ({
   tagLoading: {
     ...tagStyle(theme),
     opacity: .8
-  }
+  },
+  frontpageOrPersonal: {
+    backgroundColor: "rgba(150,0,150,.1)",
+  },
 });
 
 function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
@@ -79,11 +83,11 @@ const FooterTagList = ({post, classes, hideScore}: {
 
   const postType = post.frontpageDate ?
     <LWTooltip title={contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}>
-      <div className={classes.tag}>Frontpage</div>
+      <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Frontpage</div>
     </LWTooltip>
     :
     <LWTooltip title={contentTypes[forumTypeSetting.get()].personal.tooltipBody}>
-      <div className={classes.tag}>Personal Blog</div>
+      <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
     </LWTooltip>
 
   if (loading || !results) {

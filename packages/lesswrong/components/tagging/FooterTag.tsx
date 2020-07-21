@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import classNames from 'classnames';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -42,6 +43,9 @@ const styles = theme => ({
       : tagStyle(theme)
     )
   },
+  core: {
+    backgroundColor: "rgba(0,150,0,.2)",
+  },
   score:  {
     paddingLeft: 5,
     color: 'rgba(0,0,0,0.7)',
@@ -71,7 +75,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
   if (tag.adminOnly) { return null }
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span {...eventHandlers} className={classes.root}>
+    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core})}>
       <Link to={`/tag/${tag.slug}`}>
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
