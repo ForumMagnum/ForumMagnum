@@ -27,7 +27,8 @@ const styles = createStyles(theme => ({
       marginTop: 0,
       marginLeft: -8
     },
-    position: "relative"
+    position: "relative",
+    boxShadow: theme.boxShadow
   },
   communityMap: {},
   mapButton: {

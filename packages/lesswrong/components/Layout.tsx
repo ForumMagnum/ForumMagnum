@@ -59,7 +59,7 @@ const styles = theme => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "#f4f4f4",
+    background: theme.palette.background.default,
     minHeight: "100vh",
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
@@ -94,9 +94,6 @@ const styles = theme => ({
   },
   whiteBackground: {
     background: "white",
-  },
-  lightGreyBackground: {
-    background: "#f9f9f9",
   },
   '@global': {
     p: pBodyStyle,
@@ -325,8 +322,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white",
-                  [classes.lightGreyBackground]: currentRoute?.background === "lightGrey"
+                  [classes.whiteBackground]: currentRoute?.background === "white"
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />
