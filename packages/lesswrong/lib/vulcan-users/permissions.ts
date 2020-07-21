@@ -1,5 +1,4 @@
 import Users from '../collections/users/collection';
-import { Utils } from '../vulcan-lib';
 import intersection from 'lodash/intersection';
 import * as _ from 'underscore';
 
@@ -46,12 +45,10 @@ Users.createGroup = (groupName: string): void => {
  * @param {Object} user
  */
 Users.getGroups = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
-  let userGroups: Array<string> = [];
-
   if (!user) { // guests user
-    userGroups = ['guests'];
+    return ['guests'];
   } else {
-    userGroups = ['members'];
+    let userGroups: Array<string> = ['members'];
 
     if (user.groups) { // custom groups
       userGroups = userGroups.concat(user.groups);
@@ -60,10 +57,9 @@ Users.getGroups = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
     if (Users.isAdmin(user)) { // admin
       userGroups.push('admins');
     }
+    
+    return userGroups;
   }
-
-  return userGroups;
-
 };
 
 /**
@@ -89,9 +85,13 @@ Users.getActions = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
  * @param {Array} user
  * @param {String} group or array of groups
  */
-Users.isMemberOf = (user: UsersCurrent|DbUser|null, groupOrGroups: string|Array<string>): boolean => {
-  const groups = Array.isArray(groupOrGroups) ? groupOrGroups : [groupOrGroups];
-  return intersection(Users.getGroups(user), groups).length > 0;
+Users.isMemberOf = (user: UsersCurrent|DbUser|null, group: string): boolean => {
+  const userGroups = Users.getGroups(user);
+  for (let userGroup of userGroups) {
+    if (userGroup === group)
+      return true;
+  }
+  return false;
 };
 
 /**
@@ -135,12 +135,8 @@ Users.owns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdTy
  * @param {Object|string} userOrUserId - The user or their userId
  */
 Users.isAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {
-  try {
-    //LESSWRONG: This function no longer takes a userId, and instead just works if you provide the user object
-    return !!user && !!user.isAdmin;
-  } catch (e) {
-    return false; // user not logged in
-  }
+  if (!user) return false;
+  return user.isAdmin;
 };
 
 export const isAdmin = Users.isAdmin;
@@ -173,21 +169,17 @@ Users.canReadField = function (user: UsersCurrent|DbUser|null, field: any, docum
  * @param {Object} collection - The collection
  * @param {Object} document - Optionally, get a list for a specific document
  */
-Users.getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T): any {
-  return Utils.arrayToFields(_.compact(_.map(collection.simpleSchema()._schema,
-    (field: any, fieldName: string) => {
-      if (fieldName.indexOf('.$') > -1) return null;
-      return Users.canReadField(user, field, document) ? fieldName : null;
-    }
-  )));
-};
-
-// collection helper
-Users.helpers({
-  getViewableFields(collection, document) {
-    return Users.getViewableFields(this, collection, document);
+const getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T): Set<string> {
+  const schema = collection.simpleSchema()._schema;
+  let result: Set<string> = new Set();
+  for (let fieldName of Object.keys(schema)) {
+    if (fieldName.indexOf('.$') > -1)
+      continue;
+    if (Users.canReadField(user, schema[fieldName], document))
+      result.add(fieldName);
   }
-});
+  return result;
+};
 
 /**
  * @summary For a given document or list of documents, keep only fields viewable by current user
@@ -197,28 +189,23 @@ Users.helpers({
  */
 // TODO: Integrate permissions-filtered DbObjects into the type system
 Users.restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>): any {
-
   if (!docOrDocs) return {};
 
   const restrictDoc = document => {
-
     // get array of all keys viewable by user
-    const viewableKeys: Array<string> = _.keys(Users.getViewableFields(user, collection, document));
-    const restrictedDocument: Record<string,any> = _.clone(document);
-
-    // loop over each property in the document and delete it if it's not viewable
-    _.forEach(restrictedDocument, (value: any, key: string) => {
-      if (!viewableKeys.includes(key)) {
-        delete restrictedDocument[key];
-      }
-    });
+    const viewableKeys: Set<string> = getViewableFields(user, collection, document);
+    
+    // return a filtered document
+    const restrictedDocument: Record<string,any> = {};
+    for (let key of Object.keys(document)) {
+      if (viewableKeys.has(key))
+        restrictedDocument[key] = document[key];
+    }
 
     return restrictedDocument;
-
   };
 
   return Array.isArray(docOrDocs) ? docOrDocs.map(restrictDoc) : restrictDoc(docOrDocs);
-
 };
 
 /**
