@@ -9,6 +9,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle } from './FooterTag';
+import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
@@ -23,6 +24,10 @@ const styles = theme => ({
     opacity: .8
   }
 });
+
+function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
+  return _.sortBy(list, item=>toTag(item).core);
+}
 
 const FooterTagList = ({post, classes, hideScore}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
@@ -83,14 +88,14 @@ const FooterTagList = ({post, classes, hideScore}: {
 
   if (loading || !results) {
     return <div className={classes.root}>
-     {post.tags.map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
      {postType}
     </div>;
   }
   
 
   return <div className={classes.root}>
-    {results.filter(tagRel => !!tagRel?.tag).map(tagRel =>
+    {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
       <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag} hideScore={hideScore}/>
     )}
     { postType }
