@@ -207,12 +207,6 @@ const theme = createLWTheme({
         fontWeight: 500,
       }
     },
-    SunshineSidebar: {
-      root: {
-        top: 30,
-        marginTop: 63
-      }
-    },
     FilterMode: {
       selected: {
         color: palette.primary.main
