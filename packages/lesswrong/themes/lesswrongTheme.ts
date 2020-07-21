@@ -89,7 +89,7 @@ const theme = createLWTheme({
   overrides: {
     MuiAppBar: {
       colorDefault: {
-        backgroundColor: grey[50],
+        backgroundColor: "#fbfbfb",
       }
     },
     PostsVote: {
