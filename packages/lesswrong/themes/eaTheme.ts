@@ -155,7 +155,6 @@ const theme = createLWTheme({
     },
     Layout: {
       main: {
-        margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
           marginTop: 36,
         }
@@ -255,12 +254,6 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
-      }
-    },
-    SunshineSidebar: {
-      root: {
-        top: 30,
-        marginTop: 63
       }
     },
     PostsPageTitle: {
