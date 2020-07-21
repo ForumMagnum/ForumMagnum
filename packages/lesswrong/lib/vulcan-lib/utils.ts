@@ -7,7 +7,6 @@ Utilities
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import getSlug from 'speakingurl';
-import * as _ from 'underscore';
 import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
@@ -31,7 +30,6 @@ interface UtilsType {
   checkNested: any
   getNestedProperty: any
   getLogoUrl:() => string|undefined
-  arrayToFields: any
   encodeIntlError: any
   decodeIntlError: any
   findWhere: any
@@ -226,14 +224,6 @@ Utils.getLogoUrl = (): string|undefined => {
     // the logo may be hosted on another website
     return logoUrl.indexOf('://') > -1 ? logoUrl : prefix + logoUrl;
   }
-};
-
-/**
- * Convert an array of field names into a Mongo fields specifier
- * @param {Array} fieldsArray
- */
-Utils.arrayToFields = (fieldsArray) => {
-  return _.object(fieldsArray, _.map(fieldsArray, function () {return true;}));
 };
 
 Utils.encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);

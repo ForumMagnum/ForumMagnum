@@ -151,12 +151,11 @@ interface ExtendedUsersCollection extends UsersCollection {
   createGroup: (groupName: string) => void
   getGroups: (user: UsersMinimumInfo|DbUser|null) => Array<string>
   getActions: (user: UsersMinimumInfo|DbUser|null) => Array<string>
-  isMemberOf: (user: UsersCurrent|DbUser|null, groupOrGroups: string|Array<string>) => boolean
+  isMemberOf: (user: UsersCurrent|DbUser|null, group: string) => boolean
   canDo: (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>) => boolean
   owns: (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|UsersMinimumInfo) => boolean
   isAdmin: (user: UsersMinimumInfo|DbUser|null) => boolean
   canReadField: (user: UsersCurrent|DbUser|null, field: any, document: any) => boolean
-  getViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T) => any
   restrictViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>) => any
   canCreateField: any
   canUpdateField: any

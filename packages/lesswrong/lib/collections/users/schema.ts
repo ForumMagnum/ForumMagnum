@@ -217,7 +217,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, context: ResolverContext) => {
+      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return Users.getProfileUrl(user, true);
       },
     },
@@ -229,7 +229,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, context: ResolverContext) => {
+      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return Users.getProfileUrl(user, false);
       },
     },
@@ -241,7 +241,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, context: ResolverContext) => {
+      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return Users.getEditUrl(user, true);
       },
     },

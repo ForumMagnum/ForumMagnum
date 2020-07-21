@@ -59,6 +59,11 @@ export const addRoute = (...routes: Route[]): void => {
   
     if (routeWithSamePath) {
       // Don't allow shadowing/replacing routes
+      throw new Error(`Conflicting routes with path ${path}`);
+    }
+    
+    // Check for name collisions
+    if (Routes[name]) {
       throw new Error(`Conflicting routes with name ${name}`);
     }
   
