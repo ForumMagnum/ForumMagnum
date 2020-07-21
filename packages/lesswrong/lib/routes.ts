@@ -149,7 +149,6 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
-    background: "lightGrey"
   },
   {
     name: 'sequences.single',
@@ -157,7 +156,6 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
-    background: "lightGrey"
   },
   {
     name: 'sequencesEdit',
@@ -386,8 +384,7 @@ if (hasEventsSetting.get()) {
       path: '/community',
       componentName: 'CommunityHome',
       title: "Community",
-      ...communitySubtitle,
-      background: "white"
+      ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
