@@ -8,7 +8,6 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
 export const tagStyle = theme => ({
-  display: "inline-block",
   marginRight: 3,
   padding: 5,
   paddingLeft: 6,
@@ -16,33 +15,33 @@ export const tagStyle = theme => ({
   marginBottom: 8,
   backgroundColor: 'rgba(0,0,0,0.07)',
   borderRadius: 3,
-  cursor: "pointer",
-  ...theme.typography.commentStyle,
-  "&:hover": {
-    opacity: 1
-  }
 })
 
 const newTagStyle = theme => ({
-  display: "inline-block",
   marginRight: 4,
   padding: 5,
   paddingLeft: 8,
   paddingRight: 7,
   marginBottom: 8,
   borderRadius: 4,
-  cursor: "pointer",
   boxShadow: '1px 2px 5px rgba(0,0,0,.2)',
-  ...theme.typography.commentStyle,
   color: theme.palette.primary.main,
-  "&:hover": {
-    opacity: 1
-  },
   fontSize: 15
 })
 
 const styles = theme => ({
-  root: tagStyle(theme),
+  root: {
+    display: "inline-block",
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    "&:hover": {
+      opacity: 1
+    },
+    ...(useExperimentalTagStyleSetting.get()
+      ? newTagStyle(theme)
+      : tagStyle(theme)
+    )
+  },
   score:  {
     paddingLeft: 5,
     color: 'rgba(0,0,0,0.7)',
@@ -54,29 +53,9 @@ const styles = theme => ({
   },
 });
 
-const experimentalStyles = theme => ({
-  root: newTagStyle(theme),
-  score: {
-    display: "none"
-  },
-  name: {
-    display: 'inline-block',
-  },
-  hovercard: {
-  }
-})
-
-interface ExternalProps {
-  tagRel?: TagRelMinimumFragment,
-  tag: TagPreviewFragment,
-  hideScore?: boolean
-}
-interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
-}
-
 const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
   tagRel?: TagRelMinimumFragment,
-  tag: TagFragment,
+  tag: TagBasicInfo,
   hideScore?: boolean,
 
   classes: ClassesType,
@@ -106,9 +85,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
   </AnalyticsContext>);
 }
 
-const FooterTagComponent = registerComponent<ExternalProps>("FooterTag", FooterTag, {
-  styles: useExperimentalTagStyleSetting.get() ? experimentalStyles : styles,
-});
+const FooterTagComponent = registerComponent("FooterTag", FooterTag, {styles});
 
 declare global {
   interface ComponentTypes {
