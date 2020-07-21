@@ -304,7 +304,6 @@ if (forumTypeSetting.get() !== 'EAForum') {
       background: postBackground
     },
     {
-      name: "allTags",
       path:'/tags',
       redirect: () => `/tags/all`,
     }
