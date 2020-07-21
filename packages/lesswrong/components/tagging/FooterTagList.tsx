@@ -81,18 +81,19 @@ const FooterTagList = ({post, classes, hideScore}: {
       <div className={classes.tag}>Personal Blog</div>
     </LWTooltip>
 
-  if (loading || !results)
+  if (loading || !results) {
     return <div className={classes.root}>
-       {postType}
-       {post.tags.map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+     {post.tags.map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+     {postType}
     </div>;
+  }
   
 
   return <div className={classes.root}>
-    { postType }
     {results.filter(tagRel => !!tagRel?.tag).map(tagRel =>
       <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag} hideScore={hideScore}/>
     )}
+    { postType }
     {currentUser && <AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
   </div>
