@@ -14,8 +14,6 @@ const styles = theme => ({
 })
 
 const SiteLogo = ({classes}) => {
-  console.log('SiteLog()')
-  console.log(' logourl', Utils.getLogoUrl())
   return Utils.getLogoUrl()
     ? <img
       className={classes.root}

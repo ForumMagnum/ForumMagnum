@@ -152,7 +152,6 @@ const theme = createLWTheme({
     },
     Layout: {
       main: {
-        margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
           marginTop: 36,
         }

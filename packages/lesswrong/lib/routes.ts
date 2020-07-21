@@ -554,7 +554,8 @@ switch (forumTypeSetting.get()) {
       {
         name: 'home',
         path: '/',
-        componentName: 'EAHome'
+        componentName: 'EAHome',
+        sunshineSidebar: true
       },
       {
         name:'about',

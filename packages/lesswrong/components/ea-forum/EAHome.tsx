@@ -1,6 +1,5 @@
 import React from 'react'
 import { userHasEAHomeHandbook } from '../../lib/betas'
-import Users from '../../lib/collections/users/collection'
 import { PublicInstanceSetting } from '../../lib/instanceSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
@@ -14,14 +13,11 @@ const EAHome = () => {
     EAHomeHandbook
   } = Components
 
-  const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all')
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
   const shouldRenderEAHomeHandbook = userHasEAHomeHandbook(currentUser)
 
   return (
     <React.Fragment>
-      {shouldRenderSidebar && <Components.SunshineSidebar/>}
-      
       {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>}
 
       <HomeLatestPosts />
