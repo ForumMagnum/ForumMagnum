@@ -227,7 +227,7 @@ const createLWTheme = (theme) => {
       commentBorderGrey: "rgba(72,94,144,0.16)",
     },
     boxShadow: "0 1px 2px rgba(0,0,0,.1)",
-    itemBorderBottom: "solid 1px rgba(0,0,0,.1)",
+    itemBorderBottom: "solid 1px rgba(0,0,0,.08)",
     zIndexes: {
       ...zIndexes
     },
