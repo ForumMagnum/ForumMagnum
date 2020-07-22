@@ -22,6 +22,9 @@ const styles = theme => ({
       marginRight: 0,
     }
   },
+  posts: {
+    boxShadow: theme.boxShadow
+  },
   loadMore: {
     flexGrow: 1,
     textAlign: "left",
@@ -67,6 +70,7 @@ const PostsList2 = ({
   defaultToShowUnreadComments,
   itemsPerPage=25,
   hideAuthor=false,
+  boxShadow=true,
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -85,7 +89,8 @@ const PostsList2 = ({
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
-  hideAuthor?: boolean
+  hideAuthor?: boolean,
+  boxShadow?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -162,7 +167,7 @@ const PostsList2 = ({
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
-      <div>
+      <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
           const props = {
             post,

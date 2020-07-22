@@ -13,6 +13,9 @@ const styles = createStyles(theme => ({
       marginLeft: 0,
       marginRight: 0,
     }
+  },
+  localGroups: {
+    boxShadow: theme.boxShadow
   }
 }))
 
@@ -38,7 +41,9 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoad
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
   return <div>
-      {results && results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}
+      <div className={classes.localGroups}>
+        {results && results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}
+      </div>
       <SectionFooter>
         {(showLoadMore) &&
           <div className={classes.loadMore}>

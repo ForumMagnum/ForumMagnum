@@ -33,7 +33,7 @@ const palette = {
     main: deepOrange[900]
   },
   background: {
-    default: '#f4f4f4'
+    default: '#f8f8f8'
   },
   headerType: "primary"
 }
