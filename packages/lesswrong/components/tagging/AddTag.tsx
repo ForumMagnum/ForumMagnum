@@ -113,6 +113,10 @@ const AddTag = ({onTagSelected, classes}: {
         * null is the only option that actually suppresses the extra X button.
        // @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
+      {showAllTags && <a onClick={()=>setShowAllTags(!showAllTags)} className={classes.newTag}>
+        Show fewer tags
+      </a>}
+      {showAllTags && <Divider/>}
       <Configure hitsPerPage={showAllTags ? 500 : (searchOpen ? 12 : 6)} />
       <Hits hitComponent={({hit}) =>
         <TagSearchHit hit={hit}
