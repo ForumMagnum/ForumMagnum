@@ -25,10 +25,9 @@ const styles = theme => ({
   }
 });
 
-const TagRelCard = ({tagRel, classes, relevance=true}: {
+const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType,
-  relevance?: boolean
 }) => {
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(hasVotedClient({userVotes: voteProps.document.currentUserVotes, voteType: "smallUpvote"}) && voteProps.voteCount === 1)
