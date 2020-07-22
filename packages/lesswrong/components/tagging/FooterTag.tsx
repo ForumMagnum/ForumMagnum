@@ -12,10 +12,12 @@ export const tagStyle = theme => ({
   marginRight: 3,
   padding: 5,
   paddingLeft: 6,
-  paddingRight: 5,
+  paddingRight: 6,
   marginBottom: 8,
   backgroundColor: 'rgba(0,0,0,0.07)',
   borderRadius: 3,
+  ...theme.typography.commentStyle,
+  cursor: "pointer"
 })
 
 const newTagStyle = theme => ({
@@ -44,7 +46,11 @@ const styles = theme => ({
     )
   },
   core: {
-    backgroundColor: "rgba(0,150,0,.2)",
+    backgroundColor: "white",
+    paddingTop: 4,
+    paddingBottom: 4,
+    border: "solid 1px rgba(0,0,0,.12)",
+    color: theme.palette.grey[600]
   },
   score:  {
     paddingLeft: 5,
@@ -80,7 +86,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>
-      {tagRel && <PopperCard open={hover} anchorEl={anchorEl}>
+      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} modifiers={{flip:{enabled:false}}}>
         <div className={classes.hovercard}>
           <TagRelCard tagRel={tagRel} />
         </div>

@@ -10,6 +10,8 @@ import { contentTypes } from '../posts/PostsPage/ContentType';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle } from './FooterTag';
 import classNames from 'classnames';
+import { commentBodyStyles } from '../../themes/stylePiping'
+import Card from '@material-ui/core/Card';
 import * as _ from 'underscore';
 
 const styles = theme => ({
@@ -25,8 +27,19 @@ const styles = theme => ({
     opacity: .8
   },
   frontpageOrPersonal: {
-    backgroundColor: "rgba(150,0,150,.1)",
+    ...tagStyle(theme),
+    backgroundColor: "white",
+    paddingTop: 4,
+    paddingBottom: 4,
+    border: "solid 1px rgba(0,0,0,.12)",
+    color: theme.palette.grey[600]
   },
+  card: {
+    ...commentBodyStyles(theme),
+    width: 450,
+    padding: 16,
+    paddingBottom: 8
+  }
 });
 
 function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
@@ -82,11 +95,11 @@ const FooterTagList = ({post, classes, hideScore}: {
   const { Loading, FooterTag } = Components
 
   const postType = post.frontpageDate ?
-    <LWTooltip title={contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}>
-      <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Frontpage</div>
+    <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}</Card>} tooltip={false}>
+      <div className={classes.frontpageOrPersonal}>Frontpage</div>
     </LWTooltip>
     :
-    <LWTooltip title={contentTypes[forumTypeSetting.get()].personal.tooltipBody}>
+    <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].personal.tooltipBody}</Card>} tooltip={false}>
       <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
     </LWTooltip>
 
