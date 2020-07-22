@@ -13,7 +13,6 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     ...theme.typography.smallText,
-    marginRight: 16,
     color: theme.palette.grey[600]
   },
   voted: {

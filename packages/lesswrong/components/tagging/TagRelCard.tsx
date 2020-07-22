@@ -21,8 +21,6 @@ const styles = theme => ({
   },
   removed: {
     float: "right",
-    marginTop: 12,
-    marginRight: 16,
     color: theme.palette.grey[400]
   }
 });
