@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
-import { Link } from '../../lib/reactRouterWrapper';
 import Divider from '@material-ui/core/Divider';
 import { Tags } from '../../lib/collections/tags/collection';
 import classNames from 'classnames';
@@ -48,7 +47,7 @@ const styles = theme => ({
   showAll: {
     '& ul': {
       columns: 4,
-      columnWidth: 160
+      columnWidth: 180
     }
   }
 });
