@@ -13,12 +13,8 @@ const styles = theme => ({
     color: theme.palette.grey[900],
   },
   karma: {
-    ...theme.typography.body2,
-    width: 30,
-    position: "relative",
-    marginRight: 4,
-    top: 2,
-    color: "#757575",
+    width: 28,
+    marginRight: 6,
     textAlign: "center",
   },
   post: {
@@ -72,7 +68,7 @@ const TagSmallPostLink = ({classes, post, hideAuthor, wrap}: {
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <div className={classes.post}>
-        <span className={classes.karma}>{post.baseScore}</span>
+        <MetaInfo className={classes.karma}>{post.baseScore}</MetaInfo>
         <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}
         </Link>
