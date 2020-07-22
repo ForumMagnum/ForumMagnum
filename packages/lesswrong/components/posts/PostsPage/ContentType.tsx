@@ -32,7 +32,7 @@ export const contentTypes = {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
       tooltipBody: <React.Fragment>
-        <p><b>Frontpage Posts</b> are promoted by moderators based on:</p><br/>
+        <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
         <ul>
           <li>Usefulness, novelty, relevance</li>
           <li>Timeless content (minimizing reference to current events)</li>
@@ -44,7 +44,7 @@ export const contentTypes = {
     personal: {
       tooltipTitle: 'Personal Blogpost',
       tooltipBody: <React.Fragment>
-        <div><b>Personal Blogpost</b></div>
+        <div><b>Personal Blogpost</b></div><br/>
         <div>
           Members can write whatever they want on their personal blog. Personal
           blogposts are a good fit for:
