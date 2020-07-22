@@ -12,6 +12,11 @@ const styles = theme => ({
     ...theme.typography.postStyle,
     color: theme.palette.grey[900],
   },
+  karma: {
+    width: 28,
+    marginRight: 6,
+    textAlign: "center",
+  },
   post: {
     display: "flex",
     width: "100%",
@@ -25,6 +30,7 @@ const styles = theme => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
+    flexGrow: 1,
   },
   wrap: {
     whiteSpace: "unset",
@@ -62,7 +68,10 @@ const TagSmallPostLink = ({classes, post, hideAuthor, wrap}: {
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <div className={classes.post}>
-        <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]:wrap})}>{post.title}</Link>
+        <MetaInfo className={classes.karma}>{post.baseScore}</MetaInfo>
+        <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
+          {post.title}
+        </Link>
         {!hideAuthor && <MetaInfo className={classes.author}>
           <UsersName user={post.user} />
         </MetaInfo>}
