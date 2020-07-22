@@ -13,9 +13,9 @@ const styles = theme => ({
     color: theme.palette.grey[900],
   },
   karma: {
-    width: 28,
-    marginRight: 6,
+    width: 27,
     textAlign: "center",
+    flexShrink: 0
   },
   post: {
     display: "flex",
@@ -43,10 +43,10 @@ const styles = theme => ({
   }
 });
 
-const TagSmallPostLink = ({classes, post, hideAuthor, wrap}: {
+const TagSmallPostLink = ({classes, post, hideMeta, wrap}: {
   classes: ClassesType,
   post: PostsList,
-  hideAuthor?: boolean,
+  hideMeta?: boolean,
   wrap?: boolean
 }) => {
   const { LWPopper, PostsPreviewTooltip, UsersName, MetaInfo } = Components
@@ -68,11 +68,11 @@ const TagSmallPostLink = ({classes, post, hideAuthor, wrap}: {
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <div className={classes.post}>
-        <MetaInfo className={classes.karma}>{post.baseScore}</MetaInfo>
+        {!hideMeta && <MetaInfo className={classes.karma}>{post.baseScore}</MetaInfo>}
         <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}
         </Link>
-        {!hideAuthor && <MetaInfo className={classes.author}>
+        {!hideMeta && <MetaInfo className={classes.author}>
           <UsersName user={post.user} />
         </MetaInfo>}
       </div>
