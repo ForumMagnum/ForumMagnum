@@ -47,7 +47,8 @@ const styles = theme => ({
   },
   showAll: {
     '& ul': {
-      columns: 4
+      columns: 4,
+      columnWidth: 160
     }
   }
 });
