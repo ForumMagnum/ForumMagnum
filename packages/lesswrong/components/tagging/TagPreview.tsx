@@ -39,8 +39,7 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     color: theme.palette.primary.main,
     marginTop: 6,
-    marginBottom: 2,
-    marginRight: 6
+    marginBottom: 2
   },
   posts: {
     marginTop: 12,
