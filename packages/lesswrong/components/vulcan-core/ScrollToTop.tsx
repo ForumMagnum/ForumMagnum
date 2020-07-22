@@ -1,19 +1,23 @@
-import React, {useEffect} from 'react';
+import React, {Component, useState, useEffect} from 'react';
 import {registerComponent} from '../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../lib/routeUtil';
+import {withSubscribedLocation} from '../../lib/routeUtil';
 
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
-export default function ScrollToTop() {
-  const { pathname } = useSubscribedLocation();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
-  return null;
+export default class ScrollToTop extends Component<any> {
+  componentDidUpdate(prevProps) {
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      window.scrollTo(0, 0);
+    }
+  }
+  
+  render() {
+    return null;
+  }
 }
 
-const ScrollToTopComponent = registerComponent('ScrollToTop', ScrollToTop);
+const ScrollToTopComponent = registerComponent('ScrollToTop', ScrollToTop, {
+  hocs: [withSubscribedLocation]
+});
 
 declare global {
   interface ComponentTypes {

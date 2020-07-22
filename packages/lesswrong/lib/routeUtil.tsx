@@ -73,16 +73,17 @@ export const useNavigation = (): any => {
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
 export const withLocation = (WrappedComponent) => {
-  return (props) => (
-    <LocationContext.Consumer>
-      {location =>
-        <WrappedComponent
-          {...props}
-          location={location}
-        />
-      }
-    </LocationContext.Consumer>
-  );
+  return (props) => {
+    const location = useLocation();
+    return <WrappedComponent {...props} location={location} />
+  };
+}
+
+export const withSubscribedLocation = (WrappedComponent) => {
+  return (props) => {
+    const location = useSubscribedLocation();
+    return <WrappedComponent {...props} location={location} />
+  };
 }
 
 // HoC which adds a `history` property to an object, which is a history obejct
