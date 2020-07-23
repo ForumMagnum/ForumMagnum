@@ -32,7 +32,6 @@ const styles = theme => ({
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
-    maxWidth: 640,
     padding: 0,
     '& li .public-DraftStyleDefault-block': {
       margin: 0
