@@ -22,7 +22,8 @@ const styles = theme => ({
   },
 });
 
-const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes }: {
+const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes }: {
+  documentId: string,
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
@@ -41,11 +42,16 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
       after: revisions[afterRevisionIndex]
     });
   }, [beforeRevisionIndex, afterRevisionIndex, onPairSelected, revisions]);
-  
-  
+  console.log(documentId)
   return <React.Fragment>
-    {revisions.map((rev, i)=> <TagRevisionItem key={rev._id} revision={rev}/>)}
-    {/* {revisions.map((rev,i) => {
+    {revisions.map((rev, i)=> {
+      if (i < (revisions.length-1)) {
+        console.log("a", rev)
+        console.log("b", revisions[i+1])
+        return <TagRevisionItem key={rev.version} documentId={documentId} revision={rev} previousRevision={revisions[i+1]}/>
+      }
+    })
+    /* {revisions.map((rev,i) => {
       const beforeDisabled = i<=afterRevisionIndex;
       const afterDisabled = i>=beforeRevisionIndex;
       const { added, removed } = rev.changeMetrics;
