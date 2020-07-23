@@ -24,6 +24,7 @@ registerFragment(`
     description {
       html
       htmlHighlight
+      plaintextDescription
     }
   }
 `);

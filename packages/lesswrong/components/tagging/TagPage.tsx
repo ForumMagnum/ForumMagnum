@@ -13,6 +13,7 @@ import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
 import { userCanViewRevisionHistory, userCanManageTags} from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
+import { useDialog } from '../common/withDialog';
 
 // Also used in TagCompareRevisions
 export const styles = theme => ({
@@ -91,7 +92,7 @@ export const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -101,6 +102,7 @@ const TagPage = ({classes}: {
   });
   const [truncated, setTruncated] = useState(true)
   const { captureEvent } =  useTracking()
+  const { openDialog } = useDialog();
   
   if (loadingTag)
     return <Loading/>
@@ -125,6 +127,7 @@ const TagPage = ({classes}: {
   }
 
   const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
+  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
 
   return <AnalyticsContext
     pageContext='tagPage'
@@ -133,6 +136,9 @@ const TagPage = ({classes}: {
     sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
+    <HeadTags
+      title={tag.name} description={headTagDescription}
+    />
     <SingleColumnSection>
       <div className={classes.wikiSection}>
         <AnalyticsContext pageSectionContext="wikiSection">
@@ -142,9 +148,20 @@ const TagPage = ({classes}: {
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
-            {userCanManageTags(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
-              <EditOutlinedIcon /> Edit Wiki
-            </Link>}
+            {currentUser ? 
+              <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+                <EditOutlinedIcon /> Edit Wiki
+              </Link> : 
+              <a className={classes.editButton} onClick={(ev) => {
+                openDialog({
+                  componentName: "LoginPopup",
+                  componentProps: {}
+                });
+                ev.preventDefault();
+              }}>
+                <EditOutlinedIcon /> Edit Wiki
+              </a>
+            }
             {userCanViewRevisionHistory(currentUser) && <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
