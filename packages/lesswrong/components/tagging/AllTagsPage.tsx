@@ -78,6 +78,8 @@ const AllTagsPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { tag } = useTagBySlug("portal", "TagFragment");
   const [ editing, setEditing ] = useState(false)
+  // Type hack because MenuItem is too narrowly typed and doesn't properly take into account props-forwarding
+  const UntypedMenuItem = MenuItem as any
 
   const { AllTagsAlphabetical, SectionButton, TagsDetailsItem, SectionTitle, LoadMore, SectionFooter, ContentItemBody } = Components;
 
@@ -124,17 +126,15 @@ const AllTagsPage = ({classes}: {
                 name: 'Showing All Tags'
               }}
             >
-              {/* @ts-ignore MenuItem is too narrowly typed, and doesn't account for it forwarding props*/}
-              <MenuItem value="none" component={QueryLink} query={{ tagFilter: undefined }}>
+              <UntypedMenuItem value="none" component={QueryLink} query={{ tagFilter: undefined }}>
                 No Filters
-              </MenuItem>  
+              </UntypedMenuItem>  
               {Object.entries(wikiGradeDefinitions).map(([value, name]) => {
                 if(name === wikiGradeDefinitions[0]) return null
                 if(name === wikiGradeDefinitions[1]) return null
-                {/* @ts-ignore MenuItem is too narrowly typed, and doesn't account for it forwarding props*/}
-                return <MenuItem key={value} value={name} component={QueryLink} query={{ tagFilter: name }}>
+                return <UntypedMenuItem key={value} value={name} component={QueryLink} query={{ tagFilter: name }}>
                   {name}
-                </MenuItem>
+                </UntypedMenuItem>
               })}
             </Select>
           </SectionTitle>
