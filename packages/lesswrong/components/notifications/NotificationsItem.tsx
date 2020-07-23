@@ -83,7 +83,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
 
     switch (notification.documentType) {
       case 'tagRel':
-        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
+        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} to={notification.type === "ownPostTagged" ? "tag" : "post"} /></Card>
       case 'post':
         return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
       case 'comment':
@@ -101,9 +101,8 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
     const { notification } = this.props
     const { TagRelNotificationItem } = Components
     switch (notification.documentType) {
-      // TODO: add case for tagRel
       case 'tagRel': 
-        return <TagRelNotificationItem tagRelId={notification.documentId}/>
+        return <TagRelNotificationItem tagRelId={notification.documentId} notification={notification}/>
       default:
         return notification.message
     }

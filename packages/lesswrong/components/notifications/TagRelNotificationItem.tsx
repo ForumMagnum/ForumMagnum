@@ -15,9 +15,10 @@ const styles = theme => ({
   }
 });
 
-export const TagRelNotificationItem = ({classes, tagRelId}: {
+export const TagRelNotificationItem = ({classes, tagRelId, notification}: {
   classes: ClassesType,
-  tagRelId: string
+  tagRelId: string,
+  notification: any
 }) => {
   const { Loading } = Components
 
@@ -29,8 +30,12 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
 
   if (loading) return <Loading/>
 
+  const message = notification.type === "ownPostTagged" ? 
+    <>Your post was tagged <em>{tagRel.tag.name}</em></> :
+    <>New post tagged <em>{tagRel.tag.name}</em></>
+
   return <div className={classes.root}>
-    <div className={classes.meta}>New post tagged <em>{tagRel.tag.name}</em>:</div>
+    <div className={classes.meta}>{message}</div>
     <div className={classes.title}>{tagRel.post.title}</div>
   </div>;
 }

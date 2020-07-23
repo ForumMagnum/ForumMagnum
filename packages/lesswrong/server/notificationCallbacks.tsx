@@ -10,6 +10,7 @@ import { Comments } from '../lib/collections/comments'
 import { reasonUserCantReceiveEmails } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
+import './emailComponents/OwnPostTaggedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import { EventDebouncer } from './debouncer';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
@@ -388,7 +389,7 @@ async function TaggedPostNewNotifications(tagRel) {
     type: subscriptionTypes.newTagPosts
   })
   const post = Posts.findOne({_id:tagRel.postId})
-  if (postIsPublic(post)) {
+  if (post && postIsPublic(post)) {
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
     // Don't notify the person who created the tagRel
@@ -397,6 +398,10 @@ async function TaggedPostNewNotifications(tagRel) {
     //eslint-disable-next-line no-console
     console.info("Post tagged, creating notifications");
     await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'tagRel', tagRel._id);
+
+    // Notify the owners of the post that their post was tagged (unless it was the owner tagging their own post)
+    let postOwnersToNotify = _.difference([post.userId, ...(post.coauthorUserIds ? post.coauthorUserIds : [])], [tagRel.userId]);
+    await createNotifications(postOwnersToNotify, 'ownPostTagged', 'tagRel', tagRel._id);
   }
 }
 addCallback("tagrels.new.async", TaggedPostNewNotifications);

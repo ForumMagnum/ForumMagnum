@@ -13,7 +13,7 @@ import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventInRadiusEmail';
-import { taggedPostMessage } from '../lib/notificationTypes';
+import { taggedPostMessage, ownPostTaggedMessage } from '../lib/notificationTypes';
 
 const notificationTypes = {};
 
@@ -103,14 +103,30 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
   name: "newTagPosts",
   canCombineEmails: false,
   emailSubject: ({user, notifications}) => {
-    const [documentId, documentType] = notifications[0]
+    const {documentId, documentType} = notifications[0]
     return taggedPostMessage({documentId, documentType})
   },
   emailBody: ({user, notifications}) => {
-    const [documentId, documentType] = notifications[0]
+    const {documentId} = notifications[0]
     const tagRel = TagRels.findOne({_id: documentId})
     if (tagRel) {
       return <Components.NewPostEmail documentId={ tagRel.postId}/>
+    }
+  }
+})
+
+export const OwnPostTaggedNotification = serverRegisterNotificationType({
+  name: "ownPostTagged",
+  canCombineEmails: false,
+  emailSubject: ({user, notifications}) => {
+    const {documentId, documentType} = notifications[0]
+    return ownPostTaggedMessage({documentId, documentType})
+  },
+  emailBody: ({user, notifications}) => {
+    const {documentId} = notifications[0]
+    const tagRel = TagRels.findOne({_id: documentId})
+    if (tagRel) {
+      return <Components.OwnPostTaggedEmail postId={tagRel.postId} tagId={tagRel.tagId}/>
     }
   }
 })
