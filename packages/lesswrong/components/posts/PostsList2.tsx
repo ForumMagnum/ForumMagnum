@@ -185,18 +185,17 @@ const PostsList2 = ({
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        <div className={classes.loadMore}>
+        { maybeMorePosts && <div className={classes.loadMore}>
           <LoadMore
             loadMore={() => {
               loadMore();
               setHaveLoadedMore(true);
             }}
-            disabled={!maybeMorePosts}
             count={count}
             totalCount={totalCount}
           />
           { !dimWhenLoading && showLoading && loading && <Loading />}
-        </div>
+        </div>}
         { children }
       </SectionFooter>}
     </div>
