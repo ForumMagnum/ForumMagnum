@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import { userCanViewRevisionHistory, userCanManageTags} from '../../lib/betas';
+import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
@@ -137,7 +137,7 @@ const TagPage = ({classes}: {
     limit={terms.limit}
   >
     <HeadTags
-      title={tag.name} description={headTagDescription}
+      description={headTagDescription}
     />
     <SingleColumnSection>
       <div className={classes.wikiSection}>
