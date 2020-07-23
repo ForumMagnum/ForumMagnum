@@ -23,7 +23,7 @@ const styles = theme => ({
 });
 
 
-const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=3}: {
+const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}: {
   href: string,
   targetLocation: any,
   innerHTML: string,
