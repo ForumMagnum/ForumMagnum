@@ -380,6 +380,7 @@ importComponent("TagRelevanceButton", () => require('../components/tagging/TagRe
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
+importComponent("TagDiscussionPage", () => require('../components/tagging/TagDiscussionPage'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));

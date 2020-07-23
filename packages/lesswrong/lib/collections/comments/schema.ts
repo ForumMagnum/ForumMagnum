@@ -68,13 +68,27 @@ const schema = {
       }
     }
   },
-  // The post's `_id`
+  // If this comment is on a post, the _id of that post.
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true
+  },
+  // If this comment is in a tag discussion section, the _id of the tag.
+  tagId: {
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
       nullable: true,
     }),
     optional: true,
@@ -89,7 +103,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -274,7 +288,7 @@ const schema = {
       resolverName: "promotedByUser",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],

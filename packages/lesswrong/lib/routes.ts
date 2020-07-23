@@ -212,6 +212,14 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
   },
   {
+    name: 'tagDiscussion',
+    path: '/tag/:slug/discussion',
+    componentName: 'TagDiscussionPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+  },
+  {
     name: 'tagEdit',
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',

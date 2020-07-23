@@ -12,21 +12,6 @@ export const moderationOptionsGroup = {
 };
 
 addFieldsDict(Comments, {
-  // The comment author's `_id`
-  userId: {
-    ...foreignKeyField({
-      idFieldName: "userId",
-      resolverName: "user",
-      collectionName: "Users",
-      type: "User",
-      nullable: false,
-    }),
-    optional: true,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    hidden: true,
-  },
-
   // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     type: Boolean,

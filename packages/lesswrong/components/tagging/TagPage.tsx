@@ -14,7 +14,7 @@ import { userCanViewRevisionHistory, userCanManageTags} from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 
-// Also used in TagCompareRevisions
+// Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = theme => ({
   tagPage: {
     ...commentBodyStyles(theme),

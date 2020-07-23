@@ -159,11 +159,11 @@ type ExternalProps = ({
 } & ({
   // Type of "post" needs to have more metadata if the loadChildrenSeparately
   // option is passed
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
   loadChildrenSeparately?: undefined|false,
 } | {
   loadChildrenSeparately: true,
-  post: PostsBase,
+  post?: PostsBase,
 }))
 
 type CommentsNodeProps = ExternalProps & WithUserProps & WithStylesProps & WithLocationProps;
@@ -328,7 +328,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
-    if (!comment || !post)
+    if (!comment)
       return null;
 
     const { collapsed, highlighted } = this.state
@@ -391,7 +391,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                         post={post}
                         nestingLevel={updatedNestingLevel}
                         parentCommentId={parentCommentId}
-                        hideKarma={post.hideCommentKarma}
+                        hideKarma={post?.hideCommentKarma}
                         hideSingleLineMeta={hideSingleLineMeta}
                         enableHoverPreview={enableHoverPreview}
                       />
