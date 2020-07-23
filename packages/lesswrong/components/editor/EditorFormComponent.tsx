@@ -560,7 +560,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     if (!fieldHasCommitMessages) return null;
     
     return <div className={classes.changeDescriptionRow}>
-      <span className={classes.changeDescriptionLabel}>Change description{" "}</span>
+      <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
       <Input
         className={classes.changeDescriptionInput}
         value={this.state.commitMessage}
