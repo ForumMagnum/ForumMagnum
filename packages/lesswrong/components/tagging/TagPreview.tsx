@@ -50,12 +50,11 @@ const styles = theme => ({
   }
 });
 
-const previewPostCount = 3;
-
-const TagPreview = ({tag, classes, showCount=true}: {
+const TagPreview = ({tag, classes, showCount=true, postCount=3}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
-  showCount?: boolean
+  showCount?: boolean,
+  postCount?: number
 }) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
@@ -66,7 +65,7 @@ const TagPreview = ({tag, classes, showCount=true}: {
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",
-    limit: previewPostCount,
+    limit: postCount,
     ssr: true,
   });
 
@@ -75,7 +74,7 @@ const TagPreview = ({tag, classes, showCount=true}: {
   return (<div className={classes.card}>
     <TagPreviewDescription tag={tag}/>
     {results ? <div className={classes.posts}>
-      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} />)}
+      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} widerSpacing={postCount > 3} />)}
     </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>

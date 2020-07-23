@@ -13,9 +13,10 @@ const styles = theme => ({
     color: theme.palette.grey[900],
   },
   karma: {
-    width: 28,
-    marginRight: 6,
+    marginLeft: 8,
     textAlign: "center",
+    width: 20,
+    flexShrink: 0
   },
   post: {
     display: "flex",
@@ -40,20 +41,24 @@ const styles = theme => ({
   author: {
     marginRight: 0,
     marginLeft: 20
+  },
+  widerSpacing: {
+    marginBottom: 4
   }
 });
 
-const TagSmallPostLink = ({classes, post, hideAuthor, wrap}: {
+const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
   classes: ClassesType,
   post: PostsList,
-  hideAuthor?: boolean,
-  wrap?: boolean
+  hideMeta?: boolean,
+  wrap?: boolean,
+  widerSpacing?: boolean
 }) => {
-  const { LWPopper, PostsPreviewTooltip, UsersName, MetaInfo } = Components
+  const { LWPopper, PostsPreviewTooltip, UsersName, MetaInfo, PostsItemKarma } = Components
   const { eventHandlers, hover, anchorEl } = useHover();
 
   return <span {...eventHandlers}>
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
       <LWPopper 
         open={hover} 
         anchorEl={anchorEl} 
@@ -68,13 +73,16 @@ const TagSmallPostLink = ({classes, post, hideAuthor, wrap}: {
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <div className={classes.post}>
-        <MetaInfo className={classes.karma}>{post.baseScore}</MetaInfo>
         <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}
         </Link>
-        {!hideAuthor && <MetaInfo className={classes.author}>
+        {!hideMeta && <MetaInfo className={classes.author}>
           <UsersName user={post.user} />
         </MetaInfo>}
+        {!hideMeta && <MetaInfo className={classes.karma}>
+          <PostsItemKarma post={post} placement="right"/>
+        </MetaInfo>}
+
       </div>
     </div>
   </span>

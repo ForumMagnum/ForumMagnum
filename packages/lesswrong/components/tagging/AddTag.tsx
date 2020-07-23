@@ -27,6 +27,7 @@ const styles = theme => ({
     paddingLeft: 8,
     paddingRight: 8,
     paddingBottom: 8,
+    maxWidth: 365,
     background: "rgba(0,0,0,.03)",
     '& .form-input.input-name': {
       marginTop: 0
@@ -135,6 +136,7 @@ const AddTag = ({onTagSelected, classes}: {
     </a>
     {showCreateTag && <div className={classes.newTagForm}><WrappedSmartForm
       collection={Tags}
+      fields={["name", "description"]}
       mutationFragment={getFragment('TagFragment')}
       successCallback={tag => {
         onTagSelected({tagId: tag._id, tagName: tag.name});

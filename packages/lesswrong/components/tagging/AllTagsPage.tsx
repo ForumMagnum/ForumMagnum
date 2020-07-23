@@ -8,6 +8,8 @@ import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { Link } from '../../lib/reactRouterWrapper';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 
 const styles = theme => ({
   root: {
@@ -66,7 +68,7 @@ const AllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "TagFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { AllTagsAlphabetical, TagsDetailsItem, SectionTitle, LoadMore, SectionFooter, ContentItemBody } = Components;
+  const { AllTagsAlphabetical, SectionButton, TagsDetailsItem, SectionTitle, LoadMore, SectionFooter, ContentItemBody } = Components;
 
   return (
     <AnalyticsContext pageContext="allTagsPage">
@@ -90,7 +92,12 @@ const AllTagsPage = ({classes}: {
           </AnalyticsContext>
         </div>
         <AnalyticsContext pageSectionContext="tagDetails">
-          <SectionTitle title="Tag Details"/>
+          <SectionTitle title={`Tag Details (${results?.length || "loading"})`}>
+            <SectionButton>
+              <AddBoxIcon/>
+              <Link to="/tag/create">New Tag</Link>
+            </SectionButton>
+          </SectionTitle>
           <div>
             {results && results.map(tag => {
               return <TagsDetailsItem key={tag._id} tag={tag} />
