@@ -29,7 +29,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   loadMoreProps: any,
   classes: ClassesType,
 }) => {
-  const { FormatDate, UsersName, LoadMore } = Components;
+  const { FormatDate, UsersName, LoadMore, TagRevisionItem } = Components;
   
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
@@ -44,7 +44,8 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   
   
   return <React.Fragment>
-    {revisions.map((rev,i) => {
+    {revisions.map((rev, i)=> <TagRevisionItem key={rev._id} revision={rev}/>)}
+    {/* {revisions.map((rev,i) => {
       const beforeDisabled = i<=afterRevisionIndex;
       const afterDisabled = i>=beforeRevisionIndex;
       const { added, removed } = rev.changeMetrics;
@@ -88,7 +89,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
           </Link>
         </div>
       )
-    })}
+    })} */}
     
     <div><LoadMore {...loadMoreProps}/></div>
     <Button onClick={compareRevs}>Compare selected revisions</Button>
