@@ -24,7 +24,7 @@ const TagPageTitle = ({isSubtitle, classes, siteName}: {
     return null;
   } else {
     return <Helmet>
-      <title>{titleString}l</title>
+      <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>
   }
@@ -37,4 +37,3 @@ declare global {
     TagPageTitle: typeof TagPageTitleComponent
   }
 }
-
