@@ -25,6 +25,7 @@ registerFragment(`
     description {
       html
       htmlHighlight
+      plaintextDescription
     }
   }
 `);
@@ -35,6 +36,7 @@ registerFragment(`
     description(version: $version) {
       html
       htmlHighlight
+      plaintextDescription
     }
   }
 `);
