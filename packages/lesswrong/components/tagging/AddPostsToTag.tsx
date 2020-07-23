@@ -67,16 +67,14 @@ const AddPostsToTag = ({classes, tag}: {
   }, [mutate, flash, tag._id, tag.name, captureEvent]);
 
   const { PostsSearchAutoComplete, Loading } = Components
-  return <div className={classNames(classes.root, {[classes.open]: searchOpen})} onClick={() => setSearchOpen(true)} onBlur={() => setSearchOpen(false)}>
+  return <div className={classNames(classes.root, {[classes.open]: searchOpen})} onClick={() => setSearchOpen(true)}>
     {searchOpen && <SearchIcon className={classes.icon}/>}
     {!searchOpen && !isAwaiting && <AddBoxIcon className={classes.icon}/>}
-    {isAwaiting 
-      ? <Loading/> 
-      : <PostsSearchAutoComplete 
-          clickAction={onPostSelected} 
-          placeholder={searchOpen ? "Search for posts" : "Add Posts"}
-        />
-    }
+    <PostsSearchAutoComplete 
+      clickAction={onPostSelected} 
+      placeholder={searchOpen ? "Search for posts" : "Add Posts"}
+    /> 
+    {isAwaiting && <Loading/>}
   </div>
 }
 
