@@ -19,7 +19,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    boxShadow: "0 1px 2px rgba(0,0,0,.1)",
+    boxShadow: theme.boxShadow,
     borderRadius: 3,
     backgroundColor: "rgba(253,253,253)",
   },
@@ -87,6 +87,7 @@ const styles = theme => ({
     paddingLeft: 16,
     paddingRight: 16,
     background: "white",
+    borderRadius: 3,
     marginBottom:4
   },
   title: {
@@ -211,7 +212,11 @@ const RecentDiscussionThread = ({
 const RecentDiscussionThreadComponent = registerComponent(
   'RecentDiscussionThread', RecentDiscussionThread, {
     styles,
-    hocs: [withErrorBoundary]
+    hocs: [withErrorBoundary],
+    areEqual: {
+      post: (before, after) => (before?._id === after?._id),
+      refetch: "ignore",
+    },
   }
 );
 

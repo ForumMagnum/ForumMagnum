@@ -235,7 +235,7 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: async (post, args, context: ResolverContext) => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string|null> => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
@@ -355,7 +355,7 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post, args, context: ResolverContext) => {
+      resolver: (post: DbPost, args: void, context: ResolverContext): DbCollection|null => {
         if (!post.canonicalCollectionSlug) return null;
         return context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
@@ -959,7 +959,7 @@ addFieldsDict(Posts, {
     canRead: ['guests'],
     resolveAs: {
       type: 'Boolean',
-      resolver: async (post, args, context: ResolverContext) => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
         const { LWEvents, currentUser } = context;
         if(currentUser){
           const query = {

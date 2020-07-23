@@ -13,20 +13,23 @@ const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // 
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
 
-const tagManager = (user: UsersCurrent|DbUser|null): boolean =>
-  !!(user?.isAdmin || user?.groups?.includes('sunshineRegiment') || user?.groups?.includes('tagManager'))
+// const tagManager = (user: UsersCurrent|DbUser|null): boolean =>
+//   !!(user?.isAdmin || user?.groups?.includes('sunshineRegiment') || user?.groups?.includes('tagManager'))
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userHasPingbacks = shippedFeature;
+export const userCanEditTagPortal = adminOnly;
 export const userHasCkEditor = optInOnly;
 export const userHasCkCollaboration = adminOnly;
-export const userCanManageTags = tagManager;
-export const userCanCreateTags = shippedFeature;
-export const userCanUseTags = shippedFeature;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
-export const userCanViewRevisionHistory = moderatorOnly;
+
+// Shipped Features
+export const userCanManageTags = shippedFeature;
+export const userCanCreateTags = shippedFeature;
+export const userCanUseTags = shippedFeature;
+export const userCanViewRevisionHistory = shippedFeature;
+export const userHasPingbacks = shippedFeature;

@@ -99,7 +99,7 @@ const SubscribeTo = ({
         collectionName,
         type: subscriptionType,
       }
-      createSubscription({data: newSubscription})
+      await createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed
       flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});

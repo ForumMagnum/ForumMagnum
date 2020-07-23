@@ -10,7 +10,9 @@ const styles = theme => ({
   icon: {
     verticalAlign: 'text-top',
     fontSize: 'inherit',
-    marginRight: 4
+    marginRight: 4,
+    position: 'relative',
+    top: 3
   },
   button: {
     cursor: 'pointer'

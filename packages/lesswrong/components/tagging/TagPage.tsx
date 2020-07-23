@@ -107,7 +107,7 @@ const TagPage = ({classes}: {
   if (!tag)
     return <Error404/>
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
-  if (tag.slug !== slug) {
+  if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={Tags.getUrl(tag)} />
   }
 

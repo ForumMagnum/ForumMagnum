@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
+import { useTagBySlug } from './useTag';
+import { commentBodyStyles } from '../../themes/stylePiping'
+import { EditTagForm } from './EditTagPage';
+import { userCanEditTagPortal } from '../../lib/betas'
+import { useCurrentUser } from '../common/withUser';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import _sortBy from 'lodash/sortBy';
 
 const styles = theme => ({
   root: {
     margin: "auto",
-    maxWidth: 840
+    maxWidth: 1000
+  },
+  topSection: {
+    maxWidth: 800,
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginBottom: theme.spacing.unit*8
   },
   alphabetical: {
     columns: 5,
@@ -19,51 +28,97 @@ const styles = theme => ({
     columnGap: 0,
     background: "white",
     padding: 20,
-    marginBottom: 24  
+    marginBottom: 24
+  },
+  portal: {
+    marginTop: 18,
+    ...commentBodyStyles(theme),
+    marginBottom: 18,
+    position: "relative",
+    [theme.breakpoints.down('xs')]: {
+      '& td': {
+        display: 'block',
+        width: '100% !important',
+        height: 'inherit !important'
+      }
+    }
+  },
+  edit: {
+    position: "absolute",
+    right: 5,
+    color: theme.palette.grey[600]
   }
 })
 
 const AllTagsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { results, loading, loadMoreProps } = useMulti({
+  const { results, loadMoreProps, totalCount, count } = useMulti({
     terms: {
       view: "allTagsHierarchical",
     },
     collection: Tags,
     fragmentName: "TagPreviewFragment",
-    limit: 500,
-    ssr: true,
+    limit: 20,
+    itemsPerPage: 100,
+    ssr: true
   });
-  const { TagsListItem, TagsDetailsItem, SectionTitle, SectionButton, Loading, LoadMore } = Components;
-  
-  const alphabetical = _sortBy(results, tag=>tag.name)
+
+  const currentUser = useCurrentUser()
+  const { tag } = useTagBySlug("portal", "TagFragment");
+  const [ editing, setEditing ] = useState(false)
+
+  const { AllTagsAlphabetical, SectionButton, TagsDetailsItem, SectionTitle, LoadMore, SectionFooter, ContentItemBody } = Components;
 
   return (
-    <div className={classes.root}>
-      <SectionTitle title={`All Tags (${results?.length})`}>
-        <SectionButton>
-          <AddBoxIcon/>
-          <Link to="/tag/create">New Tag</Link>
-        </SectionButton>
-      </SectionTitle>
-      {loading && <Loading/>}
-      <div className={classes.alphabetical}>
-        {alphabetical.map(tag => <TagsListItem key={tag._id} tag={tag}/>)}
+    <AnalyticsContext pageContext="allTagsPage">
+      <div className={classes.root}>
+        <div className={classes.topSection}>
+          <AnalyticsContext pageSectionContext="tagPortal">
+            <SectionTitle title="Concepts Portal"/>
+            <div className={classes.portal}>
+              {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
+                Edit
+              </a>}
+              {editing && tag ?
+                <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+                :
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
+                  description={`tag ${tag?.name}`}
+                />
+              }
+            </div>
+          </AnalyticsContext>
+        </div>
+        <AnalyticsContext pageSectionContext="tagDetails">
+          <SectionTitle title={`Tag Details (${results?.length || "loading"})`}>
+            <SectionButton>
+              <AddBoxIcon/>
+              <Link to="/tag/create">New Tag</Link>
+            </SectionButton>
+          </SectionTitle>
+          <div>
+            {results && results.map(tag => {
+              return <TagsDetailsItem key={tag._id} tag={tag} />
+            })}
+            {results && !results.length && <div>
+              There aren't any tags yet.
+            </div>}
+          </div>
+          <SectionFooter>
+            <LoadMore
+              {...loadMoreProps}
+              totalCount={totalCount}
+              count={count}
+            />
+          </SectionFooter>
+        </AnalyticsContext>
+        <AnalyticsContext pageSectionContext="allTagsAlphabetical">
+          <AllTagsAlphabetical />
+        </AnalyticsContext>
       </div>
-      <SectionTitle title="Tag Details"/>
-      <Table>
-        <TableBody>
-          {results && results.map(tag => {
-            return <TagsDetailsItem key={tag._id} tag={tag} />
-          })}
-          {results && !results.length && <div>
-            There aren't any tags yet.
-          </div>}
-        </TableBody>
-      </Table>
-      <LoadMore {...loadMoreProps}/>
-    </div>
+    </AnalyticsContext>
   );
 }
 

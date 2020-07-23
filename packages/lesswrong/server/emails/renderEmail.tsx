@@ -230,7 +230,7 @@ export function logSentEmail(renderedEmail, user) {
     user: user._id,
   };
   // Log in LWEvents table
-  newMutation({
+  void newMutation({
     collection: LWEvents,
     currentUser: user,
     document: {

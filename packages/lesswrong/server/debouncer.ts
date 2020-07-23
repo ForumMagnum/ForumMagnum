@@ -278,7 +278,7 @@ if (!testServerSetting.get()) {
       return parser.cron('* * * * * *');
     },
     job() {
-      dispatchPendingEvents();
+      void dispatchPendingEvents();
     }
   });
 }

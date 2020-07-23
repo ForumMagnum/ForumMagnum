@@ -11,7 +11,6 @@ registerFragment(`
     slug
     groups
     services
-    
     karma
   }
 `);
@@ -292,7 +291,6 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersMinimumInfo on User {
-    # vulcan:users
     _id
     slug
     oldSlugs
@@ -318,7 +316,6 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersProfile on User {
-    # vulcan:users
     ...UsersMinimumInfo
     createdAt
     isAdmin
@@ -326,11 +323,9 @@ registerFragment(`
     htmlBio
     website
     groups
-    # example-forum
     postCount
     afPostCount
     frontpagePostCount
-    # example-forum
     commentCount
     sequenceCount
     afCommentCount
@@ -361,12 +356,10 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersMapEntry on User {
-    # vulcan:users
     ...UsersMinimumInfo
     createdAt
     isAdmin
     groups
-    # example-forum
     location
     googleLocation
     mapLocation
@@ -527,7 +520,6 @@ registerFragment(`
     voteCount
   }
 `);
-
 
 registerFragment(`
   fragment RevisionDisplay on Revision {

@@ -39,9 +39,9 @@ const Reviews2018 = ({classes}) => {
 
   const handleSetExpandUnread = () => {
     if (currentUser) {
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
-        data: { 
+        data: {
           noExpandUnreadCommentsReview: expandUnread,
         }
       });

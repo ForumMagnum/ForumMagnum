@@ -8,9 +8,11 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     paddingTop: 3,
-    paddingBottom: 3,
     paddingLeft: 6,
-    ...theme.typography.smallText,
+    paddingRight: 12,
+    fontSize: "1.1rem",
+    lineHeight: "1.1em",
+    marginBottom: 8
 
   },
   count: {
@@ -19,12 +21,18 @@ const styles = theme => ({
     position: "relative",
     marginLeft: 4,
     marginRight: 8
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 });
 
-const TagsListItem = ({tag, classes}: {
+const TagsListItem = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
+  postCount?: number,
 }) => {
   const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
@@ -35,10 +43,10 @@ const TagsListItem = ({tag, classes}: {
       anchorEl={anchorEl} 
       placement="right-start"
     >
-      <TagPreview tag={tag}/>
+      <div className={classes.hideOnMobile}><TagPreview tag={tag} postCount={postCount}/></div>
     </PopperCard>
     <Link to={`/tag/${tag.slug}`}>
-      {tag.name} { tag.needsReview } { tag.reviewedByUserId }
+      {tag.name} { tag.needsReview }
     </Link>
     {tag.postCount && <span className={classes.count}>({tag.postCount})</span>} 
   </div>;

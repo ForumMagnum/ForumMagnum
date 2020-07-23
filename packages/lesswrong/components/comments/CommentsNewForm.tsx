@@ -12,6 +12,9 @@ import Users from '../../lib/collections/users/collection';
 const styles = theme => ({
   root: {
   },
+  loadingRoot: {
+    opacity: 0.5
+  },
   form: {
     padding: 10,
   },
@@ -62,8 +65,22 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   };
   
   const [showGuidelines, setShowGuidelines] = useState(false)
-  
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning } = Components
+  const [loading, setLoading] = useState(false)
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+
+  const wrappedSuccessCallback = (...args) => {
+    if (successCallback) {
+      successCallback(...args)
+    }
+    setLoading(false)
+  };
+
+  const wrappedCancelCallback = (...args) => {
+    if (cancelCallback) {
+      cancelCallback(...args)
+    }
+    setLoading(false)
+  };
   
   if (post) {
     prefilledProps = {
@@ -101,7 +118,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
           }
         }}
       >
-        {submitLabel}
+        {loading ? <Loading /> : submitLabel}
       </Button>
     </div>
   };
@@ -112,7 +129,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
 
   const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
   return (
-    <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
+    <div className={loading ? classes.loadingRoot : classes.root} onFocus={()=>setShowGuidelines(true)}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classes.form : null}>
         {commentWillBeHidden && <div className={classes.modNote}><em>
@@ -122,8 +139,13 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         <WrappedSmartForm
           collection={Comments}
           mutationFragment={getFragment(fragment)}
-          successCallback={successCallback}
-          cancelCallback={cancelCallback}
+          successCallback={wrappedSuccessCallback}
+          cancelCallback={wrappedCancelCallback}
+          submitCallback={(data) => { 
+            setLoading(true);
+            return data
+          }}
+          errorCallback={() => setLoading(false)}
           prefilledProps={prefilledProps}
           layout="elementOnly"
           formComponents={{

@@ -6,21 +6,55 @@ import gql from 'graphql-tag';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
+import { contentTypes } from '../posts/PostsPage/ContentType';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { tagStyle } from './FooterTag';
+import classNames from 'classnames';
+import { commentBodyStyles } from '../../themes/stylePiping'
+import Card from '@material-ui/core/Card';
+import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
     marginTop: 8,
     marginBottom: 8,
   },
+  tag: {
+    ...tagStyle(theme)
+  },
+  tagLoading: {
+    ...tagStyle(theme),
+    opacity: .8
+  },
+  frontpageOrPersonal: {
+    ...tagStyle(theme),
+    backgroundColor: "white",
+    paddingTop: 4,
+    paddingBottom: 4,
+    border: "solid 1px rgba(0,0,0,.12)",
+    color: theme.palette.grey[600]
+  },
+  card: {
+    ...commentBodyStyles(theme),
+    width: 450,
+    padding: 16,
+    paddingBottom: 8
+  }
 });
 
-const FooterTagList = ({post, classes}: {
-  post: PostsBase,
+function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
+  return _.sortBy(list, item=>toTag(item).core);
+}
+
+const FooterTagList = ({post, classes, hideScore}: {
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
+  hideScore?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
+  const { LWTooltip, AddTagButton } = Components
 
   const { results, loading, refetch } = useMulti({
     terms: {
@@ -59,14 +93,30 @@ const FooterTagList = ({post, classes}: {
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
 
   const { Loading, FooterTag } = Components
-  if (loading || !results)
-    return <Loading/>;
+
+  const postType = post.frontpageDate ?
+    <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}</Card>} tooltip={false}>
+      <div className={classes.frontpageOrPersonal}>Frontpage</div>
+    </LWTooltip>
+    :
+    <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].personal.tooltipBody}</Card>} tooltip={false}>
+      <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
+    </LWTooltip>
+
+  if (loading || !results) {
+    return <div className={classes.root}>
+     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+     {postType}
+    </div>;
+  }
+  
 
   return <div className={classes.root}>
-    {results.filter(tagRel => !!tagRel?.tag).map(tagRel =>
-      <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag}/>
+    {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
+      <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag} hideScore={hideScore}/>
     )}
-    {currentUser && <Components.AddTagButton onTagSelected={onTagSelected} />}
+    { postType }
+    {currentUser && <AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
   </div>
 };

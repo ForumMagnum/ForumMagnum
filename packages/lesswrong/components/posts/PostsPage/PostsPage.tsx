@@ -71,7 +71,8 @@ export const styles = theme => ({
   centralColumn: {
     maxWidth: 650 + (theme.spacing.unit*4),
     marginLeft: 'auto',
-    marginRight: 'auto'
+    marginRight: 'auto',
+    marginBottom: theme.spacing.unit *3
   },
   postContent: postBodyStyles(theme),
   commentsSection: {

@@ -182,6 +182,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
   if (tag.deleted) return null;
+  if (tag.adminOnly) return null;
   
   let description = ""
   if (tag.description?.originalContents?.type) {
@@ -359,7 +360,7 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   const ids = _.map(objects, o=>o._id);
   const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;
   // Workaround for getting filter to properly typecheck: https://github.com/microsoft/TypeScript/issues/16069#issuecomment-392022894
-  const isNotNull = <T extends object>(x:undefined | null | T) : x is T => !!x
+  const isNotNull = <T extends {}>(x:undefined | null | T) : x is T => !!x
   const algoliaObjectsNonnull: Array<AlgoliaDocument> = filter(algoliaObjects, isNotNull);
   const algoliaObjectsById = keyBy(algoliaObjectsNonnull, o=>o._id);
   
@@ -509,7 +510,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
 export async function algoliaExportById(collection, documentId: string) {
   const document = await collection.findOne({_id: documentId});
   if (document) {
-    algoliaDocumentExport({ documents: [document], collection });
+    await algoliaDocumentExport({ documents: [document], collection });
   }
 }
 

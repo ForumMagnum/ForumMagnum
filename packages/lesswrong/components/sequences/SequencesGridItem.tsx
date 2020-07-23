@@ -3,7 +3,6 @@ import NoSSR from 'react-no-ssr';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -67,9 +66,15 @@ const styles = theme => ({
     justifyContent: "center",
     background: "white",
   },
-  bookItemStyle: {
+  bookItemShadowStyle: {
+    boxShadow: "none",
+    '&:hover': {
+      boxShadow: "none",
+    }
+  },
+  bookItemContentStyle: {
     paddingLeft: 0,
-    paddingRight: 0
+    paddingRight: 0,
   },
   hiddenAuthor: {
     paddingBottom: 8
@@ -104,11 +109,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { hover, anchorEl } = useHover()
-  const { PopperCard, SequenceTooltip, LinkCard } = Components;
+  const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription}>
+  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence.contents.plaintextDescription?.slice(0, 750)}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -118,7 +122,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
         />
       </NoSSR>
     </div>
-    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemStyle]: bookItemStyle})}>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
       <Typography variant='title' className={classes.title}>
         {sequence.draft && <span className={classes.draft}>[Draft] </span>}
         {sequence.title}
@@ -128,9 +132,6 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
           by <Components.UsersName user={sequence.user} />
         </div>}
     </div>
-    <PopperCard open={hover} anchorEl={anchorEl}>
-      <SequenceTooltip sequence={sequence}/>
-    </PopperCard>
   </LinkCard>
 }
 

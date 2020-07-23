@@ -13,7 +13,7 @@ function recalculateAFCommentMetadata(postId) {
   const lastComment:DbComment = _.max(afComments, function(c){return c.postedAt;})
   const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:postId})?.postedAt || new Date()
 
-  editMutation({
+  void editMutation({
     collection:Posts,
     documentId: postId,
     set: {

@@ -5,6 +5,7 @@ import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
 
 
@@ -29,8 +30,8 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
     // Transfer ownership of all revisions and denormalized references for editable fields
     const editableFieldNames = editableCollectionsFields[collectionName]
     if (editableFieldNames?.length) {
-      editableFieldNames.forEach((editableFieldName) => {
-        transferEditableField({documentId: doc._id, targetUserId, collection, fieldName: editableFieldName})
+      await asyncForeachSequential(editableFieldNames, async (editableFieldName) => {
+        await transferEditableField({documentId: doc._id, targetUserId, collection, fieldName: editableFieldName})
       })
     }
   }
@@ -39,9 +40,9 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
   })
 }
 
-const transferEditableField = ({documentId, targetUserId, collection, fieldName = "contents"}) => {
+const transferEditableField = async ({documentId, targetUserId, collection, fieldName = "contents"}) => {
   // Update the denormalized revision on the document
-  editMutation({
+  await editMutation({
     collection,
     documentId,
     set: {[`${fieldName}.userId`]: targetUserId},

@@ -1,5 +1,5 @@
 import { useCreate } from '../crud/withCreate';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import uuid from 'uuid/v4';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
@@ -9,9 +9,10 @@ export const useNewEvents = () => {
   const {create: createLWEvent} = useCreate({
     collectionName: "LWEvents",
     fragmentName: "newEventFragment",
+    ignoreResults: true,
   });
   
-  const recordEvent = (name: string, closeOnLeave: boolean, properties: any): string => {
+  const recordEvent = useCallback((name: string, closeOnLeave: boolean, properties: any): string => {
     const { userId, documentId, important, intercom, ...rest} = properties;
     let event = {
       userId,
@@ -30,15 +31,15 @@ export const useNewEvents = () => {
       setEvents({ ...events, eventId: event });
     }
     
-    createLWEvent({data: event});
+    void createLWEvent({data: event});
     return eventId;
-  }
+  }, [events, createLWEvent]);
   
-  const closeEvent = (eventId: string, properties:any={}): string => {
+  const closeEvent = useCallback((eventId: string, properties:any={}): string => {
     let event = events[eventId];
     let currentTime = new Date();
     
-    createLWEvent({data: {
+    void createLWEvent({data: {
       ...event,
       properties: {
         endTime: currentTime,
@@ -50,22 +51,22 @@ export const useNewEvents = () => {
     
     setEvents(_.omit(events, eventId));
     return eventId;
-  }
+  }, [events, createLWEvent]);
   
-  const closeAllEvents = () => {
+  const closeAllEvents = useCallback(() => {
     Object.keys(events).forEach(key => {
       closeEvent(key);
     });
     setEvents({});
-  };
+  }, [events, closeEvent]);
   
-  const onUnmount = () => {
+  const onUnmount = useCallback(() => {
     Object.keys(events).forEach(key => {
       closeEvent(key);
     });
-  }
+  }, [events, closeEvent]);
   
-  useEffect(() => onUnmount);
+  useEffect(useCallback(() => onUnmount, [onUnmount]));
   
   return {recordEvent, closeAllEvents};
 }

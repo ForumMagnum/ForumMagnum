@@ -56,13 +56,23 @@ const tableStyles = {
   borderCollapse: "collapse",
   borderSpacing: 0,
   border: "1px double #b3b3b3",
-  margin: "auto"
+  margin: "auto",
+  width: "100%",
+  height: "100%",
+  textAlign: "left"
 }
 
 const tableCellStyles = {
   minWidth: "2em",
   padding: ".4em",
   border: "1px double #d9d9d9",
+  '& p': {
+    marginTop: '0.5em',
+    marginBottom: '0.5em'
+  },
+  '& p:first-of-type': {
+    marginTop: 0
+  }
 }
 
 const tableHeadingStyles = {
@@ -363,9 +373,9 @@ export const ckEditorStyles = theme => {
         },
         '& hr': {
           ...hrStyles
-        }
+        },
       },
-      '&.ck-sidebar, &.ck-presence-list': { //\u25B6
+      '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
           // By default ckEditor elements get the styles from postBodyStyles li elements
           marginBottom: 'unset',
@@ -415,7 +425,7 @@ export const ckEditorStyles = theme => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main,
+        '--ck-color-comment-count': theme.palette.primary.main
       } 
     }
   }

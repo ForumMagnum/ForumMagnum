@@ -135,7 +135,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 
 interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
   readonly contents: PostsList_contents|null,
-  readonly moderationGuidelines: RevisionDisplay,
+  readonly moderationGuidelines: PostsList_moderationGuidelines|null,
   readonly customHighlight: PostsList_customHighlight|null,
   readonly tags: Array<TagPreviewFragment>,
 }
@@ -146,8 +146,11 @@ interface PostsList_contents { // fragment on Revisions
   readonly version: string,
 }
 
+interface PostsList_moderationGuidelines { // fragment on Revisions
+  readonly html: string,
+}
+
 interface PostsList_customHighlight { // fragment on Revisions
-  readonly version: string,
   readonly html: string,
 }
 
@@ -307,7 +310,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 
 interface SunshinePostsList extends PostsList { // fragment on Posts
   readonly currentUserVotes: Array<VoteFragment>,
-  readonly contents: SunshinePostsList_contents,
+  readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user,
 }
 
@@ -367,7 +370,8 @@ interface CommentsList { // fragment on Comments
   readonly directChildrenCount: number,
 }
 
-interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
+interface CommentsList_contents { // fragment on Revisions
+  readonly html: string,
   readonly plaintextMainText: string,
 }
 
@@ -405,7 +409,7 @@ interface DeletedCommentsMetaData_deletedByUser { // fragment on Users
 
 interface DeletedCommentsModerationLog extends DeletedCommentsMetaData { // fragment on Comments
   readonly user: UsersMinimumInfo,
-  readonly post: DeletedCommentsModerationLog_post,
+  readonly post: DeletedCommentsModerationLog_post|null,
 }
 
 interface DeletedCommentsModerationLog_post { // fragment on Posts
@@ -1132,7 +1136,7 @@ interface unclaimedReportsList_comment { // fragment on Comments
   readonly postedAt: Date,
   readonly deleted: boolean,
   readonly postId: string,
-  readonly post: unclaimedReportsList_comment_post,
+  readonly post: unclaimedReportsList_comment_post|null,
 }
 
 interface unclaimedReportsList_comment_post { // fragment on Posts
@@ -1398,6 +1402,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly oldSlugs: Array<string>,
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
@@ -1532,7 +1537,7 @@ interface ChildRelatedPostRelList { // fragment on PostRelations
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
-  readonly post: SuggestAlignmentComment_post,
+  readonly post: SuggestAlignmentComment_post|null,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly suggestForAlignmentUsers: Array<SuggestAlignmentComment_suggestForAlignmentUsers>,
 }

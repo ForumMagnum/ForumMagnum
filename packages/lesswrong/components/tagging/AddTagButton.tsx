@@ -46,7 +46,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
     <LWPopper
       open={isOpen}
       anchorEl={anchorEl}
-      placement="bottom-start"
+      placement="bottom"
       modifiers={{
         flip: {
           enabled: false

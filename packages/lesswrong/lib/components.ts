@@ -281,6 +281,7 @@ importComponent("CommentActions", () => require('../components/comments/CommentA
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
 importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentActions/ToggleIsModeratorComment'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
@@ -372,6 +373,10 @@ importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'))
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
+importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
+
+
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
