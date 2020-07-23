@@ -13,11 +13,11 @@ const styles = theme => ({
 })
 
 const wikiGradeDescriptions = {
-  1: "This tag is flagged for deletion",
+  1: "This tag has been flagged for review",
   2: "This tag is a stub, you can contribute by extending it!",
-  3: "This tag is C-Class, which means it has the basic things a tag needs, but there is still a lot of room to improve",
-  4: "This tag is B-Class, which means this tag has a solid description and many posts",
-  5: "This tag is A-Class, which means it is a great example of what we want good tags on LessWrong to be like"
+  3: "This tag is C-Class, it meets the basic requirements, but there is still a lot of room to improve",
+  4: "This tag is B-Class, it a great resource with a solid description and many greats posts",
+  5: "This tag is A-Class, it is an outstanding resource and great example of what we want good tags on LessWrong to be like"
 }
 
 const WikiGradeDisplay = ({wikiGrade, classes}: {wikiGrade:number, classes: any}) => {
