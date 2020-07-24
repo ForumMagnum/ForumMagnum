@@ -32,7 +32,6 @@ const styles = theme => ({
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
-    maxWidth: 640,
     padding: 0,
     '& li .public-DraftStyleDefault-block': {
       margin: 0
@@ -561,7 +560,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     if (!fieldHasCommitMessages) return null;
     
     return <div className={classes.changeDescriptionRow}>
-      <span className={classes.changeDescriptionLabel}>Change description{" "}</span>
+      <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
       <Input
         className={classes.changeDescriptionInput}
         value={this.state.commitMessage}
