@@ -129,7 +129,7 @@ const AllTagsPage = ({classes}: {
               <UntypedMenuItem value="none" component={QueryLink} query={{ tagFilter: undefined }}>
                 No Filters
               </UntypedMenuItem>  
-              {Object.entries(wikiGradeDefinitions).map(([value, name]) => {
+              {Object.entries(wikiGradeDefinitions).reverse().map(([value, name]) => {
                 if(name === wikiGradeDefinitions[0]) return null
                 if(name === wikiGradeDefinitions[1]) return null
                 return <UntypedMenuItem key={value} value={name} component={QueryLink} query={{ tagFilter: name }}>
