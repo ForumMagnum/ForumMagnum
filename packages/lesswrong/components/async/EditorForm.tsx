@@ -62,8 +62,7 @@ interface EditorFormProps {
   editorState: any,
   onChange: any,
   commentEditor: boolean,
-  className: string,
-  allowCKEditor: boolean
+  className: string
 }
 
 class EditorForm extends Component<EditorFormProps,{}> {
