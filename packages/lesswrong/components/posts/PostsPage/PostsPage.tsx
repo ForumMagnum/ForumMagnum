@@ -10,7 +10,6 @@ import classNames from 'classnames';
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import * as _ from 'underscore';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
 
