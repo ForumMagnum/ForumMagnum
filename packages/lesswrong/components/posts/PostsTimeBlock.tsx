@@ -31,6 +31,9 @@ const styles = theme => ({
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
+  posts: {
+    boxShadow: theme.boxShadow
+  },
   frontpageSubtitle: {
     marginBottom: 6
   },
@@ -186,9 +189,11 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
               >
                 <ContentType type={name} label={label} />
               </div>
-              {posts.map((post, i) =>
-                <PostsItem2 key={post._id} post={post} index={i} dense />
-              )}
+              <div className={classes.posts}>
+                {posts.map((post, i) =>
+                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts.length -1}/>
+                )}
+              </div>
             </div>
           })}
 

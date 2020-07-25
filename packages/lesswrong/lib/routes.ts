@@ -11,12 +11,12 @@ const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
-const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional") 
+const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
 function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): PingbackDocument|null {
   if (!postId)
     return null;
-  
+
   if (parsedUrl.hash) {
     // If the URL contains a hash, it leads to either a comment or a landmark
     // within the post.
@@ -149,7 +149,6 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
-    background: "lightGrey"
   },
   {
     name: 'sequences.single',
@@ -157,7 +156,6 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
-    background: "lightGrey"
   },
   {
     name: 'sequencesEdit',
@@ -305,11 +303,9 @@ if (forumTypeSetting.get() !== 'EAForum') {
     },
     {
       name: 'tagIndex',
-      path: '/tags',
-      componentName: 'PostsSingleRoute',
-      _id:"DHJBEsi4XJDw2fRFq",
-      background: postBackground
-    },
+      path:'/tags',
+      redirect: () => `/tags/all`,
+    }
   )
 }
 
@@ -386,8 +382,7 @@ if (hasEventsSetting.get()) {
       path: '/community',
       componentName: 'CommunityHome',
       title: "Community",
-      ...communitySubtitle,
-      background: "white"
+      ...communitySubtitle
     },
     {
       name: 'MeetupsHome',

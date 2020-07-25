@@ -78,15 +78,13 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'questions',
-      title: 'Open Questions',
-      mobileTitle: 'Questions',
-      link: '/questions',
+      id: 'concepts',
+      title: 'Concepts',
+      mobileTitle: 'Concepts',
+      link: '/tags/all',
       icon: questionsGlobeIcon,
       tooltip: <div>
-        <div>• Ask simple newbie questions.</div>
-        <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
+        Get an overview over all the concepts used on LessWrong
       </div>,
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -152,6 +150,17 @@ export default {
       id: 'subscribeWidget',
       customComponent: Components.SubscribeWidget,
     }, {
+      id: 'questions',
+      title: 'Open Questions',
+      mobileTitle: 'Questions',
+      link: '/questions',
+      tooltip: <div>
+        <div>• Ask simple newbie questions.</div>
+        <div>• Collaborate on open research questions.</div>
+        <div>• Pose and resolve confusions.</div>
+      </div>,
+      subItem: true
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -168,11 +177,6 @@ export default {
       title: "Donate",
       link: '/donate',
       subItem: true
-    }, {
-      id: 'tags',
-      title: 'Tags',
-      link: '/tags/all',
-      subItem: true,
     }
   ],
   AlignmentForum: [

@@ -62,7 +62,7 @@ interface EditorFormProps {
   editorState: any,
   onChange: any,
   commentEditor: boolean,
-  className: string,
+  className: string
 }
 
 class EditorForm extends Component<EditorFormProps,{}> {
@@ -91,7 +91,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
       { button: BoldButton,                    commentEditor: true   },
       { button: ItalicButton,                  commentEditor: true   },
       { button: UnderlineButton,               commentEditor: true   },
-      { button: LinkButton,             commentEditor: true   },
+      { button: LinkButton,                    commentEditor: true   },
       { button: Separator,                     commentEditor: true   },
       { button: HeadlineOneButton,             commentEditor: false  },
       { button: HeadlineTwoButton,             commentEditor: true   },
