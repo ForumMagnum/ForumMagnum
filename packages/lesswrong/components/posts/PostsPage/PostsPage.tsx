@@ -10,8 +10,8 @@ import classNames from 'classnames';
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import * as _ from 'underscore';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
+import { viewNames } from '../../comments/CommentsViews';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -131,8 +131,9 @@ class PostsPage extends Component<PostsPageProps> {
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
-      const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
-      const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
+      const defaultView = Comments.getDefaultView(post, currentUser)
+      // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+      const commentTerms = Object.keys(viewNames).includes(query.view) ? {...query, limit:500} : {view: defaultView, limit: 500}
       const sequenceId = this.getSequenceId();
       const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
       const htmlWithAnchors = sectionData?.html || post.contents?.html;
