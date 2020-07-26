@@ -4,6 +4,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import cheerio from 'cheerio';
 
 addGraphQLResolvers({
   Query: {
@@ -52,9 +53,18 @@ addGraphQLResolvers({
       // Diff the revisions
       const diffHtmlUnsafe = diff(before.html, after.html);
       
+      const $ = cheerio.load(diffHtmlUnsafe)
+      console.log("a", diffHtmlUnsafe)
+      $('body').children().each(a=>console.log("b", a))
+      // $("del").remove()
+      // $('del').each(del => {
+      //   console.log("b", del)
+      //   console.log($(del).html())
+      // });
+
       // Sanitize (in case node-htmldiff has any parsing glitches that would
       // otherwise lead to XSS)
-      const diffHtml = sanitize(diffHtmlUnsafe);
+      const diffHtml = sanitize($.html());
       return diffHtml;
     }
   },

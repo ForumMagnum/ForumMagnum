@@ -2,39 +2,75 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { commentBodyStyles } from '../../themes/stylePiping'
+import { Link } from '../../lib/reactRouterWrapper';
+import cheerio from 'cheerio';
 
 const styles = theme => ({
   root: {
-    ...commentBodyStyles(theme),
-    // '& *': {
-    //   display: "none"
-    // },
+    background: "white",
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    padding: 12,
+    borderRadius:3,
+    marginBottom: 16,
+    '& CompareRevisions-differences > *': {
+      opacity: 0
+    },
     '& ins': {
-      display: "unset"
+      display: 1
     },
     '& del': {
-      display: "unset"
+      display: 1
     },
+  },
+  charsAdded: {
+    color: "#008800",
+  },
+  charsRemoved: {
+    color: "#880000",
+  },
+  textBody: {
+    ...commentBodyStyles(theme),
   }
 });
 
-const TagRevisionItem = ({documentId, revision, classes, previousRevision}: {
+const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRevisionUrl}: {
   revision: RevisionMetadataWithChangeMetrics,
   previousRevision: RevisionMetadataWithChangeMetrics
   classes: ClassesType,
-  documentId: string
+  documentId: string,
+  getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
 }) => {
-  const { CompareRevisions } = Components
+  const { CompareRevisions, FormatDate, UsersName, MetaInfo } = Components
 
   if (!documentId || !revision || !previousRevision) return null
+  const { added, removed } = revision.changeMetrics;
 
   return <div className={classes.root}>
-      <CompareRevisions
-        collectionName="Tags" fieldName="description"
-        documentId={documentId}
-        versionBefore={previousRevision.version}
-        versionAfter={revision.version}
-      />
+      <MetaInfo>
+        <Link to={getRevisionUrl(revision)}>
+          {revision.version}{" "}
+          <FormatDate format={"LLL z"} date={revision.editedAt}/>{" "}
+        </Link>
+        <UsersName documentId={revision.userId}/>{" "}
+        <Link to={getRevisionUrl(revision)}>
+          {(added>0 && removed>0)
+            && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
+          {(added>0 && removed==0)
+            && <span className={classes.charsAdded}>(+{added})</span>}
+          {(added==0 && removed>0)
+            && <span className={classes.charsRemoved}>(-{removed})</span>}
+          {" "}
+          {revision.commitMessage}
+        </Link>
+      </MetaInfo>
+      <div className={classes.textBody}>
+        <CompareRevisions
+          collectionName="Tags" fieldName="description"
+          documentId={documentId}
+          versionBefore={previousRevision.version}
+          versionAfter={revision.version}
+        />
+      </div>
     </div>
 }
 

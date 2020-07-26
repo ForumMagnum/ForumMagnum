@@ -42,14 +42,18 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
       after: revisions[afterRevisionIndex]
     });
   }, [beforeRevisionIndex, afterRevisionIndex, onPairSelected, revisions]);
-  console.log(documentId)
+
   return <React.Fragment>
     {revisions.map((rev, i)=> {
       if (i < (revisions.length-1)) {
-        console.log("a", rev)
-        console.log("b", revisions[i+1])
-        return <TagRevisionItem key={rev.version} documentId={documentId} revision={rev} previousRevision={revisions[i+1]}/>
-      }
+        return <TagRevisionItem 
+          key={rev.version} 
+          documentId={documentId} 
+          revision={rev} 
+          previousRevision={revisions[i+1]}
+          getRevisionUrl={getRevisionUrl}
+        />
+      } 
     })
     /* {revisions.map((rev,i) => {
       const beforeDisabled = i<=afterRevisionIndex;
