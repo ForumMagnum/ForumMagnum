@@ -46,10 +46,11 @@ function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
   return _.sortBy(list, item=>toTag(item).core);
 }
 
-const FooterTagList = ({post, classes, hideScore}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
-  hideScore?: boolean
+  hideScore?: boolean,
+  hideAddTag?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -111,14 +112,14 @@ const FooterTagList = ({post, classes, hideScore}: {
   }
   
 
-  return <div className={classes.root}>
+  return <span className={classes.root}>
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
       <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag} hideScore={hideScore}/>
     )}
     { postType }
-    {currentUser && <AddTagButton onTagSelected={onTagSelected} />}
+    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
-  </div>
+  </span>
 };
 
 const FooterTagListComponent = registerComponent("FooterTagList", FooterTagList, {styles});
