@@ -196,7 +196,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   async componentDidMount() {
-    const { currentUser, form } = this.props
+    const { currentUser, form, document, fieldName } = this.props
 
     this.context.addToSubmitForm(this.submitData);
 
@@ -206,22 +206,23 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     });
 
     if (Meteor.isClient && window) {
-      this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
+      this.unloadEventListener = (ev) => {
         if (this.hasUnsavedData) {
           ev.preventDefault();
           ev.returnValue = 'Are you sure you want to close?';
           return ev.returnValue
         }
-      });
+      }
+      window.addEventListener("beforeunload", this.unloadEventListener );
     }
 
-    if (userHasCkEditor(currentUser)) {
+    if (userHasCkEditor(currentUser) || (document && document[fieldName]?.originalContents?.type === "ckEditorMarkup")) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
       this.setState({ckEditorLoaded: true})
     }
-
+    
     if (Meteor.isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
@@ -560,7 +561,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     if (!fieldHasCommitMessages) return null;
     
     return <div className={classes.changeDescriptionRow}>
-      <span className={classes.changeDescriptionLabel}>Change description{" "}</span>
+      <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
       <Input
         className={classes.changeDescriptionInput}
         value={this.state.commitMessage}

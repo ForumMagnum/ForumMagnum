@@ -207,6 +207,7 @@ addFieldsDict(Posts, {
   // if it never has been promoted to curated)
   curatedDate: {
     type: Date,
+    control: 'datetime',
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['sunshineRegiment', 'admins'],
@@ -217,6 +218,7 @@ addFieldsDict(Posts, {
   // never has been marked as meta)
   metaDate: {
     type: Date,
+    control: 'datetime',
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['sunshineRegiment', 'admins'],
@@ -265,6 +267,7 @@ addFieldsDict(Posts, {
   // false if it never has been promoted to frontpage)
   frontpageDate: {
     type: Date,
+    control: 'datetime',
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
