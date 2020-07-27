@@ -220,6 +220,13 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
   },
   {
+    name: 'tagHistory',
+    path: '/tag/:slug/history',
+    componentName: 'TagHistoryPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+  },
+  {
     name: 'tagEdit',
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',

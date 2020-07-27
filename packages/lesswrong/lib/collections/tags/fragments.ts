@@ -31,6 +31,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagHistoryFragment on Tag {
+    ...TagBasicInfo
+    createdAt
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagBasicInfo
     description(version: $version) {

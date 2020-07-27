@@ -1428,6 +1428,11 @@ interface TagFragment_description { // fragment on Revisions
   readonly plaintextDescription: string,
 }
 
+interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
+  readonly createdAt: Date,
+  readonly user: UsersMinimumInfo,
+}
+
 interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
   readonly description: TagRevisionFragment_description|null,
 }
@@ -1660,6 +1665,7 @@ interface FragmentTypes {
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagHistoryFragment: TagHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
