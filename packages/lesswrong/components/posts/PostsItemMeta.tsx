@@ -6,7 +6,7 @@ import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   read: {
     opacity: ".8"
   },

@@ -6,7 +6,7 @@ import { Posts } from '../../lib/collections/posts';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",

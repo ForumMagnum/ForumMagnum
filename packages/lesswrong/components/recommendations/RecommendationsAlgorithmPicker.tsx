@@ -9,7 +9,7 @@ import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } f
 import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     justifyContent: "space-between",

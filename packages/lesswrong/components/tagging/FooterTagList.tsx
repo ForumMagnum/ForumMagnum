@@ -14,7 +14,7 @@ import { commentBodyStyles } from '../../themes/stylePiping'
 import Card from '@material-ui/core/Card';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 8,
     marginBottom: 8,

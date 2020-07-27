@@ -6,7 +6,7 @@ import Users from '../../lib/collections/users/collection';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]

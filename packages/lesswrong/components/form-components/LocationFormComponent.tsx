@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
-export const geoSuggestStyles = theme => ({
+export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
   "& .geosuggest": {
     fontSize: "1rem",
     position: "relative",
@@ -73,7 +73,7 @@ export const geoSuggestStyles = theme => ({
   }
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...geoSuggestStyles(theme)
   }

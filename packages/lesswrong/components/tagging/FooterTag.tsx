@@ -32,7 +32,7 @@ const newTagStyle = theme => ({
   fontSize: 15
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
     cursor: "pointer",
