@@ -68,22 +68,22 @@ const PostsItemMeta = ({post, read, classes}: {
         <PostsUserAndCoauthors post={post}/>
       </span>
 
-      <span className={classes.info}>
-        <AnalyticsContext pageSectionContext="tagRecentDiscussion">
-          <FooterTagList post={post} hideScore hideAddTag/>
-        </AnalyticsContext>
-      </span>
-
-      {post.postedAt && !post.isEvent && <span className={classes.info}>
-        <FormatDate date={post.postedAt}/>
-      </span>}
-
       { afBaseScore && <span className={classes.info}>
         <LWTooltip title={<div>
           { afBaseScore } karma on alignmentforum.org
         </div>}>
           <span>Ω { afBaseScore }</span>
         </LWTooltip>
+      </span>}
+
+      <span className={classes.info}>
+        <AnalyticsContext pageSectionContext="tagRecentDiscussion">
+          <FooterTagList post={post} hideScore hideAddTag hidePersonalOrFrontpage smallText/>
+        </AnalyticsContext>
+      </span>
+
+      {post.postedAt && !post.isEvent && <span className={classes.info}>
+        <FormatDate date={post.postedAt}/>
       </span>}
     </span>
 };

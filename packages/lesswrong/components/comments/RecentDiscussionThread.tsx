@@ -94,7 +94,8 @@ const styles = theme => ({
     ...theme.typography.display2,
     ...theme.typography.postStyle,
     marginTop: 0,
-    marginBottom: 12,
+    marginBottom: 8,
+    display: "block",
     fontSize: "1.75rem",
   }
 })

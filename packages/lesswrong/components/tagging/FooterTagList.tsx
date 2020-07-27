@@ -46,11 +46,14 @@ function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
   return _.sortBy(list, item=>toTag(item).core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
-  hideAddTag?: boolean
+  hideAddTag?: boolean,
+  hidePersonalOrFrontpage?: boolean,
+  smallText?: boolean
+
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -95,7 +98,9 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag}: {
 
   const { Loading, FooterTag } = Components
 
-  const postType = post.frontpageDate ?
+  let postType = <></>
+  if (!hidePersonalOrFrontpage) {
+    postType = post.frontpageDate ?
     <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}</Card>} tooltip={false}>
       <div className={classes.frontpageOrPersonal}>Frontpage</div>
     </LWTooltip>
@@ -103,6 +108,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag}: {
     <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].personal.tooltipBody}</Card>} tooltip={false}>
       <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
     </LWTooltip>
+  }
 
   if (loading || !results) {
     return <div className={classes.root}>
@@ -110,11 +116,16 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag}: {
      {postType}
     </div>;
   }
-  
 
   return <span className={classes.root}>
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
-      <FooterTag key={tagRel._id} tagRel={tagRel} tag={tagRel.tag} hideScore={hideScore}/>
+      <FooterTag 
+        key={tagRel._id} 
+        tagRel={tagRel} 
+        tag={tagRel.tag} 
+        hideScore={hideScore}
+        smallText={smallText}
+      />
     )}
     { postType }
     {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
