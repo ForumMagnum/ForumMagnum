@@ -62,7 +62,8 @@ const styles = theme => ({
   hovercard: {
   },
   smallText: {
-    fontSize: 12
+    fontSize: 12,
+    marginBottom: 0
   }
 });
 
