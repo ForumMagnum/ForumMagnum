@@ -110,7 +110,7 @@ const styles = theme => ({
 
 interface ExternalProps {
   comment: CommentsList,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
@@ -136,7 +136,7 @@ const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentC
           [classes.isAnswer]: comment.answer, 
           [classes.odd]:((nestingLevel%2) !== 0),
         })}>
-        <CommentShortformIcon comment={comment} post={post} simple={true} />
+        {post && <CommentShortformIcon comment={comment} post={post} simple={true} />}
 
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} />

@@ -120,7 +120,8 @@ interface ExternalProps {
   postPage?: boolean,
   nestingLevel: number,
   showPostTitle?: boolean,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
+  tag?: TagBasicInfo,
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
@@ -200,11 +201,11 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   render() {
-    const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
+    const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView, tag } = this.props
 
     const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
 
-    if (!comment || !post) {
+    if (!comment) {
       return null;
     }
     
@@ -222,7 +223,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
             { comment.parentCommentId && this.state.showParent && (
               <div className={classes.firstParentComment}>
                 <Components.ParentCommentSingle
-                  post={post}
+                  post={post} tag={tag}
                   documentId={comment.parentCommentId}
                   nestingLevel={nestingLevel - 1}
                   truncated={false}
@@ -231,14 +232,14 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               </div>
             )}
 
-            {showPostTitle && (comment as CommentsListWithPostMetadata).post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{post.title}</Link>}
+            {showPostTitle && (comment as CommentsListWithPostMetadata)?.post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{(comment as CommentsListWithPostMetadata).post.title}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
                 { !parentCommentId && !comment.parentCommentId && isParentComment &&
                   <div className={classes.usernameSpacing}>○</div>
                 }
-                <CommentShortformIcon comment={comment} post={post} />
+                {post && <CommentShortformIcon comment={comment} post={post} />}
                 { parentCommentId!=comment.parentCommentId &&
                   <ShowParentComment
                     comment={comment}
@@ -254,7 +255,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                   <CommentUserName comment={comment}/>
                 </span>
                 <CommentsItemDate
-                  comment={comment} post={post}
+                  comment={comment} post={post} tag={tag}
                   scrollIntoView={scrollIntoView}
                   scrollOnClick={postPage && !isParentComment}
                 />
@@ -264,13 +265,13 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 <SmallSideVote
                   document={comment}
                   collection={Comments}
-                  hideKarma={post.hideCommentKarma}
+                  hideKarma={post?.hideCommentKarma}
                 />
 
                 {!isParentComment && this.renderMenu()}
-                <span className={classes.outdatedWarning}>
+                {post && <span className={classes.outdatedWarning}>
                   <Components.CommentOutdatedWarning comment={comment} post={post} />
-                </span>
+                </span>}
                 {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
                   {`Nomination for ${comment.nominatedForReview}`}
                 </Link>}

@@ -43,10 +43,11 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
+const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
 {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
+  tag?: TagBasicInfo,
   parentComment?: any,
   successCallback?: any,
   type: string,
@@ -86,6 +87,13 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     prefilledProps = {
       ...prefilledProps,
       postId: post._id
+    };
+  }
+  
+  if (tag) {
+    prefilledProps = {
+      ...prefilledProps,
+      tagId: tag._id
     };
   }
 

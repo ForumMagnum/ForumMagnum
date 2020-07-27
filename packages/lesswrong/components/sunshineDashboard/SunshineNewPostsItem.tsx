@@ -171,7 +171,7 @@ const SunshineNewPostsItem = ({post, classes}: {
             </div>}
             <div className={classes.post}>
               <LinkPostMessage post={post} />
-              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html}} description={`post ${post._id}`}/>
+              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
             </div>
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>

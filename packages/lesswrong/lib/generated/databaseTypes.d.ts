@@ -344,6 +344,7 @@ interface DbComment extends DbObject {
   postedAt: Date
   author: string
   postId: string
+  tagId: string
   userId: string
   isDeleted: boolean
   userIP: string

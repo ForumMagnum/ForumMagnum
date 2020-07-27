@@ -32,7 +32,7 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  post: PostsDetails,
+  post?: PostsDetails,
 }
 interface CommentsViewsProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
 }
@@ -73,7 +73,7 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
     const afViews = ["postLWComments"]
-    const currentView = query?.view || Comments.getDefaultView(post, currentUser)
+    const currentView = query?.view || Comments.getDefaultView(post||null, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
@@ -105,16 +105,6 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
         </Menu>
       </div>
   )}
-};
-
-(CommentsViews as any).propTypes = {
-  currentUser: PropTypes.object,
-  post: PropTypes.object.isRequired,
-  defaultView: PropTypes.string,
-};
-
-(CommentsViews as any).defaultProps = {
-  defaultView: "postCommentsTop"
 };
 
 const CommentsViewsComponent = registerComponent<ExternalProps>('CommentsViews', CommentsViews, {

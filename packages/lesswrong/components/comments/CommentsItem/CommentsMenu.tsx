@@ -22,7 +22,7 @@ const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
   classes: ClassesType,
   className?: string,
   comment: CommentsList,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
   showEdit: ()=>void,
   icon?: any,
 }) => {

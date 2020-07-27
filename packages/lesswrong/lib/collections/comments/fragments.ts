@@ -4,6 +4,7 @@ registerFragment(`
   fragment CommentsList on Comment {
     _id
     postId
+    tagId
     parentCommentId
     topLevelCommentId
     contents {

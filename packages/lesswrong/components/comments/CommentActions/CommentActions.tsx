@@ -10,13 +10,14 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 const CommentActions = ({currentUser, comment, post, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
   comment: CommentsList,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
   showEdit: ()=>void,
 }) => {
   const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment, Loading } = Components
   
   const { document: postDetails, loading } = useSingle({
-    documentId: post._id,
+    skip: !post,
+    documentId: post?._id,
     collection: Posts,
     fetchPolicy: "cache-first",
     fragmentName: "PostsDetails",
@@ -27,7 +28,7 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
   
   return <>
     <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
-    {comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
+    {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
       <MenuItem>
         <SubscribeTo document={post} showIcon
           subscriptionType={subscriptionTypes.newShortform}
@@ -51,15 +52,15 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
       </MenuItem>
     }
     <ReportCommentMenuItem comment={comment}/>
-    <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>
-    <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>
+    {post && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
+    {post && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
     { Users.canModeratePost(currentUser, postDetails) && postDetails.user && Users.canModeratePost(postDetails.user, postDetails) && <Divider />}
-    <MoveToAnswersMenuItem comment={comment} post={postDetails}/>
-    <DeleteCommentMenuItem comment={comment} post={postDetails}/>
+    {post && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
+    {post && <DeleteCommentMenuItem comment={comment} post={postDetails}/>}
     <RetractCommentMenuItem comment={comment}/>
-    <BanUserFromPostMenuItem comment={comment} post={postDetails}/>
-    <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>
-    <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>
+    {post && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
+    {post && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
+    {post && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}
     <ToggleIsModeratorComment comment={comment}/>
   </>
 }

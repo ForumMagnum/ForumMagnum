@@ -333,6 +333,7 @@ interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
+  readonly tagId: string,
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
   readonly contents: CommentsList_contents|null,
@@ -597,6 +598,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postedAt: Date,
   readonly author: string,
   readonly postId: string,
+  readonly tagId: string,
   readonly userId: string,
   readonly isDeleted: boolean,
   readonly userIP: string,

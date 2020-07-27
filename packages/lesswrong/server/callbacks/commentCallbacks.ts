@@ -375,6 +375,9 @@ function HandleReplyToAnswer (comment, properties)
       if (parentComment.parentAnswerId) {
         modifiedComment.parentAnswerId = parentComment.parentAnswerId;
       }
+      if (parentComment.tagId) {
+        modifiedComment.tagId = parentComment.tagId;
+      }
       if (parentComment.topLevelCommentId) {
         modifiedComment.topLevelCommentId = parentComment.topLevelCommentId;
       }

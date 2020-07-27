@@ -84,7 +84,7 @@ const AllTagsPage = ({classes}: {
                 <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
                 :
                 <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
+                  dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
                   description={`tag ${tag?.name}`}
                 />
               }

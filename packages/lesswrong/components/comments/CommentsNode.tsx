@@ -156,6 +156,7 @@ type ExternalProps = ({
   postPage?: boolean,
   children?: Array<CommentTreeNode<CommentsList>>,
   hideReply?: boolean,
+  tag?: TagBasicInfo,
 } & ({
   // Type of "post" needs to have more metadata if the loadChildrenSeparately
   // option is passed
@@ -323,7 +324,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       comment, children, nestingLevel=1, highlightDate, post,
       muiTheme, postPage=false, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply, expandByDefault
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply, expandByDefault,
+      tag
     } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
@@ -373,8 +375,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, showPostTitle, collapsed, refetch, hideReply }
-    const passedThroughNodeProps = { postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview }
+    const passedThroughItemProps = { post, postPage, comment, showPostTitle, collapsed, refetch, hideReply, tag }
+    const passedThroughNodeProps = { postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview, tag }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>

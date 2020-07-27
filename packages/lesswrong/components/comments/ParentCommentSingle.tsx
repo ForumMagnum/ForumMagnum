@@ -4,10 +4,11 @@ import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import classNames from 'classnames';
 
-const ParentCommentSingle = ({ documentId, nestingLevel, post, truncated }: {
+const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }: {
   documentId: string,
   nestingLevel: number,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
+  tag?: TagBasicInfo,
   truncated?: boolean,
 }) => {
   const { document, loading } = useSingle({
@@ -26,7 +27,7 @@ const ParentCommentSingle = ({ documentId, nestingLevel, post, truncated }: {
           "comments-node-odd"  : nestingLevel % 2 != 0,
         }
       )}>
-        <Components.CommentsItem isParentComment comment={document} nestingLevel={nestingLevel} post={post} truncated={!!truncated}/>
+        <Components.CommentsItem isParentComment comment={document} nestingLevel={nestingLevel} post={post} tag={tag} truncated={!!truncated}/>
       </div>
     )
   } else {

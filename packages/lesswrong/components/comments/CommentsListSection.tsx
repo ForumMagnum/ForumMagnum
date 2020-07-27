@@ -48,8 +48,9 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  lastEvent: any,
-  post: PostsDetails,
+  lastEvent?: any,
+  post?: PostsDetails,
+  tag?: TagBasicInfo,
   commentCount: number,
   loadMoreCount?: number,
   totalComments: number,
@@ -76,7 +77,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
       highlightDate:
         (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
           && new Date(lastEvent.properties.createdAt))
-        || (post && post.lastVisitedAt &&
+        || (post?.lastVisitedAt &&
           new Date(post.lastVisitedAt))
         || new Date(),
       anchorEl: null,
@@ -118,7 +119,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
             </span>
         }
       </Typography>
-      <Typography
+      {post && <Typography
         variant="body2"
         color="textSecondary"
         component='span'
@@ -132,7 +133,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
         >
-          {currentUser && <Components.LastVisitList
+          {currentUser && post && <Components.LastVisitList
             postId={post._id}
             currentUser={currentUser}
             clickCallback={this.handleDateChange}/>}
@@ -143,12 +144,12 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
             </MenuItem>
           })}
         </Menu>
-      </Typography>
+      </Typography>}
     </CommentsListMeta>
   }
 
   render() {
-    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true } = this.props;
+    const { currentUser, comments, post, tag, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true } = this.props;
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
@@ -156,25 +157,25 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
 
-        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) && !post.draft &&
+        {newForm && (!currentUser || !post || Users.isAllowedToComment(currentUser, post)) && !post?.draft &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}>New Comment</div>
             <Components.CommentsNewForm
-              post={post}
+              post={post} tag={tag}
               prefilledProps={{
                 parentAnswerId: parentAnswerId}}
               type="comment"
             />
           </div>
         }
-        {currentUser && !Users.isAllowedToComment(currentUser, post) &&
+        {currentUser && post && !Users.isAllowedToComment(currentUser, post) &&
           <Components.CantCommentExplanation post={post}/>
         }
         <Components.CommentsList
           totalComments={totalComments}
           comments={comments}
           highlightDate={this.state.highlightDate}
-          post={post}
+          post={post} tag={tag}
           postPage
           startThreadTruncated={startThreadTruncated}
           parentAnswerId={parentAnswerId}

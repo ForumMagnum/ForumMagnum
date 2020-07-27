@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
+import CommentIcon from '@material-ui/icons/ModeComment';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
@@ -76,12 +77,7 @@ export const styles = theme => ({
       color: theme.palette.grey[700]
     }
   },
-  editButton: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: 16
-  },
-  historyButton: {
+  button: {
     display: "flex",
     alignItems: "center",
     marginRight: 16
@@ -142,12 +138,15 @@ const TagPage = ({classes}: {
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
-            {userCanManageTags(currentUser) && <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+            {userCanManageTags(currentUser) && <Link className={classes.button} to={`/tag/${tag.slug}/edit`}>
               <EditOutlinedIcon /> Edit Wiki
             </Link>}
-            {userCanViewRevisionHistory(currentUser) && <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
+            {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
+            <Link className={classes.button} to={`/tag/${tag.slug}/discussion`}>
+              <CommentIcon/> Discussion
+            </Link>
             <SubscribeTo 
               document={tag} 
               showIcon 
