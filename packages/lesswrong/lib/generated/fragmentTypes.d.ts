@@ -589,6 +589,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly deleted: boolean,
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
+  readonly wikiGrade: number,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1438,6 +1439,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly descriptionTruncationCount: number,
+  readonly wikiGrade: number,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1447,6 +1449,7 @@ interface TagFragment extends TagBasicInfo { // fragment on Tags
 interface TagFragment_description { // fragment on Revisions
   readonly html: string,
   readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
 }
 
 interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
@@ -1456,6 +1459,7 @@ interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
 interface TagRevisionFragment_description { // fragment on Revisions
   readonly html: string,
   readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags

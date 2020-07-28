@@ -23,11 +23,12 @@ const styles = theme => ({
 });
 
 
-const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
+const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}: {
   href: string,
   targetLocation: any,
   innerHTML: string,
   classes: ClassesType,
+  postCount?: number
 }) => {
   const { params: {slug} } = targetLocation;
   const { tag } = useTagBySlug(slug, "TagFragment");
@@ -40,7 +41,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
       {tag
-        ? <TagPreview tag={tag}/>
+        ? <TagPreview tag={tag} postCount={postCount}/>
         : <Loading/>}
     </PopperCard>
     <Link

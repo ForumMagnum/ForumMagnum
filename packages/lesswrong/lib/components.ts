@@ -375,6 +375,7 @@ importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsD
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
 importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
 importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
+importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGradeDisplay'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));

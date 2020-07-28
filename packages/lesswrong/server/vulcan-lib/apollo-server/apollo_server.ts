@@ -21,7 +21,7 @@ import { graphiqlMiddleware, getGraphiqlConfig } from './graphiql';
 import getPlaygroundConfig from './playground';
 
 import initGraphQL from './initGraphQL';
-import { engineConfig } from './engine';
+//import { engineConfig } from './engine';
 import { computeContextFromReq } from './context';
 
 import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
@@ -135,7 +135,7 @@ Meteor.startup(() => {
     // context optionbject or a function of the current request (+ maybe some other params)
     debug: Meteor.isDevelopment,
     
-    engine: engineConfig,
+    //engine: engineConfig,
     schema: GraphQLSchema.executableSchema,
     formatError: (e) => {
       Sentry.captureException(e);
@@ -143,7 +143,8 @@ Meteor.startup(() => {
       console.error(e.extensions.exception)
       return formatError(e);
     },
-    tracing: Meteor.isDevelopment,
+    //tracing: Meteor.isDevelopment,
+    tracing: false,
     cacheControl: true,
     context: ({ req }) => computeContextFromReq(req),
   });

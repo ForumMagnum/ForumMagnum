@@ -43,7 +43,7 @@ const palette = {
     main: deepOrange[900]
   },
   background: {
-    default: '#f4f4f4'
+    default: '#f8f8f8'
   }
 }
 
@@ -89,7 +89,7 @@ const theme = createLWTheme({
   overrides: {
     MuiAppBar: {
       colorDefault: {
-        backgroundColor: grey[50],
+        backgroundColor: "#fbfbfb",
       }
     },
     PostsVote: {

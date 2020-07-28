@@ -1,5 +1,6 @@
 import { schemaDefaultValue } from '../../collectionUtils'
 import { denormalizedCountOfReferences, foreignKeyField } from '../../utils/schemaUtils';
+import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
 
 const formGroups = {
@@ -164,5 +165,27 @@ export const schema = {
     insertableBy: ['sunshineRegiment', 'admins'],
     hidden: true,
   },
+  // What grade is the current tag? See the wikiGradeDefinitions variable defined below for details.
+  wikiGrade: {
+    type: SimpleSchema.Integer, 
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    control: 'select',
+    ...schemaDefaultValue(2),
+    options: () => Object.entries(wikiGradeDefinitions).map(([grade, name]) => ({
+      value: parseInt(grade),
+      label: name
+    })),
+    group: formGroups.advancedOptions,
+  }
+}
 
+export const wikiGradeDefinitions = {
+  0: "Uncategorized",
+  1: "Flagged",
+  2: "Stub",
+  3: "C-Class",
+  4: "B-Class",
+  5: "A-Class"
 }

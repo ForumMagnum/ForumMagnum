@@ -47,7 +47,7 @@ const AllTagsAlphabetical = ({classes}: {
       </SectionTitle>
       {loading && <Loading/>}
       <div className={classes.alphabetical}>
-        {alphabetical.map(tag => <TagsListItem key={tag._id} tag={tag}/>)}
+        {alphabetical.map(tag => <TagsListItem key={tag._id} tag={tag} postCount={6}/>)}
       </div>
     </div>
   );

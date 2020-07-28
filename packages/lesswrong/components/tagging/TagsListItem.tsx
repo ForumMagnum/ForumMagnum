@@ -29,9 +29,10 @@ const styles = theme => ({
   }
 });
 
-const TagsListItem = ({tag, classes}: {
+const TagsListItem = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
+  postCount?: number,
 }) => {
   const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
@@ -42,7 +43,7 @@ const TagsListItem = ({tag, classes}: {
       anchorEl={anchorEl} 
       placement="right-start"
     >
-      <div className={classes.hideOnMobile}><TagPreview tag={tag}/></div>
+      <div className={classes.hideOnMobile}><TagPreview tag={tag} postCount={postCount}/></div>
     </PopperCard>
     <Link to={`/tag/${tag.slug}`}>
       {tag.name} { tag.needsReview }
