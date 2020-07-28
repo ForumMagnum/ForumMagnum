@@ -87,12 +87,15 @@ export const styles = theme => ({
     alignItems: "center",
     marginRight: 16
   },
+  subscribeTo: {
+    marginRight: 16
+  }
 });
 
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, WikiGradeDisplay } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -167,11 +170,13 @@ const TagPage = ({classes}: {
             </Link>}
             <SubscribeTo 
               document={tag} 
+              className={classes.subscribeTo}
               showIcon 
               subscribeMessage="Subscribe to Tag"
               unsubscribeMessage="Unsubscribe from Tag"
               subscriptionType={subscriptionTypes.newTagPosts}
             />
+            <WikiGradeDisplay wikiGrade={tag.wikiGrade} />
           </div>
           <div onClick={clickReadMore}>
             <ContentItemBody

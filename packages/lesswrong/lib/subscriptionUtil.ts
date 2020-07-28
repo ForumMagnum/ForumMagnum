@@ -19,6 +19,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
         && user.autoSubscribeAsOrganizer;
     case subscriptionTypes.newReplies:
       return user.auto_subscribe_to_my_comments && document.userId===user._id;
+    case subscriptionTypes.newTagPosts:
+      return false
     default:
       //eslint-disable-next-line no-console
       console.error("Unrecognized subscription type: "+subscriptionType);
