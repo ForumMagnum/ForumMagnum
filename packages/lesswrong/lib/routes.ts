@@ -1,6 +1,6 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting } from './instanceSettings';
-import { hasEventsSetting, legacyRouteAcronymSetting } from './publicSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
+import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
