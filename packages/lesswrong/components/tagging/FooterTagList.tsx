@@ -46,13 +46,14 @@ function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
   return _.sortBy(list, item=>toTag(item).core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false, ssr=true}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
   hidePersonalOrFrontpage?: boolean,
-  smallText?: boolean
+  smallText?: boolean,
+  ssr?: boolean
 
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -68,7 +69,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
     collection: TagRels,
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
-    ssr: true,
+    ssr: ssr,
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)
@@ -112,7 +113,13 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
 
   if (loading || !results) {
     return <div className={classes.root}>
-     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+     {sortTags(post.tags, t=>t).map(tag => 
+      <FooterTag 
+        key={tag._id} 
+        tag={tag} 
+        hideScore={hideScore}
+        smallText={smallText}
+       />)}
      {postType}
     </div>;
   }
