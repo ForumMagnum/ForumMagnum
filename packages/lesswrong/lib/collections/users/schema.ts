@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from '../../vulcan-lib';
 import Users from "./collection";
+import { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -45,7 +46,7 @@ const ownsOrIsAdmin = (user, document) => {
  * @summary Users schema
  * @type {Object}
  */
-const schema = {
+const schema: SchemaType<DbUser> = {
   _id: {
     type: String,
     optional: true,

@@ -21,10 +21,17 @@ interface CollectionFieldSpecification<T extends DbObject> {
   blackbox?: boolean,
   denormalized?: boolean,
   foreignKey?: any,
+  
   min?: number,
   max?: number,
+  regEx?: any,
+  minCount?: number,
+  options?: any,
+  allowedValues?: any,
+  query?: any,
   
   form?: any,
+  input?: any,
   beforeComponent?: string,
   order?: number,
   label?: string,
@@ -35,6 +42,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   group?: any,
   
   onInsert?: any,
+  onCreate?: any,
   onEdit?: any,
   onUpdate?: any,
   
@@ -46,6 +54,8 @@ interface CollectionFieldSpecification<T extends DbObject> {
   canUpdate?: any,
   canCreate?: any,
 }
+
+export type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
 
 const generateIdResolverSingle = ({collectionName, fieldName}) => {
   return async (doc, args, context: ResolverContext) => {

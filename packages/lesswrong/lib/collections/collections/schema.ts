@@ -1,6 +1,6 @@
-import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterMultiple, SchemaType } from '../../utils/schemaUtils'
 
-const schema = {
+const schema: SchemaType<DbCollection> = {
 
   // default properties
 

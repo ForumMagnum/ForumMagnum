@@ -1,6 +1,6 @@
 import Users from '../users/collection';
 import { schemaDefaultValue, } from '../../collectionUtils';
-import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import { resolverOnlyField, SchemaType } from '../../../lib/utils/schemaUtils';
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -14,7 +14,7 @@ import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 // that was reversed.
 //
 
-const schema = {
+const schema: SchemaType<DbVote> = {
   // The id of the document that was voted on
   documentId: {
     type: String,

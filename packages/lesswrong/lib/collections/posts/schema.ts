@@ -1,7 +1,7 @@
 import Users from '../users/collection';
 import { Utils, getCollection } from '../../vulcan-lib';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { Posts } from "../posts/collection"
@@ -25,7 +25,7 @@ const formGroups = {
   }
 };
 
-const schema = {
+const schema: SchemaType<DbPost> = {
   // Timestamp of post creation
   createdAt: {
     type: Date,

@@ -1,11 +1,11 @@
 import Users from '../users/collection';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { Comments } from '../comments/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
-const schema = {
+const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({
