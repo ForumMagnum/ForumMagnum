@@ -99,6 +99,8 @@ registerFragment(`
     nominationCount2018
     reviewCount2018
 
+    tagRelevance
+
     group {
       _id
       name

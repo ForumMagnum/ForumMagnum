@@ -79,7 +79,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
 
@@ -199,6 +199,7 @@ const RecommendationsAndCurated = ({
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
       </AnalyticsContext> */}
+      <TagProgressBar/>
     </SingleColumnSection>
   }
   
