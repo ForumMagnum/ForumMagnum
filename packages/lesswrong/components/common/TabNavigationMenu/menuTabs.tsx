@@ -8,7 +8,7 @@ import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
 import Home from '@material-ui/icons/Home'
-import ImportContacts from '@material-ui/icons/ImportContacts'
+import Group from '@material-ui/icons/Group'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info'
@@ -233,6 +233,14 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'community',
+      title: 'Community',
+      link: '/meta',
+      iconComponent: Group,
+      tooltip: 'Read posts about EA philosophy, the EA community, and the Forum itself.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'allPosts',
       title: 'All Posts',
       link: '/allPosts',
@@ -248,15 +256,6 @@ export default {
       iconComponent: LocalOffer,
       tooltip: 'TODO;',
       showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
-      id: 'handbook',
-      title: 'EA Handbook',
-      mobileTitle: 'Handbook',
-      link: '/handbook',
-      iconComponent: ImportContacts,
-      tooltip: 'Learn about the principles of effective altruism.',
-      showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
       id: 'divider',
