@@ -274,8 +274,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         
     const shouldUseGridLayout = standaloneNavigation
     
-    console.log('crb', currentRoute.background)
-
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
