@@ -13,8 +13,7 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { hasEventsSetting } from '../../lib/publicSettings';
+import { forumTypeSetting, hasEventsSetting } from '../../lib/instanceSettings';
 import Typography from '@material-ui/core/Typography';
 import { separatorBulletStyles } from '../common/SectionFooter';
 
