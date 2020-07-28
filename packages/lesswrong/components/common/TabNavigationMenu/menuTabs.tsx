@@ -254,7 +254,6 @@ export default {
       mobileTitle: 'Tags',
       link: '/tags/all',
       iconComponent: LocalOffer,
-      tooltip: 'TODO;',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
