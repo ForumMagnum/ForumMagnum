@@ -23,10 +23,10 @@ const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-d
 export const userHasCkEditor = optInOnly;
 export const userHasCkCollaboration = adminOnly;
 export const userHasBoldPostItems = disabled
+export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 
 // Shipped Features
-export const userHasEAHomeHandbook = shippedFeature
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
 export const userCanUseTags = shippedFeature;
