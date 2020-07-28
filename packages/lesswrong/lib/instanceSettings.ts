@@ -126,6 +126,3 @@ export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', Meteor.absoluteUrl(), "optional")
 export const mailUrlSetting = new PublicInstanceSetting<string | null>('mailUrl', null, "warning") // The SMTP URL used to send out email
-
-// EA FORUM: registerSetting('introPostId', null, 'Post ID for the /intro route')
-// This was a commented out setting that you use in the routes file. You will have to port it over to the new system.
