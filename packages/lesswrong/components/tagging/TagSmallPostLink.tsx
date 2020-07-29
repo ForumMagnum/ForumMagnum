@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
     width: 20,
     flexShrink: 0,
-    color: theme.palette.lwTertiary.light
   },
   post: {
     display: "flex",
@@ -43,7 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   author: {
     marginRight: 0,
     marginLeft: 20,
-    color: theme.palette.lwTertiary.light
   },
   widerSpacing: {
     marginBottom: 4
