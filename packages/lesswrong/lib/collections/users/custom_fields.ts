@@ -1397,5 +1397,5 @@ const createDisplayName = (user: DbUser): string=> {
   if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
-  return undefined;
+  return "[missing username]";
 }
