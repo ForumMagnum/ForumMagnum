@@ -1001,50 +1001,19 @@ Posts.addView("reviews2018", terms => {
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
 
-
-Posts.addView("tagProgressUntagged", terms => {
-  return {
-    selector: {
-      $or: [{tagRelevance: {}}, {tagRelevance: null}],
-      baseScore: {$gt:40},
-      viewCount: {$gt:2000}
-    },
-    options: {
-      sort: {
-        viewCount: -1
-      }
-    }
-
-  }
-})
-
 Posts.addView("tagProgressTagged", terms => {
   return {
     selector: {
       tagRelevance: {$ne: {}},
-      baseScore: {$gt:40},
-      viewCount: {$gt:2000}
+      baseScore: {$gt:30},
     },
-    options: {
-      sort: {
-        viewCount: -1
-      }
-    }
-
   }
 })
 
 Posts.addView("tagProgressPosts", terms => {
   return {
     selector: {
-      baseScore: {$gt:40},
-      viewCount: {$gt:2000}
+      baseScore: {$gt:30},
     },
-    options: {
-      sort: {
-        viewCount: -1
-      }
-    }
-
   }
 })
