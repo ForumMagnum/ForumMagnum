@@ -14,7 +14,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
     display: "flex",
     marginBottom: 8,

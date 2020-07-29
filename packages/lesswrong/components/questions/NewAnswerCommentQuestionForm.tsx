@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     borderTop: "solid 2px rgba(0,0,0,.5)",
     maxWidth:650 + (theme.spacing.unit*4),

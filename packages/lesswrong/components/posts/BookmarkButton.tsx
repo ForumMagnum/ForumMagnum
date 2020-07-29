@@ -13,7 +13,7 @@ import {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[400]

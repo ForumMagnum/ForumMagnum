@@ -37,7 +37,7 @@ const forumDefaultTooltip = {
 
 const defaultTooltip = forumDefaultTooltip[forumTypeSetting.get()]
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpageWrapper: {
     [theme.breakpoints.down('sm')]: {
       width: "100%",

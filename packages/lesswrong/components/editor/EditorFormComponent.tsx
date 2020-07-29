@@ -25,7 +25,7 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     position: 'relative',
   },

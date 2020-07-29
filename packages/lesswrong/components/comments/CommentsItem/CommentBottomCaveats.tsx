@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   blockedReplies: {
     padding: "5px 0",
   },

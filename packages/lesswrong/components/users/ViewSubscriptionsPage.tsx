@@ -8,7 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   subscribedItem: {
     display: "flex",
     ...theme.typography.commentStyle

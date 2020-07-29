@@ -6,7 +6,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   card: {
     paddingTop: 8,
     paddingLeft: 16,
@@ -37,7 +37,7 @@ const styles = theme => ({
     textAlign: "right",
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
-    color: theme.palette.primary.main,
+    color: theme.palette.lwTertiary.main,
     marginTop: 6,
     marginBottom: 2,
     marginRight: 6
@@ -77,7 +77,7 @@ const TagPreview = ({tag, classes, showCount=true, postCount=3}: {
       {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} widerSpacing={postCount > 3} />)}
     </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
-      <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
+      <Link to={Tags.getUrl(tag)}>View all {tag.postCount} posts</Link>
     </div>}
   </div>)
 }

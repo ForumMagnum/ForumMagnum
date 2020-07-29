@@ -16,7 +16,7 @@ import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
 
 // Also used in TagCompareRevisions
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   tagPage: {
     ...commentBodyStyles(theme),
     color: theme.palette.grey[600]

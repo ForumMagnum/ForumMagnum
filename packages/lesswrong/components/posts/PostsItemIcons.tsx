@@ -13,7 +13,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 // ea-forum-look-here (JP I think you really just gotta move away from your re-use of meta now)
 const MetaIcon = forumTypeSetting.get() === 'EAForum' ? GroupIcon : DetailsIcon
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,

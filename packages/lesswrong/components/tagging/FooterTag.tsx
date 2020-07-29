@@ -32,7 +32,7 @@ const newTagStyle = theme => ({
   fontSize: 15
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
     cursor: "pointer",
@@ -61,13 +61,17 @@ const styles = theme => ({
   },
   hovercard: {
   },
+  smallText: {
+    fontSize: 12,
+    marginBottom: 0
+  }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
-
+  smallText?: boolean,
   classes: ClassesType,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
@@ -81,7 +85,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
   if (tag.adminOnly) { return null }
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core})}>
+    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core, [classes.smallText]: smallText})}>
       <Link to={`/tag/${tag.slug}`}>
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}

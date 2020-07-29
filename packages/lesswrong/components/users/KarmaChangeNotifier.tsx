@@ -22,7 +22,7 @@ import { Comments } from '../../lib/collections/comments';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     alignItems: 'center',

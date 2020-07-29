@@ -7,7 +7,7 @@ import { QueryLink } from '../../../lib/reactRouterWrapper';
 import { useNavigation } from '../../../lib/routeUtil';
 
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   version: {
     marginRight: 5
   }

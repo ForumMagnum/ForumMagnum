@@ -6,7 +6,7 @@ import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     maxWidth: 1200,

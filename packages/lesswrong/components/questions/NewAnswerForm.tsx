@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import { useDialog } from '../common/withDialog';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
     maxWidth:650,
     paddingBottom: theme.spacing.unit*4,
