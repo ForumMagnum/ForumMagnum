@@ -16,7 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8,
     textAlign: "center",
     width: 20,
-    flexShrink: 0
+    flexShrink: 0,
+    color: theme.palette.lwTertiary.light
   },
   post: {
     display: "flex",
@@ -32,6 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     flexGrow: 1,
+    color: theme.palette.lwTertiary.dark
   },
   wrap: {
     whiteSpace: "unset",
@@ -40,7 +42,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   author: {
     marginRight: 0,
-    marginLeft: 20
+    marginLeft: 20,
+    color: theme.palette.lwTertiary.light
   },
   widerSpacing: {
     marginBottom: 4
