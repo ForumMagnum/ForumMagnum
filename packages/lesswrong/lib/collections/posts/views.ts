@@ -1004,7 +1004,7 @@ Posts.addView("reviews2018", terms => {
 Posts.addView("tagProgressTagged", terms => {
   return {
     selector: {  
-      tagRelevance: {$ne: null},
+      tagRelevance: {$exists: true},
       baseScore: {$gt: 30},
       $expr: {
           $gt: [
