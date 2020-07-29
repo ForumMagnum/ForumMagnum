@@ -22,6 +22,9 @@ const styles = theme => ({
   tooltip: {
     display: "block"
   },
+  link: {
+    color: theme.palette.primary.main
+  },
   text: {
     display: "flex",
     justifyContent: "space-between",
@@ -67,7 +70,7 @@ const TagProgressBar = ({classes}: {
           </Link>
           <LWTooltip title="Click to see a list of the most important posts to tag.">
             <PostsItem2MetaInfo>
-              <a href={"https://docs.google.com/spreadsheets/d/1Oiv_Mg_7mEhP0Ik6Bs1V99G2v4eevL-LvkxQfD-blqw/edit#gid=651704611&fvid=2065958119"}>
+              <a className={classes.link} href={"https://docs.google.com/spreadsheets/d/1Oiv_Mg_7mEhP0Ik6Bs1V99G2v4eevL-LvkxQfD-blqw/edit#gid=651704611&fvid=2065958119"}>
                 Tag Priority Posts
               </a>
             </PostsItem2MetaInfo>
@@ -75,7 +78,10 @@ const TagProgressBar = ({classes}: {
         </div>
         <LWTooltip 
           className={classes.tooltip}
-          title={`Help tag our top posts. Currently, ${taggedTotal} out of ${postsTotal} have been tagged.`}
+          title={<div>
+            <div>{taggedTotal} out of {postsTotal} posts have been tagged</div>
+            <div><em>(Filtered for 25+ karma. Only counting non-core tags (i.e. tags other than "Rationality", "AI", etc)</em></div>
+          </div>}
         >
           <LinearProgress variant="buffer" value={(taggedTotal/postsTotal)*100} />
       </LWTooltip>

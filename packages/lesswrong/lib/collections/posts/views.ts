@@ -1005,7 +1005,7 @@ Posts.addView("tagProgressTagged", terms => {
   return {
     selector: {  
       tagRelevance: {$exists: true},
-      baseScore: {$gt: 30},
+      baseScore: {$gt: 25},
       $expr: {
           $gt: [
               {$size: 
@@ -1023,7 +1023,7 @@ Posts.addView("tagProgressTagged", terms => {
 Posts.addView("tagProgressPosts", terms => {
   return {
     selector: {
-      baseScore: {$gt:30},
+      baseScore: {$gt:25},
     },
   }
 })
