@@ -254,6 +254,7 @@ export default {
       mobileTitle: 'Tags',
       link: '/tags/all',
       iconComponent: LocalOffer,
+      tooltip: 'See posts tagged by their subject matter',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
