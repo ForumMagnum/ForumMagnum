@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const RecommendationsPage = ({ classes }) => {

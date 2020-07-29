@@ -11,7 +11,7 @@ import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },

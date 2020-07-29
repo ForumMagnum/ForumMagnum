@@ -6,7 +6,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     display:"none",

@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme =>  ({
+const styles = (theme: ThemeType): JssStyles =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,

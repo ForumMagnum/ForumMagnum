@@ -6,7 +6,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: 28,
     

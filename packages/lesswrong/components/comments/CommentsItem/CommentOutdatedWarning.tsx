@@ -4,7 +4,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     fontSize: 'inherit',
     position: 'relative',

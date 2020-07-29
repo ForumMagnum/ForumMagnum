@@ -6,7 +6,7 @@ import { useTimezone } from '../common/withTimezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   read: {
     opacity: ".8"
   },

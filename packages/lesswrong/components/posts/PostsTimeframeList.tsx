@@ -7,7 +7,7 @@ import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   loading: {
     opacity: .4,
   },

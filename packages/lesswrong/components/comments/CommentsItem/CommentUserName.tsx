@@ -1,7 +1,7 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,

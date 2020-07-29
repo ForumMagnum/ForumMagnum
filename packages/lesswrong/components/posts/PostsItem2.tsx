@@ -20,7 +20,7 @@ export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 
-export const styles = (theme) => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('xs')]: {

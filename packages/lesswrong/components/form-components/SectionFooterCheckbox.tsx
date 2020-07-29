@@ -4,7 +4,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
 import { PopperPlacementType } from '@material-ui/core/Popper'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
     ...theme.typography.commentStyle,

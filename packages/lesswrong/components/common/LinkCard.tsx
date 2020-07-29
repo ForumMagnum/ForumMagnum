@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
     position: "relative",

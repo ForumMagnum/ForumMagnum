@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
 

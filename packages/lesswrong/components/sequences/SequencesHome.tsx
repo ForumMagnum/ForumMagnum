@@ -5,7 +5,7 @@ import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
   },
   header: {

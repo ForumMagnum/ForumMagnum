@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 import { CoreReadingCollection } from '../sequences/CoreReading';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width:"100%",
     background: "white",

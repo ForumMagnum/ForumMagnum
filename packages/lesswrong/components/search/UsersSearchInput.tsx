@@ -4,7 +4,7 @@ import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   input: {
     // this needs to be here because of Bootstrap. I am sorry :(
     padding: "6px 0 7px",

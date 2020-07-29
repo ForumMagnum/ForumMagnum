@@ -19,7 +19,7 @@ const MIN_TOC_WIDTH = 200
 export const MAX_COLUMN_WIDTH = 720
 
 // Also used in PostsCompareRevisions
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {

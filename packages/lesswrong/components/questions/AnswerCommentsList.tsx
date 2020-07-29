@@ -6,7 +6,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   commentsList: {
     marginLeft: -theme.spacing.unit*1.5,
     marginRight: -theme.spacing.unit*1.5,

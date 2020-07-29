@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
-export const postsItemLikeStyles = theme => ({
+export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
     position: "relative",
@@ -63,7 +63,7 @@ export const postsItemLikeStyles = theme => ({
   },
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   ...postsItemLikeStyles(theme),
   location: {
     color: "rgba(0,0,0,.4)",

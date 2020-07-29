@@ -3,13 +3,13 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-export const sectionTitleStyle = theme => ({
+export const sectionTitleStyle = (theme: ThemeType): JssStyles => ({
   margin:0,
   ...theme.typography.postStyle,
   fontSize: "2.2rem"
 })
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     justifyContent: "space-between",

@@ -4,7 +4,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 
 const SEQUENCE_DESCRIPTION_TRUNCATION_LENGTH = 750;
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   sequenceDescriptionHighlight: {
   },
 });

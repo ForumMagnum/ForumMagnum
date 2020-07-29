@@ -15,7 +15,7 @@ const TODAY_STRING = "[Today]"
 const TOMORROW_STRING = "[Tomorrow]"
 const HIGHLIGHT_LENGTH = 600
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   subItemOverride: {
     paddingTop: 0,
     paddingBottom: 0,

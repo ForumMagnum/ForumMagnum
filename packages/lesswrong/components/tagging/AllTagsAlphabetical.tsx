@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import _sortBy from 'lodash/sortBy';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     margin: "auto",
     maxWidth: 1000
