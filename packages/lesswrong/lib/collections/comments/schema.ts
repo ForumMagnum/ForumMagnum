@@ -132,7 +132,7 @@ const schema: SchemaType<DbComment> = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       return Comments.getPageUrl(comment, true)
     },
   }),
@@ -140,7 +140,7 @@ const schema: SchemaType<DbComment> = {
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       return Comments.getPageUrl(comment, false)
     },
   }),
@@ -177,7 +177,7 @@ const schema: SchemaType<DbComment> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "parentCommentId",
-      filterFn: comment => !comment.deleted
+      filterFn: (comment: DbComment) => !comment.deleted
     }),
     canRead: ['guests'],
   },
@@ -186,7 +186,7 @@ const schema: SchemaType<DbComment> = {
     type: Array,
     graphQLtype: '[Comment]',
     viewableBy: ['guests'],
-    resolver: async (comment, args, context: ResolverContext) => {
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
       const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
       return await Comments.find(params.selector, params.options).fetch()
@@ -328,7 +328,7 @@ const schema: SchemaType<DbComment> = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -338,7 +338,7 @@ const schema: SchemaType<DbComment> = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;

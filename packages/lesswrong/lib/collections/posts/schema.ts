@@ -274,25 +274,25 @@ const schema: SchemaType<DbPost> = {
   domain: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => Utils.getDomain(post.url),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => Utils.getDomain(post.url),
   }),
 
   pageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => Posts.getPageUrl(post, true),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => Posts.getPageUrl(post, false),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getPageUrl(post, false),
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => {
+    resolver: (post: DbPost, args: void, context: ResolverContext) => {
       return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
     },
   }),
@@ -300,7 +300,7 @@ const schema: SchemaType<DbPost> = {
   postedAtFormatted: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => {
+    resolver: (post: DbPost, args: void, context: ResolverContext) => {
       return moment(post.postedAt).format('dddd, MMMM Do YYYY');
     }
   }),
@@ -308,19 +308,19 @@ const schema: SchemaType<DbPost> = {
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => Posts.getEmailShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getEmailShareUrl(post),
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => Posts.getTwitterShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getTwitterShareUrl(post),
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, context: ResolverContext) => Posts.getFacebookShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getFacebookShareUrl(post),
   }),
 
   question: {
@@ -347,7 +347,7 @@ const schema: SchemaType<DbPost> = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }: ResolverContext) => {
+    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -357,7 +357,7 @@ const schema: SchemaType<DbPost> = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post, args, { Posts }: ResolverContext) => {
+    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return "";
       return contents.html;
@@ -406,7 +406,7 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
-    resolver: async (post, args, { Posts }: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
       return await PostRelations.find({targetPostId: post._id}).fetch()
     }
   }),
@@ -419,7 +419,7 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]',
     viewableBy: ['guests'],
-    resolver: async (post, args, { Posts }: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
       const postRelations = await Posts.rawCollection().aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
@@ -512,7 +512,8 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "TagRel",
     viewableBy: ['guests'],
     graphqlArguments: 'tagId: String',
-    resolver: async (post, {tagId}, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: {tagId: string}, context: ResolverContext) => {
+      const { tagId } = args;
       const { currentUser } = context;
       const tagRels = await getWithLoader(TagRels,
         "tagRelByDocument",
@@ -532,7 +533,7 @@ const schema: SchemaType<DbPost> = {
     type: "[Tag]",
     graphQLtype: "[Tag]",
     viewableBy: ['guests'],
-    resolver: async (post:DbPost, args, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
@@ -559,7 +560,7 @@ const schema: SchemaType<DbPost> = {
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
-    resolver: async (post, args, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
       if (post.question) {
         if (post.lastCommentPromotedAt) {

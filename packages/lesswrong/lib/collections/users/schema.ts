@@ -20,7 +20,7 @@ import * as _ from 'underscore';
 // Anything else..
 ///////////////////////////////////////
 
-const createDisplayName = user => {
+const createDisplayName = (user: DbUser): string => {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
   const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
@@ -38,7 +38,7 @@ const adminGroup = {
   order: 100,
 };
 
-const ownsOrIsAdmin = (user, document) => {
+const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
   return getCollection('Users').owns(user, document) || getCollection('Users').isAdmin(user);
 };
 

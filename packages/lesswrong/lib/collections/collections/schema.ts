@@ -47,7 +47,7 @@ const schema: SchemaType<DbCollection> = {
     type: Array,
     graphQLtype: '[Book]',
     viewableBy: ['guests'],
-    resolver: async (collection, args, context: ResolverContext) => {
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
       const { currentUser, Books } = context;
       const books = Books.find(
         {collectionId: collection._id},

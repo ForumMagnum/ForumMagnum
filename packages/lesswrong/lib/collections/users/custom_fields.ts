@@ -10,7 +10,7 @@ import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
 
-export const hashPetrovCode = (code) => {
+export const hashPetrovCode = (code: string): string => {
   // @ts-ignore
   const crypto = Npm.require('crypto');
   var hash = crypto.createHash('sha256');
@@ -173,7 +173,7 @@ const partiallyReadSequenceItem = new SimpleSchema({
 addFieldsDict(Users, {
   createdAt: {
     type: Date,
-    onInsert: (user, options) => {
+    onInsert: (user: DbUser, currentUser: DbUser) => {
       return user.createdAt || new Date();
     },
     canRead: ["guests"]
@@ -594,7 +594,7 @@ addFieldsDict(Users, {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user, args, context: ResolverContext) => {
+    resolver: async (user: DbUser, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = LWEvents.find(
         {userId: user._id, name: 'login'},
@@ -1390,7 +1390,7 @@ makeEditable({
 addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
-const createDisplayName = user => {
+const createDisplayName = (user: DbUser): string=> {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
