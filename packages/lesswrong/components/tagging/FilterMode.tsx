@@ -6,6 +6,7 @@ import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
+import { tagCardStyle } from './TagPreview'
 import Input from '@material-ui/core/Input';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
@@ -80,6 +81,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 50,
     "-webkit-appearance": "none",
     "-moz-appearance": "textfield"
+  },
+  tagDescription: {
+    ...tagCardStyle(theme)
   }
 });
 
@@ -93,7 +97,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   description?: React.ReactNode
   classes: ClassesType,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview } = Components
+  const { LWTooltip, PopperCard, TagPreviewDescription } = Components
   const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
   const { document: tag } = useSingle({
@@ -183,7 +187,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </div>}
         </div>
-        <TagPreview tag={tag} showCount={false}/>
+        <div className={classes.tagDescription}>
+          <TagPreviewDescription tag={tag}/>
+        </div>
       </PopperCard>
     </AnalyticsContext>
   </span>

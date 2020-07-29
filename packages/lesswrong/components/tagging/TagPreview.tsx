@@ -6,16 +6,20 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 
+export const tagCardStyling = theme => ({
+  paddingTop: 8,
+  paddingLeft: 16,
+  paddingRight: 16,
+  paddingBottom: 6,
+  width: 500,
+  [theme.breakpoints.down('xs')]: {
+    width: "100%",
+  }
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   card: {
-    paddingTop: 8,
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingBottom: 6,
-    width: 500,
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    }
+    ...tagCardStyling(theme)
   },
   tagDescription: {
     ...commentBodyStyles(theme)
@@ -34,13 +38,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
   },
   footerCount: {
+    borderTop: "solid 1px rgba(0,0,0,.08)",
+    paddingTop: 6,
     textAlign: "right",
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
     marginTop: 6,
-    marginBottom: 2,
-    marginRight: 6
+    marginBottom: 2
   },
   posts: {
     marginTop: 12,
@@ -50,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagPreview = ({tag, classes, showCount=true, postCount=3}: {
+const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
   showCount?: boolean,
