@@ -1003,9 +1003,19 @@ Posts.addView("reviews2018", terms => {
 
 Posts.addView("tagProgressTagged", terms => {
   return {
-    selector: {
-      tagRelevance: {$ne: {}},
-      baseScore: {$gt:30},
+    selector: {  
+      tagRelevance: {$exists: true},
+      baseScore: {$gt: 30},
+      $expr: {
+          $gt: [
+              {$size: 
+                  {$filter: {
+                      input: {$objectToArray: "$tagRelevance"},
+                      cond: {$not: {$in: ["$$this", ["xexCWMyds6QLWognu", "sYm3HiWcfZvrGu3ui", "izp6eeJJEg9v5zcur", "fkABsGCJZ6y9qConW", "Ng8Gice9KNkncxqcj", "MfpEPj6kJneT9gWT6", "3uE2pXvbcnS9nnZRE"]]}}
+                  }}
+              }, 
+              0]
+      } 
     },
   }
 })
