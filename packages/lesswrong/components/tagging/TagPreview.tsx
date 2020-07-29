@@ -6,7 +6,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const tagCardStyling = theme => ({
+export const tagCardStyle = theme => ({
   paddingTop: 8,
   paddingLeft: 16,
   paddingRight: 16,
@@ -19,7 +19,7 @@ export const tagCardStyling = theme => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   card: {
-    ...tagCardStyling(theme)
+    ...tagCardStyle(theme)
   },
   tagDescription: {
     ...commentBodyStyles(theme)
