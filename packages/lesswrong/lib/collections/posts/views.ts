@@ -1021,7 +1021,7 @@ Posts.addView("tagProgressTagged", terms => {
   return {
     selector: {  
       baseScore: {$gt: 25},
-      $or: [{tagRelevance: {$ne: {}}}, {tagRelevance: null}]
+      $or: [{tagRelevance: {}}, {tagRelevance: null}]
     },
   }
 })
