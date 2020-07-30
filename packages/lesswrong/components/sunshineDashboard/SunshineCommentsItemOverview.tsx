@@ -5,7 +5,7 @@ import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   comment: {
     fontSize: "1rem",
     lineHeight: "1.5em"

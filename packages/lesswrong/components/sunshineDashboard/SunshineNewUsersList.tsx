@@ -4,7 +4,7 @@ import React from 'react';
 import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
     fontSize: "1rem",
     textAlign: "right",

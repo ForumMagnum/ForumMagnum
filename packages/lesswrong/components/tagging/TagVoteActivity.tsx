@@ -7,7 +7,7 @@ import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useVote } from '../votes/withVote';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   voteRow: {
   },
   headerCell: {

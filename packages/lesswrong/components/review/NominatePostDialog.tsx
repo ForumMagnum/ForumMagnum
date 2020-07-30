@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   nominating: {
     marginTop: 8,
     fontSize: "1.2rem"

@@ -10,7 +10,7 @@ import withUser from '../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "60%",
     maxWidth: 600,

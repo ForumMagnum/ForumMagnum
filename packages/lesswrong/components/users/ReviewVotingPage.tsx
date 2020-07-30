@@ -23,7 +23,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `

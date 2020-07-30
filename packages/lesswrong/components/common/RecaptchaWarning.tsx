@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 // ea-forum look here (you will want to set this to whatever is appropriate for you)
 export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   warningText: {
     margin: 10,
     padding: 20,

@@ -6,7 +6,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import menuTabs from './menuTabs'
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     justifyContent: "space-around",

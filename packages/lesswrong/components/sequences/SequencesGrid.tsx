@@ -3,7 +3,7 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
 // Shared with SequencesGridWrapper
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   grid: {
   },
   gridContent: {

@@ -584,6 +584,11 @@ switch (forumTypeSetting.get()) {
         componentName: 'EASequencesHome'
       },
       {
+        name: "Concepts",
+        path:'/concepts',
+        redirect: () => `/tags/all`,
+      },
+      {
         name: "TagsAll",
         path:'/tags',
         redirect: () => `/tags/all`,

@@ -1,5 +1,7 @@
 
 type ClassesType = Record<string,any>
+type ThemeType = any
+type JssStyles = any
 
 interface WithStylesProps {
   classes: ClassesType,

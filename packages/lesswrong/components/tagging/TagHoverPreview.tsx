@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useTagBySlug } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   link: {
     ...linkStyle(theme),
   },

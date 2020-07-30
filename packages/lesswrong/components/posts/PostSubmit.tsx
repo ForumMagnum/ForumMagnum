@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     justifyContent: "flex-end",

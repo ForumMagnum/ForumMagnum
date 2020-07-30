@@ -148,7 +148,7 @@ const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, co
 }
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
-export const linkStyle = theme => ({
+export const linkStyle = (theme: ThemeType) => ({
   position: "relative",
   marginRight: 6,
   '&:after': {
@@ -160,7 +160,7 @@ export const linkStyle = theme => ({
   }
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   link: {
     ...linkStyle(theme)
   }
@@ -268,7 +268,7 @@ const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPre
   styles,
 });
 
-const defaultPreviewStyles = theme => ({
+const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -320,7 +320,7 @@ const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPrevi
   styles: defaultPreviewStyles,
 });
 
-const mozillaHubStyles = (theme) => ({
+const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
   users: {
     marginLeft: 3,
     fontSize: "1.2rem",
@@ -424,7 +424,7 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
-const metaculusStyles = (theme) => ({
+const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {
     backgroundColor: "#2c3947"
   },

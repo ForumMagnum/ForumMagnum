@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   meta: {
     fontSize: ".9rem",
     color: "rgba(0,0,0,.45)"

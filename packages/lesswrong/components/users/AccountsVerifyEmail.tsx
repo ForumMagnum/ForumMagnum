@@ -6,7 +6,7 @@ import withUser from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil'
 import { Accounts } from 'meteor/accounts-base';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     textAlign: "center",
   }

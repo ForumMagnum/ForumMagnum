@@ -6,7 +6,7 @@ import { Snippet} from 'react-instantsearch-dom';
 import grey from '@material-ui/core/colors/grey';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
     root: {
       padding: theme.spacing.unit,
       borderBottom: "solid 1px",

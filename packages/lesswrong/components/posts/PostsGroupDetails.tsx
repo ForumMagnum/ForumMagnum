@@ -4,7 +4,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Localgroups } from '../../lib/index';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     display: 'inline-block',
     fontSize: 22,

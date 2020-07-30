@@ -5,7 +5,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { Popup } from 'react-map-gl';
 
 // Shared with LocalEventMarker
-export const styles = createStyles(theme => ({
+export const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     width: 250,

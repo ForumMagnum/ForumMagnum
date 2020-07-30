@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 import { rowStyles } from './MigrationsDashboardRow';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   ...rowStyles,
   row: {
     display: 'flex',

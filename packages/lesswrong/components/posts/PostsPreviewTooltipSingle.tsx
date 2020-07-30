@@ -6,7 +6,7 @@ import { Comments } from '../../lib/collections/comments';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { POST_PREVIEW_WIDTH } from './PostsPreviewTooltip';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   loading: {
     width: POST_PREVIEW_WIDTH,
     paddingTop: theme.spacing.unit,

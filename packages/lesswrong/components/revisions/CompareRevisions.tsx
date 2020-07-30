@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   differences: {
     "& ins": {
       background: "#88ff88",

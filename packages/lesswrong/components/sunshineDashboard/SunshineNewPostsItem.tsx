@@ -18,7 +18,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     width: 14,
     marginRight: 4

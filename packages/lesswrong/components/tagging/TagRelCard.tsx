@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
 import { hasVotedClient } from '../../lib/voting/vote';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   relevance: {
     marginTop: 2,
     marginLeft: 16,

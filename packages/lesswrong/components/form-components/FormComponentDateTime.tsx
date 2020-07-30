@@ -5,7 +5,7 @@ import DateTimePicker from 'react-datetime';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   input: {
     borderBottom: `solid 1px #999`,
     padding: '6px 0 7px 0'

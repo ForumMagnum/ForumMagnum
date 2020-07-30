@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   indexesTable: {
     border: "1px solid black",
     padding: 5,
