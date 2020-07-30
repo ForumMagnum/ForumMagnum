@@ -6,7 +6,6 @@ import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
-import { tagCardStyle } from './TagPreview'
 import Input from '@material-ui/core/Input';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';

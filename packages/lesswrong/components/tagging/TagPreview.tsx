@@ -6,20 +6,16 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const tagCardStyle = theme => ({
-  paddingTop: 8,
-  paddingLeft: 16,
-  paddingRight: 16,
-  paddingBottom: 6,
-  width: 500,
-  [theme.breakpoints.down('xs')]: {
-    width: "100%",
-  }
-})
-
 const styles = (theme: ThemeType): JssStyles => ({
   card: {
-    ...tagCardStyle(theme)
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 6,
+    width: 500,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+    }
   },
   tagDescription: {
     ...commentBodyStyles(theme)
