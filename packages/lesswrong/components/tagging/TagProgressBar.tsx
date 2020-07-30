@@ -40,10 +40,11 @@ const TagProgressBar = ({classes}: {
 
   const { totalCount: taggedTotal } = useMulti({
     terms: {
-      view: "tagProgressTagged"
+      view: "tagProgressTagged",
+      limit: 0
     },
     collection: Posts,
-    fragmentName: 'PostsBase',
+    fragmentName: 'PostTagRelevance',
     enableTotal: true,
     fetchPolicy: 'cache-and-network',
     ssr: true
@@ -51,10 +52,11 @@ const TagProgressBar = ({classes}: {
 
   const { totalCount: postsTotal } = useMulti({
     terms: {
-      view: "tagProgressPosts"
+      view: "tagProgressPosts",
+      limit: 0
     },
     collection: Posts,
-    fragmentName: 'PostsBase',
+    fragmentName: 'PostTagRelevance',
     enableTotal: true,
     fetchPolicy: 'cache-and-network',
     ssr: true
