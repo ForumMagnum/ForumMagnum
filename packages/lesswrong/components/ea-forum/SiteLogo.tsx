@@ -14,14 +14,13 @@ const styles = theme => ({
 })
 
 const SiteLogo = ({classes}) => {
-  return Utils.getLogoUrl()
-    ? <img
-      className={classes.root}
-      src={Utils.getLogoUrl()}
-      title={forumTitleSetting.get()}
-      alt={`${forumTitleSetting.get()} Logo`}
-    />
-    : <span/>
+  if (!Utils.getLogoUrl()) return null
+  return <img
+    className={classes.root}
+    src={Utils.getLogoUrl()}
+    title={forumTitleSetting.get()}
+    alt={`${forumTitleSetting.get()} Logo`}
+  />
 }
 
 SiteLogo.displayName = "SiteLogo";
