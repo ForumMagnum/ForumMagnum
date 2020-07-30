@@ -8,10 +8,15 @@ import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import { wikiGradeDefinitions } from '../../lib/collections/tags/schema';
+import { useLocation } from '../../lib/routeUtil';
+import { useDialog } from '../common/withDialog';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     margin: "auto",
     maxWidth: 1000
@@ -50,12 +55,18 @@ const styles = theme => ({
   }
 })
 
+const reverseWikiGradeDescriptions = Object.fromEntries(Object.entries(wikiGradeDefinitions).map(([key, value]) => [value, key]))
+
 const AllTagsPage = ({classes}: {
   classes: ClassesType,
 }) => {
+  const { query } = useLocation()
+  const { openDialog } = useDialog()
+  const wikiGrade = query?.tagFilter
   const { results, loadMoreProps, totalCount, count } = useMulti({
     terms: {
       view: "allTagsHierarchical",
+      wikiGrade: reverseWikiGradeDescriptions[wikiGrade]
     },
     collection: Tags,
     fragmentName: "TagPreviewFragment",
@@ -67,6 +78,8 @@ const AllTagsPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { tag } = useTagBySlug("portal", "TagFragment");
   const [ editing, setEditing ] = useState(false)
+  // Type hack because MenuItem is too narrowly typed and doesn't properly take into account props-forwarding
+  const UntypedMenuItem = MenuItem as any
 
   const { AllTagsAlphabetical, SectionButton, TagsDetailsItem, SectionTitle, LoadMore, SectionFooter, ContentItemBody } = Components;
 
@@ -75,7 +88,21 @@ const AllTagsPage = ({classes}: {
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title="Concepts Portal"/>
+            <SectionTitle title="Concepts Portal">
+              <SectionButton>
+                <AddBoxIcon/>
+                {currentUser ? 
+                  <Link to="/tag/create">New Tag</Link> :
+                  <a onClick={(ev) => {
+                    openDialog({
+                      componentName: "LoginPopup",
+                      componentProps: {}
+                    });
+                    ev.preventDefault();
+                  }}>New Tag</a>
+                }
+              </SectionButton>
+            </SectionTitle>
             <div className={classes.portal}>
               {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
                 Edit
@@ -92,11 +119,24 @@ const AllTagsPage = ({classes}: {
           </AnalyticsContext>
         </div>
         <AnalyticsContext pageSectionContext="tagDetails">
-          <SectionTitle title={`Tag Details (${results?.length || "loading"})`}>
-            <SectionButton>
-              <AddBoxIcon/>
-              <Link to="/tag/create">New Tag</Link>
-            </SectionButton>
+          <SectionTitle title={`Tag Details`}>
+            <Select
+              value={wikiGrade||"none"}
+              inputProps={{
+                name: 'Showing All Tags'
+              }}
+            >
+              <UntypedMenuItem value="none" component={QueryLink} query={{ tagFilter: undefined }}>
+                No Filters
+              </UntypedMenuItem>  
+              {Object.entries(wikiGradeDefinitions).reverse().map(([value, name]) => {
+                if(name === wikiGradeDefinitions[0]) return null
+                if(name === wikiGradeDefinitions[1]) return null
+                return <UntypedMenuItem key={value} value={name} component={QueryLink} query={{ tagFilter: name }}>
+                  {name}
+                </UntypedMenuItem>
+              })}
+            </Select>
           </SectionTitle>
           <div>
             {results && results.map(tag => {

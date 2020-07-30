@@ -25,7 +25,7 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     position: 'relative',
   },
@@ -196,7 +196,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   async componentDidMount() {
-    const { currentUser, form } = this.props
+    const { currentUser, form, document, fieldName } = this.props
 
     this.context.addToSubmitForm(this.submitData);
 
@@ -206,22 +206,23 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     });
 
     if (Meteor.isClient && window) {
-      this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
+      this.unloadEventListener = (ev) => {
         if (this.hasUnsavedData) {
           ev.preventDefault();
           ev.returnValue = 'Are you sure you want to close?';
           return ev.returnValue
         }
-      });
+      }
+      window.addEventListener("beforeunload", this.unloadEventListener );
     }
 
-    if (userHasCkEditor(currentUser)) {
+    if (userHasCkEditor(currentUser) || (document && document[fieldName]?.originalContents?.type === "ckEditorMarkup")) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
       this.setState({ckEditorLoaded: true})
     }
-
+    
     if (Meteor.isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})

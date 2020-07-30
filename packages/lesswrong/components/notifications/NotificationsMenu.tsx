@@ -19,7 +19,7 @@ import * as _ from 'underscore';
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
 import Notifications from '../../lib/collections/notifications/collection'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
     verticalAlign: "top",

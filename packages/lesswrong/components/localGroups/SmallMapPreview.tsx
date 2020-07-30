@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from './CommunityMap';
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   previewWrapper: {
     paddingTop: 5,
     marginBottom: 20,

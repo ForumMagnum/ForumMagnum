@@ -11,7 +11,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   modalTextField: {
     marginTop: 10,
   },

@@ -7,7 +7,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   sidebar: {
     position: 'absolute',
     right: -350,

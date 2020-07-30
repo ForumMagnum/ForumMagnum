@@ -7,7 +7,7 @@ import withUser from '../common/withUser';
 import * as _ from 'underscore';
 
 
-const sortableItemStyles = theme => ({
+const sortableItemStyles = (theme: ThemeType): JssStyles => ({
   root: {
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
@@ -23,7 +23,7 @@ const SortableItem = withStyles(sortableItemStyles, {name: "SortableItem"})(Sort
 ))
 
 
-const sortableListStyles = createStyles(theme => ({
+const sortableListStyles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     flexWrap: "wrap"
@@ -41,7 +41,7 @@ const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(Sort
   );
 }));
 
-const usersListEditorStyles = theme => ({
+const usersListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex"
   }

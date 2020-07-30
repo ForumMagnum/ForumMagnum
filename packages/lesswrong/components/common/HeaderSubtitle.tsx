@@ -4,7 +4,7 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 import grey from '@material-ui/core/colors/grey';
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',

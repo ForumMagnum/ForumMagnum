@@ -4,7 +4,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagPageRevisionSelect = ({ classes }: {

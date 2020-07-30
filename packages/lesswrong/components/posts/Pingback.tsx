@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { KARMA_WIDTH } from './PostsItem2';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     marginBottom: 2,

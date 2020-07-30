@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     paddingBottom: "2px",
     fontFamily: theme.typography.fontFamily,

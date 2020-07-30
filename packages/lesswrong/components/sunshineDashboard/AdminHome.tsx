@@ -8,7 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   recentLogins: {
     backgroundColor: "rgba(50,100,50,.1)",
   },

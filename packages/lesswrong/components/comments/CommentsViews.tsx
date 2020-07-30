@@ -11,7 +11,7 @@ import qs from 'qs'
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const viewNames = {
+export const viewNames = {
   'postCommentsTop': 'top scoring',
   'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
@@ -22,7 +22,7 @@ const viewNames = {
   'postLWComments': 'top scoring (include LW)',
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'inline'
   },

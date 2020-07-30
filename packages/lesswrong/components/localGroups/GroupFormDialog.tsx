@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     marginTop: 20

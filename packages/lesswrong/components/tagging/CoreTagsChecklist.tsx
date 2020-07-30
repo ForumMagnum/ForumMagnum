@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Tags } from '../../lib/collections/tags/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 8,
     display: "flex",

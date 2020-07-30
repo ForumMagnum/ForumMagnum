@@ -13,7 +13,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { commentBodyStyles } from '../../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"

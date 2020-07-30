@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,

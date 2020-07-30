@@ -12,7 +12,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   tag: {
     ...tagStyle(theme),
     display: "inline-block",

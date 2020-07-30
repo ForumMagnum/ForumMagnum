@@ -7,7 +7,7 @@ import { useLocation } from '../../../lib/routeUtil';
 
 export const iconWidth = 30
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,

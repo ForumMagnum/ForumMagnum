@@ -11,7 +11,7 @@ import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",

@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: "auto",
     ...theme.typography.commentStyle,
