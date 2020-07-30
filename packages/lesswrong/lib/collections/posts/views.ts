@@ -1020,20 +1020,8 @@ Posts.addView("reviews2018", terms => {
 Posts.addView("tagProgressTagged", terms => {
   return {
     selector: {  
-      tagRelevance: {$exists: true},
       baseScore: {$gt: 25},
-      $expr: {
-          $gt: [
-              {$size: 
-                  {$filter: {
-                      // ea-forum-look-here
-                      // this was a hack during the Tagging Sprint, where we wanted people to tag posts with non-core-tags
-                      input: {$objectToArray: "$tagRelevance"},
-                      cond: {$not: {$in: ["$$this.k", ["xexCWMyds6QLWognu", "sYm3HiWcfZvrGu3ui", "izp6eeJJEg9v5zcur", "fkABsGCJZ6y9qConW", "Ng8Gice9KNkncxqcj", "MfpEPj6kJneT9gWT6", "3uE2pXvbcnS9nnZRE"]]}}
-                  }}
-              }, 
-              0]
-      } 
+      $or: [{tagRelevance: {$ne: {}}}, {tagRelevance: null}]
     },
   }
 })
