@@ -3,6 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
+import { Tags } from '../../lib/collections/tags/collection';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
@@ -33,15 +35,17 @@ const TagPageRevisionSelect = ({ classes }: {
     if (!tag) return;
     history.push(`/compare/tag/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [history, tag]);
+
+  if (!tag) return null
   
   return <SingleColumnSection>
-    <h1>{tag?.name}</h1>
+    <h1><Link to={Tags.getUrl(tag)}>{tag.name}</Link></h1>
     
     {(loadingTag || loadingRevisions) && <Loading/>}
-    {revisions && tag && <RevisionSelect
+    {revisions && <RevisionSelect
       documentId={tag._id}
       revisions={revisions}
-      getRevisionUrl={(rev: RevisionMetadata) => `/tag/${tag?.slug}?revision=${rev.version}`}
+      getRevisionUrl={(rev: RevisionMetadata) => `/tag/${tag.slug}?revision=${rev.version}`}
       onPairSelected={compareRevs}
       loadMoreProps={loadMoreProps}
   />}

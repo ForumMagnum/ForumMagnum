@@ -55,9 +55,17 @@ addGraphQLResolvers({
       
       const $ = cheerio.load(diffHtmlUnsafe)
 
-      console.log("a", $('body').html())
-      $('body').children().each((i, elem)=>console.log("b", elem))
-      // $("del").remove()
+      $('body').children().each(function(i, elem) {
+        console.log()
+        // console.log(elem)
+        const e = $(this)
+        console.log("A", i, e)
+        if (e.find('ins').length) {
+          console.log(e.find('ins').length)
+          return
+        }
+        e.remove()
+      })
       // $('del').each(del => {
       //   console.log("b", del)
       //   console.log($(del).html())
