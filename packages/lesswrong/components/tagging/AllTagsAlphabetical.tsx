@@ -5,6 +5,8 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import _sortBy from 'lodash/sortBy';
+import { userCanCreateTags } from '../../lib/betas';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -34,16 +36,17 @@ const AllTagsAlphabetical = ({classes}: {
     ssr: true,
   });
   const { TagsListItem, SectionTitle, SectionButton, Loading } = Components;
+  const currentUser = useCurrentUser()
   
   const alphabetical = _sortBy(results, tag=>tag.name)
 
   return (
     <div className={classes.root}>
       <SectionTitle title={`All Tags (${results?.length || "loading"})`}>
-        <SectionButton>
+        {userCanCreateTags(currentUser) && <SectionButton>
           <AddBoxIcon/>
           <Link to="/tag/create">New Tag</Link>
-        </SectionButton>
+        </SectionButton>}
       </SectionTitle>
       {loading && <Loading/>}
       <div className={classes.alphabetical}>
