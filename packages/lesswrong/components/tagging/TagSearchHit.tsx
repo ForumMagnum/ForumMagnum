@@ -5,6 +5,7 @@ import withHover from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -54,6 +55,10 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
     fragmentName: "TagFragment",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
+
+  const currentUser = useCurrentUser()
+
+  if (hit.adminOnly && !(currentUser && currentUser.isAdmin)) return null
   
   return (
     <React.Fragment>
