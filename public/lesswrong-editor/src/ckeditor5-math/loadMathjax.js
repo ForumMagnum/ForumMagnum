@@ -2,6 +2,7 @@
 export function loadMathJax() {
 	if ( !window.MathJax ) {
 		window.MathJax = {
+			loader: {load: ['[tex]/colorV2']},
 			options: {
 				renderActions: {
 					addMenu: [],
@@ -13,7 +14,7 @@ export function loadMathJax() {
 					color: [],
 					colorV2: [ 'color' ]
 				},
-				packages: { '[+]': [ 'noerrors' ] }
+				packages: { '[+]': [ 'noerrors', 'color' ] }
 			},
 			startup: {
 				typeset: false,

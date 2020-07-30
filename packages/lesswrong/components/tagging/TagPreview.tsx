@@ -6,7 +6,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   card: {
     paddingTop: 8,
     paddingLeft: 16,
@@ -34,13 +34,14 @@ const styles = theme => ({
     marginRight: 4,
   },
   footerCount: {
+    borderTop: "solid 1px rgba(0,0,0,.08)",
+    paddingTop: 6,
     textAlign: "right",
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
-    color: theme.palette.primary.main,
+    color: theme.palette.lwTertiary.main,
     marginTop: 6,
-    marginBottom: 2,
-    marginRight: 6
+    marginBottom: 2
   },
   posts: {
     marginTop: 12,
@@ -50,12 +51,11 @@ const styles = theme => ({
   }
 });
 
-const previewPostCount = 3;
-
-const TagPreview = ({tag, classes, showCount=true}: {
+const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
-  showCount?: boolean
+  showCount?: boolean,
+  postCount?: number
 }) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
@@ -66,7 +66,7 @@ const TagPreview = ({tag, classes, showCount=true}: {
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",
-    limit: previewPostCount,
+    limit: postCount,
     ssr: true,
   });
 
@@ -75,10 +75,10 @@ const TagPreview = ({tag, classes, showCount=true}: {
   return (<div className={classes.card}>
     <TagPreviewDescription tag={tag}/>
     {results ? <div className={classes.posts}>
-      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} />)}
+      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} widerSpacing={postCount > 3} />)}
     </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
-      <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
+      <Link to={Tags.getUrl(tag)}>View all {tag.postCount} posts</Link>
     </div>}
   </div>)
 }

@@ -1,6 +1,6 @@
 import { Accounts } from 'meteor/accounts-base';
 import { Meteor } from 'meteor/meteor';
-import { mailUrlSetting } from '../../lib/instanceSettings';
+import { mailUrlSetting } from '../vulcan-core/start';
 
 if (!Meteor.isPackageTest) {
   Accounts.emailTemplates.siteName = 'LessWrong 2.0';

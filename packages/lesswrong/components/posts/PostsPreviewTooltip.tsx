@@ -35,7 +35,7 @@ export const highlightStyles = theme => ({
   }
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",

@@ -7,7 +7,7 @@ import GroupIcon from '@material-ui/icons/Group';
 import SubjectIcon from '@material-ui/icons/Subject';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
@@ -32,7 +32,7 @@ export const contentTypes = {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
       tooltipBody: <React.Fragment>
-        <div>Moderators promote posts to frontpage based on:</div>
+        <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
         <ul>
           <li>Usefulness, novelty, relevance</li>
           <li>Timeless content (minimizing reference to current events)</li>
@@ -42,8 +42,9 @@ export const contentTypes = {
       Icon: HomeIcon
     },
     personal: {
-      tooltipTitle: 'Personal Blog Post',
+      tooltipTitle: 'Personal Blogpost',
       tooltipBody: <React.Fragment>
+        <div><b>Personal Blogpost</b></div><br/>
         <div>
           Members can write whatever they want on their personal blog. Personal
           blogposts are a good fit for:

@@ -13,7 +13,7 @@ import qs from 'qs'
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     alignItems: 'center',

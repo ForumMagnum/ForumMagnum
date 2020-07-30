@@ -11,7 +11,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   iconRoot: {
     position: "relative",
     width:24,

@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
 import { useTracking } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     marginTop: theme.spacing.unit*2

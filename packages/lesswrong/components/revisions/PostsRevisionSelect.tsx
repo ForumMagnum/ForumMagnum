@@ -5,7 +5,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   revisionList: {
   },
 });

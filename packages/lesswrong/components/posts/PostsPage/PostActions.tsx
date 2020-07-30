@@ -25,7 +25,7 @@ const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     margin: 0,
     ...theme.typography.display3,
@@ -65,7 +65,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
     setPostRead(post._id, true);
   }
-  
+
   handleMarkAsUnread = () => {
     const {markAsReadOrUnread, post, setPostRead} = this.props;
     markAsReadOrUnread({
@@ -74,7 +74,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
     setPostRead(post._id, false);
   }
-  
+
   handleMoveToMeta = () => {
     const { post, updatePost } = this.props
     updatePost({
@@ -112,7 +112,7 @@ class PostActions extends Component<PostActionsProps,{}> {
       },
     })
   }
-  
+
   handleMakeShortform = () => {
     const { post, updateUser } = this.props;
     updateUser({
@@ -162,9 +162,9 @@ class PostActions extends Component<PostActionsProps,{}> {
     const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     if (!post) return null;
     const postAuthor = post.user;
-    
+
     const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
-    
+
     return (
       <div className={classes.actions}>
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
@@ -175,7 +175,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             Edit
           </MenuItem>
         </Link>}
-        { Users.canCollaborate(currentUser, post) && 
+        { Users.canCollaborate(currentUser, post) &&
           <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
               <ListItemIcon>
@@ -206,7 +206,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
             unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
         </MenuItem>}
-        
+
         {currentUser && <MenuItem>
           <SubscribeTo document={post} showIcon
             subscribeMessage="Subscribe to comments"
@@ -274,7 +274,7 @@ class PostActions extends Component<PostActionsProps,{}> {
                  </MenuItem>
                </div>
             }
-            
+
             { !post.shortform &&
                <div onClick={this.handleMakeShortform}>
                  <MenuItem>

@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginRight:theme.spacing.unit*3,
     marginTop: 5,

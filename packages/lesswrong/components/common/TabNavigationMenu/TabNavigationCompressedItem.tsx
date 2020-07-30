@@ -6,7 +6,7 @@ import classNames from 'classnames';
 
 const compressedIconSize = 23
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     display: "block",
     opacity: .6,

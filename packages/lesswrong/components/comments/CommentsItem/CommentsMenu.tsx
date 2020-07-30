@@ -5,7 +5,7 @@ import Menu from '@material-ui/core/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
     fontSize:"1.4rem"

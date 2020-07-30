@@ -32,7 +32,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser))
     return true;
-  else if (tag.deleted || tag.adminOnly)
+  else if (tag.deleted)
     return false;
   else
     return true;

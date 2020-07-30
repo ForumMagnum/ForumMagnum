@@ -17,7 +17,7 @@ export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('map
 export const mapsHeight = 440
 const mapsWidth = "100vw"
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     width: mapsWidth,
     height: mapsHeight,
@@ -27,7 +27,8 @@ const styles = createStyles(theme => ({
       marginTop: 0,
       marginLeft: -8
     },
-    position: "relative"
+    position: "relative",
+    boxShadow: theme.boxShadow
   },
   communityMap: {},
   mapButton: {
@@ -165,7 +166,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   </div>
 }
 
-const personalMapMarkerStyles = theme => ({
+const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
   icon: {
     height: 15,
     width: 15,

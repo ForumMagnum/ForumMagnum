@@ -3,7 +3,7 @@ import React from 'react';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   popper: {
     position: "absolute",
     zIndex: theme.zIndexes.lwPopper

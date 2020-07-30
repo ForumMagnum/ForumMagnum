@@ -14,7 +14,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const bannerHeight = 250
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   bannerContainer: {
     position: 'absolute',
     top: 130, // desktop header height + layout margin + negative margin

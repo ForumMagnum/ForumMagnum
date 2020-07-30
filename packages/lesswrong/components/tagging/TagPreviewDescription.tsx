@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { truncate } from '../../lib/editor/ellipsize';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme)
   }

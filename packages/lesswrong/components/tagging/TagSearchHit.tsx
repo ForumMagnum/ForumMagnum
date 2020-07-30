@@ -4,13 +4,18 @@ import { useSingle } from '../../lib/crud/withSingle';
 import withHover from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "block",
     padding: 8,
     cursor: "pointer",
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[500],
+    '&:hover': {
+      color: theme.palette.lwTertiary.main
+    }
   },
   card: {
     padding: 16,
@@ -22,6 +27,16 @@ const styles = theme => ({
       display: "none",
     },
   },
+  tagDescription: {
+    marginBottom: 12
+  },
+  hasDescription: {
+    color: theme.palette.grey[900]
+  },
+  postCount: {
+    fontSize: ".85em",
+    color: theme.palette.grey[500]
+  }
 });
 
 interface ExternalProps {
@@ -44,15 +59,19 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
       <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
         <div className={classes.card}>
           {!tag && <Loading/>}
-          {tag && <ContentItemBody
-            dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
-            description={`tag ${tag.name}`}
-          />}
+          <div className={classes.tagDescription}>
+            {tag && tag.description?.htmlHighlight ? <ContentItemBody
+                dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
+                description={`tag ${tag.name}`}
+              /> 
+            : <em>No description</em>}
+          </div>
+          <div className={classes.postCount}>{hit.postCount} posts</div>
         </div>
       </PopperCard>
-      <a className={classes.root} onClick={onClick} >
-        {hit.name}
-      </a>
+      <span className={classNames(classes.root, {[classes.hasDescription]: tag?.description?.htmlHighlight})} onClick={onClick} >
+        {hit.name} <span className={classes.postCount}>({hit.postCount})</span>
+      </span>
     </React.Fragment>
   );
 }

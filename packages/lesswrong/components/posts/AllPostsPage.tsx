@@ -11,7 +11,7 @@ import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     cursor: "pointer",
   }

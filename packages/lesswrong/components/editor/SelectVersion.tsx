@@ -6,7 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Posts } from '../../lib/collections/posts';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   date: {
     marginLeft: theme.spacing.unit*1.5,
     fontStyle: "italic"

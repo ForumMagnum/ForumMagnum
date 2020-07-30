@@ -1,4 +1,5 @@
 import Users from "../users/collection";
+import { addFieldsDict } from '../../utils/schemaUtils';
 import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 
 addGraphQLSchema(`
@@ -42,13 +43,10 @@ addGraphQLResolvers({
   }
 })
 
-Users.addField([
-  {
-    fieldName: "karmaChanges",
-    fieldSchema: {
-      viewableBy: Users.owns,
-      type: "KarmaChanges",
-      optional: true,
-    },
+addFieldsDict(Users, {
+  "karmaChanges": {
+    viewableBy: Users.owns,
+    type: "KarmaChanges",
+    optional: true,
   }
-]);
+});

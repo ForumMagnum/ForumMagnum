@@ -8,7 +8,7 @@ import withHover from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "&:hover": {
       backgroundColor: "rgba(0,0,0,0.02) !important",

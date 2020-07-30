@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 import grey from '@material-ui/core/colors/grey';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
     root: {
       padding: theme.spacing.unit,
       borderBottom: "solid 1px",

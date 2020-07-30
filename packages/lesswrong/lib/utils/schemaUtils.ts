@@ -6,6 +6,47 @@ import { Meteor } from 'meteor/meteor';
 import { asyncFilter } from './asyncUtils';
 import * as _ from 'underscore';
 
+interface CollectionFieldSpecification<T extends DbObject> {
+  type?: any,
+  optional?: boolean,
+  defaultValue?: any,
+  graphQLType?: string,
+  resolveAs?: {
+    type?: string,
+    fieldName?: string,
+    addOriginalField?: boolean,
+    arguments?: string,
+    resolver: (root: T, args: any, context: ResolverContext)=>any,
+  },
+  blackbox?: boolean,
+  denormalized?: boolean,
+  foreignKey?: any,
+  min?: number,
+  max?: number,
+  
+  form?: any,
+  beforeComponent?: string,
+  order?: number,
+  label?: string,
+  tooltip?: string,
+  control?: string,
+  placeholder?: string,
+  hidden?: any,
+  group?: any,
+  
+  onInsert?: any,
+  onEdit?: any,
+  onUpdate?: any,
+  
+  
+  viewableBy?: any,
+  insertableBy?: any,
+  editableBy?: any,
+  canRead?: any,
+  canUpdate?: any,
+  canCreate?: any,
+}
+
 const generateIdResolverSingle = ({collectionName, fieldName}) => {
   return async (doc, args, context: ResolverContext) => {
     if (!doc[fieldName]) return null
@@ -142,7 +183,7 @@ export const resolverOnlyField = ({type, graphQLtype=null, resolver, graphqlArgu
 // the collection schema. We use this instead of collection.addField([...])
 // because that one forces an awkward syntax in order to be array-based instead
 // of object-based.
-export const addFieldsDict = (collection, fieldsDict) => {
+export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
   let translatedFields: Array<any> = [];
   for (let key in fieldsDict) {
     translatedFields.push({

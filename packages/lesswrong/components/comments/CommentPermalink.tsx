@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   dividerMargins: {
     marginTop: 150,
     marginBottom: 150,

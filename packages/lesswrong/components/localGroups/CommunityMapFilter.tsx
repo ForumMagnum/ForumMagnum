@@ -20,7 +20,7 @@ import * as _ from 'underscore';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: 120,
     padding: "10px 10px 5px 10px",

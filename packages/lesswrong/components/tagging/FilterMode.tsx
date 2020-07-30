@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
@@ -12,7 +12,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   tag: {
     ...tagStyle(theme),
     display: "inline-block",
@@ -83,19 +83,18 @@ const styles = theme => ({
   }
 });
 
-const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemove=false, onChangeMode, onRemove, classes, description}: {
+const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
   mode: FilterMode,
   canRemove?: boolean,
   onChangeMode: (mode: FilterMode)=>void,
   onRemove?: ()=>void,
-  classes: ClassesType,
-  hover?: boolean,
-  anchorEl?: any,
   description?: React.ReactNode
+  classes: ClassesType,
 }) => {
   const { LWTooltip, PopperCard, TagPreview } = Components
+  const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
   const { document: tag } = useSingle({
     documentId: tagId,
@@ -111,7 +110,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
   </span>
 
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
-  return <span>
+  return <span {...eventHandlers}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ? <Link to={`tag/${tag.slug}`}>
         {tagLabel}
@@ -184,7 +183,7 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
             {description}
           </div>}
         </div>
-        <TagPreview tag={tag} showCount={false}/>
+        <TagPreview tag={tag} showCount={false} postCount={3}/>
       </PopperCard>
     </AnalyticsContext>
   </span>
@@ -220,9 +219,7 @@ function filterModeToStr(mode: FilterMode): string {
   }
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent,
-  {styles, hocs: [withHover({pageElementContext: "tagFilterMode"}, ({tagId, label, mode})=>({tagId, label, mode}))]
-  });
+const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
 
 declare global {
   interface ComponentTypes {

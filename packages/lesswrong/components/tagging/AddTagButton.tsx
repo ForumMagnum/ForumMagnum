@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -46,7 +46,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
     <LWPopper
       open={isOpen}
       anchorEl={anchorEl}
-      placement="bottom-start"
+      placement="bottom"
       modifiers={{
         flip: {
           enabled: false

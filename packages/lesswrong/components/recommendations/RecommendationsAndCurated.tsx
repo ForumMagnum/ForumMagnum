@@ -9,7 +9,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import Hidden from '@material-ui/core/Hidden';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   section: {
     marginTop: -12,
   },
@@ -79,7 +79,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
 
@@ -154,7 +154,12 @@ const RecommendationsAndCurated = ({
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
+            <PostsList2 
+              terms={{view:"curated", limit: currentUser ? 3 : 2}} 
+              showLoadMore={false} 
+              hideLastUnread={true} 
+              boxShadow={false}
+            />
           </AnalyticsContext>
         </div>
       </div>
@@ -194,6 +199,7 @@ const RecommendationsAndCurated = ({
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
       </AnalyticsContext> */}
+      <TagProgressBar/>
     </SingleColumnSection>
   }
   

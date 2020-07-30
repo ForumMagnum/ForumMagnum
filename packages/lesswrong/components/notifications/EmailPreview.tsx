@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   emailPreview: {},
   headerName: {},
   headerContent: {},

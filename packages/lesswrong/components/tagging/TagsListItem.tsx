@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   tag: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -29,9 +29,10 @@ const styles = theme => ({
   }
 });
 
-const TagsListItem = ({tag, classes}: {
+const TagsListItem = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
+  postCount?: number,
 }) => {
   const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
@@ -42,7 +43,7 @@ const TagsListItem = ({tag, classes}: {
       anchorEl={anchorEl} 
       placement="right-start"
     >
-      <div className={classes.hideOnMobile}><TagPreview tag={tag}/></div>
+      <div className={classes.hideOnMobile}><TagPreview tag={tag} postCount={postCount}/></div>
     </PopperCard>
     <Link to={`/tag/${tag.slug}`}>
       {tag.name} { tag.needsReview }
