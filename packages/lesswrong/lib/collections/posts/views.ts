@@ -1001,7 +1001,6 @@ Posts.addView("reviews2018", terms => {
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
 
-
 Posts.addView("tagProgressTagged", terms => {
   return {
     selector: {  

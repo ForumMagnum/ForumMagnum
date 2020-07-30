@@ -70,9 +70,9 @@ const TagProgressBar = ({classes}: {
           <Link to={"/posts/uqXQAWxLFW8WgShtk/open-call-for-taggers"}>
             Tagging Progress
           </Link>
-          <LWTooltip title="Click to see a list of the most important posts to tag.">
+          <LWTooltip title={<div><div>List of the most important posts to tag.</div><div><em>(Click any post title to go that post page, and tag the post)</em></div></div>}>
             <PostsItem2MetaInfo>
-              <a className={classes.link} href={"https://docs.google.com/spreadsheets/d/1Oiv_Mg_7mEhP0Ik6Bs1V99G2v4eevL-LvkxQfD-blqw/edit#gid=651704611&fvid=2065958119"}>
+              <a className={classes.link} href={"https://docs.google.com/spreadsheets/d/1Oiv_Mg_7mEhP0Ik6Bs1V99G2v4eevL-LvkxQfD-blqw/edit#gid=651704611&fvid=1771188974"}>
                 Tag Priority Posts
               </a>
             </PostsItem2MetaInfo>
