@@ -146,7 +146,7 @@ const RecommendationsAndCurated = ({
         </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      <div className={currentUser ? classes.subsection : null}>
+      <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage &&
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
