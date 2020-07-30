@@ -48,7 +48,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   posts: {
-    boxShadow: theme.boxShadow
+    boxShadow: theme.boxShadow,
+    marginBottom
   }
 });
 
@@ -146,7 +147,7 @@ const RecommendationsAndCurated = ({
         </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      <div className={currentUser ? classes.subsection : null}>
+      <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage &&
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
