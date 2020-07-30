@@ -2,7 +2,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import React from 'react';
 import Chapters from '../../lib/collections/chapters/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit
   },

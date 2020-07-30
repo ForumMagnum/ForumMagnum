@@ -9,7 +9,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   iconRoot: {
     position: "relative",
     width:24,

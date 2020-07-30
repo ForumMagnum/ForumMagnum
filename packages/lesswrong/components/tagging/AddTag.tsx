@@ -6,7 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import { Tags } from '../../lib/collections/tags/collection';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,

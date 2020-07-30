@@ -8,7 +8,7 @@ import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     color: theme.palette.lwTertiary.main
   },

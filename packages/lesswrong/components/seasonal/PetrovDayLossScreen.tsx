@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "absolute",
     top: 0,

@@ -2,7 +2,7 @@ import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { registerComponent, Utils } from '../../lib/vulcan-lib';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "& img": {
       maxWidth: "100%",

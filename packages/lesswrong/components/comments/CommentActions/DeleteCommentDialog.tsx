@@ -10,7 +10,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import withDialog from '../../common/withDialog'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   deleteWithoutTrace: {
     marginRight:"auto"
   },

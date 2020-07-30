@@ -7,7 +7,7 @@ import GroupIcon from '@material-ui/icons/Group';
 import SubjectIcon from '@material-ui/icons/Subject';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',

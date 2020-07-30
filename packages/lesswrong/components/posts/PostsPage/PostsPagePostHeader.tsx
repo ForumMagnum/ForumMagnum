@@ -10,7 +10,7 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   header: {
     position: 'relative',
     display:"flex",

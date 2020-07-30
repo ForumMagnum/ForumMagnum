@@ -9,7 +9,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import Hidden from '@material-ui/core/Hidden';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   section: {
     marginTop: -12,
   },

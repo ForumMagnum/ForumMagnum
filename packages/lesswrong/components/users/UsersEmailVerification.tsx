@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     marginLeft: theme.spacing.unit

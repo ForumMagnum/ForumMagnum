@@ -12,7 +12,7 @@ import withDialog from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   welcomeText: {
     margin: 12
   }

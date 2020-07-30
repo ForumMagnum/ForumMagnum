@@ -10,7 +10,7 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
-const styles = (theme) => {
+const styles = (theme: ThemeType): JssStyles => {
   return {
     root: {
       display: "flex",

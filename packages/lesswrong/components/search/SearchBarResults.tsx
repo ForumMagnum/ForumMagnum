@@ -6,7 +6,7 @@ import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: "rgba(0,0,0, 0.87)",
     transition: "opacity .1s ease-in-out",

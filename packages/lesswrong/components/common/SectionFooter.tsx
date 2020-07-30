@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 
-export const separatorBulletStyles = theme => ({
+export const separatorBulletStyles = (theme: ThemeType) => ({
   '& > *': {
     marginBottom: theme.spacing.unit,
     '&:after': {
@@ -20,7 +20,7 @@ export const separatorBulletStyles = theme => ({
   }
 })
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
