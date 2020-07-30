@@ -54,8 +54,9 @@ addGraphQLResolvers({
       const diffHtmlUnsafe = diff(before.html, after.html);
       
       const $ = cheerio.load(diffHtmlUnsafe)
-      console.log("a", diffHtmlUnsafe)
-      $('body').children().each(a=>console.log("b", a))
+
+      console.log("a", $('body').html())
+      $('body').children().each((i, elem)=>console.log("b", elem))
       // $("del").remove()
       // $('del').each(del => {
       //   console.log("b", del)
