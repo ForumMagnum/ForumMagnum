@@ -81,9 +81,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 50,
     "-webkit-appearance": "none",
     "-moz-appearance": "textfield"
-  },
-  tagDescription: {
-    ...tagCardStyle(theme)
   }
 });
 
@@ -97,7 +94,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   description?: React.ReactNode
   classes: ClassesType,
 }) => {
-  const { LWTooltip, PopperCard, TagPreviewDescription } = Components
+  const { LWTooltip, PopperCard, TagPreview } = Components
   const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
   const { document: tag } = useSingle({
@@ -187,9 +184,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </div>}
         </div>
-        <div className={classes.tagDescription}>
-          <TagPreviewDescription tag={tag}/>
-        </div>
+        <TagPreview tag={tag} showCount={false} postCount={3}/>
       </PopperCard>
     </AnalyticsContext>
   </span>
