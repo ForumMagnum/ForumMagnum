@@ -1,38 +1,21 @@
 {
   "public": {
+    "forumType": "LessWrong",
     "title": "LessWrong",
-    "tagline":"A community blog devoted to refining the art of rationality",
+    "tagline": "A community blog devoted to refining the art of rationality",
     "logoUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_png/LessWrong_Logo_skglnw.svg",
-    "logoHeight": "50",
-    "logoWidth": "200",
+    "siteNameWithArticle": "LessWrong",
+    "siteUrl": "http://localhost:3000",
+    "aboutPostId": "dummyId",
     "faviconUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
-    "requirePostsApproval":false,
-    "requireViewInvite":false,
-    "requirePostInvite":false,
-    "autoSubscribe":false,
-    "emailNotifications":true,
-    "postInterval": 20,
-    "commentInterval": 20,
-    "maxPostsPerDay": 10,
-    "postsPerPage": 10,
-    "siteImage": "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg",
-    "language": "en",
-    "locale": "en",
-    "algolia": {
-      "searchKey": "57abef6b46bc3ad6b7fcc28526976c3e",
-      "appId": "CR43JFSDAS"
-    }
-  },
-  "defaultEmail": "no-reply@lesserwrong.com",
-  "scoreUpdateInterval": "30",
-  "forwardedWhitelist": ["outgoing-addresses.greaterwrong.com"],
-  "newsletterExcerptLength": 20,
-  "postExcerptLength": 30,
-  "oAuth": {
-     "twitter": {
-       "consumerKey": "foo",
-       "secret": "bar"
-     }
-  } 
-  
+    "forumSettings": {
+      "headerTitle": "LESSWRONG",
+      "shortForumTitle": "LW",
+      "tabTitle": "LessWrong 2.0"
+    },
+    "analytics": {
+      "environment": "localhost"
+    },
+    "testServer": true
+  }
 }

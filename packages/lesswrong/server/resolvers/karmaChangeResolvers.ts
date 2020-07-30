@@ -1,6 +1,6 @@
 import Users from "../../lib/collections/users/collection";
-import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges";
-import { getSetting } from '../../lib/vulcan-lib';
+import { forumTypeSetting } from "../../lib/instanceSettings";
+import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "../karmaChanges";
 
 Users.addField([
   {
@@ -10,13 +10,15 @@ Users.addField([
       resolveAs: {
         arguments: 'startDate: Date, endDate: Date',
         type: 'KarmaChanges',
-        resolver: async (document, {startDate,endDate}, {currentUser}) => {
+        resolver: async (document, {startDate,endDate}, context: ResolverContext) => {
+          const { currentUser } = context;
           if (!currentUser)
             return null;
           
           // Grab new current user, because the current user gets set at the beginning of the request, which
           // is out of date in this case, because we are depending on recent mutations being reflected on the current user
           const newCurrentUser = await Users.findOne(currentUser._id)
+          if (!newCurrentUser) throw Error(`Cant find user with ID: ${currentUser._id}`)
           
           const settings = newCurrentUser.karmaChangeNotifierSettings
           const now = new Date();
@@ -37,7 +39,7 @@ Users.addField([
           
           const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
           
-          const alignmentForum = getSetting('forumType') === 'AlignmentForum';
+          const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
           return getKarmaChanges({
             user: document,
             startDate, endDate,

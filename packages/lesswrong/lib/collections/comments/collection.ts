@@ -6,12 +6,16 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 
 export const commentMutationOptions = {
   newCheck: (user, document) => {
-    if (!user || !document) return false;
+    if (!user) return false;
+
+    if (!document || !document.postId) return Users.canDo(user, 'comments.new')
     const post = Posts.findOne(document.postId)
+    if (!post) return true
 
     if (!Users.isAllowedToComment(user, post)) {
       return Users.canDo(user, `posts.moderate.all`)
     }
+
     return Users.canDo(user, 'comments.new')
   },
 
@@ -45,7 +49,7 @@ interface ExtendedCommentsCollection extends CommentsCollection {
   unSuggestForAlignment: any
   
   // Functions in server/search/utils.ts
-  toAlgolia: (comment: DbComment) => Array<Record<string,any>>|null
+  toAlgolia: (comment: DbComment) => Promise<Array<Record<string,any>>|null>
 }
 
 export const Comments: ExtendedCommentsCollection = createCollection({
@@ -56,7 +60,7 @@ export const Comments: ExtendedCommentsCollection = createCollection({
   mutations: getDefaultMutations('Comments', commentMutationOptions),
 });
 
-Comments.checkAccess = (currentUser, comment) => {
+Comments.checkAccess = async (currentUser: DbUser|null, comment: DbComment, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser) || Users.owns(currentUser, comment)) { // admins can always see everything, users can always see their own posts
     return true;
   } else if (comment.isDeleted) {

@@ -5,8 +5,9 @@ import { ReadStatuses } from '../lib/collections/readStatus/collection';
 addGraphQLMutation('markAsReadOrUnread(postId: String, isRead:Boolean): Boolean');
 addGraphQLResolvers({
   Mutation: {
-    async markAsReadOrUnread(root, {postId, isRead}, context) {
+    async markAsReadOrUnread(root, {postId, isRead}, context: ResolverContext) {
       const { currentUser } = context;
+      if (!currentUser) return isRead;
       
       // TODO: Create an entry in LWEvents
       

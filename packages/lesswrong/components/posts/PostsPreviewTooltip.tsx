@@ -1,4 +1,4 @@
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -6,8 +6,9 @@ import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
-export const POST_PREVIEW_WIDTH = 435
+export const POST_PREVIEW_WIDTH = 400
 
 export const highlightStyles = theme => ({
   ...postHighlightStyles(theme),
@@ -89,7 +90,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit,
   },
   wordCount: {
-    marginLeft: theme.spacing.unit
+    display: "inline-block"
   },
   metadata: {
     marginLeft: 12,
@@ -116,7 +117,7 @@ const styles = theme => ({
   }
 })
 
-const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
@@ -163,7 +164,9 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
                 {getPostCategory(post)}
-                {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
+                {(post.tags?.length > 0) && " – "}
+                {post.tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
+                {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
                 {post.user && <LWTooltip title="Author">

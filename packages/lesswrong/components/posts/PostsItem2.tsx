@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from "../../lib/collections/posts";
@@ -9,15 +9,16 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
-import withRecordPostView from '../common/withRecordPostView';
+import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
+const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 
 export const styles = (theme) => ({
   root: {
@@ -31,6 +32,7 @@ export const styles = (theme) => ({
   },
   background: {
     width: "100%",
+    background: "white"
   },
   postsItem: {
     display: "flex",
@@ -43,11 +45,12 @@ export const styles = (theme) => ({
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
+      paddingLeft: 5
     },
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: "#efefef"
+      backgroundColor: "#fafafa" // note: this is not intended to be the same as the COMMENTS_BACKGROUND_COLOR, it just happens to be
     },
   },
   hasSmallSubtitle: {
@@ -56,21 +59,14 @@ export const styles = (theme) => ({
     }
   },
   bottomBorder: {
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    borderBottom: theme.itemBorderBottom,
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
-    boxShadow: "0px 2px 3px rgba(0,0,0,.2)",
-    marginTop: -1,
-    marginBottom: 16,
-    border: "solid 1px #ccc",
     [theme.breakpoints.down('xs')]: {
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2
     }
-  },
-  firstItem: {
-    borderTop: "solid 1px rgba(0,0,0,.2)"
   },
   karma: {
     width: KARMA_WIDTH,
@@ -105,13 +101,14 @@ export const styles = (theme) => ({
     }
   },
   author: {
-    justifyContent: "flex-end",
+    justifyContent: "flex",
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
+    zIndex: theme.zIndexes.postItemAuthor,
     [theme.breakpoints.down('xs')]: {
-      justifyContent: "flex-start",
+      justifyContent: "flex-end",
       width: "unset",
       marginLeft: 0,
       flex: "unset"
@@ -210,19 +207,9 @@ export const styles = (theme) => ({
       color: theme.palette.primary.main,
     },
   },
-  nominationCount: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    [theme.breakpoints.up('xs')]: {
-      position: "absolute",
-      bottom: 2,
-      left: KARMA_WIDTH
-    }
-  },
   sequenceImage: {
     position: "relative",
     marginLeft: -60,
-    zIndex: theme.zIndexes.continueReadingImage,
     opacity: 0.6,
     height: 48,
     width: 146,
@@ -278,12 +265,15 @@ export const styles = (theme) => ({
     marginRight: theme.spacing.unit*1.5,
     position: "relative",
     top: 2,
+  },
+  isRead: {
+    background: "white" // this is just a placeholder, enabling easier theming.
   }
 })
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
-const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 const isSticky = (post, terms) => {
   if (post && terms && terms.forum) {
@@ -331,12 +321,10 @@ const PostsItem2 = ({
   // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
   // icon.
   bookmark=false,
-  // recordPostView, isRead: From the withRecordPostView HoC.
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
-  recordPostView,
-  isRead=false,
+  hideAuthor=false,
   classes,
 }: {
   post: PostsList,
@@ -357,14 +345,13 @@ const PostsItem2 = ({
   bookmark?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  
-  recordPostView?: any,
-  isRead?: boolean,
+  hideAuthor?: boolean,
   classes: ClassesType,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
   const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
+  const { isRead, recordPostView } = useRecordPostView(post);
 
   const currentUser = useCurrentUser();
 
@@ -436,7 +423,7 @@ const PostsItem2 = ({
           {
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
-            [classes.firstItem]: (index===0) && showComments,
+            [classes.isRead]: isRead
           })}
         >
           <PostsItemTooltipWrapper post={post}>
@@ -448,7 +435,7 @@ const PostsItem2 = ({
               })}>
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classes.karma}>
-                  <PostsItemKarma post={post} read={isRead} />
+                  <PostsItemKarma post={post} />
                 </PostsItem2MetaInfo>
 
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
@@ -482,14 +469,13 @@ const PostsItem2 = ({
                   </div>
                 
                 }
-                
-
-                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
-                </PostsItem2MetaInfo>}
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />
+                </PostsItem2MetaInfo>}
+
+                { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
                 </PostsItem2MetaInfo>}
 
                 {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
@@ -570,7 +556,7 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
-  hocs: [withRecordPostView, withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

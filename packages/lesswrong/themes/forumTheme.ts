@@ -1,7 +1,7 @@
-import { getSetting } from '../lib/vulcan-lib';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 let forumTheme
-switch (getSetting('forumType')) {
+switch (forumTypeSetting.get()) {
   case 'AlignmentForum':
     // @ts-ignore
     import afTheme from '../themes/alignmentForumTheme'

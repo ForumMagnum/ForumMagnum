@@ -64,9 +64,10 @@ function imageIsOffsite(imageUrl)
   return true;
 }
 
-const describePost = async (post) =>
+const describePost = async (post:DbPost) =>
 {
   const author = await Users.findOne({_id: post.userId});
+  if(!author) throw Error(`Can't get author for post: ${post._id}`)
   const postLink = baseUrl + "/posts/"+post._id;
   return `${post.title} by ${author.displayName} [${post.baseScore}]\n    ${postLink}`;
 }
@@ -76,7 +77,7 @@ const describePost = async (post) =>
 // (nothing broken), returns the empty string; otherwise the result (which is
 // meant to be handled by a person) includes the title/author/karma of the
 // post and a list of broken things within it.
-const checkPost = async (post) => {
+const checkPost = async (post:DbPost) => {
   const { html = "" } = post.contents || {}
   const images = getImagesInHtml(html);
   const links = getLinksInHtml(html);

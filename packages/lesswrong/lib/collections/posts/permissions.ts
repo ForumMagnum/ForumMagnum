@@ -32,7 +32,7 @@ Users.groups.admins.can(adminActions);
 
 // LessWrong Permissions
 
-Posts.checkAccess = (currentUser, post) => {
+Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null): Promise<boolean> => {
   if (Users.canDo(currentUser, 'posts.view.all')) {
     return true
   } else if (Users.owns(currentUser, post) || Users.isSharedOn(currentUser, post)) {
@@ -41,6 +41,7 @@ Posts.checkAccess = (currentUser, post) => {
     return false;
   } else {
     const status = _.findWhere(Posts.statuses, {value: post.status});
+    if (!status) return false;
     return Users.canDo(currentUser, `posts.view.${status.label}`);
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index';
@@ -10,8 +10,9 @@ import { PersonSVG } from './Icons'
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 
-const mapboxAPIKey = getSetting('mapbox.apiKey', null);
+export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
 
 export const mapsHeight = 440
 const mapsWidth = "100vw"
@@ -156,7 +157,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         height="100%"
         mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => setViewport(viewport)}
-        mapboxApiAccessToken={mapboxAPIKey}
+        mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >
         {renderedMarkers}
       </ReactMapGL>

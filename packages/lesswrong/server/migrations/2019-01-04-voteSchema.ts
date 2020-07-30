@@ -16,7 +16,7 @@ registerMigration({
       unmigratedDocumentQuery: {
         authorId: {$exists:false},
       },
-      migrate: async (documents) => {
+      migrate: async (documents: Array<DbVote>) => {
         // Get the set of collections that at least one vote in the batch
         // is voting on
         const collectionNames = _.uniq(_.pluck(documents, "collectionName"))
@@ -30,7 +30,7 @@ registerMigration({
           const idsToFind = _.pluck(votesToUpdate, "documentId");
           
           // Retrieve the voted-on documents.
-          const votedDocuments = await collection.find({
+          const votedDocuments: Array<any> = await collection.find({
             _id: {$in: idsToFind}
           }).fetch();
           

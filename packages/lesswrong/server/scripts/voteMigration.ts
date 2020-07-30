@@ -1,7 +1,7 @@
+import { Random } from 'meteor/random';
 import Users from '../../lib/collections/users/collection';
 import { Votes } from '../../lib/collections/votes';
-import { getSetting } from '../vulcan-lib';
-import { Random } from 'meteor/random';
+import { Vulcan } from '../vulcan-lib';
 
 async function runVoteMigration(collectionName) {
   try {
@@ -61,7 +61,4 @@ async function runVoteMigration(collectionName) {
    }
 }
 
-if (getSetting('runVoteMigration')) {
-  runVoteMigration("Posts")
-  runVoteMigration("Comments")
-}
+Vulcan.runVoteMigration = runVoteMigration

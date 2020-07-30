@@ -1,10 +1,10 @@
-import { getSetting } from '../../vulcan-lib';
-import Conversations from "./collection";
 import { ensureIndex } from '../../collectionUtils';
+import { forumTypeSetting } from '../../instanceSettings';
+import Conversations from "./collection";
 
 // will be common to all other view unless specific properties are overwritten
 Conversations.addDefaultView(function (terms) {
-  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
       ...alignmentForum

@@ -1,6 +1,6 @@
 import { Accounts } from 'meteor/accounts-base';
-import { getSetting } from '../vulcan-lib';
 import { Meteor } from 'meteor/meteor';
+import { mailUrlSetting } from '../../lib/instanceSettings';
 
 if (!Meteor.isPackageTest) {
   Accounts.emailTemplates.siteName = 'EA Forum Internal Beta';
@@ -39,9 +39,9 @@ if (!Meteor.isPackageTest) {
      }
   };
 
-  if (getSetting('mailUrl')) {
+  if (mailUrlSetting.get()) {
     // console.log("Set Mail URL environment variable");
-    process.env.MAIL_URL = getSetting('mailUrl');
+    process.env.MAIL_URL = mailUrlSetting.get() || undefined;
     // console.log("Set Root URL variable");
     // TODO what's this used for
     process.env.ROOT_URL = "http://www.lesswrong.com/";

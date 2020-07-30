@@ -5,6 +5,7 @@ import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
 
 
@@ -29,8 +30,8 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
     // Transfer ownership of all revisions and denormalized references for editable fields
     const editableFieldNames = editableCollectionsFields[collectionName]
     if (editableFieldNames?.length) {
-      editableFieldNames.forEach((editableFieldName) => {
-        transferEditableField({documentId: doc._id, targetUserId, collection, fieldName: editableFieldName})
+      await asyncForeachSequential(editableFieldNames, async (editableFieldName) => {
+        await transferEditableField({documentId: doc._id, targetUserId, collection, fieldName: editableFieldName})
       })
     }
   }
@@ -39,9 +40,9 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
   })
 }
 
-const transferEditableField = ({documentId, targetUserId, collection, fieldName = "contents"}) => {
+const transferEditableField = async ({documentId, targetUserId, collection, fieldName = "contents"}) => {
   // Update the denormalized revision on the document
-  editMutation({
+  await editMutation({
     collection,
     documentId,
     set: {[`${fieldName}.userId`]: targetUserId},
@@ -55,8 +56,9 @@ const transferEditableField = ({documentId, targetUserId, collection, fieldName 
 const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}) => {
   const sourceUserStatus = ReadStatuses.findOne({userId: sourceUserId, postId})
   const targetUserStatus = ReadStatuses.findOne({userId: targetUserId, postId})
-  const readStatus = new Date(sourceUserStatus?.lastUpdated) > new Date(targetUserStatus?.lastUpdated) ? sourceUserStatus?.isRead : targetUserStatus?.isRead
-  const lastUpdated = new Date(sourceUserStatus?.lastUpdated) > new Date(targetUserStatus?.lastUpdated) ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
+  const sourceMostRecentlyUpdated = (sourceUserStatus && targetUserStatus) ? (new Date(sourceUserStatus.lastUpdated) > new Date(targetUserStatus.lastUpdated)) : !!sourceUserStatus
+  const readStatus = sourceMostRecentlyUpdated ? sourceUserStatus?.isRead : targetUserStatus?.isRead
+  const lastUpdated = sourceMostRecentlyUpdated ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
   if (targetUserStatus) {
     ReadStatuses.update({_id: targetUserStatus._id}, {$set: {isRead: readStatus, lastUpdated}})
   } else if (sourceUserStatus) {
@@ -69,6 +71,8 @@ const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}) => {
 Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
   const sourceUser = Users.findOne({_id: sourceUserId})
   const targetUser = Users.findOne({_id: targetUserId})
+  if (!sourceUser) throw Error(`Can't find sourceUser with Id: ${sourceUserId}`)
+  if (!targetUser) throw Error(`Can't find targetUser with Id: ${targetUserId}`)
 
   // Transfer posts
   await transferCollection({sourceUserId, targetUserId, collectionName: "Posts"})

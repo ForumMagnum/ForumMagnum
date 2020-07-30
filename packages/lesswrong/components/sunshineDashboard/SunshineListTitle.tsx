@@ -9,7 +9,8 @@ const styles = theme => ({
     fontWeight: 600,
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    width: 210
   }
 })
 

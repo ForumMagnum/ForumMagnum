@@ -9,18 +9,21 @@ const options = {
   newCheck: (user, document) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.new.own') : Users.canDo(user, `chapters.new.all`)
   },
 
   editCheck: (user, document) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.edit.own') : Users.canDo(user, `chapters.edit.all`)
   },
 
   removeCheck: (user, document) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.remove.own') : Users.canDo(user, `chapters.remove.all`)
   },
 }

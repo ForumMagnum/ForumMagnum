@@ -12,7 +12,7 @@ registerMigration({
   action: async () => {
     for(let collection of [Comments, Posts, Users])
     {
-      await migrateDocuments({
+      await migrateDocuments<DbObject>({
         description: "Move legacyData to legacyData collection",
         collection: collection,
         batchSize: 100,
@@ -21,7 +21,7 @@ registerMigration({
         },
         migrate: async (documents) => {
           // Write legacyData into legacyData table
-          const addNewUpdates = _.map(documents, doc => {
+          const addNewUpdates = _.map(documents, (doc: any): any => {
             return {
               insertOne: {
                 objectId: doc._id,
@@ -37,7 +37,7 @@ registerMigration({
           
           
           // Remove legacyData from the other collection
-          const removeOldUpdates = _.map(documents, doc => {
+          const removeOldUpdates = _.map(documents, (doc: any): any => {
             return {
               updateOne: {
                 filter: {_id: doc._id},

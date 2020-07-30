@@ -1,12 +1,14 @@
 import { addGraphQLResolvers, Utils } from '../vulcan-lib';
-import * as _ from 'underscore';
+import { asyncFilter } from '../utils/asyncUtils';
+import Users from '../collections/users/collection'
 
 const specificResolvers = {
   Query: {
-    async currentUser(root, args, context) {
+    async currentUser(root, args, context: ResolverContext) {
       let user: any = null;
-      if (context && context.userId) {
-        user = await context.Users.loader.load(context.userId);
+      const userId: string|null = (context as any)?.userId;
+      if (userId) {
+        user = await context.Users.loader.load(userId);
 
         if (user.services) {
           Object.keys(user.services).forEach(key => {
@@ -27,7 +29,8 @@ const defaultOptions = {
 
 const resolvers = {
   multi: {
-    async resolver(root, { input = {} }: any, { currentUser, Users }, { cacheControl }) {
+    async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
+      const { currentUser, Users: UsersContext } = context;
       const { terms = {}, enableCache = false, enableTotal = false } = input;
 
       if (cacheControl && enableCache) {
@@ -38,18 +41,18 @@ const resolvers = {
       // get selector and options from terms and perform Mongo query
       let { selector, options } = await Users.getParameters(terms);
       options.skip = terms.offset;
-      const users = await Utils.Connectors.find(Users, selector, options);
+      const users: Array<DbUser> = await Utils.Connectors.find(Users, selector, options);
 
       // restrict documents via checkAccess
       const viewableUsers = Users.checkAccess
-      ? _.filter(users, doc => Users.checkAccess(currentUser, doc))
+      ? await asyncFilter(users, async (doc: DbUser): Promise<boolean> => await Users.checkAccess(currentUser, doc, context))
       : users;
 
       // restrict documents fields
       const restrictedUsers = Users.restrictViewableFields(currentUser, Users, viewableUsers);
 
       // prime the cache
-      restrictedUsers.forEach(user => Users.loader.prime(user._id, user));
+      restrictedUsers.forEach(user => UsersContext.loader.prime(user._id, user));
 
       const data: any = { results: restrictedUsers };
 
@@ -63,7 +66,8 @@ const resolvers = {
   },
 
   single: {
-    async resolver(root, { input = {} }: any, { currentUser, Users }, { cacheControl }) {
+    async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
+      const { currentUser, Users: UsersContext } = context;
       const { selector = {}, enableCache = false } = input;
       const { documentId, slug } = selector;
 
@@ -74,12 +78,12 @@ const resolvers = {
 
       // don't use Dataloader if user is selected by slug
       const user = documentId
-        ? await Users.loader.load(documentId)
+        ? await UsersContext.loader.load(documentId)
         : slug
         ? await Utils.Connectors.get(Users, { slug })
         : await Utils.Connectors.get(Users);
       if (Users.checkAccess) {
-        if (!Users.checkAccess(currentUser, user)) return null
+        if (!await Users.checkAccess(currentUser, user, context)) return null
       }
       return { result: Users.restrictViewableFields(currentUser, Users, user) };
     },

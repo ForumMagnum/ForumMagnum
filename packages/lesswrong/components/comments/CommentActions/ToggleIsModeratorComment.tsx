@@ -20,13 +20,13 @@ const ToggleIsModeratorComment = ({comment}: {
   }
   
   const handleMarkAsModeratorComment = (event) => {
-    updateComment({
+    void updateComment({
       selector: { _id: comment._id },
       data: { moderatorHat: true }
     });
   }
   const handleUnmarkAsModeratorComment = (event) => {
-    updateComment({
+    void updateComment({
       selector: { _id: comment._id },
       data: { moderatorHat: false }
     });

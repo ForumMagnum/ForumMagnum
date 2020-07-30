@@ -43,7 +43,7 @@ const styles = theme => ({
     fontSize: "14px",
     lineHeight: "18px",
     paddingRight: theme.spacing.unit*2,
-    color: "rgba(0,0,0, 0.54)",
+    color: "rgba(0,0,0, 0.66)",
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
     // inherited from old-Material-UI (where it also doesn't work in Firefox,
@@ -78,10 +78,12 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
 
   renderPreview = () => {
     const { notification, currentUser } = this.props
-    const { PostsPreviewTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
 
     switch (notification.documentType) {
+      case 'tagRel':
+        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
       case 'post':
         return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
       case 'comment':
@@ -95,11 +97,22 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
     }
   }
 
+  renderMessage = () => {
+    const { notification } = this.props
+    const { TagRelNotificationItem } = Components
+    switch (notification.documentType) {
+      // TODO: add case for tagRel
+      case 'tagRel': 
+        return <TagRelNotificationItem tagRelId={notification.documentId}/>
+      default:
+        return notification.message
+    }
+  }
+
   render() {
     const { classes, notification, lastNotificationsCheck, hover, anchorEl, history } = this.props;
     const { LWPopper } = Components
     const UrlClass = getUrlClass()
-
     return (
       <a
         href={notification.link}
@@ -141,7 +154,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
         </LWPopper>
         {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabel}>
-          {notification.message}
+          {this.renderMessage()}
         </div>
       </a>
     )

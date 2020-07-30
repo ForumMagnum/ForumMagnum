@@ -1,9 +1,10 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import classnames from 'classnames';
-import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { Posts } from '../../lib/collections/posts/collection';
+import { useUpdateContinueReading } from './useUpdateContinueReading';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   root: {
@@ -65,12 +66,14 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   sequence: HasIdType,
   classes: ClassesType,
 }) => {
+  const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
   const { LoginPopupButton } = Components
   const commentCount = post.commentCount || "No"
+  const url = Posts.getPageUrl(post, false, sequence?._id);
   
   return (
     <span>
-      <Link to={Posts.getPageUrl(post, false, sequence?._id)}>
+      <Link onClick={() => updateContinueReading()} to={url}>
         <div className={classnames(
           classes.root,
           { [classes.previous]: direction==="Previous" }

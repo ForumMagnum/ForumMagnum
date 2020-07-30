@@ -1,5 +1,4 @@
 import React from 'react'
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
 import { createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -10,13 +9,15 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import Sequences from '../../lib/collections/sequences/collection';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const bannerHeight = 250
 
 const styles = createStyles(theme => ({
   bannerContainer: {
     position: 'absolute',
-    top: 120, // desktop header height + layout margin
+    top: 130, // desktop header height + layout margin + negative margin
     width: SECTION_WIDTH,
     '@media (max-width: 959.95px) and (min-width: 600px)': {
       top: 86, // tablet header height
@@ -30,9 +31,6 @@ const styles = createStyles(theme => ({
     },
     height: bannerHeight,
     overflow: 'hidden',
-    [theme.breakpoints.up('md')]: {
-      boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-    },
   },
   bannerImgWrapper: {
     position: 'absolute',
@@ -53,6 +51,9 @@ const styles = createStyles(theme => ({
   },
   overImage: {
     position: 'relative',
+    [theme.breakpoints.up('md')]: {
+      marginTop: -10
+    },
     [theme.breakpoints.down('sm')]: {
       marginTop: -36, // mobile/tablet header height
     },
@@ -113,7 +114,7 @@ const styles = createStyles(theme => ({
 
 const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
-const FIRST_POST_ID = getSetting('eaHomeSequenceFirstPostId')
+const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
 const EAHomeHandbook = ({ classes, documentId }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading } = Components
@@ -164,7 +165,7 @@ const EAHomeHandbook = ({ classes, documentId }) => {
           variant='contained'
           color='primary'
           className={classes.ctaButton}
-          href={`/posts/${FIRST_POST_ID}`} // TODO: slug
+          href={`/posts/${eaHomeSequenceFirstPostId.get()}`} // TODO: slug
         >
           Start Reading
         </Button>

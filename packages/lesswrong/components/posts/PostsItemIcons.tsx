@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Posts from '../../lib/collections/posts/collection';
 import StarIcon from '@material-ui/icons/Star';
@@ -9,9 +9,8 @@ import GroupIcon from '@material-ui/icons/Group';
 import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
-
-// ea-forum-look-here (JP I think you really just gotta move away from your re-use of meta now)
-const MetaIcon = getSetting('forumType') === 'EAForum' ? GroupIcon : DetailsIcon
+import { forumTypeSetting } from '../../lib/instanceSettings';
+const MetaIcon = forumTypeSetting.get() === 'EAForum' ? GroupIcon : DetailsIcon
 
 const styles = theme => ({
   iconSet: {
@@ -57,7 +56,7 @@ const PostsItemIcons = ({post, classes}: {
 }) => {
   const { OmegaIcon, LWTooltip } = Components;
 
-  const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?
+  const isPersonalBlogpost = forumTypeSetting.get() === 'EAForum' ?
     !(post.frontpageDate || post.meta) :
     !post.frontpageDate
 
@@ -92,7 +91,7 @@ const PostsItemIcons = ({post, classes}: {
       </LWTooltip>
     </span>}
 
-    {getSetting('forumType') !== 'AlignmentForum' && post.af &&
+    {forumTypeSetting.get() !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
         <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
             <a href={`https://alignmentforum.org${Posts.getPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>

@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -9,7 +9,7 @@ import { withApollo } from 'react-apollo';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import SettingsIcon from '@material-ui/icons/Settings';
+import SettingsButton from '@material-ui/icons/Settings';
 import EmailIcon from '@material-ui/icons/Email';
 import NotesIcon from '@material-ui/icons/Notes';
 import PersonIcon from '@material-ui/icons/Person';
@@ -22,6 +22,7 @@ import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   root: {
@@ -97,7 +98,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
 
     if (!currentUser) return null;
 
-    const showNewButtons = (getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+    const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
     return (
@@ -115,7 +116,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
               </div>}>
                 <span className={classes.deactivated}>[Deactivated]</span>
               </LWTooltip>}
-              {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+              {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
             </span>
           </Button>
         </Link>
@@ -145,7 +146,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
               </Link>
             }
             {showNewButtons && <Divider/>}
-            { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
+            { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
             {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
@@ -159,7 +160,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
-                  <SettingsIcon className={classes.icon}/>
+                  <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
                 Edit Settings
               </MenuItem>

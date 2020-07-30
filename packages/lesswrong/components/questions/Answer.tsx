@@ -7,6 +7,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
+import { Comments } from "../../lib/collections/comments";
 import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 
 const styles = theme => ({
@@ -121,7 +122,7 @@ const Answer = ({ comment, post, classes }: {
     setShowEdit(false)
   }, [setShowEdit]);
 
-  const { ContentItemBody, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName } = Components
+  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName } = Components
   const { html = "" } = comment.contents || {}
 
   return (
@@ -151,7 +152,9 @@ const Answer = ({ comment, post, classes }: {
                 <Typography variant="subheading" className={classes.date}>
                   <CommentsItemDate comment={comment} post={post}/>
                 </Typography>
-                <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
+                <span className={classes.vote}>
+                  <SmallSideVote document={comment} collection={Comments}/>
+                </span>
                 <span className={classes.menu}>
                   <CommentsMenu
                     showEdit={setShowEditTrue}

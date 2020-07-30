@@ -1,10 +1,11 @@
-import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSsr from '@material-ui/core/NoSsr';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = theme => ({
   formSubmit: {
@@ -23,7 +24,7 @@ const PostsNewForm = ({classes}: {
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
-  const af = getSetting('forumType') === 'AlignmentForum'
+  const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = {
     isEvent: query && !!query.eventForm,
     types: query && query.ssc ? ['SSC'] : [],
@@ -55,7 +56,7 @@ const PostsNewForm = ({classes}: {
             prefilledProps={prefilledProps}
             successCallback={post => {
               history.push({pathname: Posts.getPageUrl(post)});
-              flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+              flash({ messageString: "Post created.", type: 'success'});
             }}
             eventForm={eventForm}
             repeatErrors

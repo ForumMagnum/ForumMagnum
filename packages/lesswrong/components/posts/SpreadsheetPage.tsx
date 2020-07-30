@@ -375,7 +375,7 @@ const styles = theme => ({
 })
 
 const SpreadsheetPage = ({classes}:{
-  classes: any
+  classes: ClassesType
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading, HeadTags } = Components
@@ -411,9 +411,9 @@ const SpreadsheetPage = ({classes}:{
 
   if (loading) return <Loading />
 
-  const dataRows = _.filter(data.CoronaVirusData.values, row => row.accepted === "Accept")
-  const sortedRowsAdded = _.sortBy(dataRows, row => -row.dateAdded)
-  const sortedRowsImp = _.sortBy(sortedRowsAdded, row => -row.imp)
+  const dataRows = _.filter(data.CoronaVirusData.values, (row: any): boolean => row.accepted === "Accept")
+  const sortedRowsAdded = _.sortBy(dataRows, (row: any) => -row.dateAdded)
+  const sortedRowsImp = _.sortBy(sortedRowsAdded, (row: any) => -row.imp)
 
   const linkCell = (url, link, domain, type) => <div>
       <div className={classes.link}><HoverPreviewLink href={url} innerHTML={link}/></div>
@@ -431,33 +431,33 @@ const SpreadsheetPage = ({classes}:{
       label: "Guides/FAQs/Intros",
       displayLabel: "Guides/FAQs/Intros",
       description: "Websites that attempt to gently introduce coronavirus or explain things about it. Typically non-exhaustive.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Guides/FAQs/Intros")
+      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Guides/FAQs/Intros")
     },
     {
       label: "Dashboards",
       description: "Websites showing up-to-date SC2-relevant numbers in easy-to-read format.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Dashboards")
+      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Dashboards")
     },
     {
       label: "Progression & Outcome",
       displayLabel: "Progression & Outcome",
       description: "Information on what happens once you have COVID-19.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Progression & Outcome")
+      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Progression & Outcome")
     },
     {
       label: "Spread & Prevention",
       description: "Information about current or predicted prevalence, how COVID-19 is spread, or lower the former/preventing the latter. We may need a prevalence model olympics",
-      rows: _.filter(sortedRowsImp, row => row.category === "Spread & Prevention")
+      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Spread & Prevention")
     },
     {
       label: "Science",
       description: "Basic science that does not immediatley prompt action. E.g. 'here's what SC2 targets' is in, 'Here's a drug targeting that' is out.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Science")
+      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Science")
     },
     {
       label: "Medical System",
       description: "Information or models on the current state of the medical system, including 'here's how bad hospitals are' and potential treatments.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Medical System")
+      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Medical System")
     },
     {
       label: "Everyday Life",
@@ -556,7 +556,7 @@ const SpreadsheetPage = ({classes}:{
               <TableCell classes={{root: classes.headerCell}}>
                 Summary
               </TableCell>
-              {currentTab.showCategory &&  <TableCell classes={{root: classes.headerCellCategory}}>
+              {currentTab?.showCategory &&  <TableCell classes={{root: classes.headerCellCategory}}>
                 Category
               </TableCell>}
               <TableCell classes={{root: classes.headerDateAdded}}>
@@ -602,7 +602,7 @@ const SpreadsheetPage = ({classes}:{
                     {reviewerThoughts}
                   </span>}
                 </TableCell>
-                {currentTab.showCategory && <TableCell classes={{root: classes.cellCategory}}>
+                {currentTab?.showCategory && <TableCell classes={{root: classes.cellCategory}}>
                   {category}
                 </TableCell>}
                 <TableCell classes={{root: classes.cellDate}}>
@@ -667,6 +667,6 @@ const SpreadsheetPageComponent = registerComponent('SpreadsheetPage', Spreadshee
 
 declare global {
   interface ComponentTypes {
-    PostsSingle:typeof SpreadsheetPageComponent
+    SpreadsheetPage: typeof SpreadsheetPageComponent
   }
 }

@@ -1,11 +1,15 @@
 /* global cloudinary */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Components, registerComponent, getSetting} from '../../lib/vulcan-lib';
+import {Components, registerComponent } from '../../lib/vulcan-lib';
 import { Helmet } from 'react-helmet';
 import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
+import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+
+const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
+const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
 
 const styles = theme => ({
   button: {
@@ -52,18 +56,18 @@ class ImageUpload extends Component<any,any> {
       min_image_height = 80;
       min_image_width = 203;
       cropping_aspect_ratio = 2.5375;
-      upload_preset = getSetting('cloudinary.uploadPresetGridImage', 'tz0mgw2s');
+      upload_preset = cloudinaryUploadPresetGridImageSetting.get();
     } else if (this.props.name == "bannerImageId") {
       min_image_height = 380;
       min_image_width = 1600;
       cropping_aspect_ratio = 2.5375;
       cropping_default_selection_ratio = 3;
-      upload_preset = getSetting('cloudinary.uploadPresetBanner', 'navcjwf7');
+      upload_preset = cloudinaryUploadPresetBannerSetting.get()
     }
     // @ts-ignore
     cloudinary.openUploadWidget(
       {cropping: "server",
-      cloud_name: getSetting('cloudinary.cloudName', 'lesswrong-2-0'),
+      cloud_name: cloudinaryCloudNameSetting.get(),
       upload_preset,
       theme: 'minimal',
       min_image_height,

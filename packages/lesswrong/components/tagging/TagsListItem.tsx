@@ -2,21 +2,30 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   tag: {
-    display: "inline-block",
-    width: 250,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
     paddingTop: 3,
-    paddingBottom: 3,
     paddingLeft: 6,
-    borderBottom: "solid 1px rgba(0,0,0,.1)"
+    paddingRight: 12,
+    fontSize: "1.1rem",
+    lineHeight: "1.1em",
+    marginBottom: 8
+
   },
   count: {
-    color: theme.palette.grey[600],
-    fontSize: "1rem",
+    color: theme.palette.grey[500],
+    fontSize: ".9em",
     position: "relative",
+    marginLeft: 4,
+    marginRight: 8
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 });
 
@@ -26,21 +35,20 @@ const TagsListItem = ({tag, classes}: {
 }) => {
   const { PopperCard, TagPreview } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
-  
-  return <span {...eventHandlers}>
+
+  return <div {...eventHandlers} className={classes.tag}>
     <PopperCard 
       open={hover} 
       anchorEl={anchorEl} 
       placement="right-start"
     >
-      <TagPreview tag={tag}/>
+      <div className={classes.hideOnMobile}><TagPreview tag={tag}/></div>
     </PopperCard>
-    <Typography key={tag._id} variant="body2" className={classes.tag}>
-      <Link to={`/tag/${tag.slug}`}>
-        {tag.name} {tag.postCount && <span className={classes.count}>({tag.postCount})</span>}
-      </Link>
-    </Typography>
-  </span>;
+    <Link to={`/tag/${tag.slug}`}>
+      {tag.name} { tag.needsReview }
+    </Link>
+    {tag.postCount && <span className={classes.count}>({tag.postCount})</span>} 
+  </div>;
 }
 
 const TagsListItemComponent = registerComponent("TagsListItem", TagsListItem, {styles});

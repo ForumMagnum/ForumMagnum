@@ -111,6 +111,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsWithVotes on Post {
+    ...PostsBase
+    currentUserVotes{
+      ...VoteFragment
+    }
+  }
+`);
+
+
+registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
@@ -141,6 +151,10 @@ registerFragment(`
     customHighlight {
       version
       html
+    }
+
+    tags {
+      ...TagPreviewFragment
     }
   }
 `);
@@ -204,8 +218,7 @@ registerFragment(`
       _id
       sourcePostId
       sourcePost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }
@@ -214,8 +227,7 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsBase
-        ...PostsAuthors
+        ...PostsList
       }
       order
     }
@@ -234,8 +246,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -250,8 +261,7 @@ registerFragment(`
       ...RevisionEdit
     }
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
@@ -261,6 +271,9 @@ registerFragment(`
     ...PostsRevision
     ...PostSequenceNavigation
     
+    tags {
+      ...TagPreviewFragment
+    }
     tableOfContentsRevision(version: $version)
   }
 `)
@@ -312,6 +325,9 @@ registerFragment(`
     contents {
       ...RevisionDisplay
     }
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `)
 
@@ -345,12 +361,10 @@ registerFragment(`
   fragment PostsRevisionsList on Post {
     _id
     revisions {
-      version
-      editedAt
+      ...RevisionMetadata
     }
   }
 `)
-
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
@@ -376,6 +390,15 @@ registerFragment(`
 registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsList
+
+    currentUserVotes{
+      ...VoteFragment
+    }
+
+    contents {
+      html
+      htmlHighlight
+    }
     
     user {
       ...UsersMinimumInfo

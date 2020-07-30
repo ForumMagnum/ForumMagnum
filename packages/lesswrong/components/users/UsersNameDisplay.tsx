@@ -61,10 +61,10 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   const tooltip = <span>
     <div className={classes.joined}>Joined on <FormatDate date={user.createdAt} format="MMM Do YYYY" /></div>
     { !!sequenceCount && <div>
-        <BookIcon className={classNames(classes.icon, classes.bookIcon)}/> { sequenceCount } sequences
+        <BookIcon className={classNames(classes.icon, classes.bookIcon)}/> { sequenceCount } sequence{sequenceCount !== 1 && 's'}
       </div>}
-    { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
-    { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
+    { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } post{postCount !== 1 && 's'}</div>}
+    { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comment{commentCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </span>
 

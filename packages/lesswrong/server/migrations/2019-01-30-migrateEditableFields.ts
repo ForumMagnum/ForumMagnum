@@ -51,7 +51,7 @@ registerMigration({
         unmigratedDocumentQuery: {
           schemaVersion: {$lt: TARGET_SCHEMA_VERSION}
         }, 
-        migrate: async (documents) => {
+        migrate: async (documents: Array<any>) => {
           let collectionUpdates: Array<any> = []
           let newRevisions: Array<any> = []
           documents.forEach(doc => {

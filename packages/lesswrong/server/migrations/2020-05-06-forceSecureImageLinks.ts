@@ -26,7 +26,7 @@ function findInsecureImages ($: any): Array<string> {
 // If so for any image, return shouldUpdate: true, and a map of insecure to
 // secure version
 async function testSecureImages
-  (insecureImageSources: Array<string>, post: DbPost):
+  (insecureImageSources: Array<string>):
   Promise<{shouldUpdate: boolean, imageUpdates: Map<string, string>}>
 {
   let shouldUpdate = false
@@ -73,7 +73,7 @@ async function getFixedHTML (post: DbPost): Promise<{shouldUpdate: boolean, fixe
   if (!insecureImageSources.length) {
     return {shouldUpdate: false}
   }
-  const {shouldUpdate, imageUpdates} = await testSecureImages(insecureImageSources, post)
+  const {shouldUpdate, imageUpdates} = await testSecureImages(insecureImageSources)
   if (!shouldUpdate) {
     return {shouldUpdate}
   }

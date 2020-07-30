@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
@@ -34,7 +34,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
         </LWTooltip>
       </SectionSubtitle>
       <AnalyticsContext listContext={"coronavirusWidget"} capturePostItemOnMount>
-        <RecommendationsList algorithm={samplingAlgorithm} showLoginPrompt={false} />
+        <RecommendationsList algorithm={samplingAlgorithm} />
       </AnalyticsContext>
       {!currentUser && <SectionFooter>
         <Link to={"/tag/coronavirus"}>

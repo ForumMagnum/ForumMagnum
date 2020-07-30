@@ -38,7 +38,7 @@ const PostCollaborationEditor = ({ classes }) => {
       editorRef.current = Editor
       setEditorLoaded(true)
     }
-    importEditor()
+    void importEditor();
   }, [])
 
   const { query: { postId } } = useLocation();
