@@ -106,7 +106,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
             set: {
               deleted: true,
               deletedDate: new Date(),
-              deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
+              deletedReason: "Your comment has been marked as spam by the Akismet spam integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
             },
             validate: false,
           });

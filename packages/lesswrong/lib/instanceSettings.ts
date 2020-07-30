@@ -118,12 +118,11 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
+export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', true, 'optional') // Whether the current connected server has events activated
+
 // Sentry settings
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', Meteor.absoluteUrl(), "optional")
 export const mailUrlSetting = new PublicInstanceSetting<string | null>('mailUrl', null, "warning") // The SMTP URL used to send out email
-
-// EA FORUM: registerSetting('introPostId', null, 'Post ID for the /intro route')
-// This was a commented out setting that you use in the routes file. You will have to port it over to the new system.

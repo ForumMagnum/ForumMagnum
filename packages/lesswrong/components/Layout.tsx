@@ -59,7 +59,7 @@ const styles = theme => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "#f4f4f4",
+    background: "#f6f8f9",
     minHeight: "100vh",
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
@@ -273,7 +273,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         .includes(currentRoute?.name)
         
     const shouldUseGridLayout = standaloneNavigation
-
+    
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>

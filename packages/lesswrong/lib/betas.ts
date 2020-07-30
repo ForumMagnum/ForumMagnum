@@ -27,8 +27,8 @@ export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 
 // Shipped Features
-export const userCanManageTags = shippedFeature;
-export const userCanCreateTags = shippedFeature;
+export const userCanManageTags = optInOnly;
+export const userCanCreateTags = optInOnly;
 export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
