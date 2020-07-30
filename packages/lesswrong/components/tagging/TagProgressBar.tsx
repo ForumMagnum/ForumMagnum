@@ -72,9 +72,9 @@ const TagProgressBar = ({classes}: {
           </Link>
           <LWTooltip title={<div><div>List of the most important posts to tag.</div><div><em>(Click any post title to go that post page, and tag the post)</em></div></div>}>
             <PostsItem2MetaInfo>
-              <a className={classes.link} href={"https://docs.google.com/spreadsheets/d/1Oiv_Mg_7mEhP0Ik6Bs1V99G2v4eevL-LvkxQfD-blqw/edit#gid=651704611&fvid=1771188974"}>
+              <Link className={classes.link} to={"/allPosts?filter=unNonCoreTagged&timeframe=allTime&sortBy=top"}>
                 Tag Priority Posts
-              </a>
+              </Link>
             </PostsItem2MetaInfo>
           </LWTooltip>
         </div>

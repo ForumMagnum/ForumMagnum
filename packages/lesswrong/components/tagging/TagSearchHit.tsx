@@ -54,6 +54,7 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
     fragmentName: "TagFragment",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
+  
   return (
     <React.Fragment>
       <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
