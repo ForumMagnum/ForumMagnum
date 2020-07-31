@@ -44,7 +44,7 @@ const TagProgressBar = ({classes}: {
 
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
 
-  const { totalCount: taggedTotal } = useMulti({
+  const { totalCount: untaggedTotal } = useMulti({
     terms: {
       view: "tagProgressTagged",
       limit: 0
@@ -68,7 +68,7 @@ const TagProgressBar = ({classes}: {
     ssr: true
   });
 
-  if (!taggedTotal || !postsTotal) return null
+  if (!untaggedTotal || !postsTotal) return null
 
   return <div className={classes.root}>
       <div className={classes.inner}>
@@ -101,11 +101,11 @@ const TagProgressBar = ({classes}: {
         <LWTooltip 
           className={classes.tooltip}
           title={<div>
-            <div>{taggedTotal} out of {postsTotal} posts have been tagged</div>
+            <div>{(postsTotal - untaggedTotal)} out of {postsTotal} posts have been tagged</div>
             <div><em>(Filtered for 25+ karma)</em></div>
           </div>}
         >
-          <LinearProgress variant="buffer" value={(taggedTotal/postsTotal)*100} />
+          <LinearProgress variant="buffer" value={((postsTotal - untaggedTotal)/postsTotal)*100} />
       </LWTooltip>
       </div>
   </div>
