@@ -88,7 +88,7 @@ export const NewShortformNotification = serverRegisterNotificationType({
   canCombineEmails: false,
   emailSubject: async ({user, notifications}) => {
     const comment = Comments.findOne(notifications[0].documentId)
-    const post = Posts.findOne(comment?.postId)
+    const post = comment?.postId && Posts.findOne(comment.postId)
     if (!post) throw Error(`Can't find post to generate subject-line for: ${comment}`)
     return 'New comment on "' + post.title + '"';
   },

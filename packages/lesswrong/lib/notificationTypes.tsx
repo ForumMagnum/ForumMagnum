@@ -139,7 +139,7 @@ export const NewCommentNotification = registerNotificationType({
   userSettingField: "notificationCommentsOnSubscribedPost",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId)?.title + '"';
+    return Comments.getAuthorName(document) + ' left a new comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -151,7 +151,7 @@ export const NewShortformNotification = registerNotificationType({
   userSettingField: "notificationShortformContent",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return 'New comment on "' + Posts.findOne(document.postId)?.title + '"';
+    return 'New comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -176,14 +176,19 @@ export const NewTagPostsNotification = registerNotificationType({
   },
 });
 
+export function getCommentParentTitle(comment: DbComment) {
+  if (comment.postId) return Posts.findOne(comment.postId)?.title
+  if (comment.tagId) return Tags.findOne(comment.tagId)?.name
+  return "Unknown Parent"
+}
+
 // Reply to a comment you're subscribed to.
 export const NewReplyNotification = registerNotificationType({
   name: "newReply",
   userSettingField: "notificationRepliesToSubscribedComments",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    let parentTitle = document.postId ? Posts.findOne(document.postId)?.title : Tags.findOne(document.tagId)?.name
-    return Comments.getAuthorName(document) + ' replied to a comment on "' + parentTitle + '"';
+    return Comments.getAuthorName(document) + ' replied to a comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -196,8 +201,7 @@ export const NewReplyToYouNotification = registerNotificationType({
   userSettingField: "notificationRepliesToMyComments",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    let parentTitle = document.postId ? Posts.findOne(document.postId)?.title : Tags.findOne(document.tagId)?.name
-    return Comments.getAuthorName(document) + ' replied to your comment on "' + parentTitle + '"';
+    return Comments.getAuthorName(document) + ' replied to your comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

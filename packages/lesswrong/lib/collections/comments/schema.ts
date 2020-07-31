@@ -80,7 +80,8 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    hidden: true
+    hidden: true,
+    nullable: true
   },
   // If this comment is in a tag discussion section, the _id of the tag.
   tagId: {
@@ -94,7 +95,8 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    hidden: true
+    hidden: true,
+    nullable: true
   },
   // The comment author's `_id`
   userId: {
