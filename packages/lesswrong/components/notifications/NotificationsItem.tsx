@@ -87,6 +87,8 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
       case 'post':
         return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
       case 'comment':
+        const postId = parsedPath?.params?._id
+        if (!postId) return null
         return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
       case 'message':
         return <Card>
