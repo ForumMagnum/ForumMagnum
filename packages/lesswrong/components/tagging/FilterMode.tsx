@@ -12,7 +12,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   tag: {
     ...tagStyle(theme),
     display: "inline-block",
@@ -183,7 +183,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </div>}
         </div>
-        <TagPreview tag={tag} showCount={false}/>
+        <TagPreview tag={tag} showCount={false} postCount={3}/>
       </PopperCard>
     </AnalyticsContext>
   </span>

@@ -22,7 +22,7 @@ const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-export const sharedStyles = theme => ({
+export const sharedStyles = (theme: ThemeType): JssStyles => ({
   removeButton: {
     color: theme.palette.error.main,
     marginRight: 'auto',
@@ -68,7 +68,7 @@ export const sharedStyles = theme => ({
   },
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   ...sharedStyles(theme),
   distanceSection: {
     marginTop: 30,

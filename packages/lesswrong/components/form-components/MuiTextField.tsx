@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import TextField from '@material-ui/core/TextField';
 import classnames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   labelColor: {
     color: theme.secondary
   },

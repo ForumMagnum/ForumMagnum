@@ -11,7 +11,7 @@ import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/pub
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     background: "rgba(0,0,0, 0.5)",
     "&:hover": {

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Popper from '@material-ui/core/Popper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position:"relative",
     zIndex: theme.zIndexes.sidebarHoverOver,

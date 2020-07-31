@@ -4,7 +4,7 @@ import { GroupIconSVG } from './Icons'
 import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
     height: 15, 
     width: 15,

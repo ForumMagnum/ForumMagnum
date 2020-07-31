@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { createStyles } from '@material-ui/core/styles'
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   loadMore: {
     flexGrow: 1,
     textAlign: "left",

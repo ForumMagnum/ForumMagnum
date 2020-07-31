@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { userHasBoldPostItems } from '../../lib/betas';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: "rgba(0,0,0,.87)",
     position: "relative",

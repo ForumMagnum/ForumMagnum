@@ -4,7 +4,7 @@ import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: 30,
     position: "absolute",

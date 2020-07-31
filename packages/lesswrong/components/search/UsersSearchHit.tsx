@@ -3,7 +3,7 @@ import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: theme.spacing.unit,
     marginTop: theme.spacing.unit/2,

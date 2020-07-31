@@ -11,7 +11,7 @@ const Error = ({error}) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   itemIsLoading: {
     opacity: .4,
   },

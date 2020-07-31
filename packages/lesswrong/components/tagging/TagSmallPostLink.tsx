@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     ...theme.typography.body2,
@@ -13,10 +13,11 @@ const styles = theme => ({
     color: theme.palette.grey[900],
   },
   karma: {
-    marginLeft: 8,
+    marginLeft: 4,
+    marginRight: 12,
     textAlign: "center",
     width: 20,
-    flexShrink: 0
+    flexShrink: 0,
   },
   post: {
     display: "flex",
@@ -32,6 +33,7 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     flexGrow: 1,
+    color: theme.palette.lwTertiary.dark
   },
   wrap: {
     whiteSpace: "unset",
@@ -40,7 +42,7 @@ const styles = theme => ({
   },
   author: {
     marginRight: 0,
-    marginLeft: 20
+    marginLeft: 20,
   },
   widerSpacing: {
     marginBottom: 4
@@ -73,15 +75,16 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <div className={classes.post}>
+        {!hideMeta && <MetaInfo className={classes.karma}>
+          <PostsItemKarma post={post} placement="right"/>
+        </MetaInfo>}
         <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}
         </Link>
         {!hideMeta && <MetaInfo className={classes.author}>
           <UsersName user={post.user} />
         </MetaInfo>}
-        {!hideMeta && <MetaInfo className={classes.karma}>
-          <PostsItemKarma post={post} placement="right"/>
-        </MetaInfo>}
+
 
       </div>
     </div>

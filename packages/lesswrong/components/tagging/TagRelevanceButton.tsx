@@ -8,7 +8,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,

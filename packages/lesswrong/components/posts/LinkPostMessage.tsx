@@ -3,7 +3,7 @@ import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle

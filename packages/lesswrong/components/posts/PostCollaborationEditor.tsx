@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,

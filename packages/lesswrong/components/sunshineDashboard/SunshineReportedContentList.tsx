@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import Reports from '../../lib/collections/reports/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: "rgba(60,0,0,.08)"
   }

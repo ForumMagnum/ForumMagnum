@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display:"flex",
     flexWrap: "wrap",

@@ -6,7 +6,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "block",
     padding: 8,
@@ -54,6 +54,7 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
     fragmentName: "TagFragment",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
+  
   return (
     <React.Fragment>
       <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
