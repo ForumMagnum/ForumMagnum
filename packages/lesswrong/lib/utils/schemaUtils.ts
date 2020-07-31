@@ -136,6 +136,7 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
   return {
     type: String,
     foreignKey: collectionName,
+    nullable,
     resolveAs: {
       fieldName: resolverName,
       type: nullable ? type : `${type}!`,
