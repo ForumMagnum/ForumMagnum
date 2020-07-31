@@ -65,6 +65,7 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
       </MetaInfo>
       <div className={classes.textBody}>
         <CompareRevisions
+          trim
           collectionName="Tags" fieldName="description"
           documentId={documentId}
           versionBefore={previousRevision.version}

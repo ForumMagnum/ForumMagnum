@@ -8,9 +8,11 @@ import cheerio from 'cheerio';
 
 addGraphQLResolvers({
   Query: {
-    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string }, context: ResolverContext): Promise<string> {
+    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim?: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
+      console.log("AAAAA", trim)
+
       // Validate collectionName, fieldName
       if (!editableCollections.has(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
@@ -54,12 +56,14 @@ addGraphQLResolvers({
       const diffHtmlUnsafe = diff(before.html, after.html);
       
       const $ = cheerio.load(diffHtmlUnsafe)
-      $('body').children().each(function(i, elem) {
-        const e = $(elem)
-        if (!e.find('ins').length && !e.find('del').length) {
-          e.remove()
-        }
-      })
+      if (trim) {
+        $('body').children().each(function(i, elem) {
+          const e = $(elem)
+          if (!e.find('ins').length && !e.find('del').length) {
+            e.remove()
+          }
+        })
+      }
 
       // Sanitize (in case node-htmldiff has any parsing glitches that would
       // otherwise lead to XSS)

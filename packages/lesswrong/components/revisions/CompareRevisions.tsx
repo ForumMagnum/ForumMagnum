@@ -22,7 +22,8 @@ const CompareRevisions = ({
   documentId,
   versionBefore,
   versionAfter,
-  classes
+  classes,
+  trim=false
 }: {
   collectionName: string,
   fieldName: string,
@@ -30,8 +31,9 @@ const CompareRevisions = ({
   versionBefore: string,
   versionAfter: string,
   classes: ClassesType,
+  trim?: boolean
 }) => {
-  const { ContentItemBody } = Components;
+  const { ContentItemBody, ErrorMessage, Loading } = Components;
   
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
@@ -46,16 +48,17 @@ const CompareRevisions = ({
       id: documentId,
       beforeRev: versionBefore,
       afterRev: versionAfter,
+      trim: trim
     },
     ssr: true,
   });
   
   if (error) {
-    return <Components.ErrorMessage message={error.message}/>
+    return <ErrorMessage message={error.message}/>
   }
   
   if (loadingDiff)
-    return <Components.Loading/>
+    return <Loading/>
   
   const diffResultHtml = diffResult?.RevisionsDiff;
   return (

@@ -7,9 +7,21 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   revisionRow: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    marginBottom: 6
   },
   radio: {
     padding: 4,
+    '& svg': {
+      fontSize: 18,
+      opacity: .4
+    }
+  },
+  checked: {
+    '& svg': {
+      opacity: 1
+    }
   },
   radioDisabled: {
     color: "rgba(0,0,0,0) !important",
@@ -20,6 +32,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   charsRemoved: {
     color: "#880000",
   },
+  button: {
+    marginBottom: 12,
+    marginTop: 6
+  }
 });
 
 const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes }: {
@@ -44,18 +60,7 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
   }, [beforeRevisionIndex, afterRevisionIndex, onPairSelected, revisions]);
 
   return <React.Fragment>
-    {revisions.map((rev, i)=> {
-      if (i < (revisions.length-1)) {
-        return <TagRevisionItem 
-          key={rev.version} 
-          documentId={documentId} 
-          revision={rev} 
-          previousRevision={revisions[i+1]}
-          getRevisionUrl={getRevisionUrl}
-        />
-      } 
-    })
-    /* {revisions.map((rev,i) => {
+    {revisions.map((rev,i) => {
       const beforeDisabled = i<=afterRevisionIndex;
       const afterDisabled = i>=beforeRevisionIndex;
       const { added, removed } = rev.changeMetrics;
@@ -63,7 +68,7 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
       return (
         <div key={rev.version} className={classes.revisionRow}>
           <Radio
-            className={classNames(classes.radio, {[classes.radioDisabled]: beforeDisabled})}
+            className={classNames(classes.radio, {[classes.checked]: i===beforeRevisionIndex, [classes.radioDisabled]: beforeDisabled})}
             disabled={beforeDisabled}
             checked={i===beforeRevisionIndex}
             onChange={(ev, checked) => {
@@ -73,7 +78,7 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
             }}
           />
           <Radio
-            className={classNames(classes.radio, {[classes.radioDisabled]: afterDisabled})}
+            className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
             disabled={afterDisabled}
             checked={i===afterRevisionIndex}
             onChange={(ev, checked) => {
@@ -99,10 +104,21 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
           </Link>
         </div>
       )
-    })} */}
-    
+    })}
     <div><LoadMore {...loadMoreProps}/></div>
-    <Button onClick={compareRevs}>Compare selected revisions</Button>
+    <Button className={classes.button} variant="outlined" onClick={compareRevs} >Compare selected revisions</Button>
+
+    {revisions.map((rev, i)=> {
+      if (i < (revisions.length-1)) {
+        return <TagRevisionItem 
+          key={rev.version} 
+          documentId={documentId} 
+          revision={rev} 
+          previousRevision={revisions[i+1]}
+          getRevisionUrl={getRevisionUrl}
+        />
+      } 
+    })}
   </React.Fragment>
 }
 
