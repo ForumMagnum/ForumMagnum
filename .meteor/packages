@@ -7,7 +7,7 @@
 #matb33:collection-hooks
 
 # Accounts packages, for OAuth
-accounts-password@1.5.1
+accounts-password@1.6.0
 
 # Main LessWrong package
 lesswrong
@@ -15,4 +15,4 @@ lesswrong
 es5-shim@4.8.0
 meteortesting:mocha
 zodern:standard-minifier-js
-typescript
+typescript@3.7.6

@@ -5,6 +5,7 @@ import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import withErrorBoundary from './withErrorBoundary';
 import * as _ from 'underscore';
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
@@ -59,7 +60,7 @@ const BatchTimePicker = ({ mode, value, onChange}: {
   </React.Fragment>;
 }
 
-const BatchTimePickerComponent = registerComponent("BatchTimePicker", BatchTimePicker);
+const BatchTimePickerComponent = registerComponent("BatchTimePicker", BatchTimePicker, {hocs:[withErrorBoundary]});
 
 declare global {
   interface ComponentTypes {

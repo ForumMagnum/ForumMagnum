@@ -22,42 +22,34 @@ This component expects:
 
 */
 
-import {
-  registerComponent,
-  Components,
-  runCallbacks,
-  getErrors,
-  getSetting,
-  Utils,
-  mergeWithComponents
-} from '../../lib/vulcan-lib';
-import React, { Component } from 'react';
-import SimpleSchema from 'simpl-schema';
-import PropTypes from 'prop-types';
-import { intlShape } from '../../lib/vulcan-i18n';
 import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
-import set from 'lodash/set';
-import unset from 'lodash/unset';
 import compact from 'lodash/compact';
-import update from 'lodash/update';
-import merge from 'lodash/merge';
 import find from 'lodash/find';
-import pick from 'lodash/pick';
+import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
-import uniq from 'lodash/uniq';
-import uniqBy from 'lodash/uniqBy';
 import isObject from 'lodash/isObject';
 import mapValues from 'lodash/mapValues';
+import merge from 'lodash/merge';
+import pick from 'lodash/pick';
 import pickBy from 'lodash/pickBy';
-
+import set from 'lodash/set';
+import uniq from 'lodash/uniq';
+import uniqBy from 'lodash/uniqBy';
+import unset from 'lodash/unset';
+import update from 'lodash/update';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import SimpleSchema from 'simpl-schema';
+import * as _ from 'underscore';
+import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
-import { getParentPath } from '../../lib/vulcan-forms/path_utils';
-import withCollectionProps from './withCollectionProps';
+import { intlShape } from '../../lib/vulcan-i18n';
+import { getErrors, mergeWithComponents, registerComponent, runCallbacks, Utils } from '../../lib/vulcan-lib';
 import { callbackProps } from './propTypes';
-import * as _ from 'underscore';
+import withCollectionProps from './withCollectionProps';
+
 
 
 // props that should trigger a form reset
@@ -270,7 +262,7 @@ class SmartForm extends Component<any,any> {
   */
   getFieldGroups = () => {
     // build fields array by iterating over the list of field names
-    let fields: Array<string> = this.getFieldNames().map(fieldName => {
+    let fields: Array<any> = this.getFieldNames().map((fieldName: string) => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema);
     });
@@ -278,7 +270,7 @@ class SmartForm extends Component<any,any> {
     fields = _.sortBy(fields, 'order');
 
     // get list of all unique groups (based on their name) used in current fields
-    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g: any) => g && g.name));
+    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g:any) => g && g.name));
 
     // for each group, add relevant fields
     groups = groups.map(group => {
@@ -374,7 +366,7 @@ class SmartForm extends Component<any,any> {
 
   initField = (fieldName, fieldSchema) => {
     // intialize properties
-    let field = {
+    let field: any = {
       ..._.pick(fieldSchema, formProperties),
       document: this.state.initialDocument,
       name: fieldName,
@@ -733,11 +725,7 @@ class SmartForm extends Component<any,any> {
    * Check if we must warn user on unsaved change
    */
   getWarnUnsavedChanges = () => {
-    let warnUnsavedChanges = getSetting('forms.warnUnsavedChanges');
-    if (typeof this.props.warnUnsavedChanges === 'boolean') {
-      warnUnsavedChanges = this.props.warnUnsavedChanges;
-    }
-    return warnUnsavedChanges;
+    return false
   }
 
   // check for route change, prevent form content loss
@@ -772,11 +760,7 @@ class SmartForm extends Component<any,any> {
   */
   handleRouteLeave = () => {
     if (this.isChanged()) {
-      const message = this.context.intl.formatMessage({
-        id: 'forms.confirm_discard',
-        defaultMessage: 'Are you sure you want to discard your changes?'
-      });
-      return message;
+      return "Discard changes?";
     }
   };
 
@@ -788,10 +772,7 @@ class SmartForm extends Component<any,any> {
    */
   handlePageLeave = (event) => {
     if (this.isChanged()) {
-      const message = this.context.intl.formatMessage({
-        id: 'forms.confirm_discard',
-        defaultMessage: 'Are you sure you want to discard your changes?'
-      });
+      const message = "Discard changes?"
       if (event) {
         event.returnValue = message;
       }
@@ -984,10 +965,7 @@ class SmartForm extends Component<any,any> {
     const documentId = this.props.document._id;
     const documentTitle = document.title || document.name || '';
 
-    const deleteDocumentConfirm = this.context.intl.formatMessage(
-      { id: 'forms.delete_confirm' },
-      { title: documentTitle }
-    );
+    const deleteDocumentConfirm = "Delete document?";
 
     if (window.confirm(deleteDocumentConfirm)) {
       this.props

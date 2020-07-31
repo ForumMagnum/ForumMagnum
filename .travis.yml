@@ -4,7 +4,7 @@ python: 3.7
 node_js:
 - 12
 before_install:
-- yarn install
+- yarn install --pure-lockfile
 - command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
 before_script:
 - export PATH=$HOME/.meteor:$PATH
@@ -12,7 +12,7 @@ jobs:
   include:
   - stage: everything
     name: "Tests"
-    script: yarn run test && yarn run lint && yarn run checktypes
+    script: yarn run test && yarn run lint
   - script: skip
     # TODO: add 'stage' key = 'deploy' so that this step runs in series, not parallel
     #       See https://docs.travis-ci.com/user/build-stages/#how-do-build-stages-work

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
 import { Meteor } from 'meteor/meteor';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = theme => ({
@@ -78,7 +79,8 @@ const styles = theme => ({
   }
 });
 
-const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
+
 export const useGoogleMaps = (identifier, libraries = ['places']) => {
   const [ mapsLoaded, setMapsLoaded ] = useState((window as any)?.google)
   const callbackName = `${identifier}_googleMapsLoaded`
@@ -91,7 +93,7 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
       var tag = document.createElement('script');
       tag.async = false;
       tag.id = tagId
-      tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=${libraries}&callback=${callbackName}`;
+      tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=${libraries}&callback=${callbackName}`;
       document.body.appendChild(tag);
     }
   }

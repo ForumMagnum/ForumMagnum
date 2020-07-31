@@ -7,16 +7,16 @@ import * as _ from 'underscore';
 // Given an HTML document, extract the links from it and convert them to a set
 // of pingbacks, formatted as a dictionary from collection name -> array of
 // document IDs.
-//   html: (String) The document to extract links from
-//   exclusions: (Array[{collectionName,documentId}]) An array of documents (as
+//   html: The document to extract links from
+//   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html, exclusions?: any) => {
+export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName:string, documentId:string}>|null): Promise<Partial<Record<CollectionNameString, Array<string>>>> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   
   // collection name => array of distinct referenced document IDs in that
   // collection, in order of first appearance.
-  const pingbacks = {};
+  const pingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
   
   for (let link of links)
   {
@@ -58,7 +58,7 @@ export const htmlToPingbacks = async (html, exclusions?: any) => {
   return pingbacks;
 };
 
-const extractLinks = (html) => {
+const extractLinks = (html: string): Array<string> => {
   const $ = cheerio.load(html);
   let targets: Array<string> = [];
   $('a').each((i, anchorTag) => {

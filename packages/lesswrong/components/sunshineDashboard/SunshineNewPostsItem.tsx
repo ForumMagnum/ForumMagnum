@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMutation } from 'react-apollo';
 import { Posts } from '../../lib/collections/posts';
@@ -15,6 +15,8 @@ import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
 import ClearIcon from '@material-ui/icons/Clear';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   icon: {
@@ -22,7 +24,17 @@ const styles = theme => ({
     marginRight: 4
   },
   buttonRow: {
-    ...theme.typography.commentStyle,
+    ...theme.typography.commentStyle
+  },
+  post: {
+    ...postHighlightStyles(theme)
+  },
+  title: {
+    borderTop: "solid 1px rgba(0,0,0,.1)",
+    paddingTop: 12,
+    marginTop: 12
+  },
+  moderation: {
     marginBottom: 12
   }
 })
@@ -37,7 +49,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const {mutate: updatePost} = useUpdate({
     collection: Posts,
-    fragmentName: 'SunshinePostsList',
+    fragmentName: 'PostsList',
   });
   const [addTagsMutation] = useMutation(gql`
     mutation addTagsMutation($postId: String, $tagIds: [String]) {
@@ -51,7 +63,7 @@ const SunshineNewPostsItem = ({post, classes}: {
       if (selectedTags[tagId])
         tagsApplied.push(tagId);
     }
-    addTagsMutation({
+    void addTagsMutation({
       variables: {
         postId: post._id,
         tagIds: tagsApplied,
@@ -61,7 +73,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const handleReview = () => {
     applyTags();
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         reviewedByUserId: currentUser!._id,
@@ -73,7 +85,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const handlePromote = () => {
     applyTags();
     
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         frontpageDate: new Date(),
@@ -86,7 +98,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const handleMoveToCommunity = () => {
     applyTags();
     
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         meta: true,
@@ -100,7 +112,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
       window.open(Users.getProfileUrl(post.user), '_blank');
-      updatePost({
+      void updatePost({
         selector: { _id: post._id},
         data: {
           draft: true,
@@ -109,54 +121,58 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, FooterTagList, PostsHighlight, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
+
+  const moderationSection = post.moderationStyle || post.user.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
 
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <Typography variant="title">
-            <Link to={Posts.getPageUrl(post)}>
-              { post.title }
-            </Link>
-          </Typography>
-          {(post.moderationStyle || post.user.moderationStyle) && <div>
-            <MetaInfo>
-              <span>Mod Style: </span>
-              { post.moderationStyle || post.user.moderationStyle }
-              {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
-            </MetaInfo>
-          </div>}
-          {(modGuidelinesHtml || userGuidelinesHtml) && <div>
-            <MetaInfo>
-              <span>Mod Guidelines: </span>
-              <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
-              {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
-            </MetaInfo>
-          </div>}
-          <FooterTagList post={post} />
-          <CoreTagsChecklist onSetTagsSelected={(selectedTags) => {
+          <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
             setSelectedTags(selectedTags);
           }}/>
+          <FooterTagList post={post} />
           <div className={classes.buttonRow}>
-              Move to:
               <Button onClick={handleReview}>
                 <PersonIcon className={classes.icon} /> Personal
               </Button>
               {post.submitToFrontpage && <Button onClick={handlePromote}>
                 <HomeIcon className={classes.icon} /> Frontpage
               </Button>}
-              {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
+              {forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
                 <GroupIcon className={classes.icon} /> Community
               </Button>}
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
             </div>
-          <PostsHighlight post={post}/>
-
+            <Typography variant="title" className={classes.title}>
+              <Link to={Posts.getPageUrl(post)}>
+                { post.title }
+              </Link>
+            </Typography>
+            {moderationSection && <div className={classes.moderation}>
+              {(post.moderationStyle || post.user.moderationStyle) && <div>
+                <MetaInfo>
+                  <span>Mod Style: </span>
+                  { post.moderationStyle || post.user.moderationStyle }
+                  {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
+                </MetaInfo>
+              </div>}
+              {(modGuidelinesHtml || userGuidelinesHtml) && <div>
+                <MetaInfo>
+                  <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+                  {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
+                </MetaInfo>
+              </div>}
+            </div>}
+            <div className={classes.post}>
+              <LinkPostMessage post={post} />
+              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html}} description={`post ${post._id}`}/>
+            </div>
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>
           {post.title}

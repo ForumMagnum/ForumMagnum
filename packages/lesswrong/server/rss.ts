@@ -1,24 +1,24 @@
 import RSS from 'rss';
-import { Posts } from '../lib/collections/posts';
-import { rssTermsToUrl } from '../lib/rss_urls';
+import { taglineSetting } from '../components/common/HeadTags';
 import { Comments } from '../lib/collections/comments';
-import { getSetting, addStaticRoute } from './vulcan-lib';
-import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import moment from '../lib/moment-timezone';
-import { Meteor } from 'meteor/meteor';
-
-// LESSWRONG - this import wasn't needed until fixing author below.
+import { Posts } from '../lib/collections/posts';
 import Users from '../lib/collections/users/collection';
+import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
+import moment from '../lib/moment-timezone';
+import { rssTermsToUrl } from '../lib/rss_urls';
+import { addStaticRoute } from './vulcan-lib';
+import { accessFilterMultiple } from '../lib/utils/schemaUtils';
+
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
 
 export const getMeta = (url) => {
-  const siteUrl = getSetting('siteUrl', Meteor.absoluteUrl());
+  const siteUrl = siteUrlSetting.get();
 
   return {
-    title: getSetting('title'),
-    description: getSetting('tagline'),
+    title: forumTitleSetting.get(),
+    description: taglineSetting.get(),
     feed_url: url,
     site_url: siteUrl,
     image_url: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"
@@ -31,7 +31,7 @@ const roundKarmaThreshold = threshold => (threshold < 16 || !threshold) ? 2
                                        : (threshold < 60) ? 45
                                        : 75;
 
-export const servePostRSS = (terms, url?: string) => {
+export const servePostRSS = async (terms, url?: string) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
@@ -42,7 +42,7 @@ export const servePostRSS = (terms, url?: string) => {
   parameters.options.limit = 10;
 
   const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
-  const restrictedPosts = accessFilterMultiple(null, Posts, postsCursor);
+  const restrictedPosts = await accessFilterMultiple(null, Posts, postsCursor, null);
 
   restrictedPosts.forEach((post) => {
     // LESSWRONG - this was added to handle karmaThresholds
@@ -82,20 +82,21 @@ export const servePostRSS = (terms, url?: string) => {
   return feed.xml();
 };
 
-export const serveCommentRSS = (terms, url?: string) => {
+export const serveCommentRSS = async (terms, url?: string) => {
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
 
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
   const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
-  const restrictedComments = accessFilterMultiple(null, Comments, commentsCursor);
+  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);
 
   restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
-
+    // eslint-disable-next-line no-console
+    if (!post) console.warn(`Can't find post for comments in RSS feed: ${comment._id}`)
     feed.item({
-     title: 'Comment on ' + post.title,
+     title: 'Comment on ' + post?.title,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
@@ -108,13 +109,13 @@ export const serveCommentRSS = (terms, url?: string) => {
 };
 
 
-addStaticRoute('/feed.xml', function(params, req, res, next) {
+addStaticRoute('/feed.xml', async function(params, req, res, next) {
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
   }
   if (params.query.type && params.query.type === "comments") {
-    res.end(serveCommentRSS(params.query));
+    res.end(await serveCommentRSS(params.query));
   } else {
-    res.end(servePostRSS(params.query));
+    res.end(await servePostRSS(params.query));
   }
 });

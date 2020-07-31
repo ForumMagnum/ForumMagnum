@@ -25,11 +25,11 @@ const PostsHighlight = ({post, classes}: {
         dangerouslySetInnerHTML={{__html: htmlHighlight}}
         description={`post ${post._id}`}
       />
-      <div className={classes.highlightContinue}>
-        {wordCount > 280 && <Link to={Posts.getPageUrl(post)}>
+      {wordCount > 280 && <div className={classes.highlightContinue}>
+         <Link to={Posts.getPageUrl(post)}>
           (Continue Reading{` – ${wordCount - 280} more words`})
-        </Link>}
-      </div>
+        </Link>
+      </div>}
     </div>
 };
 

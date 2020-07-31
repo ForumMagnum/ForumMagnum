@@ -5,10 +5,6 @@ const styles = theme => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
-    marginTop: -5,
-    marginRight: "auto",
-    marginLeft: "auto",
-    width: 695,
     [theme.breakpoints.down('sm')]: {
       flexDirection: "column",
       alignItems: "center",

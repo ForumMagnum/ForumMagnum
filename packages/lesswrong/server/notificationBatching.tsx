@@ -22,7 +22,7 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
         delayMinutes: 15,
       },
       callback: ({ userId, notificationType }, notificationIds) => {
-        sendNotificationBatch({userId, notificationIds});
+        void sendNotificationBatch({userId, notificationIds});
       }
     });
   }
@@ -99,7 +99,7 @@ export const wrapAndSendEmail = async ({user, subject, body}) => {
 
 addGraphQLResolvers({
   Query: {
-    async EmailPreview(root, {notificationIds, postId}, context) {
+    async EmailPreview(root, {notificationIds, postId}, context: ResolverContext) {
       const { currentUser } = context;
       if (!Users.isAdmin(currentUser)) {
         throw new Error("This debug feature is only available to admin accounts");
@@ -111,7 +111,7 @@ addGraphQLResolvers({
         throw new Error("Please only specify notificationIds or postId in the query")
       }
       
-      let emails
+      let emails:any[] = []
       if (notificationIds?.length) {
         const notifications = await Notifications.find(
           { _id: {$in: notificationIds} }
@@ -123,11 +123,13 @@ addGraphQLResolvers({
       }
       if (postId) {
         const post = Posts.findOne(postId)
-        emails = [{
-          user: currentUser,
-          subject: post.title,
-          body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
-        }]
+        if (post) {
+          emails = [{
+            user: currentUser,
+            subject: post.title,
+            body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
+          }]
+        }
       }
       const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
       return renderedEmails;

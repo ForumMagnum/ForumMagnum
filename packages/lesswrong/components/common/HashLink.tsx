@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line no-restricted-imports
 import { Link, NavLink } from 'react-router-dom';
 
 let hashFragment = '';

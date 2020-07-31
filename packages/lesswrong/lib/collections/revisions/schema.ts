@@ -17,13 +17,19 @@ SimpleSchema.extendOptions([ 'inputType' ]);
 const schema = {
   documentId: {
     type: String,
+    viewableBy: ['guests'],
+  },
+  collectionName: {
+    type: String,
+    viewableBy: ['guests'],
   },
   fieldName: {
     type: String,
+    viewableBy: ['guests'],
   },
   editedAt: {
     type: Date,
-    optional: true, 
+    optional: true,
     viewableBy: ['guests'],
   },
   updateType: {
@@ -37,6 +43,12 @@ const schema = {
     type: String,
     optional: true,
     viewableBy: ['guests']
+  },
+  commitMessage: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members']
   },
   userId: {
     ...foreignKeyField({
@@ -92,7 +104,13 @@ const schema = {
     type: String,
     viewableBy: ['guests']
     // resolveAs defined in resolvers.js
-  }
+  },
+  changeMetrics: {
+    type: Object,
+    blackbox: true,
+    viewableBy: ['guests']
+    // resolveAs defined in resolvers.js
+  },
 };
 
 export default schema;

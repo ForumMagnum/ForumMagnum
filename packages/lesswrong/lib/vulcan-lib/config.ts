@@ -1,17 +1,19 @@
 import SimpleSchema from 'simpl-schema';
 
-/**
- * @summary Kick off the namespace for Vulcan.
- * @namespace Vulcan
- */
+// Set up a global dumping ground for stuff that's convenient to have accessible
+// in meteor shell. (This is a hack to deal with meteor-shell not being able to
+// import stuff inside modules easily.)
+//
+// Aliased to both the names Vulcan and Globals.
+
+export const Globals: any = {};
+export const Vulcan = Globals;
+
+(global as any).Globals = Globals;
+(global as any).Vulcan = Globals;
 
 // eslint-disable-next-line no-undef
-export const Vulcan: any = {};
-
-(global as any).Vulcan = Vulcan;
-
-// eslint-disable-next-line no-undef
-Vulcan.VERSION = '1.13.0';
+Globals.VERSION = '2.0.0';
 
 // ------------------------------------- Schemas -------------------------------- //
 
@@ -55,4 +57,4 @@ SimpleSchema.extendOptions([
 ]);
 
 // eslint-disable-next-line no-undef
-export default Vulcan;
+export default Globals;

@@ -18,7 +18,7 @@ const HeaderSubtitle = ({classes}: {
 }) => {
   const { currentRoute } = useSubscribedLocation();
   if (!currentRoute) return null
-  const SubtitleComponent = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
+  const SubtitleComponent: any = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
   const subtitleString = currentRoute.subtitle;
   const subtitleLink = currentRoute.subtitleLink;
   

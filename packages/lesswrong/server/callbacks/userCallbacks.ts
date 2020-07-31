@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { addCallback, getSetting, editMutation } from '../vulcan-lib';
+import { addCallback, editMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
@@ -11,15 +11,16 @@ const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
+import { DatabaseServerSetting } from "../databaseSettings";
 
 function updateTrustedStatus ({newDocument, vote}) {
 
   const user = Users.findOne(newDocument.userId)
-  if (user.karma >= TRUSTLEVEL1_THRESHOLD && (!Users.getGroups(user).includes('trustLevel1'))) {
+  if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!Users.getGroups(user).includes('trustLevel1'))) {
     Users.update(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
-    console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
+    console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
   }
 }
 addCallback("votes.smallUpvote.async", updateTrustedStatus);
@@ -27,9 +28,11 @@ addCallback("votes.bigUpvote.async", updateTrustedStatus);
 
 function updateModerateOwnPersonal({newDocument, vote}) {
   const user = Users.findOne(newDocument.userId)
+  if (!user) throw Error("Couldn't find user")
   if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!Users.getGroups(user).includes('canModeratePersonal'))) {
     Users.update(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = Users.findOne(newDocument.userId)
+    if (!updatedUser) throw Error("Couldn't find user to update")
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
@@ -50,12 +53,30 @@ addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
-function approveUnreviewedSubmissions (newUser, oldUser)
+async function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
-  {                               
-    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}}, {multi: true})
-    // We don't want to reset the postedAt for comments, since those are by default visible almost everywhere                                                                                                    
+  {
+    // For each post by this author which has the authorIsUnreviewed flag set,
+    // clear the authorIsUnreviewed flag so it's visible, and update postedAt
+    // to now so that it goes to the right place int he latest posts list.
+    const unreviewedPosts = Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
+    for (let post of unreviewedPosts) {
+      await editMutation<DbPost>({
+        collection: Posts,
+        documentId: post._id,
+        set: {
+          authorIsUnreviewed: false,
+          postedAt: new Date(),
+        },
+        validate: false
+      });
+    }
+    
+    // Also clear the authorIsUnreviewed flag on comments. We don't want to
+    // reset the postedAt for comments, since those are by default visible
+    // almost everywhere. This can bypass the mutation system fine, because the
+    // flag doesn't control whether they're indexed in Algolia.
     Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 }
@@ -89,13 +110,13 @@ function clearKarmaChangeBatchOnSettingsChange (modifier, user)
 }
 addCallback("users.edit.sync", clearKarmaChangeBatchOnSettingsChange);
 
-const reCaptchaSecret = getSetting('reCaptcha.secret')
+const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
 const getCaptchaRating = async (token): Promise<string> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
     request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
         form: {
-          secret: reCaptchaSecret,
+          secret: reCaptchaSecretSetting.get(),
           response: token
         }
       },
@@ -107,7 +128,7 @@ const getCaptchaRating = async (token): Promise<string> => {
   });
 }
 async function addReCaptchaRating (user) {
-  if (reCaptchaSecret) {
+  if (reCaptchaSecretSetting.get()) {
     const reCaptchaToken = user?.profile?.reCaptchaToken 
     if (reCaptchaToken) {
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
@@ -137,7 +158,7 @@ async function subscribeOnSignup (user) {
     Accounts.sendVerificationEmail(user._id);
     
     if (subscribeToCurated) {
-      bellNotifyEmailVerificationRequired(user);
+      await bellNotifyEmailVerificationRequired(user);
     }
   }
 }

@@ -16,7 +16,7 @@ const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, upd
 
   // if this is a "new document" form check options' "checked" property to populate value
   if (formType === 'new' && value.length === 0) {
-    const checkedValues = _.where(options, { checked: true }).map(option => option.value);
+    const checkedValues = _.where(options, { checked: true }).map((option: any) => option.value);
     if (checkedValues.length) {
       value = checkedValues;
     }

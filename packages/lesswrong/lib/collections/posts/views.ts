@@ -1,10 +1,11 @@
-import { Posts } from './collection';
-import { viewFieldNullOrMissing, viewFieldAllowAny, getSetting } from '../../vulcan-lib';
-import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
-import { FilterSettings, FilterMode } from '../../filterSettings';
-import { timeDecayExpr, defaultScoreModifiers } from '../../scoring';
+import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { FilterMode, FilterSettings } from '../../filterSettings';
+import { forumTypeSetting } from '../../instanceSettings';
+import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
+import { Posts } from './collection';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -57,7 +58,7 @@ export const filters: Record<string,any> = {
   },
   "includeMetaAndPersonal": {},
 }
-if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
+if (forumTypeSetting.get() === 'EAForum') filters.frontpage.meta = {$ne: true}
 
 /**
  * @summary Similar to filters (see docstring above), but specifying MongoDB-style sorts
@@ -85,7 +86,7 @@ Posts.addDefaultView(terms => {
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
-  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
@@ -209,7 +210,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
   let frontpageFiltering: any;
-  if (getSetting('forumType') as string === 'EAForum') {
+  if (forumTypeSetting.get() === 'EAForum') {
     frontpageFiltering = eaGetFrontpageFilter(filterSettings)
   } else {
     frontpageFiltering = lwafGetFrontpageFilter(filterSettings)
@@ -225,7 +226,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
-  const tagsSoftFiltered = _.filter(filterSettings.tags, t=>t.filterMode!=="Less" && t.filterMode!=="More");
+  const tagsSoftFiltered = _.filter(filterSettings.tags, t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0));
   let scoreExpr: any = null;
   if (tagsSoftFiltered.length > 0) {
     scoreExpr = {
@@ -343,7 +344,6 @@ ensureIndex(Posts,
 
 
 // Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
-// EA-FORUM: Building this index will fail until you update to MongoDB 4.2. If you haven't enabled/started using tagging, then this is probably harmless.
 ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
 // Used for the latest posts list when soft-filtering tags
 ensureIndex(Posts,
@@ -951,6 +951,7 @@ Posts.addView("pingbackPosts", terms => {
   return {
     selector: {
       "pingbacks.Posts": terms.postId,
+      baseScore: {$gt: 0}
     },
     options: {
       sort: { baseScore: -1 },

@@ -21,7 +21,7 @@ export default class MathCommand extends Command {
 					if ( equation ) {
 						const mathtex = writer.createElement( display ? 'mathtex-display' : 'mathtex', { equation, type } );
 						model.insertContent( mathtex );
-						writer.setSelection( mathtex, 'on' );
+						writer.setSelection( mathtex, 'after' );
 					} else {
 						writer.remove( selectedElement );
 					}
@@ -30,7 +30,7 @@ export default class MathCommand extends Command {
 				// Create new model element
 				const mathtex = writer.createElement( display ? 'mathtex-display' : 'mathtex', { equation, type: outputType } );
 				model.insertContent( mathtex );
-				writer.setSelection( mathtex, 'on' );
+				writer.setSelection( mathtex, 'after' );
 			}
 		} );
 	}

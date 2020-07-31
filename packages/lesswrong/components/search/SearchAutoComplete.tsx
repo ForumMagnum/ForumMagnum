@@ -7,6 +7,11 @@ import Autosuggest from 'react-autosuggest';
 
 const styles = theme => ({
   autoComplete: {
+    '& input': {
+      ...theme.typography.body2,
+      ...theme.typography.uiStyle,
+      backgroundColor: "rgba(0,0,0,0)"
+    },
     "& li": {
       listStyle: "none",
     },

@@ -56,7 +56,10 @@ const tableStyles = {
   borderCollapse: "collapse",
   borderSpacing: 0,
   border: "1px double #b3b3b3",
-  margin: "auto"
+  margin: "auto",
+  width: "100%",
+  height: "100%",
+  textAlign: "left"
 }
 
 const tableCellStyles = {
@@ -78,6 +81,7 @@ const hrStyles = {
   height: "100%",
   margin: "32px 0",
   border: "none", /* strip default hr styling */
+  background: "transparent",
   textAlign: "center",
   '&:after': {
     marginLeft: 12,
@@ -265,13 +269,12 @@ export const emailBodyStyles = baseBodyStyles
 
 const smallPostStyles = theme => ({
   ...theme.typography.body2,
+  fontSize: "1.2rem",
+  lineHeight: "1.8rem",
   ...theme.typography.postStyle,
   '& blockquote': {
     ...theme.typography.body2,
-    ...theme.typography.postStyle,
-    '& > p': {
-      margin:0
-    },
+    ...theme.typography.postStyle
   },
   '& ul': {
     paddingInlineStart: 30
@@ -279,6 +282,8 @@ const smallPostStyles = theme => ({
   '& li': {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    fontSize: "1.2rem",
+    lineHeight: "1.8rem",
   },
 })
 
@@ -361,9 +366,9 @@ export const ckEditorStyles = theme => {
         },
         '& hr': {
           ...hrStyles
-        }
+        },
       },
-      '&.ck-sidebar, &.ck-presence-list': { //\u25B6
+      '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
           // By default ckEditor elements get the styles from postBodyStyles li elements
           marginBottom: 'unset',
@@ -413,7 +418,7 @@ export const ckEditorStyles = theme => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main,
+        '--ck-color-comment-count': theme.palette.primary.main
       } 
     }
   }

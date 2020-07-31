@@ -1,7 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -40,8 +38,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   classes: ClassesType,
 }) => {
   const { VoteButton, PostsItem2MetaInfo } = Components;
-  const currentUser = useCurrentUser();
-  const vote = useVote();
+  const voteProps = useVote(tagRel, "TagRels");
   
   const tooltip = <div>
     <div>{tagRel.baseScore} Relevance</div>
@@ -56,16 +53,13 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="down"
             color="error"
             voteType="Downvote"
-            document={tagRel}
-            currentUser={currentUser}
-            collection={TagRels}
-            vote={vote}
             solidArrow
+            {...voteProps}
           />
         </div>
         
         <div className={classes.score}>
-          {tagRel.baseScore}
+          {voteProps.baseScore}
         </div>
       
         <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
@@ -73,11 +67,8 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="up"
             color="secondary"
             voteType="Upvote"
-            document={tagRel}
-            currentUser={currentUser}
-            collection={TagRels}
-            vote={vote}
             solidArrow
+            {...voteProps}
           />
         </div>
       </span>

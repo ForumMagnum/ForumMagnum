@@ -6,7 +6,8 @@ import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
-    marginBottom: theme.spacing.unit*4
+    marginBottom: theme.spacing.unit*4,
+    marginTop: theme.spacing.unit*2
   },
   title: {
     ...theme.typography.commentStyle,

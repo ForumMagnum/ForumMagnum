@@ -1,4 +1,5 @@
-import { getSetting } from './lib/vulcan-lib';
+import './server/databaseSettings'
+
 import './server/vulcan-lib/index';
 
 import './server/vulcan-users/main';
@@ -95,7 +96,8 @@ import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
-if (getSetting('hasEvents', true)) {
+import { hasEventsSetting } from './lib/instanceSettings'
+if (hasEventsSetting.get()) {
   import './server/callbacks/localgroupCallbacks';
 }
 import './server/callbacks/alignment-forum/callbacks';
@@ -112,7 +114,7 @@ import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
 
-import './lib/events/server';
+import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
 import './server/connection_logs';
 
