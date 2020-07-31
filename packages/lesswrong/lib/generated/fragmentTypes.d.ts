@@ -110,7 +110,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly group: PostsBase_group|null,
-  readonly bestAnswer: CommentsList,
+  readonly bestAnswer: CommentsList|null,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -155,7 +155,7 @@ interface PostsList_customHighlight { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRel: WithVoteTagRel,
+  readonly tagRel: WithVoteTagRel|null,
 }
 
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
@@ -170,14 +170,14 @@ interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
   readonly canonicalBook: PostsDetails_canonicalBook|null,
   readonly canonicalCollection: PostsDetails_canonicalCollection|null,
   readonly showModerationGuidelines: boolean,
-  readonly moderationGuidelines: RevisionDisplay,
+  readonly moderationGuidelines: RevisionDisplay|null,
   readonly customHighlight: PostsDetails_customHighlight|null,
   readonly bannedUserIds: Array<string>,
   readonly hideAuthor: boolean,
   readonly moderationStyle: string,
   readonly voteCount: number,
   readonly currentUserVotes: Array<VoteFragment>,
-  readonly feed: RSSFeedMinimumInfo,
+  readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
   readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
 }
@@ -216,13 +216,13 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
   readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
   readonly version: string,
-  readonly contents: RevisionEdit,
+  readonly contents: RevisionEdit|null,
   readonly revisions: Array<RevisionMetadata>,
 }
 
@@ -274,20 +274,20 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
   readonly tags: Array<TagPreviewFragment>,
 }
 
 interface PostsEdit extends PostsPage { // fragment on Posts
   readonly coauthorUserIds: Array<string>,
-  readonly moderationGuidelines: RevisionEdit,
-  readonly contents: RevisionEdit,
-  readonly customHighlight: RevisionEdit,
+  readonly moderationGuidelines: RevisionEdit|null,
+  readonly contents: RevisionEdit|null,
+  readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
 }
 
 interface EditModerationGuidelines { // fragment on Posts
-  readonly moderationGuidelines: RevisionEdit,
+  readonly moderationGuidelines: RevisionEdit|null,
   readonly moderationStyle: string,
 }
 
@@ -344,7 +344,7 @@ interface CommentsList { // fragment on Comments
   readonly deletedPublic: boolean,
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly currentUserVotes: Array<VoteFragment>,
   readonly baseScore: number,
   readonly score: number,
@@ -367,7 +367,7 @@ interface CommentsList { // fragment on Comments
   readonly reviewingForReview: string,
   readonly promoted: boolean,
   readonly promotedByUserId: string,
-  readonly promotedByUser: UsersMinimumInfo,
+  readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
 }
 
@@ -377,21 +377,21 @@ interface CommentsList_contents { // fragment on Revisions
 }
 
 interface CommentPermalink extends CommentsList { // fragment on Comments
-  readonly parentComment: CommentsList,
+  readonly parentComment: CommentsList|null,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
-  readonly post: PostsMinimumInfo,
+  readonly post: PostsMinimumInfo|null,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly latestChildren: Array<CommentsList>,
-  readonly post: PostsBase,
+  readonly post: PostsBase|null,
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
-  readonly contents: RevisionEdit,
+  readonly contents: RevisionEdit|null,
 }
 
 interface DeletedCommentsMetaData { // fragment on Comments
@@ -409,7 +409,7 @@ interface DeletedCommentsMetaData_deletedByUser { // fragment on Users
 }
 
 interface DeletedCommentsModerationLog extends DeletedCommentsMetaData { // fragment on Comments
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly post: DeletedCommentsModerationLog_post|null,
 }
 
@@ -419,8 +419,9 @@ interface DeletedCommentsModerationLog_post { // fragment on Posts
   readonly _id: string,
 }
 
-interface CommentsListWithPostMetadata extends CommentsList { // fragment on Comments
-  readonly post: PostsMinimumInfo,
+interface CommentsListWithParentMetadata extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+  readonly tag: TagBasicInfo|null,
 }
 
 interface WithVoteComment { // fragment on Comments
@@ -520,7 +521,7 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
   readonly _id: string,
   readonly createdAt: Date,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly name: string,
   readonly documentId: string,
   readonly important: boolean,
@@ -755,11 +756,11 @@ interface localGroupsBase { // fragment on Localgroups
 }
 
 interface localGroupsHomeFragment extends localGroupsBase { // fragment on Localgroups
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
 }
 
 interface localGroupsEdit extends localGroupsBase { // fragment on Localgroups
-  readonly contents: RevisionEdit,
+  readonly contents: RevisionEdit|null,
 }
 
 interface UsersAdmin { // fragment on Users
@@ -850,7 +851,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
   readonly moderationStyle: string,
-  readonly moderationGuidelines: RevisionEdit,
+  readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
   readonly commentSorting: string,
@@ -1025,7 +1026,7 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly afSequenceDraftCount: number,
   readonly sequenceDraftCount: number,
   readonly moderationStyle: string,
-  readonly moderationGuidelines: RevisionDisplay,
+  readonly moderationGuidelines: RevisionDisplay|null,
   readonly bannedUserIds: Array<string>,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1056,7 +1057,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 }
 
 interface UsersEdit extends UsersProfile { // fragment on Users
-  readonly moderationGuidelines: RevisionEdit,
+  readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
   readonly hideIntercom: boolean,
   readonly commentSorting: string,
@@ -1133,9 +1134,9 @@ interface unclaimedReportsList_user { // fragment on Users
 interface unclaimedReportsList_comment { // fragment on Comments
   readonly _id: string,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly baseScore: number,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
   readonly postedAt: Date,
   readonly deleted: boolean,
   readonly postId: string,
@@ -1154,7 +1155,7 @@ interface unclaimedReportsList_post { // fragment on Posts
   readonly slug: string,
   readonly title: string,
   readonly isEvent: boolean,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
 }
 
 interface unclaimedReportsList_claimedUser { // fragment on Users
@@ -1211,7 +1212,7 @@ interface ChaptersFragment { // fragment on Chapters
   readonly createdAt: Date,
   readonly title: string,
   readonly subtitle: string,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
   readonly number: number,
   readonly sequenceId: string,
   readonly postIds: Array<string>,
@@ -1219,7 +1220,7 @@ interface ChaptersFragment { // fragment on Chapters
 }
 
 interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
-  readonly contents: RevisionEdit,
+  readonly contents: RevisionEdit|null,
 }
 
 interface SequencesPageTitleFragment { // fragment on Sequences
@@ -1231,7 +1232,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly createdAt: Date,
   readonly userId: string,
   readonly user: UsersMinimumInfo,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
   readonly gridImageId: string,
   readonly bannerImageId: string,
   readonly color: string,
@@ -1245,7 +1246,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
 }
 
 interface SequencesEdit extends SequencesPageFragment { // fragment on Sequences
-  readonly contents: RevisionEdit,
+  readonly contents: RevisionEdit|null,
 }
 
 interface SequencesNavigationFragment { // fragment on Sequences
@@ -1289,7 +1290,7 @@ interface BookPageFragment { // fragment on Books
   readonly title: string,
   readonly number: number,
   readonly subtitle: string,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
   readonly sequenceIds: Array<string>,
   readonly sequences: Array<SequencesPageFragment>,
   readonly postIds: Array<string>,
@@ -1298,7 +1299,7 @@ interface BookPageFragment { // fragment on Books
 }
 
 interface BookEdit extends BookPageFragment { // fragment on Books
-  readonly contents: RevisionEdit,
+  readonly contents: RevisionEdit|null,
 }
 
 interface CollectionsPageFragment { // fragment on Collections
@@ -1308,14 +1309,14 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly userId: string,
   readonly user: UsersMinimumInfo,
   readonly title: string,
-  readonly contents: RevisionDisplay,
+  readonly contents: RevisionDisplay|null,
   readonly firstPageLink: string,
   readonly gridImageId: string,
   readonly books: Array<BookPageFragment>,
 }
 
 interface CollectionsEditFragment extends CollectionsPageFragment { // fragment on Collections
-  readonly contents: RevisionEdit,
+  readonly contents: RevisionEdit|null,
 }
 
 interface SuggestAlignmentPost extends PostsList { // fragment on Posts
@@ -1447,7 +1448,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
 }
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
-  readonly description: RevisionEdit,
+  readonly description: RevisionEdit|null,
 }
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
@@ -1515,11 +1516,11 @@ interface TagRelVotes { // fragment on Votes
   readonly documentId: string,
   readonly votedAt: Date,
   readonly isUnvote: boolean,
-  readonly tagRel: WithVoteTagRel,
+  readonly tagRel: WithVoteTagRel|null,
 }
 
 interface TagVotingActivity extends TagRelVotes { // fragment on Votes
-  readonly tagRel: TagRelFragment,
+  readonly tagRel: TagRelFragment|null,
 }
 
 interface VotedItem { // fragment on Votes
@@ -1588,7 +1589,7 @@ interface FragmentTypes {
   CommentEdit: CommentEdit
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
-  CommentsListWithPostMetadata: CommentsListWithPostMetadata
+  CommentsListWithParentMetadata: CommentsListWithParentMetadata
   WithVoteComment: WithVoteComment
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics

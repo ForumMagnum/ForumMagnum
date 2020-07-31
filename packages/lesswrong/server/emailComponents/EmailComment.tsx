@@ -74,7 +74,7 @@ const EmailComment = ({commentId, classes}) => {
   const { document: comment, loading, error } = useSingle({
     documentId: commentId,
     collection: Comments,
-    fragmentName: "CommentsListWithPostMetadata",
+    fragmentName: "CommentsListWithParentMetadata",
   });
   
   if (loading) return null;

@@ -36,7 +36,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     <AlignmentCrosspostMessage post={post} />
     { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
     <LinkPostMessage post={post} />
-    {query?.revision && <PostsRevisionMessage post={post} />}
+    {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }
 

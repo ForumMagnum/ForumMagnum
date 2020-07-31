@@ -63,9 +63,9 @@ const NewPostEmail = ({documentId, classes, reason}: {
       </div>}
     </div>
     
-    <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
+    {document.contents && <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
       __html: document.contents.html
-    }} />
+    }} />}
     
     <a href={Posts.getPageUrl(document, true)}>Discuss</a><br/><br/>
     

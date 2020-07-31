@@ -53,9 +53,9 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
     {<UsersName user={post.user} simple={simple} />}
     {post.coauthors.map(coauthor =>
       <span key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></span>)}
-    {renderBestAnswerAuthor && <span className={classNames(classes.bestAnswerAuthor, {[classes.new]: newPromotedComments})}>
+    {renderBestAnswerAuthor && post.bestAnswer && <span className={classNames(classes.bestAnswerAuthor, {[classes.new]: newPromotedComments})}>
       , <ModeCommentIcon className={classNames(classes.bestAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UsersName user={post.bestAnswer.user} simple={simple} />
+      <UsersName user={post.bestAnswer.user || undefined} simple={simple} />
     </span>}
   </div>;
 };

@@ -121,10 +121,13 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment CommentsListWithPostMetadata on Comment {
+  fragment CommentsListWithParentMetadata on Comment {
     ...CommentsList
     post {
       ...PostsMinimumInfo
+    }
+    tag {
+      ...TagBasicInfo
     }
   }
 `);

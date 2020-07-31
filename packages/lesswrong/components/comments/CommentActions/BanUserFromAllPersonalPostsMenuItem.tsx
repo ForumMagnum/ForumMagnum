@@ -28,7 +28,7 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPe
       updateUser({
         selector: { _id: currentUser._id },
         data: {bannedPersonalUserIds:bannedPersonalUserIds},
-      }).then(()=>flash({messageString: `User ${comment.user.displayName} is now banned from commenting on any of your personal blog posts`}))
+      }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your personal blog posts`}))
     }
   }
 

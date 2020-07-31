@@ -21,7 +21,7 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'CommentsListWithPostMetadata',
+    fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: false,
     pollInterval: 0,
     queryLimitName: "recentCommentsLimit",
@@ -40,7 +40,7 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
         <div key={comment._id}>
           <Components.CommentsNode
             comment={comment}
-            post={comment.post}
+            post={comment.post || undefined}
             showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine

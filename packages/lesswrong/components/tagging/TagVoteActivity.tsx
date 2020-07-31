@@ -41,7 +41,7 @@ const TagVoteActivityRow = ({vote, classes}: {
   return (
     <tr key={vote._id} className={classes.voteRow}>
       <td>{vote.userId?.slice(7,10)}</td>
-      <td className={classes.tagCell}><FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore /></td>
+      <td className={classes.tagCell}>{vote.tagRel?.tag && <FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel || undefined} hideScore />}</td>
       <td> <Link to={vote.tagRel?.post && Posts.getPageUrl(vote.tagRel.post)}> {vote.tagRel?.post?.title} </Link> </td>
       <td>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
       <td><FormatDate date={vote.votedAt}/></td>
