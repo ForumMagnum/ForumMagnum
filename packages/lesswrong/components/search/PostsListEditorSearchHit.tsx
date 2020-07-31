@@ -26,7 +26,7 @@ const PostsListEditorSearchHit = ({hit, classes}) => {
     pageElementContext: "postListEditorSearchHit",
   });
   const { LWPopper, PostsPreviewTooltipSingle, PostsTitle, MetaInfo, FormatDate} = Components
-  console.log(hit)
+
   return (
     <div className={classes.root} {...eventHandlers}>
       <LWPopper
