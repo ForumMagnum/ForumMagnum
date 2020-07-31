@@ -1,6 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from '../../lib/collections/users/collection';
 import Menu from '@material-ui/core/Menu';

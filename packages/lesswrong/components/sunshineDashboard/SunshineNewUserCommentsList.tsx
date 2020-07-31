@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'

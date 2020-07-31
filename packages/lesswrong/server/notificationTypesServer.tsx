@@ -89,6 +89,7 @@ export const NewShortformNotification = serverRegisterNotificationType({
   emailSubject: async ({user, notifications}) => {
     const comment = Comments.findOne(notifications[0].documentId)
     const post = comment?.postId && Posts.findOne(comment.postId)
+    // This notification type should never be triggered on tag-comments, so we just throw an error here
     if (!post) throw Error(`Can't find post to generate subject-line for: ${comment}`)
     return 'New comment on "' + post.title + '"';
   },

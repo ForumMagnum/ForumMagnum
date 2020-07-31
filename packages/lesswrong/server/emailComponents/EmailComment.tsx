@@ -7,7 +7,6 @@ import groupBy from 'lodash/groupBy';
 import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
-import * as _ from 'underscore';
 import filter from 'lodash/filter';
 import Tags from '../../lib/collections/tags/collection';
 
