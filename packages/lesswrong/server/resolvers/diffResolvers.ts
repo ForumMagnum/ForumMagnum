@@ -54,22 +54,12 @@ addGraphQLResolvers({
       const diffHtmlUnsafe = diff(before.html, after.html);
       
       const $ = cheerio.load(diffHtmlUnsafe)
-
       $('body').children().each(function(i, elem) {
-        console.log()
-        // console.log(elem)
-        const e = $(this)
-        console.log("A", i, e)
-        if (e.find('ins').length) {
-          console.log(e.find('ins').length)
-          return
+        const e = $(elem)
+        if (!e.find('ins').length && !e.find('del').length) {
+          e.remove()
         }
-        e.remove()
       })
-      // $('del').each(del => {
-      //   console.log("b", del)
-      //   console.log($(del).html())
-      // });
 
       // Sanitize (in case node-htmldiff has any parsing glitches that would
       // otherwise lead to XSS)
