@@ -8,7 +8,7 @@ import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
 import qs from 'qs'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "& a:hover, & a:active": {
       "& $icon": {

@@ -16,7 +16,7 @@ import { wikiGradeDefinitions } from '../../lib/collections/tags/schema';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     margin: "auto",
     maxWidth: 1000

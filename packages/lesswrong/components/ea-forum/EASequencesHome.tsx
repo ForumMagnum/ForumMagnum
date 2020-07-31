@@ -4,7 +4,7 @@ import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Typography } from '@material-ui/core';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,

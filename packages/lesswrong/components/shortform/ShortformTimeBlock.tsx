@@ -4,7 +4,7 @@ import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import {queryIsUpdating} from '../common/queryStatusUtils'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   shortformGroup: {
     marginTop: 12,
   },

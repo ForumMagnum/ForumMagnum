@@ -53,7 +53,7 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   main: {
     paddingTop: 50,
     paddingBottom: 15,
@@ -127,7 +127,7 @@ interface ExternalProps {
 }
 interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateUserProps {
   cookies: any,
-  theme: any,
+  theme: ThemeType,
 }
 interface LayoutState {
   timezone: string,

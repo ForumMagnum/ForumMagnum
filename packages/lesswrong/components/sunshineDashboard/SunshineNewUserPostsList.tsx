@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   post: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,

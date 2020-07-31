@@ -8,7 +8,7 @@ import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     cursor: "pointer",

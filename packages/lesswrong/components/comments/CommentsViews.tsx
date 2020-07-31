@@ -21,7 +21,7 @@ export const viewNames = {
   'postLWComments': 'top scoring (include LW)',
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'inline'
   },

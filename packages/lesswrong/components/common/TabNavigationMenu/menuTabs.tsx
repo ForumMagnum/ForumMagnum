@@ -3,6 +3,7 @@ import { Components } from '../../../lib/vulcan-lib';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
+import { conceptsIcon } from '../../icons/conceptsIcon';
 import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
@@ -82,7 +83,7 @@ export default {
       title: 'Concepts',
       mobileTitle: 'Concepts',
       link: '/tags/all',
-      icon: questionsGlobeIcon,
+      icon: conceptsIcon,
       tooltip: <div>
         Get an overview over all the concepts used on LessWrong
       </div>,

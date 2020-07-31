@@ -5,7 +5,7 @@ import { Comments } from '../../lib/collections/comments';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: theme.spacing.unit
   },

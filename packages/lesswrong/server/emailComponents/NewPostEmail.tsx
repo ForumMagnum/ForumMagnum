@@ -7,7 +7,7 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import './EmailPostDate';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   heading: {
     textAlign: "center",
   },

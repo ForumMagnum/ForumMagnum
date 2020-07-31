@@ -4,7 +4,7 @@ import ModeCommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",

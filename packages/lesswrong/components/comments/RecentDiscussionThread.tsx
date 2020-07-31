@@ -14,7 +14,7 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -94,7 +94,8 @@ const styles = theme => ({
     ...theme.typography.display2,
     ...theme.typography.postStyle,
     marginTop: 0,
-    marginBottom: 12,
+    marginBottom: 8,
+    display: "block",
     fontSize: "1.75rem",
   }
 })

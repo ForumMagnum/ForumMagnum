@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {

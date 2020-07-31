@@ -4,7 +4,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
     maxWidth:650,
     paddingBottom: theme.spacing.unit*4,

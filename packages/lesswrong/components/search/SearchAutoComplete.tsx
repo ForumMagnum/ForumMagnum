@@ -5,7 +5,7 @@ import { isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   autoComplete: {
     '& input': {
       ...theme.typography.body2,

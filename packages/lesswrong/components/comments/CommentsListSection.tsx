@@ -15,7 +15,7 @@ import classNames from 'classnames';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontWeight: 400,
     margin: "0px auto 15px auto",

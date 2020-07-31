@@ -4,7 +4,7 @@ import NotesIcon from '@material-ui/icons/Notes';
 import { Comments } from "../../../lib/collections/comments";
 import { Link } from '../../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],

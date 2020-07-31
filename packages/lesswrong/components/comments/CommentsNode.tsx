@@ -11,7 +11,7 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: `solid 1px ${theme.palette.commentBorderGrey}`,
     cursor: "default",

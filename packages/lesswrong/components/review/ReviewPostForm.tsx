@@ -5,7 +5,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { Link } from '../../lib/reactRouterWrapper';
 import Posts from '../../lib/collections/posts/collection';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: "white",
     width: 600,

@@ -17,7 +17,7 @@ import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import classNames from 'classnames';
 import DescriptionIcon from '@material-ui/icons/Description'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
      color: red['A100']
   },

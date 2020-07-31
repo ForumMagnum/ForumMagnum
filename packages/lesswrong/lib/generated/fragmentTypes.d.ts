@@ -118,6 +118,10 @@ interface PostsBase_group { // fragment on Localgroups
   readonly name: string,
 }
 
+interface PostTagRelevance { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+}
+
 interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserVotes: Array<VoteFragment>,
 }
@@ -1565,6 +1569,7 @@ interface FragmentTypes {
   VotesDefaultFragment: VotesDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
+  PostTagRelevance: PostTagRelevance
   PostsWithVotes: PostsWithVotes
   PostsAuthors: PostsAuthors
   PostsList: PostsList

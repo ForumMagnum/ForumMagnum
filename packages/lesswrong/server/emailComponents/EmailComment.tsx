@@ -10,7 +10,7 @@ import './EmailContentItemBody';
 import filter from 'lodash/filter';
 import Tags from '../../lib/collections/tags/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   comment: {
   },
 });

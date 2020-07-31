@@ -5,7 +5,7 @@ import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,

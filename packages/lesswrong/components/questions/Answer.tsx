@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   postContent: {
     ...answerStyles(theme),
   },

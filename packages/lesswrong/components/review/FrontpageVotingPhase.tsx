@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { reviewAlgorithm } from "./FrontpageReviewPhase";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
     marginTop: 6,
     marginBottom: 4
