@@ -46,7 +46,7 @@ const TagProgressBar = ({classes}: {
 
   const { totalCount: untaggedTotal } = useMulti({
     terms: {
-      view: "tagProgressTagged",
+      view: "tagProgressUntagged",
       limit: 0
     },
     collection: Posts,
