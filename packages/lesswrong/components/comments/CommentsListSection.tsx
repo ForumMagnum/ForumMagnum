@@ -11,17 +11,19 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import classNames from 'classnames';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
 const styles = theme => ({
   root: {
     fontWeight: 400,
-    maxWidth: 720,
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
-
     position: "relative"
+  },
+  maxWidthRoot: {
+    maxWidth: 720,
   },
   inline: {
     display: 'inline'
@@ -153,7 +155,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
-      <div className={classes.root}>
+      <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
 

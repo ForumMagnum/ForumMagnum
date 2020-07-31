@@ -195,7 +195,8 @@ export const NewReplyToYouNotification = registerNotificationType({
   userSettingField: "notificationRepliesToMyComments",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' replied to your comment on "' + Posts.findOne(document.postId)?.title + '"';
+    let parentTitle = document.postId ? Posts.findOne(document.postId)?.title : Tags.findOne(document.tagId)?.name
+    return Comments.getAuthorName(document) + ' replied to your comment on "' + parentTitle + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

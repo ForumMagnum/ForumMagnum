@@ -141,17 +141,17 @@ const TagPage = ({classes}: {
     <SingleColumnSection>
       <div className={classes.wikiSection}>
         <AnalyticsContext pageSectionContext="wikiSection">
-          <div className={classes.titleSection}>
+          <div>
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
             {currentUser ? 
-              <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+              <Link className={classes.button} to={`/tag/${tag.slug}/edit`}>
                 <EditOutlinedIcon /> Edit Wiki
               </Link> : 
-              <a className={classes.editButton} onClick={(ev) => {
+              <a className={classes.button} onClick={(ev) => {
                 openDialog({
                   componentName: "LoginPopup",
                   componentProps: {}

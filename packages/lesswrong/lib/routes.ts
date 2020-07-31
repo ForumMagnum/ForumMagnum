@@ -218,6 +218,7 @@ addRoute(
     titleComponentName: 'TagPageTitle',
     subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
+    background: "white"
   },
   {
     name: 'tagEdit',

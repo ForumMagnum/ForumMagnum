@@ -232,7 +232,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               </div>
             )}
 
-            {showPostTitle && (comment as CommentsListWithPostMetadata)?.post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{(comment as CommentsListWithPostMetadata).post.title}</Link>}
+            {showPostTitle && (comment as CommentsListWithPostMetadata).post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{(comment as CommentsListWithPostMetadata).post.title}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
