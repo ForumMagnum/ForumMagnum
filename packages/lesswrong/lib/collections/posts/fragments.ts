@@ -106,6 +106,9 @@ registerFragment(`
     bestAnswer {
       ...CommentsList
     }
+    lastPromotedComment {
+      ...CommentsList
+    }
   }
 `);
 
