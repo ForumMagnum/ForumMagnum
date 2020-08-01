@@ -233,6 +233,11 @@ addRoute(
     title: "All Tags",
   },
   {
+    name: "Concepts",
+    path:'/concepts',
+    redirect: () => `/tags/all`,
+  },
+  {
     name: 'tagVoting',
     path: '/tagVoting',
     componentName: 'TagVoteActivity',
@@ -582,11 +587,6 @@ switch (forumTypeSetting.get()) {
         name: 'eaSequencesHome',
         path: '/sequences',
         componentName: 'EASequencesHome'
-      },
-      {
-        name: "Concepts",
-        path:'/concepts',
-        redirect: () => `/tags/all`,
       },
       {
         name: "TagsAll",
