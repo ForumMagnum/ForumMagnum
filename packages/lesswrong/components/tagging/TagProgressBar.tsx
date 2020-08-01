@@ -5,6 +5,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
+import Users from '../../lib/collections/users/collection';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { useCurrentUser } from '../common/withUser';
+import { useDialog } from '../common/withDialog';
+import { useMessages } from '../common/withMessages';
 
 const styles = theme => ({
   root: {
@@ -16,6 +21,18 @@ const styles = theme => ({
     boxShadow: theme.boxShadow,
     ...theme.typography.postStyle
   },
+  secondaryInfo: {
+    display: 'flex',
+    ...theme.typography.commentStyle,
+    justifyContent: 'space-between',
+    fontSize: '1rem',
+    color: 'rgba(0,0,0,0.55)',
+    marginTop: 8
+  },
+  helpText: {
+  },
+  hideButton: {
+  },
   inner: {
     width: "100%",
   },
@@ -23,8 +40,6 @@ const styles = theme => ({
     display: "block"
   },
   title: {
-    flexGrow: 1,
-    flexBasis: 1,
     marginRight: "auto"
   },
   link: {
@@ -43,6 +58,13 @@ const TagProgressBar = ({classes}: {
 }) => {
 
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
+  const currentUser = useCurrentUser();
+  const {mutate: updateUser} = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  });
+  const { openDialog } = useDialog();
+  const { flash } = useMessages();
 
   const { totalCount: untaggedTotal } = useMulti({
     terms: {
@@ -67,6 +89,32 @@ const TagProgressBar = ({classes}: {
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
+
+  const hideClickHandler = async () => {
+    if (currentUser) {
+      await updateUser({
+        selector: { _id: currentUser._id},
+        data: {
+          hideTaggingProgressBar: true
+        },
+      })
+      flash({
+        messageString: "Hid tagging progress bar from the frontpage",
+        type: "success",
+        action: () => void updateUser({
+          selector: { _id: currentUser._id},
+          data: {
+            hideTaggingProgressBar: false
+          },
+        })
+      })
+    } else {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+    }
+  }
 
   if (!untaggedTotal || !postsTotal) return null
 
@@ -105,8 +153,21 @@ const TagProgressBar = ({classes}: {
             <div><em>(Filtered for 25+ karma)</em></div>
           </div>}
         >
-          <LinearProgress variant="buffer" value={((postsTotal - untaggedTotal)/postsTotal)*100} />
-      </LWTooltip>
+          <LinearProgress variant="determinate" value={((postsTotal - untaggedTotal)/postsTotal)*100} />
+        </LWTooltip>
+        <div className={classes.secondaryInfo}>
+          <div className={classes.helpText}>
+            {(postsTotal - untaggedTotal)} out of {postsTotal} posts with more than 25 karma have been tagged
+          </div>
+          <LWTooltip title={"Hide this progress bar from the frontpage"}>
+            <a 
+              className={classes.hideButton}
+              onClick={hideClickHandler}
+            > 
+              Hide 
+            </a>
+          </LWTooltip>
+        </div>
       </div>
   </div>
 }
