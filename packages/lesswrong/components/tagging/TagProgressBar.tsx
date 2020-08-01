@@ -40,7 +40,7 @@ const styles = theme => ({
     display: "block"
   },
   title: {
-    flexGrow: 1,	
+    flexGrow: 1,
     flexBasis: 1,
     marginRight: "auto"
   },
