@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 
-const parseIds = (urlStr) => {
+const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
   return urlStr.split(",");
 }

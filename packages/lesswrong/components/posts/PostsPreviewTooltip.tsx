@@ -10,7 +10,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const POST_PREVIEW_WIDTH = 400
 
-export const highlightStyles = theme => ({
+export const highlightStyles = (theme: ThemeType) => ({
   ...postHighlightStyles(theme),
   marginTop: theme.spacing.unit*2.5,
   marginBottom: theme.spacing.unit*1.5,

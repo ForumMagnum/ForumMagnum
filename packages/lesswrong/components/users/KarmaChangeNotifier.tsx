@@ -95,7 +95,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and
 // zero, respectively.
-const ColoredNumber = ({n, classes}) => {
+const ColoredNumber = ({n, classes}: {
+  n: number,
+  classes: ClassesType
+}) => {
   if (n>0) {
     return <span className={classes.gainedPoints}>{`+${n}`}</span>
   } else if (n==0) {
@@ -105,7 +108,11 @@ const ColoredNumber = ({n, classes}) => {
   }
 }
 
-const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
+const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
+  karmaChanges: any,
+  classes: ClassesType,
+  handleClose: (ev: MouseEvent)=>any,
+}) => {
   const { posts, comments, updateFrequency } = karmaChanges
   const noKarmaChanges = !((posts && (posts.length > 0)) || (comments && (comments.length > 0)))
   

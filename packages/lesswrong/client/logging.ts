@@ -27,7 +27,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 
 // Initializing sentry on the client browser
 
-function identifyUserToSentry(user) {
+function identifyUserToSentry(user: UsersCurrent) {
   // Set user in sentry scope
   Sentry.configureScope((scope) => {
     scope.setUser({id: user._id, email: user.email, username: user.username});
@@ -36,7 +36,7 @@ function identifyUserToSentry(user) {
 
 addCallback('events.identify', identifyUserToSentry)
 
-function addUserIdToGoogleAnalytics(user) {
+function addUserIdToGoogleAnalytics(user: UsersCurrent) {
   if (window && (window as any).ga) {
     (window as any).ga('set', 'userId', user._id); // Set the user ID using signed-in user_id.
   }

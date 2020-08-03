@@ -46,7 +46,7 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   }
 }
 
-async function algoliaExportByCollectionName(collectionName) {
+async function algoliaExportByCollectionName(collectionName: CollectionNameString) {
   switch (collectionName) {
     case 'Posts':
       await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
@@ -70,7 +70,7 @@ async function algoliaExportByCollectionName(collectionName) {
 
 export async function algoliaExportAll() {
   for (let collectionName in algoliaIndexNames)
-    await algoliaExportByCollectionName(collectionName);
+    await algoliaExportByCollectionName(collectionName as CollectionNameString);
 }
 
 

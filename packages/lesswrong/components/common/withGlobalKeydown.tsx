@@ -36,7 +36,7 @@ const withGlobalKeydown = (WrappedComponent) => {
 
 export default withGlobalKeydown
 
-export const useGlobalKeydown = (keyboardHandlerFn) => {
+export const useGlobalKeydown = (keyboardHandlerFn: (this: Document, ev: KeyboardEvent)=>any) => {
   React.useEffect(() => {
     if (Meteor.isClient) {
       document.addEventListener('keydown', keyboardHandlerFn)

@@ -11,7 +11,7 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-export const sequencesImageScrim = theme => ({
+export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
   bottom: 0,
   height: 150,

@@ -10,7 +10,7 @@ import { accessFilterSingle } from '../utils/schemaUtils';
 
 const alignmentCommentResolvers = {
   Mutation: {
-    async alignmentComment(root, { commentId, af }, context: ResolverContext) {
+    async alignmentComment(root: void, {commentId, af}: {commentId: string, af: boolean}, context: ResolverContext) {
       const comment = context.Comments.findOne(commentId)
 
       if (Users.canDo(context.currentUser, "comments.alignment.move.all")) {
@@ -33,7 +33,7 @@ addGraphQLMutation('alignmentComment(commentId: String, af: Boolean): Comment');
 
 const alignmentPostResolvers = {
   Mutation: {
-    async alignmentPost(root, { postId, af }, context: ResolverContext) {
+    async alignmentPost(root: void, {postId, af}: {postId: string, af: boolean}, context: ResolverContext) {
       const post = context.Posts.findOne(postId)
 
       if (Users.canMakeAlignmentPost(context.currentUser, post)) {

@@ -48,7 +48,9 @@ const PrivateMessagesEmailComponent = registerComponent("PrivateMessagesEmail", 
 
 /// A list of users, nicely rendered with links, comma separators and an "and"
 /// conjunction between the last two (if there are at least two).
-const EmailListOfUsers = ({users}) => {
+const EmailListOfUsers = ({users}: {
+  users: Array<DbUser>
+}) => {
   const { EmailUsername } = Components;
   
   if (users.length === 0) {
@@ -77,8 +79,8 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
     <p>Conversation with{" "}
       <EmailListOfUsers
         users={conversation.participantIds
-          .filter(id=>id!==currentUser!._id)
-          .map(id=>participantsById[id])
+          .filter((id: string)=>id!==currentUser!._id)
+          .map((id: string)=>participantsById[id])
         }
       />
     </p>

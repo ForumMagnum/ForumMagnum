@@ -14,7 +14,7 @@ import { getCollection, addCallback, newMutation, editMutation, removeMutation, 
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 
-async function updateConversationActivity (message) {
+async function updateConversationActivity (message: DbMessage) {
   // Update latest Activity timestamp on conversation when new message is added
   const user = Users.findOne(message.userId);
   const conversation = Conversations.findOne(message.conversationId);
@@ -29,7 +29,7 @@ async function updateConversationActivity (message) {
 }
 addCallback("messages.new.async", updateConversationActivity);
 
-function userEditVoteBannedCallbacksAsync(user, oldUser) {
+function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.voteBanned && !oldUser.voteBanned) {
     runCallbacksAsync('users.voteBanned.async', user);
   }
@@ -37,7 +37,7 @@ function userEditVoteBannedCallbacksAsync(user, oldUser) {
 }
 addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
 
-async function userEditNullifyVotesCallbacksAsync(user, oldUser) {
+async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
     runCallbacksAsync('users.nullifyVotes.async', user);
   }
@@ -46,7 +46,7 @@ async function userEditNullifyVotesCallbacksAsync(user, oldUser) {
 addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
 
 
-function userEditDeleteContentCallbacksAsync(user, oldUser) {
+function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.deleteContent && !oldUser.deleteContent) {
     runCallbacksAsync('users.deleteContent.async', user);
   }
@@ -54,7 +54,7 @@ function userEditDeleteContentCallbacksAsync(user, oldUser) {
 }
 addCallback("users.edit.async", userEditDeleteContentCallbacksAsync);
 
-function userEditBannedCallbacksAsync(user, oldUser) {
+function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
     runCallbacksAsync('users.ban.async', user);
   }
@@ -64,7 +64,7 @@ addCallback("users.edit.async", userEditBannedCallbacksAsync);
 
 // document, voteType, collection, user, updateDocument
 
-const reverseVote = async (vote) => {
+const reverseVote = async (vote: DbVote) => {
   const collection = getCollection(vote.collectionName);
   const document = collection.findOne({_id: vote.documentId});
   const voteType = vote.type;
@@ -78,7 +78,7 @@ const reverseVote = async (vote) => {
   }
 }
 
-const nullifyVotesForUserAndCollection = async (user, collection) => {
+const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   const collectionName = Utils.capitalize(collection._name);
   const votes = await Votes.find({
     collectionName: collectionName,
@@ -94,19 +94,19 @@ const nullifyVotesForUserAndCollection = async (user, collection) => {
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-async function nullifyCommentVotes(user) {
+async function nullifyCommentVotes(user: DbUser) {
   await nullifyVotesForUserAndCollection(user, Comments);
   return user;
 }
 addCallback("users.nullifyVotes.async", nullifyCommentVotes)
 
-async function nullifyPostVotes(user) {
+async function nullifyPostVotes(user: DbUser) {
   await nullifyVotesForUserAndCollection(user, Posts);
   return user;
 }
 addCallback("users.nullifyVotes.async", nullifyPostVotes)
 
-async function userDeleteContent(user) {
+async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = Posts.find({userId: user._id}).fetch();
@@ -197,12 +197,12 @@ async function userDeleteContent(user) {
 }
 addCallback("users.deleteContent.async", userDeleteContent);
 
-function userResetLoginTokens(user) {
+function userResetLoginTokens(user: DbUser) {
   Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 addCallback("users.ban.async", userResetLoginTokens);
 
-async function userIPBan(user) {
+async function userIPBan(user: DbUser) {
   const query = `
     query UserIPBan($userId:String) {
       user(input:{selector: {_id: $userId}}) {
@@ -236,7 +236,7 @@ async function userIPBan(user) {
 }
 addCallback("users.ban.async", userIPBan);
 
-function fixUsernameOnExternalLogin(user) {
+function fixUsernameOnExternalLogin(user: DbUser) {
   if (!user.username) {
     user.username = user.slug;
   }
@@ -244,7 +244,7 @@ function fixUsernameOnExternalLogin(user) {
 }
 addCallback("users.new.sync", fixUsernameOnExternalLogin);
 
-function fixUsernameOnGithubLogin(user) {
+function fixUsernameOnGithubLogin(user: DbUser) {
   if (user.services && user.services.github) {
     //eslint-disable-next-line no-console
     console.info("Github login detected, setting username and slug manually");
@@ -256,7 +256,7 @@ function fixUsernameOnGithubLogin(user) {
 }
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
 
-function updateReadStatus(event) {
+function updateReadStatus(event: DbLWEvent) {
   if (event.userId && event.documentId) {
     ReadStatuses.update({
       postId: event.documentId,

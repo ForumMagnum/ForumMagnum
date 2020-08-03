@@ -10,7 +10,11 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
-const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
+const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
+  isSubtitle: boolean,
+  siteName: string,
+  classes: ClassesType,
+}) => {
   const { params: {_id, postId} } = useLocation();
   const { document: post, loading } = useSingle({
     documentId: _id || postId,

@@ -33,7 +33,8 @@ const voteResolver = {
     // compatibility.
     //
     // Returns the document that was voted upon, with its score updated.
-    async vote(root, {documentId, voteType, collectionName, voteId}, context: ResolverContext) {
+    async vote(root: void, args: {documentId: string, voteType: string, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
+      const {documentId, voteType, collectionName, voteId} = args;
       const { currentUser } = context;
       const collection = context[collectionName];
       

@@ -3,13 +3,13 @@ import { algoliaAppIdSetting, algoliaSearchKeySetting, algoliaPrefixSetting } fr
 
 const ALGOLIA_PREFIX = algoliaPrefixSetting.get()
 
-export const algoliaIndexNames: Record<string,string> = {
+export const algoliaIndexNames: Record<CollectionNameString,string> = {
   Comments: ALGOLIA_PREFIX+'comments',
   Posts: ALGOLIA_PREFIX+'posts',
   Users: ALGOLIA_PREFIX+'users',
   Sequences: ALGOLIA_PREFIX+'sequences',
   Tags: ALGOLIA_PREFIX+'tags',
-};
+} as Record<CollectionNameString,string>;
 
 export const isAlgoliaEnabled = !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get();
 

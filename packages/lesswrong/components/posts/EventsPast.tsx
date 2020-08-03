@@ -9,7 +9,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit
   }
 })
-const EventsPast = ({ classes }) => {
+const EventsPast = ({ classes }: {
+  classes: ClassesType,
+}) => {
   const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = forumAllPostsNumDaysSetting.get();
