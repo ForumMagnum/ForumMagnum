@@ -17,13 +17,13 @@ export const Tags: ExtendedTagsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
-    newCheck: (user, tag) => {
+    newCheck: (user: DbUser|null, tag: DbTag|null) => {
       return userCanCreateTags(user);
     },
-    editCheck: (user, tag) => {
+    editCheck: (user: DbUser|null, tag: DbTag|null) => {
       return userCanCreateTags(user);
     },
-    removeCheck: (user, tag) => {
+    removeCheck: (user: DbUser|null, tag: DbTag|null) => {
       return false;
     },
   }),

@@ -3,7 +3,7 @@ import resolvers from '../../vulcan-users/resolvers';
 import { createCollection, addGraphQLQuery, Utils } from '../../vulcan-lib';
 import { Meteor } from 'meteor/meteor';
 
-const performCheck = (mutation, user, document) => {
+const performCheck = (mutation, user: DbUser|null, document: DbUser) => {
   if (!mutation.check(user, document))
     throw new Error(
       Utils.encodeIntlError({ id: 'app.mutation_not_allowed', value: `"${mutation.name}" on _id "${document._id}"` })
@@ -13,13 +13,13 @@ const performCheck = (mutation, user, document) => {
 const createMutation = {
   name: 'createUser',
 
-  check(user, document) {
+  check(user: DbUser|null, document: DbUser) {
     if (!user) return false;
     // OpenCRUD backwards compatibility
     return Users.canDo(user, ['user.create', 'users.new']);
   },
 
-  mutation(root, { data }, context) {
+  mutation(root: void, { data }, context: ResolverContext) {
     const { Users, currentUser } = context;
     performCheck(this, currentUser, data);
 
@@ -36,7 +36,7 @@ const createMutation = {
 const updateMutation = {
   name: 'updateUser',
 
-  check(user, document) {
+  check(user: DbUser|null, document: DbUser) {
     if (!user || !document) return false;
 
     if (Users.canDo(user, 'alignment.sidebar')) {
@@ -47,7 +47,7 @@ const updateMutation = {
     return Users.owns(user, document) ? Users.canDo(user, ['user.update.own', 'users.edit.own']) : Users.canDo(user, ['user.update.all', 'users.edit.all']);
   },
 
-  async mutation(root, { selector, data }, context) {
+  async mutation(root: void, { selector, data }, context: ResolverContext) {
     const { Users, currentUser } = context;
 
     const document = await Utils.Connectors.get(Users, selector);
@@ -72,13 +72,13 @@ const updateMutation = {
 const deleteMutation = {
   name: 'deleteUser',
 
-  check(user, document) {
+  check(user: DbUser|null, document: DbUser) {
     if (!user || !document) return false;
     // OpenCRUD backwards compatibility
     return Users.owns(user, document) ? Users.canDo(user, ['user.delete.own', 'users.remove.own']) : Users.canDo(user, ['user.delete.all', 'users.remove.all']);
   },
 
-  async mutation(root, { selector }, context) {
+  async mutation(root: void, { selector }, context: ResolverContext) {
 
     const { Users, currentUser } = context;
 
@@ -153,7 +153,7 @@ interface ExtendedUsersCollection extends UsersCollection {
   getActions: (user: UsersMinimumInfo|DbUser|null) => Array<string>
   isMemberOf: (user: UsersCurrent|DbUser|null, group: string) => boolean
   canDo: (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>) => boolean
-  owns: (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|UsersMinimumInfo) => boolean
+  owns: (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo) => boolean
   isAdmin: (user: UsersMinimumInfo|DbUser|null) => boolean
   canReadField: (user: UsersCurrent|DbUser|null, field: any, document: any) => boolean
   restrictViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>) => any

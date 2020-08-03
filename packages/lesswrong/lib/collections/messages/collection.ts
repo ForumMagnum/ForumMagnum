@@ -6,21 +6,21 @@ import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 const options = {
-  newCheck: (user, document) => {
+  newCheck: (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
       Users.canDo(user, 'messages.new.own') : Users.canDo(user, `messages.new.all`)
   },
 
-  editCheck: (user, document) => {
+  editCheck: (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
     Users.canDo(user, 'messages.edit.own') : Users.canDo(user, `messages.edit.all`)
   },
 
-  removeCheck: (user, document) => {
+  removeCheck: (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?

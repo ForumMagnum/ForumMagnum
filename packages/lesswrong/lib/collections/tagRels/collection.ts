@@ -65,13 +65,13 @@ export const TagRels: TagRelsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
-    newCheck: (user, tag) => {
+    newCheck: (user: DbUser|null, tag: DbTagRel|null) => {
       return userCanUseTags(user);
     },
-    editCheck: (user, tag) => {
+    editCheck: (user: DbUser|null, tag: DbTagRel|null) => {
       return userCanUseTags(user);
     },
-    removeCheck: (user, tag) => {
+    removeCheck: (user: DbUser|null, tag: DbTagRel|null) => {
       return false;
     },
   }),
