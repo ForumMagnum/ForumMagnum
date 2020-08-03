@@ -86,6 +86,7 @@ interface DbUser extends DbObject {
   nearbyEventsNotificationsRadius: number
   nearbyPeopleNotificationThreshold: number
   hideFrontpageMap: boolean
+  hideTaggingProgressBar: boolean
   needsReview: boolean
   sunshineSnoozed: boolean
   reviewedByUserId: string
