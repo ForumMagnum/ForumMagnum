@@ -131,7 +131,7 @@ const TagProgressBar = ({classes}: {
             <div><em>(Click through to read posts, and then tag them)</em></div>
           </div>}>
             <PostsItem2MetaInfo>
-              <Link className={classes.link} to={"/allPosts?filter=untagged&timeframe=allTime&sortBy=top"}>
+              <Link className={classes.link} to={"/allPosts?filter=untagged&timeframe=allTime&sortedBy=top"}>
                 Tag Posts
               </Link>
             </PostsItem2MetaInfo>
@@ -142,7 +142,7 @@ const TagProgressBar = ({classes}: {
             <div><em>(Click through to read posts, and then search for tags that will help users find specific, relevant content)</em></div>
           </div>}>
             <PostsItem2MetaInfo>
-              <Link className={classes.link} to={"/allPosts?filter=unNonCoreTagged&timeframe=allTime&sortBy=top"}>
+              <Link className={classes.link} to={"/allPosts?filter=unNonCoreTagged&timeframe=allTime&sortedBy=top"}>
                 Improve Post Tags
               </Link>
             </PostsItem2MetaInfo>
