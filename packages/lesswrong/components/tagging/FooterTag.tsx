@@ -15,6 +15,7 @@ export const tagStyle = theme => ({
   paddingRight: 6,
   marginBottom: 8,
   backgroundColor: 'rgba(0,0,0,0.07)',
+  color: 'rgba(0,0,0,.9)',
   borderRadius: 3,
   ...theme.typography.commentStyle,
   cursor: "pointer"
@@ -63,6 +64,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallText: {
     fontSize: 12,
+    paddingTop: 4,
+    paddingBottom: 4,
     marginBottom: 0
   }
 });
