@@ -403,7 +403,7 @@ addCallback("tagrels.new.async", TaggedPostNewNotifications);
 
 // add new comment notification callback on comment submit
 async function CommentsNewNotifications(comment: DbComment) {
-  if(Meteor.isServer && !comment.disableNotifications) {
+  if(Meteor.isServer) {
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
     let notifiedUsers: Array<any> = [];
