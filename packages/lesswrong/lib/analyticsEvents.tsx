@@ -91,7 +91,7 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip])
 
-  const track = useCallback((type?: string|undefined, trackingData?: Record<string,any>) => (type, trackingData) => {
+  const track = useCallback((type?: string|undefined, trackingData?: Record<string,any>) => {
     captureEvent(type || eventType, {
       ...trackingContext,
       ...eventProps,

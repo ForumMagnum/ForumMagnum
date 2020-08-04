@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 8,
     cursor: "pointer",
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[900],
     '&:hover': {
       color: theme.palette.lwTertiary.main
     }
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     width: 400,
     ...commentBodyStyles(theme),
-    
+
     // No hover-preview on small phone screens
     [theme.breakpoints.down('xs')]: {
       display: "none",
@@ -29,9 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tagDescription: {
     marginBottom: 12
-  },
-  hasDescription: {
-    color: theme.palette.grey[900]
   },
   postCount: {
     fontSize: ".85em",
@@ -54,6 +51,7 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
     fragmentName: "TagFragment",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
+
   return (
     <React.Fragment>
       <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
@@ -63,13 +61,13 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
             {tag && tag.description?.htmlHighlight ? <ContentItemBody
                 dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
                 description={`tag ${tag.name}`}
-              /> 
+              />
             : <em>No description</em>}
           </div>
           <div className={classes.postCount}>{hit.postCount} posts</div>
         </div>
       </PopperCard>
-      <span className={classNames(classes.root, {[classes.hasDescription]: tag?.description?.htmlHighlight})} onClick={onClick} >
+      <span className={classes.root} onClick={onClick} >
         {hit.name} <span className={classes.postCount}>({hit.postCount})</span>
       </span>
     </React.Fragment>

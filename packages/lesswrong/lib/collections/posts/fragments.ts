@@ -110,6 +110,12 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostTagRelevance on Post {
+    tagRelevance
+  }
+`);
+
+registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVotes{

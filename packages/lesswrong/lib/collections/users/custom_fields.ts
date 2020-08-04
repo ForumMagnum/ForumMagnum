@@ -950,6 +950,18 @@ addFieldsDict(Users, {
     label: "Hide the frontpage map"
   },
 
+  hideTaggingProgressBar: {
+    type: Boolean, 
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true, 
+    hidden: false,
+    label: "Hide the tagging progress bar",
+    order: 45,
+    group: formGroups.default
+  },
+
   needsReview: {
     type: Boolean,
     canRead: ['guests'],

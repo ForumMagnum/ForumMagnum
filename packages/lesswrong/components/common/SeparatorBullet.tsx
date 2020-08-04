@@ -3,8 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginLeft: 3,
-    marginRight: 3
+    marginLeft: 10,
+    marginRight: 10,
+    color: theme.palette.primary.main
   }
 })
 const SeparatorBullet = ({classes}: {

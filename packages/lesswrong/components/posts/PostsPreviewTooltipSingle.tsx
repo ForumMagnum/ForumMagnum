@@ -14,10 +14,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, }: {
+const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, postsList=false }: {
   classes: ClassesType,
   postId: string,
   truncateLimit?: number,
+  postsList?: boolean
 }) => {
   const { Loading, PostsPreviewTooltip  } = Components
 
@@ -32,7 +33,7 @@ const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, }: {
       <Loading/>
     </div>
   
-  return <PostsPreviewTooltip post={post} />
+  return <PostsPreviewTooltip post={post} postsList={postsList}/>
 }
 
 const PostsPreviewTooltipSingleComponent = registerComponent('PostsPreviewTooltipSingle', PostsPreviewTooltipSingle, {styles});
