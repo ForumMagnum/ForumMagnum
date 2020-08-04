@@ -14,7 +14,8 @@ export const tagStyle = theme => ({
   paddingLeft: 6,
   paddingRight: 6,
   marginBottom: 8,
-  backgroundColor: 'rgba(0,0,0,0.07)',
+  backgroundColor: theme.palette.grey[200],
+  border: `solid 1px ${theme.palette.grey[200]}`,
   color: 'rgba(0,0,0,.9)',
   borderRadius: 3,
   ...theme.typography.commentStyle,
@@ -48,8 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   core: {
     backgroundColor: "white",
-    paddingTop: 4,
-    paddingBottom: 4,
     border: "solid 1px rgba(0,0,0,.12)",
     color: theme.palette.grey[600]
   },
@@ -64,8 +63,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallText: {
     fontSize: 12,
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingTop: 1,
+    paddingBottom: 2,
     marginBottom: 0
   }
 });

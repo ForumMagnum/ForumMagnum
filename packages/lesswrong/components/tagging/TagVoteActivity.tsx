@@ -12,7 +12,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600]
   },
   headerCell: {
-    fontWeight: "bold"
+    fontWeight: 700,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
   },
   votingCell: {
     textAlign: "center",
@@ -22,12 +24,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 50
   },
   postCell: {
-    maxWidth: 300,
-    marginLeft: 8,
-    marginRight: 8
+    maxWidth: 316,
+    paddingLeft: 8,
+    paddingRight: 16
   },
   tagCell: {
-    maxWidth: 200,
+    maxWidth: 216,
+    paddingRight: 16
   },
   score: {
     fontSize: '1.2rem',
