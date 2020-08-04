@@ -4,7 +4,6 @@ import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/sty
 import forumTheme from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssCleanup from '../../components/themes/JssCleanup';
-import PropTypes from 'prop-types'
 
 const MuiThemeProviderWrapper = (props, context) => {
   return <MuiThemeProvider {...props}>
