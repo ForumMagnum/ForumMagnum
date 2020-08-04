@@ -21,7 +21,7 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
-const NotFPSubmittedWarning = ({className}) => <div className={className}>
+const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
 

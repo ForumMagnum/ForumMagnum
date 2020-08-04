@@ -32,7 +32,7 @@ export const hasVotedClient = ({userVotes, voteType}: {
 }
 
 // Calculate total power of all a user's votes on a document
-const calculateTotalPower = votes => _.pluck(votes, 'power').reduce((a: number, b: number) => a + b, 0);
+const calculateTotalPower = (votes: Array<VoteFragment>) => _.pluck(votes, 'power').reduce((a: number, b: number) => a + b, 0);
 
 
 // Add a vote of a specific type on the client

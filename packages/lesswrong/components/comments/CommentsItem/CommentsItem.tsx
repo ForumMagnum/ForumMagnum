@@ -148,7 +148,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: CommentsItemProps, nextState: CommentsItemState) {
     if(!shallowEqual(this.state, nextState))
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post"]))
@@ -158,7 +158,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
     return false;
   }
 
-  showReply = (event) => {
+  showReply = (event: React.MouseEvent) => {
     event.preventDefault();
     this.setState({showReply: true});
   }

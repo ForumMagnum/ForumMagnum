@@ -5,7 +5,13 @@ import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from './vulcan-lib';
 
-let eventDebouncersByName: Record<string,EventDebouncer> = {};
+let eventDebouncersByName: Partial<Record<string,EventDebouncer<any,any>>> = {};
+
+export type DebouncerTiming =
+    { type: "none" }
+  | { type: "delayed", delayMinutes: number, maxDelayMinutes?: number }
+  | { type: "daily", timeOfDayGMT: number }
+  | { type: "weekly", timeOfDayGMT: number, dayOfWeekGMT: string }
 
 // Defines a debouncable event type; that is, an event which, some time after
 // it happens, causes a function call, with events grouped together into a
@@ -65,13 +71,17 @@ let eventDebouncersByName: Record<string,EventDebouncer> = {};
 //    rule specified, this timing rule is used. If this argument is omitted,
 //    then a timing rule is required when adding an event.
 //  * callback: (key:JSON, events: Array[JSONObject])=>None
-export class EventDebouncer
+export class EventDebouncer<KeyType,ValueType>
 {
   name: string
-  defaultTiming: any
-  callback: any
+  defaultTiming?: DebouncerTiming
+  callback: (key: KeyType, events: Array<ValueType>)=>void
   
-  constructor({ name, defaultTiming, callback }) {
+  constructor({ name, defaultTiming, callback }: {
+    name: string,
+    defaultTiming: DebouncerTiming,
+    callback: (key: KeyType, events: Array<ValueType>)=>void,
+  }) {
     if (!name || !callback)
       throw new Error("EventDebouncer constructor: missing required argument");
     if (name in eventDebouncersByName)
@@ -90,7 +100,12 @@ export class EventDebouncer
   //  * data: (JSON)
   //  * timing: (Object)
   //  * af: (bool)
-  recordEvent = async ({key, data, timing=null, af=false}) => {
+  recordEvent = async ({key, data, timing=null, af=false}: {
+    key: KeyType,
+    data: ValueType,
+    timing?: DebouncerTiming|null,
+    af?: boolean,
+  }) => {
     const timingRule = timing || this.defaultTiming;
     if (!timingRule) {
       throw new Error("EventDebouncer.recordEvent: missing timing argument and no defaultTiming set.");
@@ -114,7 +129,7 @@ export class EventDebouncer
     });
   }
   
-  parseTiming = (timing) => {
+  parseTiming = (timing: DebouncerTiming) => {
     const now = new Date();
     const msPerMin = 60*1000;
     
@@ -145,7 +160,7 @@ export class EventDebouncer
     }
   }
   
-  _dispatchEvent = async (key, events) => {
+  _dispatchEvent = async (key: KeyType, events: Array<ValueType>) => {
     try {
       //eslint-disable-next-line no-console
       console.log(`Handling ${events.length} grouped ${this.name} events`);
@@ -160,7 +175,7 @@ export class EventDebouncer
 
 // Get the earliest time after now which matches the given time of day. Limited
 // to one-minute precision.
-export const getDailyBatchTimeAfter = (now, timeOfDayGMT) => {
+export const getDailyBatchTimeAfter = (now: Date, timeOfDayGMT: number) => {
   let todaysBatch = moment(now).tz("GMT");
   todaysBatch.set('hour', Math.floor(timeOfDayGMT));
   todaysBatch.set('minute', 60*(timeOfDayGMT%1));
@@ -176,7 +191,7 @@ export const getDailyBatchTimeAfter = (now, timeOfDayGMT) => {
 
 // Get the earliest time after now which matches the given time of day and day
 // of the week. One-minute precision.
-export const getWeeklyBatchTimeAfter = (now, timeOfDayGMT, dayOfWeekGMT) => {
+export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWeekGMT: string) => {
   const nextDailyBatch = moment(getDailyBatchTimeAfter(now, timeOfDayGMT)).tz("GMT");
   
   // Target day of the week, as an integer 0-6
@@ -187,7 +202,7 @@ export const getWeeklyBatchTimeAfter = (now, timeOfDayGMT, dayOfWeekGMT) => {
   return nextWeeklyBatch.toDate();
 }
 
-const dispatchEvent = async (event) => {
+const dispatchEvent = async (event: DbDebouncerEvents) => {
   const eventDebouncer = eventDebouncersByName[event.name];
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
@@ -273,7 +288,7 @@ const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false
 if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
-    schedule(parser) {
+    schedule(parser: any) {
       // Once per minute, on the minute
       return parser.cron('* * * * * *');
     },

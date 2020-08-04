@@ -217,7 +217,7 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
   const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
-  const handleSetUseQuadratic = (newUseQuadratic) => {
+  const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
       if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
         return
@@ -233,7 +233,7 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = async ({postId, score}) => await submitVote({variables: {postId, qualitativeScore: score}})
+  const dispatchQualitativeVote = async ({postId, score}: {postId: string, score: number}) => await submitVote({variables: {postId, qualitativeScore: score}})
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
   const dispatchQuadraticVote = async ({_id, postId, change, set}) => {

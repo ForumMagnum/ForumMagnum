@@ -6,7 +6,7 @@ import { addCallback } from '../lib/vulcan-lib/callbacks';
 function googleTagManagerInit() {
   const googleTagManagerId = googleTagManagerIdSetting.get()
   if (googleTagManagerId) {
-    (function (w, d, s, l, i) {
+    (function (w: any, d: any, s: any, l: any, i: any) {
       w[l] = w[l] || [];
       if (w[l]?.[0]?.['gtm.start']) {
         //eslint-disable-next-line no-console
@@ -29,7 +29,7 @@ function googleTagManagerInit() {
 
 googleTagManagerInit();
 
-const identifyLogRocketCallback = (currentUser) => {
+const identifyLogRocketCallback = (currentUser: UsersCurrent) => {
   const logRocketKey = logRocketApiKeySetting.get()
   if (!logRocketKey) return
 

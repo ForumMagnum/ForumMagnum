@@ -3,14 +3,14 @@ import { shallowEqual } from '../../lib/utils/componentUtils';
 import { Meteor } from 'meteor/meteor';
 
 interface ListeningComponentState {
-  eventListeners: Array<any>,
+  eventListeners: Array<(event: KeyboardEvent)=>void>,
 }
 
 const withGlobalKeydown = (WrappedComponent) => {
   return class ListeningComponent extends Component<any,ListeningComponentState> {
     state: ListeningComponentState = { eventListeners: []}
     
-    addKeydownListener = (callback) => {
+    addKeydownListener = (callback: (event: KeyboardEvent)=>void) => {
       if (Meteor.isClient) {
         document.addEventListener('keydown', callback)
         // Store event listener by modifying state in-place, rather than

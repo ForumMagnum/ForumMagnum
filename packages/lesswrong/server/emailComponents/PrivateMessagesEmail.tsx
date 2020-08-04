@@ -69,7 +69,12 @@ const EmailListOfUsers = ({users}: {
 }
 const EmailListOfUsersComponent = registerComponent("EmailListOfUsers", EmailListOfUsers);
 
-const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}) => {
+const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}: {
+  conversation: conversationsListFragment|DbConversation,
+  messages: Array<DbMessage>,
+  participantsById: Partial<Record<string,DbUser>>,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;
   const sitename = siteNameWithArticleSetting.get()
@@ -80,14 +85,14 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
       <EmailListOfUsers
         users={conversation.participantIds
           .filter((id: string)=>id!==currentUser!._id)
-          .map((id: string)=>participantsById[id])
+          .map((id: string)=>participantsById[id]!)
         }
       />
     </p>
     <p><a href={conversationLink}>View this conversation on {sitename}</a>.</p>
     
     {messages.map((message,i) => <div className={classes.message} key={i}>
-      <EmailUsername user={participantsById[message.userId]}/>
+      <EmailUsername user={participantsById[message.userId]!}/>
       {" "}<EmailFormatDate date={message.createdAt}/>
       <EmailContentItemBody dangerouslySetInnerHTML={{__html: message.contents.html}}/>
     </div>)}

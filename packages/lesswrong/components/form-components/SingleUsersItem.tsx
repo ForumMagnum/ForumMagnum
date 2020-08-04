@@ -15,7 +15,11 @@ const styles = {
   },
 };
 
-const SingleUsersItem = ({document, removeItem, classes }) => {
+const SingleUsersItem = ({document, removeItem, classes }: {
+  document: UsersProfile,
+  removeItem: (id: string)=>void,
+  classes: ClassesType
+}) => {
   if (document) {
     return <Chip
         onDelete={() => removeItem(document._id)}

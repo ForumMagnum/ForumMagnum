@@ -103,7 +103,11 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
 
 
 
-const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
+const LocationFormComponent = ({document, updateCurrentValues, classes}: {
+  document: any,
+  updateCurrentValues: any,
+  classes: ClassesType,
+}) => {
   const location = document?.location || ""
   const [ mapsLoaded ] = useGoogleMaps("LocationFormComponent")
   useEffect(() => {

@@ -49,7 +49,7 @@ const NotificationEmailPreviewPage = () => {
       <br/><br/>
       
       {loading && <Components.Loading/>}
-      {!loading && emails && emails.map((email,i) =>
+      {!loading && emails && emails.map((email, i:number) =>
         <Components.EmailPreview key={i} email={email}/>
       )}
   </Components.SingleColumnSection>

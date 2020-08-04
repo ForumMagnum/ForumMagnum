@@ -46,7 +46,7 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
       // box. Apply the hotkey if the target is either document.body (nothing
       // selected) or is an <a> tag (a spurious selection because you opened
       // a link in a new tab, usually).
-      if (ev.target === document.body || (ev.target && ev.target.tagName === 'A')) {
+      if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
         if (ev.keyCode == 37) { // Left
           if (post.prevPost)
             history.push(Posts.getPageUrl(post.prevPost, false, post.prevPost.sequence?._id));

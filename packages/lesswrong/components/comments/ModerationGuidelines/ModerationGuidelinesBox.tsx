@@ -106,7 +106,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
   if (loading)
     return <Components.Loading/>
 
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setExpanded(!expanded)
@@ -122,7 +122,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
     }
   }
 
-  const openEditDialog = (e) => {
+  const openEditDialog = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     openDialog({

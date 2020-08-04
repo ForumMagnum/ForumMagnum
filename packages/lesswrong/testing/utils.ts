@@ -58,7 +58,7 @@ export const catchGraphQLErrors = function(before?: any, after?: any) {
       this.errors = [];
       this.errorsRetrieved = false;
     }
-    addError(error) {
+    addError(error: any) {
       if (Array.isArray(error)) {
         for (let i=0; i<error.length; i++) {
           this.errors.push(error);
@@ -72,7 +72,7 @@ export const catchGraphQLErrors = function(before?: any, after?: any) {
   let errorCatcher = new ErrorCatcher();
 
   (before ? before : beforeEach)(() => {
-    setOnGraphQLError((errors) => {
+    setOnGraphQLError((errors: any) => {
       errorCatcher.addError(errors);
     });
   });
@@ -87,7 +87,7 @@ export const catchGraphQLErrors = function(before?: any, after?: any) {
 // Given an error thrown from GraphQL, assert that it is permissions-flavored
 // (as opposed to a type error, syntax error, or random unrecognized thing). If
 // given an array of errors, asserts that all of them are permissions flavored.
-export const assertIsPermissionsFlavoredError = (error) => {
+export const assertIsPermissionsFlavoredError = (error: any): void => {
   if (!isPermissionsFlavoredError(error)) {
     //eslint-disable-next-line no-console
     console.error(JSON.stringify(error));
@@ -95,7 +95,7 @@ export const assertIsPermissionsFlavoredError = (error) => {
   }
 }
 
-const isPermissionsFlavoredError = (error) => {
+const isPermissionsFlavoredError = (error: any): boolean => {
   if (Array.isArray(error)) {
     if (error.length === 0)
       return false;
