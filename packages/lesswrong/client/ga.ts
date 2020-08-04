@@ -34,8 +34,8 @@ const identifyLogRocketCallback = (currentUser: UsersCurrent) => {
   if (!logRocketKey) return
 
   LogRocket.init(logRocketKey)
-  const { karma = 0, afKarma = 0, frontpagePostCount = 0, voteCount = 0, createdAt, username, displayName: lWDisplayName } = currentUser
-  const additionalData = { karma, afKarma, frontpagePostCount, voteCount, createdAt, username, lWDisplayName }
+  const { karma = 0, afKarma = 0, createdAt, username, displayName: lWDisplayName } = currentUser
+  const additionalData = { karma, afKarma, createdAt, username, lWDisplayName }
   LogRocket.identify(currentUser._id, {
     // Don't show user display names by default
     displayName: currentUser._id,
