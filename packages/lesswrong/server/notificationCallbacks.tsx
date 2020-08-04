@@ -289,7 +289,11 @@ async function postsNewNotifications (post: DbPost) {
     }
     
     // remove this post's author
-    usersToNotify = _.without(usersToNotify, post.userId);
+    // TODO: Removed because this was written in a way that didn't work and didn't
+    // typecheck, but also, it seems fine for people to get notifications for their
+    // own submissions to localgroups? It's nice to have a preview of what other
+    // subscribed users would see.
+    //usersToNotify = _.without(usersToNotify, post.userId);
     
     const userIdsToNotify = _.map(usersToNotify, u=>u._id);
 
