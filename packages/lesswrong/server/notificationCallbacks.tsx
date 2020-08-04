@@ -148,7 +148,9 @@ const createNotification = async (userId: string, notificationType: string, docu
       currentUser: user,
       validate: false
     });
-    await notificationDebouncers[notificationType].recordEvent({
+    if (!notificationDebouncers[notificationType])
+      throw new Error("Invalid notification type");
+    await notificationDebouncers[notificationType]!.recordEvent({
       key: {notificationType, userId},
       data: createdNotification.data._id,
       timing: getNotificationTiming(notificationTypeSettings),
