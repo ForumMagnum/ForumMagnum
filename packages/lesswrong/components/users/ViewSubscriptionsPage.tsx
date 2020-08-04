@@ -148,7 +148,7 @@ const ViewSubscriptionsPage = ({classes}: {
       subscriptionType="newReplies"
       fragmentName="ShortformComments"
       renderDocument={(comment: ShortformComments) => <Link to={Comments.getPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, commentId: comment?._id, permalink: true})}>
-        author: {comment?.author} post: {comment?.post?.title}
+        author: {comment?.user?.displayName} post: {comment?.post?.title}
       </Link>}
       noSubscriptionsMessage="You are not subscribed to any comment replies."
     />
