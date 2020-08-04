@@ -124,9 +124,11 @@ const createNotification = async (userId: string, notificationType: string, docu
     link: getLink(notificationType, documentType, documentId),
   }
 
+  
+
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
   {
-    await createMutator({
+    const createdNotification = await createMutator({
       collection: Notifications,
       document: {
         ...notificationData,
@@ -136,6 +138,14 @@ const createNotification = async (userId: string, notificationType: string, docu
       currentUser: user,
       validate: false
     });
+    if (notificationTypeSettings.batchingFrequency !== "realtime") {
+      await notificationDebouncers[notificationType].recordEvent({
+        key: {notificationType, userId},
+        data: createdNotification.data._id,
+        timing: getNotificationTiming(notificationTypeSettings),
+        af: false, //TODO: Handle AF vs non-AF notifications
+      });
+    }
   }
   if (notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") {
     const createdNotification = await createMutator({
