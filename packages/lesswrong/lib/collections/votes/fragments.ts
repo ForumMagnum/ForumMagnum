@@ -35,13 +35,7 @@ registerFragment(`
   fragment TagVotingActivity on Vote {
     ...TagRelVotes
     tagRel {
-      ...TagRelBasicInfo
-      tag {
-        ...TagBasicInfo
-      }
-      post {
-        ...PostsBase
-      }
+      ...TagRelFragment
     }
   }
 `)

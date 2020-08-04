@@ -25,7 +25,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postCell: {
     maxWidth: 316,
-    paddingLeft: 8,
     paddingRight: 16
   },
   tagCell: {
@@ -37,6 +36,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     bottom: -1,
     margin: 5
+  },
+  smallCell: {
+    textAlign: "center"
   }
 })
 
@@ -53,8 +55,8 @@ const TagVoteActivityRow = ({vote, classes}: {
       <td className={classes.tagCell}>
         <FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore smallText/>
       </td>
-      <td>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
-      <td><FormatDate date={vote.votedAt}/></td>
+      <td className={classes.smallCell}>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
+      <td className={classes.smallCell}><FormatDate date={vote.votedAt}/></td>
       <td className={classes.votingCell}>
         <div className={classes.voteButtons}>
           <VoteButton
