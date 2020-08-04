@@ -104,6 +104,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
+    bio
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
