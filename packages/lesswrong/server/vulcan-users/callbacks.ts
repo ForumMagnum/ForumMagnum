@@ -25,8 +25,8 @@ import { addCallback, Utils } from '../vulcan-lib';
     // if this is not a dummy account, and is the first user ever, make them an admin
     // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later. 
     if (typeof user.isAdmin === 'undefined') {
-      const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
-      user.isAdmin = !user.isDummy && realUsersCount === 0;
+      const realUsersCount = Users.find({}).count();
+      user.isAdmin = (realUsersCount === 0);
     }
     return user;
   }

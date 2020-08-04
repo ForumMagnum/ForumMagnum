@@ -86,7 +86,7 @@ addCallback("users.edit.async", approveUnreviewedSubmissions);
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
 function makeFirstUserAdminAndApproved (user: DbUser) {
-  const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
+  const realUsersCount = Users.find({}).count();
   if (realUsersCount === 0) {
     user.reviewedByUserId = "firstAccount"; //HACK
     
