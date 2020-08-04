@@ -143,7 +143,7 @@ export class EventDebouncer<KeyType,ValueType>
       case "delayed":
         return {
           newDelayTime: new Date(now.getTime() + (timing.delayMinutes * msPerMin)),
-          newUpperBoundTime: new Date(now.getTime() + (timing.maxDelayMinutes * msPerMin)),
+          newUpperBoundTime: new Date(now.getTime() + ((timing.maxDelayMinutes||timing.delayMinutes) * msPerMin)),
         };
       case "daily":
         const nextDailyBatchTime = getDailyBatchTimeAfter(now, timing.timeOfDayGMT);
