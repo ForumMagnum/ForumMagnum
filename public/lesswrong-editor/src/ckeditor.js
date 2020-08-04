@@ -70,9 +70,7 @@ class PostEditorCollaboration extends BalloonBlockEditorBase {}
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
 //
-// alternately, if you're starting in the root directory and want to do it all in one go:
-//
-// cd ./public/lesswrong-editor; yarn install; yarn run build; cd ../..; yarn add ./public/lesswrong-editor;
+// alternately, you could run `yarn reinstall-ckeditor` to do all of the above at once
 
 const headingOptions = {
 	options: [
