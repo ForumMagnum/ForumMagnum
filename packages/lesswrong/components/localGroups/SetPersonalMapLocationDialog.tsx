@@ -38,6 +38,9 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
     collection: Users,
     fragmentName: 'UsersCurrent',
   })
+  
+  if (!currentUser)
+    return null;
 
   return (
     <Dialog
