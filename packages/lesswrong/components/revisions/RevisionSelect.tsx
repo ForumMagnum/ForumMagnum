@@ -38,15 +38,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes }: {
-  documentId: string,
+const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
   classes: ClassesType,
 }) => {
-  const { FormatDate, UsersName, LoadMore, TagRevisionItem } = Components;
+  const { FormatDate, UsersName, LoadMore } = Components;
   
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
@@ -107,18 +106,6 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
     })}
     <div><LoadMore {...loadMoreProps}/></div>
     <Button className={classes.button} variant="outlined" onClick={compareRevs} >Compare selected revisions</Button>
-
-    {revisions.map((rev, i)=> {
-      if (i < (revisions.length-1)) {
-        return <TagRevisionItem 
-          key={rev.version} 
-          documentId={documentId} 
-          revision={rev} 
-          previousRevision={revisions[i+1]}
-          getRevisionUrl={getRevisionUrl}
-        />
-      } 
-    })}
   </React.Fragment>
 }
 
