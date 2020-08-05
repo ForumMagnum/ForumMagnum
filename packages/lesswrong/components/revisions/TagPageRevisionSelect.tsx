@@ -15,7 +15,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const { params } = useLocation();
   const { slug } = params;
   const { history } = useNavigation();
-  const { SingleColumnSection, Loading, RevisionSelect } = Components;
+  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem } = Components;
   
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
@@ -30,6 +30,10 @@ const TagPageRevisionSelect = ({ classes }: {
     fragmentName: "RevisionMetadataWithChangeMetrics",
     ssr: true,
   });
+
+  const getRevisionUrl = (rev: RevisionMetadata) => {
+    if (tag) return `${Tags.getUrl(tag)}?revision=${rev.version}`
+  }
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
     if (!tag) return;
@@ -42,13 +46,25 @@ const TagPageRevisionSelect = ({ classes }: {
     <h1><Link to={Tags.getUrl(tag)}>{tag.name}</Link></h1>
     
     {(loadingTag || loadingRevisions) && <Loading/>}
-    {revisions && <RevisionSelect
-      documentId={tag._id}
-      revisions={revisions}
-      getRevisionUrl={(rev: RevisionMetadata) => `${Tags.getUrl(tag)}?revision=${rev.version}`}
-      onPairSelected={compareRevs}
-      loadMoreProps={loadMoreProps}
-  />}
+    {revisions && <div>
+      <RevisionSelect
+        revisions={revisions}
+        getRevisionUrl={getRevisionUrl}
+        onPairSelected={compareRevs}
+        loadMoreProps={loadMoreProps}
+      />
+      {revisions.map((rev, i)=> {
+        if (i < (revisions.length-1)) {
+          return <TagRevisionItem 
+            key={rev.version} 
+            documentId={tag._id} 
+            revision={rev} 
+            previousRevision={revisions[i+1]}
+            getRevisionUrl={getRevisionUrl}
+          />
+        } 
+      })}
+    </div>}
   </SingleColumnSection>
 }
 

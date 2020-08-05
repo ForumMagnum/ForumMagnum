@@ -4,7 +4,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import withHover from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
