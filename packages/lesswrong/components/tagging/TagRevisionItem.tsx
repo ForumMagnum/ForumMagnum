@@ -29,6 +29,11 @@ const styles = theme => ({
   },
   textBody: {
     ...commentBodyStyles(theme),
+  },
+  username: {
+    ...theme.typography.commentStyle,
+    color: "rgba(0,0,0,.87)",
+    marginRight: 12
   }
 });
 
@@ -39,18 +44,28 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
   documentId: string,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
 }) => {
-  const { CompareRevisions, FormatDate, UsersName, MetaInfo } = Components
+  const { CompareRevisions, FormatDate, UsersName, MetaInfo, LWTooltip } = Components
 
   if (!documentId || !revision || !previousRevision) return null
   const { added, removed } = revision.changeMetrics;
 
   return <div className={classes.root}>
+      <span className={classes.username}>
+        <UsersName documentId={revision.userId}/>
+      </span>
+      <Link to={getRevisionUrl(revision)}>
+        <LWTooltip title="View Selected Revision">
+          <>
+            <MetaInfo>
+              v{revision.version}
+            </MetaInfo>
+            <MetaInfo>
+              <FormatDate tooltip={false} format={"LLL z"} date={revision.editedAt}/>{" "}
+            </MetaInfo>
+          </>
+        </LWTooltip>
+      </Link>
       <MetaInfo>
-        <Link to={getRevisionUrl(revision)}>
-          {revision.version}{" "}
-          <FormatDate format={"LLL z"} date={revision.editedAt}/>{" "}
-        </Link>
-        <UsersName documentId={revision.userId}/>{" "}
         <Link to={getRevisionUrl(revision)}>
           {(added>0 && removed>0)
             && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}

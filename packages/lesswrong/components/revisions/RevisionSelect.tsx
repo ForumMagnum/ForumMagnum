@@ -35,6 +35,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     marginBottom: 12,
     marginTop: 6
+  },
+  username: {
+    color: "rgba(0,0,0,.87)",
+    paddingRight: 10,
+    paddingLeft: 4
+  },
+  link: {
+    paddingRight: 12
   }
 });
 
@@ -46,7 +54,7 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
   loadMoreProps: any,
   classes: ClassesType,
 }) => {
-  const { FormatDate, UsersName, LoadMore, TagRevisionItem } = Components;
+  const { FormatDate, UsersName, LoadMore, TagRevisionItem, MetaInfo, LWTooltip } = Components;
   
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
@@ -60,51 +68,70 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
   }, [beforeRevisionIndex, afterRevisionIndex, onPairSelected, revisions]);
 
   return <React.Fragment>
-    {revisions.map((rev,i) => {
-      const beforeDisabled = i<=afterRevisionIndex;
-      const afterDisabled = i>=beforeRevisionIndex;
-      const { added, removed } = rev.changeMetrics;
-      
-      return (
-        <div key={rev.version} className={classes.revisionRow}>
-          <Radio
-            className={classNames(classes.radio, {[classes.checked]: i===beforeRevisionIndex, [classes.radioDisabled]: beforeDisabled})}
-            disabled={beforeDisabled}
-            checked={i===beforeRevisionIndex}
-            onChange={(ev, checked) => {
-              if (checked) {
-                setBeforeRevisionIndex(i);
-              }
-            }}
-          />
-          <Radio
-            className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
-            disabled={afterDisabled}
-            checked={i===afterRevisionIndex}
-            onChange={(ev, checked) => {
-              if (checked) {
-                setAfterRevisionIndex(i);
-              }
-            }}
-          />
-          <Link to={getRevisionUrl(rev)}>
-            {rev.version}{" "}
-            <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
-          </Link>
-          <UsersName documentId={rev.userId}/>{" "}
-          <Link to={getRevisionUrl(rev)}>
-            {(added>0 && removed>0)
-              && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
-            {(added>0 && removed==0)
-              && <span className={classes.charsAdded}>(+{added})</span>}
-            {(added==0 && removed>0)
-              && <span className={classes.charsRemoved}>(-{removed})</span>}
-            {" "}
-            {rev.commitMessage}
-          </Link>
-        </div>
-      )
-    })}
+    <table>
+      <tbody>
+      {revisions.map((rev,i) => {
+        const beforeDisabled = i<=afterRevisionIndex;
+        const afterDisabled = i>=beforeRevisionIndex;
+        const { added, removed } = rev.changeMetrics;
+        
+        return (
+          <tr key={rev.version} className={classes.revisionRow}>
+            <td>
+              <LWTooltip title={<div>Select as the <em>first</em> revision to compare</div>}>
+                <Radio
+                  className={classNames(classes.radio, {[classes.checked]: i===beforeRevisionIndex, [classes.radioDisabled]: beforeDisabled})}
+                  disabled={beforeDisabled}
+                  checked={i===beforeRevisionIndex}
+                  onChange={(ev, checked) => {
+                    if (checked) {
+                      setBeforeRevisionIndex(i);
+                    }
+                  }}
+                />
+              </LWTooltip>
+              <LWTooltip title={<div>Select as the <em>second</em> revision to compare</div>}>
+                <Radio
+                  className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
+                  disabled={afterDisabled}
+                  checked={i===afterRevisionIndex}
+                  onChange={(ev, checked) => {
+                    if (checked) {
+                      setAfterRevisionIndex(i);
+                    }
+                  }}
+                />
+              </LWTooltip>
+            </td>
+            <td className={classes.username}>
+              <UsersName documentId={rev.userId}/>{" "}
+            </td>
+            <td className={classes.link}>
+              <Link to={getRevisionUrl(rev)}>
+                <MetaInfo>v{rev.version}{" "}</MetaInfo>
+                <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
+
+              </Link>
+            </td>
+            <td>
+              {(added>0 && removed>0)
+                  && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
+                {(added>0 && removed==0)
+                  && <span className={classes.charsAdded}>(+{added})</span>}
+                {(added==0 && removed>0)
+                  && <span className={classes.charsRemoved}>(-{removed})</span>}
+                {" "}
+            </td>
+            <td>
+             {rev.commitMessage}
+            </td>
+
+          </tr>
+        )
+      })}
+      </tbody>
+    </table>
+ 
     <div><LoadMore {...loadMoreProps}/></div>
     <Button className={classes.button} variant="outlined" onClick={compareRevs} >Compare selected revisions</Button>
 
@@ -119,6 +146,7 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
         />
       } 
     })}
+    <div><LoadMore {...loadMoreProps}/></div>
   </React.Fragment>
 }
 
