@@ -45,7 +45,7 @@ const TagPageRevisionSelect = ({ classes }: {
     {revisions && <RevisionSelect
       documentId={tag._id}
       revisions={revisions}
-      getRevisionUrl={(rev: RevisionMetadata) => `/tag/${tag.slug}?revision=${rev.version}`}
+      getRevisionUrl={(rev: RevisionMetadata) => `${Tags.getUrl(tag)}?revision=${rev.version}`}
       onPairSelected={compareRevs}
       loadMoreProps={loadMoreProps}
   />}
