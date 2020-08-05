@@ -8,7 +8,7 @@ import cheerio from 'cheerio';
 
 addGraphQLResolvers({
   Query: {
-    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim?: boolean }, context: ResolverContext): Promise<string> {
+    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
       console.log("AAAAA", trim)
@@ -73,5 +73,5 @@ addGraphQLResolvers({
   },
 });
 
-addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String): String');
+addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String): String, trim: Boolean');
 

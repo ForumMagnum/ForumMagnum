@@ -35,6 +35,8 @@ const CompareRevisions = ({
 }) => {
   const { ContentItemBody, ErrorMessage, Loading } = Components;
   
+  console.log(trim)
+
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
   const { data: diffResult, loading: loadingDiff, error } = useQuery(gql`
