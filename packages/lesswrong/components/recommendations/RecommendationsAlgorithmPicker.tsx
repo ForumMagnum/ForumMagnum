@@ -86,7 +86,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         ...currentUser.recommendationSettings,
         [configName]: newSettings
       };
-    
+
       void updateUser({
         selector: { _id: currentUser._id },
         data: {
@@ -99,7 +99,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   return <div className={classes.root}>
     <span className={classes.settingGroup}>
       <span className={classes.setting}>
-        {(configName === "frontpage") &&
+        {(['frontpage', 'frontpageEA'].includes(configName)) &&
           <SectionFooterCheckbox
             value={!settings.hideContinueReading}
             onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
@@ -109,7 +109,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         }
       </span>
       <span className={classes.setting}>
-        {(configName === "frontpage") && 
+        {(['frontpage', 'frontpageEA'].includes(configName)) &&
           <SectionFooterCheckbox
             value={!settings.hideBookmarks}
             onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
@@ -121,14 +121,14 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     </span>
 
     {/* disabled except during review */}
-    {/* {(configName === "frontpage") && <div> 
+    {/* {(configName === "frontpage") && <div>
       <Checkbox
         checked={!settings.hideReview}
         onChange={(ev, checked) => applyChange({ ...settings, hideReview: !checked })}
       /> Show 'The LessWrong 2018 Review'
     </div>} */}
 
-    {/* <div> 
+    {/* <div>
       <Checkbox
         checked={!settings.hideCoronavirus}
         onChange={(ev, checked) => applyChange({ ...settings, hideCoronavirus: !checked })}
@@ -137,7 +137,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
 
     {/* disabled during 2018 Review [and coronavirus]*/}
     <span className={classes.settingGroup}>
-      {(configName === "frontpage") && 
+      {(configName === "frontpage") &&
         <span className={classes.setting}>
           <SectionFooterCheckbox
             value={!settings.hideFrontpage}
@@ -147,7 +147,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           />
         </span>
       }
-    
+      {/* TODO; Remove 'Archive' from tooltip  */}
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}

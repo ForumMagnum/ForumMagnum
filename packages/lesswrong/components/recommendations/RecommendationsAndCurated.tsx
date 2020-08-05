@@ -112,12 +112,12 @@ const RecommendationsAndCurated = ({
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
- 
+
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
-        {currentUser && 
+        {currentUser &&
           <LWTooltip title="Customize your recommendations">
             <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
           </LWTooltip>
