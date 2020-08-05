@@ -95,6 +95,7 @@ const RecommendationsAndCurated = ({
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
+        {/* TODO; Text change */}
         Recently curated posts, as well as a random sampling of top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
       </div>
@@ -213,4 +214,3 @@ declare global {
     RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
   }
 }
-
