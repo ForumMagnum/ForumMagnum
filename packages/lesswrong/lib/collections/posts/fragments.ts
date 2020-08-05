@@ -106,6 +106,10 @@ registerFragment(`
     bestAnswer {
       ...CommentsList
     }
+
+    lastPromotedComment {
+      ...CommentsList
+    }
   }
 `);
 
@@ -159,9 +163,6 @@ registerFragment(`
 
     tags {
       ...TagPreviewFragment
-    }
-    lastPromotedComment {
-      ...CommentsList
     }
   }
 `);
