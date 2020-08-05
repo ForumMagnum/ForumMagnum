@@ -16,7 +16,7 @@ import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 
 const docIsTagRel = (currentUser, document) => {
   // TagRel votes are treated as public
-  return document.collectionName === "TagRels"
+  return document?.collectionName === "TagRels"
 }
 
 const schema = {
