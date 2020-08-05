@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 4
   },
   link: {
-    paddingRight: 12
+    paddingRight: 8
   }
 });
 
