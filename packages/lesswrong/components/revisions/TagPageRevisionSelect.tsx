@@ -15,10 +15,10 @@ const TagPageRevisionSelect = ({ classes }: {
   const { params } = useLocation();
   const { slug } = params;
   const { history } = useNavigation();
-  const { SingleColumnSection, Loading, RevisionSelect } = Components;
+  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
   
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
-  const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
+  const { results: revisions, loading: loadingRevisions, loadMoreProps, count, totalCount } = useMulti({
     skip: !tag,
     terms: {
       view: "revisionsOnDocument",
@@ -29,6 +29,7 @@ const TagPageRevisionSelect = ({ classes }: {
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
     ssr: true,
+    enableTotal: true
   });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
@@ -37,18 +38,36 @@ const TagPageRevisionSelect = ({ classes }: {
   }, [history, tag]);
 
   if (!tag) return null
+
+  const getRevisionUrl = (rev: RevisionMetadata) => `${Tags.getUrl(tag)}?revision=${rev.version}`
   
   return <SingleColumnSection>
     <h1><Link to={Tags.getUrl(tag)}>{tag.name}</Link></h1>
     
     {(loadingTag || loadingRevisions) && <Loading/>}
-    {revisions && <RevisionSelect
-      documentId={tag._id}
-      revisions={revisions}
-      getRevisionUrl={(rev: RevisionMetadata) => `${Tags.getUrl(tag)}?revision=${rev.version}`}
-      onPairSelected={compareRevs}
-      loadMoreProps={loadMoreProps}
-  />}
+    {revisions && <div>
+      <RevisionSelect
+        documentId={tag._id}
+        revisions={revisions}
+        getRevisionUrl={getRevisionUrl}
+        onPairSelected={compareRevs}
+        loadMoreProps={loadMoreProps}
+        count={count}
+        totalCount={totalCount}
+      />
+      {revisions.map((rev, i)=> {
+        if (i < (revisions.length-1)) {
+          return <TagRevisionItem 
+            key={rev.version} 
+            documentId={tag._id} 
+            revision={rev} 
+            previousRevision={revisions[i+1]}
+            getRevisionUrl={getRevisionUrl}
+          />
+        } 
+      })}
+      <LoadMore {...loadMoreProps}/>
+    </div>}
   </SingleColumnSection>
 }
 

@@ -43,16 +43,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   link: {
     paddingRight: 8
+  },
+  version: {
+    display: "inline-block",
+    width: 50
   }
 });
 
-const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes }: {
+const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
   documentId: string,
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
   classes: ClassesType,
+  count?: number,
+  totalCount?: number
 }) => {
   const { FormatDate, UsersName, LoadMore, TagRevisionItem, MetaInfo, LWTooltip } = Components;
   
@@ -108,9 +114,8 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
             </td>
             <td className={classes.link}>
               <Link to={getRevisionUrl(rev)}>
-                <MetaInfo>v{rev.version}{" "}</MetaInfo>
-                <FormatDate format={"LLL z"} date={rev.editedAt}/>{" "}
-
+                <span className={classes.version}>v{rev.version}</span>
+                <FormatDate format={"MMM Do YYYY z"} date={rev.editedAt}/>{" "}
               </Link>
             </td>
             <td>
@@ -121,32 +126,16 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
                 {(added==0 && removed>0)
                   && <span className={classes.charsRemoved}>(-{removed})</span>}
                 {" "}
+                {rev.commitMessage}
             </td>
-            <td>
-             {rev.commitMessage}
-            </td>
-
           </tr>
         )
       })}
       </tbody>
     </table>
  
-    <div><LoadMore {...loadMoreProps}/></div>
+    <div><LoadMore {...loadMoreProps} totalCount={totalCount} count={count}/></div>
     <Button className={classes.button} variant="outlined" onClick={compareRevs} >Compare selected revisions</Button>
-
-    {revisions.map((rev, i)=> {
-      if (i < (revisions.length-1)) {
-        return <TagRevisionItem 
-          key={rev.version} 
-          documentId={documentId} 
-          revision={rev} 
-          previousRevision={revisions[i+1]}
-          getRevisionUrl={getRevisionUrl}
-        />
-      } 
-    })}
-    <div><LoadMore {...loadMoreProps}/></div>
   </React.Fragment>
 }
 
