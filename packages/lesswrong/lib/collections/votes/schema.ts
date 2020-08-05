@@ -14,6 +14,12 @@ import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 // that was reversed.
 //
 
+const checkAccess = (currentUser, document) => {
+  // TagRel votes are treated as public. Most other votes have many fields restricted to the voter and admins.
+  if (document.collectionName === "TagRels") return true
+  return Users.owns(currentUser, document)
+}
+
 const schema = {
   // The id of the document that was voted on
   documentId: {
@@ -31,7 +37,7 @@ const schema = {
   // The id of the user that voted
   userId: {
     type: String,
-    canRead: [Users.owns, 'admins'],
+    canRead: [checkAccess, 'admins'],
     foreignKey: 'Users',
   },
   
@@ -58,7 +64,7 @@ const schema = {
   power: {
     type: Number,
     optional: true,
-    canRead: [Users.owns, "admins"],
+    canRead: [checkAccess, "admins"],
     
     // Can be inferred from userId+voteType+votedAt (votedAt necessary because
     // the user's vote power may have changed over time)
@@ -70,7 +76,7 @@ const schema = {
   afPower: {
     type: Number,
     optional: true,
-    canRead: Users.owns,
+    canRead: [checkAccess, 'admins'],
   },
   
   // Whether this vote has been cancelled (by un-voting or switching to a
@@ -93,13 +99,13 @@ const schema = {
   votedAt: {
     type: Date,
     optional: true,
-    canRead: [Users.owns, "admins"],
+    canRead: [checkAccess, "admins"],
   },
 
   tagRel: resolverOnlyField({
     type: "TagRel",
     graphQLtype: 'TagRel',
-    canRead: ['admins'],
+    canRead: [checkAccess, 'admins'],
     resolver: (vote, args, { TagRels }: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
         const tagRel = TagRels.find({_id: vote.documentId}).fetch()[0]
