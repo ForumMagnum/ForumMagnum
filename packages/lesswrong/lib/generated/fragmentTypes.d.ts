@@ -142,6 +142,7 @@ interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
   readonly moderationGuidelines: PostsList_moderationGuidelines,
   readonly customHighlight: PostsList_customHighlight,
   readonly tags: Array<TagPreviewFragment>,
+  readonly lastPromotedComment: CommentsList,
 }
 
 interface PostsList_contents { // fragment on Revisions

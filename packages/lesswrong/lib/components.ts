@@ -379,6 +379,7 @@ importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGra
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
+importComponent("TagRevisionItem", () => require('../components/tagging/TagRevisionItem'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));

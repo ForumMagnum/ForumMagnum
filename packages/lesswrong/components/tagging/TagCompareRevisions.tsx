@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './TagPage';
+import { Tags } from '../../lib/collections/tags/collection';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const TagCompareRevisions = ({classes}: {
   classes: ClassesType
@@ -19,12 +21,13 @@ const TagCompareRevisions = ({classes}: {
   if (loading || !tag) return <Loading/>
   
   return <SingleColumnSection>
-    <div className={classes.title}>
-      {tag.name}
-    </div>
+    <Link to={Tags.getUrl(tag)}>
+      <div className={classes.title}>
+        {tag.name}
+      </div>
+    </Link>
     
     <RevisionComparisonNotice before={versionBefore} after={versionAfter}/>
-    
     <div className={classes.description}>
       <CompareRevisions
         collectionName="Tags" fieldName="description"

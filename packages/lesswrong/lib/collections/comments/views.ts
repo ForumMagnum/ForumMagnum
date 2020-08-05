@@ -138,7 +138,7 @@ Comments.addView("postCommentsBest", function (terms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
+    options: {sort: {promoted: -1, deleted: 1, baseScore: -1}, postedAt: -1}
   };
 });
 // Same as postCommentsTop
@@ -151,7 +151,7 @@ Comments.addView("postLWComments", function (terms) {
       answer: false,
       parentAnswerId: viewFieldNullOrMissing
     },
-    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
+    options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
   };
 })
 
