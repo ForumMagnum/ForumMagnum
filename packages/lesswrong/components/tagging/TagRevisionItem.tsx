@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
-import cheerio from 'cheerio';
 
 const styles = theme => ({
   root: {
