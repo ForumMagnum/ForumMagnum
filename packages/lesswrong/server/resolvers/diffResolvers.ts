@@ -11,8 +11,6 @@ addGraphQLResolvers({
     async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
-      console.log("AAAAA", trim)
-
       // Validate collectionName, fieldName
       if (!editableCollections.has(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
@@ -73,5 +71,5 @@ addGraphQLResolvers({
   },
 });
 
-addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String): String, trim: Boolean');
+addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String, trim: Boolean): String');
 

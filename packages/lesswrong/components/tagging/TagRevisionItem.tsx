@@ -63,7 +63,7 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
           {revision.commitMessage}
         </Link>
       </MetaInfo>
-      <div className={classes.textBody}>
+      {!!(added || removed) && <div className={classes.textBody}>
         <CompareRevisions
           trim
           collectionName="Tags" fieldName="description"
@@ -71,7 +71,7 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
           versionBefore={previousRevision.version}
           versionAfter={revision.version}
         />
-      </div>
+      </div>}
     </div>
 }
 
