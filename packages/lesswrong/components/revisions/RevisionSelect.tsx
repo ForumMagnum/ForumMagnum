@@ -50,8 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
-  documentId: string,
+const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
@@ -60,7 +59,7 @@ const RevisionSelect = ({ documentId, revisions, getRevisionUrl, onPairSelected,
   count?: number,
   totalCount?: number
 }) => {
-  const { FormatDate, UsersName, LoadMore, TagRevisionItem, MetaInfo, LWTooltip } = Components;
+  const { FormatDate, UsersName, LoadMore, LWTooltip } = Components;
   
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);

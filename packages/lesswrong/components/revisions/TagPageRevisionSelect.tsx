@@ -15,6 +15,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const { params } = useLocation();
   const { slug } = params;
   const { history } = useNavigation();
+
   const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
   
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
@@ -47,7 +48,6 @@ const TagPageRevisionSelect = ({ classes }: {
     {(loadingTag || loadingRevisions) && <Loading/>}
     {revisions && <div>
       <RevisionSelect
-        documentId={tag._id}
         revisions={revisions}
         getRevisionUrl={getRevisionUrl}
         onPairSelected={compareRevs}
