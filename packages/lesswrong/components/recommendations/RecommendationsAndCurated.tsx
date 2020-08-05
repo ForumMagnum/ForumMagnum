@@ -128,12 +128,12 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
- 
+
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
-        {currentUser && 
+        {currentUser &&
           <LWTooltip title="Customize your recommendations">
             <SettingsButton showIcon={false} onClick={this.toggleSettings} label="Customize"/>
           </LWTooltip>
@@ -171,7 +171,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
+            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showNoResults={false} showLoadMore={false} hideLastUnread={true} />
           </AnalyticsContext>
         </div>
       </div>
