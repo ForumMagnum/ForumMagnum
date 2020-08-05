@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Popper from '@material-ui/core/Popper';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,11 +16,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}) => {
-  return <Popper className={classes.root} open={hover} anchorEl={anchorEl} placement="left-start">
+  const { LWPopper } = Components;
+  return <LWPopper className={classes.root} open={hover} anchorEl={anchorEl} placement="left-start">
     <div className={classes.hoverInfo} style={{width:width}}>
       { children }
     </div>
-  </Popper>
+  </LWPopper>
 };
 
 const SidebarHoverOverComponent = registerComponent('SidebarHoverOver', SidebarHoverOver, {styles});
