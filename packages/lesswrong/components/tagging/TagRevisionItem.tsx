@@ -60,7 +60,7 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
               v{revision.version}
             </MetaInfo>
             <MetaInfo>
-              <FormatDate tooltip={false} format={"LLL z"} date={revision.editedAt}/>{" "}
+              <FormatDate tooltip={false} format={"MMM Do YYYY z"} date={revision.editedAt}/>{" "}
             </MetaInfo>
           </>
         </LWTooltip>
