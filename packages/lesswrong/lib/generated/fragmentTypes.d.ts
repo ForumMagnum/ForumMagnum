@@ -111,6 +111,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2018: number,
   readonly group: PostsBase_group,
   readonly bestAnswer: CommentsList,
+  readonly lastPromotedComment: CommentsList,
 }
 
 interface PostsBase_group { // fragment on Localgroups

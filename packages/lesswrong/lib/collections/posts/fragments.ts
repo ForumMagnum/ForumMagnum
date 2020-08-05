@@ -160,6 +160,9 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    lastPromotedComment {
+      ...CommentsList
+    }
   }
 `);
 
