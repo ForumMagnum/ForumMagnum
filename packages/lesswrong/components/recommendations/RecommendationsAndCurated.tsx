@@ -57,7 +57,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean) => {
   if (forumTypeSetting.get() === 'EAForum') {
     return {
       method: haveCurrentUser ? 'sample' : 'top',
-      count: 5
+      count: haveCurrentUser ? 3 : 5
     }
   }
   return {
@@ -104,9 +104,9 @@ const RecommendationsAndCurated = ({
     const recommendationsTooltip = <div>
       <div>
         {forumTypeSetting.get() === 'EAForum' ?
-          'Assorted suggested reading, including ' :
-          'Recently curated posts, as well as a '}
-        random sampling of top-rated posts of all time
+          'Assorted suggested reading, including some of the ' :
+          'Recently curated posts, as well as a random sampling of '}
+        top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
       </div>
       <div><em>(Click to see more recommendations)</em></div>
@@ -135,6 +135,7 @@ const RecommendationsAndCurated = ({
 
       {!currentUser && <div>
           <Hidden smDown implementation="css">
+            {/* TODO; comment out */}
             <div className={classes.sequenceGrid}>
               <SequencesGridWrapper
                 terms={{'view':'curatedSequences', limit:3}}
