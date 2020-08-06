@@ -91,7 +91,7 @@ const TagsDetailsItem = ({tag, classes }: {
         </Link>
         {!tagRels && loading && <Loading/>}
         {tagRels && tagRels.map(tagRel=>
-          {tagRel.post && <TagSmallPostLink key={tagRel._id} post={tagRel.post} hideMeta wrap/>}
+          (tagRel.post && <TagSmallPostLink key={tagRel._id} post={tagRel.post} hideMeta wrap/>)
         )}
       </div>
     </div>
