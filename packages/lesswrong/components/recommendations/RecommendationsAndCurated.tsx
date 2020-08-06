@@ -9,7 +9,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import Hidden from '@material-ui/core/Hidden';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   section: {
     marginTop: -12,
   },
@@ -79,7 +79,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
 
@@ -146,7 +146,7 @@ const RecommendationsAndCurated = ({
         </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      <div className={currentUser ? classes.subsection : null}>
+      <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage &&
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
@@ -199,6 +199,7 @@ const RecommendationsAndCurated = ({
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
       </AnalyticsContext> */}
+      {!currentUser?.hideTaggingProgressBar && <TagProgressBar/>}
     </SingleColumnSection>
   }
   

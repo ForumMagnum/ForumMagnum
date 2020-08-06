@@ -12,7 +12,7 @@ import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -279,7 +279,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 {`Review for ${comment.reviewingForReview}`}
               </Link>}
               </div>
-              { comment.promotedByUser && <div className={classes.metaNotice}>
+              { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
                 Promoted by {comment.promotedByUser.displayName}
               </div>}
               {this.renderBodyOrEditor()}

@@ -8,7 +8,7 @@ import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: "white",
     ...theme.typography.commentStyle,
@@ -91,7 +91,7 @@ const TagsDetailsItem = ({tag, classes }: {
         </Link>
         {!tagRels && loading && <Loading/>}
         {tagRels && tagRels.map(tagRel=>
-          <TagSmallPostLink key={tagRel._id} post={tagRel.post} hideMeta wrap/>
+          (tagRel.post && <TagSmallPostLink key={tagRel._id} post={tagRel.post} hideMeta wrap/>)
         )}
       </div>
     </div>

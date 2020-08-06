@@ -1045,7 +1045,7 @@ addFieldsDict(Posts, {
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
     resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
       const { currentUser, Comments } = context;
-      const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
+      const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         postId: post._id,

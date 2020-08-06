@@ -4,7 +4,7 @@ import { wikiGradeDefinitions } from '../../lib/collections/tags/schema';
 import StarIcon from '@material-ui/icons/Star';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     alignItem: 'center',

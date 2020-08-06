@@ -4,8 +4,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
 
-const styles = theme => ({
-  title: {
+const styles = (theme: ThemeType): JssStyles => ({
+  titlei: {
     fontSize: 10,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],

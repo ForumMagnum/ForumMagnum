@@ -14,7 +14,7 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontWeight: 400,
     maxWidth: 720,

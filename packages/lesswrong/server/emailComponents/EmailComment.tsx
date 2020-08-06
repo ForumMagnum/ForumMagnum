@@ -9,7 +9,7 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   comment: {
   },
 });

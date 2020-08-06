@@ -5,8 +5,10 @@ import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/
 import Divider from '@material-ui/core/Divider';
 import { Tags } from '../../lib/collections/tags/collection';
 import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
+import { userCanCreateTags } from '../../lib/betas';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -58,6 +60,7 @@ const AddTag = ({onTagSelected, classes}: {
   classes: ClassesType,
 }) => {
   const { TagSearchHit, WrappedSmartForm } = Components
+  const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [showCreateTag, setShowCreateTag] = useState(false);
   const [showAllTags, setShowAllTags] = useState(false)
@@ -131,9 +134,12 @@ const AddTag = ({onTagSelected, classes}: {
     <a onClick={()=>setShowAllTags(!showAllTags)} className={classes.newTag}>
       Show All Tags
     </a>
-    <a onClick={()=>setShowCreateTag(!showCreateTag)} className={classNames(classes.newTag, {[classes.creating]:showCreateTag})}>
+    {userCanCreateTags(currentUser) && <a
+      onClick={()=>setShowCreateTag(!showCreateTag)}
+      className={classNames(classes.newTag, {[classes.creating]:showCreateTag})}
+    >
       {showCreateTag ? "Create Tag (click to cancel)" : "Create Tag"}
-    </a>
+    </a>}
     {showCreateTag && <div className={classes.newTagForm}><WrappedSmartForm
       collection={Tags}
       fields={["name", "description"]}
@@ -152,4 +158,3 @@ declare global {
     AddTag: typeof AddTagComponent
   }
 }
-

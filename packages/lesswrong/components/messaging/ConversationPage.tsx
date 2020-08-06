@@ -8,7 +8,7 @@ import Conversations from '../../lib/collections/conversations/collection';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
     maxWidth: 550,
   },

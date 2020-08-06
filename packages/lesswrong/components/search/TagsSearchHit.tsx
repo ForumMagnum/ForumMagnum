@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: theme.spacing.unit,
     marginTop: theme.spacing.unit/2,

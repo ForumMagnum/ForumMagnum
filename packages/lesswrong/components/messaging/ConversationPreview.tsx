@@ -6,7 +6,7 @@ import Messages from "../../lib/collections/messages/collection";
 import Conversations from '../../lib/collections/conversations/collection';
 import Card from '@material-ui/core/Card';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit,
     width: 500,

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { useVote } from './withVote';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
     marginBottom: -22
   },

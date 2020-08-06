@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: "white",
     padding: 32,

@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: theme.spacing.unit,
     fontStyle: "italic",

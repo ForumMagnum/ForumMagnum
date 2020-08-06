@@ -5,7 +5,7 @@ import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 import { ArrowSVG } from './Icons'
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
     width: 15, 
     height: 15,

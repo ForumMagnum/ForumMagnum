@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle

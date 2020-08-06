@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import { defaultNotificationTypeSettings } from '../../lib/collections/users/custom_fields';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 8,
   },

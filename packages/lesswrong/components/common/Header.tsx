@@ -22,7 +22,7 @@ import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSetti
 
 const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const getHeaderTextColor = theme => {
+export const getHeaderTextColor = (theme: ThemeType) => {
   if (theme.palette.headerType === 'primary') {
     return theme.palette.primary.contrastText
   } else if (theme.palette.headerType === 'secondary') {
@@ -34,7 +34,7 @@ export const getHeaderTextColor = theme => {
   }
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
   },
@@ -138,7 +138,7 @@ interface ExternalProps {
   searchResultsArea: any,
 }
 interface HeaderProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateUserProps {
-  theme: any,
+  theme: ThemeType,
 }
 interface HeaderState {
   navigationOpen: boolean,

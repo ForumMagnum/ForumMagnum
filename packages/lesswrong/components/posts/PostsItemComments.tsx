@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { Posts } from "../../lib/collections/posts";
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   commentCount: {
     position:"absolute",
     right:"50%",

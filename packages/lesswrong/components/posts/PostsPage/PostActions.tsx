@@ -12,11 +12,11 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { withDialog } from '../../common/withDialog';
-import { tagStyle } from '../../tagging/FooterTag';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
@@ -25,7 +25,7 @@ const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     margin: 0,
     ...theme.typography.display3,
@@ -41,9 +41,6 @@ const styles = theme => ({
   promoteWarning: {
     fontSize: 20,
     marginLeft: 4,
-  },
-  editTags: {
-    ...tagStyle(theme)
   }
 })
 
@@ -216,13 +213,14 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
-        { Users.canDo(currentUser, "posts.edit.all") &&
-          <div onClick={this.handleOpenTagDialog}>
-            <MenuItem>
-              <div className={classes.editTags}>Edit Tags</div>
-            </MenuItem>
-          </div>
-        }
+        <div onClick={this.handleOpenTagDialog}>
+          <MenuItem>
+            <ListItemIcon>
+              <LocalOfferOutlinedIcon />
+            </ListItemIcon>
+            Edit Tags
+          </MenuItem>
+        </div>
         { isRead
           ? <div onClick={this.handleMarkAsUnread}>
               <MenuItem>

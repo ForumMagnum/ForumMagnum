@@ -45,7 +45,7 @@ const HeadlineTwoButton = createBlockStyleButton({
     </svg>),
 });
 
-const styleMap = theme => ({
+const styleMap = (theme: ThemeType) => ({
   'CODE': theme.typography.code
 })
 
@@ -58,7 +58,7 @@ function customBlockStyleFn(contentBlock) {
 
 interface EditorFormProps {
   isClient: boolean,
-  theme: any,
+  theme: ThemeType,
   editorState: any,
   onChange: any,
   commentEditor: boolean,

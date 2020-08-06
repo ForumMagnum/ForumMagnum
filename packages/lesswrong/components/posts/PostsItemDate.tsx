@@ -7,7 +7,7 @@ import moment from '../../lib/moment-timezone';
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   postedAt: {
     '&&': {
       cursor: "pointer",

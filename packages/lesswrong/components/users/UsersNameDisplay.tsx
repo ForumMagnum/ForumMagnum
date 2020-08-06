@@ -10,7 +10,7 @@ import withHover from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   userName: {
     whiteSpace: "nowrap",
     color: "inherit"

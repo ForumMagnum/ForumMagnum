@@ -14,7 +14,9 @@ export const tagStyle = theme => ({
   paddingLeft: 6,
   paddingRight: 6,
   marginBottom: 8,
-  backgroundColor: 'rgba(0,0,0,0.07)',
+  backgroundColor: theme.palette.grey[200],
+  border: `solid 1px ${theme.palette.grey[200]}`,
+  color: 'rgba(0,0,0,.9)',
   borderRadius: 3,
   ...theme.typography.commentStyle,
   cursor: "pointer"
@@ -32,7 +34,7 @@ const newTagStyle = theme => ({
   fontSize: 15
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
     cursor: "pointer",
@@ -47,8 +49,6 @@ const styles = theme => ({
   },
   core: {
     backgroundColor: "white",
-    paddingTop: 4,
-    paddingBottom: 4,
     border: "solid 1px rgba(0,0,0,.12)",
     color: theme.palette.grey[600]
   },
@@ -61,13 +61,19 @@ const styles = theme => ({
   },
   hovercard: {
   },
+  smallText: {
+    fontSize: 12,
+    paddingTop: 1,
+    paddingBottom: 2,
+    marginBottom: 0
+  }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
-
+  smallText?: boolean,
   classes: ClassesType,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
@@ -81,7 +87,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes}: {
   if (tag.adminOnly) { return null }
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core})}>
+    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core, [classes.smallText]: smallText})}>
       <Link to={`/tag/${tag.slug}`}>
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}

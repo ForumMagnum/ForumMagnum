@@ -7,7 +7,7 @@ import { MAX_COLUMN_WIDTH } from './PostsPage';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   footerSection: {
     display: 'flex',
     alignItems: 'center',

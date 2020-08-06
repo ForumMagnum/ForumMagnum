@@ -23,7 +23,7 @@ export const rowStyles = {
     minWidth: 140,
   },
 };
-const styles = theme => rowStyles;
+const styles = (theme: ThemeType): JssStyles => rowStyles;
 
 const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, classes}: {
   migration: any,

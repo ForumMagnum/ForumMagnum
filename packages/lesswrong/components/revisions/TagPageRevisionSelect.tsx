@@ -3,8 +3,10 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
+import { Tags } from '../../lib/collections/tags/collection';
+import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagPageRevisionSelect = ({ classes }: {
@@ -13,7 +15,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const { params } = useLocation();
   const { slug } = params;
   const { history } = useNavigation();
-  const { SingleColumnSection, Loading, RevisionSelect } = Components;
+  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem } = Components;
   
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
@@ -28,23 +30,41 @@ const TagPageRevisionSelect = ({ classes }: {
     fragmentName: "RevisionMetadataWithChangeMetrics",
     ssr: true,
   });
+
+  const getRevisionUrl = (rev: RevisionMetadata) => {
+    if (tag) return `${Tags.getUrl(tag)}?revision=${rev.version}`
+  }
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
     if (!tag) return;
     history.push(`/compare/tag/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [history, tag]);
+
+  if (!tag) return null
   
   return <SingleColumnSection>
-    <h1>{tag?.name}</h1>
+    <h1><Link to={Tags.getUrl(tag)}>{tag.name}</Link></h1>
     
     {(loadingTag || loadingRevisions) && <Loading/>}
-    
-    {revisions && <RevisionSelect
-      revisions={revisions}
-      getRevisionUrl={(rev: RevisionMetadata) => `/tag/${tag?.slug}?revision=${rev.version}`}
-      onPairSelected={compareRevs}
-      loadMoreProps={loadMoreProps}
-  />}
+    {revisions && <div>
+      <RevisionSelect
+        revisions={revisions}
+        getRevisionUrl={getRevisionUrl}
+        onPairSelected={compareRevs}
+        loadMoreProps={loadMoreProps}
+      />
+      {revisions.map((rev, i)=> {
+        if (i < (revisions.length-1)) {
+          return <TagRevisionItem 
+            key={rev.version} 
+            documentId={tag._id} 
+            revision={rev} 
+            previousRevision={revisions[i+1]}
+            getRevisionUrl={getRevisionUrl}
+          />
+        } 
+      })}
+    </div>}
   </SingleColumnSection>
 }
 

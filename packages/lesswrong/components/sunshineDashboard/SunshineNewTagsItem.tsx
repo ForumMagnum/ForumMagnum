@@ -13,7 +13,7 @@ import { commentBodyStyles, } from '../../themes/stylePiping'
 import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   tagInfo: {
     ...commentBodyStyles(theme),
     marginTop: 0,
@@ -96,7 +96,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
             {tag.postCount} posts
           </div>
           {results && results.map(tagRel=><div key={tagRel._id} className={classes.post}>
-            <TagSmallPostLink post={tagRel.post}/>
+            {tagRel.post && <TagSmallPostLink post={tagRel.post}/>}
           </div>)}
           {!results && loading && <Loading/>}
         </SidebarHoverOver>
@@ -104,6 +104,9 @@ const SunshineNewTagsItem = ({tag, classes}: {
           {tag.name}
         </Link>
         <div>
+          <SidebarInfo>
+            {tag.postCount}
+          </SidebarInfo>
           <SidebarInfo>
             <Link to={Users.getProfileUrl(tag.user)}>
               {tag.user && tag.user.displayName}

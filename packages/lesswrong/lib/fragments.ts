@@ -143,6 +143,7 @@ registerFragment(`
     bookmarkedPostsMetadata
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
+    hideTaggingProgressBar
   }
 `);
 
@@ -443,6 +444,7 @@ registerFragment(`
     notificationSharedWithMe
 
     hideFrontpageMap
+    hideTaggingProgressBar
 
     deleted
   }
