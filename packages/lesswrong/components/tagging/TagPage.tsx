@@ -92,12 +92,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const tagPostTerms = (tag: TagBasicInfo, query: any) => ({
-  ...query,
-  filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
-  view: "tagRelevance",
-  tagId: tag._id,
-})
+export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
+  if (!tag) return
+  return ({
+    ...query,
+    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
+    view: "tagRelevance",
+    tagId: tag._id,
+  })
+}
 
 const TagPage = ({classes}: {
   classes: ClassesType
