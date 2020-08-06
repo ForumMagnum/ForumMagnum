@@ -188,6 +188,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly feed: RSSFeedMinimumInfo,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
   readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
+  readonly suggestedTags: TagPreviewFragment,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences

@@ -18,10 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, classes, children}: {
+const AddTagButton = ({onTagSelected, classes, children, suggestedTags=[]}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
-  children?: any
+  children?: any,
+  suggestedTags?: Array<TagPreviewFragment>
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
@@ -58,6 +59,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
       >
         <Paper>
           <AddTag
+            suggestedTags={suggestedTags}
             onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
               setAnchorEl(null);
               setIsOpen(false);

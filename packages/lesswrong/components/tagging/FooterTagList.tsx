@@ -46,14 +46,14 @@ function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
   return _.sortBy(list, item=>toTag(item).core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false, suggestedTags=[]}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
   hidePersonalOrFrontpage?: boolean,
-  smallText?: boolean
-
+  smallText?: boolean,
+  suggestedTags?: Array<TagPreviewFragment>
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -128,7 +128,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
       />
     )}
     { postType }
-    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} />}
+    {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} suggestedTags={suggestedTags} />}
     { isAwaiting && <Loading/>}
   </span>
 };

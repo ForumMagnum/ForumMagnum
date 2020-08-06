@@ -244,6 +244,9 @@ registerFragment(`
       }
       order
     }
+    suggestedTags {
+      ...TagPreviewFragment
+    }
   }
 `);
 

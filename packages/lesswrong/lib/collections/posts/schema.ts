@@ -586,6 +586,30 @@ const schema = {
     }
   }),
 
+  suggestedTags: resolverOnlyField({
+    type: "[Tag]",
+    graphQLtype: "[Tag]",
+    viewableBy: ['guests'],
+    resolver: async (post, args, context:ResolverContext) => {
+      const { currentUser } = context
+      // const pingbacks = await getWithLoader(Posts,
+      //   "pingbackPosts",
+      //   {
+      //     "pingbacks.Posts": post._id,
+      //     baseScore: {$gt: 0}
+      //   },
+      //   'pingbacks', post._id
+      // );
+      const pingbacks = Posts.find({"pingbacks.Posts": post._id, baseScore: {$gt: 0}}).fetch()
+      const pingbackIds = pingbacks.map(pingback=>pingback._id)
+      const tagRels = TagRels.find({postId: {$in: pingbackIds}}).fetch()
+      const tagRelTagIds = tagRels.map(tagRel => tagRel.tagId)
+      const tags = Tags.find({_id: {$in: tagRelTagIds}}).fetch()
+      const accessTags = accessFilterMultiple(currentUser, Tags, tags, context )
+      return await accessTags
+    }
+  }),
+
   // Tell search engines not to index this post. Useful for old posts that were
   // from a time with different quality standards. Posts will still be findable
   // in algolia. See PostsPage and HeadTags for their use of this field and the

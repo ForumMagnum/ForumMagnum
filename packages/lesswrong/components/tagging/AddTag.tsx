@@ -55,9 +55,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTag = ({onTagSelected, classes}: {
+const AddTag = ({onTagSelected, classes, suggestedTags=[]}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
+  suggestedTags?: Array<TagPreviewFragment>
 }) => {
   const { TagSearchHit, WrappedSmartForm } = Components
   const currentUser = useCurrentUser()
@@ -120,7 +121,15 @@ const AddTag = ({onTagSelected, classes}: {
       {showAllTags && <a onClick={()=>setShowAllTags(!showAllTags)} className={classes.newTag}>
         Show fewer tags
       </a>}
-      <Configure hitsPerPage={showAllTags ? 500 : (searchOpen ? 12 : 6)} />
+      <Configure hitsPerPage={showAllTags ? 500 : (searchOpen ? 12 : suggestedTags.length ? 0 : 6)} />
+      {!searchOpen && suggestedTags.length > 0 && suggestedTags.map(tag => {
+        return <TagSearchHit key={tag._id} hit={tag}
+          onClick={ev => {
+            onTagSelected({tagId: tag._id, tagName: tag.name});
+            ev.stopPropagation();
+          }}
+          />
+      })}
       <Hits hitComponent={({hit}) =>
         <TagSearchHit hit={hit}
             onClick={ev => {
