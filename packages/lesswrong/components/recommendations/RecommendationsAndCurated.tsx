@@ -66,6 +66,19 @@ interface RecommendationsAndCuratedState {
   settings: any,
 }
 
+const getFrontPageOverwrites = (haveCurrentUser: boolean) => {
+  if (forumTypeSetting.get() === 'EAForum') {
+    return {
+      method: haveCurrentUser ? 'sample' : 'top',
+      count: 5
+    }
+  }
+  return {
+    method: 'sample',
+    coutn: haveCurrentUser ? 3 : 2
+  }
+}
+
 class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedProps,RecommendationsAndCuratedState> {
   state: RecommendationsAndCuratedState = {
     showSettings: false,
@@ -90,8 +103,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     const frontpageRecommendationSettings = {
       ...settings,
-      method: !currentUser && forumTypeSetting.get() ? 'top' : 'sample',
-      count: currentUser ? 3 : 2,
+      ...getFrontPageOverwrites(!!currentUser)
     }
 
 
