@@ -63,7 +63,7 @@ const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 const forumArchivesName = {
   LessWrong: 'Archive Recommendations',
   AlignmentForum: 'Archive Recommendations',
-  EAForum: 'Community Favorites',
+  EAForum: 'Forum Favorites',
 }
 const archiveName = forumArchivesName[forumTypeSetting.get()]
 
