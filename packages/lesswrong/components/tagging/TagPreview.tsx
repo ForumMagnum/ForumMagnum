@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
+import { Posts } from '../../lib/collections/posts/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -61,11 +61,12 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   const { results } = useMulti({
     skip: !(tag?._id),
     terms: {
-      view: "postsWithTag",
+      filterSettings: {tags:[{tagId: tag?._id, tagName: tag?.name, filterMode: "Required"}]},
+      view: "tagRelevance",
       tagId: tag?._id,
     },
-    collection: TagRels,
-    fragmentName: "TagRelFragment",
+    collection: Posts,
+    fragmentName: "PostsList",
     limit: postCount,
     ssr: true,
   });
@@ -75,7 +76,7 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   return (<div className={classes.card}>
     <TagPreviewDescription tag={tag}/>
     {results ? <div className={classes.posts}>
-      {results.map((result,i) => result.post && <TagSmallPostLink key={result.post._id} post={result.post} widerSpacing={postCount > 3} />)}
+      {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
     </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>View all {tag.postCount} posts</Link>
