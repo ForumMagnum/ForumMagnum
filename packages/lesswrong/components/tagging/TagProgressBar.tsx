@@ -127,7 +127,7 @@ const TagProgressBar = ({classes}: {
             Tagging Progress
           </Link>
           <LWTooltip title={<div>
-            <div>View all completely untagged posts, sorted by karma</div>
+            <div>View all completely untagged posts, sorted by oldest</div>
             <div><em>(Click through to read posts, and then tag them)</em></div>
           </div>}>
             <PostsItem2MetaInfo>
