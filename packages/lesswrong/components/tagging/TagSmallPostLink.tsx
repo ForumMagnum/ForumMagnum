@@ -10,10 +10,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    fontSize: "1.1rem",
     color: theme.palette.grey[900],
   },
   karma: {
-    marginLeft: 8,
+    marginLeft: 4,
+    marginRight: 12,
     textAlign: "center",
     width: 20,
     flexShrink: 0,
@@ -74,15 +76,16 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
         <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <div className={classes.post}>
+        {!hideMeta && <MetaInfo className={classes.karma}>
+          <PostsItemKarma post={post} placement="right"/>
+        </MetaInfo>}
         <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}
         </Link>
         {!hideMeta && <MetaInfo className={classes.author}>
           <UsersName user={post.user} />
         </MetaInfo>}
-        {!hideMeta && <MetaInfo className={classes.karma}>
-          <PostsItemKarma post={post} placement="right"/>
-        </MetaInfo>}
+
 
       </div>
     </div>

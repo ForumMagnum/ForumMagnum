@@ -1044,7 +1044,7 @@ addFieldsDict(Posts, {
     resolver: async (post: DbPost, args: {commentsLimit?: number, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
       const { commentsLimit=5, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
-      const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
+      const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         postId: post._id,
