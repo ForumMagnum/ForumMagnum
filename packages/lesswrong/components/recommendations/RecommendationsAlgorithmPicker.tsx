@@ -60,31 +60,12 @@ const forumIncludeExtra = {
 }
 const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 
-interface RecommendationsForumLanguage {
-  archivesShortName: string,
-  archivesTooltip: string,
-  archivesLongName: string
+const forumArchivesName = {
+  LessWrong: 'Archive Recommendations',
+  AlignmentForum: 'Archive Recommendations',
+  EAForum: 'Community Favorites',
 }
-const getForumLanguage = (): RecommendationsForumLanguage => {
-  switch (forumTypeSetting.get()) {
-    case 'EAForum':
-      return {
-        archivesShortName: 'Favorites',
-        archivesTooltip: 'Show a randomized sample of past community favorites',
-        archivesLongName: 'Community Favorites',
-      }
-      break;
-    case 'LessWrong':
-    case 'AlignmentForum':
-    default:
-      return {
-        archivesShortName: 'Archives',
-        archivesTooltip: 'Show randomized posts from the archives',
-        archivesLongName: 'Archive Recommendations',
-      }
-  }
-}
-const forumLanguage = getForumLanguage()
+const archiveName = forumArchivesName[forumTypeSetting.get()]
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: any,
@@ -152,13 +133,13 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
 
     {/* disabled during 2018 Review [and coronavirus]*/}
     <span className={classes.settingGroup}>
-      {(["frontpage", "frontpageEA"].includes(configName)) &&
+      {configName === "frontpage" &&
         <span className={classes.setting}>
           <SectionFooterCheckbox
             value={!settings.hideFrontpage}
             onClick={(ev, checked) => applyChange({ ...settings, hideFrontpage: !settings.hideFrontpage })}
-            label={forumLanguage.archivesShortName}
-            tooltip={forumLanguage.archivesTooltip}
+            label="Archives"
+            tooltip="Show randomized posts from the archives"
           />
         </span>
       }
@@ -168,7 +149,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           value={settings.onlyUnread && !!currentUser}
           onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
           label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
-          tooltip={`'${forumLanguage.archivesLongName}' will only show unread posts`}
+          tooltip={`'${archiveName}' will only show unread posts`}
         />
       </span>
 
@@ -179,11 +160,10 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           value={settings[includeExtra.machineName]}
           onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
           label={includeExtra.humanName}
-          tooltip={`'${forumLanguage.archivesLongName}' will include ${includeExtra.humanName}`}
+          tooltip={`'${archiveName}' will include ${includeExtra.humanName}`}
         />
       </span>
     </span>
-    {/* TODO; ea-forum look here */}
     {showAdvanced && <div>
       <div>{"Algorithm "}
         <select
