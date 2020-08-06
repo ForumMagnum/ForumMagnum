@@ -9,8 +9,7 @@ const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHome
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionThreadsList, HomeLatestPosts, ConfigurableRecommendationsList,
-    EAHomeHandbook, RecommendationsAndCurated
+    RecentDiscussionThreadsList, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
