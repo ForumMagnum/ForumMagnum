@@ -133,9 +133,8 @@ const RecommendationsAndCurated = ({
           onChange={(newSettings) => setSettings(newSettings)}
         /> }
 
-      {!currentUser && <div>
+      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
           <Hidden smDown implementation="css">
-            {/* TODO; comment out */}
             <div className={classes.sequenceGrid}>
               <SequencesGridWrapper
                 terms={{'view':'curatedSequences', limit:3}}
