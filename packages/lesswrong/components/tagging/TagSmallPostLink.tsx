@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    fontSize: "1.1rem",
     color: theme.palette.grey[900],
   },
   karma: {

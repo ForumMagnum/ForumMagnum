@@ -96,7 +96,7 @@ import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
-import { hasEventsSetting } from './lib/publicSettings'
+import { hasEventsSetting } from './lib/instanceSettings'
 if (hasEventsSetting.get()) {
   import './server/callbacks/localgroupCallbacks';
 }

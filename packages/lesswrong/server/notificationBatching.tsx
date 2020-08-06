@@ -39,19 +39,18 @@ const sendNotificationBatch = async ({ userId, notificationIds }) => {
     { $set: { waitingForBatch: false } },
     { multi: true }
   );
-  const notifications = await Notifications.find(
-    { _id: {$in: notificationIds} }
+  const notificationsToEmail = await Notifications.find(
+    { _id: {$in: notificationIds}, emailed: true }
   ).fetch();
   
-  if (!notifications.length)
-    throw new Error("Failed to find notifications");
-  
-  const emails: any = await notificationBatchToEmails({
-    user, notifications
-  });
-  
-  for (let email of emails) {
-    await wrapAndSendEmail(email);
+  if (notificationsToEmail.length) {
+    const emails: any = await notificationBatchToEmails({
+      user, notifications: notificationsToEmail
+    });
+    
+    for (let email of emails) {
+      await wrapAndSendEmail(email);
+    }
   }
 }
 

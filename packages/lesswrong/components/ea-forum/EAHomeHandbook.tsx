@@ -17,7 +17,7 @@ const bannerHeight = 250
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   bannerContainer: {
     position: 'absolute',
-    top: 120, // desktop header height + layout margin
+    top: 130, // desktop header height + layout margin + negative margin
     width: SECTION_WIDTH,
     '@media (max-width: 959.95px) and (min-width: 600px)': {
       top: 86, // tablet header height
@@ -31,9 +31,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
     height: bannerHeight,
     overflow: 'hidden',
-    [theme.breakpoints.up('md')]: {
-      boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-    },
   },
   bannerImgWrapper: {
     position: 'absolute',
@@ -54,6 +51,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   overImage: {
     position: 'relative',
+    [theme.breakpoints.up('md')]: {
+      marginTop: -10
+    },
     [theme.breakpoints.down('sm')]: {
       marginTop: -36, // mobile/tablet header height
     },

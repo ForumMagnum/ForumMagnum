@@ -75,7 +75,7 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   return (<div className={classes.card}>
     <TagPreviewDescription tag={tag}/>
     {results ? <div className={classes.posts}>
-      {results.map((result,i) => <TagSmallPostLink key={result.post._id} post={result.post} widerSpacing={postCount > 3} />)}
+      {results.map((result,i) => result.post && <TagSmallPostLink key={result.post._id} post={result.post} widerSpacing={postCount > 3} />)}
     </div> : <Loading /> }
     {showCount && <div className={classes.footerCount}>
       <Link to={Tags.getUrl(tag)}>View all {tag.postCount} posts</Link>
