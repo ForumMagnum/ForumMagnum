@@ -55,17 +55,6 @@ const styles = theme => ({
   }
 });
 
-const defaultFrontpageSettings = {
-  method: "sample",
-  count: 3,
-  scoreOffset: 0,
-  scoreExponent: 3,
-  personalBlogpostModifier: 0,
-  frontpageModifier: 10,
-  curatedModifier: 50,
-}
-
-
 interface ExternalProps {
   configName: string
 }
@@ -99,6 +88,12 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+    const frontpageRecommendationSettings = {
+      ...settings,
+      method: !currentUser && forumTypeSetting.get() ? 'top' : 'sample',
+      count: currentUser ? 3 : 2,
+    }
+
 
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
@@ -120,14 +115,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
-
-    // defaultFrontpageSettings does not contain anything that overrides a user
-    // editable setting, so the reverse ordering here is fine
-    const frontpageRecommendationSettings = {
-      ...settings,
-      ...defaultFrontpageSettings,
-      count: currentUser ? 3 : 2,
-    }
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
