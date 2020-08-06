@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const recommendedName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Recommended'
+const recommendedName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
 
 interface ExternalProps {
   configName: string,
@@ -77,4 +77,3 @@ declare global {
     ConfigurableRecommendationsList: typeof ConfigurableRecommendationsListComponent
   }
 }
-
