@@ -84,7 +84,6 @@ addCallback("votes.smallUpvote.async", updateAlignmentUserServerCallback);
 
 async function cancelAlignmentUserKarmaServer ({newDocument, vote}) {
   await updateAlignmentUserServer(newDocument, vote, -1)
-
 }
 
 addCallback("votes.cancel.async", cancelAlignmentUserKarmaServer);
@@ -111,7 +110,7 @@ function cancelAlignmentKarmaServerCallback ({newDocument, vote}) {
   void updateAlignmentKarmaServer(newDocument, vote)
 }
 
-addCallback("votes.cancel.sync", cancelAlignmentKarmaServerCallback);
+addCallback("votes.cancel.async", cancelAlignmentKarmaServerCallback);
 
 function cancelAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)

@@ -95,7 +95,7 @@ async function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
   void updatePostDenormalizedTags(tagRel.postId);
 }
 
-addCallback("votes.cancel.sync", voteUpdatePostDenormalizedTags);
+addCallback("votes.cancel.async", voteUpdatePostDenormalizedTags);
 addCallback("votes.smallUpvote.async", voteUpdatePostDenormalizedTags);
 addCallback("votes.bigUpvote.async", voteUpdatePostDenormalizedTags);
 addCallback("votes.smallDownvote.async", voteUpdatePostDenormalizedTags);
