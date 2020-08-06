@@ -5,6 +5,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
+import { tagPostTerms } from './TagPage';
 
 const styles = (theme: ThemeType): JssStyles => ({
   card: {
@@ -60,11 +61,7 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
-    terms: {
-      filterSettings: {tags:[{tagId: tag?._id, tagName: tag?.name, filterMode: "Required"}]},
-      view: "tagRelevance",
-      tagId: tag?._id,
-    },
+    terms: tagPostTerms(tag, {}),
     collection: Posts,
     fragmentName: "PostsList",
     limit: postCount,
