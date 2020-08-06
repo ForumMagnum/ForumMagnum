@@ -59,13 +59,40 @@ export function getRecommendationSettings({settings, currentUser, configName})
   }
 }
 
+// TODO: Soon to be removed when Community becomes a tag. At that point, we'll
+// move this into forumLanguage
 const forumIncludeExtra = {
   LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
 }
-
 const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
+
+interface RecommendationsForumLanguage {
+  archivesShortName: string,
+  archivesTooltip: string,
+  archivesLongName: string
+}
+const getForumLanguage = (): RecommendationsForumLanguage => {
+  switch (forumTypeSetting.get()) {
+    case 'EAForum':
+      return {
+        archivesShortName: 'Favorites',
+        archivesTooltip: 'Show a randomized sample of past community favorites',
+        archivesLongName: 'Community Favorites',
+      }
+      break;
+    case 'LessWrong':
+    case 'AlignmentForum':
+    default:
+      return {
+        archivesShortName: 'Archives',
+        archivesTooltip: 'Show randomized posts from the archives',
+        archivesLongName: 'Archive Recommendations',
+      }
+  }
+}
+const forumLanguage = getForumLanguage()
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: any,
@@ -97,28 +124,24 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     onChange(newSettings);
   }
   return <div className={classes.root}>
-    <span className={classes.settingGroup}>
+    {['frontpage', 'frontpageEA'].includes(configName) && <span className={classes.settingGroup}>
       <span className={classes.setting}>
-        {(['frontpage', 'frontpageEA'].includes(configName)) &&
-          <SectionFooterCheckbox
-            value={!settings.hideContinueReading}
-            onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
-            label="Continue Reading"
-            tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
-          />
-        }
+        <SectionFooterCheckbox
+          value={!settings.hideContinueReading}
+          onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
+          label="Continue Reading"
+          tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
+        />
       </span>
       <span className={classes.setting}>
-        {(['frontpage', 'frontpageEA'].includes(configName)) &&
-          <SectionFooterCheckbox
-            value={!settings.hideBookmarks}
-            onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-            label="Bookmarks"
-            tooltip="Posts that you have bookmarked will appear in Recommendations."
-          />
-        }
+        <SectionFooterCheckbox
+          value={!settings.hideBookmarks}
+          onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
+          label="Bookmarks"
+          tooltip="Posts that you have bookmarked will appear in Recommendations."
+        />
       </span>
-    </span>
+    </span>}
 
     {/* disabled except during review */}
     {/* {(configName === "frontpage") && <div>
@@ -137,24 +160,23 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
 
     {/* disabled during 2018 Review [and coronavirus]*/}
     <span className={classes.settingGroup}>
-      {(configName === "frontpage") &&
+      {(["frontpage", "frontpageEA"].includes(configName)) &&
         <span className={classes.setting}>
           <SectionFooterCheckbox
             value={!settings.hideFrontpage}
             onClick={(ev, checked) => applyChange({ ...settings, hideFrontpage: !settings.hideFrontpage })}
-            label="Archives"
-            tooltip="Show randomized posts from the archives"
+            label={forumLanguage.archivesShortName}
+            tooltip={forumLanguage.archivesTooltip}
           />
         </span>
       }
-      {/* TODO; Remove 'Archive' from tooltip  */}
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
           value={settings.onlyUnread && !!currentUser}
           onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
           label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
-          tooltip="'Archive Recommendations' will only show unread posts"
+          tooltip={`'${forumLanguage.archivesLongName}' will only show unread posts`}
         />
       </span>
 
@@ -165,11 +187,11 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           value={settings[includeExtra.machineName]}
           onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
           label={includeExtra.humanName}
-          tooltip={`'Archive Recommendations' will include ${includeExtra.humanName}`}
+          tooltip={`'${forumLanguage.archivesLongName}' will include ${includeExtra.humanName}`}
         />
       </span>
     </span>
-    {/* ea-forum look here */}
+    {/* TODO; ea-forum look here */}
     {showAdvanced && <div>
       <div>{"Algorithm "}
         <select
