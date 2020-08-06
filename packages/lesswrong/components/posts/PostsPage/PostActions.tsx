@@ -216,13 +216,11 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
-        { Users.canDo(currentUser, "posts.edit.all") &&
-          <div onClick={this.handleOpenTagDialog}>
-            <MenuItem>
-              <div className={classes.editTags}>Edit Tags</div>
-            </MenuItem>
-          </div>
-        }
+        <div onClick={this.handleOpenTagDialog}>
+          <MenuItem>
+            <div className={classes.editTags}>Edit Tags</div>
+          </MenuItem>
+        </div>
         { isRead
           ? <div onClick={this.handleMarkAsUnread}>
               <MenuItem>
