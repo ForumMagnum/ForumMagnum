@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
-import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
+import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -39,23 +39,15 @@ const recommendationAlgorithms = [
   }
 ];
 
-function getDefaultSettings(configName) {
-  if (configName in slotSpecificRecommendationSettingDefaults) {
-    return deepmerge(defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults[configName]);
-  } else {
-    return defaultAlgorithmSettings;
-  }
-}
-
 export function getRecommendationSettings({settings, currentUser, configName})
 {
   if (settings)
    return settings;
 
   if (currentUser?.recommendationSettings && configName in currentUser.recommendationSettings) {
-    return deepmerge(getDefaultSettings(configName), currentUser.recommendationSettings[configName]||{});
+    return deepmerge(defaultAlgorithmSettings, currentUser.recommendationSettings[configName]||{});
   } else {
-    return getDefaultSettings(configName);
+    return defaultAlgorithmSettings;
   }
 }
 
