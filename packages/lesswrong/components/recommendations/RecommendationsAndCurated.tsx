@@ -53,6 +53,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const getFrontPageOverwrites = (haveCurrentUser: boolean) => {
+  if (forumTypeSetting.get() === 'EAForum') {
+    return {
+      method: haveCurrentUser ? 'sample' : 'top',
+      count: 5
+    }
+  }
+  return {
+    method: 'sample',
+    coutn: haveCurrentUser ? 3 : 2
+  }
+}
+
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -75,8 +88,7 @@ const RecommendationsAndCurated = ({
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
       ...settings,
-      method: !currentUser && forumTypeSetting.get() ? 'top' : 'sample',
-      count: currentUser ? 3 : 2,
+      ...getFrontPageOverwrites(!!currentUser)
     }
 
     const continueReadingTooltip = <div>
