@@ -12,11 +12,11 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import LocalOfferIcon from '@material-ui/icons/LocalOffer'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { withDialog } from '../../common/withDialog';
-import { tagStyle } from '../../tagging/FooterTag';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
@@ -41,9 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   promoteWarning: {
     fontSize: 20,
     marginLeft: 4,
-  },
-  editTags: {
-    ...tagStyle(theme)
   }
 })
 
@@ -218,7 +215,10 @@ class PostActions extends Component<PostActionsProps,{}> {
         <ReportPostMenuItem post={post}/>
         <div onClick={this.handleOpenTagDialog}>
           <MenuItem>
-            <div className={classes.editTags}>Edit Tags</div>
+            <ListItemIcon>
+              <LocalOfferIcon />
+            </ListItemIcon>
+            Edit Tags
           </MenuItem>
         </div>
         { isRead
