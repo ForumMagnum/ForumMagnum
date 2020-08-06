@@ -3,8 +3,7 @@ import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { defaultFilterSettings } from '../../filterSettings';
-import { forumTypeSetting } from "../../instanceSettings";
-import { hasEventsSetting } from '../../publicSettings';
+import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
@@ -948,6 +947,18 @@ addFieldsDict(Users, {
     group: formGroups.default,
     hidden: true,
     label: "Hide the frontpage map"
+  },
+
+  hideTaggingProgressBar: {
+    type: Boolean, 
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true, 
+    hidden: false,
+    label: "Hide the tagging progress bar",
+    order: 45,
+    group: formGroups.default
   },
 
   needsReview: {

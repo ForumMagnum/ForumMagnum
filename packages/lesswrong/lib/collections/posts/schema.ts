@@ -556,6 +556,19 @@ const schema = {
     hidden: true,
   },
 
+  lastPromotedComment: resolverOnlyField({
+    type: "Comment",
+    graphQLtype: "Comment",
+    viewableBy: ['guests'],
+    resolver: async (post, args, context: ResolverContext) => {
+      const { currentUser } = context;
+      if (post.lastCommentPromotedAt) {
+        const comment = await Comments.findOne({postId: post._id, promoted: true}, {sort:{promotedAt: -1}})
+        return await accessFilterSingle(currentUser, Comments, comment, context)
+      }
+    }
+  }),
+
   bestAnswer: resolverOnlyField({
     type: "Comment",
     graphQLtype: "Comment",

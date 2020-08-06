@@ -5,6 +5,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
+import Users from '../../lib/collections/users/collection';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { useCurrentUser } from '../common/withUser';
+import { useDialog } from '../common/withDialog';
+import { useMessages } from '../common/withMessages';
 
 const styles = theme => ({
   root: {
@@ -16,11 +21,28 @@ const styles = theme => ({
     boxShadow: theme.boxShadow,
     ...theme.typography.postStyle
   },
+  secondaryInfo: {
+    display: 'flex',
+    ...theme.typography.commentStyle,
+    justifyContent: 'space-between',
+    fontSize: '1rem',
+    color: 'rgba(0,0,0,0.55)',
+    marginTop: 8
+  },
+  helpText: {
+  },
+  hideButton: {
+  },
   inner: {
     width: "100%",
   },
   tooltip: {
     display: "block"
+  },
+  title: {
+    flexGrow: 1,
+    flexBasis: 1,
+    marginRight: "auto"
   },
   link: {
     color: theme.palette.primary.main
@@ -29,6 +51,7 @@ const styles = theme => ({
     display: "flex",
     justifyContent: "space-between",
     marginBottom: 4,
+    alignItems: "center"
   }
 });
 
@@ -36,11 +59,18 @@ const TagProgressBar = ({classes}: {
   classes: ClassesType,
 }) => {
 
-  const { LWTooltip, PostsItem2MetaInfo } = Components;
+  const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
+  const currentUser = useCurrentUser();
+  const {mutate: updateUser} = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  });
+  const { openDialog } = useDialog();
+  const { flash } = useMessages();
 
-  const { totalCount: taggedTotal } = useMulti({
+  const { totalCount: untaggedTotal } = useMulti({
     terms: {
-      view: "tagProgressTagged",
+      view: "tagProgressUntagged",
       limit: 0
     },
     collection: Posts,
@@ -62,31 +92,84 @@ const TagProgressBar = ({classes}: {
     ssr: true
   });
 
-  if (!taggedTotal || !postsTotal) return null
+  const hideClickHandler = async () => {
+    if (currentUser) {
+      await updateUser({
+        selector: { _id: currentUser._id},
+        data: {
+          hideTaggingProgressBar: true
+        },
+      })
+      flash({
+        messageString: "Hid tagging progress bar from the frontpage",
+        type: "success",
+        action: () => void updateUser({
+          selector: { _id: currentUser._id},
+          data: {
+            hideTaggingProgressBar: false
+          },
+        })
+      })
+    } else {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+    }
+  }
+
+  if (!untaggedTotal || !postsTotal) return null
 
   return <div className={classes.root}>
       <div className={classes.inner}>
         <div className={classes.text}>
-          <Link to={"/posts/uqXQAWxLFW8WgShtk/open-call-for-taggers"}>
+          <Link className={classes.title} to={"/posts/uqXQAWxLFW8WgShtk/open-call-for-taggers"}>
             Tagging Progress
           </Link>
-          <LWTooltip title={<div><div>List of the most important posts to tag.</div><div><em>(Click any post title to go that post page, and tag the post)</em></div></div>}>
+          <LWTooltip title={<div>
+            <div>View all completely untagged posts, sorted by karma</div>
+            <div><em>(Click through to read posts, and then tag them)</em></div>
+          </div>}>
             <PostsItem2MetaInfo>
-              <a className={classes.link} href={"https://docs.google.com/spreadsheets/d/1Oiv_Mg_7mEhP0Ik6Bs1V99G2v4eevL-LvkxQfD-blqw/edit#gid=651704611&fvid=1771188974"}>
-                Tag Priority Posts
-              </a>
+              <Link className={classes.link} to={"/allPosts?filter=untagged&timeframe=allTime&sortedBy=top"}>
+                Tag Posts
+              </Link>
+            </PostsItem2MetaInfo>
+          </LWTooltip>
+          <SeparatorBullet/>
+          <LWTooltip title={<div>
+            <div>View top posts that have been given generic core-tags, but could use more specific tags</div>
+            <div><em>(Click through to read posts, and then search for tags that will help users find specific, relevant content)</em></div>
+          </div>}>
+            <PostsItem2MetaInfo>
+              <Link className={classes.link} to={"/allPosts?filter=unNonCoreTagged&timeframe=allTime&sortedBy=top"}>
+                Improve Post Tags
+              </Link>
             </PostsItem2MetaInfo>
           </LWTooltip>
         </div>
         <LWTooltip 
           className={classes.tooltip}
           title={<div>
-            <div>{taggedTotal} out of {postsTotal} posts have been tagged</div>
-            <div><em>(Filtered for 25+ karma. Only counting non-core tags (i.e. tags other than "Rationality", "AI", etc)</em></div>
+            <div>{(postsTotal - untaggedTotal)} out of {postsTotal} posts have been tagged</div>
+            <div><em>(Filtered for 25+ karma)</em></div>
           </div>}
         >
-          <LinearProgress variant="buffer" value={(taggedTotal/postsTotal)*100} />
-      </LWTooltip>
+          <LinearProgress variant="determinate" value={((postsTotal - untaggedTotal)/postsTotal)*100} />
+        </LWTooltip>
+        <div className={classes.secondaryInfo}>
+          <div className={classes.helpText}>
+            {(postsTotal - untaggedTotal)} out of {postsTotal} posts with more than 25 karma have been tagged
+          </div>
+          <LWTooltip title={"Hide this progress bar from the frontpage"}>
+            <a 
+              className={classes.hideButton}
+              onClick={hideClickHandler}
+            > 
+              Hide 
+            </a>
+          </LWTooltip>
+        </div>
       </div>
   </div>
 }

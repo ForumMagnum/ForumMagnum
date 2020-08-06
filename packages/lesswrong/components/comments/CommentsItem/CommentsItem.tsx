@@ -279,7 +279,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 {`Review for ${comment.reviewingForReview}`}
               </Link>}
               </div>
-              { comment.promotedByUser && <div className={classes.metaNotice}>
+              { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
                 Promoted by {comment.promotedByUser.displayName}
               </div>}
               {this.renderBodyOrEditor()}

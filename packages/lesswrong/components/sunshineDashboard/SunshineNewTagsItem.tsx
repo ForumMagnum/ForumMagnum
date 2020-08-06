@@ -105,6 +105,9 @@ const SunshineNewTagsItem = ({tag, classes}: {
         </Link>
         <div>
           <SidebarInfo>
+            {tag.postCount}
+          </SidebarInfo>
+          <SidebarInfo>
             <Link to={Users.getProfileUrl(tag.user)}>
               {tag.user && tag.user.displayName}
             </Link>

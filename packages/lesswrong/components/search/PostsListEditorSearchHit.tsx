@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useHover } from '../common/withHover';
 
 import grey from '@material-ui/core/colors/grey';
 
@@ -21,20 +22,37 @@ const styles = (theme: ThemeType): JssStyles => ({
   })
 
 const PostsListEditorSearchHit = ({hit, classes}) => {
+  const { eventHandlers, hover, anchorEl } = useHover({
+    pageElementContext: "postListEditorSearchHit",
+  });
+  const { LWPopper, PostsPreviewTooltipSingle, PostsTitle, MetaInfo, FormatDate} = Components
+
   return (
-    <div className={classes.root}>
+    <div className={classes.root} {...eventHandlers}>
+      <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="left"
+        modifiers={{
+          flip: {
+            enabled: false,
+          }
+        }}
+      >
+        <PostsPreviewTooltipSingle postId={hit._id} postsList/>
+      </LWPopper>
       <div>
-        <Components.PostsTitle post={hit} isLink={false}/>
+        <PostsTitle post={hit} isLink={false}/>
       </div>
-      {hit.authorDisplayName && <Components.MetaInfo>
+      {hit.authorDisplayName && <MetaInfo>
         {hit.authorDisplayName}
-      </Components.MetaInfo>}
-      <Components.MetaInfo>
+      </MetaInfo>}
+      <MetaInfo>
         {hit.baseScore} points
-      </Components.MetaInfo>
-      {hit.postedAt && <Components.MetaInfo>
-        <Components.FormatDate date={hit.postedAt}/>
-      </Components.MetaInfo>}
+      </MetaInfo>
+      {hit.postedAt && <MetaInfo>
+        <FormatDate date={hit.postedAt}/>
+      </MetaInfo>}
       <Link to={Posts.getLink(hit)} target={Posts.getLinkTarget(hit)} className={classes.postLink}>
         (Link)
       </Link>

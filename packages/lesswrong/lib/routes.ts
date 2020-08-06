@@ -1,6 +1,6 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting } from './instanceSettings';
-import { hasEventsSetting, legacyRouteAcronymSetting } from './publicSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
+import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
@@ -240,6 +240,11 @@ addRoute(
     path: '/tags/all',
     componentName: 'AllTagsPage',
     title: "All Tags",
+  },
+  {
+    name: "Concepts",
+    path:'/concepts',
+    redirect: () => `/tags/all`,
   },
   {
     name: 'tagVoting',
@@ -558,7 +563,8 @@ switch (forumTypeSetting.get()) {
       {
         name: 'home',
         path: '/',
-        componentName: 'EAHome'
+        componentName: 'EAHome',
+        sunshineSidebar: true
       },
       {
         name:'about',
@@ -566,6 +572,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'intro',
@@ -573,6 +580,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: introPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, introPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'contact',
@@ -580,6 +588,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: contactPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'Community',
@@ -593,20 +602,10 @@ switch (forumTypeSetting.get()) {
         componentName: 'EASequencesHome'
       },
       {
-        name: "Concepts",
-        path:'/concepts',
-        redirect: () => `/tags/all`,
-      },
-      {
         name: "TagsAll",
         path:'/tags',
         redirect: () => `/tags/all`,
-      }
-      // {
-      //   name: 'eaHandbookHome',
-      //   path: '/handbook',
-      //   componentName: 'EASequencesHome'
-      // }
+      },
     );
     break
   default:

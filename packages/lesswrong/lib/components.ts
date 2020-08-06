@@ -5,8 +5,7 @@ import '../components/posts/TableOfContents';
 // vulcan:accounts
 import '../components/vulcan-accounts';
 import '../components/vulcan-core/vulcan-core-components';
-import { forumTypeSetting } from './instanceSettings';
-import { hasEventsSetting } from './publicSettings';
+import { forumTypeSetting, hasEventsSetting } from './instanceSettings';
 // vulcan:forms
 import './vulcan-forms/components';
 import { importComponent } from './vulcan-lib';
@@ -379,6 +378,7 @@ importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGra
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
+importComponent("TagRevisionItem", () => require('../components/tagging/TagRevisionItem'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
 importComponent("TagDiscussionPage", () => require('../components/tagging/TagDiscussionPage'));
@@ -511,6 +511,3 @@ importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Ale
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
-
-
-

@@ -1,5 +1,5 @@
 import Tag from './collection';
 
-Tag.getUrl = (tag: TagPreviewFragment) => {
+Tag.getUrl = (tag: TagBasicInfo) => {
   return `/tag/${tag.slug}`
 }

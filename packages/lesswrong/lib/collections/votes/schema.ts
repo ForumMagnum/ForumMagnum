@@ -14,6 +14,11 @@ import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 // that was reversed.
 //
 
+const docIsTagRel = (currentUser, document) => {
+  // TagRel votes are treated as public
+  return document?.collectionName === "TagRels"
+}
+
 const schema = {
   // The id of the document that was voted on
   documentId: {
@@ -31,7 +36,7 @@ const schema = {
   // The id of the user that voted
   userId: {
     type: String,
-    canRead: [Users.owns, 'admins'],
+    canRead: [Users.owns, docIsTagRel, 'admins'],
     foreignKey: 'Users',
   },
   
@@ -58,7 +63,7 @@ const schema = {
   power: {
     type: Number,
     optional: true,
-    canRead: [Users.owns, "admins"],
+    canRead: [Users.owns, docIsTagRel, 'admins'],
     
     // Can be inferred from userId+voteType+votedAt (votedAt necessary because
     // the user's vote power may have changed over time)
@@ -70,7 +75,7 @@ const schema = {
   afPower: {
     type: Number,
     optional: true,
-    canRead: Users.owns,
+    canRead: [Users.owns, docIsTagRel, 'admins'],
   },
   
   // Whether this vote has been cancelled (by un-voting or switching to a
@@ -93,13 +98,13 @@ const schema = {
   votedAt: {
     type: Date,
     optional: true,
-    canRead: [Users.owns, "admins"],
+    canRead: [Users.owns, docIsTagRel, 'admins'],
   },
 
   tagRel: resolverOnlyField({
     type: "TagRel",
     graphQLtype: 'TagRel',
-    canRead: ['admins'],
+    canRead: [docIsTagRel, 'admins'],
     resolver: (vote, args, { TagRels }: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
         const tagRel = TagRels.find({_id: vote.documentId}).fetch()[0]
