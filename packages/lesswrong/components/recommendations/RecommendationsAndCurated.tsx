@@ -62,7 +62,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean) => {
   }
   return {
     method: 'sample',
-    coutn: haveCurrentUser ? 3 : 2
+    count: haveCurrentUser ? 3 : 2
   }
 }
 
