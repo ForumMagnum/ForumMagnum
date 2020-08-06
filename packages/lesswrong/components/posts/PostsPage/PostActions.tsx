@@ -12,7 +12,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
-import LocalOfferIcon from '@material-ui/icons/LocalOffer'
+import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
@@ -216,7 +216,7 @@ class PostActions extends Component<PostActionsProps,{}> {
         <div onClick={this.handleOpenTagDialog}>
           <MenuItem>
             <ListItemIcon>
-              <LocalOfferIcon />
+              <LocalOfferOutlinedIcon />
             </ListItemIcon>
             Edit Tags
           </MenuItem>
