@@ -93,7 +93,7 @@ export function NavHashLink(props) {
 
 const propTypes = {
   onClick: PropTypes.func,
-  children: PropTypes.node,
+  children: PropTypes.any,
   scroll: PropTypes.func,
   to: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
