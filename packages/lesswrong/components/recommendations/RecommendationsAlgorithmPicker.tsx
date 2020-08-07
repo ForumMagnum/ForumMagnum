@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { archiveRecommendationsName } from './ConfigurableRecommendationsList';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -59,13 +60,6 @@ const forumIncludeExtra = {
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
 }
 const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
-
-const forumArchivesName = {
-  LessWrong: 'Archive Recommendations',
-  AlignmentForum: 'Archive Recommendations',
-  EAForum: 'Forum Favorites',
-}
-const archiveName = forumArchivesName[forumTypeSetting.get()]
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: any,
@@ -149,7 +143,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           value={settings.onlyUnread && !!currentUser}
           onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
           label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
-          tooltip={`'${archiveName}' will only show unread posts`}
+          tooltip={`'${archiveRecommendationsName}' will only show unread posts`}
         />
       </span>
 
@@ -160,7 +154,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           value={settings[includeExtra.machineName]}
           onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
           label={includeExtra.humanName}
-          tooltip={`'${archiveName}' will include ${includeExtra.humanName}`}
+          tooltip={`'${archiveRecommendationsName}' will include ${includeExtra.humanName}`}
         />
       </span>
     </span>
