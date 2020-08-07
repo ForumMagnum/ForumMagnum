@@ -52,8 +52,7 @@ export function getRecommendationSettings({settings, currentUser, configName})
   }
 }
 
-// TODO: Soon to be removed when Community becomes a tag. At that point, we'll
-// move this into forumLanguage
+// TODO: Probably to be removed when Community becomes a tag
 const forumIncludeExtra = {
   LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
@@ -227,4 +226,3 @@ declare global {
     RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPickerComponent
   }
 }
-
