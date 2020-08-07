@@ -5,9 +5,10 @@ import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
-import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
+import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { archiveRecommendationsName } from './ConfigurableRecommendationsList';
 
 const styles = theme => ({
   root: {
@@ -39,32 +40,25 @@ const recommendationAlgorithms = [
   }
 ];
 
-function getDefaultSettings(configName) {
-  if (configName in slotSpecificRecommendationSettingDefaults) {
-    return deepmerge(defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults[configName]);
-  } else {
-    return defaultAlgorithmSettings;
-  }
-}
-
 export function getRecommendationSettings({settings, currentUser, configName})
 {
   if (settings)
    return settings;
 
   if (currentUser?.recommendationSettings && configName in currentUser.recommendationSettings) {
-    return deepmerge(getDefaultSettings(configName), currentUser.recommendationSettings[configName]||{});
+    return deepmerge(defaultAlgorithmSettings, currentUser.recommendationSettings[configName]||{});
   } else {
-    return getDefaultSettings(configName);
+    return defaultAlgorithmSettings;
   }
 }
 
+// TODO: Soon to be removed when Community becomes a tag. At that point, we'll
+// move this into forumLanguage
 const forumIncludeExtra = {
   LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
 }
-
 const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
@@ -86,7 +80,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         ...currentUser.recommendationSettings,
         [configName]: newSettings
       };
-    
+
       void updateUser({
         selector: { _id: currentUser._id },
         data: {
@@ -97,38 +91,34 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     onChange(newSettings);
   }
   return <div className={classes.root}>
-    <span className={classes.settingGroup}>
+    {['frontpage', 'frontpageEA'].includes(configName) && <span className={classes.settingGroup}>
       <span className={classes.setting}>
-        {(configName === "frontpage") &&
-          <SectionFooterCheckbox
-            value={!settings.hideContinueReading}
-            onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
-            label="Continue Reading"
-            tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
-          />
-        }
+        <SectionFooterCheckbox
+          value={!settings.hideContinueReading}
+          onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
+          label="Continue Reading"
+          tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
+        />
       </span>
       <span className={classes.setting}>
-        {(configName === "frontpage") && 
-          <SectionFooterCheckbox
-            value={!settings.hideBookmarks}
-            onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-            label="Bookmarks"
-            tooltip="Posts that you have bookmarked will appear in Recommendations."
-          />
-        }
+        <SectionFooterCheckbox
+          value={!settings.hideBookmarks}
+          onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
+          label="Bookmarks"
+          tooltip="Posts that you have bookmarked will appear in Recommendations."
+        />
       </span>
-    </span>
+    </span>}
 
     {/* disabled except during review */}
-    {/* {(configName === "frontpage") && <div> 
+    {/* {(configName === "frontpage") && <div>
       <Checkbox
         checked={!settings.hideReview}
         onChange={(ev, checked) => applyChange({ ...settings, hideReview: !checked })}
       /> Show 'The LessWrong 2018 Review'
     </div>} */}
 
-    {/* <div> 
+    {/* <div>
       <Checkbox
         checked={!settings.hideCoronavirus}
         onChange={(ev, checked) => applyChange({ ...settings, hideCoronavirus: !checked })}
@@ -137,7 +127,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
 
     {/* disabled during 2018 Review [and coronavirus]*/}
     <span className={classes.settingGroup}>
-      {(configName === "frontpage") && 
+      {configName === "frontpage" &&
         <span className={classes.setting}>
           <SectionFooterCheckbox
             value={!settings.hideFrontpage}
@@ -147,14 +137,13 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           />
         </span>
       }
-    
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
           value={settings.onlyUnread && !!currentUser}
           onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
           label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
-          tooltip="'Archive Recommendations' will only show unread posts"
+          tooltip={`'${archiveRecommendationsName}' will only show unread posts`}
         />
       </span>
 
@@ -165,11 +154,10 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           value={settings[includeExtra.machineName]}
           onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
           label={includeExtra.humanName}
-          tooltip={`'Archive Recommendations' will include ${includeExtra.humanName}`}
+          tooltip={`'${archiveRecommendationsName}' will include ${includeExtra.humanName}`}
         />
       </span>
     </span>
-    {/* ea-forum look here */}
     {showAdvanced && <div>
       <div>{"Algorithm "}
         <select

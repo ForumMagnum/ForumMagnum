@@ -9,6 +9,7 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import Hidden from '@material-ui/core/Hidden';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
 const styles = theme => ({
@@ -54,17 +55,6 @@ const styles = theme => ({
   }
 });
 
-const defaultFrontpageSettings = {
-  method: "sample",
-  count: 3,
-  scoreOffset: 0,
-  scoreExponent: 3,
-  personalBlogpostModifier: 0,
-  frontpageModifier: 10,
-  curatedModifier: 50,
-}
-
-
 interface ExternalProps {
   configName: string
 }
@@ -74,6 +64,19 @@ interface RecommendationsAndCuratedProps extends ExternalProps, WithUserProps, W
 interface RecommendationsAndCuratedState {
   showSettings: boolean,
   settings: any,
+}
+
+const getFrontPageOverwrites = (haveCurrentUser: boolean) => {
+  if (forumTypeSetting.get() === 'EAForum') {
+    return {
+      method: haveCurrentUser ? 'sample' : 'top',
+      count: haveCurrentUser ? 3 : 5
+    }
+  }
+  return {
+    method: 'sample',
+    count: haveCurrentUser ? 3 : 2
+  }
 }
 
 class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedProps,RecommendationsAndCuratedState> {
@@ -98,6 +101,11 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+    const frontpageRecommendationSettings = {
+      ...settings,
+      ...getFrontPageOverwrites(!!currentUser)
+    }
+
 
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
@@ -111,28 +119,23 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
-        Recently curated posts, as well as a random sampling of top-rated posts of all time
+        {forumTypeSetting.get() === 'EAForum' ?
+          'Assorted suggested reading, including some of the ' :
+          'Recently curated posts, as well as a random sampling of '}
+        top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
       </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    // defaultFrontpageSettings does not contain anything that overrides a user
-    // editable setting, so the reverse ordering here is fine
-    const frontpageRecommendationSettings = {
-      ...settings,
-      ...defaultFrontpageSettings,
-      count: currentUser ? 3 : 2,
-    }
-
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
- 
+
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
-        {currentUser && 
+        {currentUser &&
           <LWTooltip title="Customize your recommendations">
             <SettingsButton showIcon={false} onClick={this.toggleSettings} label="Customize"/>
           </LWTooltip>
@@ -146,7 +149,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
 
-      {!currentUser && <div>
+      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
           <Hidden smDown implementation="css">
             <div className={classes.sequenceGrid}>
               <SequencesGridWrapper
@@ -170,7 +173,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
+            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showNoResults={false} showLoadMore={false} hideLastUnread={true} />
           </AnalyticsContext>
         </div>
       </div>
@@ -230,4 +233,3 @@ declare global {
     RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
   }
 }
-
