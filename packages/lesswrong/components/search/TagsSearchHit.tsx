@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
+import { Snippet } from 'react-instantsearch-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,13 +20,17 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
   hit: any,
   clickAction?: any,
   classes: ClassesType,
-}) => <div className={classes.root}>
-  <Link to={Tags.getUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>
-    <Components.MetaInfo>
-      {hit.name}
-    </Components.MetaInfo>
-  </Link>
-</div>
+}) => {
+
+return <div className={classes.root}>
+    <Link to={Tags.getUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>
+      <Components.MetaInfo>
+        {hit.name}
+      </Components.MetaInfo>
+      <div><Snippet attribute="description" hit={hit} tagName="mark" /></div>
+    </Link>
+  </div>
+}
 
 const TagsSearchHitComponent = registerComponent("TagsSearchHit", TagsSearchHit, {styles});
 
