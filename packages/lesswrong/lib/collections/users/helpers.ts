@@ -57,13 +57,6 @@ const postHasModerationGuidelines = post => {
   return post.moderationGuidelines?.originalContents || post.moderationStyle
 }
 
-const isPersonalBlogpost = (post: PostsBase|DbPost): boolean => {
-  if (forumTypeSetting.get() === 'EAForum') {
-    return !(post.frontpageDate || post.meta)
-  }
-  return !post.frontpageDate
-}
-
 Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null): boolean => {
   if (Users.canDo(user,"posts.moderate.all")) {
     return true
@@ -80,7 +73,7 @@ Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbP
     Users.canDo(user, "posts.moderate.own.personal") &&
     Users.owns(user, post) &&
     postHasModerationGuidelines(post) &&
-    isPersonalBlogpost(post)
+    !post.frontpageDate
   ) {
     return true
   }

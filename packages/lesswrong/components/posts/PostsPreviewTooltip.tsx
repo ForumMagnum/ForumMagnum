@@ -118,15 +118,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
-
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
 
   if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.meta) categories.push(`${metaName} Post`)
+  if (post.meta) categories.push(`Meta Post`)
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
 
   if (categories.length > 0)
@@ -224,4 +222,3 @@ declare global {
     PostsPreviewTooltip: typeof PostsPreviewTooltipComponent
   }
 }
-

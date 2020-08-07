@@ -44,19 +44,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   divider: {/* Exists only to get overriden by the eaTheme */}
 })
 
-const defaultPostTypes = [
+const postTypes = [
   {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
   {name: 'personal', postIsType: post => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
-const postTypes = {
-  LessWrong: defaultPostTypes,
-  AlignmentForum: defaultPostTypes,
-  EAForum: [
-    {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
-    {name: 'meta', postIsType: post => post.meta, label: 'Community Posts'},
-    {name: 'personal', postIsType: post => !(post.frontpageDate || post.meta), label: 'Personal Blogposts'}
-   ]
-}
 
 interface ExternalProps {
   terms: any,
@@ -142,7 +133,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       return null
     }
 
-    const postGroups = postTypes[forumTypeSetting.get()].map(type => ({
+    const postGroups = postTypes.map(type => ({
       ...type,
       posts: posts?.filter(type.postIsType)
     }))

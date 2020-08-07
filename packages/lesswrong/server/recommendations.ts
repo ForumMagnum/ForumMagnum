@@ -192,7 +192,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
 const getModifierName = post => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
-  if (forumTypeSetting.get() === 'EAForum' && post.meta) return 'metaModifier'
+  // TODO; tag modifiers?
   return 'personalBlogpostModifier'
 }
 

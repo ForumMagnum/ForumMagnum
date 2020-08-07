@@ -83,7 +83,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
         title: post.title,
         slug: post.slug,
         karma: post.baseScore,
-        community: !!post.meta,
+        // community: !!post.meta, // TODO;
         frontpage_date: post.frontpageDate,
         posted_at: post.postedAt,
         created_at: post.createdAt,

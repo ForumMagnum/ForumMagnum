@@ -28,15 +28,6 @@ export const filters: Record<string,any> = {
   "frontpage": {
     frontpageDate: {$gt: new Date(0)}
   },
-  "frontpageAndMeta": {
-    // NB:   Currently only used on EA Forum
-    // NB#2: Do not combine this with a view that specifies a selector with
-    // $or, as this will be overwritten.
-    $or: [
-      {frontpageDate: {$gt: new Date(0)}},
-      {meta: true}
-    ]
-  },
   "all": {
     groupId: null
   },
@@ -74,7 +65,6 @@ export const filters: Record<string,any> = {
   },
   "includeMetaAndPersonal": {},
 }
-if (forumTypeSetting.get() === 'EAForum') filters.frontpage.meta = {$ne: true}
 
 /**
  * @summary Similar to filters (see docstring above), but specifying MongoDB-style sorts
