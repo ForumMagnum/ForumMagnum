@@ -3,7 +3,7 @@
  *
  * This file could arguably be .d.ts (and it did use to be), but when it was, it
  * was getting ignored by the type checker as an external library file, as
- * --skip-lib-check just ignores all .d.ts files.
+ * --skipLibCheck just ignores all .d.ts files.
  */
 
 interface CollectionBase<T extends DbObject> {
@@ -32,7 +32,7 @@ interface CollectionBase<T extends DbObject> {
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T | null
   // Return result is number of documents **matched** not affected
   //
-  // You might have expected that the return type would be MongoDB WriteResult. Unfortunately, no.
+  // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
   update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => number
