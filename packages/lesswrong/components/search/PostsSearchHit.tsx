@@ -5,6 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet} from 'react-instantsearch-dom';
 import grey from '@material-ui/core/colors/grey';
 import Typography from '@material-ui/core/Typography';
+import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType): JssStyles => ({
     root: {
@@ -26,8 +27,14 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => {
+  const { eventHandlers, hover, anchorEl } = useHover();
+  const { PopperCard, PostsPreviewTooltipSingle, MetaInfo, FormatDate } = Components
+
   // If clickAction is provided, disable link and replace with Click of the action
-  return <div className={classes.root}>
+  return <div className={classes.root} {...eventHandlers}>
+    <PopperCard open={hover} anchorEl={anchorEl} placement="left-start" modifiers={{offset:12}}>
+      <PostsPreviewTooltipSingle postId={hit._id} postsList />
+    </PopperCard>
     <Link
       onClick={(event) => isLeftClick(event) && clickAction && clickAction()}
       to={Posts.getPageUrl(hit)}
@@ -36,15 +43,15 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
         <Typography variant="title">
           {hit.title}
         </Typography>
-        {hit.authorDisplayName && <Components.MetaInfo>
+        {hit.authorDisplayName && <MetaInfo>
           {hit.authorDisplayName}
-        </Components.MetaInfo>}
-        <Components.MetaInfo>
+        </MetaInfo>}
+        <MetaInfo>
           {hit.baseScore} points
-        </Components.MetaInfo>
-        {hit.postedAt && <Components.MetaInfo>
-          <Components.FormatDate date={hit.postedAt}/>
-        </Components.MetaInfo>}
+        </MetaInfo>
+        {hit.postedAt && <MetaInfo>
+          <FormatDate date={hit.postedAt}/>
+        </MetaInfo>}
         <div><Snippet attribute="body" hit={hit} tagName="mark" /></div>
     </Link>
   </div>

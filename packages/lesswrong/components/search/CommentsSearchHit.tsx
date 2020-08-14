@@ -2,6 +2,8 @@ import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import React from 'react';
+import { useHover } from '../common/withHover';
+import { PopperPlacementType } from '@material-ui/core/Popper'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,20 +20,27 @@ const isLeftClick = (event) => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes}: {
+const CommentsSearchHit = ({hit, clickAction, classes, tooltipPlacement="left-end"}: {
   hit: any,
   clickAction?: any,
   classes: ClassesType,
+  tooltipPlacement: PopperPlacementType
 }) => {
   const url = "/posts/" + hit.postId + "/" + hit.postSlug + "#" + hit._id
-  return <div className={classes.root}>
+  const { eventHandlers, hover, anchorEl } = useHover();
+  const { PopperCard, PostsPreviewTooltipSingleWithComment, MetaInfo, FormatDate } = Components
+
+  return <div className={classes.root} {...eventHandlers}>
+    <PopperCard open={hover} anchorEl={anchorEl} placement={tooltipPlacement} modifiers={{offset:12}}>
+      <PostsPreviewTooltipSingleWithComment postId={hit.postId} commentId={hit._id} />
+    </PopperCard>
     <Link to={url} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
-        <Components.MetaInfo>{hit.authorDisplayName}</Components.MetaInfo>
-        <Components.MetaInfo>{hit.baseScore} points </Components.MetaInfo>
-        <Components.MetaInfo>
-          <Components.FormatDate date={hit.postedAt}/>
-        </Components.MetaInfo>
+        <MetaInfo>{hit.authorDisplayName}</MetaInfo>
+        <MetaInfo>{hit.baseScore} points </MetaInfo>
+        <MetaInfo>
+          <FormatDate date={hit.postedAt}/>
+        </MetaInfo>
       </div>
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={hit} tagName="mark" />

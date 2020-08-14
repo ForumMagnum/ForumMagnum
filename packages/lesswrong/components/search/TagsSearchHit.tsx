@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
+import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,7 +23,13 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
   classes: ClassesType,
 }) => {
 
-return <div className={classes.root}>
+  const { eventHandlers, hover, anchorEl } = useHover();
+  const { PopperCard, TagPreview } = Components
+
+  return <div className={classes.root} {...eventHandlers}>
+    <PopperCard open={hover} anchorEl={anchorEl} placement="left-start" modifiers={{offset:12}}>
+      <TagPreview tag={hit}/>
+    </PopperCard>
     <Link to={Tags.getUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>
       <Components.MetaInfo>
         {hit.name}
