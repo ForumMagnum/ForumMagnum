@@ -154,7 +154,7 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
-const lwafGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
+const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
   if (filterSettings.personalBlog === "Hidden") {
     return {
       filter: {frontpageDate: {$gt: new Date(0)}},
@@ -179,48 +179,11 @@ const lwafGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, s
   }
 }
 
-// In ea-land, personal blog does not mean personal blog, it means community
-const eaGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
-  if (filterSettings.personalBlog === "Hidden") {
-    return {
-      filter: {frontpageDate: {$gt: new Date(0)}, meta: {$ne: true}},
-      softFilter: []
-    }
-  } else if (filterSettings.personalBlog === "Required") {
-    return {
-      filter: {frontpageDate: viewFieldNullOrMissing, meta: true},
-      softFilter: []
-    }
-  } else {
-    return {
-      filter: {
-        $or: [
-          {frontpageDate: {$gt: new Date(0)}},
-          {meta: true}
-        ]
-      },
-      // This is the same as the lwaf frontpageSoftFilter
-      softFilter: [
-        {$cond: {
-          if: "$frontpageDate",
-          then: 0,
-          else: filterModeToKarmaModifier(filterSettings.personalBlog)
-        }},
-      ],
-    }
-  }
-}
-
 function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
-  let frontpageFiltering: any;
-  if (forumTypeSetting.get() === 'EAForum') {
-    frontpageFiltering = eaGetFrontpageFilter(filterSettings)
-  } else {
-    frontpageFiltering = lwafGetFrontpageFilter(filterSettings)
-  }
+  const frontpageFiltering = getFrontpageFilter(filterSettings)
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
   
