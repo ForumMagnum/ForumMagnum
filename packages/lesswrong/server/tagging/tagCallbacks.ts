@@ -88,7 +88,7 @@ addCallback("tagRels.new.after", async (tagRel) => {
   return {...tagRel, ...votedTagRel};
 });
 
-async function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
+function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
   newDocument: DbTagRel,
   vote: DbVote
 }) {
