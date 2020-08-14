@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
+export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
   return _.sortBy(list, item=>toTag(item).core);
 }
 
