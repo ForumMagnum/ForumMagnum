@@ -64,7 +64,7 @@ export const contentTypes = {
       tooltipBody: <div>
         The best 2-3 posts each week, selected by the moderation team. Curated
         posts are featured at the top of the front page and emailed to subscribers.
-      </div>
+      </div>,
       Icon: StarIcon,
     },
     shortform: {
@@ -109,7 +109,7 @@ export const contentTypes = {
       tooltiptitle: 'Curated Post',
       tooltipBody: <div>
         The best posts, selected by the moderation team.
-      </div>
+      </div>,
       Icon: StarIcon,
     },
     shortform: {
@@ -158,7 +158,7 @@ export const contentTypes = {
       tooltipBody: <div>
         The best 2-3 posts each week, selected by the moderation team. Curated
         posts are featured at the top of the front page and emailed to subscribers.
-      </div>
+      </div>,
       Icon: StarIcon,
     },
     shortform: {
