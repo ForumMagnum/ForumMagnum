@@ -46,14 +46,14 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Arr
   return _.sortBy(list, item=>toTag(item).core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false, maxCount=20}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
   hidePersonalOrFrontpage?: boolean,
   smallText?: boolean
-
+  maxCount?: number
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const currentUser = useCurrentUser();
@@ -112,13 +112,13 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
 
   if (loading || !results) {
     return <div className={classes.root}>
-     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+     {sortTags(post.tags, (t, i)=>i < maxCount && t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
      {postType}
     </div>;
   }
 
   return <span className={classes.root}>
-    {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
+    {sortTags(post.tags, (t, i)=>i < maxCount && t).filter(tagRel => !!tagRel?.tag).map(tagRel =>
       <FooterTag 
         key={tagRel._id} 
         tagRel={tagRel} 

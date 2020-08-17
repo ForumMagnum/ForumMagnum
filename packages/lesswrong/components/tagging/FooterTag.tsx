@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 12,
     paddingTop: 1,
     paddingBottom: 2,
-    marginBottom: 0
+    marginBottom: 2
   }
 });
 

@@ -155,7 +155,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
 
   const renderedComment = comment || post.bestAnswer
 
-  const tags = sortTags(post.tags, t=>t)
+  const tags = sortTags(post.tags)
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
