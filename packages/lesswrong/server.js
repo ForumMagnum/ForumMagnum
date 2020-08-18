@@ -113,6 +113,7 @@ import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
+import './server/resolvers/tagHistoryFeed';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

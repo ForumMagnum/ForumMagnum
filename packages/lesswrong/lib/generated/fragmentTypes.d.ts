@@ -456,6 +456,11 @@ interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragme
   readonly changeMetrics: any,
 }
 
+interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
+  readonly changeMetrics: any,
+  readonly user: UsersMinimumInfo,
+}
+
 interface NotificationsDefaultFragment { // fragment on Notifications
   readonly userId: string,
   readonly createdAt: Date,
@@ -1362,6 +1367,12 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
+interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly createdAt: Date,
+  readonly user: UsersMinimumInfo,
+  readonly post: PostsBase,
+}
+
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment,
   readonly currentUserVotes: Array<VoteFragment>,
@@ -1607,6 +1618,7 @@ interface FragmentTypes {
   WithVoteComment: WithVoteComment
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
+  RevisionHistoryEntry: RevisionHistoryEntry
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -1671,6 +1683,7 @@ interface FragmentTypes {
   SuggestAlignmentUser: SuggestAlignmentUser
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
+  TagRelHistoryFragment: TagRelHistoryFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo

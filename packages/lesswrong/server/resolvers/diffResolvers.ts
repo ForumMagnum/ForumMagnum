@@ -8,6 +8,8 @@ import cheerio from 'cheerio';
 
 addGraphQLResolvers({
   Query: {
+    // Diff resolver
+    // After revision required, before revision optional
     async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
@@ -51,25 +53,30 @@ addGraphQLResolvers({
       }
       
       // Diff the revisions
-      const diffHtmlUnsafe = diff(before.html, after.html);
-      
-      const $ = cheerio.load(diffHtmlUnsafe)
-      if (trim) {
-        $('body').children().each(function(i, elem) {
-          const e = $(elem)
-          if (!e.find('ins').length && !e.find('del').length) {
-            e.remove()
-          }
-        })
-      }
-
-      // Sanitize (in case node-htmldiff has any parsing glitches that would
-      // otherwise lead to XSS)
-      const diffHtml = sanitize($.html());
-      return diffHtml;
+      return diffHtml(before.html, after.html, trim);
     }
   },
 });
 
-addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String, trim: Boolean): String');
+export const diffHtml = (before: string, after: string, trim: boolean): string => {
+  // Diff the revisions
+  const diffHtmlUnsafe = diff(before.html, after.html);
+  
+  const $ = cheerio.load(diffHtmlUnsafe)
+  if (trim) {
+    $('body').children().each(function(i, elem) {
+      const e = $(elem)
+      if (!e.find('ins').length && !e.find('del').length) {
+        e.remove()
+      }
+    })
+  }
+
+  // Sanitize (in case node-htmldiff has any parsing glitches that would
+  // otherwise lead to XSS)
+  const diffHtml = sanitize($.html());
+  return diffHtml;
+}
+
+addGraphQLQuery('RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String');
 

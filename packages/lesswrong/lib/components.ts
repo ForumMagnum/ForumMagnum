@@ -114,6 +114,8 @@ importComponent("NavigationStandalone", () => require('../components/common/TabN
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
+importComponent("MixedTypeFeed", () => require('../components/common/MixedTypeFeed'));
+
 // Outgoing RSS Feed builder
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget'));
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));

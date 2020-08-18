@@ -15,3 +15,13 @@ registerFragment(`
     changeMetrics
   }
 `);
+
+registerFragment(`
+  fragment RevisionHistoryEntry on Revision {
+    ...RevisionMetadata
+    changeMetrics
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`);

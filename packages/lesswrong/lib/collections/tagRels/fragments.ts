@@ -30,6 +30,19 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRelHistoryFragment on TagRel {
+    ...TagRelBasicInfo
+    createdAt
+    user {
+      ...UsersMinimumInfo
+    }
+    post {
+      ...PostsBase
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagRelMinimumFragment on TagRel {
     ...TagRelBasicInfo
     tag {
