@@ -107,15 +107,6 @@ function getHostname(url) {
   return parser.hostname;
 }
 
-export const getContentType = (post) => {
-  if (forumTypeSetting.get() === 'EAForum') {
-    return (post.frontpageDate && 'frontpage') ||
-    (post.meta && 'meta') ||
-    'personal'
-  }
-  return post.frontpageDate ? 'frontpage' : 'personal'
-}
-
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, classes}: {

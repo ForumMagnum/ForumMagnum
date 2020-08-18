@@ -17,9 +17,6 @@ import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { withDialog } from '../../common/withDialog';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
-
-const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -241,7 +238,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
                 <MenuItem>
-                  Move to {metaName}
+                  Move to meta
                 </MenuItem>
               </div>
             }

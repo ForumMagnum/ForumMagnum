@@ -45,7 +45,8 @@ const personalBlogpostInfo = {
   LessWrong: lwafPersonalBlogpostInfo,
   AlignmentForum: lwafPersonalBlogpostInfo,
   EAForum: {
-    name: 'Community Posts',
+    name: 'Personal Blog',
+    // TODO;
     tooltip: <div>
       <div>
         By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively.

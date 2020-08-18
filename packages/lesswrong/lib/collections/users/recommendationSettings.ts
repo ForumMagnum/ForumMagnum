@@ -3,7 +3,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 
-const baseDefaultAlgorithmSettings = {
+export const defaultAlgorithmSettings = {
   method: "top",
   count: 10,
   scoreOffset: 0,
@@ -15,10 +15,6 @@ const baseDefaultAlgorithmSettings = {
   curatedModifier: 50,
   onlyUnread: true,
 };
-
-export const defaultAlgorithmSettings = forumTypeSetting.get() === 'EAForum' ?
-  {...baseDefaultAlgorithmSettings, metaModifier: 0} :
-  baseDefaultAlgorithmSettings
 
 export const slotSpecificRecommendationSettingDefaults = {
   frontpage: {
