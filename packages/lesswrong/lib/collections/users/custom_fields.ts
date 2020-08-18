@@ -8,6 +8,7 @@ import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormali
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
+import GraphQLJSON from 'graphql-type-json';
 
 export const hashPetrovCode = (code) => {
   // @ts-ignore
@@ -1374,7 +1375,19 @@ addFieldsDict(Users, {
     }),
     canRead: ['guests'],
     ...schemaDefaultValue(0)
-  }
+  },
+  abTestKey: {
+    type: String,
+    optional: true,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+  },
+  abTestOverrides: {
+    type: GraphQLJSON, //Record<string,number>
+    optional: true, hidden: true,
+    canRead: [Users.owns],
+    canUpdate: ['admins'],
+  },
 });
 
 export const makeEditableOptionsModeration = {
