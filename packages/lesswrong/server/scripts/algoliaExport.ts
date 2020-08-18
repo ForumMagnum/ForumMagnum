@@ -70,8 +70,8 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
 
 export async function algoliaExportAll() {
   for (let collectionName in algoliaIndexNames)
-    // I found it quite suprising that I'd need to type cast this. If algoliaIndexNames
-    // is of type Partial<Record<CollectionNameString, string>>, why would collectionName
+    // I found it quite surprising that I'd need to type cast this. If algoliaIndexNames
+    // is of type <Record<AlgoliaIndexCollectionName, string>>, why would collectionName
     // be a string? (It's not because we have the in / of mixed up.)
     // Answer: https://stackoverflow.com/questions/61829651/how-can-i-iterate-over-record-keys-in-a-proper-type-safe-way
     await algoliaExportByCollectionName(collectionName as AlgoliaIndexCollectionName);
