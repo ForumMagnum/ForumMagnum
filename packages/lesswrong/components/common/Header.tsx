@@ -19,7 +19,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
-
+// Generic comment, just testing if I still get merge conflicts from whitespaces
 const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LessWrong", "warning")
 const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 export const getHeaderTextColor = (theme: ThemeType) => {
