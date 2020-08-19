@@ -9,7 +9,6 @@ import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -45,8 +44,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const postTypes = [
-  {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
-  {name: 'personal', postIsType: post => !post.frontpageDate, label: 'Personal Blogposts'}
+  {name: 'frontpage', postIsType: (post: PostsBase) => !!post.frontpageDate, label: 'Frontpage Posts'},
+  {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
 
 interface ExternalProps {
@@ -174,15 +173,15 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
           </div> }
 
           {postGroups.map(({name, posts, label}) => {
-            if (posts?.length > 0) return <div key={name}>
+            if (posts!.length > 0) return <div key={name}>
               <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
               >
                 <ContentType type={name} label={label} />
               </div>
               <div className={classes.posts}>
-                {posts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts.length -1}/>
+                {posts!.map((post, i) =>
+                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts!.length -1}/>
                 )}
               </div>
             </div>
