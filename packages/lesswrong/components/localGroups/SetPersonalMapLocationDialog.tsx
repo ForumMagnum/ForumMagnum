@@ -75,7 +75,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
             rowsMax={100}
           />
         <DialogActions className={classes.actions}>
-          {currentUser?.mapLocation && <a className={classes.removeButton} onClick={()=>{
+          {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
             void mutate({selector: {_id: currentUser._id}, data: {mapLocation: null}})
             onClose()
           }}>

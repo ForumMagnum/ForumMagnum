@@ -139,7 +139,7 @@ const createNotification = async (userId: string, notificationType: string, docu
       validate: false
     });
     if (notificationTypeSettings.batchingFrequency !== "realtime") {
-      await notificationDebouncers[notificationType].recordEvent({
+      await notificationDebouncers[notificationType]!.recordEvent({
         key: {notificationType, userId},
         data: createdNotification.data._id,
         timing: getNotificationTiming(notificationTypeSettings),
