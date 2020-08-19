@@ -5,7 +5,27 @@ import { getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useCurrentUser } from '../common/withUser';
 import * as _ from 'underscore';
 
-const UsersViewABTests = () => {
+const styles = (theme: ThemeType) => ({
+  abTestKey: {
+    ...theme.typography.body1,
+  },
+  noAbTests: {
+    ...theme.typography.body1,
+  },
+  abTestsTable: {
+    ...theme.typography.body1,
+    "& th": {
+      textAlign: "left",
+    },
+    "& td": {
+      paddingRight: 20,
+    },
+  },
+});
+
+const UsersViewABTests = ({classes}: {
+  classes: ClassesType,
+}) => {
   const { SingleColumnSection, SectionTitle } = Components;
   const currentUser = useCurrentUser();
   const allABtests = useAllABTests();
@@ -15,16 +35,29 @@ const UsersViewABTests = () => {
   return <SingleColumnSection>
     <SectionTitle title="A/B Tests"/>
     
-    <p>Your A/B test key is {getUserABTestKey(currentUser, clientId)}</p>
+    <p className={classes.abTestKey}>
+      Your A/B test key is {getUserABTestKey(currentUser, clientId)}
+    </p>
     
-    {_.keys(allABtests).map(abTestName => <div key={abTestName}>
-      <h2>{abTestName}</h2>
-      <p>Group: {abTestsMetadata[abTestName].groups[allABtests[abTestName]].description}</p>
-    </div>)}
+    {Object.keys(allABtests).length===0
+      ? <p className={classes.noAbTests}>
+          There aren't any A/B tests active right now
+        </p>
+      : <table className={classes.abTestsTable}>
+          <tr>
+            <th>A/B Test</th>
+            <th>Your Group</th>
+          </tr>
+          {_.keys(allABtests).map(abTestName => <tr key={abTestName}>
+            <td>{abTestsMetadata[abTestName].description}</td>
+            <td>{abTestsMetadata[abTestName].groups[allABtests[abTestName]].description}</td>
+          </tr>)}
+        </table>
+    }
   </SingleColumnSection>
 }
 
-const UsersViewABTestsComponent = registerComponent("UsersViewABTests", UsersViewABTests);
+const UsersViewABTestsComponent = registerComponent("UsersViewABTests", UsersViewABTests, {styles});
 
 declare global {
   interface ComponentTypes {
