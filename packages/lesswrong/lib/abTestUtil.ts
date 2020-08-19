@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { ABTest, ABTestGroupsContext, getAllUserABTestGroups, getUserABTestGroup, RelevantTestGroupAllocation, CompleteTestGroupAllocation } from './abTestImpl';
 import { useCookies } from 'react-cookie'
 import { useCurrentUser } from '../components/common/withUser';

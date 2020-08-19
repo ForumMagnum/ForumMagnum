@@ -1,4 +1,3 @@
-import React from 'react';
 import { ABTest } from './abTestImpl';
 
 // An A/B test which doesn't do anything (other than randomize you), for testing

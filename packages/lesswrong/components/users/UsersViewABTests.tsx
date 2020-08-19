@@ -44,14 +44,16 @@ const UsersViewABTests = ({classes}: {
           There aren't any A/B tests active right now
         </p>
       : <table className={classes.abTestsTable}>
-          <tr>
+          <thead><tr>
             <th>A/B Test</th>
             <th>Your Group</th>
-          </tr>
-          {_.keys(allABtests).map(abTestName => <tr key={abTestName}>
-            <td>{abTestsMetadata[abTestName].description}</td>
-            <td>{abTestsMetadata[abTestName].groups[allABtests[abTestName]].description}</td>
-          </tr>)}
+          </tr></thead>
+          <tbody>
+            {_.keys(allABtests).map(abTestName => <tr key={abTestName}>
+              <td>{abTestsMetadata[abTestName].description}</td>
+              <td>{abTestsMetadata[abTestName].groups[allABtests[abTestName]].description}</td>
+            </tr>)}
+          </tbody>
         </table>
     }
   </SingleColumnSection>
