@@ -59,7 +59,7 @@ const cacheLookup = (cacheKey, abTestGroups) => {
     return null;
   const abTestCombinations: Array<RelevantTestGroupAllocation> = cachedABtestsIndex[cacheKey];
   for (let i=0; i<abTestCombinations.length; i++) {
-    if (objIsSubset(abTestGroups, abTestCombinations[i])) {
+    if (objIsSubset(abTestCombinations[i], abTestGroups)) {
       return pageCache.get(JSON.stringify({
         cacheKey: cacheKey,
         abTestGroups: abTestCombinations[i]
