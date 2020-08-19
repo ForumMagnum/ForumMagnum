@@ -9,8 +9,7 @@ const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHome
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionThreadsList, HomeLatestPosts, ConfigurableRecommendationsList,
-    EAHomeHandbook
+    RecentDiscussionThreadsList, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -22,7 +21,7 @@ const EAHome = () => {
 
       <HomeLatestPosts />
 
-      <ConfigurableRecommendationsList configName="frontpageEA" />
+      <RecommendationsAndCurated configName="frontpageEA" />
 
       <RecentDiscussionThreadsList
         terms={{view: 'recentDiscussionThreadsList', limit:20}}
