@@ -81,7 +81,6 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
-    nullable: true
   },
   // If this comment is in a tag discussion section, the _id of the tag.
   tagId: {
@@ -96,7 +95,6 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
-    nullable: true
   },
   // The comment author's `_id`
   userId: {
