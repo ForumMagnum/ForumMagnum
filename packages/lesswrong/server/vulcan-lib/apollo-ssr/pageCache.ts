@@ -3,8 +3,8 @@ import * as _ from 'underscore';
 import { RenderResult } from './renderPage';
 import { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 
-const maxPageCacheSizeBytes = 16*1024*1024; //16MB
-const maxCacheAgeMs = 60*1000;
+const maxPageCacheSizeBytes = 32*1024*1024; //32MB
+const maxCacheAgeMs = 90*1000;
 
 const pageCache = new LRU<string,RenderResult>({
   max: maxPageCacheSizeBytes,
