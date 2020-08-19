@@ -44,15 +44,28 @@ const styles = theme => ({
     flexBasis: 1,
     marginRight: "auto"
   },
-  link: {
+  allTagsBarColor: {
     color: theme.palette.primary.main
+  },
+  personalLink: {
+    color: theme.palette.grey[600]
   },
   text: {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: 4,
     alignItems: "center"
+  },
+  barRoot: {
+    marginBottom: 5,
+  },
+  bar2: {
+    backgroundColor: theme.palette.grey[600]
+  },
+  bar2Background: {
+    backgroundColor: "rgba(0,0,0,.1)"
   }
+
 });
 
 const TagProgressBar = ({classes}: {
@@ -92,6 +105,32 @@ const TagProgressBar = ({classes}: {
     ssr: true
   });
 
+  const { totalCount: untaggedPersonalTotal } = useMulti({
+    terms: {
+      view: "personalTagProgressUntagged",
+      userId: currentUser?._id,
+      limit: 0
+    },
+    collection: Posts,
+    fragmentName: 'PostTagRelevance',
+    enableTotal: true,
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  });
+
+  const { totalCount: personalPostsTotal } = useMulti({
+    terms: {
+      view: "personalTagProgressPosts",
+      userId: currentUser?._id,
+      limit: 0
+    },
+    collection: Posts,
+    fragmentName: 'PostTagRelevance',
+    enableTotal: true,
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  });
+
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
@@ -118,7 +157,13 @@ const TagProgressBar = ({classes}: {
     }
   }
 
-  if (!untaggedTotal || !postsTotal) return null
+  if (untaggedTotal == undefined || postsTotal == undefined) return null
+
+  const showPersonalBar = !!(currentUser && personalPostsTotal && untaggedPersonalTotal)
+  const userHasPosts = !!(currentUser && personalPostsTotal)
+
+  const personalBarTooltip = untaggedPersonalTotal ? `Tagging Progress (your posts) (${untaggedPersonalTotal} remaining out of ${personalPostsTotal})` : "All your posts have been tagged."
+  const allPostsTooltip = untaggedTotal ? `Tagging Progress (all posts) (${untaggedTotal} remaining out of ${postsTotal})` : "All posts with 25+ karma have been tagged!"
 
   return <div className={classes.root}>
       <div className={classes.inner}>
@@ -131,35 +176,45 @@ const TagProgressBar = ({classes}: {
             <div><em>(Click through to read posts, and then tag them)</em></div>
           </div>}>
             <PostsItem2MetaInfo>
-              <Link className={classes.link} to={"/allPosts?filter=untagged&timeframe=allTime&sortedBy=top"}>
-                Tag Posts
+              <Link className={classes.allTagsBarColor} to={"/allPosts?filter=untagged&timeframe=allTime&sortedBy=top&karmaThreshold=25"}>
+                Tag Untagged Posts
               </Link>
             </PostsItem2MetaInfo>
           </LWTooltip>
-          <SeparatorBullet/>
-          <LWTooltip title={<div>
-            <div>View top posts that have been given generic core-tags, but could use more specific tags</div>
-            <div><em>(Click through to read posts, and then search for tags that will help users find specific, relevant content)</em></div>
+          {userHasPosts && <SeparatorBullet/>}
+          {userHasPosts && <LWTooltip title={<div>
+            <div>View your own untagged posts.</div>
+            <div><em>(Click through to your user profile to review posts, and then tag them)</em></div>
           </div>}>
             <PostsItem2MetaInfo>
-              <Link className={classes.link} to={"/allPosts?filter=unNonCoreTagged&timeframe=allTime&sortedBy=top"}>
-                Improve Post Tags
+              <Link className={classes.personalLink} to={`/users/${currentUser.slug}?filter=untagged&karmaThreshold=25`}>
+                Tag My Posts
               </Link>
             </PostsItem2MetaInfo>
-          </LWTooltip>
+          </LWTooltip>}
         </div>
-        <LWTooltip 
-          className={classes.tooltip}
-          title={<div>
-            <div>{(postsTotal - untaggedTotal)} out of {postsTotal} posts have been tagged</div>
-            <div><em>(Filtered for 25+ karma)</em></div>
-          </div>}
-        >
-          <LinearProgress variant="determinate" value={((postsTotal - untaggedTotal)/postsTotal)*100} />
+        <LWTooltip className={classes.tooltip} title={allPostsTooltip}>
+          <LinearProgress 
+            classes={{root: classes.barRoot}} 
+            variant="determinate" 
+            value={((postsTotal - untaggedTotal)/postsTotal)*100} 
+          />
         </LWTooltip>
+
+        {showPersonalBar && 
+          <LWTooltip className={classes.tooltip} title={personalBarTooltip}>
+            <LinearProgress 
+              classes={{bar: classes.bar2, colorSecondary: classes.bar2Background}}     
+              variant="determinate" 
+              color="secondary" 
+              value={((personalPostsTotal - untaggedPersonalTotal)/personalPostsTotal)*100} 
+            />
+          </LWTooltip>
+        }
         <div className={classes.secondaryInfo}>
           <div className={classes.helpText}>
-            {(postsTotal - untaggedTotal)} out of {postsTotal} posts with more than 25 karma have been tagged
+            <span className={classes.allTagsBarColor}>{untaggedTotal} posts with 25+ karma still need a tag.{" "} </span>
+            {userHasPosts && <span>({untaggedPersonalTotal} of your own posts)</span>}
           </div>
           <LWTooltip title={"Hide this progress bar from the frontpage"}>
             <a 
