@@ -200,7 +200,7 @@ const TagProgressBar = ({classes}: {
           />
         </LWTooltip>
 
-        {currentUser && personalPostsTotal && untaggedPersonalTotal && 
+        {!!currentUser && !!personalPostsTotal && !!untaggedPersonalTotal && 
           <LWTooltip className={classes.tooltip} title={personalBarTooltip}>
             <LinearProgress 
               classes={{bar: classes.bar2, colorSecondary: classes.bar2Background}}     
