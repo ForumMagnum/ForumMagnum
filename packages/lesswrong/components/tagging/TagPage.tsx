@@ -92,6 +92,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
+  if (!tag) return
+  return ({
+    ...query,
+    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
+    view: "tagRelevance",
+    tagId: tag._id,
+  })
+}
+
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
@@ -117,11 +127,8 @@ const TagPage = ({classes}: {
   }
 
   const terms = {
-    ...query,
-    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
-    view: "tagRelevance",
-    limit: 15,
-    tagId: tag._id,
+    ...tagPostTerms(tag, query),
+    limit: 15
   }
 
   const clickReadMore = () => {

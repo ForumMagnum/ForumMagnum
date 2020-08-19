@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 
-// ea-forum look here (you will want to set this to whatever is appropriate for you)
 export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -26,12 +26,21 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
   if (!currentUser?.spamRiskScore || (currentUser.spamRiskScore > spamRiskScoreThreshold)) {
     return <> { children } </>
   }
-  // ea-forum look here: You will want to change where this links to
-  return <div className={classes.warningText}>
-    You've been flagged by our spam detection system. Please message an admin via 
-    Intercom (the chat bubble in the bottom right corner) or send a private message to admin 
-    <Link className={classes.link} to="/users/habryka"> habryka</Link> to activate posting- and commenting-privileges on your account.
-  </div>
+  switch (forumTypeSetting.get()) {
+    case 'EAForum':
+      return <div className={classes.warningText}>
+        You've been flagged by our spam detection system. Please{' '}
+        <Link className={classes.link} to="/contact">contact us</Link> to active posting and commenting privileges on your accout.
+      </div>
+    case 'AlignmentForum':
+    case 'LessWrong':
+    default:
+      return <div className={classes.warningText}>
+        You've been flagged by our spam detection system. Please message an admin via
+        Intercom (the chat bubble in the bottom right corner) or send a private message to admin
+        <Link className={classes.link} to="/users/habryka"> habryka</Link> to activate posting- and commenting-privileges on your account.
+      </div>
+  }
 }
 
 
@@ -42,4 +51,3 @@ declare global {
     RecaptchaWarning: typeof RecaptchaWarningComponent
   }
 }
-

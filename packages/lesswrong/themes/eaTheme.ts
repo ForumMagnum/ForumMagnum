@@ -46,7 +46,7 @@ const palette = {
     main: deepOrange[900]
   },
   background: {
-    default: '#f4f4f4'
+    default: '#f6f8f9'
   },
 }
 
@@ -153,7 +153,6 @@ const theme = createLWTheme({
     },
     Layout: {
       main: {
-        margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
           marginTop: 36,
         }
@@ -207,12 +206,6 @@ const theme = createLWTheme({
         textTransform: 'lowercase',
         color: 'rgba(0,0,0,.7)',
         fontWeight: 500,
-      }
-    },
-    SunshineSidebar: {
-      root: {
-        top: 30,
-        marginTop: 63
       }
     },
     FilterMode: {
