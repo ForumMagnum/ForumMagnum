@@ -159,7 +159,7 @@ const TagProgressBar = ({classes}: {
 
   if (untaggedTotal === undefined || postsTotal === undefined) return null
 
-  const userHasPosts = currentUser && personalPostsTotal
+  const userHasPosts = !!(currentUser && untaggedPersonalTotal)
 
   const personalBarTooltip = (untaggedPersonalTotal && untaggedPersonalTotal> 0) ? `Tagging Progress (your posts) (${untaggedPersonalTotal} remaining out of ${personalPostsTotal})` : "All your posts have been tagged."
   const allPostsTooltip = (untaggedTotal > 0) ? `Tagging Progress (all posts) (${untaggedTotal} remaining out of ${postsTotal})` : "All posts with 25+ karma have been tagged!"
