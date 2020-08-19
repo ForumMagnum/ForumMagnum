@@ -142,9 +142,6 @@ const SunshineNewPostsItem = ({post, classes}: {
               {post.submitToFrontpage && <Button onClick={handlePromote}>
                 <HomeIcon className={classes.icon} /> Frontpage
               </Button>}
-              {forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
-                <GroupIcon className={classes.icon} /> Community
-              </Button>}
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
