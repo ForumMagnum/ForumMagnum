@@ -4,10 +4,6 @@ import { useClientId } from '../../lib/abTestUtil';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-interface WrappedLoginFormState {
-  reCaptchaToken: any
-}
-
 const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState }: {
   onSignedInHook?: any,
   onPostSignUpHook?: any,
