@@ -1052,3 +1052,9 @@ Posts.addView("personalTagProgressPosts", terms => {
   }
 })
 
+ensureIndex(Posts,
+  augmentForDefaultView({ userId: 1, tagRelevance: 1}),
+  {
+    name: "posts.users_tagged_posts",
+  }
+);
