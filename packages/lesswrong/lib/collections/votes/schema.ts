@@ -1,6 +1,6 @@
 import Users from '../users/collection';
 import { schemaDefaultValue, } from '../../collectionUtils';
-import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import { resolverOnlyField, SchemaType } from '../../../lib/utils/schemaUtils';
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -14,7 +14,12 @@ import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 // that was reversed.
 //
 
-const schema = {
+const docIsTagRel = (currentUser, document) => {
+  // TagRel votes are treated as public
+  return document?.collectionName === "TagRels"
+}
+
+const schema: SchemaType<DbVote> = {
   // The id of the document that was voted on
   documentId: {
     type: String,
@@ -31,7 +36,7 @@ const schema = {
   // The id of the user that voted
   userId: {
     type: String,
-    canRead: [Users.owns, 'admins'],
+    canRead: [Users.owns, docIsTagRel, 'admins'],
     foreignKey: 'Users',
   },
   
@@ -58,7 +63,7 @@ const schema = {
   power: {
     type: Number,
     optional: true,
-    canRead: [Users.owns, "admins"],
+    canRead: [Users.owns, docIsTagRel, 'admins'],
     
     // Can be inferred from userId+voteType+votedAt (votedAt necessary because
     // the user's vote power may have changed over time)
@@ -70,7 +75,7 @@ const schema = {
   afPower: {
     type: Number,
     optional: true,
-    canRead: Users.owns,
+    canRead: [Users.owns, docIsTagRel, 'admins'],
   },
   
   // Whether this vote has been cancelled (by un-voting or switching to a
@@ -93,14 +98,14 @@ const schema = {
   votedAt: {
     type: Date,
     optional: true,
-    canRead: [Users.owns, "admins"],
+    canRead: [Users.owns, docIsTagRel, 'admins'],
   },
 
   tagRel: resolverOnlyField({
     type: "TagRel",
     graphQLtype: 'TagRel',
-    canRead: ['admins'],
-    resolver: (vote, args, { TagRels }: ResolverContext) => {
+    canRead: [docIsTagRel, 'admins'],
+    resolver: (vote: DbVote, args: void, { TagRels }: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
         const tagRel = TagRels.find({_id: vote.documentId}).fetch()[0]
         if (tagRel) {

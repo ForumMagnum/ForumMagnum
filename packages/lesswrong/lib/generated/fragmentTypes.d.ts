@@ -110,7 +110,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly group: PostsBase_group,
-  readonly bestAnswer: CommentsList,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -137,11 +136,26 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
   readonly moderatorAssistance: boolean,
 }
 
-interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
-  readonly contents: PostsList_contents,
-  readonly moderationGuidelines: PostsList_moderationGuidelines,
-  readonly customHighlight: PostsList_customHighlight,
+interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
+  readonly moderationGuidelines: PostsListBase_moderationGuidelines,
+  readonly customHighlight: PostsListBase_customHighlight,
+  readonly lastPromotedComment: CommentsList,
+  readonly bestAnswer: CommentsList,
   readonly tags: Array<TagPreviewFragment>,
+}
+
+interface PostsListBase_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
+interface PostsListBase_customHighlight { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
+interface PostsList extends PostsListBase { // fragment on Posts
+  readonly contents: PostsList_contents,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -151,21 +165,11 @@ interface PostsList_contents { // fragment on Revisions
   readonly version: string,
 }
 
-interface PostsList_moderationGuidelines { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
-}
-
-interface PostsList_customHighlight { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
-}
-
 interface PostsListTag extends PostsList { // fragment on Posts
   readonly tagRel: WithVoteTagRel,
 }
 
-interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
+interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -238,7 +242,6 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
-  readonly tags: Array<TagPreviewFragment>,
   readonly tableOfContentsRevision: any,
 }
 
@@ -286,7 +289,6 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay,
-  readonly tags: Array<TagPreviewFragment>,
 }
 
 interface PostsEdit extends PostsPage { // fragment on Posts
@@ -1612,6 +1614,7 @@ interface FragmentTypes {
   PostTagRelevance: PostTagRelevance
   PostsWithVotes: PostsWithVotes
   PostsAuthors: PostsAuthors
+  PostsListBase: PostsListBase
   PostsList: PostsList
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails

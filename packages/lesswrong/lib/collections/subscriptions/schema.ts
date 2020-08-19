@@ -1,5 +1,5 @@
 import Users from '../users/collection'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils'
 
 export const subscriptionTypes = {
@@ -12,7 +12,7 @@ export const subscriptionTypes = {
   newTagPosts: 'newTagPosts'
 }
 
-const schema = {
+const schema: SchemaType<DbSubscription> = {
   createdAt: {
     type: Date,
     optional: true,
