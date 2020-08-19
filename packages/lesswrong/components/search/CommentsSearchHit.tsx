@@ -10,7 +10,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   snippet: {
     marginTop: theme.spacing.unit,
-    wordBreak: "break-word"
+    wordBreak: "break-word",
+    ...theme.typography.body2
   }
 })
 
