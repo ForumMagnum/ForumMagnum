@@ -3,6 +3,19 @@ import * as _ from 'underscore';
 import { RenderResult } from './renderPage';
 import { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 
+// Page cache. This applies only to logged-out requests, and exists primarily
+// to handle the baseload of traffic going to the front page and to pages that
+// have gotten linked from high-traffic places.
+//
+// Complexity here is driven by three things:
+//   1. Users that don't share a time zone can't share a page cache, because
+//      dates that appear on the page differ;
+//   2. Two visitors in different A/B test groups can't share a cache entry,
+//      but we don't know which A/B tests were relevant to a page until after
+//      we've rendered it; and
+//   3. When a page that is getting a lot of traffic expires from the page
+//      cache, we don't want to start many rerenders of it in parallel
+
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 const maxCacheAgeMs = 90*1000;
 
