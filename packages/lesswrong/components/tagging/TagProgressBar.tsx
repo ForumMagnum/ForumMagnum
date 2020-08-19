@@ -157,13 +157,12 @@ const TagProgressBar = ({classes}: {
     }
   }
 
-  if (untaggedTotal == undefined || postsTotal == undefined) return null
+  if (untaggedTotal === undefined || postsTotal === undefined) return null
 
-  const showPersonalBar = !!(currentUser && personalPostsTotal && untaggedPersonalTotal)
-  const userHasPosts = !!(currentUser && personalPostsTotal)
+  const userHasPosts = currentUser && personalPostsTotal
 
-  const personalBarTooltip = untaggedPersonalTotal ? `Tagging Progress (your posts) (${untaggedPersonalTotal} remaining out of ${personalPostsTotal})` : "All your posts have been tagged."
-  const allPostsTooltip = untaggedTotal ? `Tagging Progress (all posts) (${untaggedTotal} remaining out of ${postsTotal})` : "All posts with 25+ karma have been tagged!"
+  const personalBarTooltip = (untaggedPersonalTotal && untaggedPersonalTotal> 0) ? `Tagging Progress (your posts) (${untaggedPersonalTotal} remaining out of ${personalPostsTotal})` : "All your posts have been tagged."
+  const allPostsTooltip = (untaggedTotal > 0) ? `Tagging Progress (all posts) (${untaggedTotal} remaining out of ${postsTotal})` : "All posts with 25+ karma have been tagged!"
 
   return <div className={classes.root}>
       <div className={classes.inner}>
@@ -182,7 +181,7 @@ const TagProgressBar = ({classes}: {
             </PostsItem2MetaInfo>
           </LWTooltip>
           {userHasPosts && <SeparatorBullet/>}
-          {userHasPosts && <LWTooltip title={<div>
+          {currentUser && userHasPosts && <LWTooltip title={<div> 
             <div>View your own untagged posts.</div>
             <div><em>(Click through to your user profile to review posts, and then tag them)</em></div>
           </div>}>
@@ -201,7 +200,7 @@ const TagProgressBar = ({classes}: {
           />
         </LWTooltip>
 
-        {showPersonalBar && 
+        {currentUser && personalPostsTotal && untaggedPersonalTotal && 
           <LWTooltip className={classes.tooltip} title={personalBarTooltip}>
             <LinearProgress 
               classes={{bar: classes.bar2, colorSecondary: classes.bar2Background}}     
