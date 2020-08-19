@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { registerComponent, Utils } from '../../lib/vulcan-lib';
-import { forumTitleSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,14 +13,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const logoUrlSetting = new PublicInstanceSetting<string | null>('logoUrl', null, "warning")
-
-const SiteLogo = ({classes}) => logoUrlSetting.get() ? <span/> : <img
-  className={classes.root}
-  src={Utils.getLogoUrl()}
-  title={forumTitleSetting.get()}
-  alt={`${forumTitleSetting.get()} Logo`}
-/>
+const SiteLogo = ({classes}) => {
+  if (!Utils.getLogoUrl()) return null
+  return <img
+    className={classes.root}
+    src={Utils.getLogoUrl()}
+    title={forumTitleSetting.get()}
+    alt={`${forumTitleSetting.get()} Logo`}
+  />
+}
 
 SiteLogo.displayName = "SiteLogo";
 const SiteLogoComponent = registerComponent(
