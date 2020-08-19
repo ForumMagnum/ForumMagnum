@@ -1,7 +1,7 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import Users from '../users/collection';
 
-const schema = {
+const schema: SchemaType<DbMessage> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
