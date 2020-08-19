@@ -13,8 +13,8 @@ import { webAppConnectHandlersUse } from '../meteor_patch';
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { createClient } from './apolloClient';
-import { cachedPageRender, recordCacheBypass, RelevantTestGroupAllocation } from './pageCache';
-import { getAllUserABTestGroups } from '../../../lib/abTestImpl';
+import { cachedPageRender, recordCacheBypass} from './pageCache';
+import { getAllUserABTestGroups, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
 import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
@@ -27,6 +27,17 @@ type RenderTimings = {
   totalTime: number
   prerenderTime: number
   renderTime: number
+}
+
+export type RenderResult = {
+  ssrBody: string
+  headers: Array<string>
+  serializedApolloState: string
+  jssSheets: string
+  status: number|undefined,
+  redirectUrl: string|undefined
+  abTestGroups: RelevantTestGroupAllocation
+  timings: RenderTimings
 }
 
 const makePageRenderer = async sink => {
@@ -120,7 +131,7 @@ webAppConnectHandlersUse(function addClientId(req, res, next) {
   next();
 }, {order: 100});
 
-const renderRequest = async ({req, user, startTime}) => {
+const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req.headers);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -230,7 +241,7 @@ const renderRequest = async ({req, user, startTime}) => {
 const sendToSink = (sink, {
   ssrBody, headers, serializedApolloState, jssSheets,
   status, redirectUrl
-}) => {
+}: RenderResult) => {
   if (status) {
     sink.setStatusCode(status);
   }

@@ -1,13 +1,12 @@
 import LRU from 'lru-cache';
 import * as _ from 'underscore';
+import { RenderResult } from './renderPage';
+import { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 
 const maxPageCacheSizeBytes = 16*1024*1024; //16MB
 const maxCacheAgeMs = 60*1000;
 
-type CompleteTestGroupAllocation = Record<string,string>
-export type RelevantTestGroupAllocation = Record<string,string>
-
-const pageCache = new LRU({
+const pageCache = new LRU<string,RenderResult>({
   max: maxPageCacheSizeBytes,
   length: (page,key) => JSON.stringify(page).length + JSON.stringify(key).length,
   maxAge: maxCacheAgeMs,
@@ -21,7 +20,7 @@ const pageCache = new LRU({
 
 const cachedABtestsIndex: Record<string,Array<RelevantTestGroupAllocation>> = {};
 
-export const cacheKeyFromReq = (req) => {
+export const cacheKeyFromReq = (req): string => {
   if (req.cookies && req.cookies.timezone)
     return `${req.url.path}&timezone=${req.cookies.timezone}`
   else
@@ -60,7 +59,7 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
 }
 
 
-const cacheLookup = (cacheKey, abTestGroups) => {
+const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
   if (!(cacheKey in cachedABtestsIndex))
     return null;
   const abTestCombinations: Array<RelevantTestGroupAllocation> = cachedABtestsIndex[cacheKey];
@@ -74,7 +73,7 @@ const cacheLookup = (cacheKey, abTestGroups) => {
   }
 }
 
-const objIsSubset = (subset,superset) => {
+const objIsSubset = (subset,superset): boolean => {
   for (let key in subset) {
     if (!(key in superset) || subset[key] !== superset[key])
       return false;
@@ -82,7 +81,7 @@ const objIsSubset = (subset,superset) => {
   return true;
 }
 
-const cacheStore = (cacheKey, abTestGroups, rendered) => {
+const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
   if (!cacheLookup(cacheKey, abTestGroups)) {
     if (cacheKey in cachedABtestsIndex)
       cachedABtestsIndex[cacheKey].push(abTestGroups);
@@ -96,7 +95,7 @@ const cacheStore = (cacheKey, abTestGroups, rendered) => {
   }), rendered);
 }
 
-const removeCacheABtest = (cacheKey, abTestGroups) => {
+const removeCacheABtest = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation) => {
   cachedABtestsIndex[cacheKey] = _.filter(cachedABtestsIndex[cacheKey],
     g=>!_.isEqual(g, abTestGroups));
 };

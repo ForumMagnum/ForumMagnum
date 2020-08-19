@@ -2,8 +2,6 @@ import React from 'react';
 import * as _ from 'underscore';
 import rng from './seedrandom';
 
-export const ABTestGroupsContext = React.createContext<Record<string,string>>({});
-
 //
 // A/B tests. Each A/B test has a name (which should be unique across all A/B
 // tests across all time), a set of groups (identified by strings), and a
@@ -61,6 +59,17 @@ export class ABTest {
   }
 }
 
+// CompleteTestGroupAllocation: A dictionary from the names of A/B tests, to
+// which group a user is in, which is complete (includes all of the A/B tests
+// that are defined).
+export type CompleteTestGroupAllocation = Record<string,string>
+
+// RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
+// which group a user is in, which is pruned to only the tests which affected
+// a particular page render.
+export type RelevantTestGroupAllocation = Record<string,string>
+
+export const ABTestGroupsContext = React.createContext<RelevantTestGroupAllocation>({});
 
 let allABTests: Record<string,ABTest> = {};
 
@@ -95,8 +104,8 @@ export function getUserABTestGroup(user: UsersCurrent|DbUser|null, clientId: str
   }
 }
 
-export function getAllUserABTestGroups(user: UsersCurrent|DbUser|null, clientId: string): Record<string,string> {
-  let abTestGroups: Record<string,string> = {};
+export function getAllUserABTestGroups(user: UsersCurrent|DbUser|null, clientId: string): CompleteTestGroupAllocation {
+  let abTestGroups: CompleteTestGroupAllocation = {};
   for (let abTestName in allABTests)
     abTestGroups[abTestName] = getUserABTestGroup(user, clientId, allABTests[abTestName]);
   return abTestGroups;
