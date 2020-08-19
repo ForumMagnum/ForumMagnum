@@ -1,7 +1,7 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
-const schema = {
+const schema: SchemaType<DbSequence> = {
 
   // default properties
 

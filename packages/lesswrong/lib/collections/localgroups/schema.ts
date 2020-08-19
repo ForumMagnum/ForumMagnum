@@ -1,8 +1,8 @@
-import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
+import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation, SchemaType } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
 
-const schema = {
+const schema: SchemaType<DbLocalgroup> = {
   createdAt: {
     optional: true,
     type: Date,
