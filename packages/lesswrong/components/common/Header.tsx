@@ -19,7 +19,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
-
+// Test whitespace formatting
 const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 export const getHeaderTextColor = (theme: ThemeType) => {
@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       height: 56,
     },
-    
+
     flexGrow: 1,
     "@media print": {
       display: "none"
@@ -80,12 +80,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hideOnDesktop: {
     [theme.breakpoints.up('lg')]: {
-      display:"none"
+      display: "none"
     }
   },
   hideOnMobile: {
     [theme.breakpoints.down('md')]: {
-      display:"none"
+      display: "none"
     }
   },
   rightHeaderItems: {
@@ -147,7 +147,7 @@ interface HeaderState {
   searchOpen: boolean,
   unFixed: boolean,
 }
-class Header extends PureComponent<HeaderProps,HeaderState> {
+class Header extends PureComponent<HeaderProps, HeaderState> {
   state: HeaderState = {
     navigationOpen: false,
     notificationOpen: false,
@@ -158,8 +158,8 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
 
   setNavigationOpen = (open) => {
     const { captureEvent } = this.props
-    this.setState({navigationOpen: open})
-    captureEvent("navigationBarToggle", {open: open})
+    this.setState({ navigationOpen: open })
+    captureEvent("navigationBarToggle", { open: open })
   }
 
   handleNotificationToggle = () => {
@@ -168,7 +168,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
+    captureEvent("notificationsIconToggle", { open: !notificationOpen, previousCheck: lastNotificationsCheck })
     this.handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
@@ -177,15 +177,15 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     if (!currentUser) return;
     if (isOpen) {
       updateUser({
-        selector: {_id: currentUser._id},
-        data: {lastNotificationsCheck: new Date()}
+        selector: { _id: currentUser._id },
+        data: { lastNotificationsCheck: new Date() }
       })
       this.setState({
         notificationOpen: true,
         notificationHasOpened: true
       })
     } else {
-      this.setState({notificationOpen: false})
+      this.setState({ notificationOpen: false })
     }
   }
 
@@ -196,26 +196,26 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   // Called by SearchBar.
   setSearchOpen = (isOpen) => {
     const { captureEvent } = this.props
-    if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
+    if (isOpen) { captureEvent("searchToggle", { "open": isOpen }) }
     this.setState({
       searchOpen: isOpen
     });
   }
 
   renderNavigationMenuButton = () => {
-    const {standaloneNavigationPresent, toggleStandaloneNavigation, classes, toc} = this.props
+    const { standaloneNavigationPresent, toggleStandaloneNavigation, classes, toc } = this.props
     const { unFixed } = this.state
     return <React.Fragment>
       <IconButton
         className={classNames(
           classes.menuButton,
-          {[classes.hideOnDesktop]: standaloneNavigationPresent && unFixed}
+          { [classes.hideOnDesktop]: standaloneNavigationPresent && unFixed }
         )}
         color="inherit"
         aria-label="Menu"
-        onClick={()=>this.setNavigationOpen(true)}
+        onClick={() => this.setNavigationOpen(true)}
       >
-      {/* Show the ToC icon if there's a table of contents being displayed  */}
+        {/* Show the ToC icon if there's a table of contents being displayed  */}
         {toc && toc.sections ? (
           <span>
             <Hidden smDown implementation="css">
@@ -244,7 +244,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   render() {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
-    const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
+    const notificationTerms = { view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage" }
     const hasLogo = forumTypeSetting.get() === 'EAForum'
 
     const {
@@ -253,64 +253,64 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     } = Components;
 
     return (
-        <AnalyticsContext pageSectionContext="header">
-          <div className={classes.root}>
-            <Headroom
-              disableInlineStyles
-              downTolerance={10} upTolerance={10}
-              height={64}
-              className={classNames(
-                classes.headroom,
-                { [classes.headroomPinnedOpen]: searchOpen }
-              )}
-              onUnfix={() => this.setState({unFixed: true})}
-              onUnpin={() => this.setState({unFixed: false})}
-            >
-              <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-                  <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
-                  {this.renderNavigationMenuButton()}
-                  <Typography className={classes.title} variant="title" color="textSecondary">
-                    <Hidden smDown implementation="css">
-                      <div className={classes.titleSubtitleContainer}>
-                        <Link to="/" className={classes.titleLink}>
-                          {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
-                          {forumHeaderTitleSetting.get()}
-                        </Link>
-                        <HeaderSubtitle />
-                      </div>
-                    </Hidden>
-                    <Hidden mdUp implementation="css">
+      <AnalyticsContext pageSectionContext="header">
+        <div className={classes.root}>
+          <Headroom
+            disableInlineStyles
+            downTolerance={10} upTolerance={10}
+            height={64}
+            className={classNames(
+              classes.headroom,
+              { [classes.headroomPinnedOpen]: searchOpen }
+            )}
+            onUnfix={() => this.setState({ unFixed: true })}
+            onUnpin={() => this.setState({ unFixed: false })}
+          >
+            <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
+              <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
+                {this.renderNavigationMenuButton()}
+                <Typography className={classes.title} variant="title" color="textSecondary">
+                  <Hidden smDown implementation="css">
+                    <div className={classes.titleSubtitleContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
-                        {forumShortTitleSetting.get()}
+                        {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo /></div>}
+                        {forumHeaderTitleSetting.get()}
                       </Link>
-                    </Hidden>
-                  </Typography>
-                  <div className={classes.rightHeaderItems}>
-                    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-                      <SearchBar onSetIsActive={this.setSearchOpen} searchResultsArea={searchResultsArea} />
-                    </NoSSR>
-                    {currentUser && <div className={searchOpen ? classes.hideOnMobile : undefined}>
-                        <AnalyticsContext pageSectionContext="usersMenu">
-                          <UsersMenu color={getHeaderTextColor(theme)} />
-                        </AnalyticsContext>
-                      </div>}
-                    {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
-                    {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
-                    {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
-                  </div>
-                </Toolbar>
-              </AppBar>
-              <NavigationDrawer
-                open={navigationOpen}
-                handleOpen={() => this.setNavigationOpen(true)}
-                handleClose={() => this.setNavigationOpen(false)}
-                toc={toc}
-              />
-            </Headroom>
-            {currentUser && <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />}
-          </div>
-        </AnalyticsContext>
+                      <HeaderSubtitle />
+                    </div>
+                  </Hidden>
+                  <Hidden mdUp implementation="css">
+                    <Link to="/" className={classes.titleLink}>
+                      {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo /></div>}
+                      {forumShortTitleSetting.get()}
+                    </Link>
+                  </Hidden>
+                </Typography>
+                <div className={classes.rightHeaderItems}>
+                  <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
+                    <SearchBar onSetIsActive={this.setSearchOpen} searchResultsArea={searchResultsArea} />
+                  </NoSSR>
+                  {currentUser && <div className={searchOpen ? classes.hideOnMobile : undefined}>
+                    <AnalyticsContext pageSectionContext="usersMenu">
+                      <UsersMenu color={getHeaderTextColor(theme)} />
+                    </AnalyticsContext>
+                  </div>}
+                  {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
+                  {currentUser && <KarmaChangeNotifier documentId={currentUser._id} />}
+                  {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{ view: 'userNotifications', userId: currentUser._id }} open={notificationOpen} />}
+                </div>
+              </Toolbar>
+            </AppBar>
+            <NavigationDrawer
+              open={navigationOpen}
+              handleOpen={() => this.setNavigationOpen(true)}
+              handleClose={() => this.setNavigationOpen(false)}
+              toc={toc}
+            />
+          </Headroom>
+          {currentUser && <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />}
+        </div>
+      </AnalyticsContext>
     )
   }
 }
