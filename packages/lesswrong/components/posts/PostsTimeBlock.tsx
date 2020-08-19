@@ -134,7 +134,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
 
     const postGroups = postTypes.map(type => ({
       ...type,
-      posts: posts?.filter(type.postIsType)
+      posts: posts?.filter(type.postIsType) || []
     }))
 
     return (
@@ -173,14 +173,14 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
           </div> }
 
           {postGroups.map(({name, posts, label}) => {
-            if (posts!.length > 0) return <div key={name}>
+            if (posts?.length > 0) return <div key={name}>
               <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
               >
                 <ContentType type={name} label={label} />
               </div>
               <div className={classes.posts}>
-                {posts!.map((post, i) =>
+                {posts.map((post, i) =>
                   <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts!.length -1}/>
                 )}
               </div>
