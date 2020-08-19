@@ -28,6 +28,7 @@ interface CollectionBase<T extends DbObject> {
   remove: any
   insert: any
   aggregate: any
+  _ensureIndex: any
 }
 
 interface FindResult<T> {

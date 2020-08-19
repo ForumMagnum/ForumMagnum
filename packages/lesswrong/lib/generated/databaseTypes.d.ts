@@ -675,3 +675,34 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
 }
 
+interface ObjectsByCollectionName {
+  Users: DbUser
+  DatabaseMetadata: DbDatabaseMetadata
+  Votes: DbVote
+  Notifications: DbNotification
+  Conversations: DbConversation
+  Messages: DbMessage
+  RSSFeeds: DbRSSFeed
+  Reports: DbReport
+  LWEvents: DbLWEvent
+  Migrations: DbMigration
+  DebouncerEvents: DbDebouncerEvents
+  ReadStatuses: DbReadStatus
+  Bans: DbBan
+  Sequences: DbSequence
+  PostRelations: DbPostRelation
+  TagRels: DbTagRel
+  Comments: DbComment
+  Tags: DbTag
+  Posts: DbPost
+  Chapters: DbChapter
+  Books: DbBook
+  Collections: DbCollection
+  ReviewVotes: DbReviewVote
+  Localgroups: DbLocalgroup
+  Subscriptions: DbSubscription
+  Revisions: DbRevision
+  LegacyData: DbLegacyData
+  EmailTokens: DbEmailTokens
+}
+
