@@ -40,7 +40,10 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
     recordCacheHit();
     //eslint-disable-next-line no-console
     console.log(`Serving ${req.url.path} from cache; hit rate=${getCacheHitRate()}`);
-    return cached;
+    return {
+      ...cached,
+      cached: true
+    };
   } else {
     recordCacheMiss();
     //eslint-disable-next-line no-console
@@ -49,7 +52,10 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
     const renderPromise = renderFn(req);
     const rendered = await renderPromise;
     cacheStore(cacheKey, rendered.abTestGroups, rendered);
-    return rendered;
+    return {
+      ...rendered,
+      cached: false
+    };
   }
 }
 

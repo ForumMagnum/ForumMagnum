@@ -85,8 +85,15 @@ const makePageRenderer = async sink => {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     });
-    // eslint-disable-next-line no-console
-    console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+    
+    if (rendered.cached) {
+      // eslint-disable-next-line no-console
+      console.log(`Served ${req.url.path} from cache for logged out ${ip} (${userAgent})`);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+    }
+    
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
       userId: null,
@@ -94,7 +101,7 @@ const makePageRenderer = async sink => {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
       abTestGroups: rendered.abTestGroups,
-      cached: true,
+      cached: rendered.cached,
     });
   }
 };
