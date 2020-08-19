@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const ContentType = new SimpleSchema({
@@ -14,7 +14,7 @@ export const ContentType = new SimpleSchema({
 
 SimpleSchema.extendOptions([ 'inputType' ]);
 
-const schema = {
+const schema: SchemaType<DbRevision> = {
   documentId: {
     type: String,
     viewableBy: ['guests'],

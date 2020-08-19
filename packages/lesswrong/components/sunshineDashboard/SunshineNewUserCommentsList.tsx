@@ -56,7 +56,7 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
             <SmallSideVote document={comment} collection={Comments}/>
           </span>
         </Link>
-        {!truncated && comment.deleted && <div><MetaInfo>`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]</MetaInfo></div>}
+        {!truncated && comment.deleted && <div><MetaInfo>{`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
         <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>

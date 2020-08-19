@@ -31,7 +31,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
 
   return <div className={classes.root}>
     <div className={classes.meta}>New post tagged <em>{tagRel.tag.name}</em>:</div>
-    <div className={classes.title}>{tagRel.post.title}</div>
+    <div className={classes.title}>{tagRel.post?.title}</div>
   </div>;
 }
 

@@ -96,7 +96,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
             {tag.postCount} posts
           </div>
           {results && results.map(tagRel=><div key={tagRel._id} className={classes.post}>
-            <TagSmallPostLink post={tagRel.post}/>
+            {tagRel.post && <TagSmallPostLink post={tagRel.post}/>}
           </div>)}
           {!results && loading && <Loading/>}
         </SidebarHoverOver>

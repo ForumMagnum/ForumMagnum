@@ -676,7 +676,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
 }
 
-interface DbTypesByCollectionName {
+interface ObjectsByCollectionName {
   Users: DbUser
   DatabaseMetadata: DbDatabaseMetadata
   Votes: DbVote
