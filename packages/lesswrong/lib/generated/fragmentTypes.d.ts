@@ -893,6 +893,8 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly hideTaggingProgressBar: boolean,
+  readonly abTestKey: string,
+  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface UserBookmarks { // fragment on Users

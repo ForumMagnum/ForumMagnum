@@ -89,6 +89,11 @@ addRoute(
     componentName: 'UsersAccount',
     background: "white"
   },
+  {
+    name:'users.abTestGroups',
+    path:'/abTestGroups',
+    componentName: 'UsersViewABTests',
+  },
 
   // Miscellaneous LW2 routes
   {
