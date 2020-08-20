@@ -11,7 +11,7 @@ const styles = theme => ({
     marginBottom: 24,
     background: "white",
     padding: 12,
-    paddingTop: 4,
+    paddingTop: 0,
     boxShadow: theme.boxShadow
   },
   date: {

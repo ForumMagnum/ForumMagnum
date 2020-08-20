@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tagVotingTable: {
     background: "white",
     padding: 12,
-    paddingTop: 4,
+    paddingTop: 0,
     ...theme.typography.commentStyle,
     boxShadow: theme.boxShadow
   }
