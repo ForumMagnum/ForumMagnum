@@ -18,9 +18,13 @@ const styles = theme => ({
     width: 30,
     marginRight: 8
   },
+  user: {
+    marginRight: 12,
+  },
+  postCount: {
+    marginRight: 12,
+  },
   loadMore: {
-    color: theme.palette.primary.main,
-    fontSize: "1.1rem",
     marginLeft: 2,
     marginTop: 6
   }
@@ -29,14 +33,15 @@ const styles = theme => ({
 const NewTagsList = ({classes}:{
   classes: ClassesType
 }) => {
-  const { LoadMore, FooterTag, FormatDate, MetaInfo, UsersNameDisplay } = Components
+  const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
 
   const { results, loadMoreProps } = useMulti({
-    terms: {view:"newTags", limit: 5 },
+    terms: {view:"newTags", limit: 8 },
     collection: Tags,
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
     ssr: true,
+    itemsPerPage: 20,
   });
 
   return <div className={classes.root}>
@@ -50,12 +55,9 @@ const NewTagsList = ({classes}:{
             </MetaInfo>
           </Link>
           <td className={classes.tag}>
-            <FooterTag tag={tag} hideScore smallText/>
+            <TagsListItem tag={tag}/>
           </td>
-          <td className={classes.postCount}>
-            <MetaInfo>{tag.postCount} posts</MetaInfo>
-          </td>
-          <td className={classes.date}>
+          <td>
             <MetaInfo>
               <FormatDate date={tag.createdAt}/>
             </MetaInfo>
