@@ -29,7 +29,7 @@
     "reinstall-ckeditor": "yarn add ./public/lesswrong-editor"
   },
   "dependencies": {
-    "@apollo/client": "^3.1.0",
+    "@apollo/client": "^3.1.3",
     "@babel/runtime": "^7.7.7",
     "@ckeditor/ckeditor5-build-balloon-block": "./public/lesswrong-editor",
     "@google/maps": "^0.5.5",

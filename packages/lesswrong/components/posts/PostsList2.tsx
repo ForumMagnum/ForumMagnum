@@ -106,6 +106,7 @@ const PostsList2 = ({
     fragmentName: !!tagId ? 'PostsListTag' : 'PostsList',
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first",
     ssr: true,
     itemsPerPage: itemsPerPage,
     ...tagVariables
@@ -159,6 +160,7 @@ const PostsList2 = ({
   const postIds = (orderedResults||[]).map((post) => post._id)
   useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
 
+  console.log(results, orderedResults, loading, error)
   if (!orderedResults && loading) return <Loading />
 
   return (

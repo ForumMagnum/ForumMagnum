@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@apollo/client@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.1.0.tgz#7cd4dcdd706f47b3ed3e18142e06daee97ac6fc9"
-  integrity sha512-Dvy5tQkz/I6U5g0BKmvA2S1tivCYcjgOyBd/kOu5CirXcILItTX/P/oI8ioglQvypy+TUYvGQWVRy9l91xgn2Q==
+"@apollo/client@^3.1.3":
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.1.3.tgz#4ea9c3818bd2836a3dbe26088227c3d8cb46ad2b"
+  integrity sha512-zXMiaj+dX0sgXIwEV5d/PI6B8SZT2bqlKNjZWcEXRY7NjESF5J3nd4v8KOsrhHe+A3YhNv63tIl35Sq7uf41Pg==
   dependencies:
     "@types/zen-observable" "^0.8.0"
     "@wry/context" "^0.5.2"
@@ -1206,7 +1206,7 @@
     iterall "^1.1.3"
     uuid "^3.1.0"
 
-"@lesswrong/lesswrong-editor@./public/lesswrong-editor/":
+"@lesswrong/lesswrong-editor@./public/lesswrong-editor":
   version "0.1.1"
   dependencies:
     ckeditor5-math "^1.0.3"
