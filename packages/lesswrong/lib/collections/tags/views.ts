@@ -58,9 +58,6 @@ ensureIndex(Tags, {deleted: 1, core:1, name: 1});
 
 Tags.addView('newTags', terms => {
   return {
-    selector: {
-      deleted: false
-    },
     options: {
       sort: {
         createdAt: -1
@@ -68,7 +65,7 @@ Tags.addView('newTags', terms => {
     }
   }
 })
-ensureIndex(Tags, {createdAt: 1});
+ensureIndex(Tags, {deleted: 1, createdAt: 1});
 
 Tags.addView('unreviewedTags', terms => {
   return {
