@@ -240,6 +240,11 @@ addRoute(
   {
     name: 'tagVoting',
     path: '/tagVoting',
+    redirect: () => `/tags/all`,
+  },
+  {
+    name: 'tagActivity',
+    path: '/tagActivity',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
   },
