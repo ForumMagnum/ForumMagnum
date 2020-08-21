@@ -145,6 +145,9 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     hideTaggingProgressBar
+    
+    abTestKey
+    abTestOverrides
   }
 `);
 

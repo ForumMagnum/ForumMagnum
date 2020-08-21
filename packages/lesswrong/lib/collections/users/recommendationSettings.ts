@@ -20,15 +20,6 @@ export const defaultAlgorithmSettings = forumTypeSetting.get() === 'EAForum' ?
   {...baseDefaultAlgorithmSettings, metaModifier: 0} :
   baseDefaultAlgorithmSettings
 
-export const slotSpecificRecommendationSettingDefaults = {
-  frontpage: {
-    count: 4
-  },
-  frontpageEA: {
-    count: 5
-  }
-};
-
 const recommendationAlgorithmSettingsSchema = new SimpleSchema({
   method: String,
   count: SimpleSchema.Integer,
