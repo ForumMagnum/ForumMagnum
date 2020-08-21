@@ -240,7 +240,7 @@ addRoute(
   {
     name: 'tagVoting',
     path: '/tagVoting',
-    redirect: () => `/tags/all`,
+    redirect: () => `/tagActivity`,
   },
   {
     name: 'tagActivity',
