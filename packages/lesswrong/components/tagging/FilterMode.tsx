@@ -18,11 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
-    '&:hover': {
-      '& $closeButton': {
-        display: "inline"
-      }
-    }
   },
   description: {
     ...commentBodyStyles(theme),

@@ -15,15 +15,6 @@ export const defaultAlgorithmSettings = {
   onlyUnread: true,
 };
 
-export const slotSpecificRecommendationSettingDefaults = {
-  frontpage: {
-    count: 4
-  },
-  frontpageEA: {
-    count: 5
-  }
-};
-
 const recommendationAlgorithmSettingsSchema = new SimpleSchema({
   method: String,
   count: SimpleSchema.Integer,

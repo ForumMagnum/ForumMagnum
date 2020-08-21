@@ -13,6 +13,8 @@ import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import Typography from '@material-ui/core/Typography';
+import { numPostsOnHomePage } from '../../lib/abTests';
+import { useABTest } from '../../lib/abTestUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -61,7 +63,11 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { captureEvent } = useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
   const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
-  const limit = parseInt(query.limit) || 13
+  
+  const numPostsOnHomePageGroup = useABTest(numPostsOnHomePage);
+  const numPosts = parseInt(numPostsOnHomePageGroup);
+  const limit = parseInt(query.limit) || numPosts
+  
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
 

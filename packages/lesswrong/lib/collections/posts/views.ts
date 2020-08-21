@@ -978,6 +978,16 @@ Posts.addView("tagProgressUntagged", terms => {
   }
 })
 
+Posts.addView("personalTagProgressUntagged", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      baseScore: {$gt: 25},
+      $or: [{tagRelevance: {}}, {tagRelevance: null}]
+    },
+  }
+})
+
 Posts.addView("tagProgressPosts", terms => {
   return {
     selector: {
@@ -985,3 +995,19 @@ Posts.addView("tagProgressPosts", terms => {
     },
   }
 })
+
+Posts.addView("personalTagProgressPosts", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      baseScore: {$gt:25},
+    },
+  }
+})
+
+ensureIndex(Posts,
+  augmentForDefaultView({ userId: 1, tagRelevance: 1}),
+  {
+    name: "posts.users_tagged_posts",
+  }
+);
