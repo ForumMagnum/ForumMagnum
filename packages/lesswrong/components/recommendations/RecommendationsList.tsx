@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withRecommendations } from './withRecommendations';
+import { Typography } from '@material-ui/core'
 
 interface ExternalProps {
   algorithm: any,
@@ -20,7 +21,7 @@ const RecommendationsList = ({ recommendations, recommendationsLoading }: Recomm
     {recommendations.map(post =>
       <PostsItem2 post={post} key={post._id}/>)}
     {recommendations.length===0 &&
-      <span>There are no more recommendations left.</span>}
+      <Typography><small>There are no more recommendations left.</small></Typography>}
   </div>
 }
 
@@ -33,4 +34,3 @@ declare global {
     RecommendationsList: typeof RecommendationsListComponent
   }
 }
-

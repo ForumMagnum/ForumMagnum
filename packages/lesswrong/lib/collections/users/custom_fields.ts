@@ -8,8 +8,9 @@ import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormali
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
+import GraphQLJSON from 'graphql-type-json';
 
-export const hashPetrovCode = (code) => {
+export const hashPetrovCode = (code: string): string => {
   // @ts-ignore
   const crypto = Npm.require('crypto');
   var hash = crypto.createHash('sha256');
@@ -172,7 +173,7 @@ const partiallyReadSequenceItem = new SimpleSchema({
 addFieldsDict(Users, {
   createdAt: {
     type: Date,
-    onInsert: (user, options) => {
+    onInsert: (user: DbUser, currentUser: DbUser) => {
       return user.createdAt || new Date();
     },
     canRead: ["guests"]
@@ -593,7 +594,7 @@ addFieldsDict(Users, {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user, args, context: ResolverContext) => {
+    resolver: async (user: DbUser, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = LWEvents.find(
         {userId: user._id, name: 'login'},
@@ -1374,7 +1375,19 @@ addFieldsDict(Users, {
     }),
     canRead: ['guests'],
     ...schemaDefaultValue(0)
-  }
+  },
+  abTestKey: {
+    type: String,
+    optional: true,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+  },
+  abTestOverrides: {
+    type: GraphQLJSON, //Record<string,number>
+    optional: true, hidden: true,
+    canRead: [Users.owns],
+    canUpdate: ['admins'],
+  },
 });
 
 export const makeEditableOptionsModeration = {
@@ -1401,12 +1414,12 @@ makeEditable({
 addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
-const createDisplayName = user => {
+const createDisplayName = (user: DbUser): string=> {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
   if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
-  return undefined;
+  return "[missing username]";
 }

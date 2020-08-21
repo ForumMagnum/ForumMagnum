@@ -1,6 +1,6 @@
 import Users from '../users/collection';
 import { schemaDefaultValue, } from '../../collectionUtils';
-import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import { resolverOnlyField, SchemaType } from '../../../lib/utils/schemaUtils';
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -19,7 +19,7 @@ const docIsTagRel = (currentUser, document) => {
   return document?.collectionName === "TagRels"
 }
 
-const schema = {
+const schema: SchemaType<DbVote> = {
   // The id of the document that was voted on
   documentId: {
     type: String,
@@ -105,7 +105,7 @@ const schema = {
     type: "TagRel",
     graphQLtype: 'TagRel',
     canRead: [docIsTagRel, 'admins'],
-    resolver: (vote, args, { TagRels }: ResolverContext) => {
+    resolver: (vote: DbVote, args: void, { TagRels }: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
         const tagRel = TagRels.find({_id: vote.documentId}).fetch()[0]
         if (tagRel) {
