@@ -1,5 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import { forumTypeSetting } from '../../instanceSettings';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 

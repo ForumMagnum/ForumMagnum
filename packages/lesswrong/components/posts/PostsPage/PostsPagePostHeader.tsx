@@ -6,7 +6,6 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { Meteor } from 'meteor/meteor';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 

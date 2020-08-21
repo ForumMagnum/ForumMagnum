@@ -13,9 +13,7 @@ import Button from '@material-ui/core/Button';
 import gql from 'graphql-tag';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
-import GroupIcon from '@material-ui/icons/Group';
 import ClearIcon from '@material-ui/icons/Clear';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -95,19 +93,6 @@ const SunshineNewPostsItem = ({post, classes}: {
     })
   }
   
-  const handleMoveToCommunity = () => {
-    applyTags();
-    
-    void updatePost({
-      selector: { _id: post._id},
-      data: {
-        meta: true,
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
-    })
-  }
-
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
