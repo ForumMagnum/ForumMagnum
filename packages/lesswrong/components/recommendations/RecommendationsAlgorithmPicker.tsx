@@ -94,7 +94,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <span className={classes.setting}>
         <SectionFooterCheckbox
           value={!settings.hideContinueReading}
-          onClick={(ev, checked) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideContinueReading: !settings.hideContinueReading })}
           label="Continue Reading"
           tooltip="If you start reading a sequence, the next unread post will appear in Recommendations"
         />
@@ -102,7 +102,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <span className={classes.setting}>
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
-          onClick={(ev, checked) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
           label="Bookmarks"
           tooltip="Posts that you have bookmarked will appear in Recommendations."
         />
@@ -130,7 +130,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <span className={classes.setting}>
           <SectionFooterCheckbox
             value={!settings.hideFrontpage}
-            onClick={(ev, checked) => applyChange({ ...settings, hideFrontpage: !settings.hideFrontpage })}
+            onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideFrontpage: !settings.hideFrontpage })}
             label="Archives"
             tooltip="Show randomized posts from the archives"
           />
@@ -140,7 +140,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           disabled={!currentUser}
           value={settings.onlyUnread && !!currentUser}
-          onClick={(ev, checked) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
           label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
           tooltip={`'${archiveRecommendationsName}' will only show unread posts`}
         />
@@ -151,7 +151,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           disabled={!currentUser}
           value={settings[includeExtra.machineName]}
-          onClick={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
           label={includeExtra.humanName}
           tooltip={`'${archiveRecommendationsName}' will include ${includeExtra.humanName}`}
         />

@@ -5,7 +5,9 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const RecommendationsPage = ({ classes }) => {
+const RecommendationsPage = ({classes}: {
+  classes: ClassesType
+}) => {
   const { ConfigurableRecommendationsList } = Components;
   
   return (

@@ -41,7 +41,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const MessageItem = ({message, classes}) => {
+const MessageItem = ({message, classes}: {
+  message: messageListFragment,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { html = "" } = message?.contents || {}
   if (!message) return null;

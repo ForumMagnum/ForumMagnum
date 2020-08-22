@@ -51,7 +51,7 @@ describe('getDateRange', () => {
 
   it('handles null timeBlock', () => {
     ((
-      () => getDateRange('2019-01-01', '2019-01-03', null)
+      () => getDateRange('2019-01-01', '2019-01-03', null as any)
     ) as any).should.throw(Error, /Invalid timeBlock/)
   })
 })

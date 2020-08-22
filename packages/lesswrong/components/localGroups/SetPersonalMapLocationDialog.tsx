@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import Users from "../../lib/collections/users/collection";
 import Dialog from '@material-ui/core/Dialog';
 import Geosuggest from 'react-geosuggest';
@@ -21,7 +21,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   ...sharedStyles(theme),
 }))
 
-const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
+const SetPersonalMapLocationDialog = ({ onClose, classes }: {
+  onClose: ()=>void,
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
   const { Loading } = Components
   
@@ -34,6 +38,9 @@ const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
     collection: Users,
     fragmentName: 'UsersCurrent',
   })
+  
+  if (!currentUser)
+    return null;
 
   return (
     <Dialog
@@ -68,7 +75,7 @@ const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
             rowsMax={100}
           />
         <DialogActions className={classes.actions}>
-          {currentUser?.mapLocation && <a className={classes.removeButton} onClick={()=>{
+          {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
             void mutate({selector: {_id: currentUser._id}, data: {mapLocation: null}})
             onClose()
           }}>
@@ -86,10 +93,7 @@ const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
   )
 }
 
-const SetPersonalMapLocationDialogComponent = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {
-  styles,
-  hocs: [withUser]
-});
+const SetPersonalMapLocationDialogComponent = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
 
 declare global {
   interface ComponentTypes {

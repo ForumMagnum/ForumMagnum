@@ -8,7 +8,7 @@ SyncedCron.options = {
   collectionTTL: 172800
 };
 
-export function addCronJob(options)
+export function addCronJob(options: any)
 {
   Meteor.startup(function() {
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {

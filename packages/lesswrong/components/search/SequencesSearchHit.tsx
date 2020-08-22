@@ -23,7 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SequencesSearchHit = ({hit, clickAction, classes}) => {
+const SequencesSearchHit = ({hit, clickAction, classes}: {
+  hit: any,
+  clickAction?: any,
+  classes: ClassesType,
+}) => {
   const linkProperties = clickAction ? {onClick: () => clickAction(hit._id)} : {to: "sequences/" + hit._id};
   return <div className="search-results-sequences-item sequences-item">
       <Link {...linkProperties} className="sequence-item-title-link">

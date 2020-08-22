@@ -12,7 +12,7 @@ const hideSpoilers = {
   }
 }
 
-const spoilerStyles = (theme) => ({
+const spoilerStyles = (theme: ThemeType) => ({
   '& p.spoiler': {
     margin: 0,
   },
@@ -99,7 +99,7 @@ const hrStyles = {
   }
 }
 
-const baseBodyStyles = theme => ({
+const baseBodyStyles = (theme: ThemeType) => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
   wordBreak: "break-word",
@@ -192,7 +192,7 @@ const baseBodyStyles = theme => ({
   }
 })
 
-export const postBodyStyles = (theme) => {
+export const postBodyStyles = (theme: ThemeType) => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
@@ -224,7 +224,7 @@ export const postBodyStyles = (theme) => {
   }
 }
 
-export const commentBodyStyles = theme => {
+export const commentBodyStyles = (theme: ThemeType) => {
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
@@ -274,7 +274,7 @@ export const commentBodyStyles = theme => {
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-const smallPostStyles = theme => ({
+const smallPostStyles = (theme: ThemeType) => ({
   ...theme.typography.body2,
   fontSize: "1.2rem",
   lineHeight: "1.8rem",
@@ -294,7 +294,7 @@ const smallPostStyles = theme => ({
   },
 })
 
-export const postHighlightStyles = theme => {
+export const postHighlightStyles = (theme: ThemeType) => {
   const postHighlightStyles = {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
@@ -305,7 +305,7 @@ export const postHighlightStyles = theme => {
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
 
-export const answerStyles = theme => {
+export const answerStyles = (theme: ThemeType) => {
   const answerStyles = {
     ...smallPostStyles(theme)
   }
@@ -323,7 +323,7 @@ export const pBodyStyle = {
   }
 }
 
-export const ckEditorStyles = theme => {
+export const ckEditorStyles = (theme: ThemeType) => {
   return {
     '& .ck': {
       '& code .public-DraftStyleDefault-block': {
@@ -431,7 +431,7 @@ export const ckEditorStyles = theme => {
   }
 }
 
-export const editorStyles = (theme, styleFunction) => ({
+export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)=>any) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
       marginBottom: '1em',  

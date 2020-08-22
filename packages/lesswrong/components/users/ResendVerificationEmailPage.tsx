@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -9,7 +9,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ResendVerificationEmailPage = ({currentUser, classes}) => {
+const ResendVerificationEmailPage = ({classes}: {
+  classes: ClassesType
+}) => {
+  const currentUser = useCurrentUser();
   if (!currentUser) {
     return <div className={classes.root}>
       Log in to resend an email-address verification email.
@@ -25,10 +28,7 @@ const ResendVerificationEmailPage = ({currentUser, classes}) => {
   }
 }
 
-const ResendVerificationEmailPageComponent = registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPage, {
-  styles,
-  hocs: [withUser]
-});
+const ResendVerificationEmailPageComponent = registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPage, {styles});
 
 declare global {
   interface ComponentTypes {

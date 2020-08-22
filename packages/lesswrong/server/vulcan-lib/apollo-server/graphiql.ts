@@ -36,7 +36,7 @@ const SUBSCRIPTIONS_TRANSPORT_VERSION = '0.9.9';
 
 // Ensures string values are safe to be used within a <script> tag.
 // TODO: I don't think that's the right escape function
-function safeSerialize(data) {
+function safeSerialize(data: any): string|null {
   return data ? JSON.stringify(data).replace(/\//g, '\\/') : null;
 }
 

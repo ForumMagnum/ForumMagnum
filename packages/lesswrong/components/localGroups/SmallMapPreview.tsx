@@ -17,7 +17,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 const defaultLocation = {lat: 37.871853, lng: -122.258423};
 
 interface SmallMapPreviewProps extends WithStylesProps {
-  post: PostsBase,
+  post: PostsList,
   group?: any,
   zoom?: number,
 }

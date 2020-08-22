@@ -101,7 +101,7 @@ const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
 
 const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   collectionName, fieldName,
-  getKey = (a=>a)
+  getKey = ((a:any)=>a)
 }: {
   collectionName: CollectionName,
   fieldName: string,

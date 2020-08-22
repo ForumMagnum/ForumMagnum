@@ -20,7 +20,7 @@ describe('EventDebouncer', async () => {
       
       let numEventsHandled = 0;
       let numEventBatchesHandled = 0;
-      const eventsHandled = {}; // key=>event=>number of times seen
+      const eventsHandled: Partial<Record<string,Record<string,number>>> = {}; // key=>event=>number of times seen
       const testEvent = new EventDebouncer({
         name: "testEvent",
         defaultTiming: {
@@ -28,16 +28,16 @@ describe('EventDebouncer', async () => {
           delayMinutes: 15,
           maxDelayMinutes: 30,
         },
-        callback: (key, events) => {
+        callback: (key: string, events: Array<string>) => {
           numEventBatchesHandled++;
-          events.forEach(ev => {
+          events.forEach((ev: string) => {
             numEventsHandled++;
             
             if (!(key in eventsHandled))
               eventsHandled[key] = {};
-            if (!(ev in eventsHandled[key]))
-              eventsHandled[key][ev] = 0
-            eventsHandled[key][ev]++;
+            if (!(ev in eventsHandled[key]!))
+              eventsHandled[key]![ev] = 0
+            eventsHandled[key]![ev]++;
           });
         }
       });

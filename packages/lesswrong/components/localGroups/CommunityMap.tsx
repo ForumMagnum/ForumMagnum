@@ -73,7 +73,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   groupTerms: any,
   eventTerms: any,
   initialOpenWindows: Array<any>,
-  center: any,
+  center?: {lat: number, lng: number},
   zoom: number,
   classes: ClassesType,
   showUsers?: boolean,
@@ -174,7 +174,13 @@ const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
     opacity: 0.8
   }
 })
-const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows, classes}) => {
+const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows, classes}: {
+  users: Array<UsersMapEntry>,
+  handleClick: (userId: string)=>void,
+  handleClose: (userId: string)=>void,
+  openWindows: any,
+  classes: ClassesType,
+}) => {
   const { StyledMapPopup } = Components
   return <React.Fragment>
     {users.map(user => {
@@ -211,8 +217,13 @@ const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMa
   styles: personalMapMarkerStyles
 });
 
-const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}) => {
-  return events.map((event) => {
+const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: {
+  events: Array<PostsList>,
+  handleClick: (eventId: string)=>void,
+  handleClose: (eventId: string)=>void,
+  openWindows: any,
+}) => {
+  return <>{events.map((event) => {
     return <Components.LocalEventMarker
       key={event._id}
       event={event}
@@ -221,11 +232,16 @@ const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}) 
       infoOpen={openWindows.includes(event._id)}
       location={event.googleLocation}
     />
-  })
+  })}</>
 }
 
-const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}) => {
-  return groups.map((group) => {
+const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: {
+  groups: Array<localGroupsHomeFragment>,
+  handleClick: (eventId: string)=>void,
+  handleClose: (eventId: string)=>void,
+  openWindows: any,
+}) => {
+  return <>{groups.map((group) => {
     return(
       <Components.LocalGroupMarker
         key={group._id}
@@ -236,7 +252,7 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}) 
         location={group.googleLocation}
       />
     )
-  })
+  })}</>
 }
 
 

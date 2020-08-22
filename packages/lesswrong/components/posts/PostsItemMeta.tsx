@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const DateWithoutTime = ({date}) => {
+const DateWithoutTime = ({date}: {date: Date}) => {
   const { timezone } = useTimezone();
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }

@@ -48,7 +48,7 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
   const { location } = useLocation();
   const { captureEvent } = useTracking();
 
-  const handleLinkClick = (event) => {
+  const handleLinkClick = (event: React.MouseEvent) => {
     event.preventDefault()
     history.replace({...location, search: qs.stringify({commentId: comment._id})})
     if(scrollIntoView) scrollIntoView();

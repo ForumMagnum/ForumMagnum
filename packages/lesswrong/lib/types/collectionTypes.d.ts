@@ -57,6 +57,16 @@ interface HasUserIdType {
   userId: string
 }
 
+interface VoteableType extends HasIdType, HasUserIdType {
+  score: number
+  baseScore: number
+  voteCount: number
+}
+
+interface VoteableTypeClient extends VoteableType {
+  currentUserVotes: Array<VoteFragment>
+}
+
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {
   schemaVersion: number

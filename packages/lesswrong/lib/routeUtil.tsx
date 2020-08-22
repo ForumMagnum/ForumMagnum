@@ -72,7 +72,7 @@ export const useNavigation = (): any => {
 
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
-export const withLocation = (WrappedComponent) => {
+export const withLocation = (WrappedComponent: any) => {
   return (props) => (
     <LocationContext.Consumer>
       {location =>
@@ -88,7 +88,7 @@ export const withLocation = (WrappedComponent) => {
 // HoC which adds a `history` property to an object, which is a history obejct
 // as doumented on https://github.com/ReactTraining/history .
 // This HoC will never trigger rerenders.
-export const withNavigation = (WrappedComponent) => {
+export const withNavigation = (WrappedComponent: any) => {
   return (props) => (
     <NavigationContext.Consumer>
       {navigation =>
@@ -152,6 +152,6 @@ export const hostIsOnsite = (host: string): boolean => {
 // Used for disambiguating hashes, which in some URL formats could either point
 // to an anchor within a post, or a comment on that post.
 // A string could possibly be an ID if is in the range of meteor's `Random.id`.
-export const looksLikeDbIdString = (str) => {
+export const looksLikeDbIdString = (str: string): boolean => {
   return /^[a-zA-Z0-9]{17}$/.test(str);
 }
