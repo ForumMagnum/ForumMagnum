@@ -81,55 +81,6 @@ const TagProgressBar = ({classes}: {
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
-  const { totalCount: untaggedTotal } = useMulti({
-    terms: {
-      view: "tagProgressUntagged",
-      limit: 0
-    },
-    collection: Posts,
-    fragmentName: 'PostTagRelevance',
-    enableTotal: true,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  });
-
-  const { totalCount: postsTotal } = useMulti({
-    terms: {
-      view: "tagProgressPosts",
-      limit: 0
-    },
-    collection: Posts,
-    fragmentName: 'PostTagRelevance',
-    enableTotal: true,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  });
-
-  const { totalCount: untaggedPersonalTotal } = useMulti({
-    terms: {
-      view: "personalTagProgressUntagged",
-      userId: currentUser?._id,
-      limit: 0
-    },
-    collection: Posts,
-    fragmentName: 'PostTagRelevance',
-    enableTotal: true,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  });
-
-  const { totalCount: personalPostsTotal } = useMulti({
-    terms: {
-      view: "personalTagProgressPosts",
-      userId: currentUser?._id,
-      limit: 0
-    },
-    collection: Posts,
-    fragmentName: 'PostTagRelevance',
-    enableTotal: true,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  });
 
   const hideClickHandler = async () => {
     if (currentUser) {
@@ -156,8 +107,6 @@ const TagProgressBar = ({classes}: {
       });
     }
   }
-
-  if (untaggedTotal === undefined || postsTotal === undefined) return null
 
   const allPostsTooltip = "All posts with 25+ karma are tagged! Woop! Woop!"
 
