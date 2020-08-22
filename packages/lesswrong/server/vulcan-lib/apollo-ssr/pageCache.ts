@@ -40,6 +40,14 @@ export const cacheKeyFromReq = (req): string => {
     return req.url.path
 }
 
+type InProgressRender = {
+  cacheKey: string
+  abTestGroups: CompleteTestGroupAllocation
+  renderPromise: Promise<RenderResult>
+};
+
+const inProgressRenders: Record<string,Array<InProgressRender>> = {};
+
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
@@ -56,19 +64,44 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
       ...cached,
       cached: true
     };
-  } else {
-    recordCacheMiss();
-    //eslint-disable-next-line no-console
-    console.log(`Rendering ${req.url.path} (not in cache; hit rate=${getCacheHitRate()})`);
-    
-    const renderPromise = renderFn(req);
-    const rendered = await renderPromise;
-    cacheStore(cacheKey, rendered.abTestGroups, rendered);
-    return {
-      ...rendered,
-      cached: false
-    };
   }
+  
+  if (cacheKey in inProgressRenders) {
+    for (let inProgressRender of inProgressRenders[cacheKey]) {
+      if (objIsSubset(abTestGroups, inProgressRender.abTestGroups)) {
+        const result = await inProgressRender.renderPromise;
+        return {
+          ...result,
+          cached: true,
+        };
+      }
+    }
+  }
+  
+  recordCacheMiss();
+  //eslint-disable-next-line no-console
+  console.log(`Rendering ${req.url.path} (not in cache; hit rate=${getCacheHitRate()})`);
+  
+  const renderPromise = renderFn(req);
+  
+  const inProgressRender = { cacheKey, abTestGroups, renderPromise };
+  if (cacheKey in inProgressRenders) {
+    inProgressRenders[cacheKey].push(inProgressRender);
+  } else {
+    inProgressRenders[cacheKey] = [inProgressRender];
+  }
+  
+  const rendered = await renderPromise;
+  cacheStore(cacheKey, rendered.abTestGroups, rendered);
+  
+  inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
+  if (!inProgressRenders[cacheKey].length)
+    delete inProgressRenders[cacheKey];
+  
+  return {
+    ...rendered,
+    cached: false
+  };
 }
 
 
