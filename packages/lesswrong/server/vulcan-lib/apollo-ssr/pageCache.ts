@@ -74,6 +74,9 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
           ...result,
           cached: true,
         };
+      } else {
+        //eslint-disable-next-line no-console
+        console.log("In progress render merge missed: mismatched A/B test groups");
       }
     }
   }
@@ -92,6 +95,8 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
   }
   
   const rendered = await renderPromise;
+  // eslint-disable-next-line no-console
+  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.abTestGroups)}`);
   cacheStore(cacheKey, rendered.abTestGroups, rendered);
   
   inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
@@ -106,8 +111,11 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
 
 
 const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
-  if (!(cacheKey in cachedABtestsIndex))
+  if (!(cacheKey in cachedABtestsIndex)) {
+    // eslint-disable-next-line no-console
+    console.log("Cache miss: no cached page with this cacheKey for any A/B test group combination");
     return null;
+  }
   const abTestCombinations: Array<RelevantTestGroupAllocation> = cachedABtestsIndex[cacheKey];
   for (let i=0; i<abTestCombinations.length; i++) {
     if (objIsSubset(abTestCombinations[i], abTestGroups)) {
@@ -117,6 +125,8 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
       }));
     }
   }
+  // eslint-disable-next-line no-console
+  console.log("Cache miss: page is cached, but with the wrong A/B test groups");
 }
 
 const objIsSubset = (subset,superset): boolean => {
