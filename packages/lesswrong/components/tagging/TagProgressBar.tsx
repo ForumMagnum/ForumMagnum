@@ -72,7 +72,7 @@ const TagProgressBar = ({classes}: {
   classes: ClassesType,
 }) => {
 
-  const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
+  const { LWTooltip } = Components;
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -159,12 +159,12 @@ const TagProgressBar = ({classes}: {
 
   if (untaggedTotal === undefined || postsTotal === undefined) return null
 
-  const allPostsTooltip = (untaggedTotal > 0) ? `Tagging Progress (all posts) (0 remaining out of ${postsTotal})` : "All posts with 25+ karma have been tagged! Woop! Woop!"
-  
+  const allPostsTooltip = "All posts with 25+ karma have been tagged! Woop! Woop!"
+
   return <div className={classes.root}>
       <div className={classes.inner}>
         <div className={classes.text}>
-          <Link className={classes.title} to={"/posts/uqXQAWxLFW8WgShtk/open-call-for-taggers"}>
+          <Link className={classes.title} to={"/posts/gNb2wSKDYDPJ6Mxmz/woop-woop-tagging-progress-bar-is-at-100-celebration-on-sun"}>
             Tagging Progress
           </Link>
           <LWTooltip title={<div>
