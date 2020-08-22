@@ -159,7 +159,7 @@ const TagProgressBar = ({classes}: {
 
   if (untaggedTotal === undefined || postsTotal === undefined) return null
 
-  const allPostsTooltip = "All posts with 25+ karma have been tagged! Woop! Woop!"
+  const allPostsTooltip = "All posts with 25+ karma are tagged! Woop! Woop!"
 
   return <div className={classes.root}>
       <div className={classes.inner}>
