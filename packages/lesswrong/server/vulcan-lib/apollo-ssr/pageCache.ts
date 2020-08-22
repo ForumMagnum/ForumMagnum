@@ -52,6 +52,8 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
 export const cachedPageRender = async (req, abTestGroups, renderFn) => {
+  //eslint-disable-next-line no-console
+  console.log("Called cachedPageRender");
   const cacheKey = cacheKeyFromReq(req);
   const cached = cacheLookup(cacheKey, abTestGroups);
   
