@@ -58,18 +58,18 @@ async function checkForAkismetSpam({document, type = "post"}) {
 }
 
 client.verifyKey()
-  .then(function(valid) {
+  .then(function(valid: boolean) {
     //eslint-disable-next-line no-console
     if (valid) console.log('Valid Akismet key!');
     //eslint-disable-next-line no-console
     else console.log('Invalid Akismet key. Please provide a key to activate spam detection.', akismetKeySetting.get());
   })
-  .catch(function(err) {
+  .catch(function(err: any) {
     //eslint-disable-next-line no-console
     console.log('Akismet key check failed: ' + err.message);
   });
 
-async function checkPostForSpamWithAkismet(post, currentUser) {
+async function checkPostForSpamWithAkismet(post: DbPost, currentUser: DbUser) {
   if (akismetKeySetting.get()) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
@@ -93,7 +93,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
 
 addCallback('posts.new.after', checkPostForSpamWithAkismet);
 
-async function checkCommentForSpamWithAkismet(comment, currentUser) {
+async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser) {
     if (akismetKeySetting.get()) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
       if (spam) {
@@ -120,7 +120,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
   }
 addCallback('comments.new.after', checkCommentForSpamWithAkismet);
 
-function runReportCloseCallbacks(newReport, oldReport) {
+function runReportCloseCallbacks(newReport: DbReport, oldReport: DbReport) {
   if (newReport.closedAt && !oldReport.closedAt) {
     runCallbacksAsync('reports.close.async', newReport);
   }
@@ -128,7 +128,7 @@ function runReportCloseCallbacks(newReport, oldReport) {
 
 addCallback('reports.edit.async', runReportCloseCallbacks)
 
-async function akismetReportSpamHam(report) {
+async function akismetReportSpamHam(report: DbReport) {
   if (report.reportedAsSpam) {
     let comment
     const post = await Posts.findOne(report.postId)
@@ -138,7 +138,7 @@ async function akismetReportSpamHam(report) {
     if (!report.markedAsSpam) {
       const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
       const akismetReport = await constructAkismetReport(akismetReportArguments)
-      client.submitHam(akismetReport, (err) => {
+      client.submitHam(akismetReport, (err: any) => {
         // eslint-disable-next-line no-console
         if (!err) { console.log("Reported Akismet false positive", akismetReport)}
       })
@@ -148,9 +148,9 @@ async function akismetReportSpamHam(report) {
 
 addCallback('reports.close.async', akismetReportSpamHam)
 
-async function postReportPurgeAsSpam(post) {
+async function postReportPurgeAsSpam(post: DbPost) {
   const akismetReport = await constructAkismetReport({document: post, type: "post"})
-  client.submitSpam(akismetReport, (err) => {
+  client.submitSpam(akismetReport, (err: any) => {
     // eslint-disable-next-line no-console
     if (!err) { console.log("Reported Akismet false negative", akismetReport)}
   })
@@ -158,9 +158,9 @@ async function postReportPurgeAsSpam(post) {
 
 addCallback('posts.purge.async', postReportPurgeAsSpam)
 
-async function commentReportPurgeAsSpam(comment) {
+async function commentReportPurgeAsSpam(comment: DbComment) {
   const akismetReport = await constructAkismetReport({document: comment, type: "comment"})
-  client.submitSpam(akismetReport, (err) => {
+  client.submitSpam(akismetReport, (err: any) => {
     // eslint-disable-next-line no-console
     if (!err) { console.log("Reported Akismet false negative", akismetReport)}
   })

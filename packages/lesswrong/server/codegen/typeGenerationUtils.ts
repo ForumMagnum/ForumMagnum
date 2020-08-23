@@ -16,7 +16,7 @@ export const assert = (b: boolean, message?: string) => {
   }
 }
 
-export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType): string {
+export function simplSchemaTypeToTypescript(schema, fieldName: string, simplSchemaType): string {
   if (simplSchemaType.singleType == Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema))

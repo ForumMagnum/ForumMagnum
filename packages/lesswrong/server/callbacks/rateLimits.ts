@@ -33,7 +33,7 @@ addCallback('post.update.validate', PostsUndraftRateLimit);
 
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
-function enforcePostRateLimit (user) {
+function enforcePostRateLimit (user: DbUser) {
   // Admins and Sunshines aren't rate-limited
   if (Users.isAdmin(user) || Users.isMemberOf(user, "sunshineRegiment") || Users.isMemberOf(user, "canBypassPostRateLimit"))
     return;

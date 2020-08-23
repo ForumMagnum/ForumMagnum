@@ -23,7 +23,7 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   })
 
   posts.forEach((currentPost, i) => {
-    const validSequenceId = (currentPost, sequence) => {
+    const validSequenceId = (currentPost: DbPost, sequence: DbSequence) => {
       // Only update a post if it either doesn't have a canonicalSequence, or if we're editing
       // chapters *from* its canonicalSequence
       return !currentPost.canonicalSequenceId || currentPost.canonicalSequenceId === sequence._id

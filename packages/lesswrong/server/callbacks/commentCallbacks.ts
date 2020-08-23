@@ -92,7 +92,7 @@ addCallback('comments.new.sync', CommentsNewOperations);
  * @param {object} user - The user doing the operation
  * @param {object} collection - The collection the item belongs to
  */
-function UpvoteAsyncCallbacksAfterDocumentInsert(item, user, collection) {
+function UpvoteAsyncCallbacksAfterDocumentInsert(item, user: DbUser, collection) {
   runCallbacksAsync('upvote.async', item, user, collection, 'upvote');
 }
 addCallback('comments.new.async', UpvoteAsyncCallbacksAfterDocumentInsert);
@@ -138,7 +138,7 @@ addCallback('comments.remove.async', CommentsRemoveChildrenComments);
 // other                                            //
 //////////////////////////////////////////////////////
 
-function AddReferrerToComment(comment, properties)
+function AddReferrerToComment(comment: DbComment, properties)
 {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];

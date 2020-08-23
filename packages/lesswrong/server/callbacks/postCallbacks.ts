@@ -18,7 +18,7 @@ function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
 }
 addCallback("post.update.before", PostsEditRunPostUndraftedSyncCallbacks);
 
-function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
+function PostsEditRunPostUndraftedAsyncCallbacks (newPost: DbPost, oldPost: DbPost) {
   if (!newPost.draft && oldPost.draft) {
     runCallbacksAsync("posts.undraft.async", newPost, oldPost)
   }
@@ -26,7 +26,7 @@ function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
 }
 addCallback("posts.edit.async", PostsEditRunPostUndraftedAsyncCallbacks);
 
-function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
+function PostsEditRunPostDraftedAsyncCallbacks (newPost: DbPost, oldPost: DbPost) {
   if (newPost.draft && !oldPost.draft) {
     runCallbacksAsync("posts.draft.async", newPost, oldPost)
   }
@@ -37,7 +37,7 @@ addCallback("posts.edit.async", PostsEditRunPostDraftedAsyncCallbacks);
 /**
  * @summary set postedAt when a post is moved out of drafts
  */
-function PostsSetPostedAt (data, oldPost) {
+function PostsSetPostedAt (data: DbPost, oldPost: DbPost) {
   data.postedAt = new Date();
   return data;
 }
@@ -71,7 +71,7 @@ function PostsNewDefaultLocation (post) {
 
 addCallback("posts.new.sync", PostsNewDefaultLocation);
 
-function PostsNewDefaultTypes (post) {
+function PostsNewDefaultTypes (post: DbPost) {
   if (post.isEvent && post.groupId && !post.types) {
     const localgroup = Localgroups.findOne(post.groupId) 
     if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
@@ -84,7 +84,7 @@ function PostsNewDefaultTypes (post) {
 addCallback("posts.new.sync", PostsNewDefaultTypes);
 
 // LESSWRONG – bigUpvote
-async function LWPostsNewUpvoteOwnPost(post) {
+async function LWPostsNewUpvoteOwnPost(post: DbPost) {
  var postAuthor = Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost};
@@ -92,7 +92,7 @@ async function LWPostsNewUpvoteOwnPost(post) {
 
 addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
 
-function PostsNewUserApprovedStatus (post) {
+function PostsNewUserApprovedStatus (post: DbPost) {
   const postAuthor = Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...post, authorIsUnreviewed: true}
@@ -120,7 +120,7 @@ addEditableCallbacks({collection: Posts, options: makeEditableOptions})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighlight})
 
-function PostsNewPostRelation (post) {
+function PostsNewPostRelation (post: DbPost) {
   if (post.originalPostRelationSourceId) {
     void newMutation({
       collection: PostRelations,
@@ -136,7 +136,7 @@ function PostsNewPostRelation (post) {
 }
 addCallback("posts.new.after", PostsNewPostRelation);
 
-function UpdatePostShortform (newPost, oldPost) {
+function UpdatePostShortform (newPost: DbPost, oldPost: DbPost) {
   if (!!newPost.shortform !== !!oldPost.shortform) {
     const shortform = !!newPost.shortform;
     Comments.update(
@@ -155,7 +155,7 @@ addCallback("posts.edit.async", UpdatePostShortform );
 // already has comments, update those comments' hideKarma field to have the new
 // setting. This should almost never be used, as we really don't want to
 // surprise users by revealing their supposedly hidden karma.
-async function UpdateCommentHideKarma (newPost, oldPost) {
+async function UpdateCommentHideKarma (newPost: DbPost, oldPost: DbPost) {
   if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
 
   const comments = Comments.find({postId: newPost._id})
@@ -172,7 +172,7 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
 }
 addCallback("posts.edit.async", UpdateCommentHideKarma);
 
-export async function newDocumentMaybeTriggerReview (document) {
+export async function newDocumentMaybeTriggerReview (document: DbPost) {
   const author = await Users.findOne(document.userId);
   if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
     Users.update({_id:author._id}, {$set:{needsReview: true}})
@@ -181,7 +181,7 @@ export async function newDocumentMaybeTriggerReview (document) {
 }
 addCallback("posts.new.after", newDocumentMaybeTriggerReview);
 
-async function updatedPostMaybeTriggerReview (newPost, oldPost) {
+async function updatedPostMaybeTriggerReview (newPost: DbPost, oldPost: DbPost) {
   if (!newPost.draft && oldPost.draft) {
     await newDocumentMaybeTriggerReview(newPost)
   }

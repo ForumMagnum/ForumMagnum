@@ -7,12 +7,12 @@ export const LARGE_TRUNCATION_CHAR_COUNT = 1600;
 export const postExcerptMaxChars = 600;
 export const TRUNCATION_KARMA_THRESHOLD = 10
 
-export const highlightFromMarkdown = (body, mdi) => {
+export const highlightFromMarkdown = (body: string, mdi): string => {
   const html = mdi.render(body);
   return highlightFromHTML(html);
 }
 
-export const highlightFromHTML = (html) => {
+export const highlightFromHTML = (html: string): string => {
   if (!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
@@ -51,7 +51,7 @@ export const postExcerptFromHTML = (html: string, truncationCharCount?: number) 
   });
 };
 
-export function getTruncationCharCount (comment, currentUser?: UsersCurrent|null, postPage?: boolean) {
+export function getTruncationCharCount (comment: CommentsList, currentUser?: UsersCurrent|null, postPage?: boolean) {
   // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
   if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
     return 10000000
@@ -72,7 +72,7 @@ export function getTruncationCharCount (comment, currentUser?: UsersCurrent|null
   }
 }
 
-export const answerTocExcerptFromHTML = (html) => {
+export const answerTocExcerptFromHTML = (html: string): string => {
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
@@ -90,7 +90,7 @@ export const answerTocExcerptFromHTML = (html) => {
   });
 };
 
-export function commentExcerptFromHTML (comment, currentUser?: UsersCurrent|null, postPage?: boolean) {
+export function commentExcerptFromHTML (comment: CommentsList, currentUser?: UsersCurrent|null, postPage?: boolean): string {
   const { html } = comment.contents
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""

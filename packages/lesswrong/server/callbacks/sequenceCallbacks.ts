@@ -3,7 +3,7 @@ import Chapters from '../../lib/collections/chapters/collection'
 import Sequences, { makeEditableOptions } from '../../lib/collections/sequences/collection'
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 
-function SequenceNewCreateChapter (sequence) {
+function SequenceNewCreateChapter (sequence: DbSequence) {
   if (sequence._id && !sequence.chaptersDummy) {
     Chapters.insert({sequenceId:sequence._id})
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 
 export const htmlToDraft = convertFromHTML({
-  htmlToEntity: (nodeName, node, createEntity) => {
+  htmlToEntity: (nodeName: string, node, createEntity) => {
     if (nodeName === 'img') {
       return createEntity(
         'IMAGE',
@@ -25,7 +25,7 @@ export const htmlToDraft = convertFromHTML({
     //   )
     // }
   },
-  htmlToBlock: (nodeName, node, lastList, inBlock) => {
+  htmlToBlock: (nodeName: string, node, lastList, inBlock) => {
     if ((nodeName === 'figure' && node.firstChild?.nodeName === 'IMG') || (nodeName === 'img' && inBlock !== 'atomic')) {
         return 'atomic';
     }
@@ -49,7 +49,7 @@ export const htmlToDraft = convertFromHTML({
 
 export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name
-  styleToHTML: (style) => {
+  styleToHTML: (style: string) => {
     if (style === 'STRIKETHROUGH') {
       return <span style={{textDecoration: 'line-through'}} />;
     }
