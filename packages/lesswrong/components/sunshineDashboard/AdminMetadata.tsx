@@ -23,7 +23,9 @@ const adminMetadataQuery = gql`query AdminMetadataQuery {
   }
 }`;
 
-const AdminMetadata = ({ classes }) => {
+const AdminMetadata = ({ classes }: {
+  classes: ClassesType,
+}) => {
   const { data, loading } = useQuery(adminMetadataQuery, { ssr: true });
   if (loading)
     return <Components.Loading/>

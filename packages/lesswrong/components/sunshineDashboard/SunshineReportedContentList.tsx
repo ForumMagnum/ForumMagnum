@@ -31,7 +31,7 @@ const SunshineReportedContentList = ({ terms, classes }: {
     return (
       <div className={classes.root}>
         <SunshineListTitle>
-          Flagged Content <SunshineListCount count={totalCount} />
+          Flagged Content <SunshineListCount count={totalCount||0} />
         </SunshineListTitle>
         {results.map(report =>
           <div key={report._id} >

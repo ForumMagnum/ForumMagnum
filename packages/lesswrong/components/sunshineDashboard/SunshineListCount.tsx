@@ -7,7 +7,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineListCount = ({ count, classes }) => {
+const SunshineListCount = ({ count, classes }: {
+  count: number,
+  classes: ClassesType,
+}) => {
   const { MetaInfo } = Components
   if (count > 10) {
     return <MetaInfo className={(count > 20) && classes.overflow}>({count})</MetaInfo>

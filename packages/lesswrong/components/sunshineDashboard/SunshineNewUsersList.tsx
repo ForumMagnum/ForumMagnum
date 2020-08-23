@@ -34,7 +34,7 @@ const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
       <div>
         <SunshineListTitle>
           <span>New Users</span>
-          <SunshineListCount count={totalCount}/>
+          <SunshineListCount count={totalCount||0}/>
         </SunshineListTitle>
         {results.map(user =>
           <div key={user._id} >

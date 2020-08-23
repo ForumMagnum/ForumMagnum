@@ -13,7 +13,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumber, updateVersion}) => {
+const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumber, updateVersion}: {
+  classes: ClassesType,
+  documentId: string,
+  revisionVersion: string,
+  updateVersionNumber: (version: string)=>void,
+  updateVersion: (document: PostsRevisionEdit)=>void,
+}) => {
   const { document, loading } = useSingle({
     collection: Posts,
     fragmentName: 'PostsRevisionEdit',

@@ -732,6 +732,7 @@ interface UsersAdmin { // fragment on Users
   readonly groups: Array<string>,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly karma: number,
+  readonly IPs: Array<string>,
 }
 
 interface conversationsListFragment { // fragment on Conversations

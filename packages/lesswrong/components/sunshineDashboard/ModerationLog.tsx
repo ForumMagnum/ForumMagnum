@@ -96,12 +96,9 @@ const usersBannedFromUsersColumns = [
   },
 ]
 
-class ModerationLog extends PureComponent {
+interface ExternalProps {}
 
-  constructor(props) {
-    super(props);
-  }
-
+class ModerationLog extends PureComponent<ExternalProps> {
   render() {
     return (
       <div className="moderation-log">

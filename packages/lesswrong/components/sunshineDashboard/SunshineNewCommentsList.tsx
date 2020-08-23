@@ -9,8 +9,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewCommentsList = ({ terms, classes }) => {
-  const { results, totalCount } = useMulti({
+const SunshineNewCommentsList = ({ terms, classes }: {
+  terms: any,
+  classes: ClassesType,
+}) => {
+  const { results, totalCount=0 } = useMulti({
     terms,
     collection: Comments,
     fragmentName: 'CommentsListWithPostMetadata',

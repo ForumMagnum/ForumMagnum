@@ -12,6 +12,7 @@ registerFragment(`
     groups
     services
     karma
+    IPs
   }
 `);
 

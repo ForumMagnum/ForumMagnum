@@ -13,7 +13,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SiteLogo = ({classes}) => {
+const SiteLogo = ({classes}: {
+  classes: ClassesType,
+}) => {
   if (!Utils.getLogoUrl()) return null
   return <img
     className={classes.root}

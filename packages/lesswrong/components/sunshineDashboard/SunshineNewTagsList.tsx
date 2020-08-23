@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
-  const { results, totalCount } = useMulti({
+  const { results, totalCount=0 } = useMulti({
     terms: {view:"unreviewedTags", limit: 30 },
     collection: Tags,
     fragmentName: "SunshineTagFragment",

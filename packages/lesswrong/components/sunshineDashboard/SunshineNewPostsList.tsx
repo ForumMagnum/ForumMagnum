@@ -11,8 +11,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewPostsList = ({ terms, classes }) => {
-  const { results, totalCount } = useMulti({
+const SunshineNewPostsList = ({ terms, classes }: {
+  terms: any,
+  classes: ClassesType,
+}) => {
+  const { results, totalCount=0 } = useMulti({
     terms,
     collection: Posts,
     fragmentName: 'SunshinePostsList',

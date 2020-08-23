@@ -17,24 +17,36 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const UserIPsDisplay = ({column, document}) => {
+const UserIPsDisplay = ({column, document}: {
+  column: any,
+  document: UsersAdmin,
+}) => {
   return <div>
     {document.IPs && document.IPs.map(ip => <div key={ip}>{ip}</div>)}
   </div>
 }
 
-const DateDisplay = ({column, document}) => {
+const DateDisplay = ({column, document}: {
+  column: any,
+  document: UsersAdmin,
+}) => {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
-const EventPropertiesDisplay = ({column, document}) => {
+const EventPropertiesDisplay = ({column, document}: {
+  column: any,
+  document: UsersAdmin,
+}) => {
   return <div>
     {document[column.name] && document[column.name].ip},
     {document[column.name] && document[column.name].type}
   </div>
 }
 
-const UserDisplay = ({column, document}) => {
+const UserDisplay = ({column, document}: {
+  column: any,
+  document: UsersAdmin,
+}) => {
   return <div>
     <Components.UsersName user={document['user'] || document} />
   </div>
