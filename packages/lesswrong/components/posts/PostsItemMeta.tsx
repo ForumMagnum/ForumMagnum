@@ -77,7 +77,7 @@ const PostsItemMeta = ({post, read, classes}: {
       </span>}
 
       <span className={classes.info}>
-        <AnalyticsContext pageSectionContext="tagRecentDiscussion">
+        <AnalyticsContext pageElementContext="tagsList">
           <FooterTagList post={post} hideScore hideAddTag hidePersonalOrFrontpage smallText/>
         </AnalyticsContext>
       </span>
