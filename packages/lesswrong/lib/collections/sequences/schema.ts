@@ -63,28 +63,6 @@ const schema: SchemaType<DbSequence> = {
     insertableBy: ['admins'],
   },
 
-  chaptersDummy: {
-    type: Array,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'chapters',
-      type: '[Chapter]',
-      resolver: (sequence: DbSequence, args: void, context: ResolverContext): Array<DbChapter> => {
-        const books = context.Chapters.find(
-          {sequenceId: sequence._id},
-        ).fetch();
-        return books;
-      }
-    }
-  },
-
-  'chaptersDummy.$': {
-    type: String,
-    foreignKey: "Chapters",
-    optional: true,
-  },
-
   //Cloudinary image id for the grid Image
   gridImageId: {
     type: String,
