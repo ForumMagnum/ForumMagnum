@@ -11,7 +11,7 @@ import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },
@@ -30,6 +30,9 @@ const styles = theme => ({
   noPosts: {
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
+  },
+  posts: {
+    boxShadow: theme.boxShadow
   },
   frontpageSubtitle: {
     marginBottom: 6
@@ -186,9 +189,11 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
               >
                 <ContentType type={name} label={label} />
               </div>
-              {posts.map((post, i) =>
-                <PostsItem2 key={post._id} post={post} index={i} dense />
-              )}
+              <div className={classes.posts}>
+                {posts.map((post, i) =>
+                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts.length -1}/>
+                )}
+              </div>
             </div>
           })}
 

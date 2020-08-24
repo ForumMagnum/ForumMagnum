@@ -1,17 +1,15 @@
-import React, { PureComponent } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import withUser from '../common/withUser';
-import Users from '../../lib/collections/users/collection';
+import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
-import { withContinueReading } from './withContinueReading';
+import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import Hidden from '@material-ui/core/Hidden';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   section: {
     marginTop: -12,
   },
@@ -64,40 +62,26 @@ const defaultFrontpageSettings = {
   curatedModifier: 50,
 }
 
+const RecommendationsAndCurated = ({
+  configName,
+  classes,
+}: {
+  configName: string,
+  classes: ClassesType,
+}) => {
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsState, setSettings] = useState<any>(null);
+  const currentUser = useCurrentUser();
+  const {continueReading} = useContinueReading();
 
-interface ExternalProps {
-  configName: string
-}
-interface RecommendationsAndCuratedProps extends ExternalProps, WithUserProps, WithStylesProps {
-  continueReading: any,
-}
-interface RecommendationsAndCuratedState {
-  showSettings: boolean,
-  settings: any,
-}
+  const toggleSettings = useCallback(() => {
+    setShowSettings(!showSettings);
+  }, [showSettings, setShowSettings]);
 
-class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedProps,RecommendationsAndCuratedState> {
-  state: RecommendationsAndCuratedState = {
-    showSettings: false,
-    settings: null,
-  }
+  const render = () => {
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
 
-  toggleSettings = () => {
-    this.setState(prevState => ({showSettings: !prevState.showSettings}))
-  }
-
-  changeSettings = (newSettings) => {
-    this.setState({
-      settings: newSettings
-    });
-  }
-
-  render() {
-    const { continueReading, classes, currentUser, configName } = this.props;
-    const { showSettings } = this.state
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
-
-    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+    const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
 
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
@@ -134,7 +118,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       </LWTooltip>}>
         {currentUser && 
           <LWTooltip title="Customize your recommendations">
-            <SettingsButton showIcon={false} onClick={this.toggleSettings} label="Customize"/>
+            <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
           </LWTooltip>
         }
       </SectionTitle>
@@ -143,7 +127,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <RecommendationsAlgorithmPicker
           configName={configName}
           settings={frontpageRecommendationSettings}
-          onChange={(newSettings) => this.changeSettings(newSettings)}
+          onChange={(newSettings) => setSettings(newSettings)}
         /> }
 
       {!currentUser && <div>
@@ -162,7 +146,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      <div className={currentUser ? classes.subsection : null}>
+      <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage &&
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
@@ -170,7 +154,12 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit: currentUser ? 3 : 2}} showLoadMore={false} hideLastUnread={true} />
+            <PostsList2 
+              terms={{view:"curated", limit: currentUser ? 3 : 2}} 
+              showLoadMore={false} 
+              hideLastUnread={true} 
+              boxShadow={false}
+            />
           </AnalyticsContext>
         </div>
       </div>
@@ -210,20 +199,14 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
       </AnalyticsContext> */}
+      {!currentUser?.hideTaggingProgressBar && <TagProgressBar/>}
     </SingleColumnSection>
   }
+  
+  return render();
 }
 
-const RecommendationsAndCuratedComponent = registerComponent<ExternalProps>("RecommendationsAndCurated", RecommendationsAndCurated, {
-  styles,
-  hocs: [
-    withUpdate({
-      collection: Users,
-      fragmentName: "UsersCurrent",
-    }),
-    withContinueReading, withUser,
-  ]
-});
+const RecommendationsAndCuratedComponent = registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
 
 declare global {
   interface ComponentTypes {

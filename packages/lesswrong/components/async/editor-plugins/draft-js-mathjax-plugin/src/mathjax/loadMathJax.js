@@ -5,6 +5,7 @@ import load from './load'
 const DEFAULT_SCRIPT = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 const DEFAULT_OPTIONS = {
+  loader: {load: ['[tex]/colorV2']},
   options: {
     renderActions: {
       addMenu: [],
@@ -16,7 +17,7 @@ const DEFAULT_OPTIONS = {
       color: [],
       colorV2: [ 'color' ]
     },
-    packages: { '[+]': [ 'noerrors' ] }
+    packages: { '[+]': [ 'noerrors', 'color' ] }
   },
   startup: {
     typeset: false,

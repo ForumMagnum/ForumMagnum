@@ -3,14 +3,13 @@ import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { defaultFilterSettings } from '../../filterSettings';
-import { forumTypeSetting } from "../../instanceSettings";
-import { hasEventsSetting } from '../../publicSettings';
+import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
 
-export const hashPetrovCode = (code) => {
+export const hashPetrovCode = (code: string): string => {
   // @ts-ignore
   const crypto = Npm.require('crypto');
   var hash = crypto.createHash('sha256');
@@ -173,7 +172,7 @@ const partiallyReadSequenceItem = new SimpleSchema({
 addFieldsDict(Users, {
   createdAt: {
     type: Date,
-    onInsert: (user, options) => {
+    onInsert: (user: DbUser, currentUser: DbUser) => {
       return user.createdAt || new Date();
     },
     canRead: ["guests"]
@@ -594,7 +593,7 @@ addFieldsDict(Users, {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user, args, context: ResolverContext) => {
+    resolver: async (user: DbUser, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = LWEvents.find(
         {userId: user._id, name: 'login'},
@@ -948,6 +947,18 @@ addFieldsDict(Users, {
     group: formGroups.default,
     hidden: true,
     label: "Hide the frontpage map"
+  },
+
+  hideTaggingProgressBar: {
+    type: Boolean, 
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true, 
+    hidden: false,
+    label: "Hide the tagging progress bar",
+    order: 45,
+    group: formGroups.default
   },
 
   needsReview: {
@@ -1332,7 +1343,8 @@ addFieldsDict(Users, {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: async (user, { limit }, context: ResolverContext) => {
+      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
+        const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts, context);
@@ -1389,12 +1401,12 @@ makeEditable({
 addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
-const createDisplayName = user => {
+const createDisplayName = (user: DbUser): string=> {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
   if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
-  return undefined;
+  return "[missing username]";
 }

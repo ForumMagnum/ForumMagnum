@@ -6,7 +6,7 @@ import { Comments } from '../../lib/collections/comments';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: theme.spacing.unit
   },
@@ -57,7 +57,7 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
             <SmallSideVote document={comment} collection={Comments}/>
           </span>
         </Link>
-        {!truncated && comment.deleted && <div><MetaInfo>`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]</MetaInfo></div>}
+        {!truncated && comment.deleted && <div><MetaInfo>{`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
         <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>

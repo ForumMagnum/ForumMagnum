@@ -15,6 +15,8 @@ registerFragment(`
     needsReview
     reviewedByUserId
     descriptionTruncationCount
+    wikiGrade
+    createdAt
   }
 `);
 
@@ -24,6 +26,7 @@ registerFragment(`
     description {
       html
       htmlHighlight
+      plaintextDescription
     }
   }
 `);
@@ -34,6 +37,7 @@ registerFragment(`
     description(version: $version) {
       html
       htmlHighlight
+      plaintextDescription
     }
   }
 `);

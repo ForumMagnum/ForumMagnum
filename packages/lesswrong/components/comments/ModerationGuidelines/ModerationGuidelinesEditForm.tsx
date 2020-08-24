@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     paddingBottom: "2px",
     fontSize: "16px",

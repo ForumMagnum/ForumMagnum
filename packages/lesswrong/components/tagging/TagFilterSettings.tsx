@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: "auto",
     ...theme.typography.commentStyle,
@@ -75,6 +75,11 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
 }) => {
   const { AddTagButton, FilterMode, Loading, LWTooltip } = Components
   const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
+  
+  const changeFilterSettings = (newSettings: FilterSettings): void => {
+    setFilterSettings(newSettings);
+    setAddedSuggestedTags(true);
+  }
 
   const { results: suggestedTags, loading: loadingSuggestedTags } = useMulti({
     terms: {
@@ -88,17 +93,15 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
 
   const { captureEvent } = useTracking()
 
+  let filterSettingsWithSuggestedTags: FilterSettings = filterSettings;
   if (suggestedTags && !addedSuggestedTags) {
-    const filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags);
-    setAddedSuggestedTags(true);
-    if (!_.isEqual(filterSettings, filterSettingsWithSuggestedTags))
-      setFilterSettings(filterSettingsWithSuggestedTags);
+    filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags);
   }
 
   return <span>
-    {loadingSuggestedTags && !filterSettings.tags.length && <Loading/>}
+    {loadingSuggestedTags && !filterSettingsWithSuggestedTags.tags.length && <Loading/>}
 
-    {filterSettings.tags.map(tagSettings =>
+    {filterSettingsWithSuggestedTags.tags.map(tagSettings =>
       <FilterMode
         label={tagSettings.tagName}
         key={tagSettings.tagId}
@@ -107,23 +110,23 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
           const changedTagId = tagSettings.tagId;
-          const replacedIndex = _.findIndex(filterSettings.tags, t=>t.tagId===changedTagId);
-          let newTagFilters = [...filterSettings.tags];
+          const replacedIndex = _.findIndex(filterSettingsWithSuggestedTags.tags, t=>t.tagId===changedTagId);
+          let newTagFilters = [...filterSettingsWithSuggestedTags.tags];
           newTagFilters[replacedIndex] = {
-            ...filterSettings.tags[replacedIndex],
+            ...filterSettingsWithSuggestedTags.tags[replacedIndex],
             filterMode: mode
           };
           captureEvent('tagFilterModified', {tagId: tagSettings.tagId, tagName: tagSettings.tagName, mode})
 
-          setFilterSettings({
-            personalBlog: filterSettings.personalBlog,
+          changeFilterSettings({
+            personalBlog: filterSettingsWithSuggestedTags.personalBlog,
             tags: newTagFilters,
           });
         }}
         onRemove={() => {
-          setFilterSettings({
-            personalBlog: filterSettings.personalBlog,
-            tags: _.filter(filterSettings.tags, t=>t.tagId !== tagSettings.tagId),
+          changeFilterSettings({
+            personalBlog: filterSettingsWithSuggestedTags.personalBlog,
+            tags: _.filter(filterSettingsWithSuggestedTags.tags, t=>t.tagId !== tagSettings.tagId),
           });
           captureEvent("tagRemovedFromFilters", {tagId: tagSettings.tagId, tagName: tagSettings.tagName});
         }}
@@ -133,23 +136,23 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     <FilterMode
       label={personalBlogpostName}
       description={personalBlogpostTooltip}
-      mode={filterSettings.personalBlog}
+      mode={filterSettingsWithSuggestedTags.personalBlog}
       canRemove={false}
       onChangeMode={(mode: FilterMode) => {
-        setFilterSettings({
+        changeFilterSettings({
           personalBlog: mode,
-          tags: filterSettings.tags,
+          tags: filterSettingsWithSuggestedTags.tags,
         });
       }}
     />
 
     {<LWTooltip title="Add Tag Filter">
         <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
-          if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
+          if (!_.some(filterSettingsWithSuggestedTags.tags, t=>t.tagId===tagId)) {
             const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
-            setFilterSettings({
-              personalBlog: filterSettings.personalBlog,
-              tags: [...filterSettings.tags, newFilter]
+            changeFilterSettings({
+              personalBlog: filterSettingsWithSuggestedTags.personalBlog,
+              tags: [...filterSettingsWithSuggestedTags.tags, newFilter]
             });
             captureEvent("tagAddedToFilters", {tagId, tagName})
           }

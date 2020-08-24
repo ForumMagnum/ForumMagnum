@@ -6,7 +6,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   commentsList: {
     marginLeft: -theme.spacing.unit*1.5,
     marginRight: -theme.spacing.unit*1.5,
@@ -141,7 +141,12 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   );
 }
 
-const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
+const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {
+  styles,
+  areEqual: {
+    terms: "deep",
+  }
+});
 
 declare global {
   interface ComponentTypes {

@@ -5,7 +5,7 @@ import Users from '../../lib/collections/users/collection';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: "1em 0",
   },

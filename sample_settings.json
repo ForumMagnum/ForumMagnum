@@ -5,7 +5,7 @@
     "tagline": "A community blog devoted to refining the art of rationality",
     "logoUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_png/LessWrong_Logo_skglnw.svg",
     "siteNameWithArticle": "LessWrong",
-    "mailUrl": "smtp://username%40yourdomain.mailgun.org:yourpassword123@smtp.mailgun.org:587/",
+    "siteUrl": "http://localhost:3000",
     "aboutPostId": "dummyId",
     "faviconUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
     "forumSettings": {

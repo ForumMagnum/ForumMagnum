@@ -10,6 +10,7 @@ Tags.addDefaultView(terms => {
     },
   };
 });
+ensureIndex(Tags, {deleted:1, adminOnly:1});
 
 Tags.addView('allTagsAlphabetical', terms => {
   return {
@@ -17,13 +18,17 @@ Tags.addView('allTagsAlphabetical', terms => {
     options: {sort: {name: 1}}
   }
 });
+ensureIndex(Tags, {deleted:1, adminOnly:1, name: 1});
 
 Tags.addView('allTagsHierarchical', terms => {
+  const selector = parseInt(terms?.wikiGrade) ? {wikiGrade: parseInt(terms?.wikiGrade)} : {}
   return {
-    selector: {},
+    selector,
     options: {sort: {defaultOrder: -1, postCount: -1, name: 1}}
   }
 });
+
+ensureIndex(Tags, {deleted:1, adminOnly:1, wikiGrade: 1, defaultOrder: 1, postCount: 1, name: 1});
 
 Tags.addView('tagBySlug', terms => {
   return {
@@ -33,6 +38,7 @@ Tags.addView('tagBySlug', terms => {
     },
   };
 });
+ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
 
 Tags.addView('coreTags', terms => {
   return {
@@ -47,7 +53,19 @@ Tags.addView('coreTags', terms => {
     },
   }
 });
+ensureIndex(Tags, {deleted: 1, core:1, name: 1});
 
+
+Tags.addView('newTags', terms => {
+  return {
+    options: {
+      sort: {
+        createdAt: -1
+      }
+    }
+  }
+})
+ensureIndex(Tags, {deleted: 1, createdAt: 1});
 
 Tags.addView('unreviewedTags', terms => {
   return {
@@ -61,6 +79,7 @@ Tags.addView('unreviewedTags', terms => {
     },
   }
 });
+ensureIndex(Tags, {deleted: 1, needsReview: 1, createdAt: 1});
 
 Tags.addView('suggestedFilterTags', terms => {
   return {
@@ -76,7 +95,4 @@ Tags.addView('suggestedFilterTags', terms => {
   }
 });
 
-ensureIndex(Tags, {slug:1, deleted:1});
-ensureIndex(Tags, {oldSlugs:1, deleted:1});
-ensureIndex(Tags, {core:1, deleted:1});
-ensureIndex(Tags, {suggestedAsFilter:1, deleted:1});
+ensureIndex(Tags, {deleted: 1, adminOnly: 1, suggestedAsFilter: 1, defaultOrder: 1, name: 1});

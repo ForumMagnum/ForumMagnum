@@ -71,7 +71,7 @@ export const formGroups = {
 };
 
 
-const userHasModerationGuidelines = (currentUser) => {
+const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
@@ -162,7 +162,7 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
 
@@ -179,7 +179,7 @@ addFieldsDict(Posts, {
   isRead: resolverOnlyField({
     type: Boolean,
     viewableBy: ['guests'],
-    resolver: async (post, args, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;
       
@@ -206,6 +206,7 @@ addFieldsDict(Posts, {
   // if it never has been promoted to curated)
   curatedDate: {
     type: Date,
+    control: 'datetime',
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['sunshineRegiment', 'admins'],
@@ -216,6 +217,7 @@ addFieldsDict(Posts, {
   // never has been marked as meta)
   metaDate: {
     type: Date,
+    control: 'datetime',
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['sunshineRegiment', 'admins'],
@@ -234,7 +236,7 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: async (post, args, context: ResolverContext) => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string|null> => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
@@ -264,6 +266,7 @@ addFieldsDict(Posts, {
   // false if it never has been promoted to frontpage)
   frontpageDate: {
     type: Date,
+    control: 'datetime',
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
@@ -352,7 +355,7 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post, args, context: ResolverContext) => {
+      resolver: (post: DbPost, args: void, context: ResolverContext): DbCollection|null => {
         if (!post.canonicalCollectionSlug) return null;
         return context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
@@ -413,7 +416,8 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
+      const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
         const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
@@ -445,7 +449,8 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
+      const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
         const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
@@ -479,7 +484,8 @@ addFieldsDict(Posts, {
     graphQLtype: "Sequence",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post, { sequenceId }, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
+      const { sequenceId } = args;
       const { currentUser, Sequences: SequencesContext } = context;
       let sequence = null;
       if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
@@ -918,7 +924,7 @@ addFieldsDict(Posts, {
     type: Object,
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
-    resolver: async (document, args, context: ResolverContext) => {
+    resolver: async (document: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
       try {
         return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
@@ -934,7 +940,8 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
     graphqlArguments: 'version: String',
-    resolver: async (document, { version=null }, context: ResolverContext) => {
+    resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
+      const { version=null } = args;
       const { currentUser } = context;
       try {
         return await Utils.getTableOfContentsData({document, version, currentUser, context});
@@ -953,7 +960,7 @@ addFieldsDict(Posts, {
     canRead: ['guests'],
     resolveAs: {
       type: 'Boolean',
-      resolver: async (post, args, context: ResolverContext) => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
         const { LWEvents, currentUser } = context;
         if(currentUser){
           const query = {
@@ -1034,9 +1041,10 @@ addFieldsDict(Posts, {
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: {commentsLimit?: number, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
+      const { commentsLimit=5, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
-      const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
+      const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const comments = await Comments.find({
         ...Comments.defaultView({}).selector,
         postId: post._id,

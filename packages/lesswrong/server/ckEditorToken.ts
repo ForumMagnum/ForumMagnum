@@ -40,10 +40,10 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   
   const payload = {
     iss: environmentId,
-    user: {
+    user: user ? {
       id: user._id,
       name: Users.getDisplayName(user)
-    },
+    } : null,
     services: {
       'ckeditor-collaboration': {
         permissions

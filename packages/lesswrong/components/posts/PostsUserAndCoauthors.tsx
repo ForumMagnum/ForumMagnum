@@ -4,7 +4,7 @@ import ModeCommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",
@@ -17,11 +17,11 @@ const styles = theme => ({
   lengthUnlimited: {
     display: "inline",
   },
-  bestAnswerAuthor: {
+  topCommentAuthor: {
     color: theme.palette.grey[500],
     fontSize: ".95rem"
   },
-  bestAuthorIcon: {
+  topAuthorIcon: {
     width: 12,
     height: 12,
     color: "#d0d0d0",
@@ -46,16 +46,16 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   if (!post.user || post.hideAuthor)
     return <UserNameDeleted/>;
   
-  const bestAnswerAuthor = post.bestAnswer?.user
-  const renderBestAnswerAuthor = (forumTypeSetting.get() && bestAnswerAuthor && bestAnswerAuthor._id != post.user._id)
+  const topCommentAuthor = post.question ? post.bestAnswer?.user : post.lastPromotedComment?.user
+  const renderTopCommentAuthor = (forumTypeSetting.get() && topCommentAuthor && topCommentAuthor._id != post.user._id)
   
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
     {<UsersName user={post.user} simple={simple} />}
     {post.coauthors.map(coauthor =>
       <span key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></span>)}
-    {renderBestAnswerAuthor && <span className={classNames(classes.bestAnswerAuthor, {[classes.new]: newPromotedComments})}>
-      , <ModeCommentIcon className={classNames(classes.bestAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UsersName user={post.bestAnswer.user} simple={simple} />
+    {renderTopCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
+      , <ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
+      <UsersName user={topCommentAuthor} simple={simple} />
     </span>}
   </div>;
 };

@@ -1,6 +1,7 @@
 
 interface CollectionBase<T extends DbObject> {
-  collectionName: string
+  collectionName: CollectionNameString
+  typeName: string,
   options: any
   
   addDefaultView: any
@@ -27,6 +28,7 @@ interface CollectionBase<T extends DbObject> {
   remove: any
   insert: any
   aggregate: any
+  _ensureIndex: any
 }
 
 interface FindResult<T> {

@@ -75,7 +75,7 @@ const FILTERS_ALL = {
 }
 const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "flex-start",

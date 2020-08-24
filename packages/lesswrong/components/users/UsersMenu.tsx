@@ -24,7 +24,7 @@ import withHover from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',

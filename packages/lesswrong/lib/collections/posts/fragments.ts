@@ -52,7 +52,6 @@ registerFragment(`
     hiddenRelatedQuestion
     originalPostRelationSourceId
 
-    # vulcan:users
     userId
     
     # Local Event data
@@ -104,9 +103,12 @@ registerFragment(`
       _id
       name
     }
-    bestAnswer {
-      ...CommentsList
-    }
+  }
+`);
+
+registerFragment(`
+  fragment PostTagRelevance on Post {
+    tagRelevance
   }
 `);
 
@@ -137,27 +139,39 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostsList on Post {
+  fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
-    contents {
-      htmlHighlight
-      wordCount
-      version
-    }
     moderationGuidelines {
-      ...RevisionDisplay
-    }
-    customHighlight {
-      version
       html
     }
-
+    customHighlight {
+      html
+    }
+    lastPromotedComment {
+      ...CommentsList
+    }
+    bestAnswer {
+      ...CommentsList
+    }
     tags {
       ...TagPreviewFragment
     }
   }
 `);
+
+registerFragment(`
+  fragment PostsList on Post {
+    ...PostsListBase
+    contents {
+      htmlHighlight
+      wordCount
+      version
+    }
+  }
+`);
+
+
 
 registerFragment(`
   fragment PostsListTag on Post {
@@ -170,8 +184,7 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsDetails on Post {
-    ...PostsBase
-    ...PostsAuthors
+    ...PostsListBase
 
     # Sort settings
     commentSortOrder
@@ -271,9 +284,6 @@ registerFragment(`
     ...PostsRevision
     ...PostSequenceNavigation
     
-    tags {
-      ...TagPreviewFragment
-    }
     tableOfContentsRevision(version: $version)
   }
 `)
@@ -324,9 +334,6 @@ registerFragment(`
     version
     contents {
       ...RevisionDisplay
-    }
-    tags {
-      ...TagPreviewFragment
     }
   }
 `)

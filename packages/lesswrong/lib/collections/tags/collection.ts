@@ -8,7 +8,7 @@ import { schema } from './schema';
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Promise<Array<Record<string,any>>|null>
-  getUrl: (tag: DbTag | TagPreviewFragment) => string
+  getUrl: (tag: DbTag | TagBasicInfo) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -32,7 +32,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser))
     return true;
-  else if (tag.deleted || tag.adminOnly)
+  else if (tag.deleted)
     return false;
   else
     return true;

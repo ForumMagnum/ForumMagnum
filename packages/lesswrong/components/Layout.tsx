@@ -53,13 +53,13 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   main: {
     paddingTop: 50,
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "#f4f4f4",
+    background: theme.palette.background.default,
     minHeight: "100vh",
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
@@ -95,9 +95,6 @@ const styles = theme => ({
   whiteBackground: {
     background: "white",
   },
-  lightGreyBackground: {
-    background: "#f9f9f9",
-  },
   '@global': {
     p: pBodyStyle,
     '.mapboxgl-popup': {
@@ -130,7 +127,7 @@ interface ExternalProps {
 }
 interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateUserProps {
   cookies: any,
-  theme: any,
+  theme: ThemeType,
 }
 interface LayoutState {
   timezone: string,
@@ -325,8 +322,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white",
-                  [classes.lightGreyBackground]: currentRoute?.background === "lightGrey"
+                  [classes.whiteBackground]: currentRoute?.background === "white"
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

@@ -27,11 +27,6 @@ mdi.use(markdownItSub)
 
 import { mjpage }  from 'mathjax-node-page'
 
-const mjPageSettings = {
-  fragment: true, 
-  displayErrors: true,
-}
-
 function mjPagePromise(html, beforeSerializationCallback) {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
@@ -42,7 +37,7 @@ function mjPagePromise(html, beforeSerializationCallback) {
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
-    mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
+    mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
 }
@@ -160,7 +155,7 @@ export function markdownToHtmlNoLaTeX(markdown) {
 
 export async function markdownToHtml(markdown) {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(html, Utils.trimLatexAndAddCSS)
 }
 
 export function removeCKEditorSuggestions(markup) {
@@ -184,7 +179,7 @@ export async function ckEditorMarkupToHtml(markup) {
   const html = sanitize(markupWithoutSuggestions)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(trimmedHtml, Utils.trimLatexAndAddCSS)
 }
 
 async function dataToHTML(data, type, sanitizeData = false) {

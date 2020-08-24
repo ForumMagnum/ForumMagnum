@@ -1,6 +1,6 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting } from './instanceSettings';
-import { hasEventsSetting, legacyRouteAcronymSetting } from './publicSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
+import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
@@ -11,12 +11,12 @@ const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
-const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional") 
+const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
 function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): PingbackDocument|null {
   if (!postId)
     return null;
-  
+
   if (parsedUrl.hash) {
     // If the URL contains a hash, it leads to either a comment or a landmark
     // within the post.
@@ -149,7 +149,6 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
-    background: "lightGrey"
   },
   {
     name: 'sequences.single',
@@ -157,7 +156,6 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
-    background: "lightGrey"
   },
   {
     name: 'sequencesEdit',
@@ -235,8 +233,18 @@ addRoute(
     title: "All Tags",
   },
   {
+    name: "Concepts",
+    path:'/concepts',
+    redirect: () => `/tags/all`,
+  },
+  {
     name: 'tagVoting',
     path: '/tagVoting',
+    redirect: () => `/tagActivity`,
+  },
+  {
+    name: 'tagActivity',
+    path: '/tagActivity',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
   },
@@ -305,11 +313,9 @@ if (forumTypeSetting.get() !== 'EAForum') {
     },
     {
       name: 'tagIndex',
-      path: '/tags',
-      componentName: 'PostsSingleRoute',
-      _id:"DHJBEsi4XJDw2fRFq",
-      background: postBackground
-    },
+      path:'/tags',
+      redirect: () => `/tags/all`,
+    }
   )
 }
 
@@ -386,8 +392,7 @@ if (hasEventsSetting.get()) {
       path: '/community',
       componentName: 'CommunityHome',
       title: "Community",
-      ...communitySubtitle,
-      background: "white"
+      ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
@@ -554,7 +559,8 @@ switch (forumTypeSetting.get()) {
       {
         name: 'home',
         path: '/',
-        componentName: 'EAHome'
+        componentName: 'EAHome',
+        sunshineSidebar: true
       },
       {
         name:'about',
@@ -562,6 +568,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'intro',
@@ -569,6 +576,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: introPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, introPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'contact',
@@ -576,6 +584,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: contactPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'Community',
@@ -592,12 +601,7 @@ switch (forumTypeSetting.get()) {
         name: "TagsAll",
         path:'/tags',
         redirect: () => `/tags/all`,
-      }
-      // {
-      //   name: 'eaHandbookHome',
-      //   path: '/handbook',
-      //   componentName: 'EASequencesHome'
-      // }
+      },
     );
     break
   default:

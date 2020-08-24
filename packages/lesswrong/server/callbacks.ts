@@ -257,16 +257,18 @@ function fixUsernameOnGithubLogin(user) {
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
 
 function updateReadStatus(event) {
-  ReadStatuses.update({
-    postId: event.documentId,
-    userId: event.userId,
-  }, {
-    $set: {
-      isRead: true,
-      lastUpdated: event.createdAt
-    }
-  }, {
-    upsert: true
-  });
+  if (event.userId && event.documentId) {
+    ReadStatuses.update({
+      postId: event.documentId,
+      userId: event.userId,
+    }, {
+      $set: {
+        isRead: true,
+        lastUpdated: event.createdAt
+      }
+    }, {
+      upsert: true
+    });
+  }
 }
 addCallback('lwevents.new.sync', updateReadStatus);

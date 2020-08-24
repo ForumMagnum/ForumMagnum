@@ -86,6 +86,7 @@ interface DbUser extends DbObject {
   nearbyEventsNotificationsRadius: number
   nearbyPeopleNotificationThreshold: number
   hideFrontpageMap: boolean
+  hideTaggingProgressBar: boolean
   needsReview: boolean
   sunshineSnoozed: boolean
   reviewedByUserId: string
@@ -411,6 +412,7 @@ interface DbTag extends DbObject {
   deleted: boolean
   needsReview: boolean
   reviewedByUserId: string
+  wikiGrade: number
   description: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
 }
 
@@ -671,5 +673,36 @@ interface CollectionsByName {
   Revisions: RevisionsCollection
   LegacyData: LegacyDataCollection
   EmailTokens: EmailTokensCollection
+}
+
+interface ObjectsByCollectionName {
+  Users: DbUser
+  DatabaseMetadata: DbDatabaseMetadata
+  Votes: DbVote
+  Notifications: DbNotification
+  Conversations: DbConversation
+  Messages: DbMessage
+  RSSFeeds: DbRSSFeed
+  Reports: DbReport
+  LWEvents: DbLWEvent
+  Migrations: DbMigration
+  DebouncerEvents: DbDebouncerEvents
+  ReadStatuses: DbReadStatus
+  Bans: DbBan
+  Sequences: DbSequence
+  PostRelations: DbPostRelation
+  TagRels: DbTagRel
+  Comments: DbComment
+  Tags: DbTag
+  Posts: DbPost
+  Chapters: DbChapter
+  Books: DbBook
+  Collections: DbCollection
+  ReviewVotes: DbReviewVote
+  Localgroups: DbLocalgroup
+  Subscriptions: DbSubscription
+  Revisions: DbRevision
+  LegacyData: DbLegacyData
+  EmailTokens: DbEmailTokens
 }
 

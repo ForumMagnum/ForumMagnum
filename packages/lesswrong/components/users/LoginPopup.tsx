@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
     zIndex: theme.zIndexes.loginDialog
   },

@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   paperWithoutToC: {
     width: 280,
     overflowY: "scroll"

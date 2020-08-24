@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from '../../vulcan-lib';
 import Users from "./collection";
+import { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -19,7 +20,7 @@ import * as _ from 'underscore';
 // Anything else..
 ///////////////////////////////////////
 
-const createDisplayName = user => {
+const createDisplayName = (user: DbUser): string => {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
   const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
@@ -29,7 +30,7 @@ const createDisplayName = user => {
     return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
-  return undefined;
+  return "[missing username]";
 };
 
 const adminGroup = {
@@ -37,7 +38,7 @@ const adminGroup = {
   order: 100,
 };
 
-const ownsOrIsAdmin = (user, document) => {
+const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
   return getCollection('Users').owns(user, document) || getCollection('Users').isAdmin(user);
 };
 
@@ -45,7 +46,7 @@ const ownsOrIsAdmin = (user, document) => {
  * @summary Users schema
  * @type {Object}
  */
-const schema = {
+const schema: SchemaType<DbUser> = {
   _id: {
     type: String,
     optional: true,
@@ -217,7 +218,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, context: ResolverContext) => {
+      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return Users.getProfileUrl(user, true);
       },
     },
@@ -229,7 +230,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, context: ResolverContext) => {
+      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return Users.getProfileUrl(user, false);
       },
     },
@@ -241,7 +242,7 @@ const schema = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
-      resolver: (user, args, context: ResolverContext) => {
+      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return Users.getEditUrl(user, true);
       },
     },

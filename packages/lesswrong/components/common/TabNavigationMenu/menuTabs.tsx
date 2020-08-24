@@ -3,14 +3,14 @@ import { Components } from '../../../lib/vulcan-lib';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
+import { conceptsIcon } from '../../icons/conceptsIcon';
 import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
 import Home from '@material-ui/icons/Home'
-import Search from '@material-ui/icons/Search'
-// import ImportContacts from '@material-ui/icons/ImportContacts'
 import Group from '@material-ui/icons/Group'
+import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info'
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -78,15 +78,13 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'questions',
-      title: 'Open Questions',
-      mobileTitle: 'Questions',
-      link: '/questions',
-      icon: questionsGlobeIcon,
+      id: 'concepts',
+      title: 'Concepts',
+      mobileTitle: 'Concepts',
+      link: '/tags/all',
+      icon: conceptsIcon,
       tooltip: <div>
-        <div>• Ask simple newbie questions.</div>
-        <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
+        Get an overview over all the concepts used on LessWrong
       </div>,
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -152,6 +150,17 @@ export default {
       id: 'subscribeWidget',
       customComponent: Components.SubscribeWidget,
     }, {
+      id: 'questions',
+      title: 'Open Questions',
+      mobileTitle: 'Questions',
+      link: '/questions',
+      tooltip: <div>
+        <div>• Ask simple newbie questions.</div>
+        <div>• Collaborate on open research questions.</div>
+        <div>• Pose and resolve confusions.</div>
+      </div>,
+      subItem: true
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -168,11 +177,6 @@ export default {
       title: "Donate",
       link: '/donate',
       subItem: true
-    }, {
-      id: 'tags',
-      title: 'Tags',
-      link: '/tags/all',
-      subItem: true,
     }
   ],
   AlignmentForum: [
@@ -242,29 +246,6 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      // // Enable this and remove questions when we're ready to go
-      // id: 'handbook',
-      // title: 'EA Handbook',
-      // mobileTitle: 'Handbook',
-      // link: '/handbook',
-      // iconComponent: ImportContacts,
-      // tooltip: 'Learn about the principles of effective altruism.',
-      // showOnMobileStandalone: true,
-      // showOnCompressed: true,
-    // }, {
-      id: 'questions',
-      title: 'Questions',
-      link: '/questions',
-      iconComponent: Search,
-      tooltip: <div>
-        <div>• New to EA? Ask simple questions here!</div>
-        <div>• Collaborate on open research questions.</div>
-        <div>• Gather opinions from the community.</div>
-        <div>• Get personal advice to boost your impact.</div>
-      </div>,
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
       id: 'allPosts',
       title: 'All Posts',
       link: '/allPosts',
@@ -273,14 +254,26 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'tags',
+      title: 'Tags',
+      mobileTitle: 'Tags',
+      link: '/tags/all',
+      iconComponent: LocalOffer,
+      tooltip: 'See posts tagged by their subject matter',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
     }, {
       id: 'shortform',
-      title: 'Shortform [Beta]',
+      title: 'Shortform',
       link: '/shortform',
       subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponent: Components.SubscribeWidget,
     }, {
       id: 'intro',
       title: 'About EA',
