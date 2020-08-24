@@ -197,7 +197,7 @@ Utils.getBasePath = (path: string) => {
 /////////////////////////////
 
 // http://stackoverflow.com/questions/2631001/javascript-test-for-existence-of-nested-object-key
-Utils.checkNested = function(obj /*, level1, level2, ... levelN*/) {
+Utils.checkNested = function(obj: any /*, level1, level2, ... levelN*/) {
   var args = Array.prototype.slice.call(arguments);
   obj = args.shift();
 
@@ -211,9 +211,9 @@ Utils.checkNested = function(obj /*, level1, level2, ... levelN*/) {
 };
 
 // see http://stackoverflow.com/questions/8051975/access-object-child-properties-using-a-dot-notation-string
-Utils.getNestedProperty = function (obj, desc) {
-  var arr = desc.split('.');
-  while(arr.length && (obj = obj[arr.shift()]));
+Utils.getNestedProperty = function (obj: any, desc: string) {
+  var arr: Array<string> = desc.split('.');
+  while(arr.length && (obj = obj[arr.shift()!]));
   return obj;
 };
 
@@ -226,9 +226,9 @@ Utils.getLogoUrl = (): string|undefined => {
   }
 };
 
-Utils.encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);
+Utils.encodeIntlError = (error: any) => typeof error !== 'object' ? error : JSON.stringify(error);
 
-Utils.decodeIntlError = (error, options = {stripped: false}) => {
+Utils.decodeIntlError = (error: any, options = {stripped: false}) => {
   try {
     // do we get the error as a string or as an error object?
     let strippedError = typeof error === 'string' ? error : error.message;
@@ -265,7 +265,7 @@ Utils.decodeIntlError = (error, options = {stripped: false}) => {
   }
 };
 
-Utils.findWhere = (array, criteria) => array.find(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
+Utils.findWhere = (array: any, criteria: any) => array.find(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
 
 Utils.isPromise = (value: any): boolean => isFunction(get(value, 'then'));
 

@@ -10,8 +10,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const AFSuggestPostsList = ({ terms, classes }: {
+const AFSuggestPostsList = ({ terms, currentUser, classes }: {
   terms: any,
+  currentUser: UsersCurrent, //must be logged in
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
@@ -28,7 +29,7 @@ const AFSuggestPostsList = ({ terms, classes }: {
         </Components.SunshineListTitle>
         {results.map(post =>
           <div key={post._id} >
-            <Components.AFSuggestPostsItem post={post}/>
+            <Components.AFSuggestPostsItem post={post} currentUser={currentUser}/>
           </div>
         )}
       </div>

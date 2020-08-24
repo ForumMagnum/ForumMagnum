@@ -4,7 +4,12 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 const specificResolvers = {
   Mutation: {
-    async moderateComment(root, { commentId, deleted, deletedPublic, deletedReason}, context: ResolverContext) {
+    async moderateComment(root: void, { commentId, deleted, deletedPublic, deletedReason}: {
+      commentId: string,
+      deleted: boolean,
+      deletedPublic: boolean,
+      deletedReason: string,
+    }, context: ResolverContext) {
       const {currentUser} = context;
       const comment = context.Comments.findOne(commentId)
       if (!comment) throw new Error("Invalid commentId");

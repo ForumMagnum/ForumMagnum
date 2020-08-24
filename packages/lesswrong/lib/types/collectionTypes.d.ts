@@ -38,7 +38,8 @@ interface FindResult<T> {
 
 type MongoSelector<T extends DbObject> = Record<string,any>; //TODO
 type MongoProjection<T extends DbObject> = Record<string,number>; //TODO
-type MongoModifier<T extends DbObject> = any; //TODO
+type MongoModifier<T extends DbObject> = any; //TODO: Mostly $set/$unset, but has a bunch of assorted other operations, should use a DefinitelyTyped definition
+type SimpleModifier<T extends {}> = {$set: Partial<Nullable<T>>, $unset?: Partial<Record<keyof T,any>>}
 
 type MongoFindOptions<T extends DbObject> = any; //TODO
 type MongoFindOneOptions<T extends DbObject> = any; //TODO
@@ -61,6 +62,8 @@ interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
   voteCount: number
+  af: boolean
+  afBaseScore: number
 }
 
 interface VoteableTypeClient extends VoteableType {

@@ -291,13 +291,13 @@ class PostActions extends Component<PostActionsProps,{}> {
           </span>
         }
         <SuggestAlignment post={post}/>
-        { Users.canMakeAlignmentPost(currentUser, post) &&
-          !post.af && <div onClick={this.handleMoveToAlignmentForum }>
+        { currentUser && Users.canMakeAlignmentPost(currentUser, post) && !post.af &&
+          <div onClick={this.handleMoveToAlignmentForum }>
             <MenuItem>
               Ω Move to Alignment
             </MenuItem>
           </div>}
-        { Users.canMakeAlignmentPost(currentUser, post) && post.af &&
+        { currentUser && Users.canMakeAlignmentPost(currentUser, post) && post.af &&
           <div onClick={this.handleRemoveFromAlignmentForum}>
             <MenuItem>
               Ω Remove Alignment

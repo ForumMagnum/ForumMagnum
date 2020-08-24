@@ -64,7 +64,7 @@ Posts.getStatusName = function (post: DbPost): string {
  * @summary Check if a post is approved
  * @param {Object} post
  */
-Posts.isApproved = function (post: DbPost): boolean {
+Posts.isApproved = function (post: Partial<DbPost>): boolean {
   return post.status === Posts.config.STATUS_APPROVED;
 };
 

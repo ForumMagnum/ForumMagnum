@@ -7,7 +7,7 @@ import Sequences from '../../lib/collections/sequences/collection';
 import { algoliaDocumentExport } from './utils';
 
 
-async function commentAlgoliaIndex(comment) {
+async function commentAlgoliaIndex(comment: DbComment) {
   await algoliaDocumentExport({
     documents: [comment],
     collection: Comments,
@@ -16,7 +16,7 @@ async function commentAlgoliaIndex(comment) {
 addCallback("comments.new.async", commentAlgoliaIndex)
 addCallback("comments.edit.async", commentAlgoliaIndex)
 
-async function postAlgoliaIndex(post) {
+async function postAlgoliaIndex(post: DbPost) {
   await algoliaDocumentExport({
     documents: [post],
     collection: Posts,
@@ -25,7 +25,7 @@ async function postAlgoliaIndex(post) {
 addCallback("posts.new.async", postAlgoliaIndex)
 addCallback("posts.edit.async", postAlgoliaIndex)
 
-async function userAlgoliaIndex(user) {
+async function userAlgoliaIndex(user: DbUser) {
   await algoliaDocumentExport({
     documents: [user],
     collection: Users,
@@ -34,7 +34,7 @@ async function userAlgoliaIndex(user) {
 addCallback("users.new.async", userAlgoliaIndex)
 addCallback("users.edit.async", userAlgoliaIndex)
 
-async function sequenceAlgoliaIndex(sequence) {
+async function sequenceAlgoliaIndex(sequence: DbSequence) {
   await algoliaDocumentExport({
     documents: [sequence],
     collection: Sequences,
@@ -43,7 +43,7 @@ async function sequenceAlgoliaIndex(sequence) {
 addCallback("sequences.new.async", sequenceAlgoliaIndex)
 addCallback("sequences.edit.async", sequenceAlgoliaIndex);
 
-async function tagAlgoliaIndex(tag) {
+async function tagAlgoliaIndex(tag: DbTag) {
   await algoliaDocumentExport({
     documents: [tag],
     collection: Tags,

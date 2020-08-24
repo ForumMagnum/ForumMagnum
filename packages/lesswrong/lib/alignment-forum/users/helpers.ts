@@ -1,10 +1,13 @@
 import Users from "../../collections/users/collection";
 
-Users.canSuggestPostForAlignment = ({currentUser, post}) => {
+Users.canSuggestPostForAlignment = ({currentUser, post}: {
+  currentUser: UsersCurrent,
+  post: PostsBase,
+}) => {
   return currentUser && post && !post.af && !post.reviewForAlignmentUserId && Users.canDo(currentUser, "posts.alignment.suggest")
 }
 
-Users.canMakeAlignmentPost = (user, post) => {
+Users.canMakeAlignmentPost = (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => {
   if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.move")) {
     return true
   }

@@ -15,7 +15,7 @@ const MIN_HEADINGS_FOR_TOC = 3;
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
 // worthy heading.
-const headingTags = {
+const headingTags: Partial<Record<string,number>> = {
   h1: 1,
   h2: 2,
   h3: 3,
@@ -25,7 +25,7 @@ const headingTags = {
   b: 7,
 }
 
-const headingIfWholeParagraph = {
+const headingIfWholeParagraph: Partial<Record<string,boolean>> = {
   strong: true,
   b: true,
 };
@@ -82,19 +82,19 @@ export function extractTableOfContents(postHTML: string)
   // will be levels 1, 2, and 3 (not 1, 3 and 7).
 
   // Get a list of heading levels used
-  let headingLevelsUsedDict = {};
+  let headingLevelsUsedDict: Partial<Record<number,boolean>> = {};
   for(let i=0; i<headings.length; i++)
     headingLevelsUsedDict[headings[i].level] = true;
 
   // Generate a mapping from raw heading levels to compressed heading levels
   let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
-  let headingLevelMap = {};
+  let headingLevelMap: Partial<Record<number,number>> = {};
   for(let i=0; i<headingLevelsUsed.length; i++)
     headingLevelMap[ headingLevelsUsed[i] ] = i;
 
   // Mark sections with compressed heading levels
   for(let i=0; i<headings.length; i++)
-    headings[i].level = headingLevelMap[headings[i].level]+1;
+    headings[i].level = headingLevelMap[headings[i].level]!+1;
 
   if (headings.length) {
     headings.push({divider:true, level: 0, anchor: "postHeadingsDivider"})
@@ -147,12 +147,12 @@ function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): stri
 // `<b>` and `<strong>` tags are headings iff they are the only thing in their
 // paragraph. Return whether the given tag name is a tag with that property
 // (ie, is `<strong>` or `<b>`).
-function tagIsHeadingIfWholeParagraph(tagName)
+function tagIsHeadingIfWholeParagraph(tagName: string): boolean
 {
   return tagName.toLowerCase() in headingIfWholeParagraph;
 }
 
-function tagIsWholeParagraph(tag) {
+function tagIsWholeParagraph(tag): boolean {
   if (!tag) return false;
   let parents = cheerio(tag).parent();
   if (!parents || !parents.length) return false;
@@ -164,13 +164,11 @@ function tagIsWholeParagraph(tag) {
   return true;
 }
 
-function tagToHeadingLevel(tagName)
+function tagToHeadingLevel(tagName: string): number
 {
   let lowerCaseTagName = tagName.toLowerCase();
   if (lowerCaseTagName in headingTags)
-    return headingTags[lowerCaseTagName];
-  else if (lowerCaseTagName in headingIfWholeParagraph)
-    return headingIfWholeParagraph[lowerCaseTagName];
+    return headingTags[lowerCaseTagName]!;
   else
     return 0;
 }

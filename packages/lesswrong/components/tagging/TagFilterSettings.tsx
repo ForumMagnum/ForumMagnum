@@ -29,7 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const lwafPersonalBlogpostInfo = {
+interface PostTypeNameAndTooltip {
+  name: string
+  tooltip: React.ReactNode
+}
+
+const lwafPersonalBlogpostInfo: PostTypeNameAndTooltip = {
   name: "Personal Blog",
   tooltip: <div>
     <p><b>Personal Blogposts</b> are posts that don't fit LessWrong's Frontpage Guidelines. They get less visibility by default. The frontpage guidelines are:</p>
@@ -41,7 +46,7 @@ const lwafPersonalBlogpostInfo = {
   </div>
 }
 
-const personalBlogpostInfo = {
+const personalBlogpostInfo: Partial<Record<string,PostTypeNameAndTooltip>> = {
   LessWrong: lwafPersonalBlogpostInfo,
   AlignmentForum: lwafPersonalBlogpostInfo,
   EAForum: {
@@ -57,8 +62,8 @@ const personalBlogpostInfo = {
   }
 }
 
-const personalBlogpostName = personalBlogpostInfo[forumTypeSetting.get()].name
-const personalBlogpostTooltip = personalBlogpostInfo[forumTypeSetting.get()].tooltip
+const personalBlogpostName = personalBlogpostInfo[forumTypeSetting.get()]!.name
+const personalBlogpostTooltip = personalBlogpostInfo[forumTypeSetting.get()]!.tooltip
 
 // Filter settings
 // Appears in the gear-menu by latest posts, and in other places.

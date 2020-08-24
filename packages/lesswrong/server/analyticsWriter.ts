@@ -12,11 +12,11 @@ const environmentDescriptionSetting = new PublicInstanceSetting<string>("analyti
 
 const serverId = Random.id();
 
-const isValidEventAge = (age) => age>=0 && age<=60*60*1000;
+const isValidEventAge = (age: number) => age>=0 && age<=60*60*1000;
 
 addGraphQLResolvers({
   Mutation: {
-    analyticsEvent(root, { events, now: clientTime }, context: ResolverContext) {
+    analyticsEvent(root: void, { events, now: clientTime }: {events: Array<any>, now: Date}, context: ResolverContext) {
       // Adjust timestamps to account for server-client clock skew
       // The mutation comes with a timestamp on each event from the client
       // clock, and a timestamp representing when events were flushed, also
@@ -70,7 +70,11 @@ const getAnalyticsConnection = (): Pool|null => {
 // use captureEvent.
 // Writes an event to the analytics database.
 // TODO: Defer/batch so that this doesn't affect SSR speed?
-function writeEventToAnalyticsDB({type, timestamp, props}) {
+function writeEventToAnalyticsDB({type, timestamp, props}: {
+  type: string,
+  timestamp: Date,
+  props: any,
+}) {
   const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
   const environmentDescription = Meteor.isDevelopment ? "development" : environmentDescriptionSetting.get()
   const queryValues = [environmentDescription, type, timestamp, props];
@@ -88,7 +92,11 @@ function writeEventToAnalyticsDB({type, timestamp, props}) {
   }
 }
 
-function serverWriteEvent({type, timestamp, props}) {
+function serverWriteEvent({type, timestamp, props}: {
+  type: string,
+  timestamp: Date,
+  props: any,
+}) {
   writeEventToAnalyticsDB({
     type, timestamp,
     props: {

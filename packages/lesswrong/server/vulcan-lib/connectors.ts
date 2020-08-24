@@ -51,7 +51,7 @@ export const Connectors = {
   
   update: async <T extends DbObject>(
     collection: CollectionBase<T>,
-    selector: MongoSelector<T>,
+    selector: MongoSelector<T>|string,
     modifier: MongoModifier<T>,
     options: MongoUpdateOptions<T> = {},
     skipConversion?: boolean

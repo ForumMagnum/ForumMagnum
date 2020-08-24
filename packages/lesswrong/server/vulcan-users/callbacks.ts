@@ -40,7 +40,7 @@ import { addCallback, Utils } from '../vulcan-lib';
   //}
   //addCallback('users.edit.sync', usersEditGenerateHtmlBio);
 
-  function usersEditCheckEmail (modifier, user: DbUser) {
+  function usersEditCheckEmail (modifier: SimpleModifier<DbUser>, user: DbUser) {
     // if email is being modified, update user.emails too
     if (modifier.$set && modifier.$set.email) {
 

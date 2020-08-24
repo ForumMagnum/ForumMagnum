@@ -1,13 +1,14 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 import * as _ from 'underscore';
+import Users from '../collections/users/collection';
 
-export const dataToModifier = data => ({ 
-  $set: pickBy(data, f => f !== null), 
-  $unset: mapValues(pickBy(data, f => f === null), () => true),
+export const dataToModifier = <T extends {}>(data: Partial<T>): SimpleModifier<T> => ({
+  $set: pickBy(data, f => f !== null) as Partial<T>,
+  $unset: mapValues(pickBy(data, (f) => f === null), () => true),
 });
 
-export const modifierToData = modifier => ({
+export const modifierToData = <T extends {}>(modifier: SimpleModifier<T>): Partial<T> => ({
   ...modifier.$set,
   ...mapValues(modifier.$unset, () => null),
 });
@@ -20,8 +21,8 @@ export const modifierToData = modifier => ({
   2. Run SimpleSchema validation step
 
 */
-export const validateDocument = (document, collection, context) => {
-  const { Users, currentUser } = context;
+export const validateDocument = <T extends DbObject>(document: Partial<T>, collection: CollectionBase<T>, context: ResolverContext) => {
+  const { currentUser } = context;
   const schema = collection.simpleSchema()._schema;
 
   let validationErrors: Array<any> = [];
@@ -78,7 +79,7 @@ export const validateDocument = (document, collection, context) => {
 */
 export const validateModifier = (modifier, document, collection, context) => {
   
-  const { Users, currentUser } = context;
+  const { currentUser } = context;
   const schema = collection.simpleSchema()._schema;
   const set = modifier.$set;
   const unset = modifier.$unset;

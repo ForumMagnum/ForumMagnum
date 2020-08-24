@@ -44,7 +44,7 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
   });
   const { OmegaIcon } = Components
 
-  if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
+  if (post.af && !comment.af && currentUser && Users.canDo(currentUser, 'comments.alignment.suggest')) {
 
     const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser!._id)
 

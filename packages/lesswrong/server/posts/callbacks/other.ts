@@ -17,7 +17,7 @@ import { addCallback, Connectors, runCallbacks, runCallbacksAsync } from '../../
 // posts.edit.sync                                  //
 //////////////////////////////////////////////////////
 
-function PostsEditRunPostApprovedSyncCallbacks(modifier, post) {
+function PostsEditRunPostApprovedSyncCallbacks(modifier: SimpleModifier<DbPost>, post: DbPost) {
   if (modifier.$set && Posts.isApproved(modifier.$set) && !Posts.isApproved(post)) {
     modifier = runCallbacks('posts.approve.sync', modifier, post);
   }
@@ -29,7 +29,7 @@ addCallback('posts.edit.sync', PostsEditRunPostApprovedSyncCallbacks);
 // posts.edit.async                                 //
 //////////////////////////////////////////////////////
 
-function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
+function PostsEditRunPostApprovedAsyncCallbacks(post: DbPost, oldPost: DbPost) {
   if (Posts.isApproved(post) && !Posts.isApproved(oldPost)) {
     runCallbacksAsync('posts.approve.async', post);
   }
@@ -40,7 +40,7 @@ addCallback('posts.edit.async', PostsEditRunPostApprovedAsyncCallbacks);
 // users.remove.async                               //
 //////////////////////////////////////////////////////
 
-function UsersRemoveDeletePosts(user, options) {
+function UsersRemoveDeletePosts(user: DbUser, options) {
   if (options.deletePosts) {
     Posts.remove({ userId: user._id });
   } else {
@@ -60,7 +60,7 @@ addCallback('users.remove.async', UsersRemoveDeletePosts);
 //  * @param {string} ip – the IP of the current user
 //  */
 
-async function PostsClickTracking(post, ip) {
+async function PostsClickTracking(post: DbPost, ip: any) {
   await Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
 }
 
@@ -74,7 +74,7 @@ addCallback('posts.click.async', PostsClickTracking);
 // posts.approve.sync                              //
 //////////////////////////////////////////////////////
 
-function PostsApprovedSetPostedAt(modifier, post) {
+function PostsApprovedSetPostedAt(modifier: SimpleModifier<DbPost>, post: DbPost) {
   modifier.$set.postedAt = new Date();
   return modifier;
 }

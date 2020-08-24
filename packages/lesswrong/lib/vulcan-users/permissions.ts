@@ -17,12 +17,12 @@ class Group {
     this.actions = [];
   }
 
-  can(actions) {
+  can(actions: string|Array<string>) {
     actions = Array.isArray(actions) ? actions : [actions];
     this.actions = this.actions.concat(actions);
   }
 
-  cannot(actions) {
+  cannot(actions: string|Array<string>) {
     actions = Array.isArray(actions) ? actions : [actions];
     this.actions = _.difference(this.actions, actions);
   }
@@ -191,7 +191,7 @@ const getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUse
 Users.restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>): any {
   if (!docOrDocs) return {};
 
-  const restrictDoc = document => {
+  const restrictDoc = (document: T) => {
     // get array of all keys viewable by user
     const viewableKeys: Set<string> = getViewableFields(user, collection, document);
     
@@ -213,7 +213,7 @@ Users.restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|
  * @param {Object} user - The user performing the action
  * @param {Object} field - The field being edited or inserted
  */
-Users.canCreateField = function (user, field) {
+Users.canCreateField = function (user: DbUser|UsersCurrent|null, field: any) {
   const canCreate = field.canCreate || field.insertableBy; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
@@ -236,7 +236,7 @@ Users.canCreateField = function (user, field) {
  * @param {Object} user - The user performing the action
  * @param {Object} field - The field being edited or inserted
  */
-Users.canUpdateField = function (user, field, document) {
+Users.canUpdateField = function (user: DbUser|UsersCurrent|null, field: any, document: any) {
   const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
 
   if (canUpdate) {

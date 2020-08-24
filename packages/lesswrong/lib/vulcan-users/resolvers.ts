@@ -4,7 +4,7 @@ import Users from '../collections/users/collection'
 
 const specificResolvers = {
   Query: {
-    async currentUser(root, args, context: ResolverContext) {
+    async currentUser(root: void, args: void, context: ResolverContext) {
       let user: any = null;
       const userId: string|null = (context as any)?.userId;
       if (userId) {
@@ -29,7 +29,7 @@ const defaultOptions = {
 
 const resolvers = {
   multi: {
-    async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
+    async resolver(root: void, { input = {} }: any, context: ResolverContext, { cacheControl }: any) {
       const { currentUser, Users: UsersContext } = context;
       const { terms = {}, enableCache = false, enableTotal = false } = input;
 
@@ -52,7 +52,7 @@ const resolvers = {
       const restrictedUsers = Users.restrictViewableFields(currentUser, Users, viewableUsers);
 
       // prime the cache
-      restrictedUsers.forEach(user => UsersContext.loader.prime(user._id, user));
+      restrictedUsers.forEach((user: DbUser) => UsersContext.loader.prime(user._id, user));
 
       const data: any = { results: restrictedUsers };
 
@@ -66,7 +66,7 @@ const resolvers = {
   },
 
   single: {
-    async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
+    async resolver(root: void, { input = {} }: any, context: ResolverContext, { cacheControl }: any) {
       const { currentUser, Users: UsersContext } = context;
       const { selector = {}, enableCache = false } = input;
       const { documentId, slug } = selector;

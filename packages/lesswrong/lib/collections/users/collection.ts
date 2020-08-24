@@ -3,7 +3,7 @@ import resolvers from '../../vulcan-users/resolvers';
 import { createCollection, addGraphQLQuery, Utils } from '../../vulcan-lib';
 import { Meteor } from 'meteor/meteor';
 
-const performCheck = (mutation, user: DbUser|null, document: DbUser) => {
+const performCheck = (mutation: any, user: DbUser|null, document: DbUser) => {
   if (!mutation.check(user, document))
     throw new Error(
       Utils.encodeIntlError({ id: 'app.mutation_not_allowed', value: `"${mutation.name}" on _id "${document._id}"` })
@@ -19,7 +19,7 @@ const createMutation = {
     return Users.canDo(user, ['user.create', 'users.new']);
   },
 
-  mutation(root: void, { data }, context: ResolverContext) {
+  mutation(root: void, { data }: any, context: ResolverContext) {
     const { Users, currentUser } = context;
     performCheck(this, currentUser, data);
 
@@ -47,7 +47,7 @@ const updateMutation = {
     return Users.owns(user, document) ? Users.canDo(user, ['user.update.own', 'users.edit.own']) : Users.canDo(user, ['user.update.all', 'users.edit.all']);
   },
 
-  async mutation(root: void, { selector, data }, context: ResolverContext) {
+  async mutation(root: void, { selector, data }: any, context: ResolverContext) {
     const { Users, currentUser } = context;
 
     const document = await Utils.Connectors.get(Users, selector);
@@ -78,7 +78,7 @@ const deleteMutation = {
     return Users.owns(user, document) ? Users.canDo(user, ['user.delete.own', 'users.remove.own']) : Users.canDo(user, ['user.delete.all', 'users.remove.all']);
   },
 
-  async mutation(root: void, { selector }, context: ResolverContext) {
+  async mutation(root: void, { selector }: any, context: ResolverContext) {
 
     const { Users, currentUser } = context;
 
@@ -143,8 +143,8 @@ interface ExtendedUsersCollection extends UsersCollection {
   getCommentCount: (user: UsersMinimumInfo|DbUser|null) => number
   
   // From lib/alignment-forum/users/helpers.ts
-  canSuggestPostForAlignment: any
-  canMakeAlignmentPost: any
+  canSuggestPostForAlignment: (args: {currentUser: UsersCurrent, post: PostsBase})=>void
+  canMakeAlignmentPost: (user: UsersCurrent|DbUser, post: PostsBase|DbPost)=>void
   
   // From lib/vulcan-users/permissions.ts
   groups: Record<string,any>
@@ -157,8 +157,8 @@ interface ExtendedUsersCollection extends UsersCollection {
   isAdmin: (user: UsersMinimumInfo|DbUser|null) => boolean
   canReadField: (user: UsersCurrent|DbUser|null, field: any, document: any) => boolean
   restrictViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>) => any
-  canCreateField: any
-  canUpdateField: any
+  canCreateField: (user: DbUser|UsersCurrent|null, field:any) => boolean
+  canUpdateField: (user: DbUser|UsersCurrent|null, field:any, document: any) => boolean
   
   // From lib/vulcan-users/helpers.ts
   getUser: (userOrUserId: DbUser|string|undefined) => DbUser|null

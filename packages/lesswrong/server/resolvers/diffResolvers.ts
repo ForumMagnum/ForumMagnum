@@ -8,7 +8,7 @@ import cheerio from 'cheerio';
 
 addGraphQLResolvers({
   Query: {
-    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
+    async RevisionsDiff(root: void, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
       // Validate collectionName, fieldName

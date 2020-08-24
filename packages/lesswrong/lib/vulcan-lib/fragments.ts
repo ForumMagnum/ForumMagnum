@@ -1,14 +1,23 @@
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
 
-const Fragments = {};
+interface ParsedFragment {
+  fragmentText: string
+  fragmentObject?: any
+  subFragments?: Array<string>
+}
+const Fragments: Partial<Record<string,ParsedFragment>> = {};
 
 // Get a fragment's name from its text
-export const extractFragmentName = fragmentText => fragmentText.match(/fragment (.*) on/)[1];
+export const extractFragmentName = (fragmentText: string): string => {
+  const match = fragmentText.match(/fragment (.*) on/);
+  if (!match) throw new Error("Invalid fragment specification");
+  return match[1];
+}
 
 
 // Register a fragment, including its text, the text of its subfragments, and the fragment object
-export const registerFragment = fragmentTextSource => {
+export const registerFragment = (fragmentTextSource: string) => {
   // remove comments
   const fragmentText = fragmentTextSource.replace(/#.*\n/g, '\n');
 
@@ -26,13 +35,13 @@ export const registerFragment = fragmentTextSource => {
 
   // also add subfragments if there are any
   if(subFragments && subFragments.length) {
-    Fragments[fragmentName].subFragments = subFragments;
+    Fragments[fragmentName]!.subFragments = subFragments;
   }
 
 };
 
 // Create gql fragment object from text and subfragments
-const getFragmentObject = (fragmentText, subFragments) => {
+const getFragmentObject = (fragmentText: string, subFragments: Array<string>|undefined) => {
   // pad the literals array with line returns for each subFragments
   const literals = subFragments ? [fragmentText, ...subFragments.map(x => '\n')] : [fragmentText];
 
@@ -79,36 +88,36 @@ export const getDefaultFragmentText = (collection, options = { onlyViewable: tru
   } else {
     return null;
   }
-
 };
 
 // Get fragment name from fragment object
 export const getFragmentName = fragment => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
 
 // Get actual gql fragment
-export const getFragment = fragmentName => {
+export const getFragment = (fragmentName: string) => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
-  if (!Fragments[fragmentName].fragmentObject) {
+  if (!Fragments[fragmentName]!.fragmentObject) {
     initializeFragment(fragmentName);
   }
   // return fragment object created by gql
-  return Fragments[fragmentName].fragmentObject;  
+  return Fragments[fragmentName]!.fragmentObject;
 };
 
 // Get gql fragment text
-export const getFragmentText = fragmentName => {
+export const getFragmentText = (fragmentName: string) => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
   // return fragment object created by gql
-  return Fragments[fragmentName].fragmentText;  
+  return Fragments[fragmentName]!.fragmentText;
 };
 
-export const initializeFragment = (fragmentName) => {
+export const initializeFragment = (fragmentName: string) => {
   const fragment = Fragments[fragmentName];
-  Fragments[fragmentName].fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
+  if (!fragment) throw new Error(`No such fragment: ${fragmentName}`);
+  fragment.fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
 };
 
 export const getAllFragmentNames = () => {

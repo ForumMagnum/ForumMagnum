@@ -40,7 +40,7 @@ interface ExtendedPostsCollection extends PostsCollection {
   getAuthorName: (post: DbPost) => string
   getDefaultStatus: (user: DbUser) => number
   getStatusName: (post: DbPost) => string
-  isApproved: (post: DbPost) => boolean
+  isApproved: (post: Partial<DbPost>) => boolean
   isPending: (post: DbPost) => boolean
   getTwitterShareUrl: (post: DbPost) => string
   getFacebookShareUrl: (post: DbPost) => string
@@ -56,8 +56,8 @@ interface ExtendedPostsCollection extends PostsCollection {
   canEditHideCommentKarma: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   
   // In lib/alignment-forum/posts/helpers.ts
-  suggestForAlignment: any
-  unSuggestForAlignment: any
+  suggestForAlignment: (args: { currentUser: UsersCurrent, post: PostsBase, updatePost: any }) => void
+  unSuggestForAlignment: (args: { currentUser: UsersCurrent, post: PostsBase, updatePost: any }) => void
   
   // In search/utils.ts
   toAlgolia: (post: DbPost) => Promise<Array<Record<string,any>>|null>

@@ -3,7 +3,7 @@ import { EmailTokens } from '../../lib/collections/emailTokens/collection';
 import { Random } from 'meteor/random';
 import Users from '../../lib/collections/users/collection';
 
-let emailTokenTypesByName = {};
+let emailTokenTypesByName: Record<string,EmailTokenType> = {};
 
 export class EmailTokenType
 {
@@ -12,7 +12,12 @@ export class EmailTokenType
   resultComponentName: string
   reusable: boolean
   
-  constructor({ name, onUseAction, resultComponentName, reusable=false }) {
+  constructor({ name, onUseAction, resultComponentName, reusable=false }: {
+    name: string,
+    onUseAction: any,
+    resultComponentName: keyof ComponentTypes,
+    reusable?: boolean,
+  }) {
     if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
     if (name in emailTokenTypesByName)
@@ -25,7 +30,7 @@ export class EmailTokenType
     emailTokenTypesByName[name] = this;
   }
   
-  generateToken = async (userId, params?: any) => {
+  generateToken = async (userId: string, params?: any) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = Random.secret();
@@ -39,7 +44,7 @@ export class EmailTokenType
     return token;
   }
   
-  generateLink = async (userId, params?: any) => {
+  generateLink = async (userId: string, params?: any) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = await this.generateToken(userId, params);
@@ -47,7 +52,7 @@ export class EmailTokenType
     return `${prefix}/emailToken/${token}`;
   }
   
-  handleToken = async (token) => {
+  handleToken = async (token: DbEmailTokens) => {
     const user = await Users.findOne({_id: token.userId});
     const actionResult = await this.onUseAction(user, token.params);
     return {
@@ -61,7 +66,7 @@ export class EmailTokenType
 addGraphQLMutation('useEmailToken(token: String): JSON');
 addGraphQLResolvers({
   Mutation: {
-    async useEmailToken(root, {token}, context: ResolverContext) {
+    async useEmailToken(root: void, {token}: {token: string}, context: ResolverContext) {
       try {
         const results = await EmailTokens.find({ token }).fetch();
         if (results.length != 1)
@@ -103,7 +108,7 @@ addGraphQLResolvers({
 
 export const UnsubscribeAllToken = new EmailTokenType({
   name: "unsubscribeAll",
-  onUseAction: async (user) => {
+  onUseAction: async (user: DbUser) => {
     await editMutation({ // FIXME: Doesn't actually do the thing
       collection: Users,
       documentId: user._id,

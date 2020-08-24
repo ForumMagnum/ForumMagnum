@@ -40,7 +40,7 @@ function updateModerateOwnPersonal({newDocument, vote}) {
 addCallback("votes.smallUpvote.async", updateModerateOwnPersonal);
 addCallback("votes.bigUpvote.async", updateModerateOwnPersonal);
 
-function maybeSendVerificationEmail (modifier, user: DbUser)
+function maybeSendVerificationEmail (modifier: SimpleModifier<DbUser>, user: DbUser)
 {
   if(modifier.$set.whenConfirmationEmailSent
       && (!user.whenConfirmationEmailSent
@@ -98,7 +98,7 @@ function makeFirstUserAdminAndApproved (user: DbUser) {
 }
 addCallback('users.new.sync', makeFirstUserAdminAndApproved);
 
-function clearKarmaChangeBatchOnSettingsChange (modifier, user: DbUser)
+function clearKarmaChangeBatchOnSettingsChange (modifier: SimpleModifier<DbUser>, user: DbUser)
 {
   if (modifier.$set && modifier.$set.karmaChangeNotifierSettings) {
     if (!user.karmaChangeNotifierSettings.updateFrequency
@@ -111,7 +111,7 @@ function clearKarmaChangeBatchOnSettingsChange (modifier, user: DbUser)
 addCallback("users.edit.sync", clearKarmaChangeBatchOnSettingsChange);
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
-const getCaptchaRating = async (token): Promise<string> => {
+const getCaptchaRating = async (token: string): Promise<string> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
     request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
@@ -167,7 +167,7 @@ addCallback('users.new.async', subscribeOnSignup);
 // When creating a new account, populate their A/B test group key from their
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
-async function setABTestKeyOnSignup (user) {
+async function setABTestKeyOnSignup (user: DbUser) {
   Users.update(user._id, {$set: {abTestKey: user.profile?.clientId}});
 }
 addCallback('users.new.async', setABTestKeyOnSignup);

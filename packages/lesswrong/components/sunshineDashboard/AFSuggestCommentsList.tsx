@@ -10,8 +10,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const AFSuggestCommentsList = ({ terms, classes }: {
+const AFSuggestCommentsList = ({ terms, currentUser, classes }: {
   terms: any,
+  currentUser: UsersCurrent, //must be logged in
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
@@ -29,7 +30,7 @@ const AFSuggestCommentsList = ({ terms, classes }: {
         </Components.SunshineListTitle>
         {results.map(comment =>
           <div key={comment._id} >
-            <Components.AFSuggestCommentsItem comment={comment}/>
+            <Components.AFSuggestCommentsItem comment={comment} currentUser={currentUser}/>
           </div>
         )}
       </div>

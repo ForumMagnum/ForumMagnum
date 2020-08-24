@@ -383,7 +383,7 @@ export const updateMutator = async <T extends DbObject>({
   data = modifierToData(
     await runCallbacks(
       `${collectionName.toLowerCase()}.edit.before`,
-      dataToModifier(data),
+      dataToModifier(data!),
       oldDocument,
       currentUser,
       document

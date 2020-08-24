@@ -59,7 +59,7 @@ export interface CollectionFieldSpecification<T extends DbObject> {
   //    
   onInsert?: (doc: T, currentUser: DbUser) => any,
   onCreate?: (args: {data: T, currentUser: DbUser, collection: CollectionBase<T>, context?: any, document: T, newDocument: T, schema: any, fieldName: string}) => any,
-  onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser, newDocument: T) => any,
+  onEdit?: (modifier: SimpleModifier<T>, oldDocument: T, currentUser: DbUser, newDocument: T) => any,
   onUpdate?: (args: {data: any, oldDocument: T, newDocument: T, document: T, currentUser: DbUser, collection: CollectionBase<T>, context: any, schema: any, fieldName: string}) => any,
   onRemove?: any,
   onDelete?: any,

@@ -58,7 +58,7 @@ function copy(f: any, t: any) {
 }
 
 function impl(seed: string): any {
-  var xg = new Alea(seed),
+  var xg = new (Alea as any)(seed),
       prng = xg.next;
   prng.int32 = function() { return (xg.next() * 0x100000000) | 0; }
   prng.double = function() {

@@ -255,7 +255,7 @@ export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null>
   );
 }
 
-async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
+async function getNextVersion(documentId: string, updateType='minor', fieldName: string, isDraft: boolean) {
   const lastRevision = await getLatestRev(documentId, fieldName);
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision?.version || "1.0.0")
   switch (updateType) {
@@ -274,7 +274,10 @@ async function getNextVersion(documentId, updateType = 'minor', fieldName, isDra
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-async function buildRevision({ originalContents, currentUser }) {
+async function buildRevision({ originalContents, currentUser }: {
+  originalContents: any,
+  currentUser: DbUser,
+}) {
   const { data, type } = originalContents;
   const html = await dataToHTML(data, type, !currentUser.isAdmin)
   const wordCount = await dataToWordCount(data, type)
@@ -288,7 +291,7 @@ async function buildRevision({ originalContents, currentUser }) {
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-const revisionIsChange = async (doc, fieldName): Promise<boolean> => {
+const revisionIsChange = async (doc: any, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
   
@@ -323,7 +326,7 @@ export function addEditableCallbacks({collection, options = {}}: {
   const collectionName = collection.collectionName;
   const { typeName } = collection.options
 
-  async function editorSerializationBeforeCreate (doc, { currentUser }) {
+  async function editorSerializationBeforeCreate (doc: any, {currentUser}: {currentUser: DbUser}) {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents

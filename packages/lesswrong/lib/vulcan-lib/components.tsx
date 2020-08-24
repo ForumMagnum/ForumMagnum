@@ -58,12 +58,12 @@ const componentsProxyHandler = {
 // using a proxy.
 export const Components: ComponentTypes = new Proxy({}, componentsProxyHandler);
 
-const PreparedComponents = {};
+const PreparedComponents: Partial<Record<keyof ComponentTypes,any>> = {};
 
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-const DeferredComponentsTable = {};
+const DeferredComponentsTable: Partial<Record<keyof ComponentTypes, ()=>void>> = {};
 
 type C<T=any> = React.ComponentType<T>
 type HoC<O,T> = (component: C<O>) => C<T>
@@ -122,7 +122,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName, importFn) {
+export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: ()=>void): void {
   if (Array.isArray(componentName)) {
     for (let name of componentName) {
       DeferredComponentsTable[name] = importFn;
@@ -273,7 +273,7 @@ export const populateComponentsApp = (): void => {
 //
 // @param {string|function} component  A component or registered component name
 // @param {Object} [props]  Optional properties to pass to the component
-export const instantiateComponent = (component, props) => {
+export const instantiateComponent = (component: any, props: any) => {
   if (!component) {
     return null;
   } else if (typeof component === 'string') {
@@ -296,11 +296,11 @@ export const instantiateComponent = (component, props) => {
 // Given an optional set of override-components, return a Components object
 // which wraps the main Components table, preserving Components'
 // proxy/deferred-execution tricks.
-export const mergeWithComponents = myComponents => {
+export const mergeWithComponents = (myComponents: any) => {
   if (!myComponents) return Components;
   
   const mergedComponentsProxyHandler = {
-    get: function(obj, prop) {
+    get: function(obj: any, prop: string) {
       if (prop in myComponents) {
         return myComponents[prop];
       } else if (prop in PreparedComponents) {

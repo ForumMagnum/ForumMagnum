@@ -310,7 +310,7 @@ addCallback("comments.new.async", NewCommentNeedsReview);
 
 addEditableCallbacks({collection: Comments, options: makeEditableOptions})
 
-async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
+async function validateDeleteOperations (modifier: SimpleModifier<DbComment>, comment: DbComment, currentUser: DbUser) {
   if (modifier.$set) {
     const { deleted, deletedPublic, deletedReason } = modifier.$set
     if (deleted || deletedPublic || deletedReason) {
@@ -350,7 +350,7 @@ async function validateDeleteOperations (modifier, comment: DbComment, currentUs
 }
 addCallback("comments.edit.sync", validateDeleteOperations)
 
-async function moveToAnswers (modifier, comment: DbComment) {
+async function moveToAnswers (modifier: SimpleModifier<DbComment>, comment: DbComment) {
   if (modifier.$set) {
     if (modifier.$set.answer === true) {
       await Comments.update({topLevelCommentId: comment._id}, {$set:{parentAnswerId:comment._id}}, { multi: true })

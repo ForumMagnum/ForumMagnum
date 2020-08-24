@@ -10,8 +10,14 @@ Vulcan.populateNotifications = async ({username,
   messageNotifications = 3,
   postNotifications = 3,
   commentNotifications = 3,
-  replyNotifications = 3 }) =>
-{
+  replyNotifications = 3
+}: {
+  username: string,
+  messageNotifications?: number,
+  postNotifications?: number,
+  commentNotifications?: number,
+  replyNotifications?: number,
+}) => {
   const user = Users.findOne({username});
   if (!user) throw Error(`Can't find user with username: ${username}`)
   const randomUser = Users.findOne({_id: {$ne: user._id}});
@@ -71,7 +77,7 @@ function getLoremIpsumToken() {
 }
 
 // Generate a given number of characters of lorem ipsum.
-function makeLoremIpsum(length) {
+function makeLoremIpsum(length: number): string {
   let result: Array<string> = [];
   let lengthSoFar = 0;
 
@@ -91,7 +97,7 @@ function makeLoremIpsum(length) {
 // of lorem ipsum, formatted like:
 //   <p>Lorem ipsum dolor sit ame</p>
 // This is strictly for making big/slow posts for test purposes.
-function makeLoremIpsumBody(numParagraphs, paragraphLength) {
+function makeLoremIpsumBody(numParagraphs: number, paragraphLength: number): string {
   let result: Array<string> = [];
 
   for(var ii=0; ii<numParagraphs; ii++) {
@@ -312,8 +318,18 @@ Vulcan.createBulkyTestPost = async ({
   commentParagraphLength = 800,
   numRootComments = 100,
   commentDepth = 1,
-  backDate = null}) =>
-{
+  backDate = null
+}: {
+  username?: string|null,
+  postTitle?: string,
+  postParagraphCount?: number,
+  postParagraphLength?: number,
+  commentParagraphCount?: number,
+  commentParagraphLength?: number,
+  numRootComments?: number,
+  commentDepth?: number,
+  backDate?: Date|null,
+}) => {
   var user;
   if(username)
     user = Users.findOne({username});

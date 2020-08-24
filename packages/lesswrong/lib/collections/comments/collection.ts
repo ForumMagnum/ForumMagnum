@@ -45,8 +45,8 @@ interface ExtendedCommentsCollection extends CommentsCollection {
   getKarma: (comment: CommentsList|DbComment) => number
   
   // Functions in lib/alignment-forum/comments/helpers.ts
-  suggestForAlignment: any
-  unSuggestForAlignment: any
+  suggestForAlignment: (args: {currentUser: UsersCurrent, comment: CommentsList, updateComment: any}) => Promise<void>
+  unSuggestForAlignment: (args: {currentUser: UsersCurrent, comment: CommentsList, updateComment: any}) => Promise<void>
   
   // Functions in server/search/utils.ts
   toAlgolia: (comment: DbComment) => Promise<Array<Record<string,any>>|null>

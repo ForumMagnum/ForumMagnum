@@ -5,7 +5,6 @@ import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
-import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
@@ -14,8 +13,9 @@ import withErrorBoundary from '../common/withErrorBoundary'
 
 interface ExternalProps {
   comment: SuggestAlignmentComment,
+  currentUser: UsersCurrent, //must be logged in
 }
-interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
+interface AFSuggestCommentsItemProps extends ExternalProps, WithHoverProps {
   updateComment: any,
 }
 
@@ -90,7 +90,6 @@ const AFSuggestCommentsItemComponent = registerComponent<ExternalProps>('AFSugge
       collection: Comments,
       fragmentName: 'SuggestAlignmentComment',
     }),
-    withUser,
     withHover(),
     withErrorBoundary
   ]
