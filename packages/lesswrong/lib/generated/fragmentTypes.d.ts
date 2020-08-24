@@ -1452,6 +1452,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly reviewedByUserId: string,
   readonly descriptionTruncationCount: number,
   readonly wikiGrade: number,
+  readonly createdAt: Date,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
