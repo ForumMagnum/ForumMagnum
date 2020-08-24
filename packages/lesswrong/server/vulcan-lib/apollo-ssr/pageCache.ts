@@ -73,6 +73,8 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
     for (let inProgressRender of inProgressRenders[cacheKey]) {
       if (objIsSubset(abTestGroups, inProgressRender.abTestGroups)) {
         const result = await inProgressRender.renderPromise;
+        //eslint-disable-next-line no-console
+        console.log("Merged request into in-progress render");
         return {
           ...result,
           cached: true,
@@ -160,6 +162,8 @@ const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation,
 const removeCacheABtest = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation) => {
   cachedABtestsIndex[cacheKey] = _.filter(cachedABtestsIndex[cacheKey],
     g=>!_.isEqual(g, abTestGroups));
+  if (cachedABtestsIndex[cacheKey].length === 0)
+    delete cachedABtestsIndex[cacheKey];
 };
 
 let cacheHits = 0;
