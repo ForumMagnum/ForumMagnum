@@ -5,7 +5,11 @@ import { useNavigation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection';
 import { useCurrentUser } from '../common/withUser';
 
-const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback}) => {
+const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback}: {
+  redirect: any,
+  cancelCallback: any,
+  removeSuccessCallback: any,
+}) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();

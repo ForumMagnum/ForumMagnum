@@ -33,8 +33,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenuButton = ({
-  terms, classes, open, color, toggle
+const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
+  terms: any,
+  classes: ClassesType,
+  open: boolean,
+  color?: string,
+  toggle: any,
 }) => {
   const currentUser = useCurrentUser();
   const { results } = useMulti({

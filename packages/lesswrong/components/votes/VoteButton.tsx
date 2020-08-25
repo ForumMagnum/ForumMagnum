@@ -106,7 +106,7 @@ const VoteButton = ({
     setBigVoteCompleted(false);
   }
 
-  const wrappedVote = (type) => {
+  const wrappedVote = (type: string) => {
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
@@ -129,7 +129,7 @@ const VoteButton = ({
     }
   }
 
-  const hasVoted = (type) => {
+  const hasVoted = (type: string) => {
     return hasVotedClient({userVotes: document.currentUserVotes, voteType: type})
   }
 

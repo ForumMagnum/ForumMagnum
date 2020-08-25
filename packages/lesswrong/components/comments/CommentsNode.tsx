@@ -254,7 +254,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     this.setState({collapsed: !this.state.collapsed});
   }
 
-  handleExpand = async (event) => {
+  handleExpand = async (event: React.MouseEvent) => {
     const { markAsRead, scrollOnExpand } = this.props
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
@@ -266,7 +266,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: CommentsNodeProps, nextState: CommentsNodeState) {
     if (!shallowEqual(this.state, nextState))
       return true;
     if (!shallowEqualExcept(this.props, nextProps, ["post", "children"]))

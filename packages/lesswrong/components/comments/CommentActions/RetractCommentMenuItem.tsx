@@ -15,14 +15,14 @@ const RetractCommentMenuItem = ({comment}: {
     fragmentName: 'CommentsList',
   });
   
-  const handleRetract = (event) => {
+  const handleRetract = (event: React.MouseEvent) => {
     void updateComment({
       selector: {_id: comment._id},
       data: { retracted: true }
     });
   }
 
-  const handleUnretract = (event) => {
+  const handleUnretract = (event: React.MouseEvent) => {
     void updateComment({
       selector: {_id: comment._id},
       data: { retracted: false }

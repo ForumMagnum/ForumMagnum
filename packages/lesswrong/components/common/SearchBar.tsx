@@ -170,7 +170,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     if (event.keyCode === 13) this.handleSubmit()
   }
 
-  queryStateControl = (searchState) => {
+  queryStateControl = (searchState: any): void => {
     if (searchState.query !== this.state.currentQuery) {
       this.setState({currentQuery: searchState.query});
       if (searchState.query) {

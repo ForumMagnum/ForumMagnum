@@ -56,6 +56,17 @@ Tags.addView('coreTags', terms => {
 ensureIndex(Tags, {deleted: 1, core:1, name: 1});
 
 
+Tags.addView('newTags', terms => {
+  return {
+    options: {
+      sort: {
+        createdAt: -1
+      }
+    }
+  }
+})
+ensureIndex(Tags, {deleted: 1, createdAt: 1});
+
 Tags.addView('unreviewedTags', terms => {
   return {
     selector: {

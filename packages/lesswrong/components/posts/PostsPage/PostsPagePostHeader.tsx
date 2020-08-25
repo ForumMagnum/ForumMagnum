@@ -86,7 +86,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Opera Mini.)
 const URLClass = getUrlClass()
 
-function getProtocol(url) {
+function getProtocol(url: string): string {
   if (Meteor.isServer)
     return new URLClass(url).protocol;
 
@@ -96,7 +96,7 @@ function getProtocol(url) {
   return parser.protocol;
 }
 
-function getHostname(url) {
+function getHostname(url: string): string {
   if (Meteor.isServer)
     return new URLClass(url).hostname;
 

@@ -42,7 +42,7 @@ function unflattenCommentsRec<T extends ThreadableCommentType>(array: Array<Comm
   let children: Array<CommentTreeNode<T>> = [];
 
   if (typeof parent === "undefined") {
-    let commentDict = {}
+    let commentDict: Partial<Record<string,boolean>> = {}
     array.forEach((node) => {
       commentDict[node.item._id] = true
     })

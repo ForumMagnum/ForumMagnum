@@ -33,7 +33,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SequencesHome = ({classes}) => {
+const SequencesHome = ({classes}: {
+  classes: ClassesType,
+}) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
