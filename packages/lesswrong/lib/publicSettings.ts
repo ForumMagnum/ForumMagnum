@@ -75,7 +75,7 @@ export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('fo
 export const localeSetting = new DatabasePublicSetting<string>('locale', 'en-US')
 export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('legacyRouteAcronym', 'lw') // Because the EA Forum was identical except for the change from /lw/ to /ea/
 
-// frontpageFitlerSettings default tag filter
+// frontpageFilterSettings default tag filter
 //
 // At the risk of premature future-proofing, this setting, which is initially
 // here to allow the EA Forum to nudge down the visibility of posts with the
