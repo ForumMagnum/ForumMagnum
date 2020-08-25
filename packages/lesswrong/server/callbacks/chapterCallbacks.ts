@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 
 addEditableCallbacks({collection: Chapters, options: makeEditableOptions})
 
-async function ChaptersEditCanonizeCallback (chapter) {
+async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   const posts = await Sequences.getAllPosts(chapter.sequenceId)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 

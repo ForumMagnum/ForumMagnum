@@ -86,6 +86,12 @@ export const defaultNotificationTypeSettings = {
   dayOfWeekGMT: "Monday",
 };
 
+export interface KarmaChangeSettingsType {
+  updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
+  timeOfDayGMT: number
+  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
+  showNegativeKarma: boolean
+}
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
@@ -696,7 +702,7 @@ addFieldsDict(Users, {
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
-    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.jsx
+    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.tsx
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [Users.owns, 'admins'],

@@ -8,7 +8,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ShortformPage = ({classes}) => {
+const ShortformPage = ({classes}: {
+  classes: ClassesType,
+}) => {
   const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
 
   return (

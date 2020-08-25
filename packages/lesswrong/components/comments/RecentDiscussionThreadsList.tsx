@@ -39,7 +39,7 @@ const RecentDiscussionThreadsList = ({
     ssr: true,
   });
 
-  useGlobalKeydown(event => {
+  useGlobalKeydown((event: KeyboardEvent) => {
     const F_Key = 70
     if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
       setExpandAllThreads(true);

@@ -6,21 +6,21 @@ import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 const options = {
-  newCheck: (user, document) => {
+  newCheck: (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.new.own') : Users.canDo(user, `chapters.new.all`)
   },
 
-  editCheck: (user, document) => {
+  editCheck: (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
     return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.edit.own') : Users.canDo(user, `chapters.edit.all`)
   },
 
-  removeCheck: (user, document) => {
+  removeCheck: (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false

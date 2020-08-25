@@ -51,7 +51,7 @@ export const zIndexes = {
   // petrovDayLoss: 1000000
 }
 
-const createLWTheme = (theme) => {
+const createLWTheme = (theme: ThemeType) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 

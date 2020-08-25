@@ -83,7 +83,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
     }
   }
 
-  handleClick = event => {
+  handleClick = (event: React.MouseEvent) => {
     this.setState({ anchorEl: event.currentTarget });
   };
 

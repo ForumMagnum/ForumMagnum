@@ -11,7 +11,7 @@ import { reasonUserCantReceiveEmails } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PrivateMessagesEmail';
-import { EventDebouncer } from './debouncer';
+import { EventDebouncer, DebouncerTiming } from './debouncer';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
 import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
@@ -79,7 +79,7 @@ async function getSubscribedUsers({
   }
 }
 
-const createNotifications = async (userIds, notificationType, documentType, documentId) => {
+const createNotifications = async (userIds: Array<string>, notificationType: string, documentType, documentId) => {
   return Promise.all(
     userIds.map(async userId => {
       await createNotification(userId, notificationType, documentType, documentId);
@@ -87,7 +87,7 @@ const createNotifications = async (userIds, notificationType, documentType, docu
   );
 }
 
-const getNotificationTiming = (typeSettings) => {
+const getNotificationTiming = (typeSettings): DebouncerTiming => {
   switch (typeSettings.batchingFrequency) {
     case "realtime":
       return { type: "none" };
@@ -109,7 +109,7 @@ const getNotificationTiming = (typeSettings) => {
   }
 }
 
-const createNotification = async (userId, notificationType, documentType, documentId) => {
+const createNotification = async (userId: string, notificationType: string, documentType, documentId) => {
   let user = Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
@@ -139,7 +139,7 @@ const createNotification = async (userId, notificationType, documentType, docume
       validate: false
     });
     if (notificationTypeSettings.batchingFrequency !== "realtime") {
-      await notificationDebouncers[notificationType].recordEvent({
+      await notificationDebouncers[notificationType]!.recordEvent({
         key: {notificationType, userId},
         data: createdNotification.data._id,
         timing: getNotificationTiming(notificationTypeSettings),
@@ -158,7 +158,9 @@ const createNotification = async (userId, notificationType, documentType, docume
       currentUser: user,
       validate: false
     });
-    await notificationDebouncers[notificationType].recordEvent({
+    if (!notificationDebouncers[notificationType])
+      throw new Error("Invalid notification type");
+    await notificationDebouncers[notificationType]!.recordEvent({
       key: {notificationType, userId},
       data: createdNotification.data._id,
       timing: getNotificationTiming(notificationTypeSettings),
@@ -167,7 +169,7 @@ const createNotification = async (userId, notificationType, documentType, docume
   }
 }
 
-const removeNotification = async (notificationId) => {
+const removeNotification = async (notificationId: string) => {
   await updateMutator({
     collection: Notifications,
     documentId: notificationId,
@@ -176,7 +178,7 @@ const removeNotification = async (notificationId) => {
   })
 }
 
-const sendPostByEmail = async (users, postId, reason) => {
+const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: string) => {
   let post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
@@ -193,7 +195,7 @@ const sendPostByEmail = async (users, postId, reason) => {
   }
 }
 
-const getLink = (notificationType, documentType, documentId) => {
+const getLink = (notificationType: string, documentType: string|null, documentId: string|null) => {
   let document = getDocument(documentType, documentId);
 
   switch(notificationType) {
@@ -227,7 +229,7 @@ const notificationMessage = (notificationType, documentType, documentId) => {
     .getMessage({documentType, documentId});
 }
 
-const getDocument = (documentType, documentId) => {
+const getDocument = (documentType: string|null, documentId: string|null) => {
   if (!documentId) return null;
   
   switch(documentType) {
@@ -251,12 +253,12 @@ const getDocument = (documentType, documentId) => {
 /**
  * @summary Add notification callback when a post is approved
  */
-async function PostsApprovedNotification(post) {
+async function PostsApprovedNotification(post: DbPost) {
   await createNotifications([post.userId], 'postApproved', 'post', post._id);
 }
 addCallback("posts.approve.async", PostsApprovedNotification);
 
-async function PostsUndraftNotification(post) {
+async function PostsUndraftNotification(post: DbPost) {
   //eslint-disable-next-line no-console
   console.info("Post undrafted, creating notifications");
 
@@ -264,12 +266,12 @@ async function PostsUndraftNotification(post) {
 }
 addCallback("posts.undraft.async", PostsUndraftNotification);
 
-function postIsPublic (post) {
+function postIsPublic (post: DbPost) {
   return !post.draft && post.status === Posts.config.STATUS_APPROVED
 }
 
 // Add new post notification callback on post submit
-async function postsNewNotifications (post) {
+async function postsNewNotifications (post: DbPost) {
   if (postIsPublic(post)) {
 
     // add users who are subscribed to this post's author
@@ -297,7 +299,11 @@ async function postsNewNotifications (post) {
     }
     
     // remove this post's author
-    usersToNotify = _.without(usersToNotify, post.userId);
+    // TODO: Removed because this was written in a way that didn't work and didn't
+    // typecheck, but also, it seems fine for people to get notifications for their
+    // own submissions to localgroups? It's nice to have a preview of what other
+    // subscribed users would see.
+    //usersToNotify = _.without(usersToNotify, post.userId);
     
     const userIdsToNotify = _.map(usersToNotify, u=>u._id);
 
@@ -313,7 +319,7 @@ async function postsNewNotifications (post) {
 }
 addCallback("posts.new.async", postsNewNotifications);
 
-async function RemoveRedraftNotifications(newPost, oldPost) {
+async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
     console.info("Post redrafted, removing notifications");
@@ -351,7 +357,7 @@ function findUsersToEmail(filter) {
   return usersToEmail
 }
 
-const curationEmailDelay = new EventDebouncer({
+const curationEmailDelay = new EventDebouncer<string,null>({
   name: "curationEmail",
   defaultTiming: {
     type: "delayed",
@@ -374,7 +380,7 @@ const curationEmailDelay = new EventDebouncer({
   }
 });
 
-async function PostsCurateNotification (post, oldPost) {
+async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email.
@@ -391,14 +397,14 @@ async function PostsCurateNotification (post, oldPost) {
 }
 addCallback("posts.edit.async", PostsCurateNotification);
 
-async function TaggedPostNewNotifications(tagRel) {
+async function TaggedPostNewNotifications(tagRel: DbTagRel) {
   const subscribedUsers = await getSubscribedUsers({
     documentId: tagRel.tagId,
     collectionName: "Tags",
     type: subscriptionTypes.newTagPosts
   })
   const post = Posts.findOne({_id:tagRel.postId})
-  if (postIsPublic(post)) {
+  if (post && postIsPublic(post)) {
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
     // Don't notify the person who created the tagRel
@@ -412,8 +418,8 @@ async function TaggedPostNewNotifications(tagRel) {
 addCallback("tagrels.new.async", TaggedPostNewNotifications);
 
 // add new comment notification callback on comment submit
-async function CommentsNewNotifications(comment) {
-  if(Meteor.isServer && !comment.disableNotifications) {
+async function CommentsNewNotifications(comment: DbComment) {
+  if(Meteor.isServer) {
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
     let notifiedUsers: Array<any> = [];
@@ -479,7 +485,7 @@ async function CommentsNewNotifications(comment) {
 }
 addCallback("comments.new.async", CommentsNewNotifications);
 
-async function messageNewNotification(message) {
+async function messageNewNotification(message: DbMessage) {
   const conversationId = message.conversationId;
   const conversation = Conversations.findOne(conversationId);
   if (!conversation) throw Error(`Can't find conversation for message: ${message}`)
@@ -495,11 +501,11 @@ async function messageNewNotification(message) {
 }
 addCallback("messages.new.async", messageNewNotification);
 
-export async function bellNotifyEmailVerificationRequired (user) {
+export async function bellNotifyEmailVerificationRequired (user: DbUser) {
   await createNotifications([user._id], 'emailVerificationRequired', null, null);
 }
 
-async function PostsEditNotifyUsersSharedOnPost (newPost, oldPost) {
+async function PostsEditNotifyUsersSharedOnPost (newPost: DbPost, oldPost: DbPost) {
   if (!_.isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
     // Right now this only creates notifications when users are shared (and not when they are "unshared")
     // because currently notifications are hidden from you if you don't have view-access to a post.
@@ -510,14 +516,14 @@ async function PostsEditNotifyUsersSharedOnPost (newPost, oldPost) {
 }
 addCallback("posts.edit.async", PostsEditNotifyUsersSharedOnPost);
 
-async function PostsNewNotifyUsersSharedOnPost (post) {
+async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
   if (post.shareWithUsers?.length) {
     await createNotifications(post.shareWithUsers, "postSharedWithUser", "post", post._id)
   }
 }
 addCallback("posts.new.async", PostsNewNotifyUsersSharedOnPost);
 
-async function getUsersWhereLocationIsInNotificationRadius(location) {
+async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
   return await Users.rawCollection().aggregate([
     {
       "$geoNear": {
@@ -540,7 +546,7 @@ async function getUsersWhereLocationIsInNotificationRadius(location) {
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-async function PostsNewMeetupNotifications ({document: newPost}) {
+async function PostsNewMeetupNotifications ({document: newPost}: {document: DbPost}) {
   if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
@@ -551,7 +557,7 @@ async function PostsNewMeetupNotifications ({document: newPost}) {
 
 addCallback("post.create.async", PostsNewMeetupNotifications)
 
-async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}) {
+async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
   if (
     (
       (!newPost.draft && oldPost.draft) || 

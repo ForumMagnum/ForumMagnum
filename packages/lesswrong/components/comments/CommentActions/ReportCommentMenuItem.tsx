@@ -16,7 +16,7 @@ interface ReportCommentMenuItemProps extends ExternalProps, WithUserProps {
 
 class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}> {
 
-  showReport = (event) => {
+  showReport = (event: React.MouseEvent) => {
     const { openDialog, comment, currentUser } = this.props;
     if (!currentUser) return;
     

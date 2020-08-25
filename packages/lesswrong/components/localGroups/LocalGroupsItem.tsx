@@ -74,7 +74,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const LocalGroupsItem = ({group, classes}) => {
+const LocalGroupsItem = ({group, classes}: {
+  group: localGroupsHomeFragment,
+  classes: ClassesType,
+}) => {
   const { PostsItemMetaInfo, GroupLinks } = Components
   
   if (!group) { return null }

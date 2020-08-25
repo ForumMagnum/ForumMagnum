@@ -40,10 +40,20 @@ export const cacheKeyFromReq = (req): string => {
     return req.url.path
 }
 
+type InProgressRender = {
+  cacheKey: string
+  abTestGroups: CompleteTestGroupAllocation
+  renderPromise: Promise<RenderResult>
+};
+
+const inProgressRenders: Record<string,Array<InProgressRender>> = {};
+
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
 export const cachedPageRender = async (req, abTestGroups, renderFn) => {
+  //eslint-disable-next-line no-console
+  console.log("Called cachedPageRender.");
   const cacheKey = cacheKeyFromReq(req);
   const cached = cacheLookup(cacheKey, abTestGroups);
   
@@ -56,25 +66,58 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
       ...cached,
       cached: true
     };
-  } else {
-    recordCacheMiss();
-    //eslint-disable-next-line no-console
-    console.log(`Rendering ${req.url.path} (not in cache; hit rate=${getCacheHitRate()})`);
-    
-    const renderPromise = renderFn(req);
-    const rendered = await renderPromise;
-    cacheStore(cacheKey, rendered.abTestGroups, rendered);
-    return {
-      ...rendered,
-      cached: false
-    };
   }
+  
+  if (cacheKey in inProgressRenders) {
+    for (let inProgressRender of inProgressRenders[cacheKey]) {
+      if (objIsSubset(abTestGroups, inProgressRender.abTestGroups)) {
+        const result = await inProgressRender.renderPromise;
+        return {
+          ...result,
+          cached: true,
+        };
+      } else {
+        //eslint-disable-next-line no-console
+        console.log("In progress render merge missed: mismatched A/B test groups");
+      }
+    }
+  }
+  
+  recordCacheMiss();
+  //eslint-disable-next-line no-console
+  console.log(`Rendering ${req.url.path} (not in cache; hit rate=${getCacheHitRate()})`);
+  
+  const renderPromise = renderFn(req);
+  
+  const inProgressRender = { cacheKey, abTestGroups, renderPromise };
+  if (cacheKey in inProgressRenders) {
+    inProgressRenders[cacheKey].push(inProgressRender);
+  } else {
+    inProgressRenders[cacheKey] = [inProgressRender];
+  }
+  
+  const rendered = await renderPromise;
+  // eslint-disable-next-line no-console
+  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.abTestGroups)}`);
+  cacheStore(cacheKey, rendered.abTestGroups, rendered);
+  
+  inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
+  if (!inProgressRenders[cacheKey].length)
+    delete inProgressRenders[cacheKey];
+  
+  return {
+    ...rendered,
+    cached: false
+  };
 }
 
 
 const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
-  if (!(cacheKey in cachedABtestsIndex))
+  if (!(cacheKey in cachedABtestsIndex)) {
+    // eslint-disable-next-line no-console
+    console.log("Cache miss: no cached page with this cacheKey for any A/B test group combination");
     return null;
+  }
   const abTestCombinations: Array<RelevantTestGroupAllocation> = cachedABtestsIndex[cacheKey];
   for (let i=0; i<abTestCombinations.length; i++) {
     if (objIsSubset(abTestCombinations[i], abTestGroups)) {
@@ -84,6 +127,8 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
       }));
     }
   }
+  // eslint-disable-next-line no-console
+  console.log("Cache miss: page is cached, but with the wrong A/B test groups");
 }
 
 const objIsSubset = (subset,superset): boolean => {

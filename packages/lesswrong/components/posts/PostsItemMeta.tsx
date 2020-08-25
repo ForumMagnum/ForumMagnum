@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const DateWithoutTime = ({date}) => {
+const DateWithoutTime = ({date}: {date: Date}) => {
   const { timezone } = useTimezone();
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }
@@ -77,7 +77,7 @@ const PostsItemMeta = ({post, read, classes}: {
       </span>}
 
       <span className={classes.info}>
-        <AnalyticsContext pageSectionContext="tagRecentDiscussion">
+        <AnalyticsContext pageElementContext="tagsList">
           <FooterTagList post={post} hideScore hideAddTag hidePersonalOrFrontpage smallText/>
         </AnalyticsContext>
       </span>

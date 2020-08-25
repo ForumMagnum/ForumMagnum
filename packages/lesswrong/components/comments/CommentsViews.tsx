@@ -11,7 +11,7 @@ import qs from 'qs'
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-export const viewNames = {
+export const viewNames: Partial<Record<string,string>> = {
   'postCommentsTop': 'top scoring',
   'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
@@ -48,11 +48,11 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
     }
   }
 
-  handleClick = event => {
+  handleClick = (event: React.MouseEvent) => {
     this.setState({ anchorEl: event.currentTarget });
   };
 
-  handleViewClick = (view) => {
+  handleViewClick = (view: string) => {
     const { post } = this.props;
     const { history, location } = this.props; // From withNavigation, withLocation
     const { query } = location;
@@ -73,7 +73,7 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
     const afViews = ["postLWComments"]
-    const currentView = query?.view || Comments.getDefaultView(post, currentUser)
+    const currentView: string = query?.view || Comments.getDefaultView(post, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
@@ -94,7 +94,7 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
         >
-          {views.map(view => {
+          {views.map((view: string) => {
             return(
               <MenuItem
                 key={view}

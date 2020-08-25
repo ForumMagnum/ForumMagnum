@@ -39,7 +39,7 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   const { LWTooltip } = Components
 
 
-  const toggleBookmark = (event) => {
+  const toggleBookmark = (event: React.MouseEvent) => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",

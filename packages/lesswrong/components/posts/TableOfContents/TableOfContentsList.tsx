@@ -99,7 +99,7 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
     }
   }
 
-  jumpToAnchor(anchor: string, ev) {
+  jumpToAnchor(anchor: string, ev: MouseEvent|null) {
     if (Meteor.isServer) return;
 
     const anchorY = this.getAnchorY(anchor);
@@ -111,7 +111,7 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
     }
   }
 
-  jumpToY(y, ev) {
+  jumpToY(y: number, ev: MouseEvent|null) {
     if (Meteor.isServer) return;
 
     if (ev && (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey))

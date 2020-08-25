@@ -13,8 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsEditForm = ({
-  documentId, eventForm, classes,
+const PostsEditForm = ({ documentId, eventForm, classes }: {
+  documentId: string,
+  eventForm: boolean,
+  classes: ClassesType,
 }) => {
   const { location } = useLocation();
   const { history } = useNavigation();

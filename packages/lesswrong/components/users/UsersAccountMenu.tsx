@@ -35,12 +35,12 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
     }
   }
 
-  handleClick = (event) => {
+  handleClick = (event: React.MouseEvent) => {
     event.preventDefault();
     this.props.captureEvent("loginButtonClicked", {open: true})
     this.setState({
       open:true,
-      anchorEl: event.currentTarget,
+      anchorEl: event.currentTarget as HTMLElement,
     });
   };
 
