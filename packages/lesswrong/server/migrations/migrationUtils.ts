@@ -298,6 +298,12 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, f
   loadFactor?: number
 })
 {
+  // As described in the docstring, we need to be able to query on the _id.
+  // Without this check, someone trying to use _id in the filter would overwrite
+  // this function's query and find themselves with an infinite loop.
+  if (filter && '_id' in filter) {
+    throw new Error('forEachDocumentBatchInCollection does not support filtering by _id')
+  }
   let rows = await collection.find({ ...filter },
     {
       sort: {_id: 1},
