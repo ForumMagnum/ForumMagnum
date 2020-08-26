@@ -1,7 +1,6 @@
 import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts';
 import { ensureIndex } from '../lib/collectionUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
@@ -211,7 +210,6 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
 const getModifierName = (post: DbPost): string => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
-  if (forumTypeSetting.get() === 'EAForum' && post.meta) return 'metaModifier'
   return 'personalBlogpostModifier'
 }
 
