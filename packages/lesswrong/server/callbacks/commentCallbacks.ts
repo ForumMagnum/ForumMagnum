@@ -3,7 +3,8 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { makeEditableOptions } from '../../lib/collections/comments/custom_fields';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../lib/collections/posts/collection";
+import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
@@ -71,11 +72,12 @@ async function createShortformPost (comment: DbComment, currentUser: DbUser) {
 addCallback('comments.new.validate', createShortformPost);
 
 function CommentsNewOperations (comment: DbComment) {
-
   // update post
-  Posts.update(comment.postId, {
-    $set:       {lastCommentedAt: new Date()},
-  });
+  if (comment.postId) {
+    Posts.update(comment.postId, {
+      $set:       {lastCommentedAt: new Date()},
+    });
+  }
 
   return comment;
 }
@@ -104,16 +106,17 @@ addCallback('comments.new.async', UpvoteAsyncCallbacksAfterDocumentInsert);
 function CommentsRemovePostCommenters (comment: DbComment, currentUser: DbUser) {
   const { postId } = comment;
 
-  const postComments = Comments.find({postId}, {sort: {postedAt: -1}}).fetch();
-
-  const lastCommentedAt = postComments[0] && postComments[0].postedAt;
-
-  // update post with a decremented comment count, and corresponding last commented at date
-  Posts.update(postId, {
-    $set: {lastCommentedAt},
-  });
-
-  return comment;
+  if (postId) {
+    const postComments = Comments.find({postId}, {sort: {postedAt: -1}}).fetch();
+    const lastCommentedAt = postComments[0] && postComments[0].postedAt;
+  
+    // update post with a decremented comment count, and corresponding last commented at date
+    Posts.update(postId, {
+      $set: {lastCommentedAt},
+    });
+  
+    return comment;
+  }
 }
 addCallback('comments.remove.async', CommentsRemovePostCommenters);
 
@@ -193,20 +196,22 @@ function CommentsEditSoftDeleteCallback (comment: DbComment, oldComment: DbComme
 addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);
 
 function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) {
-  const comments = Comments.find({postId:comment.postId, deleted: false}).fetch()
-
-  const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
-  const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId})?.postedAt || new Date()
-
-  void editMutation({
-    collection:Posts,
-    documentId: comment.postId,
-    set: {
-      lastCommentedAt:new Date(lastCommentedAt),
-    },
-    unset: {},
-    validate: false,
-  })
+  if (comment.postId) {
+    const comments = Comments.find({postId:comment.postId, deleted: false}).fetch()
+  
+    const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
+    const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId})?.postedAt || new Date()
+  
+    void editMutation({
+      collection:Posts,
+      documentId: comment.postId,
+      set: {
+        lastCommentedAt:new Date(lastCommentedAt),
+      },
+      unset: {},
+      validate: false,
+    })
+  }
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
@@ -221,13 +226,18 @@ addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComment: DbComment, {currentUser}: {currentUser: DbUser}) {
   if (currentUser._id !== newComment.userId && newComment.deleted && newComment.contents && newComment.contents.html) {
-    const originalPost = await Posts.findOne(newComment.postId);
+    const onWhat = newComment.tagId
+      ? await Tags.findOne(newComment.tagId)?.name
+      : (newComment.postId
+        ? await Posts.findOne(newComment.postId)?.title
+        : null
+      );
     const moderatingUser = await Users.findOne(newComment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
 
     const conversationData = {
       participantIds: [newComment.userId, lwAccount._id],
-      title: `Comment deleted on ${originalPost?.title}`
+      title: `Comment deleted on ${onWhat}`
     }
     const conversation = await newMutation({
       collection: Conversations,
@@ -237,7 +247,7 @@ export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComme
     });
 
     let firstMessageContents =
-        `One of your comments on "${originalPost?.title}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
+        `One of your comments on "${onWhat}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
     if (newComment.deletedReason) {
       firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
     }

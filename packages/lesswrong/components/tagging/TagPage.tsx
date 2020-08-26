@@ -186,7 +186,7 @@ const TagPage = ({classes}: {
           </div>
           <div onClick={clickReadMore}>
             <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description}}
+              dangerouslySetInnerHTML={{__html: description||""}}
               description={`tag ${tag.name}`}
               className={classes.description}
             />

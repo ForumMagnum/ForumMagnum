@@ -3,7 +3,10 @@ import { Comments } from '../../../lib/collections/comments'
 import { addCallback, editMutation } from '../../vulcan-lib';
 import * as _ from 'underscore';
 
-function recalculateAFCommentMetadata(postId: string) {
+function recalculateAFCommentMetadata(postId: string|null) {
+  if (!postId)
+    return;
+  
   const afComments = Comments.find({
     postId:postId,
     af: true,

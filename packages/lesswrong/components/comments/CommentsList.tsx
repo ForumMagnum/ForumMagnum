@@ -68,7 +68,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
 
     if ((this.props.post==null) != (nextProps.post==null))
       return true;
-    if (this.props.post && this.props.post._id != nextProps.post._id)
+    if (this.props.post?._id != nextProps.post?._id)
       return true;
     if ((this.props.post as any)?.contents?.version != (nextProps.post as any)?.contents?.version)
       return true;
