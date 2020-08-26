@@ -3,11 +3,16 @@ import Users from '../collections/users/collection';
 import { recalculateScore } from '../scoring';
 import * as _ from 'underscore';
 
+interface VoteTypeOptions {
+  power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),
+  exclusive: boolean
+}
+
 // Define voting operations
-export const voteTypes = {}
+export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {}
 
 // Add new vote types
-export const addVoteType = (voteType, voteTypeOptions) => {
+export const addVoteType = (voteType: string, voteTypeOptions: VoteTypeOptions) => {
   voteTypes[voteType] = voteTypeOptions;
 }
 
@@ -15,7 +20,10 @@ addVoteType('upvote', {power: 1, exclusive: true});
 addVoteType('downvote', {power: -1, exclusive: true});
 
 // Test if a user has voted on the client
-export const hasVotedClient = ({ userVotes, voteType }) => {
+export const hasVotedClient = ({userVotes, voteType}: {
+  userVotes: Array<VoteMinimumInfo>,
+  voteType: string,
+}) => {
   if (voteType) {
     return _.where(userVotes, { voteType }).length
   } else {
@@ -24,11 +32,17 @@ export const hasVotedClient = ({ userVotes, voteType }) => {
 }
 
 // Calculate total power of all a user's votes on a document
-const calculateTotalPower = votes => _.pluck(votes, 'power').reduce((a, b) => a + b, 0);
+const calculateTotalPower = (votes: Array<VoteFragment>) => _.pluck(votes, 'power').reduce((a: number, b: number) => a + b, 0);
 
 
 // Add a vote of a specific type on the client
-const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
+const addVoteClient = ({ document, collection, voteType, user, voteId }: {
+  document: VoteableTypeClient,
+  collection: CollectionBase<DbObject>,
+  voteType: string,
+  user: UsersCurrent,
+  voteId?: string,
+}) => {
 
   const newDocument = {
     ...document,
@@ -39,7 +53,8 @@ const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
 
   // create new vote and add it to currentUserVotes array
   const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
-  newDocument.currentUserVotes = [...newDocument.currentUserVotes, vote];
+  // cast to VoteFragment needed because of missing _id
+  newDocument.currentUserVotes = [...newDocument.currentUserVotes, vote as VoteFragment];
   newDocument.voteCount = (newDocument.voteCount||0) + 1;
 
   // increment baseScore
@@ -51,7 +66,10 @@ const addVoteClient = ({ document, collection, voteType, user, voteId }) => {
 
 
 // Cancel votes of a specific type on a given document (client)
-const cancelVoteClient = ({ document, voteType }) => {
+const cancelVoteClient = ({ document, voteType }: {
+  document: VoteableTypeClient,
+  voteType: string,
+}) => {
   const vote: any = _.findWhere(document.currentUserVotes, { voteType });
   const newDocument = _.clone(document);
   if (vote) {
@@ -71,7 +89,9 @@ const cancelVoteClient = ({ document, voteType }) => {
 }
 
 // Clear *all* votes for a given document and user (client)
-const clearVotesClient = ({ document }) => {
+const clearVotesClient = ({ document }: {
+  document: VoteableTypeClient,
+}) => {
   const newDocument = _.clone(document);
   newDocument.baseScore -= calculateTotalPower(document.currentUserVotes);
   newDocument.score = recalculateScore(newDocument);
@@ -83,13 +103,23 @@ const clearVotesClient = ({ document }) => {
 
 // Determine a user's voting power for a given operation.
 // If power is a function, call it on user
-const getVotePower = ({ user, voteType, document }) => {
-  const power = (voteTypes[voteType] && voteTypes[voteType].power) || 1;
+const getVotePower = ({ user, voteType, document }: {
+  user: DbUser|UsersCurrent,
+  voteType: string,
+  document: VoteableType,
+}) => {
+  const power = (voteTypes[voteType]?.power) || 1;
   return typeof power === 'function' ? power(user, document) : power;
 };
 
 // Create new vote object
-export const createVote = ({ document, collectionName, voteType, user, voteId }) => {
+export const createVote = ({ document, collectionName, voteType, user, voteId }: {
+  document: VoteableType,
+  collectionName: CollectionNameString,
+  voteType: string,
+  user: DbUser|UsersCurrent,
+  voteId?: string,
+}) => {
 
   if (!document.userId)
     throw new Error("Voted-on document does not have an author userId?");
@@ -114,8 +144,14 @@ export const createVote = ({ document, collectionName, voteType, user, voteId })
 };
 
 // Optimistic response for votes
-export const performVoteClient = ({ document, collection, voteType = 'upvote', user, voteId }) => {
-
+export const performVoteClient = ({ document, collection, voteType = 'upvote', user, voteId }: {
+  document: VoteableTypeClient,
+  collection: CollectionBase<DbObject>
+  voteType?: string,
+  user: UsersCurrent,
+  voteId?: string,
+}) => {
+  if (!voteTypes[voteType]) throw new Error("Invalid vote type");
   const collectionName = collection.options.collectionName;
   let returnedDocument;
 
@@ -130,7 +166,7 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
     returnedDocument = cancelVoteClient(voteOptions);
     returnedDocument = runCallbacks(`votes.cancel.client`, returnedDocument, collection, user, voteType);
   } else {
-    if (voteTypes[voteType].exclusive) {
+    if (voteTypes[voteType]?.exclusive) {
       const tempDocument = runCallbacks(`votes.clear.client`, voteOptions.document, collection, user);
       voteOptions.document = clearVotesClient({document:tempDocument})
 

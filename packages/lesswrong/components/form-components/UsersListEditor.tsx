@@ -18,7 +18,7 @@ const sortableItemStyles = (theme: ThemeType): JssStyles => ({
 //eslint-disable-next-line babel/new-cap
 const SortableItem = withStyles(sortableItemStyles, {name: "SortableItem"})(SortableElement(({userId, currentUser, removeItem, classes}) =>
   <li className={classes.root}>
-    <Components.SingleUsersItemWrapper documentId={userId} currentUser={currentUser} removeItem={removeItem} />
+    <Components.SingleUsersItemWrapper documentId={userId} removeItem={removeItem} />
   </li>
 ))
 
@@ -48,15 +48,15 @@ const usersListEditorStyles = (theme: ThemeType): JssStyles => ({
 })
 
 class UsersListEditor extends Component<any> {
-  onSortEnd = ({oldIndex, newIndex}) => {
+  onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
     const newIds = arrayMove(this.props.value, oldIndex, newIndex);
     this.context.updateCurrentValues({[this.props.path]: newIds});
   };
-  addUserId = (userId) => {
+  addUserId = (userId: string) => {
     const newIds = [...this.props.value, userId];
     this.context.updateCurrentValues({[this.props.path]: newIds});
   }
-  removeUserId = (userId) => {
+  removeUserId = (userId: string) => {
     const newIds = _.without(this.props.value, userId);
     this.context.updateCurrentValues({[this.props.path]: newIds});
   }

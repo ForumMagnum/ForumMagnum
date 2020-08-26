@@ -3,7 +3,7 @@ import React from 'react';
 
 const personPath = "M6.46 5.3C7.52 3.81 5.49 2.11 3.15 1.19 2.26 1.8 1.17 2.17 0 2.17 -1.17 2.17 -2.25 1.8 -3.14 1.19 -5.48 2.11 -7.52 3.81 -6.46 5.3 -4.62 7.9 4.62 7.9 6.46 5.3zM4.58 -3.18C4.58 -0.71 2.53 1.3 0 1.3 -2.52 1.3 -4.57 -0.71 -4.57 -3.18 -4.57 -5.65 -2.52 -7.65 0 -7.65 4.24 -7.63 4.58 -3.18 4.58 -3.18zM3.61 -6.58M-12.78 -12.21"
 
-export const PersonSVG = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 89 89" enableBackground="new 0 0 89 89">
+export const PersonSVG = ({className}: {className?: string}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 89 89" enableBackground="new 0 0 89 89">
   <g>
     <circle cx="47.524" cy="31.433" r="24.137" />
     <path d="M81.585,77.203c5.604-8.077-5.123-17.235-17.482-22.193c-4.693,3.311-10.41,5.264-16.578,5.264   c-6.176,0-11.898-1.958-16.596-5.275c-12.371,4.955-23.121,14.12-17.514,22.205C23.13,91.205,71.87,91.205,81.585,77.203z" />
@@ -30,7 +30,7 @@ export const groupGoogleIcon = {
   strokeColor: "#FFFFFF",
 }
 
-export const GroupIconSVG = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} version="1.1" x="0px" y="0px" viewBox="0 0 16 16">
+export const GroupIconSVG = ({className}: {className?: string}) => <svg xmlns="http://www.w3.org/2000/svg" className={className} version="1.1" x="0px" y="0px" viewBox="0 0 16 16">
   <g>
     <g>
       <path d="M15.707,7.293l-7-7c-0.391-0.391-1.023-0.391-1.414,0l-7,7c-0.391,0.391-0.391,1.023,0,1.414s1.023,0.391,1.414,0L2,8.414    C2,11.016,2,13.231,2,16h4v-6h4v6h4c0-2.769,0-4.984,0-7.586l0.293,0.293C14.488,8.902,14.744,9,15,9s0.512-0.098,0.707-0.293    C16.098,8.316,16.098,7.684,15.707,7.293z" />
@@ -49,7 +49,7 @@ export const arrowIcon = {
   strokeColor: "#FFFFFF"
 }
 
-export const ArrowSVG = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} version="1.1" x="0px" y="0px" viewBox="6 4 22 23">
+export const ArrowSVG = ({className}: {className?: string}) => <svg xmlns="http://www.w3.org/2000/svg" className={className} version="1.1" x="0px" y="0px" viewBox="6 4 22 23">
   <g>
     <g>
       <path d="M 8.42,3.96 C 8.42,3.96 16.02,28.09 16.02,28.09 16.02,28.09 23.50,3.91 23.50,3.91 23.50,3.91 15.99,8.78 15.99,8.78 15.99,8.78 8.42,3.96 8.42,3.96 Z M 37.99,21.32"></path>

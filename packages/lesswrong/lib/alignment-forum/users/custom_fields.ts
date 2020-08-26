@@ -18,7 +18,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (post.af && !post.draft && post.status===Posts.config.STATUS_APPROVED),
+      filterFn: (post: DbPost) => (post.af && !post.draft && post.status===Posts.config.STATUS_APPROVED),
     }),
     canRead: ['guests'],
   },
@@ -26,14 +26,14 @@ addFieldsDict(Users, {
   afCommentCount: {
     type: Number,
     optional: true,
-    onInsert: (document, currentUser) => 0,
+    onInsert: (document, currentUser: DbUser) => 0,
     ...denormalizedCountOfReferences({
       fieldName: "afCommentCount",
       collectionName: "Users",
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: (comment) => comment.af,
+      filterFn: (comment: DbComment) => comment.af,
     }),
     canRead: ['guests'],
   },
@@ -45,7 +45,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: sequence => sequence.af && !sequence.draft && !sequence.isDeleted
+      filterFn: (sequence: DbSequence) => sequence.af && !sequence.draft && !sequence.isDeleted
     }),
     canRead: ['guests'],
   },
@@ -57,7 +57,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: sequence => sequence.af && sequence.draft && !sequence.isDeleted
+      filterFn: (sequence: DbSequence) => sequence.af && sequence.draft && !sequence.isDeleted
     }),
     canRead: ['guests'],
   },

@@ -56,7 +56,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
     addKeydownListener(this.handleKeyDown);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: CommentsListProps, nextState: CommentsListState) {
     if(!shallowEqual(this.state, nextState))
       return true;
 
@@ -78,7 +78,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
     return false;
   }
 
-  commentTreesDiffer(oldComments, newComments) {
+  commentTreesDiffer(oldComments: Array<CommentTreeNode<CommentsList>>, newComments: Array<CommentTreeNode<CommentsList>>) {
     if(oldComments===null && newComments!==null) return true;
     if(oldComments!==null && newComments===null) return true;
     if(newComments===null) return false;

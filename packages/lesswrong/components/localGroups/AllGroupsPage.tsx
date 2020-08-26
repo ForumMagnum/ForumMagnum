@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const AllGroupsPage = ({ timezone, classes }) => {
+const AllGroupsPage = () => {
   const { SingleColumnSection, SectionTitle } = Components
 
   return (

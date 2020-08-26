@@ -856,6 +856,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
+  readonly bio: string,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
@@ -1427,6 +1428,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly reviewedByUserId: string,
   readonly descriptionTruncationCount: number,
   readonly wikiGrade: number,
+  readonly createdAt: Date,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags

@@ -15,7 +15,7 @@ interface BanUserFromAllPersonalPostsMenuItemProps extends ExternalProps, WithMe
 }
 
 class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPersonalPostsMenuItemProps,{}> {
-  handleBanUserFromAllPosts = (event) => {
+  handleBanUserFromAllPosts = (event: React.MouseEvent) => {
     const { currentUser, comment, flash, updateUser } = this.props;
     if (!currentUser) return;
     event.preventDefault();

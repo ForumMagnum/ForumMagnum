@@ -27,6 +27,7 @@ import Papa from 'papaparse';
 import path from 'path';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
+import Tags from '../../lib/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
 import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
@@ -54,6 +55,7 @@ function getPosts (selector) {
     isFuture: 1,
     draft: 1,
     status: 1,
+    tagRelevance: 1,
   }
 
   const finalSelector = Object.assign({}, defaultSelector, selector || {})
@@ -74,6 +76,15 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
       // SD: this makes things horribly slow, but no idea how to do a more efficient join query in Mongo
       const user = Users.findOne(post.userId, { fields: { displayName: 1, email: 1 }})
       if (!user) throw Error(`Can't find user for post: ${post._id}`)
+      let tags = [] as Array<string>
+      if (post.tagRelevance) {
+        const tagIds = (Object.entries(post.tagRelevance) as Array<[string, number]>)
+          .filter(([_, relevanceScore]) => relevanceScore > 0)
+          .map(([tagId]) => tagId)
+        const tagsResult = Tags.find({ _id: { $in: tagIds } }, { fields: { name: 1 } }).fetch()
+        tags = tagsResult.map(({ name }) => name)
+      }
+      
       const postUrl = siteUrlSetting.get()
       const row = {
         display_name: user.displayName,
@@ -83,7 +94,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
         title: post.title,
         slug: post.slug,
         karma: post.baseScore,
-        community: !!post.meta,
+        tags: tags.sort().join(', '),
         frontpage_date: post.frontpageDate,
         posted_at: post.postedAt,
         created_at: post.createdAt,

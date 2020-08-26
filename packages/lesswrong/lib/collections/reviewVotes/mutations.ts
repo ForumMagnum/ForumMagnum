@@ -5,7 +5,8 @@ import { ReviewVotes } from './collection'
 
 addGraphQLResolvers({
   Mutation: {
-    submitReviewVote: async (root, { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment }, context: ResolverContext) => {
+    submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string }, context: ResolverContext) => {
+      const { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment } = args;
       const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to submit a review vote");
       if (!postId) throw new Error("Missing argument: postId");

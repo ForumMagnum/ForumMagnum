@@ -38,14 +38,14 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
 
-  const wrappedVote = (type) => {
+  const wrappedVote = (voteType: string) => {
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
         componentProps: {}
       });
     } else {
-      vote({document, voteType: type, collection: TagRels, currentUser});
+      vote({document, voteType: voteType, collection: TagRels, currentUser});
       captureEvent("vote", {collectionName: "TagRels"});
     }
   }

@@ -81,8 +81,13 @@ export function getDefaultResolvers<T extends DbObject>(options) {
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root, { input = {} }, context: ResolverContext, { cacheControl }) {
-        const { selector = {}, enableCache = false, allowNull = false } = input as any;
+      async resolver(root, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
+        const { enableCache = false, allowNull = false } = input;
+        // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
+        // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
+        // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
+        // So we copy it here to give it back those methoods
+        const selector = {...(input.selector || {})}
 
         debug('');
         debugGroup(

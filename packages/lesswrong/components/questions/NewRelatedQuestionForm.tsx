@@ -68,7 +68,7 @@ const NewRelatedQuestionForm = ({ post, classes, refetch }: {
           hiddenRelatedQuestion: false,
           originalPostRelationSourceId: post._id
         }}
-        successCallback={(...args) => {
+        successCallback={() => {
           // This refetches the post data so that the Related Questions list will show the new question.
           refetch()
           flash({ messageString: "Post created.", type: 'success'});

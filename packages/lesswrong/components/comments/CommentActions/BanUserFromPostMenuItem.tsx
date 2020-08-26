@@ -19,7 +19,7 @@ const BanUserFromPostMenuItem = ({ comment, post }: {
     fragmentName: 'PostsPage',
   });
 
-  const handleBanUserFromPost = (event) => {
+  const handleBanUserFromPost = (event: React.MouseEvent) => {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on this post?")) {
       const commentUserId = comment.userId

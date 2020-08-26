@@ -275,7 +275,7 @@ const dismissRecommendationTooltip = "Don't remind me to finish reading this seq
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const isSticky = (post, terms) => {
+const isSticky = (post: PostsList, terms: any) => {
   if (post && terms && terms.forum) {
     return (
       post.sticky ||

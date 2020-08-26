@@ -254,6 +254,11 @@ addRoute(
   {
     name: 'tagVoting',
     path: '/tagVoting',
+    redirect: () => `/tagActivity`,
+  },
+  {
+    name: 'tagActivity',
+    path: '/tagActivity',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
   },
@@ -598,13 +603,17 @@ switch (forumTypeSetting.get()) {
       {
         name: 'Community',
         path: '/meta',
-        componentName: 'Meta',
-        title: "Community"
+        redirect: () => `/tags/all`,
       },
       {
         name: 'eaSequencesHome',
         path: '/sequences',
         componentName: 'EASequencesHome'
+      },
+      {
+        name: 'eaSequencesRedirect',
+        path: '/library',
+        redirect: () => '/sequences'
       },
       {
         name: "TagsAll",

@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const levelToClassName = (level, classes) => {
+const levelToClassName = (level: number, classes: ClassesType) => {
   switch(level) {
     case 0: return classes.level0;
     case 1: return classes.level1;

@@ -9,7 +9,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ShortformThreadList = ({ terms, classes }) => {
+const ShortformThreadList = ({ terms, classes }: {
+  terms: any,
+  classes: ClassesType,
+}) => {
   const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,

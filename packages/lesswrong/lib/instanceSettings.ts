@@ -9,12 +9,6 @@ const getNestedProperty = function (obj, desc) {
 
 export const Settings: Record<string,any> = {};
 
-// Keep track of which settings have been used (`getSetting`) without being
-// registered (`registerSetting`). Registering settings is optional, but if a
-// setting is registered with a default value after it has already been used
-// without a default value, that's an error.
-const settingsUsedWithoutRegistration: Record<string,boolean> = {};
-
 const getSetting = <T>(settingName: string, settingDefault?: T): T => {
 
   let setting;
@@ -22,12 +16,6 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
   // if a default value has been registered using registerSetting, use it
   if (typeof settingDefault === 'undefined' && Settings[settingName])
     settingDefault = Settings[settingName].defaultValue;
-
-  // If this setting hasn't been registered, and is used here without a default
-  // value specified, record the fact that it was used without registration.
-  if (!(settingName in Settings) && (typeof settingDefault === 'undefined')) {
-    settingsUsedWithoutRegistration[settingName] = true;
-  }
 
   if (Meteor.isServer) {
     // look in public, private, and root
@@ -92,7 +80,7 @@ export class PublicInstanceSetting<SettingValueType> {
     initializeSetting(settingName, "instance")
     if (Meteor.isDevelopment && settingType !== "optional") {
       const settingValue = getSetting(settingName)
-      if (!settingValue) {
+      if (typeof settingValue === 'undefined') {
         if (settingType === "warning") {
           // eslint-disable-next-line no-console
           console.log(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as warning`)

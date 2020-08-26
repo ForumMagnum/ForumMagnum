@@ -78,7 +78,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const TabNavigationEventsList = ({ terms, onClick, classes }) => {
+const TabNavigationEventsList = ({ terms, onClick, classes }: {
+  terms: any,
+  onClick: ()=>void,
+  classes: ClassesType,
+}) => {
   const { timezone } = useTimezone();
   const { results } = useMulti({
     terms,

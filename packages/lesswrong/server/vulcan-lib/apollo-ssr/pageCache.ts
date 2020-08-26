@@ -2,6 +2,7 @@ import LRU from 'lru-cache';
 import * as _ from 'underscore';
 import { RenderResult } from './renderPage';
 import { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
+import { Globals } from '../../../lib/vulcan-lib';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -27,11 +28,16 @@ const pageCache = new LRU<string,RenderResult>({
   dispose: (key: string, page) => {
     const parsedKey: {cacheKey: string, abTestGroups: RelevantTestGroupAllocation} = JSON.parse(key);
     const { cacheKey, abTestGroups } = parsedKey;
-    removeCacheABtest(cacheKey, abTestGroups);
+    keysToCheckForExpiredEntries.push(cacheKey);
   },
 });
 
+// FIXME: This doesn't get updated correctly. Previous iteration had entries
+// removed when they should still be in cachedABtestsIndex; current iteration
+// has duplicate entries accumulate over time.
+
 const cachedABtestsIndex: Record<string,Array<RelevantTestGroupAllocation>> = {};
+let keysToCheckForExpiredEntries: Array<string> = [];
 
 export const cacheKeyFromReq = (req): string => {
   if (req.cookies && req.cookies.timezone)
@@ -40,12 +46,22 @@ export const cacheKeyFromReq = (req): string => {
     return req.url.path
 }
 
+type InProgressRender = {
+  cacheKey: string
+  abTestGroups: CompleteTestGroupAllocation
+  renderPromise: Promise<RenderResult>
+};
+
+const inProgressRenders: Record<string,Array<InProgressRender>> = {};
+
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
 export const cachedPageRender = async (req, abTestGroups, renderFn) => {
+  //eslint-disable-next-line no-console
   const cacheKey = cacheKeyFromReq(req);
   const cached = cacheLookup(cacheKey, abTestGroups);
+  
   
   // If already cached, return the cached version
   if (cached) {
@@ -56,34 +72,79 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
       ...cached,
       cached: true
     };
-  } else {
-    recordCacheMiss();
-    //eslint-disable-next-line no-console
-    console.log(`Rendering ${req.url.path} (not in cache; hit rate=${getCacheHitRate()})`);
-    
-    const renderPromise = renderFn(req);
-    const rendered = await renderPromise;
-    cacheStore(cacheKey, rendered.abTestGroups, rendered);
-    return {
-      ...rendered,
-      cached: false
-    };
   }
+  
+  if (cacheKey in inProgressRenders) {
+    for (let inProgressRender of inProgressRenders[cacheKey]) {
+      if (objIsSubset(abTestGroups, inProgressRender.abTestGroups)) {
+        const result = await inProgressRender.renderPromise;
+        //eslint-disable-next-line no-console
+        console.log("Merged request into in-progress render");
+        return {
+          ...result,
+          cached: true,
+        };
+      }
+    }
+    //eslint-disable-next-line no-console
+    console.log(`In progress render merge of ${cacheKey} missed: mismatched A/B test groups (requested: ${JSON.stringify(abTestGroups)}, available: ${JSON.stringify(inProgressRenders[cacheKey].map(r=>r.abTestGroups))})`);
+  }
+  
+  recordCacheMiss();
+  //eslint-disable-next-line no-console
+  console.log(`Rendering ${req.url.path} (not in cache; hit rate=${getCacheHitRate()})`);
+  
+  const renderPromise = renderFn(req);
+  
+  const inProgressRender = { cacheKey, abTestGroups, renderPromise };
+  if (cacheKey in inProgressRenders) {
+    inProgressRenders[cacheKey].push(inProgressRender);
+  } else {
+    inProgressRenders[cacheKey] = [inProgressRender];
+  }
+  
+  const rendered = await renderPromise;
+  // eslint-disable-next-line no-console
+  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.abTestGroups)}`);
+  cacheStore(cacheKey, rendered.abTestGroups, rendered);
+  
+  inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
+  if (!inProgressRenders[cacheKey].length)
+    delete inProgressRenders[cacheKey];
+  
+  clearExpiredCacheEntries();
+  
+  // eslint-disable-next-line no-console
+  console.log("New cache state after finishing in-progress render:");
+  printCacheState();
+  
+  return {
+    ...rendered,
+    cached: false
+  };
 }
 
 
 const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
-  if (!(cacheKey in cachedABtestsIndex))
+  if (!(cacheKey in cachedABtestsIndex)) {
+    // eslint-disable-next-line no-console
+    console.log("Cache miss: no cached page with this cacheKey for any A/B test group combination");
     return null;
+  }
   const abTestCombinations: Array<RelevantTestGroupAllocation> = cachedABtestsIndex[cacheKey];
   for (let i=0; i<abTestCombinations.length; i++) {
     if (objIsSubset(abTestCombinations[i], abTestGroups)) {
-      return pageCache.get(JSON.stringify({
+      const lookupResult = pageCache.get(JSON.stringify({
         cacheKey: cacheKey,
         abTestGroups: abTestCombinations[i]
       }));
+      if (lookupResult)
+        return lookupResult;
     }
   }
+  // eslint-disable-next-line no-console
+  console.log(`Cache miss: page is cached, but with the wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
+  return null;
 }
 
 const objIsSubset = (subset,superset): boolean => {
@@ -95,23 +156,36 @@ const objIsSubset = (subset,superset): boolean => {
 }
 
 const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
-  if (!cacheLookup(cacheKey, abTestGroups)) {
-    if (cacheKey in cachedABtestsIndex)
-      cachedABtestsIndex[cacheKey].push(abTestGroups);
-    else
-      cachedABtestsIndex[cacheKey] = [abTestGroups];
-  }
-  
   pageCache.set(JSON.stringify({
     cacheKey: cacheKey,
     abTestGroups: abTestGroups
   }), rendered);
+  
+  if (cacheKey in cachedABtestsIndex)
+    cachedABtestsIndex[cacheKey].push(abTestGroups);
+  else
+    cachedABtestsIndex[cacheKey] = [abTestGroups];
 }
 
-const removeCacheABtest = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation) => {
-  cachedABtestsIndex[cacheKey] = _.filter(cachedABtestsIndex[cacheKey],
-    g=>!_.isEqual(g, abTestGroups));
-};
+const clearExpiredCacheEntries = (): void => {
+  for (let cacheKey of keysToCheckForExpiredEntries) {
+    const remainingEntries: Record<string,boolean> = {}
+    if (cachedABtestsIndex[cacheKey]) {
+      for (let abTestGroups of cachedABtestsIndex[cacheKey]) {
+        if (pageCache.get(JSON.stringify({ cacheKey, abTestGroups }))) {
+          remainingEntries[JSON.stringify(abTestGroups)] = true;
+        }
+      }
+    }
+    
+    const remainingEntriesArray = Object.keys(remainingEntries).map(groups=>JSON.parse(groups));
+    if (remainingEntriesArray.length > 0)
+      cachedABtestsIndex[cacheKey] = remainingEntriesArray;
+    else
+      delete cachedABtestsIndex[cacheKey];
+  }
+  keysToCheckForExpiredEntries = [];
+}
 
 let cacheHits = 0;
 let cacheQueriesTotal = 0;
@@ -129,3 +203,47 @@ export function recordCacheBypass() {
 export function getCacheHitRate() {
   return cacheHits / cacheQueriesTotal;
 }
+
+function printCacheState(options:any={}) {
+  const {pruneCache=false} = options;
+  // eslint-disable-next-line no-console
+  const log = console.log;
+  
+  log('cachedABtestsIndex = {');
+  for (let cacheKey of Object.keys(cachedABtestsIndex)) {
+    log(`    ${cacheKey}: [`);
+    for (let abTestGroup of cachedABtestsIndex[cacheKey]) {
+      log(`        ${JSON.stringify(abTestGroup)}`);
+    }
+    log(`    ],`);
+  }
+  log("}");
+  
+  if (pruneCache)
+    pageCache.prune();
+  log(`pageCache (length=${pageCache.length}) = {`);
+  
+  let directlyCalculatedLength = 0;
+  pageCache.forEach((value,key,cache) => {
+    log(`    ${key} => ...`);
+    directlyCalculatedLength += JSON.stringify(value).length + JSON.stringify(key).length;
+  });
+  log("}");
+  if (pageCache.length !== directlyCalculatedLength) {
+    log("===============");
+    log("LENGTH MISMATCH");
+    log(`Expected: ${pageCache.length}, found: ${directlyCalculatedLength}`);
+    log("===============");
+  }
+  
+  log("inProgressRenders = {");
+  for (let cacheKey of Object.keys(inProgressRenders)) {
+    log(`    ${cacheKey}: [`);
+    for (let inProgressRender of inProgressRenders[cacheKey]) {
+      log(`        ${JSON.stringify(inProgressRender.abTestGroups)}`);
+    }
+    log("    ]");
+  }
+  log("}");
+}
+Globals.printCacheState = printCacheState;

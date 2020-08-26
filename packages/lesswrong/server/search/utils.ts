@@ -204,7 +204,7 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
     postCount: tag.postCount,
     description,
   }];
-}
+} 
 
 
 // Do algoliaIndex.waitTask as an async function rather than a

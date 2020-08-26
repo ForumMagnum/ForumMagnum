@@ -38,7 +38,7 @@ const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
 
 const EmailCommentBatchComponent = registerComponent("EmailCommentBatch", EmailCommentBatch, {styles});
 
-const EmailCommentsOnPostHeader = ({postId}) => {
+const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
   const { document: post } = useSingle({
     documentId: postId,
     collection: Posts,
@@ -68,7 +68,10 @@ const EmailCommentsOnTagHeader = ({tagId}) => {
 
 const EmailCommentsOnPostHeaderComponent = registerComponent("EmailCommentsOnPostHeader", EmailCommentsOnPostHeader);
 
-const EmailComment = ({commentId, classes}) => {
+const EmailComment = ({commentId, classes}: {
+  commentId: string,
+  classes: ClassesType,
+}) => {
   const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const { document: comment, loading, error } = useSingle({
     documentId: commentId,
