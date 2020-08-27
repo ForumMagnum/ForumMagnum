@@ -1387,6 +1387,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
+    group: formGroups.adminOptions,
   },
   abTestOverrides: {
     type: GraphQLJSON, //Record<string,number>
