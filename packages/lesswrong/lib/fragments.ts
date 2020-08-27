@@ -181,6 +181,7 @@ registerFragment(`
         scoreChange
         description
         postId
+        tagSlug
       }
     }
   }

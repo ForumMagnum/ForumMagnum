@@ -143,7 +143,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             ))}
             {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
               <MenuItemUntyped className={classes.votedItemRow}
-                component={Link} to={Comments.getPageUrlFromIds({postId:commentChange.postId, postSlug:commentChange.postSlug, commentId: commentChange._id})} key={commentChange._id}
+                component={Link} to={Comments.getPageUrlFromIds({postId:commentChange.postId, postSlug:commentChange.postSlug, tagSlug:commentChange.tagSlug, commentId: commentChange._id})} key={commentChange._id}
                 >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
