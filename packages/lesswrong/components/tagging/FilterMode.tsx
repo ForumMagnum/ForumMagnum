@@ -18,11 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
-    '&:hover': {
-      '& $closeButton': {
-        display: "inline"
-      }
-    }
   },
   description: {
     ...commentBodyStyles(theme),
@@ -200,7 +195,7 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
       return <div><em>+0.</em> This tag will be ignored for filtering and sorting.</div>
     default:
       if (mode<0)
-        return <div><em>-{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
+        return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
       else
         return <div><em>+{mode}.</em> These posts will be shown more often (as though their score were {mode} points higher).</div>
   }

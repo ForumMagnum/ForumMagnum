@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
-import { addFieldsDict } from './utils/schemaUtils';
+import { addFieldsDict, CollectionFieldSpecification } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
 
@@ -31,11 +31,15 @@ SimpleSchema.extendOptions([ 'denormalized' ]);
 //
 SimpleSchema.extendOptions([ 'foreignKey' ]);
 
-export const expectedIndexes = {};
+// nullable: In a schema entry, this boolean indicates whether the type system
+// should treat this field as nullable 
+SimpleSchema.extendOptions([ 'nullable' ]);
+
+export const expectedIndexes: Partial<Record<CollectionNameString,Array<any>>> = {};
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
-async function conflictingIndexExists(collection, index, options)
+async function conflictingIndexExists<T extends DbObject>(collection: CollectionBase<T>, index: any, options: any)
 {
   if (!options.name)
     return false;
@@ -63,12 +67,12 @@ async function conflictingIndexExists(collection, index, options)
   return false;
 }
 
-export function ensureIndex(collection, index, options:any={}): void
+export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}): void
 {
   void ensureIndexAsync(collection, index, options);
 }
 
-export async function ensureIndexAsync(collection, index, options:any={})
+export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
   if (Meteor.isServer) {
     const buildIndex = async () => {
@@ -84,7 +88,7 @@ export async function ensureIndexAsync(collection, index, options:any={})
         
         if (!expectedIndexes[collection.collectionName])
           expectedIndexes[collection.collectionName] = [];
-        expectedIndexes[collection.collectionName].push({
+        expectedIndexes[collection.collectionName]!.push({
           key: index,
           partialFilterExpression: options.partialFilterExpression,
         });
@@ -126,7 +130,11 @@ export async function ensureIndexAsync(collection, index, options:any={})
 //   prefix: [ordered dictionary] Collection fields from the default view
 //   suffix: [ordered dictionary] Collection fields from the default view
 //
-export function combineIndexWithDefaultViewIndex({viewFields, prefix, suffix})
+export function combineIndexWithDefaultViewIndex({viewFields, prefix, suffix}: {
+  viewFields: any,
+  prefix: any,
+  suffix: any,
+})
 {
   let combinedIndex = {...prefix};
   for (let key in viewFields) {
@@ -140,16 +148,23 @@ export function combineIndexWithDefaultViewIndex({viewFields, prefix, suffix})
   return combinedIndex;
 }
 
-export function schemaDefaultValue(defaultValue) {
+export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Partial<CollectionFieldSpecification<T>> {
   // Used for both onCreate and onUpdate
-  const fillIfMissing = ({newDocument, fieldName}) => {
+  const fillIfMissing = ({newDocument, fieldName}: {
+    newDocument: T,
+    fieldName: string,
+  }) => {
     if (newDocument[fieldName] === undefined) {
       return defaultValue;
     } else {
       return undefined;
     }
   };
-  const throwIfSetToNull = ({oldDocument, document, fieldName}) => {
+  const throwIfSetToNull = ({oldDocument, document, fieldName}: {
+    oldDocument: T,
+    document: T,
+    fieldName: string,
+  }) => {
     const wasValid = (oldDocument[fieldName] !== undefined && oldDocument[fieldName] !== null);
     const isValid = (document[fieldName] !== undefined && document[fieldName] !== null);
     if (wasValid && !isValid) {
@@ -168,7 +183,7 @@ export function schemaDefaultValue(defaultValue) {
 export function addUniversalFields<T extends DbObject>({ collection, schemaVersion=1 }: {
   collection: CollectionBase<T>,
   schemaVersion?: number
-}) {
+}): void {
   addFieldsDict(collection, {
     _id: {
       optional: true,
@@ -186,13 +201,14 @@ export function addUniversalFields<T extends DbObject>({ collection, schemaVersi
   ensureIndex(collection, {schemaVersion: 1});
 }
 
-export function isUniversalField(fieldName: string) {
+export function isUniversalField(fieldName: string): boolean {
   return fieldName=="_id" || fieldName=="schemaVersion";
 }
 
-export function isUnbackedCollection(collection)
+export function isUnbackedCollection<T extends DbObject>(collection: CollectionBase<T>): boolean
 {
-  if (collection.collectionName === 'Settings' || collection.collectionName === 'Callbacks') {
+  const collectionName: string = collection.collectionName;
+  if (collectionName === 'Settings' || collectionName === 'Callbacks') {
     // Vulcan collections with no backing database table
     return true;
   }

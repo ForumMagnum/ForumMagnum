@@ -3,7 +3,10 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import Chapters from '../../lib/collections/chapters/collection';
 
-const ChaptersList = ({terms, canEdit}) => {
+const ChaptersList = ({terms, canEdit}: {
+  terms: any,
+  canEdit: boolean,
+}) => {
   const { results, loading } = useMulti({
     terms,
     collection: Chapters,

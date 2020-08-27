@@ -1,5 +1,5 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences, foreignKeyField } from '../../utils/schemaUtils';
+import { denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
 
@@ -12,7 +12,7 @@ const formGroups = {
   },
 };
   
-export const schema = {
+export const schema: SchemaType<DbTag> = {
   createdAt: {
     optional: true,
     type: Date,
@@ -113,7 +113,8 @@ export const schema = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: false,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],

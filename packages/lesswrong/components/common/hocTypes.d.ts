@@ -7,7 +7,7 @@ interface WithStylesProps {
   classes: ClassesType,
 };
 
-type WithMessagesMessage = string|{messageString?: string, type?: string, action?: any};
+type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string, type?: string, action?: any};
 
 interface WithMessagesProps {
   messages: Array<WithMessagesMessage>,

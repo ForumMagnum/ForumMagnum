@@ -10,7 +10,7 @@ export const sanitizeAllowedTags = [
   'span', 'sub', 'sup', 'ins', 'del',
 ]
 
-export const sanitize = function(s) {
+export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {

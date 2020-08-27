@@ -1,9 +1,8 @@
 import SimpleSchema from 'simpl-schema';
-import { forumTypeSetting } from '../../instanceSettings';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 
-const baseDefaultAlgorithmSettings = {
+export const defaultAlgorithmSettings = {
   method: "top",
   count: 10,
   scoreOffset: 0,
@@ -14,19 +13,6 @@ const baseDefaultAlgorithmSettings = {
   frontpageModifier: 10,
   curatedModifier: 50,
   onlyUnread: true,
-};
-
-export const defaultAlgorithmSettings = forumTypeSetting.get() === 'EAForum' ?
-  {...baseDefaultAlgorithmSettings, metaModifier: 0} :
-  baseDefaultAlgorithmSettings
-
-export const slotSpecificRecommendationSettingDefaults = {
-  frontpage: {
-    count: 4
-  },
-  frontpageEA: {
-    count: 5
-  }
 };
 
 const recommendationAlgorithmSettingsSchema = new SimpleSchema({

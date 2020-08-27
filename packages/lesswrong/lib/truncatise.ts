@@ -28,6 +28,14 @@
 
 var selfClosingTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "menuitem", "meta", "param", "source", "track", "wbr"];
 
+interface TruncatiseOptions {
+  TruncateBy?: string,
+  TruncateLength?: number,
+  StripHTML?: boolean,
+  Strict?: boolean,
+  Suffix?: string,
+}
+
 /**
  * Truncates a given HTML string to the specified length.
  * @param {string} text This is the HTMl string to be truncated
@@ -44,7 +52,7 @@ var selfClosingTags = ["area", "base", "br", "col", "embed", "hr", "img", "input
  *      length provided by the options. HTML tags may be stripped based
  *      on the given options.
  */
-export const truncatise = function(text,options) {
+export const truncatise = function(text: string, options: TruncatiseOptions): string {
     var options         = options || {},
         text            = (text || "").trim(),
         truncatedText   = "",

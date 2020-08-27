@@ -4,12 +4,12 @@ import Users from '../users/collection';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 const options = {
-  newCheck: (user) => {
+  newCheck: (user: DbUser|null) => {
     if (!user) return false;
     return Users.canDo(user, 'posts.new')
   },
 
-  editCheck: (user, document) => {
+  editCheck: (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
     if (Users.canDo(user, 'posts.alignment.move.all') ||
         Users.canDo(user, 'posts.alignment.suggest')) {
@@ -18,7 +18,7 @@ const options = {
     return Posts.canEdit(user, document)
   },
 
-  removeCheck: (user, document) => {
+  removeCheck: (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
     return Users.owns(user, document) ? Users.canDo(user, 'posts.edit.own') : Users.canDo(user, `posts.edit.all`)
   },

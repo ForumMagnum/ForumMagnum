@@ -6,19 +6,19 @@ import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 const options = {
-  newCheck: (user, document) => {
+  newCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
     return document.organizerIds.includes(user._id) ? Users.canDo(user, 'localgroups.new.own')
      : Users.canDo(user, `localgroups.new.all`)
   },
 
-  editCheck: (user, document) => {
+  editCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
     return document.organizerIds.includes(user._id) ? Users.canDo(user, 'localgroups.edit.own')
     : Users.canDo(user, `localgroups.edit.all`)
   },
 
-  removeCheck: (user, document) => {
+  removeCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
     return document.organizerIds.includes(user._id) ? Users.canDo(user, 'localgroups.remove.own')
     : Users.canDo(user, `localgroups.remove.all`)

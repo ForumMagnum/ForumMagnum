@@ -4,7 +4,6 @@ import Typography from '@material-ui/core/Typography';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
-import GroupIcon from '@material-ui/icons/Group';
 import SubjectIcon from '@material-ui/icons/Subject';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
@@ -125,17 +124,9 @@ export const contentTypes = {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
       tooltipBody: <div>
-        Material selected by moderators as especially interesting or useful to
-        people with interest in doing good effectively.
+        Posts that are relevant to doing good effectively.
       </div>,
       Icon: HomeIcon
-    },
-    meta: {
-      tooltipTitle: 'Community Post',
-      tooltipBody: <div>
-        Posts with topical content or relating to the EA community itself.
-      </div>,
-      Icon: GroupIcon
     },
     personal: {
       tooltipTitle: 'Personal Blog Post',

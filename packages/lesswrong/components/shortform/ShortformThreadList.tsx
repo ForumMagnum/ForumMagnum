@@ -9,7 +9,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ShortformThreadList = ({ terms, classes }) => {
+const ShortformThreadList = ({ terms, classes }: {
+  terms: any,
+  classes: ClassesType,
+}) => {
   const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,
@@ -27,6 +30,7 @@ const ShortformThreadList = ({ terms, classes }) => {
       {loading || !results ? <Loading /> :
       <div>
         {results.map((comment, i) => {
+          if (!comment.post) return null
           return <div key={comment._id} className={classes.shortformItem}>
             <CommentWithReplies comment={comment} post={comment.post} refetch={refetch}/>
           </div>

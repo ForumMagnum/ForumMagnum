@@ -1,6 +1,6 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 
-const schema = {
+const schema: SchemaType<DbPostRelation> = {
   createdAt: {
     type: Date,
     optional: true,
@@ -21,6 +21,7 @@ const schema = {
       resolverName: "sourcePost",
       collectionName: "Posts",
       type: "Post",
+      nullable: false,
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
@@ -31,6 +32,7 @@ const schema = {
       resolverName: "targetPost",
       collectionName: "Posts",
       type: "Post",
+      nullable: false,
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],

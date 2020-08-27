@@ -1,4 +1,4 @@
-import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
+import { foreignKeyField, arrayOfForeignKeysField, SchemaType } from '../../utils/schemaUtils'
 
 export const formGroups = {
   chapterDetails: {
@@ -9,7 +9,7 @@ export const formGroups = {
   },
 }
 
-const schema = {
+const schema: SchemaType<DbChapter> = {
   createdAt: {
     type: Date,
     optional: true,
@@ -56,6 +56,7 @@ const schema = {
       resolverName: "sequence",
       collectionName: "Sequences",
       type: "Sequence",
+      nullable: false,
     }),
     optional: true,
     hidden: true,

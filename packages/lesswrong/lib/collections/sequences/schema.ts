@@ -1,7 +1,7 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
-const schema = {
+const schema: SchemaType<DbSequence> = {
 
   // default properties
 
@@ -18,6 +18,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
     optional: true,
     viewableBy: ['guests'],

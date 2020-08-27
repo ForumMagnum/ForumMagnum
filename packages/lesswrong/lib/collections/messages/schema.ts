@@ -1,13 +1,14 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import Users from '../users/collection';
 
-const schema = {
+const schema: SchemaType<DbMessage> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
     viewableBy: ['members'],
     insertableBy: Users.owns,
@@ -25,6 +26,7 @@ const schema = {
       resolverName: "conversation",
       collectionName: "Conversations",
       type: "Conversation",
+      nullable: false,
     }),
     viewableBy: ['members'],
     insertableBy: ['members'],

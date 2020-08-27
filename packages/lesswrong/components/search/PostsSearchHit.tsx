@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   })
 
-const isLeftClick = (event) => {
+const isLeftClick = (event: MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
@@ -29,7 +29,7 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
   // If clickAction is provided, disable link and replace with Click of the action
   return <div className={classes.root}>
     <Link
-      onClick={(event) => isLeftClick(event) && clickAction && clickAction()}
+      onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       to={Posts.getPageUrl(hit)}
       target={Posts.getLinkTarget(hit)}
     >

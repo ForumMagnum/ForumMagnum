@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
-  sequence: HasIdType,
+  sequence: HasIdType|null,
   classes: ClassesType,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);

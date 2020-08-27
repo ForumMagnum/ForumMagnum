@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface PostsRevisionMessageFragment {
-  contents: { editedAt: Date }
+  contents: { editedAt: Date } | null
 }
 
 const PostsRevisionMessage = ({post, classes}: {

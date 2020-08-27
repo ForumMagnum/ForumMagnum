@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
-export const tagStyle = theme => ({
+export const tagStyle = (theme: ThemeType) => ({
   marginRight: 3,
   padding: 5,
   paddingLeft: 6,
@@ -22,7 +22,7 @@ export const tagStyle = theme => ({
   cursor: "pointer"
 })
 
-const newTagStyle = theme => ({
+const newTagStyle = (theme: ThemeType) => ({
   marginRight: 4,
   padding: 5,
   paddingLeft: 8,

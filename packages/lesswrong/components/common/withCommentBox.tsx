@@ -3,8 +3,8 @@ import { Components } from '../../lib/vulcan-lib';
 import { hookToHoc } from '../../lib/hocUtils';
 
 interface CommentBoxContextType {
-  openCommentBox: any,
-  close: any,
+  openCommentBox: ({componentName, componentProps}: {componentName: string, componentProps: any})=>void,
+  close: ()=>void,
 }
 export const CommentBoxContext = React.createContext<CommentBoxContextType|null>(null);
 

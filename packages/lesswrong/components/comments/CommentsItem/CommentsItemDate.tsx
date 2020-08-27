@@ -36,9 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView, permalink=true }: {
+const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollIntoView, permalink=true }: {
   comment: CommentsList,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
+  tag?: TagBasicInfo,
   classes: ClassesType,
   scrollOnClick?: boolean,
   scrollIntoView?: ()=>void,
@@ -48,14 +49,14 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
   const { location } = useLocation();
   const { captureEvent } = useTracking();
 
-  const handleLinkClick = (event) => {
+  const handleLinkClick = (event: React.MouseEvent) => {
     event.preventDefault()
     history.replace({...location, search: qs.stringify({commentId: comment._id})})
     if(scrollIntoView) scrollIntoView();
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
   };
 
-  const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink})
+  const url = Comments.getPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, permalink})
 
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>

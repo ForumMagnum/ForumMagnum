@@ -13,7 +13,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
+const EmailWrapper = ({user, unsubscribeAllLink, children, classes}: {
+  user: DbUser,
+  unsubscribeAllLink: string,
+  children: React.ReactNode,
+  classes: ClassesType,
+}) => {
   const accountLink = `${Utils.getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()
   
