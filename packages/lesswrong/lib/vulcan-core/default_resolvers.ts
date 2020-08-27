@@ -52,6 +52,9 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         
         const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
         
+        // Were there enough results to reach the limit specified in the query?
+        const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
+        
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
         const viewableDocs: Array<T> = collection.checkAccess
           ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
@@ -68,7 +71,11 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         if (enableTotal) {
           // get total count of documents matching the selector
           // TODO: Make this handle synthetic fields
-          data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
+          if (saturated) {
+            data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
+          } else {
+            data.totalCount = viewableDocs.length;
+          }
         }
 
         // return results
