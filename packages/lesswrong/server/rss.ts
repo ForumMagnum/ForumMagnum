@@ -8,6 +8,7 @@ import moment from '../lib/moment-timezone';
 import { rssTermsToUrl } from '../lib/rss_urls';
 import { addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
+import { getCommentParentTitle } from '../lib/notificationTypes';
 
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
@@ -92,11 +93,9 @@ export const serveCommentRSS = async (terms, url?: string) => {
   const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);
 
   restrictedComments.forEach(function(comment) {
-    const post = Posts.findOne(comment.postId);
-    // eslint-disable-next-line no-console
-    if (!post) console.warn(`Can't find post for comments in RSS feed: ${comment._id}`)
+    const parentTitle = getCommentParentTitle(comment)
     feed.item({
-     title: 'Comment on ' + post?.title,
+     title: 'Comment on ' + parentTitle,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,

@@ -253,7 +253,8 @@ const schema: SchemaType<DbPost> = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: false,
     }),
     optional: true,
     control: 'select',
@@ -404,7 +405,7 @@ const schema: SchemaType<DbPost> = {
 
   sourcePostRelations: resolverOnlyField({
     type: Array,
-    graphQLtype: '[PostRelation!]',
+    graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
       return await PostRelations.find({targetPostId: post._id}).fetch()
@@ -417,7 +418,7 @@ const schema: SchemaType<DbPost> = {
 
   targetPostRelations: resolverOnlyField({
     type: Array,
-    graphQLtype: '[PostRelation!]',
+    graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
       const postRelations = await Posts.rawCollection().aggregate([

@@ -56,6 +56,7 @@ const schema: SchemaType<DbChapter> = {
       resolverName: "sequence",
       collectionName: "Sequences",
       type: "Sequence",
+      nullable: false,
     }),
     optional: true,
     hidden: true,

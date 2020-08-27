@@ -453,26 +453,29 @@ async function CommentsNewNotifications(comment: DbComment) {
     }
     
     // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
-    const post = await Posts.findOne(comment.postId);
-    const usersSubscribedToPost = await getSubscribedUsers({
-      documentId: comment.postId,
-      collectionName: "Posts",
-      type: subscriptionTypes.newComments,
-      potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
-      userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
-    })
-    const userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
-
-    // Notify users who are subscribed to shortform posts
-    if (!comment.topLevelCommentId && comment.shortform) {
-      const usersSubscribedToShortform = await getSubscribedUsers({
+    let userIdsSubscribedToPost: Array<string> = [];
+    if (comment.postId) {
+      const post = await Posts.findOne(comment.postId);
+      const usersSubscribedToPost = await getSubscribedUsers({
         documentId: comment.postId,
         collectionName: "Posts",
-        type: subscriptionTypes.newShortform
+        type: subscriptionTypes.newComments,
+        potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
+        userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
       })
-      const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
-      await createNotifications(userIdsSubscribedToShortform, 'newShortform', 'comment', comment._id);
-      notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
+      userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+  
+      // Notify users who are subscribed to shortform posts
+      if (!comment.topLevelCommentId && comment.shortform) {
+        const usersSubscribedToShortform = await getSubscribedUsers({
+          documentId: comment.postId,
+          collectionName: "Posts",
+          type: subscriptionTypes.newShortform
+        })
+        const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
+        await createNotifications(userIdsSubscribedToShortform, 'newShortform', 'comment', comment._id);
+        notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
+      }
     }
     
     // remove userIds of users that have already been notified

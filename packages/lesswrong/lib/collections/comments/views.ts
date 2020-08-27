@@ -365,3 +365,9 @@ ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
 );
+
+Comments.addView('commentsOnTag', terms => ({
+  selector: {
+    tagId: terms.tagId,
+  },
+}));
