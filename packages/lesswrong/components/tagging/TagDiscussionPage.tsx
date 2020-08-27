@@ -34,6 +34,7 @@ const TagDiscussionPage = ({classes}: {
     terms: {
       view: "commentsOnTag",
       tagId: tag?._id,
+      limit: 500,
     },
     collectionName: "Comments",
     fragmentName: 'CommentsList',
