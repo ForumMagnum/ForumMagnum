@@ -89,6 +89,11 @@ addRoute(
     componentName: 'UsersAccount',
     background: "white"
   },
+  {
+    name:'users.abTestGroups',
+    path:'/abTestGroups',
+    componentName: 'UsersViewABTests',
+  },
 
   // Miscellaneous LW2 routes
   {
@@ -589,13 +594,17 @@ switch (forumTypeSetting.get()) {
       {
         name: 'Community',
         path: '/meta',
-        componentName: 'Meta',
-        title: "Community"
+        redirect: () => `/tags/all`,
       },
       {
         name: 'eaSequencesHome',
         path: '/sequences',
         componentName: 'EASequencesHome'
+      },
+      {
+        name: 'eaSequencesRedirect',
+        path: '/library',
+        redirect: () => '/sequences'
       },
       {
         name: "TagsAll",

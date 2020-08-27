@@ -9,7 +9,7 @@ import {
 chai.should();
 chai.use(chaiAsPromised);
 
-function sleep(ms) {
+function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 

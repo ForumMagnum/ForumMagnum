@@ -808,6 +808,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
+  readonly bio: string,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit,
   readonly showHideKarmaOption: boolean,
@@ -845,6 +846,8 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly hideTaggingProgressBar: boolean,
+  readonly abTestKey: string,
+  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface UserBookmarks { // fragment on Users

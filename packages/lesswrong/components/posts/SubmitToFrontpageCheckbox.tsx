@@ -13,7 +13,7 @@ const forumDefaultCheckboxLabels = {
 
 const defaultCheckboxLabel = forumDefaultCheckboxLabels[forumTypeSetting.get()]
 
-const defaultTooltipLWAF = ({classes}) => <div className={classes.tooltip}>
+const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
   <p className={classes.guidelines}>Things to aim for:</p>
   <ul>

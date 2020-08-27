@@ -1,7 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const EmailTokenResult = ({message}) => {
+const EmailTokenResult = ({message}: {
+  message: any,
+}) => {
   return <div>{message}</div>
 }
 

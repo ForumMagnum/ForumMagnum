@@ -5,6 +5,7 @@ import { Comments } from '../../lib/collections/comments'
 import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import { Accounts } from 'meteor/accounts-base';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -40,7 +41,7 @@ function updateModerateOwnPersonal({newDocument, vote}) {
 addCallback("votes.smallUpvote.async", updateModerateOwnPersonal);
 addCallback("votes.bigUpvote.async", updateModerateOwnPersonal);
 
-function maybeSendVerificationEmail (modifier, user)
+function maybeSendVerificationEmail (modifier, user: DbUser)
 {
   if(modifier.$set.whenConfirmationEmailSent
       && (!user.whenConfirmationEmailSent
@@ -53,7 +54,7 @@ addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
-async function approveUnreviewedSubmissions (newUser, oldUser)
+async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
@@ -85,8 +86,8 @@ addCallback("users.edit.async", approveUnreviewedSubmissions);
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
-function makeFirstUserAdminAndApproved (user) {
-  const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
+function makeFirstUserAdminAndApproved (user: DbUser) {
+  const realUsersCount = Users.find({}).count();
   if (realUsersCount === 0) {
     user.reviewedByUserId = "firstAccount"; //HACK
     
@@ -98,7 +99,7 @@ function makeFirstUserAdminAndApproved (user) {
 }
 addCallback('users.new.sync', makeFirstUserAdminAndApproved);
 
-function clearKarmaChangeBatchOnSettingsChange (modifier, user)
+function clearKarmaChangeBatchOnSettingsChange (modifier, user: DbUser)
 {
   if (modifier.$set && modifier.$set.karmaChangeNotifierSettings) {
     if (!user.karmaChangeNotifierSettings.updateFrequency
@@ -127,7 +128,7 @@ const getCaptchaRating = async (token): Promise<string> => {
     );
   });
 }
-async function addReCaptchaRating (user) {
+async function addReCaptchaRating (user: DbUser) {
   if (reCaptchaSecretSetting.get()) {
     const reCaptchaToken = user?.profile?.reCaptchaToken 
     if (reCaptchaToken) {
@@ -144,7 +145,7 @@ async function addReCaptchaRating (user) {
 }
 addCallback('users.new.async', addReCaptchaRating);
 
-async function subscribeOnSignup (user) {
+async function subscribeOnSignup (user: DbUser) {
   // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
   const subscribeToCurated = user.profile?.subscribeToCurated;
   if (subscribeToCurated) {
@@ -164,7 +165,16 @@ async function subscribeOnSignup (user) {
 }
 addCallback('users.new.async', subscribeOnSignup);
 
-async function handleSetShortformPost (newUser, oldUser) {
+// When creating a new account, populate their A/B test group key from their
+// client ID, so that their A/B test groups will persist from when they were
+// logged out.
+async function setABTestKeyOnSignup (user) {
+  const abTestKey = user.profile?.clientId || Random.id();
+  Users.update(user._id, {$set: {abTestKey: abTestKey}});
+}
+addCallback('users.new.async', setABTestKeyOnSignup);
+
+async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
   if (newUser.shortformFeedId !== oldUser.shortformFeedId)
   {
     const post = await Posts.findOne({_id: newUser.shortformFeedId});

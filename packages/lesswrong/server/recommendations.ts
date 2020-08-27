@@ -1,7 +1,6 @@
 import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts';
 import { ensureIndex } from '../lib/collectionUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
@@ -148,14 +147,18 @@ const allRecommendablePosts = async ({currentUser, algorithm}): Promise<Array<Db
 const topPosts = async ({count, currentUser, algorithm, scoreFn}) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
-  const unreadTopPosts = _.first(
-    _.sortBy(recommendablePostsMetadata, post => -scoreFn(post)),
-    count);
-  const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id);
+  const defaultRecommendations = algorithm.excludeDefaultRecommendations ? [] : recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation)
+
+  const sortedTopRecommendations = _.sortBy(recommendablePostsMetadata, post => -scoreFn(post))
+  const unreadTopPosts = _.first([
+    ...defaultRecommendations,
+    ...sortedTopRecommendations
+  ], count)
+  const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id)
 
   return await Posts.find(
     { _id: {$in: unreadTopPostIds} },
-    { sort: {baseScore: -1} }
+    { sort: {defaultRecommendation: -1, baseScore: -1} }
   ).fetch();
 }
 
@@ -192,7 +195,6 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
 const getModifierName = post => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
-  if (forumTypeSetting.get() === 'EAForum' && post.meta) return 'metaModifier'
   return 'personalBlogpostModifier'
 }
 

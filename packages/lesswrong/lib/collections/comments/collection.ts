@@ -5,7 +5,7 @@ import { Posts } from '../posts';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 export const commentMutationOptions = {
-  newCheck: (user, document) => {
+  newCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user) return false;
 
     if (!document || !document.postId) return Users.canDo(user, 'comments.new')
@@ -19,7 +19,7 @@ export const commentMutationOptions = {
     return Users.canDo(user, 'comments.new')
   },
 
-  editCheck: (user, document) => {
+  editCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user || !document) return false;
     if (Users.canDo(user, 'comments.alignment.move.all') ||
         Users.canDo(user, 'comments.alignment.suggest')) {
@@ -28,7 +28,7 @@ export const commentMutationOptions = {
     return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`)
   },
 
-  removeCheck: (user, document) => {
+  removeCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user || !document) return false;
     return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`)
   },

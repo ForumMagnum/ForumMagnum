@@ -104,6 +104,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
+    bio
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -144,6 +145,9 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     hideTaggingProgressBar
+    
+    abTestKey
+    abTestOverrides
   }
 `);
 

@@ -13,7 +13,7 @@ export const ServerRequestStatusContext = React.createContext<any>(null);
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-export const parsePath = function parsePath(path) {
+export const parsePath = function parsePath(path: string) {
   var pathname = path || '/';
   var search = '';
   var hash = '';

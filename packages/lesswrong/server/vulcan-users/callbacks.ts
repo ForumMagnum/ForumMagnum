@@ -21,12 +21,12 @@ import { addCallback, Utils } from '../vulcan-lib';
   // }
   // addCallback("users.new.sync", usersNewAdminUserCreationNotification);
 
-  export function usersMakeAdmin (user) {
+  export function usersMakeAdmin (user: DbUser) {
     // if this is not a dummy account, and is the first user ever, make them an admin
     // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later. 
     if (typeof user.isAdmin === 'undefined') {
-      const realUsersCount = Users.find({'isDummy': {$in: [false,null]}}).count();
-      user.isAdmin = !user.isDummy && realUsersCount === 0;
+      const realUsersCount = Users.find({}).count();
+      user.isAdmin = (realUsersCount === 0);
     }
     return user;
   }
@@ -40,7 +40,7 @@ import { addCallback, Utils } from '../vulcan-lib';
   //}
   //addCallback('users.edit.sync', usersEditGenerateHtmlBio);
 
-  function usersEditCheckEmail (modifier, user) {
+  function usersEditCheckEmail (modifier, user: DbUser) {
     // if email is being modified, update user.emails too
     if (modifier.$set && modifier.$set.email) {
 

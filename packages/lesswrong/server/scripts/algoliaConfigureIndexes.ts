@@ -101,6 +101,7 @@ export const algoliaConfigureIndexes = async () => {
       'desc(postCount)',
     ],
     distinct: false,
+    attributesToSnippet: ['description:10'],
   });
   
   console.log("Done"); //eslint-disable-line no-console

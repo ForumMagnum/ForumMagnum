@@ -155,7 +155,7 @@ type quadraticVote = vote & {type: "quadratic"}
 type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 
-const generatePermutation = (count: number, user): Array<number> => {
+const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
   const seed = user?._id || "";
   const rng = seedrandom(seed);
   
@@ -169,7 +169,9 @@ const generatePermutation = (count: number, user): Array<number> => {
   return result;
 }
 
-const ReviewVotingPage = ({classes}) => {
+const ReviewVotingPage = ({classes}: {
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
@@ -215,7 +217,7 @@ const ReviewVotingPage = ({classes}) => {
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
   const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
-  const handleSetUseQuadratic = (newUseQuadratic) => {
+  const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
       if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
         return
@@ -231,7 +233,7 @@ const ReviewVotingPage = ({classes}) => {
     });
   }
 
-  const dispatchQualitativeVote = async ({postId, score}) => await submitVote({variables: {postId, qualitativeScore: score}})
+  const dispatchQualitativeVote = async ({postId, score}: {postId: string, score: number}) => await submitVote({variables: {postId, qualitativeScore: score}})
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
   const dispatchQuadraticVote = async ({_id, postId, change, set}) => {
@@ -399,11 +401,15 @@ const ReviewVotingPage = ({classes}) => {
   );
 }
 
-function getVoteForPost(votes, postId) {
-  return votes.find(vote => vote.postId === postId)
+function getVoteForPost(votes: Array<reviewVoteFragment>, postId: string) {
+  return votes.find((vote: reviewVoteFragment) => vote.postId === postId)
 }
 
-function CommentTextField({startValue, updateValue, postId}) {
+function CommentTextField({startValue, updateValue, postId}: {
+  startValue: string|undefined,
+  updateValue: (value: any)=>void,
+  postId: string,
+}) {
   const [text, setText] = useState(startValue)
   // Reset text when postId changes
   useEffect(() => {
@@ -427,10 +433,10 @@ function CommentTextField({startValue, updateValue, postId}) {
     rows="2"
   />
 }
-function getPostOrder(posts, votes, currentUser) {
+function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
   const randomPermutation = generatePermutation(posts.length, currentUser);
   const result = posts.map(
-    (post, i) => {
+    (post: PostsList, i: number) => {
       const voteForPost = votes.find(vote => vote.postId === post._id)
       const  voteScore = voteForPost ? voteForPost.score : 1;
       return [post, voteForPost, voteScore, i, randomPermutation[i]]
@@ -444,7 +450,7 @@ function getPostOrder(posts, votes, currentUser) {
     })
     .reverse()
     .map(([post,vote,voteScore,originalIndex,permuted], sortedIndex) => [sortedIndex, originalIndex])
-  return result;
+  return result as Array<[number,number]>;
 }
 
 function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] {
@@ -504,7 +510,7 @@ function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: 
   })
 }
 
-const voteRowStyles = createStyles(theme => ({
+const voteRowStyles = createStyles((theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*1.5,
     paddingTop: 10,
@@ -574,7 +580,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   </AnalyticsContext>
 })
 
-const votingButtonStyles = theme => ({
+const votingButtonStyles = (theme: ThemeType) => ({
   button: {
     padding: theme.spacing.unit,
     ...theme.typography.smallText,
@@ -619,7 +625,7 @@ const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({
   </div>
 })
 
-const quadraticVotingButtonStyles = theme => ({
+const quadraticVotingButtonStyles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"

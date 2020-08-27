@@ -13,7 +13,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
-const ChaptersEditForm = ({classes, documentId, successCallback, cancelCallback}) => {
+const ChaptersEditForm = ({classes, documentId, successCallback, cancelCallback}: {
+  classes: ClassesType,
+  documentId: string,
+  successCallback: any,
+  cancelCallback: any,
+}) => {
   return (
     <div className={classes.root}>
       <h3 className={classes.title}>Add/Remove Posts</h3>

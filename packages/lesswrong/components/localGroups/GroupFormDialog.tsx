@@ -65,7 +65,11 @@ const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({subm
   </div>
 })
 
-const GroupFormDialog =  ({ onClose, classes, documentId }) => {
+const GroupFormDialog =  ({ onClose, classes, documentId }: {
+  onClose: ()=>void,
+  classes: ClassesType,
+  documentId: string,
+}) => {
   const { WrappedSmartForm } = Components
   const currentUser = useCurrentUser();
   const { flash } = useMessages();

@@ -53,7 +53,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   }
 })
-const SearchPagination = ({classes, pagesPadding=0, showFirst=false}) => {
+const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
+  classes: ClassesType,
+  pagesPadding?: number,
+  showFirst?: boolean,
+}) => {
   return <div className={classes.root}>
     <Pagination padding={pagesPadding} showFirst={showFirst}/>
   </div>

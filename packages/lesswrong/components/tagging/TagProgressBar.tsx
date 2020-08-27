@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: "white",
     padding: 10,

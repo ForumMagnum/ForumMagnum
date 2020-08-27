@@ -8,6 +8,7 @@ import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormali
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
+import GraphQLJSON from 'graphql-type-json';
 
 export const hashPetrovCode = (code: string): string => {
   // @ts-ignore
@@ -85,6 +86,12 @@ export const defaultNotificationTypeSettings = {
   dayOfWeekGMT: "Monday",
 };
 
+export interface KarmaChangeSettingsType {
+  updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
+  timeOfDayGMT: number
+  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
+  showNegativeKarma: boolean
+}
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
@@ -695,7 +702,7 @@ addFieldsDict(Users, {
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
-    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.jsx
+    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.tsx
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [Users.owns, 'admins'],
@@ -1374,7 +1381,20 @@ addFieldsDict(Users, {
     }),
     canRead: ['guests'],
     ...schemaDefaultValue(0)
-  }
+  },
+  abTestKey: {
+    type: String,
+    optional: true,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+  abTestOverrides: {
+    type: GraphQLJSON, //Record<string,number>
+    optional: true, hidden: true,
+    canRead: [Users.owns],
+    canUpdate: ['admins'],
+  },
 });
 
 export const makeEditableOptionsModeration = {

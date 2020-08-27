@@ -1,4 +1,5 @@
 import Votes from '../lib/collections/votes/collection';
+import { KarmaChangeSettingsType } from '../lib/collections/users/custom_fields';
 import moment from '../lib/moment-timezone';
 import htmlToText from 'html-to-text';
 import sumBy from 'lodash/sumBy';
@@ -27,7 +28,7 @@ const COMMENT_DESCRIPTION_LENGTH = 500;
 //   ]
 // }
 export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false}: {
-  user: any,
+  user: DbUser,
   startDate: Date,
   endDate: Date,
   nextBatchDate?: Date,
@@ -42,7 +43,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
 
   const showNegativeKarmaSetting = user.karmaChangeNotifierSettings?.showNegativeKarma
   
-  function karmaChangesInCollectionPipeline(collectionName) {
+  function karmaChangesInCollectionPipeline(collectionName: CollectionNameString) {
     return [
       // Get votes cast on this user's content (including cancelled votes)
       {$match: {
@@ -235,7 +236,10 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
   }
 }
 
-export function getKarmaChangeNextBatchDate({settings, now})
+export function getKarmaChangeNextBatchDate({settings, now}: {
+  settings: KarmaChangeSettingsType,
+  now: Date,
+})
 {
   switch(settings.updateFrequency) {
     case "disabled":
