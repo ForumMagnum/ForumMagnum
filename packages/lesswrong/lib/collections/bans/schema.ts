@@ -22,6 +22,7 @@ const schema: SchemaType<DbBan> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],

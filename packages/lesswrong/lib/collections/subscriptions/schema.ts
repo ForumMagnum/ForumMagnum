@@ -25,6 +25,7 @@ const schema: SchemaType<DbSubscription> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     canRead: [Users.owns],

@@ -8,7 +8,7 @@ const specificResolvers = {
       const {currentUser} = context;
       const comment = context.Comments.findOne(commentId)
       if (!comment) throw new Error("Invalid commentId");
-      const post = context.Posts.findOne(comment.postId)
+      const post = comment.postId && context.Posts.findOne(comment.postId)
       if (!post) throw new Error("Cannot find post");
       
       if (currentUser && Users.canModerateComment(currentUser, post, comment)) {

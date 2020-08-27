@@ -110,8 +110,8 @@ export async function runThenSleep(loadFactor, func)
 // Given a collection which has a field that has a default value (specified
 // with ...schemaDefaultValue), fill in the default value for any rows where it
 // is missing.
-export async function fillDefaultValues({ collection, fieldName, batchSize, loadFactor=DEFAULT_LOAD_FACTOR }: {
-  collection: any,
+export async function fillDefaultValues<T extends DbObject>({ collection, fieldName, batchSize, loadFactor=DEFAULT_LOAD_FACTOR }: {
+  collection: CollectionBase<T>,
   fieldName: string,
   batchSize?: number,
   loadFactor?: number
@@ -128,7 +128,7 @@ export async function fillDefaultValues({ collection, fieldName, batchSize, load
   // eslint-disable-next-line no-console
   console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
   
-  let nModified = 0;
+  let nMatched = 0;
   
   await forEachBucketRangeInCollection({
     collection, bucketSize: batchSize||10000,
@@ -140,9 +140,9 @@ export async function fillDefaultValues({ collection, fieldName, batchSize, load
         const mutation = { $set: {
           [fieldName]: defaultValue
         } };
-        const writeResult = await collection.update(bucketSelector, mutation, {multi: true});
+        const writeResult = collection.update(bucketSelector, mutation, {multi: true});
         
-        nModified += writeResult || 0;
+        nMatched += writeResult || 0;
         // eslint-disable-next-line no-console
         console.log(`Finished bucket. Write result: ${JSON.stringify(writeResult)}`);
       });
@@ -150,7 +150,7 @@ export async function fillDefaultValues({ collection, fieldName, batchSize, load
   });
 
   // eslint-disable-next-line no-console
-  console.log(`Done. ${nModified} rows affected`);
+  console.log(`Done. ${nMatched} rows matched`);
 }
 
 // Given a query which finds documents in need of a migration, and a function
@@ -251,7 +251,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
 
 export async function dropUnusedField(collection, fieldName) {
   const loadFactor = 0.5;
-  let nModified = 0;
+  let nMatched = 0;
   
   await forEachBucketRangeInCollection({
     collection,
@@ -269,14 +269,13 @@ export async function dropUnusedField(collection, fieldName) {
           {multi: true}
         );
         
-        if (writeResult.nModified)
-          nModified += writeResult.nModified;
+        nMatched += writeResult;
       });
     }
   });
   
   // eslint-disable-next-line no-console
-  console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nModified} rows)`);
+  console.log(`Dropped unused field ${collection.collectionName}.${fieldName} (${nMatched} rows)`);
 }
 
 // Given a collection and a batch size, run a callback for each row in the

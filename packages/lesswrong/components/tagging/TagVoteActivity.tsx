@@ -53,6 +53,8 @@ const TagVoteActivityRow = ({vote, classes}: {
 }) => {
   const { FormatDate, VoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel, "TagRels")
+  if (!vote.tagRel?.post || !vote.tagRel?.tag)
+    return null;
   return (
     <tr key={vote._id} className={classes.voteRow}>
       <td><UsersName documentId={vote.userId}/></td>

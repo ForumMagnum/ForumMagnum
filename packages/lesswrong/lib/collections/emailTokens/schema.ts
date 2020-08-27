@@ -13,6 +13,7 @@ const schema: SchemaType<DbEmailTokens> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     })
   },
   usedAt: {

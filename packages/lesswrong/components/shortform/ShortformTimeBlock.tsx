@@ -64,7 +64,7 @@ class ShortformTimeBlock extends Component<ShortformTimeBlockProps> {
         </div>
         {comments?.map((comment, i) =>
           <CommentsNode
-            comment={comment} post={comment.post}
+            comment={comment} post={comment.post || undefined}
             key={comment._id}
             forceSingleLine loadChildrenSeparately
           />)}

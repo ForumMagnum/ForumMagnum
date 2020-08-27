@@ -177,7 +177,7 @@ const RecentDiscussionThread = ({
                 { showSnippet && <>
                   <LinkPostMessage post={post} noMargin />
                   <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents.htmlHighlight)}}
+                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents?.htmlHighlight||null)}}
                     description={`post ${post._id}`}
                   /></>
                 }

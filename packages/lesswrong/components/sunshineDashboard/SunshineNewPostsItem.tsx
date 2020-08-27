@@ -13,9 +13,7 @@ import Button from '@material-ui/core/Button';
 import gql from 'graphql-tag';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
-import GroupIcon from '@material-ui/icons/Group';
 import ClearIcon from '@material-ui/icons/Clear';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -95,19 +93,6 @@ const SunshineNewPostsItem = ({post, classes}: {
     })
   }
   
-  const handleMoveToCommunity = () => {
-    applyTags();
-    
-    void updatePost({
-      selector: { _id: post._id},
-      data: {
-        meta: true,
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
-    })
-  }
-
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
@@ -142,9 +127,6 @@ const SunshineNewPostsItem = ({post, classes}: {
               {post.submitToFrontpage && <Button onClick={handlePromote}>
                 <HomeIcon className={classes.icon} /> Frontpage
               </Button>}
-              {forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
-                <GroupIcon className={classes.icon} /> Community
-              </Button>}
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
@@ -171,7 +153,7 @@ const SunshineNewPostsItem = ({post, classes}: {
             </div>}
             <div className={classes.post}>
               <LinkPostMessage post={post} />
-              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html}} description={`post ${post._id}`}/>
+              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
             </div>
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>

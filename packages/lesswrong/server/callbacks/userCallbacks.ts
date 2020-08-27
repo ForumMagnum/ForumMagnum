@@ -5,6 +5,7 @@ import { Comments } from '../../lib/collections/comments'
 import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import { Accounts } from 'meteor/accounts-base';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -168,7 +169,8 @@ addCallback('users.new.async', subscribeOnSignup);
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
 async function setABTestKeyOnSignup (user) {
-  Users.update(user._id, {$set: {abTestKey: user.profile?.clientId}});
+  const abTestKey = user.profile?.clientId || Random.id();
+  Users.update(user._id, {$set: {abTestKey: abTestKey}});
 }
 addCallback('users.new.async', setABTestKeyOnSignup);
 

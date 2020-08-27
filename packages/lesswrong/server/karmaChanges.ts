@@ -1,4 +1,5 @@
 import Votes from '../lib/collections/votes/collection';
+import { Tags } from '../lib/collections/tags/collection';
 import { KarmaChangeSettingsType } from '../lib/collections/users/custom_fields';
 import moment from '../lib/moment-timezone';
 import htmlToText from 'html-to-text';
@@ -27,12 +28,13 @@ const COMMENT_DESCRIPTION_LENGTH = 500;
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false}: {
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false, context}: {
   user: DbUser,
   startDate: Date,
   endDate: Date,
   nextBatchDate?: Date,
   af?: boolean,
+  context?: ResolverContext,
 })
 {
   if (!user) throw new Error("Missing required argument: user");
@@ -85,9 +87,22 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
         scoreChange:1,
         description: {$arrayElemAt: ["$comment.contents.html",0]},
         postId: {$arrayElemAt: ["$comment.postId",0]},
+        tagId: {$arrayElemAt: ["$comment.tagId",0]},
       }},
     ]
   ).toArray()
+  
+  const tagIdsReferenced = new Set<string>();
+  for (let changedComment of changedComments) {
+    if (changedComment.tagId)
+      tagIdsReferenced.add(changedComment.tagId);
+  }
+  const tagIdToSlug = await mapTagIdsToSlugs([...tagIdsReferenced.keys()], context)
+  for (let changedComment of changedComments) {
+    if (changedComment.tagId) {
+      changedComment.tagSlug = tagIdToSlug[changedComment.tagId];
+    }
+  }
   
   let changedPosts = await Votes.rawCollection().aggregate(
     [
@@ -125,6 +140,18 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
     posts: changedPosts,
     comments: changedComments,
   };
+}
+
+const mapTagIdsToSlugs = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,string>> => {
+  const mapping: Record<string,string> = {};
+  await Promise.all(tagIds.map(async (tagId: string) => {
+    const tag = context
+      ? await context.Tags.loader.load(tagId)
+      : await Tags.findOne(tagId)
+    if (tag?.slug)
+      mapping[tagId] = tag.slug;
+  }));
+  return mapping;
 }
 
 export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBatchStart=null}: {
