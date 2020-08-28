@@ -272,6 +272,22 @@ const theme = createLWTheme({
         top: 77,
       },
     },
+    AllTagsPage: {
+      root: {
+        maxWidth: 900,
+      },
+      topSection: {
+        maxWidth: 900,
+      },
+      edit: {
+        right: -35,
+      }
+    },
+    TagsDetailsItem: {
+      description: {
+        maxWidth: 490,
+      }
+    },
     ContentType: {
       root: {
         color: grey[800],
