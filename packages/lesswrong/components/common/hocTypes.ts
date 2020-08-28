@@ -64,7 +64,6 @@ type WithUpdateFunction<T extends CollectionBase<U>, U extends DbObject = DbObje
 interface WithUpdateUserProps {
   updateUser: WithUpdateFunction<UsersCollection>
 }
-
 interface WithUpdateCommentProps {
   updateComment: WithUpdateFunction<CommentsCollection>
 }
