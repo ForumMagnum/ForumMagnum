@@ -140,6 +140,8 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
   if (!fieldType) {
     throw new Error(`Fragment ${fragmentName} contains field ${fieldName} on type ${collection.collectionName} which is not in the schema`);
   }
+
+  const {collection: subfieldCollection, nullable} = subfragmentTypeToCollection(fieldType);
   
   // Now check if the field has a sub-selector
   if (parsedFragmentField.selectionSet?.selections?.length > 0) {
@@ -151,12 +153,12 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
       const subfragmentName = parsedFragmentField.selectionSet.selections[0].name.value;
       if (fieldType.startsWith("Array<")) {
         return {
-          fieldType: `Array<${subfragmentName}>`,
+          fieldType: nullable ? `Array<${subfragmentName}>|null` : `Array<${subfragmentName}>`,
           subfragment: null
         };
       } else {
         return {
-          fieldType: subfragmentName,
+          fieldType: nullable ? `${subfragmentName}|null` : subfragmentName,
           subfragment: null
         };
       }
@@ -164,12 +166,6 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
     else
     {
       if (typeof fieldType !== "string") throw new Error("fieldType is not a string: was "+JSON.stringify(fieldType));
-      let collectionName;
-      if (fieldType.startsWith("Array<"))
-        collectionName = getCollectionName(fieldType.substr(6, fieldType.length-7));
-      else
-        collectionName = getCollectionName(fieldType);
-      const subfieldCollection = getCollection(collectionName);
       if (!subfieldCollection) {
         // eslint-disable-next-line no-console
         console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
@@ -184,12 +180,12 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
       // If it's an array type, then it's an array of that subfragment. Otherwise it's an instance of that subfragmetn.
       if (fieldType.startsWith("Array<")) {
         return {
-          fieldType: `Array<${subfragmentName}>`,
+          fieldType: nullable ? `Array<${subfragmentName}>|null` : `Array<${subfragmentName}>`,
           subfragment: subfragment,
         };
       } else {
         return {
-          fieldType: subfragmentName,
+          fieldType: nullable ? `${subfragmentName}|null` : subfragmentName,
           subfragment: subfragment,
         };
       }
@@ -197,6 +193,36 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
   } else {
     return {
       fieldType, subfragment: null
+    };
+  }
+}
+
+// Given the type of a field (as a string which is a Typescript type), where
+// that field is a collection type with optional array- or nullable-wrapping,
+// return the collection.
+function subfragmentTypeToCollection(fieldType: string): {
+  collection: any,
+  nullable: boolean,
+}{
+  if (fieldType.startsWith("Array<") && fieldType.endsWith(">")) {
+    return {
+      collection: subfragmentTypeToCollection(fieldType.substr(6, fieldType.length-7)).collection,
+      nullable: false,
+    };
+  } else if (fieldType.endsWith("|null")) {
+    return {
+      collection: subfragmentTypeToCollection(fieldType.substr(0, fieldType.length-5)).collection,
+      nullable: true,
+    };
+  } else if (fieldType.endsWith("!")) {
+    return {
+      collection: subfragmentTypeToCollection(fieldType.substr(0, fieldType.length-1)).collection,
+      nullable: false
+    };
+  } else {
+    return {
+      collection: getCollection(getCollectionName(fieldType)),
+      nullable: false
     };
   }
 }

@@ -16,6 +16,7 @@ registerFragment(`
     reviewedByUserId
     descriptionTruncationCount
     wikiGrade
+    createdAt
   }
 `);
 

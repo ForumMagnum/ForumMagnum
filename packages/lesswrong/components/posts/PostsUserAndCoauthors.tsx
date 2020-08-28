@@ -55,7 +55,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
       <span key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></span>)}
     {renderTopCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
       , <ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UsersName user={topCommentAuthor} simple={simple} />
+      <UsersName user={topCommentAuthor || undefined} simple={simple} />
     </span>}
   </div>;
 };

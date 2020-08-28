@@ -9,7 +9,7 @@ export const FRONTPAGE_BONUS = 10;
 export const FEATURED_BONUS = 10;
 
 
-export const recalculateBaseScore = (document) => {
+export const recalculateBaseScore = (document: VoteableType) => {
   const votes = Votes.find(
     {
       documentId: document._id,
@@ -19,10 +19,10 @@ export const recalculateBaseScore = (document) => {
   return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
 }
 
-export const recalculateScore = item => {
+export const recalculateScore = (item: VoteableType) => {
   // Age Check
-  if (item.postedAt) {
-    const postedAt = item.postedAt.valueOf();
+  if ((item as any).postedAt) {
+    const postedAt = (item as any).postedAt.valueOf();
     const now = new Date().getTime();
     const age = now - postedAt;
     const ageInHours = age / (60 * 60 * 1000);
@@ -30,7 +30,7 @@ export const recalculateScore = item => {
     // use baseScore if defined, if not just use 0
     let baseScore = item.baseScore || 0;
 
-    baseScore = baseScore + ((item.frontpageDate ? FRONTPAGE_BONUS : 0) + (item.curatedDate ? FEATURED_BONUS : 0));
+    baseScore = baseScore + (((item as any).frontpageDate ? FRONTPAGE_BONUS : 0) + ((item as any).curatedDate ? FEATURED_BONUS : 0));
 
     // HN algorithm
     const newScore = Math.round((baseScore / Math.pow(ageInHours + 2, TIME_DECAY_FACTOR))*1000000)/1000000;

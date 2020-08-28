@@ -77,20 +77,6 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
     }
   }
 
-  handleClick = (event) => {
-    event.preventDefault();
-    this.setState({
-      open:true,
-      anchorEl: event.currentTarget,
-    });
-  };
-
-  handleRequestClose = () => {
-    this.setState({
-      open: false,
-    });
-  }
-
   render() {
     let { currentUser, client, classes, color, openDialog, hover, anchorEl } = this.props;
 

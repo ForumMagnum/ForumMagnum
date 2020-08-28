@@ -89,6 +89,11 @@ addRoute(
     componentName: 'UsersAccount',
     background: "white"
   },
+  {
+    name:'users.abTestGroups',
+    path:'/abTestGroups',
+    componentName: 'UsersViewABTests',
+  },
 
   // Miscellaneous LW2 routes
   {
@@ -212,6 +217,15 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
   },
   {
+    name: 'tagDiscussion',
+    path: '/tag/:slug/discussion',
+    componentName: 'TagDiscussionPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    background: "white"
+  },
+  {
     name: 'tagEdit',
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
@@ -240,6 +254,11 @@ addRoute(
   {
     name: 'tagVoting',
     path: '/tagVoting',
+    redirect: () => `/tagActivity`,
+  },
+  {
+    name: 'tagActivity',
+    path: '/tagActivity',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
   },
@@ -584,13 +603,17 @@ switch (forumTypeSetting.get()) {
       {
         name: 'Community',
         path: '/meta',
-        componentName: 'Meta',
-        title: "Community"
+        redirect: () => `/tags/all`,
       },
       {
         name: 'eaSequencesHome',
         path: '/sequences',
         componentName: 'EASequencesHome'
+      },
+      {
+        name: 'eaSequencesRedirect',
+        path: '/library',
+        redirect: () => '/sequences'
       },
       {
         name: "TagsAll",

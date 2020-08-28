@@ -113,7 +113,8 @@ export const schema: SchemaType<DbTag> = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: false,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],

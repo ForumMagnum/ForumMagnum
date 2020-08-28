@@ -11,7 +11,7 @@ addGraphQLSchema(siteSchema);
 
 const siteResolvers = {
   Query: {
-    SiteData(root, args, context: ResolverContext) {
+    SiteData(root: void, args: void, context: ResolverContext) {
       return {
         title: forumTitleSetting.get(),
         url: siteUrlSetting.get(),

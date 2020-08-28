@@ -5,7 +5,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useNavigation } from '../../lib/routeUtil';
 
 
-const NewShortformDialog = ({onClose}) => {
+const NewShortformDialog = ({onClose}: {
+  onClose: any,
+}) => {
   const { ShortformSubmitForm } = Components;
   const { history } = useNavigation();
   return (

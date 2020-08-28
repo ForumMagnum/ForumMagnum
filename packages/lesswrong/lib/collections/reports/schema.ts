@@ -6,7 +6,8 @@ const schema: SchemaType<DbReport> = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: false,
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
@@ -18,7 +19,8 @@ const schema: SchemaType<DbReport> = {
       idFieldName: "commentId",
       resolverName: "comment",
       collectionName: "Comments",
-      type: "Comment"
+      type: "Comment",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -30,7 +32,8 @@ const schema: SchemaType<DbReport> = {
       idFieldName: "postId",
       resolverName: "post",
       collectionName: "Posts",
-      type: "Post"
+      type: "Post",
+      nullable: true,
     }),
     optional: false,
     viewableBy: ['guests'],
@@ -49,7 +52,8 @@ const schema: SchemaType<DbReport> = {
       idFieldName: "claimedUserId",
       resolverName: "claimedUser",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],

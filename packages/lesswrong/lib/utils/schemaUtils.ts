@@ -76,10 +76,11 @@ export interface CollectionFieldSpecification<T extends DbObject> {
 export type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
 
 const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
-  collectionName, fieldName
+  collectionName, fieldName, nullable
 }: {
   collectionName: CollectionName,
   fieldName: string,
+  nullable: boolean,
 }) => {
   type DataType = ObjectsByCollectionName[CollectionName];
   return async (doc: any, args: void, context: ResolverContext): Promise<DataType|null> => {
@@ -90,8 +91,10 @@ const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
 
     const resolvedDoc = await collection.loader.load(doc[fieldName])
     if (!resolvedDoc) {
-      // eslint-disable-next-line no-console
-      console.error(`Broken foreign key reference: ${collectionName}.${fieldName}=${doc[fieldName]}`);
+      if (!nullable) {
+        // eslint-disable-next-line no-console
+        console.error(`Broken foreign key reference: ${collectionName}.${fieldName}=${doc[fieldName]}`);
+      }
       return null;
     }
 
@@ -101,21 +104,22 @@ const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
 
 const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   collectionName, fieldName,
-  getKey = (a=>a)
+  getKey = ((a:any)=>a)
 }: {
   collectionName: CollectionName,
   fieldName: string,
-  getKey?: any,
+  getKey?: (key: string) => string,
 }) => {
-  type DataType = ObjectsByCollectionName[CollectionName];
-  return async (doc: any, args: void, context: ResolverContext): Promise<Array<DataType>> => {
+  type DbType = ObjectsByCollectionName[CollectionName];
+  
+  return async (doc: any, args: void, context: ResolverContext): Promise<Array<DbType>> => {
     if (!doc[fieldName]) return []
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
-    const collection = context[collectionName] as CollectionBase<DataType>
+    const collection = context[collectionName] as CollectionBase<DbType>
 
-    const resolvedDocs: Array<DataType> = await collection.loader.loadMany(keys)
+    const resolvedDocs: Array<DbType> = await collection.loader.loadMany(keys)
 
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
@@ -153,12 +157,13 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   return restrictedDocs;
 }
 
-export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type}: {
+export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
   resolverName: string,
   collectionName: CollectionName,
   type: string,
-}): any => {
+  nullable?: boolean,
+}) => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
   
@@ -167,20 +172,21 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({id
     foreignKey: collectionName,
     resolveAs: {
       fieldName: resolverName,
-      type: type,
+      type: nullable ? type : `${type}!`,
       resolver: generateIdResolverSingle({
         collectionName,
-        fieldName: idFieldName
+        fieldName: idFieldName,
+        nullable,
       }),
       addOriginalField: true,
     },
   }
 }
 
-export function arrayOfForeignKeysField({idFieldName, resolverName, collectionName, type, getKey}: {
+export function arrayOfForeignKeysField<CollectionName extends keyof CollectionsByName>({idFieldName, resolverName, collectionName, type, getKey}: {
   idFieldName: string,
   resolverName: string,
-  collectionName: CollectionNameString,
+  collectionName: CollectionName,
   type: string,
   getKey?: (key: any)=>string,
 }) {
@@ -191,7 +197,7 @@ export function arrayOfForeignKeysField({idFieldName, resolverName, collectionNa
     type: Array,
     resolveAs: {
       fieldName: resolverName,
-      type: `[${type}]`,
+      type: `[${type}!]!`,
       resolver: generateIdResolverMulti({
         collectionName,
         fieldName: idFieldName,

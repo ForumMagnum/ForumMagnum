@@ -240,7 +240,7 @@ export default {
     }, {
       id: 'community',
       title: 'Community',
-      link: '/meta',
+      link: '/tag/community',
       iconComponent: Group,
       tooltip: 'Read posts about EA philosophy, the EA community, and the Forum itself.',
       showOnMobileStandalone: true,

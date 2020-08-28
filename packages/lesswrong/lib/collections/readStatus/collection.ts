@@ -9,6 +9,7 @@ const schema: SchemaType<DbReadStatus> = {
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: false,
     }),
   },
   userId: {
@@ -17,6 +18,7 @@ const schema: SchemaType<DbReadStatus> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
   },
   isRead: {

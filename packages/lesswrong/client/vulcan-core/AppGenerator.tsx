@@ -8,15 +8,18 @@ import { wrapWithMuiTheme } from '../themeProvider';
 import { CookiesProvider } from 'react-cookie';
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
+import { ABTestGroupsContext } from '../../lib/abTestImpl';
 
-const AppGenerator = ({ apolloClient }) => {
+const AppGenerator = ({ apolloClient, abTestGroups }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
-        <CookiesProvider>
-            <BrowserRouter>
-                <Components.App />
-            </BrowserRouter>
-        </CookiesProvider>
+      <CookiesProvider>
+        <BrowserRouter>
+          <ABTestGroupsContext.Provider value={abTestGroups}>
+            <Components.App />
+          </ABTestGroupsContext.Provider>
+        </BrowserRouter>
+      </CookiesProvider>
     </ApolloProvider>
   );
   return wrapWithMuiTheme(App);

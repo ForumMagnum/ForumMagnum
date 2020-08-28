@@ -3,7 +3,7 @@ import { Vulcan, runCallbacksAsync } from '../vulcan-lib';
 import Users from '../../lib/collections/users/collection'
 import moment from 'moment'
 
-const banUser = async (user) => {
+const banUser = async (user: DbUser) => {
   await Users.rawCollection().bulkWrite([{
     updateOne: {
       filter: {_id: user._id},

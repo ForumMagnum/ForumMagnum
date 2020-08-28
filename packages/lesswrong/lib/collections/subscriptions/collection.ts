@@ -5,7 +5,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 
 const options = {
   create: true,
-  createCheck: (user, document) => {
+  createCheck: (user: DbUser|null, document: DbSubscription|null) => {
     if (!user || !document) return false;
     return Users.canDo(user, 'subscriptions.new');
   },

@@ -115,7 +115,7 @@ class PostsPage extends Component<PostsPageProps> {
     return false;
   }
 
-  getDescription = post => {
+  getDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
     if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
     if (post.shortform) return `A collection of shorter posts by ${forumTitleSetting.get()} user ${post.user.displayName}`
     return null
@@ -209,7 +209,7 @@ class PostsPage extends Component<PostsPageProps> {
     });
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: PostsPageProps) {
     if (prevProps.post && this.props.post && prevProps.post._id !== this.props.post._id) {
       this.props.closeAllEvents();
       this.props.recordPostView({

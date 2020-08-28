@@ -16,9 +16,9 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
   const post = Posts.findOne({_id: postId});
   const tag = Tags.findOne({_id: tagId});
   if (!await accessFilterSingle(currentUser, Posts, post, context))
-    throw new Error("Invalid postId");
+    throw new Error(`Invalid postId ${postId}, either this post does not exist, or you do not have access`);
   if (!await accessFilterSingle(currentUser, Tags, tag, context))
-    throw new Error("Invalid tagId");
+    throw new Error(`Invalid tagId ${tagId}, either this tag does not exist, or you do not have access`);
   
   // Check whether this document already has this tag applied
   const existingTagRel = TagRels.findOne({ tagId, postId });
@@ -46,7 +46,7 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
 
 addGraphQLResolvers({
   Mutation: {
-    addOrUpvoteTag: async (root, { tagId, postId }, context: ResolverContext) => {
+    addOrUpvoteTag: async (root: void, {tagId, postId}: {tagId: string, postId: string}, context: ResolverContext) => {
       const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to tag");
       if (!postId) throw new Error("Missing argument: postId");
@@ -55,7 +55,7 @@ addGraphQLResolvers({
       return addOrUpvoteTag({tagId, postId, currentUser, context});
     },
     
-    addTags: async (root, {postId, tagIds}: {postId: string, tagIds: Array<string>}, context: ResolverContext) => {
+    addTags: async (root: void, {postId, tagIds}: {postId: string, tagIds: Array<string>}, context: ResolverContext) => {
       const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to tag");
       if (!postId) throw new Error("Missing argument: postId");

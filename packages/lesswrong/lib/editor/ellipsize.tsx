@@ -24,7 +24,7 @@ export const highlightFromHTML = (html) => {
   });
 };
 
-export const truncate = (html: string, truncateLength: number, truncateBy?: string, suffix?: string) => {
+export const truncate = (html: string|null|undefined, truncateLength: number, truncateBy?: string, suffix?: string) => {
   const newTruncateBy = truncateBy || "characters"
   const newSuffix = (suffix !== undefined) ? suffix : "..."
 
@@ -39,7 +39,7 @@ export const truncate = (html: string, truncateLength: number, truncateBy?: stri
   });
 }
 
-export const postExcerptFromHTML = (html: string, truncationCharCount?: number) => {
+export const postExcerptFromHTML = (html: string|null, truncationCharCount?: number) => {
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');

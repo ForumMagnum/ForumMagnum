@@ -13,6 +13,7 @@ const schema: SchemaType<DbComment> = {
       resolverName: "parentComment",
       collectionName: "Comments",
       type: "Comment",
+      nullable: true,
     }),
     canRead: ['guests'],
     canCreate: ['members'],
@@ -26,6 +27,7 @@ const schema: SchemaType<DbComment> = {
       resolverName: "topLevelComment",
       collectionName: "Comments",
       type: "Comment",
+      nullable: true,
     }),
     denormalized: true,
     canRead: ['guests'],
@@ -66,18 +68,33 @@ const schema: SchemaType<DbComment> = {
       }
     }
   },
-  // The post's `_id`
+  // If this comment is on a post, the _id of that post.
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    hidden: true
+    hidden: true,
+  },
+  // If this comment is in a tag discussion section, the _id of the tag.
+  tagId: {
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
   },
   // The comment author's `_id`
   userId: {
@@ -86,6 +103,7 @@ const schema: SchemaType<DbComment> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -161,6 +179,7 @@ const schema: SchemaType<DbComment> = {
       resolverName: "parentAnswer",
       collectionName: "Comments",
       type: "Comment",
+      nullable: true,
     }),
     denormalized: true,
     canRead: ['guests'],
@@ -206,7 +225,8 @@ const schema: SchemaType<DbComment> = {
     canUpdate: [Users.owns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async (comment) => {
+      getValue: async (comment: DbComment): Promise<boolean> => {
+        if (!comment.postId) return false;
         const post = await Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
@@ -249,6 +269,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     onCreate: async ({newDocument}) => {
+      if (!newDocument.postId) return "1.0.0";
       const post = await Posts.findOne({_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
@@ -266,15 +287,21 @@ const schema: SchemaType<DbComment> = {
       idFieldName: "promotedByUserId",
       resolverName: "promotedByUser",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onUpdate: async ({data, currentUser, document, oldDocument}) => {
-      if (data?.promoted && !oldDocument.promoted) {
+    onUpdate: async ({data, currentUser, document, oldDocument}: {
+      data: Partial<DbComment>,
+      currentUser: DbUser,
+      document: DbComment,
+      oldDocument: DbComment,
+    }) => {
+      if (data?.promoted && !oldDocument.promoted && document.postId) {
         Utils.updateMutator({
           collection: Posts,
           selector: {_id:document.postId},
@@ -284,7 +311,7 @@ const schema: SchemaType<DbComment> = {
         })
         return currentUser._id
       }
-    }    
+    }
   },
 
   promotedAt: {
@@ -317,6 +344,7 @@ const schema: SchemaType<DbComment> = {
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async comment => {
+        if (!comment.postId) return false;
         const post = await Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;

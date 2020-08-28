@@ -13,7 +13,8 @@ import { webAppConnectHandlersUse } from '../meteor_patch';
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { createClient } from './apolloClient';
-import { cachedPageRender, recordCacheBypass } from './pageCache';
+import { cachedPageRender, recordCacheBypass} from './pageCache';
+import { getAllUserABTestGroups, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
 import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
@@ -26,6 +27,17 @@ type RenderTimings = {
   totalTime: number
   prerenderTime: number
   renderTime: number
+}
+
+export type RenderResult = {
+  ssrBody: string
+  headers: Array<string>
+  serializedApolloState: string
+  jssSheets: string
+  status: number|undefined,
+  redirectUrl: string|undefined
+  abTestGroups: RelevantTestGroupAllocation
+  timings: RenderTimings
 }
 
 const makePageRenderer = async sink => {
@@ -43,14 +55,15 @@ const makePageRenderer = async sink => {
   // response object, which the onPageLoad/sink API doesn't offer).
   const tabId = Random.id();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+  
+  const clientId = req.cookies && req.cookies.clientId;
 
   if (!publicSettings) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
   const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(publicSettings)}</script>`
   
   const ssrEventParams = {
     url: req.url.pathname,
-    clientId: req.cookies && req.cookies.clientId,
-    tabId: tabId,
+    clientId, tabId,
     userAgent: userAgent,
   };
   
@@ -70,26 +83,36 @@ const makePageRenderer = async sink => {
       userId: user._id,
       timings: rendered.timings,
       cached: false,
+      abTestGroups: rendered.abTestGroups,
     });
     // eslint-disable-next-line no-console
     console.log(`Rendered ${req.url.path} for ${user.username}: ${printTimings(rendered.timings)}`);
   } else {
-    const rendered = await cachedPageRender(req, (req) => renderRequest({
+    const abTestGroups = getAllUserABTestGroups(user, clientId);
+    const rendered = await cachedPageRender(req, abTestGroups, (req) => renderRequest({
       req, user: null, startTime
     }));
     sendToSink(sink, {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     });
-    // eslint-disable-next-line no-console
-    console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+    
+    if (rendered.cached) {
+      // eslint-disable-next-line no-console
+      console.log(`Served ${req.url.path} from cache for logged out ${ip} (${userAgent})`);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+    }
+    
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
       userId: null,
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      cached: true,
+      abTestGroups: rendered.abTestGroups,
+      cached: rendered.cached,
     });
   }
 };
@@ -108,7 +131,7 @@ webAppConnectHandlersUse(function addClientId(req, res, next) {
   next();
 }, {order: 100});
 
-const renderRequest = async ({req, user, startTime}) => {
+const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req.headers);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -125,7 +148,18 @@ const renderRequest = async ({req, user, startTime}) => {
   // middlewares at this point
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
 
-  const App = <AppGenerator req={req} apolloClient={client} serverRequestStatus={serverRequestStatus} />;
+  // abTestGroups will be given as context for the render, which will modify it
+  // (side effects) by filling in any A/B test groups that turned out to be
+  // used for the rendering. (Any A/B test group that was *not* relevant to
+  // the render will be omitted, which is the point.)
+  let abTestGroups: RelevantTestGroupAllocation = {};
+  
+  const App = <AppGenerator
+    req={req} apolloClient={client}
+    serverRequestStatus={serverRequestStatus}
+    abTestGroups={abTestGroups}
+  />;
+
   const WrappedApp = wrapWithMuiTheme(App, context);
 
   let htmlContent = '';
@@ -173,6 +207,7 @@ const renderRequest = async ({req, user, startTime}) => {
     serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
+    abTestGroups,
     timings,
   };
 }
@@ -180,7 +215,7 @@ const renderRequest = async ({req, user, startTime}) => {
 const sendToSink = (sink, {
   ssrBody, headers, serializedApolloState, jssSheets,
   status, redirectUrl
-}) => {
+}: RenderResult) => {
   if (status) {
     sink.setStatusCode(status);
   }

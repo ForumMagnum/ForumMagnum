@@ -17,6 +17,7 @@ const schema: SchemaType<DbTagRel> = {
       resolverName: "tag",
       collectionName: "Tags",
       type: "Tag",
+      nullable: false,
     }),
     canRead: ['guests'],
     canCreate: ['members'],
@@ -27,6 +28,7 @@ const schema: SchemaType<DbTagRel> = {
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: false,
     }),
     canRead: ['guests'],
     canCreate: ['members'],
@@ -46,6 +48,7 @@ const schema: SchemaType<DbTagRel> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
     canRead: ['guests'],
     canCreate: ['members'],
@@ -65,13 +68,13 @@ export const TagRels: TagRelsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
-    newCheck: (user, tag) => {
+    newCheck: (user: DbUser|null, tag: DbTagRel|null) => {
       return userCanUseTags(user);
     },
-    editCheck: (user, tag) => {
+    editCheck: (user: DbUser|null, tag: DbTagRel|null) => {
       return userCanUseTags(user);
     },
-    removeCheck: (user, tag) => {
+    removeCheck: (user: DbUser|null, tag: DbTagRel|null) => {
       return false;
     },
   }),

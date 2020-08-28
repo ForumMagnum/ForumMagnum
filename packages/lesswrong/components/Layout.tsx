@@ -236,7 +236,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const {hideNavigationSidebar} = this.state
     const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
 
-    const showIntercom = currentUser => {
+    const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame">
           <ErrorBoundary>
@@ -294,7 +294,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
                 { theme.typography.fontDownloads &&
                     theme.typography.fontDownloads.map(
-                      (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                      (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
                     )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
