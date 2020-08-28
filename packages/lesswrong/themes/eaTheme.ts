@@ -279,8 +279,12 @@ const theme = createLWTheme({
       topSection: {
         maxWidth: 900,
       },
-      edit: {
-        right: -35,
+      portal: {
+        background: 'white',
+        marginTop: 'unset',
+        marginBottom: 'unset',
+        padding: '20px',
+        boxShadow: "0 1px 5px rgba(0,0,0,.025)",
       }
     },
     TagsDetailsItem: {
