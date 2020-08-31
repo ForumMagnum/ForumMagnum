@@ -54,7 +54,12 @@ interface WithApolloProps {
   client: any;
 }
 
-type WithUpdateFunction<T extends CollectionBase> = any;
+// This is a bit arcane. I think of this basically as a type "function" that
+// says, for a given collection base, I am the DbObject extension it is using.
+// https://stackoverflow.com/questions/63631364/infer-nested-generic-types-in-typescript/63631544#63631544
+type DbObjectForCollectionBase<C> = C extends CollectionBase<infer T> ? T : never
+
+type WithUpdateFunction<T extends CollectionBase<U>, U extends DbObject = DbObjectForCollectionBase<T>> = any;
 
 interface WithUpdateUserProps {
   updateUser: WithUpdateFunction<UsersCollection>
