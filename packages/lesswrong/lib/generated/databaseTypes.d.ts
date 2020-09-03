@@ -21,6 +21,7 @@ interface DbUser extends DbObject {
   email: string
   slug: string
   groups: Array<string>
+  lwWikiImport: boolean
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string
@@ -346,8 +347,8 @@ interface DbComment extends DbObject {
   createdAt: Date
   postedAt: Date
   author: string
-  postId: string | null
-  tagId: string | null
+  postId: string
+  tagId: string
   userId: string
   isDeleted: boolean
   userIP: string

@@ -17,6 +17,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly email: string,
   readonly slug: string,
   readonly groups: Array<string>,
+  readonly lwWikiImport: boolean,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -338,8 +339,8 @@ interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
 
 interface CommentsList { // fragment on Comments
   readonly _id: string,
-  readonly postId: string | null,
-  readonly tagId: string | null,
+  readonly postId: string,
+  readonly tagId: string,
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
   readonly contents: CommentsList_contents|null,
@@ -604,8 +605,8 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly createdAt: Date,
   readonly postedAt: Date,
   readonly author: string,
-  readonly postId: string | null,
-  readonly tagId: string | null,
+  readonly postId: string,
+  readonly tagId: string,
   readonly userId: string,
   readonly isDeleted: boolean,
   readonly userIP: string,
@@ -1150,7 +1151,7 @@ interface unclaimedReportsList_comment { // fragment on Comments
   readonly contents: RevisionDisplay|null,
   readonly postedAt: Date,
   readonly deleted: boolean,
-  readonly postId: string | null,
+  readonly postId: string,
   readonly post: unclaimedReportsList_comment_post|null,
 }
 
