@@ -15,6 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { wikiGradeDefinitions } from '../../lib/collections/tags/schema';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -120,7 +121,7 @@ const AllTagsPage = ({classes}: {
         </div>
         <AnalyticsContext pageSectionContext="tagDetails">
           <SectionTitle title={`Tag Details`}>
-            <Select
+            {forumTypeSetting.get() !== 'EAForum' && <Select
               value={wikiGrade||"none"}
               inputProps={{
                 name: 'Showing All Tags'
@@ -136,7 +137,7 @@ const AllTagsPage = ({classes}: {
                   {name}
                 </UntypedMenuItem>
               })}
-            </Select>
+            </Select>}
           </SectionTitle>
           <div>
             {results && results.map(tag => {
