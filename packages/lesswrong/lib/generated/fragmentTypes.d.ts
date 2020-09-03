@@ -338,8 +338,8 @@ interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
 
 interface CommentsList { // fragment on Comments
   readonly _id: string,
-  readonly postId: string | null,
-  readonly tagId: string | null,
+  readonly postId: string,
+  readonly tagId: string,
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
   readonly contents: CommentsList_contents|null,
@@ -604,8 +604,8 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly createdAt: Date,
   readonly postedAt: Date,
   readonly author: string,
-  readonly postId: string | null,
-  readonly tagId: string | null,
+  readonly postId: string,
+  readonly tagId: string,
   readonly userId: string,
   readonly isDeleted: boolean,
   readonly userIP: string,
@@ -644,6 +644,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
+  readonly wikiOnly: boolean,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1150,7 +1151,7 @@ interface unclaimedReportsList_comment { // fragment on Comments
   readonly contents: RevisionDisplay|null,
   readonly postedAt: Date,
   readonly deleted: boolean,
-  readonly postId: string | null,
+  readonly postId: string,
   readonly post: unclaimedReportsList_comment_post|null,
 }
 
@@ -1429,6 +1430,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly descriptionTruncationCount: number,
   readonly wikiGrade: number,
   readonly createdAt: Date,
+  readonly wikiOnly: boolean,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags

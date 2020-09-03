@@ -179,6 +179,15 @@ export const schema: SchemaType<DbTag> = {
       label: name
     })),
     group: formGroups.advancedOptions,
+  },
+
+  wikiOnly: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+    group: formGroups.advancedOptions
   }
 }
 
