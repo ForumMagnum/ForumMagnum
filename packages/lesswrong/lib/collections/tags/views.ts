@@ -6,7 +6,8 @@ Tags.addDefaultView(terms => {
   return {
     selector: {
       deleted: false,
-      adminOnly: false
+      adminOnly: false,
+      wikiOnly: false
     },
   };
 });

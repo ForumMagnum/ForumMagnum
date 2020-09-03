@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 0,
     background: "white",
     padding: 20,
-    marginBottom: 24  
+    marginBottom: 24
   }
 })
 
@@ -32,12 +32,12 @@ const AllTagsAlphabetical = ({classes}: {
     },
     collection: Tags,
     fragmentName: "TagPreviewFragment",
-    limit: 500,
+    limit: 750,
     ssr: true,
   });
   const { TagsListItem, SectionTitle, SectionButton, Loading } = Components;
   const currentUser = useCurrentUser()
-  
+
   const alphabetical = _sortBy(results, tag=>tag.name)
 
   return (
