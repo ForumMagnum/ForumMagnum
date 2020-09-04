@@ -39,7 +39,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
 
   const { ChaptersEditForm, SectionTitle, SectionFooter,
     SectionButton, SequencesPostsList, ContentItemBody } = Components
-  const { html = "" } = chapter.contents
+  const html = chapter.contents?.html || ""
   if (edit) return (
     <ChaptersEditForm
       documentId={chapter._id}

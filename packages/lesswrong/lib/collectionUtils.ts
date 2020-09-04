@@ -31,6 +31,10 @@ SimpleSchema.extendOptions([ 'denormalized' ]);
 //
 SimpleSchema.extendOptions([ 'foreignKey' ]);
 
+// nullable: In a schema entry, this boolean indicates whether the type system
+// should treat this field as nullable 
+SimpleSchema.extendOptions([ 'nullable' ]);
+
 export const expectedIndexes: Partial<Record<CollectionNameString,Array<any>>> = {};
 
 // Returns true if the specified index has a name, and the collection has an

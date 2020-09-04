@@ -44,6 +44,7 @@ addFieldsDict(Users, {
           startDate, endDate,
           nextBatchDate,
           af: alignmentForum,
+          context,
         });
       },
     },

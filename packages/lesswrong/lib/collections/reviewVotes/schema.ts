@@ -15,7 +15,8 @@ const schema: SchemaType<DbReviewVote> = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: false,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],
@@ -27,6 +28,7 @@ const schema: SchemaType<DbReviewVote> = {
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: false,
     }),
     viewableBy: ['guests'],
   },

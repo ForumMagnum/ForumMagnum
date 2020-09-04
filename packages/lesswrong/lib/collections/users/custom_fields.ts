@@ -994,6 +994,7 @@ addFieldsDict(Users, {
       resolverName: "reviewedByUser",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['sunshineRegiment', 'admins'],
@@ -1166,7 +1167,8 @@ addFieldsDict(Users, {
       idFieldName: "shortformFeedId",
       resolverName: "shortformFeed",
       collectionName: "Posts",
-      type: "Post"
+      type: "Post",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],

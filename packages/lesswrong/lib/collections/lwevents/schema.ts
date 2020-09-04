@@ -13,6 +13,7 @@ const schema: SchemaType<DbLWEvent> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     viewableBy: ['members'],
     insertableBy: ['members'],

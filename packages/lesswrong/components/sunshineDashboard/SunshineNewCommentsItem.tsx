@@ -74,7 +74,7 @@ const SunshineNewCommentsItemComponent = registerComponent<ExternalProps>('Sunsh
   hocs: [
     withUpdate({
       collection: Comments,
-      fragmentName: 'CommentsListWithPostMetadata',
+      fragmentName: 'CommentsListWithParentMetadata',
     }),
     withUser, withHover(), withErrorBoundary
   ]

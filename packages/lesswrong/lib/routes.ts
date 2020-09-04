@@ -217,6 +217,15 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
   },
   {
+    name: 'tagDiscussion',
+    path: '/tag/:slug/discussion',
+    componentName: 'TagDiscussionPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    background: "white"
+  },
+  {
     name: 'tagEdit',
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
@@ -594,7 +603,7 @@ switch (forumTypeSetting.get()) {
       {
         name: 'Community',
         path: '/meta',
-        redirect: () => `/tags/all`,
+        redirect: () => `/tags/community`,
       },
       {
         name: 'eaSequencesHome',

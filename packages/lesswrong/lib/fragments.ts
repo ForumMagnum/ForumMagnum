@@ -181,6 +181,7 @@ registerFragment(`
         scoreChange
         description
         postId
+        tagSlug
       }
     }
   }
@@ -202,44 +203,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment CommentStats on Comment {
-    currentUserVotes{
-      ...VoteFragment
-    }
-    baseScore
-    score
-  }
-`);
-
-registerFragment(`
-  fragment DeletedCommentsMetaData on Comment {
-    _id
-    deleted
-    deletedDate
-    deletedByUser {
-      _id
-      displayName
-    }
-    deletedReason
-    deletedPublic
-  }
-`)
-
-registerFragment(`
-  fragment DeletedCommentsModerationLog on Comment {
-    ...DeletedCommentsMetaData
-    user {
-      ...UsersMinimumInfo
-    }
-    post {
-      title
-      slug
-      _id
-    }
-  }
-`)
-
-registerFragment(`
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -247,15 +210,6 @@ registerFragment(`
     bannedUserIds
   }
 `)
-
-registerFragment(`
-  fragment CommentsListWithPostMetadata on Comment {
-    ...CommentsList
-    post {
-      ...PostsMinimumInfo
-    }
-  }
-`);
 
 registerFragment(`
   fragment UsersList on User {
@@ -338,42 +292,6 @@ registerFragment(`
     important
     properties
     intercom
-  }
-`);
-
-registerFragment(`
-  fragment commentWithContextFragment on Comment {
-    _id
-    parentCommentId
-    topLevelCommentId
-    contents {
-      ...RevisionDisplay
-    }
-    postedAt
-    
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
-    currentUserVotes{
-      ...VoteFragment
-    }
-    baseScore
-    score
-  }
-`);
-
-registerFragment(`
-  fragment commentInlineFragment on Comment {
-    _id
-    contents {
-      ...RevisionDisplay
-    }
-
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
   }
 `);
 
@@ -596,22 +514,6 @@ registerFragment(`
 
 registerFragment(`
   fragment WithVotePost on Post {
-    __typename
-    _id
-    currentUserVotes{
-      _id
-      voteType
-      power
-    }
-    baseScore
-    score
-    afBaseScore
-    voteCount
-  }
-`);
-
-registerFragment(`
-  fragment WithVoteComment on Comment {
     __typename
     _id
     currentUserVotes{

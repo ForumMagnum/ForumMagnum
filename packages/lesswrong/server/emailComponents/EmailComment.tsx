@@ -7,7 +7,8 @@ import groupBy from 'lodash/groupBy';
 import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
-import * as _ from 'underscore';
+import filter from 'lodash/filter';
+import Tags from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {
@@ -16,12 +17,20 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
   const { EmailComment, EmailCommentsOnPostHeader } = Components;
-  const commentsByPostId = groupBy(comments, comment=>comment.postId);
+  const commentsOnPosts = filter(comments, comment => !!comment.postId)
+  const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
+  const commentsOnTags = filter(comments, comment => !!comment.tagId)
+  const commentsByTagId = groupBy(commentsOnTags, (comment:DbComment)=>comment.tagId);
   
   return <div>
-    {_.keys(commentsByPostId).map(postId => <div key={postId}>
+    {Object.keys(commentsByPostId).map(postId => <div key={postId}>
       <EmailCommentsOnPostHeader postId={postId}/>
       {commentsByPostId[postId]?.map(comment =>
+        <EmailComment key={comment._id} commentId={comment._id}/>)}
+    </div>)}
+    {Object.keys(commentsByTagId).map(tagId => <div key={tagId}>
+      <EmailCommentsOnTagHeader tagId={tagId}/>
+      {commentsByTagId[tagId]?.map(comment =>
         <EmailComment key={comment._id} commentId={comment._id}/>)}
     </div>)}
   </div>;
@@ -43,6 +52,20 @@ const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
   </div>;
 }
 
+const EmailCommentsOnTagHeader = ({tagId}) => {
+  const { document: tag } = useSingle({
+    documentId: tagId,
+    collection: Tags,
+    fragmentName: "TagPreviewFragment",
+  });
+  if (!tag)
+    return null;
+  
+  return <div>
+    New comments on <a href={Tags.getUrl(tag)}>{tag.name}</a>
+  </div>;
+}
+
 const EmailCommentsOnPostHeaderComponent = registerComponent("EmailCommentsOnPostHeader", EmailCommentsOnPostHeader);
 
 const EmailComment = ({commentId, classes}: {
@@ -52,9 +75,8 @@ const EmailComment = ({commentId, classes}: {
   const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const { document: comment, loading, error } = useSingle({
     documentId: commentId,
-    
     collection: Comments,
-    fragmentName: "CommentsListWithPostMetadata",
+    fragmentName: "CommentsListWithParentMetadata",
   });
   
   if (loading) return null;
@@ -72,11 +94,11 @@ const EmailComment = ({commentId, classes}: {
         <EmailFormatDate date={comment.postedAt}/>
       </a>
       {" "}
-      <a href={Posts.getPageUrl(comment.post, true)}>
+      {comment.post && <a href={Posts.getPageUrl(comment.post, true)}>
         {comment.post.title}
-      </a>
+      </a>}
     </div>
-    <EmailContentItemBody dangerouslySetInnerHTML={{ __html: comment.contents.html }}/>
+    <EmailContentItemBody dangerouslySetInnerHTML={{ __html: comment.contents?.html }}/>
   </div>;
 }
 

@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
+import CommentIcon from '@material-ui/icons/ModeComment';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
@@ -15,7 +16,7 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
 
-// Also used in TagCompareRevisions
+// Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
   tagPage: {
     ...commentBodyStyles(theme),
@@ -77,12 +78,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[700]
     }
   },
-  editButton: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: 16
-  },
-  historyButton: {
+  button: {
     display: "flex",
     alignItems: "center",
     marginRight: 16
@@ -152,17 +148,17 @@ const TagPage = ({classes}: {
     <SingleColumnSection>
       <div className={classes.wikiSection}>
         <AnalyticsContext pageSectionContext="wikiSection">
-          <div className={classes.titleSection}>
+          <div>
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
             {currentUser ? 
-              <Link className={classes.editButton} to={`/tag/${tag.slug}/edit`}>
+              <Link className={classes.button} to={`/tag/${tag.slug}/edit`}>
                 <EditOutlinedIcon /> Edit Wiki
               </Link> : 
-              <a className={classes.editButton} onClick={(ev) => {
+              <a className={classes.button} onClick={(ev) => {
                 openDialog({
                   componentName: "LoginPopup",
                   componentProps: {}
@@ -172,9 +168,12 @@ const TagPage = ({classes}: {
                 <EditOutlinedIcon /> Edit Wiki
               </a>
             }
-            {userCanViewRevisionHistory(currentUser) && <Link className={classes.historyButton} to={`/revisions/tag/${tag.slug}`}>
+            {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
+            <Link className={classes.button} to={`/tag/${tag.slug}/discussion`}>
+              <CommentIcon/> Discussion
+            </Link>
             <SubscribeTo 
               document={tag} 
               className={classes.subscribeTo}
@@ -187,7 +186,7 @@ const TagPage = ({classes}: {
           </div>
           <div onClick={clickReadMore}>
             <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description}}
+              dangerouslySetInnerHTML={{__html: description||""}}
               description={`tag ${tag.name}`}
               className={classes.description}
             />

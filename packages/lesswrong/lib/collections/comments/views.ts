@@ -42,8 +42,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {authorIsUnreviewed: 1},
-    suffix: {deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
+    prefix: {},
+    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
   });
 }
 
@@ -365,3 +365,9 @@ ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
 );
+
+Comments.addView('commentsOnTag', terms => ({
+  selector: {
+    tagId: terms.tagId,
+  },
+}));
