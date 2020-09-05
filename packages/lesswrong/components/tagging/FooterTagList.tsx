@@ -44,8 +44,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
-  return _.sortBy(list, item=>toTag(item).core);
+export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
+  return _.sortBy(list, item=>toTag(item)?.core);
 }
 
 const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
@@ -124,9 +124,11 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
     </div>;
   }
 
+
+
   return <span className={classes.root}>
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
-      <FooterTag 
+      tagRel.tag && <FooterTag 
         key={tagRel._id} 
         tagRel={tagRel} 
         tag={tagRel.tag} 

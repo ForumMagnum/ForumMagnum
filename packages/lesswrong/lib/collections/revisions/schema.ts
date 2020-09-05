@@ -56,7 +56,7 @@ const schema: SchemaType<DbRevision> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true
     }),
     viewableBy: ['guests'],
     optional: true,

@@ -8,7 +8,7 @@ const schema: SchemaType<DbMessage> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true
     }),
     viewableBy: ['members'],
     insertableBy: Users.owns,
