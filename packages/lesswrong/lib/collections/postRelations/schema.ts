@@ -21,7 +21,7 @@ const schema: SchemaType<DbPostRelation> = {
       resolverName: "sourcePost",
       collectionName: "Posts",
       type: "Post",
-      nullable: false,
+      nullable: true
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
@@ -32,7 +32,7 @@ const schema: SchemaType<DbPostRelation> = {
       resolverName: "targetPost",
       collectionName: "Posts",
       type: "Post",
-      nullable: false,
+      nullable: true
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],

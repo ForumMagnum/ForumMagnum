@@ -8,7 +8,7 @@ const schema: SchemaType<DbRSSFeed> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     hidden: true,
     viewableBy: ['guests'],

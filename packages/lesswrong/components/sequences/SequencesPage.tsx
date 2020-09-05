@@ -148,7 +148,7 @@ const SequencesPage = ({ documentId, classes }: {
         <SectionFooter>
           <div className={classes.meta}>
             <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.userId && <span className={classes.metaItem}> by <UsersName user={document.user}>
+            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user}>
               {document.user.displayName}
             </UsersName></span>}
           </div>

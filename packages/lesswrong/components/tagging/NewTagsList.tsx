@@ -49,11 +49,11 @@ const NewTagsList = ({classes}:{
     <table>
       <tbody>
         {results?.map(tag => <tr key={tag._id}>
-          <Link to={Users.getProfileUrl(tag.user)} className={classes.user}>
+          {tag.user && <Link to={Users.getProfileUrl(tag.user)} className={classes.user}>
             <MetaInfo>
               <UsersNameDisplay user={tag.user}/>
             </MetaInfo>
-          </Link>
+          </Link>}
           <td className={classes.tag}>
             <TagsListItem tag={tag}/>
           </td>

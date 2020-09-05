@@ -127,7 +127,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
         {sequence.draft && <span className={classes.draft}>[Draft] </span>}
         {sequence.title}
       </div>
-      { showAuthor &&
+      { showAuthor && sequence.user &&
         <div className={classes.author}>
           by <Components.UsersName user={sequence.user} />
         </div>}
