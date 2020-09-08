@@ -1,6 +1,5 @@
 
-import { registerMigration, fillDefaultValues } from './migrationUtils';
-import { Tags } from '../../lib/collections/tags/collection';
+import { registerMigration } from './migrationUtils';
 import { newMutation } from '../vulcan-lib';
 import Users from '../../lib/vulcan-users';
 
@@ -119,4 +118,3 @@ const newWikiUserNames = ['Wellthisisaninconvenience',
  'JustMichael1984',
  'Jolinsa',
  '128.111.17.17']
- 
