@@ -72,12 +72,14 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
 
   return (<div className={classes.card}>
     <TagPreviewDescription tag={tag}/>
-    {results ? <div className={classes.posts}>
-      {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
-    </div> : <Loading /> }
-    {showCount && <div className={classes.footerCount}>
-      <Link to={Tags.getUrl(tag)}>View all {tag.postCount} posts</Link>
-    </div>}
+    {!tag.wikiOnly && <>
+      {results ? <div className={classes.posts}>
+        {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
+      </div> : <Loading /> }
+      {showCount && <div className={classes.footerCount}>
+        <Link to={Tags.getUrl(tag)}>View all {tag.postCount} posts</Link>
+      </div>}
+    </>}
   </div>)
 }
 
