@@ -34,7 +34,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
  
   if (!posts) return null
 
-  const newPosts = _filter(posts, post => post.postedAt > user.reviewedAt)
+  const newPosts = user.reviewedAt ? _filter(posts, post => post.postedAt > user.reviewedAt) : posts
 
   return (
     <div>

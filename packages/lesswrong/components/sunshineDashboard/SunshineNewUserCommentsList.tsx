@@ -37,7 +37,9 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   const { FormatDate, MetaInfo, SmallSideVote } = Components
 
   if (!comments) return null 
-  const newComments = _filter(comments, comment => comment.postedAt > user.reviewedAt)
+
+  const newComments = user.reviewedAt ? _filter(comments, comment => comment.postedAt > user.reviewedAt) : comments
+
   return (
     <div className={classes.root}>
       {newComments.map(comment=><div className={classes.comment} key={comment._id}>
