@@ -14,8 +14,11 @@ import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import classNames from 'classnames';
+import { Comments } from '../../lib/collections/comments';
 import DescriptionIcon from '@material-ui/icons/Description'
+import { useMulti } from '../../lib/crud/withMulti';
+import { Posts } from '../../lib/collections/posts';
+import MessageIcon from '@material-ui/icons/Message'
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -30,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxHeight: 800,
     overflow: "hidden"
   },
-  postIcon: {
+  icon: {
     height: 13,
     color: theme.palette.grey[500],
     position: "relative",
@@ -109,9 +112,23 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
     }
   }
 
+  const { results: posts, loading: postsLoading } = useMulti({
+    terms:{view:"sunshineNewUsersPosts", userId: user._id},
+    collection: Posts,
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const { results: comments, loading: commentsLoading } = useMulti({
+    terms:{view:"sunshineNewUsersComments", userId: user._id},
+    collection: Comments,
+    fragmentName: 'CommentsListWithParentMetadata',
+    fetchPolicy: 'cache-and-network',
+  });
+
   const showNewUserContent = allowContentPreview && currentUser?.sunshineShowNewUserContent
 
-  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip } = Components
 
   if (hidden) { return null }
 
@@ -127,24 +144,33 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <div>
-                Posts: { user.postCount || 0 }
-                { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
-              </div>
-              <div>
-                Comments: { user.commentCount || 0 }
-                { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
-              </div>
               <hr />
               <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
               <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
               <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
               <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-              {!showNewUserContent && <React.Fragment>
-                <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-                <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
-                <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
-              </React.Fragment>}
+              <hr />
+              <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
+              <div>
+                <LWTooltip title="Post Count">
+                  <span>
+                    { user.postCount || 0 }
+                    <DescriptionIcon className={classes.icon}/>
+                  </span> 
+                </LWTooltip>
+                {posts?.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
+                { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null} 
+              </div>
+              <div>
+                <LWTooltip title="Comment Count">
+                  { user.commentCount || 0 }
+                </LWTooltip>
+                <MessageIcon className={classes.icon}/> 
+                {comments?.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
+                { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
+              </div>
+              <SunshineNewUserPostsList posts={posts} user={user}/>
+              <SunshineNewUserCommentsList comments={comments} user={user}/>
             </MetaInfo>
           </Typography>
         </SidebarHoverOver>
@@ -160,18 +186,18 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
           <MetaInfo className={classes.info}>
             <FormatDate date={user.createdAt}/>
           </MetaInfo>
-          {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.postIcon}/>}
+          {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
           {!user.reviewedByUserId && <MetaInfo className={classes.info}>
             { user.email }
           </MetaInfo>}
         </div>
-        {showNewUserContent &&
+        {/* {showNewUserContent &&
           <div className={classNames({[classes.truncated]:truncated})} onClick={() => setTruncated(false)}>
             <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-            <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+            <SunshineNewUserPostsList posts={posts} user={user}/>
             <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
           </div>
-        }
+        } */}
         { hover && <SidebarActionMenu>
           {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
           {(user.maxCommentCount || user.maxPostCount) ? <SidebarAction title="Review" onClick={handleReview}>
