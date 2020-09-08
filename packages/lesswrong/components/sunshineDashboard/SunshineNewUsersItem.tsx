@@ -115,7 +115,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const { results: posts, loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
     collection: Posts,
-    fragmentName: 'PostsList',
+    fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
   });
 

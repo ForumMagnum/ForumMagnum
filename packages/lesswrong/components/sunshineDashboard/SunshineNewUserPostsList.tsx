@@ -37,7 +37,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
 
   return (
     <div>
-      {newPosts.map(post=><div className={classes.post} key={post._id}>
+      {(newPosts.length > 0) && newPosts.map(post=><div className={classes.post} key={post._id}>
         <div>
           <Link to={`/posts/${post._id}`}>
             <PostsTitle post={post} showIcons={false} wrap/> 

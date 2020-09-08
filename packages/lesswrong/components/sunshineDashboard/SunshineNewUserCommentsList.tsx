@@ -41,7 +41,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
 
   return (
     <div className={classes.root}>
-      {newComments.map(comment=><div className={classes.comment} key={comment._id}>
+      {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={comment._id}>
         <Link to={Comments.getPageUrlFromIds({postId: comment.post?._id, postSlug: comment.post?.slug, tagSlug: comment.tag?.slug, commentId: comment._id})}>
           <MetaInfo>
             {comment.deleted && "[Deleted] "}Comment on '{comment.post?.title}'
