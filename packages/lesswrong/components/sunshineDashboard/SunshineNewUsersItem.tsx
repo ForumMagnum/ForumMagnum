@@ -126,9 +126,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
     fetchPolicy: 'cache-and-network',
   });
 
-  const showNewUserContent = allowContentPreview && currentUser?.sunshineShowNewUserContent
-
-  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading } = Components
 
   if (hidden) { return null }
 
@@ -161,6 +159,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                 {posts?.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
                 { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null} 
               </div>
+              {(commentsLoading || postsLoading) && <Loading/>}
               <div>
                 <LWTooltip title="Comment Count">
                   { user.commentCount || 0 }
@@ -191,13 +190,6 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             { user.email }
           </MetaInfo>}
         </div>
-        {/* {showNewUserContent &&
-          <div className={classNames({[classes.truncated]:truncated})} onClick={() => setTruncated(false)}>
-            <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-            <SunshineNewUserPostsList posts={posts} user={user}/>
-            <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
-          </div>
-        } */}
         { hover && <SidebarActionMenu>
           {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
           {(user.maxCommentCount || user.maxPostCount) ? <SidebarAction title="Review" onClick={handleReview}>

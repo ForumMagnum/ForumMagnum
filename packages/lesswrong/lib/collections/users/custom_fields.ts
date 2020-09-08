@@ -1177,15 +1177,16 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
   },
 
-  sunshineShowNewUserContent: {
-    type: Boolean,
-    optional: true,
-    defaultValue: false,
-    canRead: ['guests'],
-    group: formGroups.adminOptions,
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
-  },
+  // sunshineShowNewUserContent: {
+  //   // deprecated – this was originally used to toggle whether a sunshine moderator could see (without hovering over) a new user's content. It turned out to make it too easy to get into a rhythm where you might purge a user accidentally.
+  //   type: Boolean,
+  //   optional: true,
+  //   defaultValue: false,
+  //   canRead: ['guests'],
+  //   group: formGroups.adminOptions,
+  //   canUpdate: ['sunshineRegiment', 'admins'],
+  //   canCreate: ['sunshineRegiment', 'admins'],
+  // },
 
   viewUnreviewedComments: {
     type: Boolean,
