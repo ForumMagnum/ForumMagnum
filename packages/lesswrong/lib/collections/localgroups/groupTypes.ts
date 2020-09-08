@@ -16,6 +16,10 @@ export const groupTypes = [
   {
     shortName: "MIRIx",
     longName: "MIRIx",
+  },
+  {
+    shortName: "AI",
+    longName: "AI Alignment",
   }
 ];
 
