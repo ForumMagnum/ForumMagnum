@@ -57,6 +57,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
+
+  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle || document.moderationStyle)
   const truncatiseOptions = {
     TruncateLength: 300,
     TruncateBy: "characters",
@@ -64,10 +66,9 @@ const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
     Strict: false
   }
 
-  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle || document.moderationStyle)
-
   const { html = "" } = document.moderationGuidelines || {}
-  const userGuidelines = `${document.user ? `<p><em>${document.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}${html || ""}`
+  const userGuidelines = `${document.user ? `<p><em>${document.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
+  ${html || ""}`
 
   const combinedGuidelines = `
     ${(html || moderationStyle) ? userGuidelines : ""}
