@@ -77,6 +77,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly onlineEvent: boolean,
   readonly startTime: Date,
   readonly endTime: Date,
   readonly localStartTime: Date,
@@ -126,7 +127,7 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 }
 
 interface PostsAuthors { // fragment on Posts
-  readonly user: PostsAuthors_user,
+  readonly user: PostsAuthors_user|null,
   readonly coauthors: Array<UsersMinimumInfo>,
 }
 
@@ -307,7 +308,7 @@ interface PostsRecentDiscussion extends PostsList { // fragment on Posts
 }
 
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly title: string,
   readonly slug: string,
   readonly _id: string,
@@ -317,7 +318,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 interface SunshinePostsList extends PostsList { // fragment on Posts
   readonly currentUserVotes: Array<VoteFragment>,
   readonly contents: SunshinePostsList_contents|null,
-  readonly user: SunshinePostsList_user,
+  readonly user: SunshinePostsList_user|null,
 }
 
 interface SunshinePostsList_contents { // fragment on Revisions

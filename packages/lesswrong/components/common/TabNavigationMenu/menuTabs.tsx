@@ -33,11 +33,16 @@ const EventsList = ({currentUser, onClick}) => {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: 3,
+      limit: 2,
     }
+  }
+  const onlineTerms = {
+    view: 'onlineEvents',
+    limit: 2
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
+      <TabNavigationEventsList onClick={onClick} terms={onlineTerms} />
       <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
     </AnalyticsContext>
   </span>

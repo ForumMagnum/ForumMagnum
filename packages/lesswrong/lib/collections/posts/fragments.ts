@@ -59,6 +59,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    onlineEvent
     startTime
     endTime
     localStartTime
