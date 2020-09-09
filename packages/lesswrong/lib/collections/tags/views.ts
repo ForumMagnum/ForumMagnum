@@ -35,7 +35,8 @@ Tags.addView('tagBySlug', terms => {
   return {
     selector: {
       $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
-      adminOnly: viewFieldAllowAny
+      adminOnly: viewFieldAllowAny,
+      wikiOnly: viewFieldAllowAny
     },
   };
 });

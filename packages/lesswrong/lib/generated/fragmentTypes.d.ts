@@ -645,6 +645,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
+  readonly wikiOnly: boolean,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1430,6 +1431,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly descriptionTruncationCount: number,
   readonly wikiGrade: number,
   readonly createdAt: Date,
+  readonly wikiOnly: boolean,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
