@@ -26,6 +26,7 @@ const EventsList = ({currentUser, onClick}) => {
     currentUser.mongoLocation.coordinates[0]
   let eventsListTerms: any = {
     view: 'events',
+    onlineEvent: false,
     limit: 3,
   }
   if (lat && lng) {

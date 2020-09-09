@@ -769,6 +769,7 @@ addFieldsDict(Posts, {
     optional: true,
     group: formGroups.event,
     order: 0,
+    ...schemaDefaultValue(false),
   },
 
   mongoLocation: {
