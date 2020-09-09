@@ -117,7 +117,7 @@ class PostsPage extends Component<PostsPageProps> {
 
   getDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
     if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
-    if (post.shortform) return `A collection of shorter posts by ${forumTitleSetting.get()} user ${post.user.displayName}`
+    if (post.shortform) return `A collection of shorter posts by ${forumTitleSetting.get()} user ${post.user?.displayName}`
     return null
   }
 
