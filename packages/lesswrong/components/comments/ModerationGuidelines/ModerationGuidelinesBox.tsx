@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
-  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle || document.moderationStyle)
+  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle || "")
   const truncatiseOptions = {
     TruncateLength: 300,
     TruncateBy: "characters",
