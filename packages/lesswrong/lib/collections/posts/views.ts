@@ -697,6 +697,22 @@ ensureIndex(Posts,
   { name: "posts.shortformDiscussionThreadsList", }
 );
 
+Posts.addView("onlineEvents", function (terms) {
+  const yesterday = moment().subtract(1, 'days').toDate();
+  let query = {
+    selector: {
+      onlineEvent: true,
+      isEvent: true,
+      groupId: null,
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+    },
+    options: {
+      startTime: -1
+    }
+  }
+  return query
+})
+
 Posts.addView("nearbyEvents", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
   let query: any = {

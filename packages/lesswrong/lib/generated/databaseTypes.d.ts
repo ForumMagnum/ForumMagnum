@@ -498,6 +498,7 @@ interface DbPost extends DbObject {
   localStartTime: Date
   endTime: Date
   localEndTime: Date
+  onlineEvent: boolean
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   location: string

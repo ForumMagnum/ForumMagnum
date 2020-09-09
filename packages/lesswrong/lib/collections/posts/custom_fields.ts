@@ -760,6 +760,17 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
   },
 
+  onlineEvent: {
+    type: Boolean,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    group: formGroups.event,
+    order: 0,
+  },
+
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],
