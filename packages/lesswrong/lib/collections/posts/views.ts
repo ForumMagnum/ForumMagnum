@@ -697,13 +697,39 @@ ensureIndex(Posts,
   { name: "posts.shortformDiscussionThreadsList", }
 );
 
+Posts.addView("onlineEvents", function (terms) {
+  const yesterday = moment().subtract(1, 'days').toDate();
+  let query = {
+    selector: {
+      onlineEvent: true,
+      isEvent: true,
+      groupId: null,
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+    },
+    options: {
+      sort: {
+        startTime: -1,
+        createdAt: null,
+        _id: null
+      }
+    }
+  }
+  return query
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ onlineEvent:1, startTime:1 }),
+  { name: "posts.onlineEvents" }
+);
+
 Posts.addView("nearbyEvents", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
+  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   let query: any = {
     selector: {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
+      onlineEvent: onlineEvent,
       $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
       mongoLocation: {
         $near: {
@@ -736,9 +762,11 @@ ensureIndex(Posts,
 Posts.addView("events", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
+  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   return {
     selector: {
       isEvent: true,
+      onlineEvent: onlineEvent,
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
