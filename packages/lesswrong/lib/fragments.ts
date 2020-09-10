@@ -135,7 +135,6 @@ registerFragment(`
     karmaChangeLastOpened
     shortformFeedId
     viewUnreviewedComments
-    sunshineShowNewUserContent
     recommendationSettings
     
     auto_subscribe_to_my_posts
@@ -356,7 +355,6 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
-    sunshineShowNewUserContent
   }
 `);
 
@@ -394,7 +392,6 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
-    sunshineShowNewUserContent
 
     # Emails
     email

@@ -1,9 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
+import _filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
   post: {
@@ -24,26 +24,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
-  terms: any,
+const SunshineNewUserPostsList = ({posts, user, classes}: {
+  posts: SunshinePostsList[],
   classes: ClassesType,
-  truncated?: boolean,
+  user: SunshineUsersList
 }) => {
-  const { results, loading } = useMulti({
-    terms,
-    collection: Posts,
-    fragmentName: 'SunshinePostsList',
-    fetchPolicy: 'cache-and-network',
-  });
-  const { Loading, MetaInfo, FormatDate, PostsTitle, SmallSideVote } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote } = Components
  
-  if (!results && loading && !truncated) return <Loading />
-  if (!results) return null
+  if (!posts) return null
+
+  const newPosts = user.reviewedAt ? _filter(posts, post => post.postedAt > user.reviewedAt) : posts
 
   return (
     <div>
-      {loading && !truncated && <Loading />}
-      {results.map(post=><div className={classes.post} key={post._id}>
+      {newPosts.map(post=><div className={classes.post} key={post._id}>
         <div>
           <Link to={`/posts/${post._id}`}>
             <PostsTitle post={post} showIcons={false} wrap/> 
