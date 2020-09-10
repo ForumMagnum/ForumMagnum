@@ -17,6 +17,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly email: string,
   readonly slug: string,
   readonly groups: Array<string>,
+  readonly lwWikiImport: boolean,
 }
 
 interface VotesDefaultFragment { // fragment on Votes

@@ -21,6 +21,7 @@ interface DbUser extends DbObject {
   email: string
   slug: string
   groups: Array<string>
+  lwWikiImport: boolean
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string
