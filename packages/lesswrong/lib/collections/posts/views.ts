@@ -723,7 +723,7 @@ ensureIndex(Posts,
 
 Posts.addView("nearbyEvents", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
-  const onlineEvent = terms.onlineEvent === false ? false : null
+  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   let query: any = {
     selector: {
       location: {$exists: true},
@@ -762,7 +762,7 @@ ensureIndex(Posts,
 Posts.addView("events", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
-  const onlineEvent = terms.onlineEvent === false ? false : null
+  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   return {
     selector: {
       isEvent: true,
