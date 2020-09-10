@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
-import CommentIcon from '@material-ui/icons/ModeComment';
+import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
@@ -192,8 +192,8 @@ const TagPage = ({classes}: {
             </LWTooltip>
 
             <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-              <CommentIcon/> Discussion
-              <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
+              <CommentOutlinedIcon/> Discussion
+              <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
                 <TagDiscussion tag={tag}/>
               </PopperCard>    
             </Link>   
