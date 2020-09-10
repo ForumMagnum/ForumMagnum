@@ -134,7 +134,7 @@ const getPostCategory = (post: PostsBase) => {
 
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   postsList?: boolean,
-  post: PostsList|null,
+  post: PostsList|SunshinePostsList|null,
   classes: ClassesType,
   comment?: any,
 }) => {
