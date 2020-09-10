@@ -150,7 +150,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               <hr />
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
               <div>
-                <LWTooltip title="Post Count">
+                <LWTooltip title="Post count">
                   <span>
                     { user.postCount || 0 }
                     <DescriptionIcon className={classes.icon}/>
@@ -161,7 +161,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               </div>
               {(commentsLoading || postsLoading) && <Loading/>}
               <div>
-                <LWTooltip title="Comment Count">
+                <LWTooltip title="Comment count">
                   { user.commentCount || 0 }
                 </LWTooltip>
                 <MessageIcon className={classes.icon}/> 

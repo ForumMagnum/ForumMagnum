@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const PostKarmaWithPreview = ({ post, classes }: {
-  post: PostsList,
+  post: SunshinePostsList,
   classes: ClassesType
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();

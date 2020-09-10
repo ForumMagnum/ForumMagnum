@@ -171,8 +171,6 @@ registerFragment(`
   }
 `);
 
-
-
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList

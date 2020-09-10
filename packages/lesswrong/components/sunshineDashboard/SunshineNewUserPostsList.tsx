@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
-  posts: SunshinePostsList,
+  posts: SunshinePostsList[],
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
@@ -37,7 +37,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
 
   return (
     <div>
-      {(newPosts.length > 0) && newPosts.map(post=><div className={classes.post} key={post._id}>
+      {newPosts.map(post=><div className={classes.post} key={post._id}>
         <div>
           <Link to={`/posts/${post._id}`}>
             <PostsTitle post={post} showIcons={false} wrap/> 
