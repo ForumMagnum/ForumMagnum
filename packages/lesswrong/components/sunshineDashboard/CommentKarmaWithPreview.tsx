@@ -22,7 +22,7 @@ const CommentKarmaWithPreview = ({ comment, classes }) => {
 
   return <span className={classes.root} {...eventHandlers}>
     <Link to={Comments.getPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.baseScore}</Link>
-    {/* <LWPopper
+    <LWPopper
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
@@ -36,7 +36,7 @@ const CommentKarmaWithPreview = ({ comment, classes }) => {
       <div className={classes.commentPreview}>
         <CommentsNode comment={comment}/>
       </div>
-    </LWPopper> */}
+    </LWPopper>
   </span>
 }
 

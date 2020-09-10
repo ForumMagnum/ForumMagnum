@@ -22,7 +22,7 @@ const PostKarmaWithPreview = ({ post, classes }: {
 
   return <span className={classes.root} {...eventHandlers}>
     <Link to={Posts.getPageUrl(post)}>{post.baseScore}</Link>
-    {/* <LWPopper
+    <LWPopper
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
@@ -36,7 +36,7 @@ const PostKarmaWithPreview = ({ post, classes }: {
         <div>
           <PostsPreviewTooltip post={post}/>
         </div>
-      </LWPopper> */}
+      </LWPopper>
   </span>
 }
 
