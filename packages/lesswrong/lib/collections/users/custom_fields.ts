@@ -1176,7 +1176,7 @@ addFieldsDict(Users, {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
   },
-
+  
   // sunshineShowNewUserContent: {
   //   // deprecated – this was originally used to toggle whether a sunshine moderator could see (without hovering over) a new user's content. It turned out to make it too easy to get into a rhythm where you might purge a user accidentally.
   //   type: Boolean,

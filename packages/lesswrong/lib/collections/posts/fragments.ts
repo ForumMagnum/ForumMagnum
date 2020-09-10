@@ -394,7 +394,7 @@ registerFragment(`
 
 registerFragment(`
   fragment SunshinePostsList on Post {
-    ...PostsList
+    ...PostsListBase
 
     currentUserVotes{
       ...VoteFragment
@@ -403,6 +403,7 @@ registerFragment(`
     contents {
       html
       htmlHighlight
+      wordCount
     }
     
     user {
