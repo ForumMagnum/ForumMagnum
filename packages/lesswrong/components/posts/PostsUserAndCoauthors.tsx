@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, newPromotedComments}: {
-  post: PostsList,
+  post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
   classes: ClassesType,
   simple?: boolean,

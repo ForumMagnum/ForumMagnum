@@ -290,7 +290,7 @@ addFieldsDict(Posts, {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],

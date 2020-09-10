@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
-import CommentIcon from '@material-ui/icons/ModeComment';
+import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Tags } from '../../lib/collections/tags/collection';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
@@ -15,6 +15,7 @@ import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
+import { useHover } from '../common/withHover';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -83,6 +84,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginRight: 16
   },
+  discussionButton: {
+    display: "flex",
+    alignItems: "center",
+    marginRight: 16,
+    marginLeft: "auto"
+  },
   subscribeTo: {
     marginRight: 16
   }
@@ -101,7 +108,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, WikiGradeDisplay } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -113,6 +120,8 @@ const TagPage = ({classes}: {
   const { captureEvent } =  useTracking()
   const { openDialog } = useDialog();
   
+  const { hover, anchorEl, eventHandlers} = useHover()
+
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -132,7 +141,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
+  const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
 
   return <AnalyticsContext
@@ -171,18 +180,23 @@ const TagPage = ({classes}: {
             {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
-            <Link className={classes.button} to={`/tag/${tag.slug}/discussion`}>
-              <CommentIcon/> Discussion
-            </Link>
-            <SubscribeTo 
-              document={tag} 
-              className={classes.subscribeTo}
-              showIcon 
-              subscribeMessage="Subscribe to Tag"
-              unsubscribeMessage="Unsubscribe from Tag"
-              subscriptionType={subscriptionTypes.newTagPosts}
-            />
-            <WikiGradeDisplay wikiGrade={tag.wikiGrade} />
+            <LWTooltip title="Get notifications when posts are added to this tag">
+              <SubscribeTo 
+                document={tag} 
+                className={classes.subscribeTo}
+                showIcon 
+                subscribeMessage="Subscribe"
+                unsubscribeMessage="Unsubscribe"
+                subscriptionType={subscriptionTypes.newTagPosts}
+              />
+            </LWTooltip>
+
+            <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
+              <CommentOutlinedIcon/> Discussion
+              <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
+                <TagDiscussion tag={tag}/>
+              </PopperCard>    
+            </Link>   
           </div>
           <div onClick={clickReadMore}>
             <ContentItemBody
@@ -193,7 +207,7 @@ const TagPage = ({classes}: {
           </div>
         </AnalyticsContext>
       </div>
-      <AnalyticsContext pageSectionContext="tagsSection">
+      {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
         <div className={classes.tagHeader}>
           <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
           <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
@@ -206,7 +220,7 @@ const TagPage = ({classes}: {
         >
           <AddPostsToTag tag={tag} />
         </PostsList2>
-      </AnalyticsContext>
+      </AnalyticsContext>}
     </SingleColumnSection>
   </AnalyticsContext>
 }

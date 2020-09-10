@@ -88,7 +88,6 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
       const postUrl = siteUrlSetting.get()
       const row = {
         display_name: user.displayName,
-        email: user.email,
         id: post._id,
         user_id: post.userId,
         title: post.title,

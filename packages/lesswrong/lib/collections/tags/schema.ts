@@ -114,7 +114,7 @@ export const schema: SchemaType<DbTag> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],
@@ -179,6 +179,15 @@ export const schema: SchemaType<DbTag> = {
       label: name
     })),
     group: formGroups.advancedOptions,
+  },
+
+  wikiOnly: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+    group: formGroups.advancedOptions
   }
 }
 

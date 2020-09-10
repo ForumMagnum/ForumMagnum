@@ -127,7 +127,7 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 }
 
 interface PostsAuthors { // fragment on Posts
-  readonly user: PostsAuthors_user,
+  readonly user: PostsAuthors_user|null,
   readonly coauthors: Array<UsersMinimumInfo>,
 }
 
@@ -211,7 +211,7 @@ interface PostsDetails_customHighlight { // fragment on Revisions
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
-  readonly sourcePost: PostsList,
+  readonly sourcePost: PostsList|null,
   readonly order: number,
 }
 
@@ -219,7 +219,7 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly targetPost: PostsList,
+  readonly targetPost: PostsList|null,
   readonly order: number,
 }
 
@@ -308,7 +308,7 @@ interface PostsRecentDiscussion extends PostsList { // fragment on Posts
 }
 
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly title: string,
   readonly slug: string,
   readonly _id: string,
@@ -318,12 +318,13 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 interface SunshinePostsList extends PostsList { // fragment on Posts
   readonly currentUserVotes: Array<VoteFragment>,
   readonly contents: SunshinePostsList_contents|null,
-  readonly user: SunshinePostsList_user,
+  readonly user: SunshinePostsList_user|null,
 }
 
 interface SunshinePostsList_contents { // fragment on Revisions
   readonly html: string,
   readonly htmlHighlight: string,
+  readonly wordCount: number,
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
@@ -558,7 +559,7 @@ interface BansAdminPageFragment { // fragment on Bans
   readonly createdAt: Date,
   readonly expirationDate: Date,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly reason: string,
   readonly comment: string,
   readonly ip: string,
@@ -645,6 +646,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
+  readonly wikiOnly: boolean,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -802,7 +804,7 @@ interface newConversationFragment { // fragment on Conversations
 
 interface messageListFragment { // fragment on Messages
   readonly _id: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly contents: messageListFragment_contents|null,
   readonly createdAt: Date,
   readonly conversationId: string,
@@ -886,8 +888,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly karmaChangeLastOpened: Date,
   readonly shortformFeedId: string,
   readonly viewUnreviewedComments: boolean,
-  readonly sunshineShowNewUserContent: boolean,
-  readonly recommendationSettings: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"frontpage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage"},"recommendationspage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Recommendationspage"},"afterpost":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Afterpost"}},"_depsLabels":{},"_schemaKeys":["frontpage","recommendationspage","afterpost"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["frontpage","recommendationspage","afterpost"],"_objectKeys":{"frontpage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"recommendationspage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"afterpost.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2},"blackbox":true}]}*/,
+  readonly recommendationSettings: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"frontpage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage"},"frontpageEA":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage ea"},"recommendationspage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Recommendationspage"}},"_depsLabels":{},"_schemaKeys":["frontpage","frontpageEA","recommendationspage"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["frontpage","frontpageEA","recommendationspage"],"_objectKeys":{"frontpage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"frontpageEA.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"recommendationspage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2},"blackbox":true}]}*/,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
@@ -913,7 +914,7 @@ interface UserKarmaChanges { // fragment on Users
 interface RSSFeedMinimumInfo { // fragment on RSSFeeds
   readonly _id: string,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly createdAt: Date,
   readonly ownedByUser: boolean,
   readonly displayFullContent: boolean,
@@ -1051,7 +1052,6 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
-  readonly sunshineShowNewUserContent: boolean,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
@@ -1077,7 +1077,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
-  readonly sunshineShowNewUserContent: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
@@ -1243,7 +1242,7 @@ interface SequencesPageTitleFragment { // fragment on Sequences
 interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment on Sequences
   readonly createdAt: Date,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly contents: RevisionDisplay|null,
   readonly gridImageId: string,
   readonly bannerImageId: string,
@@ -1319,7 +1318,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly createdAt: Date,
   readonly slug: string,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly title: string,
   readonly contents: RevisionDisplay|null,
   readonly firstPageLink: string,
@@ -1362,13 +1361,13 @@ interface TagRelBasicInfo { // fragment on TagRels
 }
 
 interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
-  readonly tag: TagPreviewFragment,
-  readonly post: PostsList,
+  readonly tag: TagPreviewFragment|null,
+  readonly post: PostsList|null,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
-  readonly tag: TagPreviewFragment,
+  readonly tag: TagPreviewFragment|null,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
@@ -1382,8 +1381,8 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
-  readonly post: WithVoteTagRel_post,
-  readonly tag: WithVoteTagRel_tag,
+  readonly post: WithVoteTagRel_post|null,
+  readonly tag: WithVoteTagRel_tag|null,
   readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
 }
 
@@ -1430,6 +1429,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly descriptionTruncationCount: number,
   readonly wikiGrade: number,
   readonly createdAt: Date,
+  readonly wikiOnly: boolean,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1465,7 +1465,7 @@ interface TagEditFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
@@ -1552,8 +1552,8 @@ interface NewRelatedPostRel { // fragment on PostRelations
 interface ChildRelatedPostRelList { // fragment on PostRelations
   readonly _id: string,
   readonly type: string,
-  readonly sourcePost: PostsBase,
-  readonly targetPost: PostsBase,
+  readonly sourcePost: PostsBase|null,
+  readonly targetPost: PostsBase|null,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
