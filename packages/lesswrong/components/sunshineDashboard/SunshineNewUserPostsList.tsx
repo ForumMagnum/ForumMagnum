@@ -41,7 +41,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
         <div>
           <Link to={`/posts/${post._id}`}>
             <PostsTitle post={post} showIcons={false} wrap/> 
-            {(post.status !==2) && <MetaInfo>`[Spam] ${post.status}`</MetaInfo>}
+            {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
           </Link>
           <span className={classes.meta}>
             <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
