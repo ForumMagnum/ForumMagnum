@@ -246,7 +246,7 @@ const schema: SchemaType<DbUser> = {
         return Users.getEditUrl(user, true);
       },
     },
-  },
+  }
 };
 
 export default schema;

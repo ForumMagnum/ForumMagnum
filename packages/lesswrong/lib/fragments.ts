@@ -148,6 +148,7 @@ registerFragment(`
     
     abTestKey
     abTestOverrides
+    sortDrafts
   }
 `);
 
@@ -357,6 +358,7 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     sunshineShowNewUserContent
+    sortDrafts
   }
 `);
 
