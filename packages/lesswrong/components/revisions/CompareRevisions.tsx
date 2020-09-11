@@ -6,11 +6,11 @@ import gql from 'graphql-tag';
 const styles = (theme: ThemeType): JssStyles => ({
   differences: {
     "& ins": {
-      background: "#88ff88",
+      background: "#d4ead4",
       textDecoration: "none",
     },
     "& del": {
-      background: "#ff8888",
+      background: "#f0d3d3",
       textDecoration: "none",
     },
   },

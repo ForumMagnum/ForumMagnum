@@ -15,10 +15,11 @@ const TagPageRevisionSelect = ({ classes }: {
   const { params } = useLocation();
   const { slug } = params;
   const { history } = useNavigation();
-  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem } = Components;
+
+  const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
   
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
-  const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
+  const { results: revisions, loading: loadingRevisions, loadMoreProps, count, totalCount } = useMulti({
     skip: !tag,
     terms: {
       view: "revisionsOnDocument",
@@ -29,11 +30,8 @@ const TagPageRevisionSelect = ({ classes }: {
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
     ssr: true,
+    enableTotal: true
   });
-
-  const getRevisionUrl = (rev: RevisionMetadata) => {
-    if (tag) return `${Tags.getUrl(tag)}?revision=${rev.version}`
-  }
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
     if (!tag) return;
@@ -41,6 +39,8 @@ const TagPageRevisionSelect = ({ classes }: {
   }, [history, tag]);
 
   if (!tag) return null
+
+  const getRevisionUrl = (rev: RevisionMetadata) => `${Tags.getUrl(tag)}?revision=${rev.version}`
   
   return <SingleColumnSection>
     <h1><Link to={Tags.getUrl(tag)}>{tag.name}</Link></h1>
@@ -52,6 +52,8 @@ const TagPageRevisionSelect = ({ classes }: {
         getRevisionUrl={getRevisionUrl}
         onPairSelected={compareRevs}
         loadMoreProps={loadMoreProps}
+        count={count}
+        totalCount={totalCount}
       />
       {revisions.map((rev, i)=> {
         if (i < (revisions.length-1)) {
@@ -64,6 +66,7 @@ const TagPageRevisionSelect = ({ classes }: {
           />
         } 
       })}
+      <LoadMore {...loadMoreProps}/>
     </div>}
   </SingleColumnSection>
 }
