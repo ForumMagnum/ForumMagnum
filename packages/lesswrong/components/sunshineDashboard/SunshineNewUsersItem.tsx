@@ -19,6 +19,7 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import MessageIcon from '@material-ui/icons/Message'
+import Button from '@material-ui/core/Button';
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -41,6 +42,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewed: {
     backgroundColor: theme.palette.grey[100]
+  },
+  row: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
@@ -126,7 +132,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
     fetchPolicy: 'cache-and-network',
   });
 
-  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton } = Components
 
   if (hidden) { return null }
 
@@ -141,14 +147,21 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             <MetaInfo>
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <hr />
-              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
-              <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
-              <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-              <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-              <hr />
+              <div className={classes.row}>
+                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+                {currentUser && <NewConversationButton user={user} currentUser={currentUser}>
+                  <Button variant="outlined">Message</Button>
+                </NewConversationButton>}
+              </div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
+              <hr />
+              <div className={classes.row}>
+                <div>{`<<`} Big Downvotes: { user.bigDownvoteCount || 0 }</div>
+                <div>{`<`} Downvotes: { user.smallDownvoteCount || 0 }</div>
+                <div>{`>`} Upvotes: { user.smallUpvoteCount || 0 }</div>
+                <div>{`>>`} Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+              </div>
+              <hr />
               <div>
                 <LWTooltip title="Post count">
                   <span>
