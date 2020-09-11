@@ -47,6 +47,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center"
+  },
+  bigDownvotes: {
+    color: theme.palette.error.dark,
+  },
+  downvotes: {
+    color: theme.palette.error.dark,
+    opacity: .75
+  },
+  upvotes: {
+    color: theme.palette.primary.dark,
+    opacity: .75
+  },
+  bigUpvotes: {
+    color: theme.palette.primary.dark
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
@@ -156,10 +170,18 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
               <hr />
               <div className={classes.row}>
-                <div>{`<<`} Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-                <div>{`<`} Downvotes: { user.smallDownvoteCount || 0 }</div>
-                <div>{`>`} Upvotes: { user.smallUpvoteCount || 0 }</div>
-                <div>{`>>`} Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+                <div className={classes.bigDownvotes}>
+                  Big Downvotes: { user.bigDownvoteCount || 0 }
+                </div>
+                <div className={classes.downvotes}>
+                  Downvotes: { user.smallDownvoteCount || 0 }
+                </div>
+                <div className={classes.upvotes}>
+                  Upvotes: { user.smallUpvoteCount || 0 }
+                </div>
+                <div className={classes.bigUpvotes}>
+                  Big Upvotes: { user.bigUpvoteCount || 0 } 
+                </div>
               </div>
               <hr />
               <div>
