@@ -98,3 +98,25 @@ Tags.addView('suggestedFilterTags', terms => {
 });
 
 ensureIndex(Tags, {deleted: 1, adminOnly: 1, suggestedAsFilter: 1, defaultOrder: 1, name: 1});
+
+Tags.addView('allLWWikiTags', terms => {
+  return {
+    selector: {
+      wikiOnly: viewFieldAllowAny,
+      lesswrongWikiImportSlug: {$exists: true},
+    }
+  }
+});
+
+ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportSlug: 1});
+
+Tags.addView('processedLWWikiTags', terms => {
+  return {
+    selector: {
+      wikiOnly: viewFieldAllowAny, 
+      lesswrongWikiImportCompleted: true,
+    }
+  }
+});
+
+ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportCompleted: 1});

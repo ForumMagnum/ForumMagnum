@@ -83,7 +83,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -190,6 +190,10 @@ const RecommendationsAndCurated = ({
           <BookmarksList limit={3} />
         </AnalyticsContext>
       </div>}
+
+      {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
+        <TagProgressBar/>
+      </AnalyticsContext>}
 
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
