@@ -87,7 +87,7 @@ export const sortings = {
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId', 'meta', 'af','question');
+  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
