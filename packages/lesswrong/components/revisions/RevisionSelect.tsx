@@ -42,7 +42,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 4
   },
   link: {
-    paddingRight: 8
+    paddingRight: 8,
+    whiteSpace: 'nowrap'
   },
   version: {
     display: "inline-block",
@@ -84,29 +85,31 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
           <tr key={rev.version} className={classes.revisionRow}>
             <td>
               <LWTooltip title={<div>Select as the <em>first</em> revision to compare</div>}>
-                <Radio
-                  className={classNames(classes.radio, {[classes.checked]: i===beforeRevisionIndex, [classes.radioDisabled]: beforeDisabled})}
-                  disabled={beforeDisabled}
-                  checked={i===beforeRevisionIndex}
-                  onChange={(ev, checked) => {
-                    if (checked) {
-                      setBeforeRevisionIndex(i);
-                    }
-                  }}
-                />
+                  <Radio
+                    className={classNames(classes.radio, {[classes.checked]: i===beforeRevisionIndex, [classes.radioDisabled]: beforeDisabled})}
+                    disabled={beforeDisabled}
+                    checked={i===beforeRevisionIndex}
+                    onChange={(ev, checked) => {
+                      if (checked) {
+                        setBeforeRevisionIndex(i);
+                      }
+                    }}
+                  />
               </LWTooltip>
+            </td>
+            <td>
               <LWTooltip title={<div>Select as the <em>second</em> revision to compare</div>}>
-                <Radio
-                  className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
-                  disabled={afterDisabled}
-                  checked={i===afterRevisionIndex}
-                  onChange={(ev, checked) => {
-                    if (checked) {
-                      setAfterRevisionIndex(i);
-                    }
-                  }}
-                />
-              </LWTooltip>
+                  <Radio
+                    className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
+                    disabled={afterDisabled}
+                    checked={i===afterRevisionIndex}
+                    onChange={(ev, checked) => {
+                      if (checked) {
+                        setAfterRevisionIndex(i);
+                      }
+                    }}
+                  />
+                </LWTooltip>
             </td>
             <td className={classes.username}>
               <UsersName documentId={rev.userId}/>{" "}

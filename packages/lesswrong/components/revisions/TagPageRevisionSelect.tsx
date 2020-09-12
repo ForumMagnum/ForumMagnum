@@ -41,7 +41,6 @@ const TagPageRevisionSelect = ({ classes }: {
   if (!tag) return null
 
   const getRevisionUrl = (rev: RevisionMetadata) => `${Tags.getUrl(tag)}?revision=${rev.version}`
-  
   return <SingleColumnSection>
     <h1><Link to={Tags.getUrl(tag)}>{tag.name}</Link></h1>
     
@@ -56,15 +55,13 @@ const TagPageRevisionSelect = ({ classes }: {
         totalCount={totalCount}
       />
       {revisions.map((rev, i)=> {
-        if (i < (revisions.length-1)) {
-          return <TagRevisionItem 
-            key={rev.version} 
-            documentId={tag._id} 
-            revision={rev} 
-            previousRevision={revisions[i+1]}
-            getRevisionUrl={getRevisionUrl}
-          />
-        } 
+        return <TagRevisionItem 
+          key={rev.version} 
+          documentId={tag._id} 
+          revision={rev} 
+          previousRevision={revisions[i+1]}
+          getRevisionUrl={getRevisionUrl}
+        />
       })}
       <LoadMore {...loadMoreProps}/>
     </div>}
