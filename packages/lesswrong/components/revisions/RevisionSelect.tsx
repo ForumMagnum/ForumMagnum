@@ -99,16 +99,16 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
             </td>
             <td>
               <LWTooltip title={<div>Select as the <em>second</em> revision to compare</div>}>
-                  <Radio
-                    className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
-                    disabled={afterDisabled}
-                    checked={i===afterRevisionIndex}
-                    onChange={(ev, checked) => {
-                      if (checked) {
-                        setAfterRevisionIndex(i);
-                      }
-                    }}
-                  />
+                <Radio
+                  className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
+                  disabled={afterDisabled}
+                  checked={i===afterRevisionIndex}
+                  onChange={(ev, checked) => {
+                    if (checked) {
+                      setAfterRevisionIndex(i);
+                    }
+                  }}
+                />
                 </LWTooltip>
             </td>
             <td className={classes.username}>
