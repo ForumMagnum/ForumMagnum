@@ -42,7 +42,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 4
   },
   link: {
-    paddingRight: 8
+    paddingRight: 8,
+    whiteSpace: 'nowrap'
   },
   version: {
     display: "inline-block",
@@ -95,6 +96,8 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
                   }}
                 />
               </LWTooltip>
+            </td>
+            <td>
               <LWTooltip title={<div>Select as the <em>second</em> revision to compare</div>}>
                 <Radio
                   className={classNames(classes.radio, {[classes.checked]: i===afterRevisionIndex, [classes.radioDisabled]: afterDisabled})}
@@ -106,7 +109,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
                     }
                   }}
                 />
-              </LWTooltip>
+                </LWTooltip>
             </td>
             <td className={classes.username}>
               <UsersName documentId={rev.userId}/>{" "}

@@ -28,7 +28,7 @@ const CompareRevisions = ({
   collectionName: string,
   fieldName: string,
   documentId: string,
-  versionBefore: string,
+  versionBefore: string | undefined,
   versionAfter: string,
   classes: ClassesType,
   trim?: boolean

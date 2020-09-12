@@ -39,14 +39,13 @@ const styles = theme => ({
 
 const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRevisionUrl}: {
   revision: RevisionMetadataWithChangeMetrics,
-  previousRevision: RevisionMetadataWithChangeMetrics
+  previousRevision: RevisionMetadataWithChangeMetrics | undefined,
   classes: ClassesType,
   documentId: string,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
 }) => {
   const { CompareRevisions, FormatDate, UsersName, MetaInfo, LWTooltip } = Components
-
-  if (!documentId || !revision || !previousRevision) return null
+  if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
 
   return <div className={classes.root}>
@@ -77,12 +76,12 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
           {revision.commitMessage}
         </Link>
       </MetaInfo>
-      {!!(added || removed) && <div className={classes.textBody}>
+      {!!(added || removed || !previousRevision) && <div className={classes.textBody}>
         <CompareRevisions
           trim
           collectionName="Tags" fieldName="description"
           documentId={documentId}
-          versionBefore={previousRevision.version}
+          versionBefore={previousRevision?.version}
           versionAfter={revision.version}
         />
       </div>}
