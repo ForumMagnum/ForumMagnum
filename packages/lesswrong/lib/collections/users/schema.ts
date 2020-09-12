@@ -247,6 +247,12 @@ const schema: SchemaType<DbUser> = {
       },
     },
   },
+
+  lwWikiImport: {
+    type: Boolean,
+    optional: true, 
+    canRead: ['guests'],
+  }
 };
 
 export default schema;

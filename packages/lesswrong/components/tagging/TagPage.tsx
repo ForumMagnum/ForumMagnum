@@ -141,7 +141,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
+  const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
 
   return <AnalyticsContext
@@ -207,7 +207,7 @@ const TagPage = ({classes}: {
           </div>
         </AnalyticsContext>
       </div>
-      <AnalyticsContext pageSectionContext="tagsSection">
+      {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
         <div className={classes.tagHeader}>
           <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
           <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
@@ -220,7 +220,7 @@ const TagPage = ({classes}: {
         >
           <AddPostsToTag tag={tag} />
         </PostsList2>
-      </AnalyticsContext>
+      </AnalyticsContext>}
     </SingleColumnSection>
   </AnalyticsContext>
 }

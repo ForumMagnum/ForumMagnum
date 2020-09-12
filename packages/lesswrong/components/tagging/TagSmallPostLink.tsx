@@ -82,7 +82,7 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
         <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}
         </Link>
-        {!hideMeta && <MetaInfo className={classes.author}>
+        {!hideMeta && post.user && <MetaInfo className={classes.author}>
           <UsersName user={post.user} />
         </MetaInfo>}
 
