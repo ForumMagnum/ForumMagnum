@@ -66,13 +66,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 });
 
-const TagProgressBar = ({classes}: {
+const TagProgressBar = ({ classes }: {
   classes: ClassesType,
 }) => {
 
   const { LWTooltip } = Components;
   const currentUser = useCurrentUser();
-  const {mutate: updateUser} = useUpdate({
+  const { mutate: updateUser } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
@@ -83,7 +83,7 @@ const TagProgressBar = ({classes}: {
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
-        selector: { _id: currentUser._id},
+        selector: { _id: currentUser._id },
         data: {
           hideTaggingProgressBar: true
         },
@@ -92,7 +92,7 @@ const TagProgressBar = ({classes}: {
         messageString: "Hid tagging progress bar from the frontpage",
         type: "success",
         action: () => void updateUser({
-          selector: { _id: currentUser._id},
+          selector: { _id: currentUser._id },
           data: {
             hideTaggingProgressBar: false
           },
@@ -109,42 +109,42 @@ const TagProgressBar = ({classes}: {
   const allPostsTooltip = "All posts with 25+ karma are tagged! Woop! Woop!"
 
   return <div className={classes.root}>
-      <div className={classes.inner}>
-        <div className={classes.text}>
-          <Link className={classes.title} to={"/posts/gNb2wSKDYDPJ6Mxmz/woop-woop-tagging-progress-bar-is-at-100-celebration-on-sun"}>
-            Tagging Progress
+    <div className={classes.inner}>
+      <div className={classes.text}>
+        <Link className={classes.title} to={"/posts/gNb2wSKDYDPJ6Mxmz/woop-woop-tagging-progress-bar-is-at-100-celebration-on-sun"}>
+          Tagging Progress
           </Link>
-          <LWTooltip title={<div>
-            <div>View all completely untagged posts, sorted by karma</div>
-            <div><em>(Click through to read posts, and then tag them)</em></div>
-          </div>}>
-          </LWTooltip>
-        </div>
-        <LWTooltip className={classes.tooltip} title={allPostsTooltip}>
-          <LinearProgress 
-            classes={{root: classes.barRoot}} 
-            variant="determinate" 
-            value={100} 
-          />
+        <LWTooltip title={<div>
+          <div>View all completely untagged posts, sorted by karma</div>
+          <div><em>(Click through to read posts, and then tag them)</em></div>
+        </div>}>
         </LWTooltip>
-        <div className={classes.secondaryInfo}>
-          <div className={classes.helpText}>
-            <span className={classes.allTagsBarColor}>All posts with 25+ karma have been tagged.{" "} </span>
-          </div>
-          <LWTooltip title={"Hide this progress bar from the frontpage"}>
-            <a 
-              className={classes.hideButton}
-              onClick={hideClickHandler}
-            > 
-              Hide 
-            </a>
-          </LWTooltip>
-        </div>
       </div>
+      <LWTooltip className={classes.tooltip} title={allPostsTooltip}>
+        <LinearProgress
+          classes={{ root: classes.barRoot }}
+          variant="determinate"
+          value={100}
+        />
+      </LWTooltip>
+      <div className={classes.secondaryInfo}>
+        <div className={classes.helpText}>
+          <span className={classes.allTagsBarColor}>All posts with 25+ karma have been tagged.{" "} </span>
+        </div>
+        <LWTooltip title={"Hide this progress bar from the frontpage"}>
+          <a
+            className={classes.hideButton}
+            onClick={hideClickHandler}
+          >
+            Hide
+            </a>
+        </LWTooltip>
+      </div>
+    </div>
   </div>
 }
 
-const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, {styles, hocs:[withErrorBoundary]});
+const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
 
 declare global {
   interface ComponentTypes {
