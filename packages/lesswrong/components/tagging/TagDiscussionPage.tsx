@@ -5,6 +5,8 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import { useTagBySlug } from './useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import { Tags } from '../../lib/collections/tags/collection';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   title: {
@@ -47,7 +49,7 @@ const TagDiscussionPage = ({classes}: {
   
   return (
     <SingleColumnSection>
-      <h1 className={classes.title}>{tag?.name}</h1>
+      { tag && <Link to={Tags.getUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
       <p className={classes.description}>
         Use this page to discuss problems with the tag, ask for clarification about the tag, propose 
         merging or splitting the tag, or just discuss edits you want to make to the tag
