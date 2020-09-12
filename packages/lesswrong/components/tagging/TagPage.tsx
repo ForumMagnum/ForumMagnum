@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { commentBodyStyles, tagBodyStyles } from '../../themes/stylePiping'
+import { tagBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
 import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
