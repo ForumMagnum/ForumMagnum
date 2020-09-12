@@ -40,6 +40,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  hoverPostIcon: {
+    height: 16,
+    color: theme.palette.grey[700],
+    position: "relative",
+    top: 3
+  },
   reviewed: {
     backgroundColor: theme.palette.grey[100]
   },
@@ -61,6 +67,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bigUpvotes: {
     color: theme.palette.primary.dark
+  },
+  hr: {
+    height: 0,
+    borderTop: "none",
+    borderBottom: "1px solid #ccc"
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
@@ -168,7 +179,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                 </NewConversationButton>}
               </div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-              <hr />
+              <hr className={classes.hr}/>
               <div className={classes.row}>
                 <div className={classes.bigDownvotes}>
                   Big Downvotes: { user.bigDownvoteCount || 0 }
@@ -183,12 +194,12 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                   Big Upvotes: { user.bigUpvoteCount || 0 } 
                 </div>
               </div>
-              <hr />
+              <hr className={classes.hr}/>
               <div>
                 <LWTooltip title="Post count">
                   <span>
                     { user.postCount || 0 }
-                    <DescriptionIcon className={classes.icon}/>
+                    <DescriptionIcon className={classes.hoverPostIcon}/>
                   </span> 
                 </LWTooltip>
                 {posts?.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
