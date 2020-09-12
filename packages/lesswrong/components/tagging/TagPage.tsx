@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { commentBodyStyles } from '../../themes/stylePiping'
+import { tagBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
 import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
@@ -20,12 +20,12 @@ import { useHover } from '../common/withHover';
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
   tagPage: {
-    ...commentBodyStyles(theme),
+    ...tagBodyStyles(theme),
     color: theme.palette.grey[600]
   },
   description: {
     marginTop: 18,
-    ...commentBodyStyles(theme),
+    ...tagBodyStyles(theme),
     marginBottom: 18,
   },
   loadMore: {
@@ -141,7 +141,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<a>(Read More)</a>") : tag.description?.html
+  const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
 
   return <AnalyticsContext
