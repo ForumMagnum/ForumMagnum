@@ -228,7 +228,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     control: "select",
     form: {
-      // TODO – maybe factor out??
+      // TODO - maybe factor out??
       options: function () { // options for the select form control
         let commentViews = [
           {value:'postCommentsTop', label: 'magical algorithm'},

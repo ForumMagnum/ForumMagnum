@@ -153,7 +153,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip("Required")}>
-              <span className={classNames(classes.filterButton)} onClick={ev => onChangeMode("Required")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Required"})} onClick={ev => onChangeMode("Required")}>
                 Required
               </span>
             </LWTooltip>
