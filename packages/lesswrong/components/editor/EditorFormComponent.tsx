@@ -525,8 +525,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getUserDefaultEditor = (user) => {
-    if (user?.reenableDraftJs) return "draftJS"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
+    if (user?.reenableDraftJs) return "draftJS"
     return "ckEditorMarkup"
   }
 
