@@ -196,7 +196,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   async componentDidMount() {
-    const { currentUser, form, document, fieldName } = this.props
+    const { form } = this.props
 
     this.context.addToSubmitForm(this.submitData);
 

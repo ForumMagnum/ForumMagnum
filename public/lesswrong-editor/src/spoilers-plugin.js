@@ -16,13 +16,10 @@ export default class Spoilers extends Plugin {
 	}
 
 	init() {
-		const editor = this.editor;
-
 		this._defineSchema();
         this._defineConverters();
 
         this.editor.commands.add( 'spoiler', new SpoilerBlockCommand( this.editor ) );
-
     }
 
     afterInit(){
