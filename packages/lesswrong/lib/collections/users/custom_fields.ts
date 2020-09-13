@@ -1387,6 +1387,16 @@ addFieldsDict(Users, {
     canRead: [Users.owns],
     canUpdate: ['admins'],
   },
+  reenableDraftJs: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    tooltip: "Restore the old Draft-JS based editor",
+    group: formGroups.default,
+    label: "Restore the previous WYSIWYG editor",
+    order: 72,
+  }
 });
 
 export const makeEditableOptionsModeration = {
