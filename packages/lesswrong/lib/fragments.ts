@@ -147,6 +147,8 @@ registerFragment(`
     
     abTestKey
     abTestOverrides
+
+    reenableDraftJs
   }
 `);
 
