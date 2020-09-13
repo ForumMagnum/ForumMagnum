@@ -371,3 +371,7 @@ Comments.addView('commentsOnTag', terms => ({
     tagId: terms.tagId,
   },
 }));
+ensureIndex(Comments,
+  augmentForDefaultView({tagId: 1}),
+  { name: "comments.tagId" }
+);

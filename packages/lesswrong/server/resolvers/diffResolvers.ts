@@ -2,15 +2,17 @@ import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graph
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
+import { editableCollections, editableCollectionsFields, } from '../../lib/editor/make_editable';
+import { getPrecedingRev } from '../editor/make_editable_callbacks';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import cheerio from 'cheerio';
 
 addGraphQLResolvers({
   Query: {
     // Diff resolver
-    // After revision required, before revision optional
-    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
+    // After revision required, before revision optional (if not provided, diff
+    // is against the preceding revision, whatever that is.)
+    async RevisionsDiff(root: void, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string|null, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
       // Validate collectionName, fieldName
@@ -32,16 +34,26 @@ addGraphQLResolvers({
       }
       
       // Load the revisions
-      const beforeUnfiltered = await Revisions.findOne({
-        documentId: id,
-        version: beforeRev,
-        fieldName: fieldName,
-      });
       const afterUnfiltered = await Revisions.findOne({
         documentId: id,
         version: afterRev,
         fieldName: fieldName,
       });
+      if (!afterUnfiltered)
+        throw new Error("Revision not found");
+      let beforeUnfiltered: DbRevision|null;
+      if (beforeRev) {
+        beforeUnfiltered = await Revisions.findOne({
+          documentId: id,
+          version: beforeRev,
+          fieldName: fieldName,
+        })
+      } else {
+        beforeUnfiltered = await getPrecedingRev(afterUnfiltered);
+      }
+      
+      if (!beforeUnfiltered || !afterUnfiltered)
+        return "";
       
       const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
       const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
@@ -60,7 +72,7 @@ addGraphQLResolvers({
 
 export const diffHtml = (before: string, after: string, trim: boolean): string => {
   // Diff the revisions
-  const diffHtmlUnsafe = diff(before.html, after.html);
+  const diffHtmlUnsafe = diff(before, after);
   
   const $ = cheerio.load(diffHtmlUnsafe)
   if (trim) {
