@@ -11,7 +11,7 @@ export const defaultConfig = {
 
 export function getSelectedMathModelWidget( selection ) {
 	const selectedElement = selection.getSelectedElement();
-	if ( selectedElement && ( selectedElement.is( 'mathtex' ) || selectedElement.is( 'mathtex-display' ) ) ) {
+	if ( selectedElement && ( selectedElement.name === 'mathtex' || selectedElement.name === 'mathtex-display' ) ) {
 		return selectedElement;
 	}
 	return null;
