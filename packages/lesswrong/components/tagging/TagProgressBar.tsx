@@ -131,6 +131,8 @@ const TagProgressBar = ({ classes }: {
     }
   }
 
+  if (!allTagsToProcessTotal || !processedTagsTotal) return null
+
   const allPostsTooltip = processedTagsTotal < allTagsToProcessTotal ?
     `${allTagsToProcessTotal - processedTagsTotal} pages out of ${allTagsToProcessTotal} from the LW 1.0 Wiki still need processing` :
     `All tags and wiki pages from the LW Wiki import have been processed!`
