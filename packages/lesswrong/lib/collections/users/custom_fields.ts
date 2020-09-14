@@ -233,7 +233,7 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     control: "select",
     form: {
-      // TODO – maybe factor out??
+      // TODO - maybe factor out??
       options: function () { // options for the select form control
         let commentViews = [
           {value:'postCommentsTop', label: 'magical algorithm'},
@@ -1200,16 +1200,6 @@ addFieldsDict(Users, {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
-  },
-
-  sunshineShowNewUserContent: {
-    type: Boolean,
-    optional: true,
-    defaultValue: false,
-    canRead: ['guests'],
-    group: formGroups.adminOptions,
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
   },
 
   viewUnreviewedComments: {

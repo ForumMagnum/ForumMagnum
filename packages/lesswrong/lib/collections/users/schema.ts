@@ -246,6 +246,11 @@ const schema: SchemaType<DbUser> = {
         return Users.getEditUrl(user, true);
       },
     },
+  },
+  lwWikiImport: {
+    type: Boolean,
+    optional: true, 
+    canRead: ['guests'],
   }
 };
 
