@@ -445,7 +445,6 @@ const PostsItem2 = ({
                       captureOnMount={(eventData) => eventData.capturePostItemOnMount}
                       captureOnClick={false}
                   >
-                      {console.log(post.title, curatedIconLeft)}
                     <PostsTitle
                       postLink={postLink}
                       post={post}
