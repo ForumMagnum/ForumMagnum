@@ -900,6 +900,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly sortDrafts: string,
+  readonly reenableDraftJs: boolean,
 }
 
 interface UserBookmarks { // fragment on Users
