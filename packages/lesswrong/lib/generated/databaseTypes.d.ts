@@ -25,6 +25,7 @@ interface DbUser extends DbObject {
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string
+  sortDrafts: string
   hideIntercom: boolean
   markDownPostEditor: boolean
   hideNavigationSidebar: boolean
