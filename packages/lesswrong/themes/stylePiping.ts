@@ -38,7 +38,11 @@ const spoilerStyles = (theme: ThemeType) => ({
     },
     '&:hover': {
       background: 'rgba(0,0,0,.12)' // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
-    }
+    },
+    '& > p' : {
+      margin: '0 !important',
+      padding: '0.5em 8px !important'
+    },
   },
   '& p.spoiler-v2': {
     margin: 0,

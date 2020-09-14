@@ -147,7 +147,10 @@ registerFragment(`
     
     abTestKey
     abTestOverrides
+
     sortDrafts
+    
+    reenableDraftJs
   }
 `);
 

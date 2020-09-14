@@ -55,9 +55,9 @@ export default class MathEditing extends Plugin {
 						type: 'math/tex'
 					}
 				},
-				model: ( viewElement, modelWriter ) => {
+				model: ( viewElement, { writer } ) => {
 					const equation = viewElement.getChild( 0 ).data.trim();
-					return modelWriter.createElement( 'mathtex', {
+					return writer.createElement( 'mathtex', {
 						equation,
 						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script'
 					} );
@@ -71,9 +71,9 @@ export default class MathEditing extends Plugin {
 						type: 'math/tex; mode=display'
 					}
 				},
-				model: ( viewElement, modelWriter ) => {
+				model: ( viewElement, { writer } ) => {
 					const equation = viewElement.getChild( 0 ).data.trim();
-					return modelWriter.createElement( 'mathtex-display', {
+					return writer.createElement( 'mathtex-display', {
 						equation,
 						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script'
 					} );
@@ -85,14 +85,14 @@ export default class MathEditing extends Plugin {
 					name: 'span',
 					classes: [ 'math-tex' ]
 				},
-				model: ( viewElement, modelWriter ) => {
+				model: ( viewElement, { writer } ) => {
 					const rawEquation = viewElement.getChild( 0 ).data.trim();
 					const { display, equation } = extractDelimiters( rawEquation );
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
 					if ( display ) {
-						return modelWriter.createElement( 'mathtex-display', { equation, type } );
+						return writer.createElement( 'mathtex-display', { equation, type } );
 					} else {
-						return modelWriter.createElement( 'mathtex', { equation, type } );
+						return writer.createElement( 'mathtex', { equation, type } );
 					}
 				}
 			} )
@@ -102,14 +102,14 @@ export default class MathEditing extends Plugin {
 					name: 'span',
 					classes: [ 'mjx-chtml' ]
 				},
-				model: ( viewElement, modelWriter ) => {
+				model: ( viewElement, { writer } ) => {
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
 					const firstChild = viewElement.getChild( 0 );
 					const classes = Array.from( viewElement.getClassNames() );
 					if ( classes.includes( 'MJXc-display' ) ) {
-						return modelWriter.createElement( 'mathtex-display', { equation: firstChild.getAttribute( 'aria-label' ), type } );
+						return writer.createElement( 'mathtex-display', { equation: firstChild.getAttribute( 'aria-label' ), type } );
 					} else {
-						return modelWriter.createElement( 'mathtex', { equation: firstChild.getAttribute( 'aria-label' ), type } );
+						return writer.createElement( 'mathtex', { equation: firstChild.getAttribute( 'aria-label' ), type } );
 					}
 				}
 			} );
@@ -118,16 +118,16 @@ export default class MathEditing extends Plugin {
 		conversion.for( 'editingDowncast' )
 			.elementToElement( {
 				model: 'mathtex',
-				view: ( modelItem, viewWriter ) => {
-					const widgetElement = createMathtexEditingView( modelItem, viewWriter, false );
-					return toWidget( widgetElement, viewWriter );
+				view: ( modelItem, { writer } ) => {
+					const widgetElement = createMathtexEditingView( modelItem, writer, false );
+					return toWidget( widgetElement, writer );
 				}
 			} )
 			.elementToElement( {
 				model: 'mathtex-display',
-				view: ( modelItem, viewWriter ) => {
-					const widgetElement = createMathtexEditingView( modelItem, viewWriter, true );
-					return toWidget( widgetElement, viewWriter );
+				view: ( modelItem, { writer } ) => {
+					const widgetElement = createMathtexEditingView( modelItem, writer, true );
+					return toWidget( widgetElement, writer );
 				}
 			} );
 
@@ -135,28 +135,28 @@ export default class MathEditing extends Plugin {
 		conversion.for( 'dataDowncast' )
 			.elementToElement( {
 				model: 'mathtex',
-				view: ( modelItem, viewWriter ) => createMathtexView( modelItem, viewWriter, false )
+				view: ( modelItem, { writer } ) => createMathtexView( modelItem, writer, false )
 			} )
 			.elementToElement( {
 				model: 'mathtex-display',
-				view: ( modelItem, viewWriter ) => createMathtexView( modelItem, viewWriter, true )
+				view: ( modelItem, { writer } ) => createMathtexView( modelItem, writer, true )
 			} );
 
 		// Create view for editor
-		function createMathtexEditingView( modelItem, viewWriter, display ) {
+		function createMathtexEditingView( modelItem, writer, display ) {
 			const equation = modelItem.getAttribute( 'equation' );
 
 			const styles = 'user-select: none; ' + ( display ? '' : 'display: inline-block;' );
 			const classes = 'ck-math-tex ' + ( display ? 'ck-math-tex-display' : 'ck-math-tex-inline' );
 
 			// CKEngine render multiple times if using span instead of div
-			const mathtexView = viewWriter.createContainerElement( 'div', {
+			const mathtexView = writer.createContainerElement( 'div', {
 				style: styles,
 				class: classes
 			} );
 
 			// Div is formatted as parent container
-			const uiElement = viewWriter.createUIElement( 'div', null, function( domDocument ) {
+			const uiElement = writer.createUIElement( 'div', null, function( domDocument ) {
 				const domElement = this.toDomElement( domDocument );
 
 				renderEquation( equation, domElement, mathConfig.engine, display, false );
@@ -164,7 +164,7 @@ export default class MathEditing extends Plugin {
 				return domElement;
 			} );
 
-			viewWriter.insert( viewWriter.createPositionAt( mathtexView, 0 ), uiElement );
+			writer.insert( writer.createPositionAt( mathtexView, 0 ), uiElement );
 
 			return mathtexView;
 		}
