@@ -316,7 +316,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly bannedUserIds: Array<string>,
 }
 
-interface SunshinePostsList extends PostsList { // fragment on Posts
+interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVotes: Array<VoteFragment>,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
@@ -899,6 +899,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly hideTaggingProgressBar: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly reenableDraftJs: boolean,
 }
 
 interface UserBookmarks { // fragment on Users

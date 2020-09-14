@@ -228,7 +228,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     control: "select",
     form: {
-      // TODO – maybe factor out??
+      // TODO - maybe factor out??
       options: function () { // options for the select form control
         let commentViews = [
           {value:'postCommentsTop', label: 'magical algorithm'},
@@ -1177,17 +1177,6 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
   },
 
-  // sunshineShowNewUserContent: {
-  //  deprecated - this was originally used to toggle whether a sunshine moderator could see (without hovering over) a new user's content. It turned out to make it too easy to get into a rhythm where you might purge a user accidentally.
-  //  type: Boolean,
-  //  optional: true,
-  //  defaultValue: false,
-  //  canRead: ['guests'],
-  //  group: formGroups.adminOptions,
-  //  canUpdate: ['sunshineRegiment', 'admins'],
-  //  canCreate: ['sunshineRegiment', 'admins'],
-  // },
-
   viewUnreviewedComments: {
     type: Boolean,
     optional: true,
@@ -1398,6 +1387,16 @@ addFieldsDict(Users, {
     canRead: [Users.owns],
     canUpdate: ['admins'],
   },
+  reenableDraftJs: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    tooltip: "Restore the old Draft-JS based editor",
+    group: formGroups.default,
+    label: "Restore the previous WYSIWYG editor",
+    order: 72,
+  }
 });
 
 export const makeEditableOptionsModeration = {

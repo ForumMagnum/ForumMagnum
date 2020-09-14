@@ -106,14 +106,15 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
+          const newMode = mode === tagSettings.filterMode ? 0 : mode
           const changedTagId = tagSettings.tagId;
           const replacedIndex = _.findIndex(filterSettingsWithSuggestedTags.tags, t=>t.tagId===changedTagId);
           let newTagFilters = [...filterSettingsWithSuggestedTags.tags];
           newTagFilters[replacedIndex] = {
             ...filterSettingsWithSuggestedTags.tags[replacedIndex],
-            filterMode: mode
+            filterMode: newMode
           };
-          captureEvent('tagFilterModified', {tagId: tagSettings.tagId, tagName: tagSettings.tagName, mode})
+          captureEvent('tagFilterModified', {tagId: tagSettings.tagId, tagName: tagSettings.tagName, newMode})
 
           changeFilterSettings({
             personalBlog: filterSettingsWithSuggestedTags.personalBlog,

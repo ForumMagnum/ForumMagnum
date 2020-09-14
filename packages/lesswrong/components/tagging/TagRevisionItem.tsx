@@ -29,28 +29,42 @@ const styles = theme => ({
   },
   textBody: {
     ...commentBodyStyles(theme),
+  },
+  username: {
+    ...theme.typography.commentStyle,
+    color: "rgba(0,0,0,.87)",
+    marginRight: 12
   }
 });
 
 const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRevisionUrl}: {
   revision: RevisionMetadataWithChangeMetrics,
-  previousRevision: RevisionMetadataWithChangeMetrics
+  previousRevision: RevisionMetadataWithChangeMetrics | undefined,
   classes: ClassesType,
   documentId: string,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
 }) => {
-  const { CompareRevisions, FormatDate, UsersName, MetaInfo } = Components
-
-  if (!documentId || !revision || !previousRevision) return null
+  const { CompareRevisions, FormatDate, UsersName, MetaInfo, LWTooltip } = Components
+  if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
 
   return <div className={classes.root}>
+      <span className={classes.username}>
+        <UsersName documentId={revision.userId}/>
+      </span>
+      <Link to={getRevisionUrl(revision)}>
+        <LWTooltip title="View Selected Revision">
+          <>
+            <MetaInfo>
+              v{revision.version}
+            </MetaInfo>
+            <MetaInfo>
+              <FormatDate tooltip={false} format={"MMM Do YYYY z"} date={revision.editedAt}/>{" "}
+            </MetaInfo>
+          </>
+        </LWTooltip>
+      </Link>
       <MetaInfo>
-        <Link to={getRevisionUrl(revision)}>
-          {revision.version}{" "}
-          <FormatDate format={"LLL z"} date={revision.editedAt}/>{" "}
-        </Link>
-        <UsersName documentId={revision.userId}/>{" "}
         <Link to={getRevisionUrl(revision)}>
           {(added>0 && removed>0)
             && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
@@ -62,12 +76,12 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
           {revision.commitMessage}
         </Link>
       </MetaInfo>
-      {!!(added || removed) && <div className={classes.textBody}>
+      {!!(added || removed || !previousRevision) && <div className={classes.textBody}>
         <CompareRevisions
           trim
           collectionName="Tags" fieldName="description"
           documentId={documentId}
-          versionBefore={previousRevision.version}
+          versionBefore={previousRevision?.version}
           versionAfter={revision.version}
         />
       </div>}
