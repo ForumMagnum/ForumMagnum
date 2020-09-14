@@ -87,11 +87,17 @@ export const sortings = {
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
+  const { 
+    userId, 
+    meta, 
+    groupId=viewFieldNullOrMissing, 
+    af=forumTypeSetting.get() === 'AlignmentForum' ? true : viewFieldNullOrMissing, 
+    question, 
+    authorIsUnreviewed=false
+  } = terms
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
@@ -99,11 +105,13 @@ Posts.addDefaultView(terms => {
       isFuture: false,
       unlisted: false,
       shortform: false,
-      authorIsUnreviewed: false,
+      authorIsUnreviewed,
       hiddenRelatedQuestion: false,
-      groupId: viewFieldNullOrMissing,
-      ...validFields,
-      ...alignmentForum
+      question,
+      af,
+      meta,
+      userId,
+      groupId
     },
     options: {},
   }
