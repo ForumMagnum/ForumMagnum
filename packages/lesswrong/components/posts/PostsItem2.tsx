@@ -13,7 +13,6 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
@@ -326,6 +325,7 @@ const PostsItem2 = ({
   showReviewCount=false,
   hideAuthor=false,
   classes,
+  curatedIconLeft=false
 }: {
   post: PostsList,
   tagRel?: WithVoteTagRel|null,
@@ -347,6 +347,7 @@ const PostsItem2 = ({
   showReviewCount?: boolean,
   hideAuthor?: boolean,
   classes: ClassesType,
+  curatedIconLeft?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -393,7 +394,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, CuratedIcon } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -444,12 +445,14 @@ const PostsItem2 = ({
                       captureOnMount={(eventData) => eventData.capturePostItemOnMount}
                       captureOnClick={false}
                   >
+                      {console.log(post.title, curatedIconLeft)}
                     <PostsTitle
-                        postLink={postLink}
-                        post={post}
-                        read={isRead}
-                        sticky={isSticky(post, terms)}
-                        showQuestionTag={showQuestionTag}
+                      postLink={postLink}
+                      post={post}
+                      read={isRead}
+                      sticky={isSticky(post, terms)}
+                      showQuestionTag={showQuestionTag}
+                      curatedIconLeft={curatedIconLeft}
                     />
                   </AnalyticsTracker>
                 </span>
