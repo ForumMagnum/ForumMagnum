@@ -272,6 +272,30 @@ export const commentBodyStyles = (theme: ThemeType) => {
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
 
+export const tagBodyStyles = (theme: ThemeType) => {
+  return {
+    ...commentBodyStyles(theme),
+    '&& h1': {
+      fontSize: '2rem',
+      marginTop: '3rem',
+      fontWeight:600,
+      ...theme.typography.commentStyle
+    }, 
+    '&& h2': {
+      fontSize: '1.7rem',
+      marginTop: '1.5rem',
+      fontWeight:500,
+      ...theme.typography.commentStyle
+    }, 
+    '&& h3': {
+      fontSize: '1.3rem',
+      marginTop: '1.5rem',
+      fontWeight:500,
+      ...theme.typography.commentStyle
+    }
+  }
+}
+
 // FIXME: Emails currently don't use this, because the expectations around font size and
 // typography are very different in an email. But some subset of these styles should
 // actually be applied, eg spoiler-tag handling, even though font selection shouldn't
