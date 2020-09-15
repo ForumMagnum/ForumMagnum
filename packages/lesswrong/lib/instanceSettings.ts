@@ -101,7 +101,7 @@ export class PublicInstanceSetting<SettingValueType> {
 */
 
 export const forumTypeSetting = new PublicInstanceSetting<string>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
-export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong 2.0', 'warning') // Default title for URLs
+export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
