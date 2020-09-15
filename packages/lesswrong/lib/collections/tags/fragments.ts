@@ -36,9 +36,14 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagBasicInfo
     description(version: $version) {
+      version
       html
       htmlHighlight
       plaintextDescription
+      
+      user {
+        ...UsersMinimumInfo
+      }
     }
   }
 `);
