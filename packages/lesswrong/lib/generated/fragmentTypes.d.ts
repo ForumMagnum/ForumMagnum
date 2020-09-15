@@ -1449,9 +1449,11 @@ interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagRevisionFragment_description { // fragment on Revisions
+  readonly version: string,
   readonly html: string,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
