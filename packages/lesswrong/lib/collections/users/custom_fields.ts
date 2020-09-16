@@ -1222,7 +1222,8 @@ addFieldsDict(Users, {
     control: 'datetime',
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true
+    group: formGroups.adminOptions,
+    // hidden: ({currentUser}) => !currentUser.isAdmin
   },
   petrovCodesEnteredDate: {
     type: Date,
@@ -1230,14 +1231,16 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     control: 'datetime',
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true
+    group: formGroups.adminOptions,
+    // hidden: ({currentUser}) => !currentUser.isAdmin
   },
   petrovCodesEntered: {
     type: String,
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true
+    group: formGroups.adminOptions,
+    // hidden: ({currentUser}) => !currentUser.isAdmin
   },
   petrovCodesEnteredHashed: {
     type: String,

@@ -149,6 +149,10 @@ registerFragment(`
     abTestOverrides
 
     reenableDraftJs
+
+    petrovPressedButtonDate
+    petrovCodesEnteredDate
+    petrovCodesEntered
   }
 `);
 
@@ -357,6 +361,10 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
+
+    petrovPressedButtonDate
+    petrovCodesEnteredDate
+    petrovCodesEntered
   }
 `);
 

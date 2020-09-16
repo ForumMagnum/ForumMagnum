@@ -900,6 +900,9 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly reenableDraftJs: boolean,
+  readonly petrovPressedButtonDate: Date,
+  readonly petrovCodesEnteredDate: Date,
+  readonly petrovCodesEntered: string,
 }
 
 interface UserBookmarks { // fragment on Users
@@ -1054,6 +1057,9 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
+  readonly petrovPressedButtonDate: Date,
+  readonly petrovCodesEnteredDate: Date,
+  readonly petrovCodesEntered: string,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users

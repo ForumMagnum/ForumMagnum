@@ -2,14 +2,16 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
 import { mapsHeight } from '../localGroups/CommunityMap';
-import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
+import ReactMapGL from 'react-map-gl';
+import { Helmet } from 'react-helmet'
 
+import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
@@ -17,10 +19,15 @@ import Users from '../../lib/collections/users/collection';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
+    zIndex: theme.zIndexes.petrovDayButton,
+    position:"relative",
+    height: mapsHeight,
+  },
+  panelBacking: {
     position: "absolute",
     top: 0,
-    zIndex: theme.zIndexes.petrovDayButton,
-    width: "100vw",
+    left: 0,
+    width: "100%",
     height: mapsHeight,
     display: "flex",
     alignItems: "center",
@@ -96,6 +103,8 @@ const PetrovDayButton = ({classes, refetch}: {
   const [pressed, setPressed] = useState(petrovPressedButtonDate)
   const [launchCode, setLaunchCode] = useState(petrovCodesEntered)
 
+  const { LWTooltip, LoginPopupButton } = Components
+
   const {mutate: updateUser} = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
@@ -126,7 +135,7 @@ const PetrovDayButton = ({classes, refetch}: {
         petrovCodesEntered: launchCode
       }
     });
-    refetch()
+    // refetch()
   }
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
@@ -136,50 +145,63 @@ const PetrovDayButton = ({classes, refetch}: {
 
   return (
     <div className={classes.root}>
-      <div className={classes.panel}>
-        <Typography variant="display1" className={classes.title}>
-          <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
-        </Typography>
-        {currentUser ? 
-            <div className={classes.button}>
-              {renderButtonAsPressed ? 
-                <Tooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
-                  <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
-                </Tooltip>
-                :
-                <Tooltip title="Are you sure?" placement="right">
-                  <div onClick={pressButton}>
-                    <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
-                    <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
-                  </div>
-                </Tooltip>
-              }
-            </div>
-          :
-          <div className={classes.button}>
-            <Components.LoginPopupButton title={"Log in if you'd like to push the button"}>
-              <div>
-                <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
-                <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+      <Helmet> 
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
+      </Helmet>
+      <ReactMapGL
+        zoom={2}
+        width="100%"
+        height="100%"
+        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
+      />
+      <div className={classes.panelBacking}>
+        <div className={classes.panel}>
+          <Typography variant="display1" className={classes.title}>
+            <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
+          </Typography>
+          {currentUser ? 
+              <div className={classes.button}>
+                {renderButtonAsPressed ? 
+                  <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
+                    <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
+                  </LWTooltip>
+                  :
+                  <LWTooltip title="Are you sure?" placement="right">
+                    <div onClick={pressButton}>
+                      <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
+                      <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+                    </div>
+                  </LWTooltip>
+                }
               </div>
-            </Components.LoginPopupButton>
-          </div>
-        }
+            :
+            <div className={classes.button}>
+              <LoginPopupButton title={"Log in if you'd like to push the button"}>
+                <div>
+                  <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
+                  <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+                </div>
+              </LoginPopupButton>
+            </div>
+          }
 
-        {renderButtonAsPressed && <TextField
-          onChange={updateLaunchCode}
-          placeholder={"Enter Launch Codes"}
-          margin="normal"
-          variant="outlined"
-        />}
-        {(renderLaunchButton) && 
-          <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
-            Launch
-          </Button>
-        }
-        <Link to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"} className={classes.link}>
-          What is this button about?
-        </Link>
+          {renderButtonAsPressed && <TextField
+            onChange={updateLaunchCode}
+            placeholder={"Enter Launch Codes"}
+            margin="normal"
+            variant="outlined"
+          />}
+          {(renderLaunchButton) && 
+            <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
+              Launch
+            </Button>
+          }
+          <Link to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"} className={classes.link}>
+            What is this button about?
+          </Link>
+        </div>
+
       </div>
     </div>
   )
