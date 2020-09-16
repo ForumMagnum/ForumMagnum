@@ -90,6 +90,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16,
     marginLeft: "auto"
   },
+  subscribeToWrapper: {
+    display: "flex !important",
+  },
   subscribeTo: {
     marginRight: 16
   }
@@ -180,7 +183,7 @@ const TagPage = ({classes}: {
             {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
-            <LWTooltip title="Get notifications when posts are added to this tag">
+            <LWTooltip title="Get notifications when posts are added to this tag" className={classes.subscribeToWrapper}>
               <SubscribeTo 
                 document={tag} 
                 className={classes.subscribeTo}
