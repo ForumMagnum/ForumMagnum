@@ -42,7 +42,7 @@ const AllTagsAlphabetical = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <SectionTitle title={`All Tags (${results?.length || "loading"})`}>
+      <SectionTitle title={`All Tags (${loading ? "loading" : results?.length})`}>
         {userCanCreateTags(currentUser) && <SectionButton>
           <AddBoxIcon/>
           <Link to="/tag/create">New Tag</Link>
