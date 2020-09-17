@@ -120,7 +120,10 @@ const AddTag = ({onTagSelected, classes}: {
       {showAllTags && <a onClick={()=>setShowAllTags(!showAllTags)} className={classes.newTag}>
         Show fewer tags
       </a>}
-      <Configure hitsPerPage={showAllTags ? 500 : (searchOpen ? 12 : 6)} />
+      <Configure
+        filters="wikiOnly:false"
+        hitsPerPage={showAllTags ? 500 : (searchOpen ? 12 : 6)}
+      />
       <Hits hitComponent={({hit}) =>
         <TagSearchHit hit={hit}
             onClick={ev => {
