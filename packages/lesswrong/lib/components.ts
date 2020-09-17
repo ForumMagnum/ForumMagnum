@@ -5,7 +5,7 @@ import '../components/posts/TableOfContents';
 // vulcan:accounts
 import '../components/vulcan-accounts';
 import '../components/vulcan-core/vulcan-core-components';
-import { forumTypeSetting, hasEventsSetting } from './instanceSettings';
+import { forumTypeSetting } from './instanceSettings';
 // vulcan:forms
 import './vulcan-forms/components';
 import { importComponent } from './vulcan-lib';
