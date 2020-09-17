@@ -1,7 +1,8 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
+import { useMulti } from '../../crud/withMulti';
 
 const formGroups = {
   advancedOptions: {
@@ -24,6 +25,7 @@ export const schema: SchemaType<DbTag> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
+    order: 1,
   },
   slug: {
     type: String,
@@ -188,7 +190,28 @@ export const schema: SchemaType<DbTag> = {
     canCreate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
     group: formGroups.advancedOptions
-  }
+  },
+
+  tagFlagsIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "tagFlagsIds",
+      resolverName: "tagFlags",
+      collectionName: "TagFlags",
+      type: "TagFlag",
+    }),
+    control: 'DynamicMultiSelectButtons',
+    label: "Flags: ",
+    optional: true,
+    order: 30,
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins']
+  },
+  'tagFlagsIds.$': {
+    type: String,
+    foreignKey: 'TagFlags',
+    optional: true
+  },
 }
 
 export const wikiGradeDefinitions = {

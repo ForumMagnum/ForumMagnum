@@ -530,6 +530,11 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
+  {
+    name: 'taggingDashboard',
+    path: '/tags/dashboard',
+    componentName: "TaggingDashboard"
+  }
 );
 
 addRoute(

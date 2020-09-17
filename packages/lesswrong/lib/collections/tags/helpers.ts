@@ -1,5 +1,9 @@
-import Tag from './collection';
+import Tags from './collection';
 
-Tag.getUrl = (tag: TagBasicInfo) => {
-  return `/tag/${tag.slug}`
+Tags.getUrl = (tag: TagBasicInfo, { flagId, edit } = {}) => {
+  const url = `/tag/${tag.slug}`
+  if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
+  if (flagId) return `${url}?flagId=${flagId}`
+  if (edit) return `${url}?edit=${edit}`
+  return url
 }

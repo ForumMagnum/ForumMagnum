@@ -545,6 +545,25 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface TagFlagFragment { // fragment on TagFlags
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly contents: TagFlagFragment_contents|null,
+}
+
+interface TagFlagFragment_contents { // fragment on Revisions
+  readonly html: string,
+  readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
+}
+
+interface TagFlagsDefaultFragment { // fragment on TagFlags
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly deleted: boolean,
+}
+
 interface BansDefaultFragment { // fragment on Bans
   readonly createdAt: Date,
   readonly expirationDate: Date,
@@ -648,6 +667,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
+  readonly tagFlagsIds: Array<string>,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1432,6 +1452,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly wikiGrade: number,
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
+  readonly tagFlagsIds: Array<string>,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1462,6 +1483,10 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 
 interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
+}
+
+interface TagWithFlagsFragment extends TagPreviewFragment { // fragment on Tags
+  readonly tagFlags: Array<TagFlagFragment>,
 }
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
@@ -1620,6 +1645,8 @@ interface FragmentTypes {
   LWEventsDefaultFragment: LWEventsDefaultFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  TagFlagFragment: TagFlagFragment
+  TagFlagsDefaultFragment: TagFlagsDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   SequencesDefaultFragment: SequencesDefaultFragment
@@ -1682,6 +1709,7 @@ interface FragmentTypes {
   TagFragment: TagFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
+  TagWithFlagsFragment: TagWithFlagsFragment
   TagEditFragment: TagEditFragment
   SunshineTagFragment: SunshineTagFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
@@ -1697,5 +1725,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
 

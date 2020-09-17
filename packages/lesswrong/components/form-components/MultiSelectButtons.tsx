@@ -7,7 +7,6 @@ import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
-    
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
     fontWeight: 500,
@@ -37,47 +36,40 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-
-class MultiSelectButtons extends Component<any> {
-  handleClick = (option) => {
-    const { value } = this.props;
-    
+const MultiSelectButtons = ({ value, classes, label, options, path }, context) => {
+  const handleClick = (option) => {    
     if (value && value.includes(option)) {
-      this.context.updateCurrentValues({
-        [this.props.path]: _.without(value, option)
+      context.updateCurrentValues({
+        [path]: _.without(value, option)
       })
     } else {
-      this.context.updateCurrentValues({
-        [this.props.path]: [...value, option]
+      context.updateCurrentValues({
+        [path]: [...value, option]
       })
     }
   }
 
-  render() {
-    const { value, classes } = this.props;
-    
-    return <div className="multi-select-buttons">
-      {this.props.label && <label className="multi-select-buttons-label">{this.props.label}</label>}
-      {this.props.options.map((option) => {
-        const selected = value && value.includes(option.value);
-        return <Button
-          className={classnames(
-            "multi-select-buttons-button",
-            classes.button,
-            {
-              [classes.selected]: selected,
-              [classes.notSelected]: !selected,
-            }
-          )}
-          onClick={() => this.handleClick(option.value)}
-          key={option.value}
-        >
-          {option.label || option.value}
-        </Button>
-      })}
-    </div>
-  }
-};
+  return <div className="multi-select-buttons">
+    {label && <label className="multi-select-buttons-label">{label}</label>}
+    {options.map((option) => {
+      const selected = value && value.includes(option.value);
+      return <Button
+        className={classnames(
+          "multi-select-buttons-button",
+          classes.button,
+          {
+            [classes.selected]: selected,
+            [classes.notSelected]: !selected,
+          }
+        )}
+        onClick={() => handleClick(option.value)}
+        key={option.value}
+      >
+        {option.label || option.value}
+      </Button>
+    })}
+  </div>
+}
 
 (MultiSelectButtons as any).contextTypes = {
   updateCurrentValues: PropTypes.func,

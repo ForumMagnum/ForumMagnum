@@ -379,6 +379,10 @@ importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'
 importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
 importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
 importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGradeDisplay'));
+importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
+importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
+importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
+importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
@@ -458,6 +462,7 @@ importComponent("FormComponentDateTime", () => require('../components/form-compo
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
+importComponent("DynamicMultiSelectButtons", () => require('../components/form-components/DynamicMultiSelectButtons'));
 
 // importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 // importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));

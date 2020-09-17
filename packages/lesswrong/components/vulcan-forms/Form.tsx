@@ -55,7 +55,7 @@ import withCollectionProps from './withCollectionProps';
 // props that should trigger a form reset
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
-  'fields', 'removeFields',
+  'fields', 'removeFields', 'documentId',
   'prefilledProps' // TODO: prefilledProps should be merged instead?
 ];
 

@@ -18,6 +18,7 @@ registerFragment(`
     wikiGrade
     createdAt
     wikiOnly
+    tagFlagsIds
   }
 `);
 
@@ -54,6 +55,15 @@ registerFragment(`
     description {
       htmlHighlight
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithFlagsFragment on Tag {
+    ...TagPreviewFragment
+    tagFlags {
+      ...TagFlagFragment
+    } 
   }
 `);
 

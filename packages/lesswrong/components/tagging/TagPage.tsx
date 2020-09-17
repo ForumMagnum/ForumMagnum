@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -16,6 +16,8 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
 import { useHover } from '../common/withHover';
+import { useMulti } from '../../lib/crud/withMulti';
+import { EditTagForm } from './EditTagPage';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -95,6 +97,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   pastRevisionNotice: {
   },
+  nextLink: {
+    ...theme.typography.commentStyle
+  }
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -110,7 +115,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -119,10 +124,26 @@ const TagPage = ({classes}: {
     extraVariablesValues: revision ? {version: revision} : {},
   });
   const [truncated, setTruncated] = useState(true)
+  const [editing, setEditing] = useState(!!query?.edit)
   const { captureEvent } =  useTracking()
   const { openDialog } = useDialog();
   
   const { hover, anchorEl, eventHandlers} = useHover()
+
+  const { results: otherTagsWithFlag, loading: loadingFlagTags } = useMulti({
+    terms: {
+      view: "tagsByTagFlag",
+      tagFlagId: query.flagId,
+    },
+    collection: Tags,
+    fragmentName: 'TagBasicInfo',
+    limit: 100,
+    ssr: true,
+    skip: !query.flagId
+  })
+
+  const tagPositionInList = otherTagsWithFlag?.findIndex(tagInList => tag?._id === tagInList._id);
+  const nextTag = otherTagsWithFlag && otherTagsWithFlag[tagPositionInList + 1]
 
   if (loadingTag)
     return <Loading/>
@@ -160,15 +181,23 @@ const TagPage = ({classes}: {
       <div className={classes.wikiSection}>
         <AnalyticsContext pageSectionContext="wikiSection">
           <div>
+            {query.flagId && <span>
+              <Link to={`/tags/dashboard?focus=${query.flagId}`}> <TagFlagItem documentId={query.flagId}/> </Link>
+                {nextTag && <Link 
+                  className={classes.nextLink} 
+                  to={Tags.getUrl(nextTag, {flagId: query.flagId, edit: true})}> 
+                    Next Tag ({nextTag.name}) 
+                </Link>}
+              </span>}
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
           </div>
           <div className={classes.buttonsRow}>
             {currentUser ? 
-              <Link className={classes.button} to={`/tag/${tag.slug}/edit`}>
+              <a className={classes.button} onClick={() => setEditing(true)}>
                 <EditOutlinedIcon /> Edit Wiki
-              </Link> : 
+              </a> : 
               <a className={classes.button} onClick={(ev) => {
                 openDialog({
                   componentName: "LoginPopup",
@@ -203,16 +232,24 @@ const TagPage = ({classes}: {
           { revision && tag?.description && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
+          {editing ? <EditTagForm 
+            tag={tag} 
+            successCallback={() => setEditing(false)}
+            cancelCallback={() => setEditing(false)}
+          /> : 
           <div onClick={clickReadMore}>
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: description||""}}
               description={`tag ${tag.name}`}
               className={classes.description}
             />
-          </div>
+          </div>}
         </AnalyticsContext>
       </div>
-      {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
+      {editing && <TagDiscussionSection
+        tag={tag}
+      />}
+      {!tag.wikiOnly && !editing && <AnalyticsContext pageSectionContext="tagsSection">
         <div className={classes.tagHeader}>
           <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
           <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
