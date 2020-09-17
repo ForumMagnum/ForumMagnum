@@ -229,33 +229,32 @@ importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
-// events
+// Events
+// In a past version, these `importComponent` definitions were skipped 
 
-if (hasEventsSetting.get()) {
-  importComponent("EventsPast", () => require('../components/posts/EventsPast'));
-  importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
-  importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
-  importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
-  importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
-  importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper'));
-  importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog'));
-  importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog'));
-  importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup'));
-  importComponent("EventTime", () => require('../components/localGroups/EventTime'));
-  importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity'));
-  importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker'));
-  importComponent("LocalEventMarker", () => require('../components/localGroups/LocalEventMarker'));
-  importComponent("LocalGroupPage", () => require('../components/localGroups/LocalGroupPage'));
-  importComponent("LocalGroupSingle", () => require('../components/localGroups/LocalGroupSingle'));
-  importComponent("GroupFormLink", () => require('../components/localGroups/GroupFormLink'));
-  importComponent("SmallMapPreview", () => require('../components/localGroups/SmallMapPreview'));
-  importComponent("GroupLinks", () => require('../components/localGroups/GroupLinks'));
-  importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList'));
-  importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem'));
-  importComponent("TabNavigationEventsList", () => require('../components/localGroups/TabNavigationEventsList'));
-  importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
-  importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
-}
+importComponent("EventsPast", () => require('../components/posts/EventsPast'));
+importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
+importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
+importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
+importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
+importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper'));
+importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog'));
+importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog'));
+importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup'));
+importComponent("EventTime", () => require('../components/localGroups/EventTime'));
+importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity'));
+importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker'));
+importComponent("LocalEventMarker", () => require('../components/localGroups/LocalEventMarker'));
+importComponent("LocalGroupPage", () => require('../components/localGroups/LocalGroupPage'));
+importComponent("LocalGroupSingle", () => require('../components/localGroups/LocalGroupSingle'));
+importComponent("GroupFormLink", () => require('../components/localGroups/GroupFormLink'));
+importComponent("SmallMapPreview", () => require('../components/localGroups/SmallMapPreview'));
+importComponent("GroupLinks", () => require('../components/localGroups/GroupLinks'));
+importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList'));
+importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem'));
+importComponent("TabNavigationEventsList", () => require('../components/localGroups/TabNavigationEventsList'));
+importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
+importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
 
 // comments
 
