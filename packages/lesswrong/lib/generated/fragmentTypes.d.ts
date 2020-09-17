@@ -454,6 +454,7 @@ interface RevisionMetadata { // fragment on Revisions
   readonly editedAt: Date,
   readonly commitMessage: string,
   readonly userId: string,
+  readonly documentId: string,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions

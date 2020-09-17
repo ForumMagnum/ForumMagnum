@@ -263,6 +263,12 @@ addRoute(
     title: 'Tag Voting Activity'
   },
   {
+    name: 'tagEditActivity',
+    path: '/tagActivity/edits',
+    componentName: 'TagEditActivity',
+    title: 'Tag Edit Activity'
+  },
+  {
     name: 'search',
     path: '/search',
     componentName: 'SearchPage',

@@ -6,6 +6,7 @@ registerFragment(`
     editedAt
     commitMessage
     userId
+    documentId
   }
 `);
 

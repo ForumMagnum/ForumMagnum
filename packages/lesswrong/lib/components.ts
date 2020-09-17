@@ -90,6 +90,7 @@ importComponent("RevisionSelect", () => require('../components/revisions/Revisio
 importComponent("PostsRevisionSelect", () => require('../components/revisions/PostsRevisionSelect'));
 importComponent("RevisionComparisonNotice", () => require('../components/revisions/RevisionComparisonNotice'));
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
+importComponent("TagEditActivity", () => require('../components/tagging/TagEditActivity'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));

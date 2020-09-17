@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
+import {useSingle} from "../../lib/crud/withSingle";
+import Revisions from "../../lib/collections/revisions/collection";
+import Tags from "../../lib/collections/tags/collection";
 
 const styles = theme => ({
   root: {
@@ -37,19 +40,33 @@ const styles = theme => ({
   }
 });
 
-const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRevisionUrl}: {
+const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRevisionUrl, showTagTitle}: {
   revision: RevisionMetadataWithChangeMetrics,
   previousRevision: RevisionMetadataWithChangeMetrics | undefined,
   classes: ClassesType,
   documentId: string,
   getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
+  showTagTitle: Boolean
 }) => {
   const { CompareRevisions, FormatDate, UsersName, MetaInfo, LWTooltip } = Components
+
+  const { document: tag } = useSingle({
+    documentId: documentId,
+    collection: Tags,
+    fragmentName: "TagBasicInfo",
+    skip: !showTagTitle
+    }
+  )
+
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
-
   return <div className={classes.root}>
-      <span className={classes.username}>
+    {showTagTitle && !!tag &&
+      <div>
+        <h1>{tag.name}</h1>
+        <Link to={`${Tags.getUrl(tag)}/discussion`}>Discuss this edit<Link/></Link>
+      </div>}
+    <span className={classes.username}>
         <UsersName documentId={revision.userId}/>
       </span>
       <Link to={getRevisionUrl(revision)}>

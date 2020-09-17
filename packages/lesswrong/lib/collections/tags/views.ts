@@ -40,6 +40,17 @@ Tags.addView('tagBySlug', terms => {
     },
   };
 });
+
+// Tags.addView('tagById', terms => {
+//   return {
+//     selector: {
+//       _id: terms.documentId,
+//       adminOnly: viewFieldAllowAny,
+//       wikiOnly: viewFieldAllowAny
+//     },
+//   };
+// });
+
 ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
 
 Tags.addView('coreTags', terms => {
@@ -113,7 +124,7 @@ ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportSlug: 1});
 Tags.addView('processedLWWikiTags', terms => {
   return {
     selector: {
-      wikiOnly: viewFieldAllowAny, 
+      wikiOnly: viewFieldAllowAny,
       lesswrongWikiImportCompleted: true,
     }
   }

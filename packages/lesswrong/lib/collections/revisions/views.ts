@@ -13,3 +13,16 @@ Revisions.addView('revisionsOnDocument', terms => {
     }
   }
 });
+
+Revisions.addView('revisionsOnCollection', terms => {
+  return {
+    selector: {
+      collectionName: terms.collectionName,
+    },
+    options: {
+      sort: {
+        editedAt: -1,
+      }
+    }
+  }
+});
