@@ -10,6 +10,7 @@ import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'
+// import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
@@ -93,6 +94,42 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600]
   }
 })
+
+// const PetrovDayData = `type MozillaHubsData {
+//   description: String
+//   id: String
+//   previewImage: String
+//   lastActivatedAt: String
+//   lobbyCount: Int
+//   memberCount: Int
+//   name: String
+//   roomSize: Int
+//   sceneId: String
+//   type: String
+//   url: String
+// }` 
+
+// addGraphQLSchema(MozillaHubsData);
+
+// const mozillaHubsAPIKeySetting = new DatabaseServerSetting<string | null>('mozillaHubsAPIKey', null)
+// const mozillaHubsUserIdSetting = new DatabaseServerSetting<string | null>('mozillaHubsUserId', null)
+
+// async function getDataFromMozillaHubs() {
+//   const mozillaHubsAPIKey = mozillaHubsAPIKeySetting.get()
+//   const mozillaHubsUserId = mozillaHubsUserIdSetting.get()
+//   if (!mozillaHubsAPIKey || !mozillaHubsUserId) return null
+  
+//   var requestOptions: any = {
+//     method: 'GET',
+//     headers: {
+//       Authorization: `Bearer ${mozillaHubsAPIKey}`
+//     },
+//     redirect: 'follow'
+//   };
+//   const response = await fetch(`https://hubs.mozilla.com/api/v1/media/search?source=favorites&type=rooms&user=${mozillaHubsUserId}`, requestOptions)
+//   return await response.text()
+// }
+
 
 const PetrovDayButton = ({classes, refetch}: {
   classes: ClassesType,
