@@ -119,7 +119,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariablesValues?: any,
   skip?: boolean,
 }): {
-  document: FragmentTypes[FragmentTypeName] | undefined
+  document: FragmentTypes[FragmentTypeName],
   loading: boolean,
   error?: any,
   refetch: any,

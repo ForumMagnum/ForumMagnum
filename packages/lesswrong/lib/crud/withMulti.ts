@@ -252,7 +252,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  results: Array<FragmentTypes[FragmentTypeName]> | undefined,
+  results: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
   error: ApolloError|undefined,
