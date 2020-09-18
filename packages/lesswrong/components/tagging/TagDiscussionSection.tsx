@@ -43,12 +43,12 @@ const TagDiscussionSection = ({classes, tag}: {
   
   return (  
     <CommentsListSection
-    comments={nestedComments} tag={tag ? tag : undefined}
-    loadMoreComments={loadMore}
-    totalComments={totalCount as number}
-    commentCount={(results?.length) || 0}
-    loadingMoreComments={loadingMore}
-    newForm={true}
+      comments={nestedComments} tag={tag ? tag : undefined}
+      loadMoreComments={loadMore}
+      totalComments={totalCount as number}
+      commentCount={(results?.length) || 0}
+      loadingMoreComments={loadingMore}
+      newForm={true}
     />
   );
 }

@@ -3,6 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
+import Users from '../../vulcan-users';
 
 
 const schema: SchemaType<DbTagFlag> = {
@@ -50,12 +51,38 @@ const schema: SchemaType<DbTagFlag> = {
   }
 };
 
+
+const adminActions = [
+  'tagFlags.new',
+  'tagFlags.edit.all',
+];
+
+Users.groups.admins.can(adminActions);
+
+const options = {
+  newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
+    if (!user || !document) return false;
+    return Users.canDo(user, `tagFlags.new`)
+  },
+
+  editCheck: (user: DbUser|null, document: DbTagFlag|null) => {
+    if (!user || !document) return false;
+    return Users.canDo(user, `tagFlags.edit.all`)
+  },
+
+  removeCheck: (user: DbUser|null, document: DbTagFlag|null) => {
+    // Nobody should be allowed to remove documents completely from the DB. 
+    // Deletion is handled via the `deleted` flag.
+    return false
+  },
+}
+
 export const TagFlags = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
   schema,
   resolvers: getDefaultResolvers('TagFlags'),
-  mutations: getDefaultMutations('TagFlags'),
+  mutations: getDefaultMutations('TagFlags', options),
 });
 
 addUniversalFields({collection: TagFlags})
