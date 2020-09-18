@@ -18,7 +18,6 @@ registerFragment(`
     wikiGrade
     createdAt
     wikiOnly
-    tagFlagsIds
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
   }
