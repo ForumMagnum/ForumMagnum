@@ -147,13 +147,13 @@ const TagPage = ({classes}: {
     },
     collection: Tags,
     fragmentName: 'TagBasicInfo',
-    limit: 100,
+    limit: 500,
     ssr: true,
     skip: !query.flagId
   })
 
   const tagPositionInList = otherTagsWithFlag?.findIndex(tagInList => tag?._id === tagInList._id);
-  const nextTag = otherTagsWithFlag && tagPositionInList && otherTagsWithFlag[tagPositionInList + 1]
+  const nextTag = otherTagsWithFlag && (tagPositionInList >= 0) && otherTagsWithFlag[tagPositionInList + 1]
 
   if (loadingTag)
     return <Loading/>
