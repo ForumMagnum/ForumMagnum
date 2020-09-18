@@ -35,7 +35,12 @@ const styles = theme => ({
   }
 })
 
-const TagFlagItem = ({documentId, classes, showNumber = true, style = "grey" }) => {
+const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: {
+  documentId: string,
+  showNumber?: boolean,
+  style?: "white"|"grey"|"black",
+  classes: ClassesType,
+}) => {
   const { LWPopper, ContentItemBody } = Components;
   const {eventHandlers, hover, anchorEl, stopHover } = useHover();
   const { document: tagFlag } = useSingle({
