@@ -29,7 +29,9 @@ const styles = theme => ({
   }
 })
 
-const TaggingDashboard = ({classes}) => {
+const TaggingDashboard = ({classes}: {
+  classes: ClassesType
+}) => {
   const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
