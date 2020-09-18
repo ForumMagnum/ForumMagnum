@@ -203,11 +203,11 @@ const TagPage = ({classes}: {
               {tag.name}
             </Typography>
             {editing && tag.lesswrongWikiImportSlug && <div className={classes.importNotice}>
-              <a target="_blank" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
+              <a target="_blank" rel="noopener noreferrer" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
               <SeparatorBullet/>
               {tag.lesswrongWikiImportRevision && 
                 <span>
-                  <a target="_blank" href={`${Tags.getUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
+                  <a target="_blank" rel="noopener noreferrer" href={`${Tags.getUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
                     See latest import revision
                   </a>
                 </span>
