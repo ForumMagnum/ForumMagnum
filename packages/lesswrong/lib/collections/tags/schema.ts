@@ -2,7 +2,6 @@ import { schemaDefaultValue } from '../../collectionUtils'
 import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
-import { useMulti } from '../../crud/withMulti';
 
 const formGroups = {
   advancedOptions: {

@@ -1,9 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil'
-import { unflattenComments } from "../../lib/utils/unflatten";
 import { useTagBySlug } from './useTag';
-import { useMulti } from '../../lib/crud/withMulti';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -29,7 +27,7 @@ const TagDiscussionPage = ({classes}: {
   const { params } = useLocation();
   const { slug } = params;
   const { tag } = useTagBySlug(slug, "TagFragment");
-  const {SingleColumnSection, CommentsListSection, TagDiscussionSection } = Components;
+  const {SingleColumnSection, TagDiscussionSection } = Components;
   
   return (
     <SingleColumnSection>

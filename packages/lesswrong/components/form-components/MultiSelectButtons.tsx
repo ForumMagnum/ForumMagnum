@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
