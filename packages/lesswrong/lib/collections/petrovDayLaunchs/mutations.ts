@@ -59,7 +59,7 @@ const petrovDayLaunchResolvers = {
         const data = JSON.parse(text)
         console.log("data: ", data, text)
         return {
-          launched: data.PetrovDayCheckIfIncoming.launched
+          launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched
         }
       }
       const launches = PetrovDayLaunchs.find().fetch()
