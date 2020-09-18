@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -134,13 +134,13 @@ const TagPage = ({classes}: {
     extraVariablesValues: revision ? {version: revision} : {},
   });
   const [truncated, setTruncated] = useState(true)
-  const [editing, setEditing] = useState(!!query?.edit)
+  const [editing, setEditing] = useState(!!query.edit)
   const { captureEvent } =  useTracking()
   const { openDialog } = useDialog();
   
   const { hover, anchorEl, eventHandlers} = useHover()
 
-  const { results: otherTagsWithFlag, loading: loadingFlagTags } = useMulti({
+  const { results: otherTagsWithFlag } = useMulti({
     terms: {
       view: "tagsByTagFlag",
       tagFlagId: query.flagId,
@@ -250,7 +250,7 @@ const TagPage = ({classes}: {
               </PopperCard>    
             </Link>   
           </div>
-          { revision && tag?.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
+          { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
           {editing ? <EditTagForm 

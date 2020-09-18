@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
@@ -13,7 +13,7 @@ const TagFlagToggleList = ({ value, path }, context) => {
   const { Loading, TagFlagItem } = Components
 
   const handleClick = (option) => {    
-    if (value && value.includes(option)) {
+    if (value.includes(option)) {
       context.updateCurrentValues({
         [path]: _.without(value, option)
       })

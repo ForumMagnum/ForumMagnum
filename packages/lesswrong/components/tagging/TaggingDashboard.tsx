@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TagFlags } from '../../lib';
 import { Tags } from '../../lib/collections/tags/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 
@@ -30,7 +30,7 @@ const styles = theme => ({
 })
 
 const TaggingDashboard = ({classes}) => {
-  const { SectionTitle, SingleColumnSection, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList } = Components
+  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const { results: tags, loading} = useMulti({
@@ -45,7 +45,7 @@ const TaggingDashboard = ({classes}) => {
     ssr: true
   });
 
-  const { results: tagFlags, loading: loadingTagFlags } = useMulti({
+  const { results: tagFlags } = useMulti({
     terms: {
       view: "allTagFlags"
     },

@@ -5,12 +5,9 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from 'classnames';
-import { useLocation } from "../../lib/routeUtil";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
-import { truncate } from "../../lib/editor/ellipsize";
-import { useDialog } from "../common/withDialog";
 import { commentBodyStyles } from "../../themes/stylePiping";
 
 const styles = theme => ({
@@ -72,8 +69,8 @@ const TagFlagItem = ({documentId, classes, showNumber = true, style = "grey" }) 
           <Card className={classes.hoverCard}>
             <ContentItemBody
               className={classes.highlight}
-              dangerouslySetInnerHTML={{__html: tagFlag?.contents?.html || "" }}
-              description={`tagFlag ${tagFlag?._id}`}
+              dangerouslySetInnerHTML={{__html: tagFlag.contents?.html || "" }}
+              description={`tagFlag ${tagFlag._id}`}
             />
           </Card>
         </AnalyticsContext>}

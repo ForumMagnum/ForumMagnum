@@ -1,12 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil'
 import { unflattenComments } from "../../lib/utils/unflatten";
-import { useTagBySlug } from './useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { Tags } from '../../lib/collections/tags/collection';
-import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   title: {

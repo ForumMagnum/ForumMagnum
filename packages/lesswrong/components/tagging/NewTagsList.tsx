@@ -2,8 +2,6 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
-import { Link } from '../../lib/reactRouterWrapper'
-import Users from '../../lib/collections/users/collection';
 
 const styles = theme => ({
   root: {

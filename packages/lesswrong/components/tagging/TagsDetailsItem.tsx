@@ -3,11 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { userCanManageTags } from '../../lib/betas';
 import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
-import { TagFlags } from '../../lib';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 import { useDialog } from '../common/withDialog';

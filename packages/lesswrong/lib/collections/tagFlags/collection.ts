@@ -1,8 +1,6 @@
 import { createCollection, Utils } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
-import { makeVoteable } from '../../make_voteable';
-import { userCanUseTags } from '../../betas';
+import { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 
