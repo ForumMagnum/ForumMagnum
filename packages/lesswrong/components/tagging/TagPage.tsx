@@ -270,7 +270,7 @@ const TagPage = ({classes}: {
       {editing && <TagDiscussionSection
         tag={tag}
       />}
-      {!tag.wikiOnly && !editing && <AnalyticsContext pageSectionContext="tagsSection">
+      {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
         <div className={classes.tagHeader}>
           <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
           <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
