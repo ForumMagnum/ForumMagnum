@@ -47,8 +47,8 @@ export const zIndexes = {
   searchBar: 100000,
   commentBoxPopup: 10000000001, // has to be higher than Intercom, 
   // ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)
-  // petrovDayButton: 6,
-  // petrovDayLoss: 1000000
+  petrovDayButton: 6,
+  petrovDayLoss: 1000000
 }
 
 const createLWTheme = (theme: ThemeType) => {

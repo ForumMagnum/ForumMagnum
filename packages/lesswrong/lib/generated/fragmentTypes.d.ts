@@ -900,9 +900,6 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly reenableDraftJs: boolean,
-  readonly petrovPressedButtonDate: Date,
-  readonly petrovCodesEnteredDate: Date,
-  readonly petrovCodesEntered: string,
 }
 
 interface UserBookmarks { // fragment on Users
@@ -1058,8 +1055,6 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly petrovPressedButtonDate: Date,
-  readonly petrovCodesEnteredDate: Date,
-  readonly petrovCodesEntered: string,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
@@ -1553,12 +1548,11 @@ interface VotedItem { // fragment on Votes
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
-  readonly userId: string,
+  readonly hashedLaunchCode: string,
 }
 
 interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly _id: string,
-  readonly userId: string,
   readonly createdAt: Date,
   readonly launchCode: string,
 }

@@ -13,6 +13,10 @@ import { Helmet } from 'react-helmet'
 // import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
+import gql from 'graphql-tag';
+import fetch from 'node-fetch'
+
+import { useMutation } from 'react-apollo';
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
@@ -94,7 +98,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600]
   }
 })
-
+ 
 // const PetrovDayData = `type MozillaHubsData {
 //   description: String
 //   id: String
@@ -114,21 +118,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 // const mozillaHubsAPIKeySetting = new DatabaseServerSetting<string | null>('mozillaHubsAPIKey', null)
 // const mozillaHubsUserIdSetting = new DatabaseServerSetting<string | null>('mozillaHubsUserId', null)
 
-// async function getDataFromMozillaHubs() {
-//   const mozillaHubsAPIKey = mozillaHubsAPIKeySetting.get()
-//   const mozillaHubsUserId = mozillaHubsUserIdSetting.get()
-//   if (!mozillaHubsAPIKey || !mozillaHubsUserId) return null
-  
-//   var requestOptions: any = {
-//     method: 'GET',
-//     headers: {
-//       Authorization: `Bearer ${mozillaHubsAPIKey}`
-//     },
-//     redirect: 'follow'
-//   };
-//   const response = await fetch(`https://hubs.mozilla.com/api/v1/media/search?source=favorites&type=rooms&user=${mozillaHubsUserId}`, requestOptions)
-//   return await response.text()
-// }
 
 
 const PetrovDayButton = ({classes, refetch}: {
@@ -147,6 +136,7 @@ const PetrovDayButton = ({classes, refetch}: {
     fragmentName: 'UsersCurrent',
   });
 
+  
   const pressButton = () => {
     setPressed(true)
     void updateUser({
@@ -162,22 +152,31 @@ const PetrovDayButton = ({classes, refetch}: {
   }
 
   const launch = async () => {
-    if (!currentUser) {
-      return
-    }
-    await updateUser({
-      selector: {_id: currentUser._id},
-      data: { 
-        petrovCodesEnteredDate: new Date (),
-        petrovCodesEntered: launchCode
-      }
-    });
-    // refetch()
+    if (!currentUser) return
+    
+    const a = await fetch('/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `mutation petrovDayLaunchResolvers($launchCode: String) {
+          PetrovDayLaunchMissile(launchCode: $launchCode) {
+            launchCode
+            createdAt
+          }
+        }`,
+        variables: { launchCode: launchCode},
+      })
+    })
+
+    console.log(await a.json())
   }
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
   const renderLaunchButton = (launchCode?.length >= 8)
-  
+
   if (petrovCodesEntered) return null
 
   return (

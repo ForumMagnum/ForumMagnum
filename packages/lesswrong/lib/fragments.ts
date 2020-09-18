@@ -149,10 +149,6 @@ registerFragment(`
     abTestOverrides
 
     reenableDraftJs
-
-    petrovPressedButtonDate
-    petrovCodesEnteredDate
-    petrovCodesEntered
   }
 `);
 
@@ -363,8 +359,6 @@ registerFragment(`
     autoSubscribeAsOrganizer
 
     petrovPressedButtonDate
-    petrovCodesEnteredDate
-    petrovCodesEntered
   }
 `);
 

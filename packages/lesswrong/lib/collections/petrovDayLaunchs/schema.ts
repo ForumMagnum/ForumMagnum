@@ -8,7 +8,13 @@ const schema: SchemaType<DbPetrovDayLaunch> = {
     viewableBy: ['guests'],
   },
   launchCode: {
-    // "subQuestion"
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+  },
+  hashedLaunchCode: {
     type: String,
     optional: true,
     viewableBy: ['guests'],

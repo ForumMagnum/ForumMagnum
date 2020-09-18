@@ -108,9 +108,6 @@ interface DbUser extends DbObject {
   beta: boolean
   reviewVotesQuadratic: boolean
   petrovPressedButtonDate: Date
-  petrovCodesEnteredDate: Date
-  petrovCodesEntered: string
-  petrovCodesEnteredHashed: string
   defaultToCKEditor: boolean
   signUpReCaptchaRating: number
   oldSlugs: Array<string>
@@ -636,7 +633,7 @@ interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch> {
 interface DbPetrovDayLaunch extends DbObject {
   createdAt: Date
   launchCode: string
-  userId: string
+  hashedLaunchCode: string
 }
 
 interface LegacyDataCollection extends CollectionBase<DbLegacyData> {

@@ -10,14 +10,6 @@ import { Posts } from '../posts/collection';
 import Users from "./collection";
 import GraphQLJSON from 'graphql-type-json';
 
-export const hashPetrovCode = (code: string): string => {
-  // @ts-ignore
-  const crypto = Npm.require('crypto');
-  var hash = crypto.createHash('sha256');
-  hash.update(code);
-  return hash.digest('base64');
-};
-
 export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
   default: {
@@ -1224,33 +1216,6 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
     // hidden: ({currentUser}) => !currentUser.isAdmin
-  },
-  petrovCodesEnteredDate: {
-    type: Date,
-    optional: true,
-    canRead: ['guests'],
-    control: 'datetime',
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    group: formGroups.adminOptions,
-    // hidden: ({currentUser}) => !currentUser.isAdmin
-  },
-  petrovCodesEntered: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    group: formGroups.adminOptions,
-    // hidden: ({currentUser}) => !currentUser.isAdmin
-  },
-  petrovCodesEnteredHashed: {
-    type: String,
-    optional: true,
-    ...denormalizedField({
-      needsUpdate: data => ('petrovCodesEntered' in data),
-      getValue: async (user) => {
-        return hashPetrovCode(user.petrovCodesEntered)
-      }
-    }),
   },
   defaultToCKEditor: {
     // this fieldis deprecated
