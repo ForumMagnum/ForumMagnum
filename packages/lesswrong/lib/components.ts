@@ -462,7 +462,7 @@ importComponent("FormComponentDateTime", () => require('../components/form-compo
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
-importComponent("DynamicMultiSelectButtons", () => require('../components/form-components/DynamicMultiSelectButtons'));
+importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
 
 // importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 // importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));

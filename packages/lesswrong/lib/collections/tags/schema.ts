@@ -199,7 +199,7 @@ export const schema: SchemaType<DbTag> = {
       collectionName: "TagFlags",
       type: "TagFlag",
     }),
-    control: 'DynamicMultiSelectButtons',
+    control: 'TagFlagToggleList',
     label: "Flags: ",
     optional: true,
     order: 30,
@@ -212,6 +212,23 @@ export const schema: SchemaType<DbTag> = {
     foreignKey: 'TagFlags',
     optional: true
   },
+  // Populated by the LW 1.0 wiki import, with the revision number
+  // that has the last full state of the imported post
+  lesswrongWikiImportRevision: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportSlug: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportCompleted: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests']
+  }
 }
 
 export const wikiGradeDefinitions = {

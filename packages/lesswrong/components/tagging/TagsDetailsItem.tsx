@@ -9,6 +9,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { TagFlags } from '../../lib';
 import { useLocation } from '../../lib/routeUtil';
+import classNames from 'classnames'
+import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -50,6 +52,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%",
       paddingTop: 0
     }
+  }, 
+  flags: {
+    width: 380
   }
 });
 
@@ -63,6 +68,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
   const currentUser = useCurrentUser();
   const [ editing, setEditing ] = useState(false)
   const { query } = useLocation();
+  const {openDialog} = useDialog();
 
   const { results: tagRels, loading } = useMulti({
     skip: !(tag._id) || showFlags,
@@ -80,18 +86,24 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
       {editing ? 
         <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
         :
-        <LinkCard to={Tags.getUrl(tag, {flagId, edit: true})}>
+        <LinkCard 
+          to={Tags.getUrl(tag, {flagId, edit: true})} 
+          onClick={currentUser ? undefined : () => openDialog({
+            componentName: "LoginPopup", componentProps: {}
+          })}
+        >
           <TagPreviewDescription tag={tag} />
         </LinkCard>
       }
-      {userCanManageTags(currentUser) && 
-      <a onClick={() => setEditing(true)} className={classes.edit}>
-        Edit
-      </a>}
+      {currentUser && 
+        <a onClick={() => setEditing(true)} className={classes.edit}>
+          Edit
+        </a>
+      }
     </div>
     {!showFlags && <div className={classes.posts}>
       <div>
-        <Link to={Tags.getUrl(tag, {flagId, edit: true})} className={classes.postCount}>
+        <Link to={Tags.getUrl(tag)} className={classes.postCount}>
           {tag.postCount} posts tagged <em>{tag.name}</em>
         </Link>
         {!tagRels && loading && <Loading/>}
@@ -100,7 +112,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
         )}
       </div>
     </div>}
-    {showFlags && <div className={classes.posts}>
+    {showFlags && <div className={classNames(classes.posts, classes.flags)}>
       {(tag as TagWithFlagsFragment)?.tagFlags?.map(tagFlag => <span key={tagFlag._id}>
         <QueryLink query={query.focus === tagFlag?._id ? {} : {focus: tagFlag?._id}}>
           <TagFlagItem 

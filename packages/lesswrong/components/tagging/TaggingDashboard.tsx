@@ -8,7 +8,19 @@ import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = () => ({
+const SECTION_WIDTH = 960
+
+const styles = theme => ({
+  root: {
+    marginBottom: theme.spacing.unit*4,
+    maxWidth: SECTION_WIDTH,
+    marginLeft: "auto",
+    marginRight: "auto",
+    [theme.breakpoints.up('md')]: {
+      width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
+      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    }
+  },
   flagList: {
     marginBottom: 8
   },
@@ -45,8 +57,7 @@ const TaggingDashboard = ({classes}) => {
   
   const { openDialog } = useDialog();
 
-  return <SingleColumnSection>
-    
+  return <div className={classes.root}>
     <SectionTitle title="Twiki Dashboard"/>
     <NewTagsList />
     <SectionTitle title="Tags in Need of Work">
@@ -63,17 +74,17 @@ const TaggingDashboard = ({classes}) => {
       </SectionButton>
     </SectionTitle>
     <div className={classes.flagList}>
-      {tagFlags?.map(tagFlag => <QueryLink query={query.focus === tagFlag._id ? {} : {focus: tagFlag._id}}>
+      {tagFlags?.map(tagFlag => <QueryLink key={tagFlag._id} query={query.focus === tagFlag._id ? {} : {focus: tagFlag._id}}>
         <TagFlagItem documentId={tagFlag._id} style={query.focus === tagFlag._id ? "black" : "grey"} />
       </QueryLink>)}
     </div>    
-    {!loading && tags.map(tag => <TagsDetailsItem 
+    {!loading && tags?.map(tag => <TagsDetailsItem 
       key={tag._id} 
       tag={tag} 
       showFlags
       flagId={query.focus}
     />)}
-  </SingleColumnSection>
+  </div>
 }
 
 

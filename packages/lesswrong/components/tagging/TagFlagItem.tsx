@@ -78,7 +78,7 @@ const TagFlagItem = ({documentId, classes, showNumber = true, style = "grey" }) 
           </Card>
         </AnalyticsContext>}
     </LWPopper>
-    {tagFlag?.name}{showNumber ? `: ${totalCount} tags` : ``}
+    {tagFlag?.name}{showNumber ? `: ${totalCount}` : ``}
   </span>
 }
 

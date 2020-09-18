@@ -96,9 +96,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16
   },
   pastRevisionNotice: {
+    ...theme.typography.commentStyle,
+    fontStyle: 'italic'
   },
   nextLink: {
     ...theme.typography.commentStyle
+  },
+  importNotice: {
+    ...theme.typography.commentStyle,
+    marginTop: 8,
+    marginBottom: 8,
+    '& a': {
+      color: theme.palette.primary.main
+    }
   }
 });
 
@@ -115,11 +125,11 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision?"TagRevisionFragment":"TagFragment", {
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagRevisionFragment" : "TagFragment", {
     extraVariables: revision ? {version: 'String'} : {},
     extraVariablesValues: revision ? {version: revision} : {},
   });
@@ -143,7 +153,7 @@ const TagPage = ({classes}: {
   })
 
   const tagPositionInList = otherTagsWithFlag?.findIndex(tagInList => tag?._id === tagInList._id);
-  const nextTag = otherTagsWithFlag && otherTagsWithFlag[tagPositionInList + 1]
+  const nextTag = otherTagsWithFlag && tagPositionInList && otherTagsWithFlag[tagPositionInList + 1]
 
   if (loadingTag)
     return <Loading/>
@@ -192,6 +202,17 @@ const TagPage = ({classes}: {
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
+            {editing && tag.lesswrongWikiImportSlug && <div className={classes.importNotice}>
+              <a target="_blank" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
+              <SeparatorBullet/>
+              {tag.lesswrongWikiImportRevision && 
+                <span>
+                  <a target="_blank" href={`${Tags.getUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
+                    See latest import revision
+                  </a>
+                </span>
+              }
+            </div>}
           </div>
           <div className={classes.buttonsRow}>
             {currentUser ? 
@@ -229,7 +250,7 @@ const TagPage = ({classes}: {
               </PopperCard>    
             </Link>   
           </div>
-          { revision && tag?.description && <div className={classes.pastRevisionNotice}>
+          { revision && tag?.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
           {editing ? <EditTagForm 

@@ -19,6 +19,8 @@ registerFragment(`
     createdAt
     wikiOnly
     tagFlagsIds
+    lesswrongWikiImportSlug
+    lesswrongWikiImportRevision
   }
 `);
 
@@ -29,6 +31,7 @@ registerFragment(`
       html
       htmlHighlight
       plaintextDescription
+      version
     }
   }
 `);
@@ -54,6 +57,7 @@ registerFragment(`
     ...TagBasicInfo
     description {
       htmlHighlight
+      version
     }
   }
 `);

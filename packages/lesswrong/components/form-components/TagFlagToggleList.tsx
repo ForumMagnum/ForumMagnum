@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   
 });
 
-const DynamicMultiSelectButtons = ({ value, path }, context) => {
+const TagFlagToggleList = ({ value, path }, context) => {
   const { Loading, TagFlagItem } = Components
 
   const handleClick = (option) => {    
@@ -26,33 +26,34 @@ const DynamicMultiSelectButtons = ({ value, path }, context) => {
 
   const { results, loading } = useMulti({
     terms: {
-      limit: 100,
+      view: "allTagFlags"
     },
     collection: TagFlags,
     fragmentName: 'TagFlagFragment',
     enableTotal: false,
+    limit: 100
   });
 
   if (loading) return <Loading />
 
   return <div className="multi-select-buttons">
-    {results.map(({_id}) => {
+    {results?.map(({_id}) => {
       const selected = value && value.includes(_id);
-      return <a onClick={() => handleClick(_id)}>
+      return <a key={_id} onClick={() => handleClick(_id)}>
         <TagFlagItem documentId={_id} style={selected ? "grey" : "white"} showNumber={false} />
       </a>
     })}
   </div>
 }
 
-(DynamicMultiSelectButtons as any).contextTypes = {
+(TagFlagToggleList as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-const DynamicMultiSelectButtonsComponent = registerComponent("DynamicMultiSelectButtons", DynamicMultiSelectButtons, {styles});
+const TagFlagToggleListComponent = registerComponent("TagFlagToggleList", TagFlagToggleList, {styles});
 
 declare global {
   interface ComponentTypes {
-    DynamicMultiSelectButtons: typeof DynamicMultiSelectButtonsComponent
+    TagFlagToggleList: typeof TagFlagToggleListComponent
   }
 }

@@ -549,6 +549,8 @@ interface TagFlagFragment { // fragment on TagFlags
   readonly _id: string,
   readonly createdAt: Date,
   readonly name: string,
+  readonly slug: string,
+  readonly order: number,
   readonly contents: TagFlagFragment_contents|null,
 }
 
@@ -558,10 +560,16 @@ interface TagFlagFragment_contents { // fragment on Revisions
   readonly plaintextDescription: string,
 }
 
+interface TagFlagEditFragment extends TagFlagFragment { // fragment on TagFlags
+  readonly contents: RevisionEdit|null,
+}
+
 interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly createdAt: Date,
   readonly name: string,
   readonly deleted: boolean,
+  readonly slug: string,
+  readonly order: number,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -668,6 +676,9 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
   readonly tagFlagsIds: Array<string>,
+  readonly lesswrongWikiImportRevision: string,
+  readonly lesswrongWikiImportSlug: string,
+  readonly lesswrongWikiImportCompleted: boolean,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1453,6 +1464,8 @@ interface TagBasicInfo { // fragment on Tags
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
   readonly tagFlagsIds: Array<string>,
+  readonly lesswrongWikiImportSlug: string,
+  readonly lesswrongWikiImportRevision: string,
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
@@ -1646,6 +1659,7 @@ interface FragmentTypes {
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
   TagFlagFragment: TagFlagFragment
+  TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
