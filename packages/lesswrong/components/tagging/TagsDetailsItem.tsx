@@ -82,7 +82,11 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
   return <div className={classes.root}>
     <div className={classes.description}>
       {editing ? 
-        <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+        <EditTagForm 
+          tag={tag} 
+          successCallback={()=>setEditing(false)} 
+          cancelCallback={()=>setEditing(false)}
+        />
         :
         <LinkCard 
           to={Tags.getUrl(tag, {flagId, edit: true})} 
