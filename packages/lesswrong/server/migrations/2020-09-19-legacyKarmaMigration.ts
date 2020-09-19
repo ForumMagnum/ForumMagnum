@@ -3,7 +3,7 @@ import { registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes';
 import Users from '../../lib/vulcan-users';
 import { getVotePower } from '../../lib/voting/new_vote_types';
-import _ from 'lodash';
+import { Posts } from '../../lib/collections/posts';
 
 registerMigration({
   name: "legacyKarmaMigration",
@@ -41,6 +41,8 @@ registerMigration({
 
     const invalidVotes = findInvalidVotes(allVotes, userKarmaMap)
 
+    console.log(`Found ${invalidVotes.length} invalid votes`)
+
     if (invalidVotes.length) {
       await Votes.rawCollection().bulkWrite(invalidVotes.map(_id => ({
         updateOne: {
@@ -59,6 +61,8 @@ registerMigration({
 
     const allUpdatedVotes = await Votes.find({}, {sort: {votedAt: 1}}, {_id: 1, documentId: 1, userId: 1, authorId: 1, voteType: 1, collectionName: 1, cancelled: 1}).fetch()
 
+    console.log("Got all the updated votes")
+
     let voteCount = 0;
     for (const vote of allUpdatedVotes) {
       const {_id, userId, authorId, voteType, cancelled} = vote;
@@ -71,7 +75,13 @@ registerMigration({
       } 
 
       const votePower = getVotePower(votingUserKarma, voteType)
-      if (doesVoteIncreaseKarma(vote)) userKarmaMap.set(authorId,  + votePower)
+
+      const authorKarma = userKarmaMap.get(authorId)
+      // If the author of the content that we are voting on doesn't exist, we
+      // still update the power, but we obviously can't update the karma of that user
+      if (authorKarma !== undefined) {
+        if (doesVoteIncreaseKarma(vote)) userKarmaMap.set(authorId, authorKarma + votePower)
+      }
       
       votePowerMap.set(_id, votePower)
       voteCount++
@@ -96,6 +106,8 @@ registerMigration({
     await Votes.rawCollection().bulkWrite(changes, { ordered: false });
 
     console.log("Finished writing changes")
+
+
   }
 })
 
@@ -122,4 +134,21 @@ const findInvalidVotes = (allVotes: DbVote[], userKarmaMap: Map<string, number>)
     if (!cancelled && userKarmaMap.get(userId) === undefined) return [_id]
     return []
   })
+}
+
+const recomputePostKarma = async (collectionName:string) => {
+  Votes.rawCollection().aggregate([
+    {
+      $match: {
+        cancelled: false,
+        collectionName: "Posts"
+      }
+    },
+    {
+      $group: {
+        _id: "$documentId",
+        karmaTotal: {$sum: "$power"}
+      }
+    }
+  ]).toArray()
 }
