@@ -35,16 +35,36 @@ registerMigration({
 
     const votePowerMap = new Map(allVotes.map(vote => [vote._id, 1]))
     const userKarmaMap = new Map(allUsers.map(user => [user._id, 0]))
-
     console.log("Created the maps")
 
+    const invalidVotes = findInvalidVotes(allVotes, userKarmaMap)
+
+    await Votes.rawCollection().bulkWrite(invalidVotes.map(_id => ({
+      updateOne: {
+        filter: { _id },
+        update: {
+          $set: {
+            cancelled: true
+          }
+        }
+      }
+    })),
+    { ordered: false });
+
+    console.log("Removed invalid votes")
+
+    const allUpdatedVotes = await Votes.find({}, {sort: {votedAt: 1}}, {_id: 1, documentId: 1, userId: 1, authorId: 1, voteType: 1, collectionName: 1, cancelled: 1}).fetch()
+
     let voteCount = 0;
-    for (const vote of allVotes) {
-      const {_id, userId, authorId, voteType} = vote;
+    for (const vote of allUpdatedVotes) {
+      const {_id, userId, authorId, voteType, cancelled} = vote;
       const votingUserKarma = userKarmaMap.get(userId)
-      if (votingUserKarma === undefined) throw Error(`Couldn't find user for vote userId ${userId}`);
-      const authorKarma = userKarmaMap.get(authorId)
-      if (authorKarma === undefined) throw Error(`Couldn't find user for vote authorId ${authorId}`)
+      if (votingUserKarma === undefined) {
+        if (!cancelled) throw Error(`Couldn't find user for vote with userId ${userId}`)
+        // If the vote is cancelled and we can't find the user who case the vote, we just leave it as is, 
+        // since we don't have enough information to update the power
+        continue
+      } 
 
       const votePower = getVotePower(votingUserKarma, voteType)
       if (doesVoteIncreaseKarma(vote)) userKarmaMap.set(authorId,  + votePower)
@@ -54,7 +74,7 @@ registerMigration({
       if (voteCount % 10000 === 0) console.log("voteCount: ", voteCount)
     }
 
-    console.log("Done processing votes")
+    console.log(`Done processing votes. Processed a total of ${votePowerMap.size} votes`)
 
     let changes: Array<any> = [...votePowerMap].map(([_id, votePower]) => ({
       updateOne: {
@@ -71,16 +91,7 @@ registerMigration({
         
     await Votes.rawCollection().bulkWrite(changes, { ordered: false });
 
-    console.log("Writing changes")
-
-    // We will have to ignore the power field of those votes, and replace it as we go. This means
-    // we should construct a table that keeps track of the new power for each vote that we then later on play
-    // onto the database
-    
-    // Does really make me think whether I should just do all of this in a single aggregate pipeline. One that 
-    // finds out what the right power for the votes are, and then one that updates the underlying karma and basescores. 
-    // But I don't really know how to maintain the secondary state I need for this, so at the very least I should just
-    // start by writing it in Javascript and then later on fixing it. 
+    console.log("Finished writing changes")
   }
 })
 
@@ -97,6 +108,14 @@ const findDuplicateVotes = (allVotes: DbVote[]) => {
     if (!cancelled && seen.size === seen.add(`${documentId}_${userId}`).size) {
       return [_id]
     }
+    return []
+  })
+}
+
+const findInvalidVotes = (allVotes: DbVote[], userKarmaMap: Map<string, number>) => {
+  return allVotes.flatMap(({_id, authorId, userId, cancelled}) => {
+    if (!cancelled && userKarmaMap.get(authorId) === undefined) return [_id]
+    if (!cancelled && userKarmaMap.get(userId) === undefined) return [_id]
     return []
   })
 }
