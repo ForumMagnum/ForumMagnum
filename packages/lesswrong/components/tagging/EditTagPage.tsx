@@ -4,16 +4,19 @@ import { useLocation, useNavigation } from '../../lib/routeUtil'
 import { Tags } from '../../lib/collections/tags/collection';
 import { useTagBySlug } from './useTag';
 
-export const EditTagForm = ({tag, successCallback}: {
+export const EditTagForm = ({tag, successCallback, cancelCallback}: {
     tag: TagFragment|TagPreviewFragment,
-    successCallback?: any
+    successCallback?: any,
+    cancelCallback?: any
   }) => {
   return <Components.WrappedSmartForm
+    key={`${tag._id}_${tag?.description?.version}`}
     collection={Tags}
     documentId={tag._id}
     queryFragment={getFragment('TagEditFragment')}
     mutationFragment={getFragment('TagEditFragment')}
     successCallback={successCallback}
+    cancelCallback={cancelCallback}
   />
 }
 

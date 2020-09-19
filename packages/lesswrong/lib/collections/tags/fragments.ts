@@ -18,6 +18,8 @@ registerFragment(`
     wikiGrade
     createdAt
     wikiOnly
+    lesswrongWikiImportSlug
+    lesswrongWikiImportRevision
   }
 `);
 
@@ -28,6 +30,7 @@ registerFragment(`
       html
       htmlHighlight
       plaintextDescription
+      version
     }
   }
 `);
@@ -53,7 +56,17 @@ registerFragment(`
     ...TagBasicInfo
     description {
       htmlHighlight
+      version
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithFlagsFragment on Tag {
+    ...TagPreviewFragment
+    tagFlags {
+      ...TagFlagFragment
+    } 
   }
 `);
 

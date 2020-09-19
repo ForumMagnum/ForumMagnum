@@ -120,3 +120,19 @@ Tags.addView('processedLWWikiTags', terms => {
 });
 
 ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportCompleted: 1});
+
+
+Tags.addView('tagsByTagFlag', terms => {
+  return {
+    selector: terms.tagFlagId ? 
+    {
+      tagFlagsIds: terms.tagFlagId,
+      wikiOnly: viewFieldAllowAny
+    } : 
+    {
+      tagFlagsIds: {$exists: true, $gt: []},
+      wikiOnly: viewFieldAllowAny
+    },
+    options: {sort: {createdAt: -1}}
+  }
+});
