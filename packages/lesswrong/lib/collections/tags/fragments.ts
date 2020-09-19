@@ -64,6 +64,7 @@ registerFragment(`
 registerFragment(`
   fragment TagWithFlagsFragment on Tag {
     ...TagPreviewFragment
+    tagFlagsIds
     tagFlags {
       ...TagFlagFragment
     } 
@@ -73,6 +74,7 @@ registerFragment(`
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
+    tagFlagsIds
     description {
       ...RevisionEdit
     }

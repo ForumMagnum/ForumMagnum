@@ -81,9 +81,9 @@ const TagProgressBar = ({ classes }: {
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
-  const { totalCount: processedTagsTotal = 0 } = useMulti({
+  const { totalCount: unprocessedTagsTotal = 0 } = useMulti({
     terms: {
-      view: "processedLWWikiTags",
+      view: "unprocessedLWWikiTags",
       limit: 0
     },
     collection: Tags,
@@ -104,6 +104,8 @@ const TagProgressBar = ({ classes }: {
     fetchPolicy: 'cache-and-network',
     ssr: true
   })
+
+  const processedTagsTotal = allTagsToProcessTotal - unprocessedTagsTotal;
 
   const hideClickHandler = async () => {
     if (currentUser) {
@@ -148,9 +150,9 @@ const TagProgressBar = ({ classes }: {
             How to Help
             </Link>
           <SeparatorBullet />
-          <a className={classes.allTagsBarColor} href="https://docs.google.com/spreadsheets/d/1uz_zORpS_FsTj82SRp_5CxL0o4-CIj4ZK_jLrBjjqJ8/edit#gid=2115128922">
+          <Link className={classes.allTagsBarColor} to="/tags/dashboard">
             Process Pages
-            </a>
+          </Link>
         </PostsItem2MetaInfo>
         <LWTooltip title={<div>
           <div>View all completely untagged posts, sorted by karma</div>

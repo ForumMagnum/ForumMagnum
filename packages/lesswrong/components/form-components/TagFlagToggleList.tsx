@@ -4,6 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import TagFlags from '../../lib/collections/tagFlags/collection';
+import NoSsr from '@material-ui/core/NoSsr';
 
 const styles = (theme: ThemeType): JssStyles => ({
   
@@ -31,19 +32,19 @@ const TagFlagToggleList = ({ value, path }, context) => {
     collection: TagFlags,
     fragmentName: 'TagFlagFragment',
     enableTotal: false,
-    limit: 100
+    limit: 100, 
+    ssr: true
   });
 
   if (loading) return <Loading />
-
-  return <div className="multi-select-buttons">
+  return <NoSsr><div className="multi-select-buttons">
     {results?.map(({_id}) => {
       const selected = value && value.includes(_id);
       return <a key={_id} onClick={() => handleClick(_id)}>
         <TagFlagItem documentId={_id} style={selected ? "grey" : "white"} showNumber={false} />
       </a>
     })}
-  </div>
+  </div></NoSsr>
 }
 
 (TagFlagToggleList as any).contextTypes = {
