@@ -18,17 +18,19 @@ registerMigration({
     const duplicateVotes = findDuplicateVotes(allVotes)
     console.log("Number of duplicate votes", duplicateVotes.length)
 
-    await Votes.rawCollection().bulkWrite(duplicateVotes.map(_id => ({
-      updateOne: {
-        filter: { _id },
-        update: {
-          $set: {
-            cancelled: true
+    if (duplicateVotes.length) {
+      await Votes.rawCollection().bulkWrite(duplicateVotes.map(_id => ({
+        updateOne: {
+          filter: { _id },
+          update: {
+            $set: {
+              cancelled: true
+            }
           }
         }
-      }
-    })), 
-    { ordered: false });
+      })), 
+      { ordered: false });
+    }
 
     console.log("Removed all duplicate votes")
     const allUsers = await Users.find({}, {},  {_id: 1}).fetch()
@@ -39,17 +41,19 @@ registerMigration({
 
     const invalidVotes = findInvalidVotes(allVotes, userKarmaMap)
 
-    await Votes.rawCollection().bulkWrite(invalidVotes.map(_id => ({
-      updateOne: {
-        filter: { _id },
-        update: {
-          $set: {
-            cancelled: true
+    if (invalidVotes.length) {
+      await Votes.rawCollection().bulkWrite(invalidVotes.map(_id => ({
+        updateOne: {
+          filter: { _id },
+          update: {
+            $set: {
+              cancelled: true
+            }
           }
         }
-      }
-    })),
-    { ordered: false });
+      })),
+      { ordered: false });
+    }
 
     console.log("Removed invalid votes")
 
