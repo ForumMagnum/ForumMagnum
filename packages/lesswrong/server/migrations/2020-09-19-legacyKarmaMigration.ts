@@ -15,8 +15,22 @@ registerMigration({
     // are duplicated (i.e. have the same user-documentId pair but are not cancelled)
     const allVotes = await Votes.find({}, {sort: {votedAt: 1}}, {_id: 1, documentId: 1, userId: 1, authorId: 1, voteType: 1, collectionName: 1, cancelled: 1}).fetch()
     console.log("Got all the votes")
-    findDuplicateVotes(allVotes)
-    console.log("Checked for duplicate votes")
+    const duplicateVotes = findDuplicateVotes(allVotes)
+    console.log("Number of duplicate votes", duplicateVotes.length)
+
+    await Votes.rawCollection().bulkWrite(duplicateVotes.map(_id => ({
+      updateOne: {
+        filter: { _id },
+        update: {
+          $set: {
+            cancelled: true
+          }
+        }
+      }
+    })), 
+    { ordered: false });
+
+    console.log("Removed all duplicate votes")
     const allUsers = await Users.find({}, {},  {_id: 1}).fetch()
 
     const votePowerMap = new Map(allVotes.map(vote => [vote._id, 1]))
@@ -37,7 +51,7 @@ registerMigration({
       
       votePowerMap.set(_id, votePower)
       voteCount++
-      if (voteCount % 1000 === 0) console.log("voteCount: ", voteCount)
+      if (voteCount % 10000 === 0) console.log("voteCount: ", voteCount)
     }
 
     console.log("Done processing votes")
@@ -79,9 +93,10 @@ const doesVoteIncreaseKarma = ({userId, authorId, collectionName, cancelled}:DbV
 
 const findDuplicateVotes = (allVotes: DbVote[]) => {
   const seen = new Set()
-  allVotes.forEach(({documentId, userId, cancelled}) => {
+  return allVotes.flatMap(({_id, documentId, userId, cancelled}) => {
     if (!cancelled && seen.size === seen.add(`${documentId}_${userId}`).size) {
-      console.log("Duplicate vote: ", documentId, userId)
+      return [_id]
     }
+    return []
   })
 }
