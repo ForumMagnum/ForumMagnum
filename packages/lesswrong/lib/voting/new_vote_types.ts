@@ -6,6 +6,7 @@ export const getVotePower = (karma: number, voteType: string) => {
   if (voteType == "smallDownvote") { return userSmallVotePower(karma, -1)}
   if (voteType == "bigUpvote") { return userBigVotePower(karma, 1)}
   if (voteType == "bigDownvote") { return userBigVotePower(karma, -1)}
+  throw Error("Unknown vote type")
 }
 
 export const userSmallVotePower = (karma: number, multiplier: number) => {
