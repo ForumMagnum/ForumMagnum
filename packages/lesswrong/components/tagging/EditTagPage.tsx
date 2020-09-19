@@ -14,7 +14,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback}: {
     collection={Tags}
     documentId={tag._id}
     queryFragment={getFragment('TagEditFragment')}
-    mutationFragment={getFragment('TagEditFragment')}
+    mutationFragment={getFragment('TagFragment')}
     successCallback={successCallback}
     cancelCallback={cancelCallback}
   />
