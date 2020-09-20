@@ -1,5 +1,5 @@
 
-import { fillDefaultValues, registerMigration } from './migrationUtils';
+import { fillDefaultValues, forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
@@ -13,24 +13,35 @@ registerMigration({
       collection: Votes,
       fieldName: "documentIsAf",
     });
-    
+
     const afPosts = await Posts.find({af: true}, {}, { _id: 1}).fetch()
     const afComments = await Comments.find({af: true}, {}, {_id: 1}).fetch()
 
     console.log("Fetched all the votes and comments")
 
-    const afDocs = [...afPosts, ...afComments]
+    const afDocs = new Map([...afPosts, ...afComments].map(({_id}) => [_id, true]))
 
-    await Votes.rawCollection().bulkWrite(afDocs.map(({_id}) => ({
-      updateMany: {
-        filter: { documentId: _id },
-        update: {
-          $set: {
-            documentIsAf: true
-          }
-        }
+    await forEachDocumentBatchInCollection({
+      collection: Votes,
+      batchSize: 10000,
+      callback: async (votes: DbVote[]) => {
+        // eslint-disable-next-line no-console
+        console.log(`Updating batch of ${votes} af document status`);
+        const updates = votes.flatMap(({_id, documentId}) => {
+          if (!afDocs.get(documentId)) return []
+          return [{
+            updateOne: {
+              filter: { _id },
+              update: {
+                $set: {
+                  documentIsAf: true
+                }
+              }
+            }
+          }]
+        } );
+        await Votes.rawCollection().bulkWrite(updates, {ordered: false});
       }
-    })),
-    { ordered: false });
+    })
   }
 });
