@@ -1,4 +1,5 @@
-
+/* eslint-disable no-console */
+// Given all the console logs, this seemed more elegant than commenting on every one
 import { registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes';
 import Users from '../../lib/vulcan-users';
@@ -115,6 +116,7 @@ registerMigration({
     console.log("Created changes")
         
     await Votes.rawCollection().bulkWrite(changes, { ordered: false });
+
 
     console.log("Finished writing changes")
   }

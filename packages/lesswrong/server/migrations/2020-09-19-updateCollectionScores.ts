@@ -1,4 +1,5 @@
-
+/* eslint-disable no-console */
+// Given all the console logs, this seemed more elegant than commenting on every one
 import { registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes';
 import Users from '../../lib/vulcan-users';
@@ -123,7 +124,6 @@ const recomputeUserKarma = async () => {
 
 const chunkArray = <T>(arr: T[], size: number):T[][] => {
   return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
-    arr.slice(i * size, i * size + size)
+    arr.slice((i * size), (i * size) + size)
   );
 }
-  
