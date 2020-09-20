@@ -155,6 +155,7 @@ interface DbVote extends DbObject {
   cancelled: boolean
   isUnvote: boolean
   votedAt: Date
+  documentIsAf: boolean
 }
 
 interface NotificationsCollection extends CollectionBase<DbNotification> {

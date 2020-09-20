@@ -31,6 +31,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly cancelled: boolean,
   readonly isUnvote: boolean,
   readonly votedAt: Date,
+  readonly documentIsAf: boolean,
 }
 
 interface PostsMinimumInfo { // fragment on Posts
@@ -1085,6 +1086,7 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
+  readonly reenableDraftJs: boolean,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
@@ -1463,7 +1465,6 @@ interface TagBasicInfo { // fragment on Tags
   readonly wikiGrade: number,
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
-  readonly tagFlagsIds: Array<string>,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
 }
@@ -1501,10 +1502,12 @@ interface TagPreviewFragment_description { // fragment on Revisions
 }
 
 interface TagWithFlagsFragment extends TagPreviewFragment { // fragment on Tags
+  readonly tagFlagsIds: Array<string>,
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
+  readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
 }
 

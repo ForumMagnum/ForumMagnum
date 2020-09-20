@@ -115,6 +115,11 @@ const schema: SchemaType<DbVote> = {
     }
   }),
 
+  documentIsAf: {
+    type: Boolean,
+    canRead: ['guests'],
+    ...schemaDefaultValue(false)
+  }
 };
 
 export default schema;
