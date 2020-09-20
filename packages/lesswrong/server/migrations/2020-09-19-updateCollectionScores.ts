@@ -12,7 +12,7 @@ registerMigration({
   action: async () => {
     await recomputeCollectionScores("Posts", true)
     await recomputeCollectionScores("Comments", true)
-    await recomputeCollectionScores("Tags")
+    await recomputeCollectionScores("TagRels")
     await recomputeUserKarma()
   }
 })

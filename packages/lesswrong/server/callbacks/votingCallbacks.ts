@@ -8,9 +8,10 @@ import Users from '../../lib/collections/users/collection';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
+const collectionsThatAffectKarma = ["Posts", "Comments"]
 function updateKarma({newDocument, vote}, collection, user, context) {
   // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId) {
+  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
   }
 }
@@ -22,7 +23,7 @@ addCallback("votes.bigDownvote.async", updateKarma);
 
 function cancelVoteKarma({newDocument, vote}, collection, user, context) {
   // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId) {
+  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
   }
 }
