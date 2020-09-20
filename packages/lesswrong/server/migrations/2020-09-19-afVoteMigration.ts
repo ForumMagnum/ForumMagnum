@@ -26,7 +26,7 @@ registerMigration({
       batchSize: 10000,
       callback: async (votes: DbVote[]) => {
         // eslint-disable-next-line no-console
-        console.log(`Updating batch of ${votes} af document status`);
+        console.log(`Updating batch of ${votes.length} af document status`);
         const updates = votes.flatMap(({_id, documentId}) => {
           if (!afDocs.get(documentId)) return []
           return [{
@@ -40,7 +40,9 @@ registerMigration({
             }
           }]
         } );
-        await Votes.rawCollection().bulkWrite(updates, {ordered: false});
+        if (updates.length) {
+          await Votes.rawCollection().bulkWrite(updates, {ordered: false});
+        }
       }
     })
   }
