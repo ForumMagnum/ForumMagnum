@@ -117,8 +117,8 @@ registerMigration({
 
     console.log("Finished writing changes")
 
-    await recomputeCollectionScores("Posts")
-    await recomputeCollectionScores("Comments")
+    await recomputeCollectionScores("Posts", true)
+    await recomputeCollectionScores("Comments", true)
     await recomputeCollectionScores("Tags")
     await recomputeUserKarma()
   }
@@ -217,7 +217,9 @@ const recomputeUserKarma = async () => {
         afKarmaTotal: {$sum: "$adjustedAfPower"}
       }
     }
-  ]).toArray()
+  ], {
+    allowDiskUse: true
+  }).toArray()
 
   await Users.rawCollection().bulkWrite(newScores.map(({_id, karmaTotal, afKarmaTotal}) => ({
     updateOne: {
