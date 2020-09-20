@@ -9,14 +9,14 @@ registerMigration({
   dateWritten: "2020-09-19",
   idempotent: true,
   action: async () => {
-    const afPosts = await Posts.find({af: true}, {}, { _id: 1, af: 1}).fetch()
-    const afComments = await Comments.find({af: true}, {}, {_id: 1, af: 1}).fetch()
+    const afPosts = await Posts.find({af: true}, {}, { _id: 1}).fetch()
+    const afComments = await Comments.find({af: true}, {}, {_id: 1}).fetch()
 
     console.log("Fetched all the votes and comments")
 
     const afDocs = [...afPosts, ...afComments]
 
-    await Votes.rawCollection().bulkWrite(afDocs.map(({_id, af}) => ({
+    await Votes.rawCollection().bulkWrite(afDocs.map(({_id}) => ({
       updateMany: {
         filter: { documentId: _id },
         update: {
