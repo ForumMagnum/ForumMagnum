@@ -34,12 +34,14 @@ registerMigration({
     }
 
     console.log("Removed all duplicate votes")
-    const allUsers = await Users.find({}, {},  {_id: 1}).fetch()
+    const allUsers = await Users.find({}, {},  {_id: 1, groups: 1}).fetch()
 
     const votePowerMap = new Map(allVotes.map(vote => [vote._id, 1]))
     const voteAfPowerMap = new Map(allVotes.map(vote => [vote._id, 0]))
     const userKarmaMap = new Map(allUsers.map(user => [user._id, 0]))
-    const userAfKarmaMap = new Map(allUsers.map(user => [user._id, 0]))
+    // For the purpose of computation we assume that alignmentForum members start off with 1 karma,
+    // giving them a small upvote weight of 1
+    const userAfKarmaMap = new Map(allUsers.map(user => [user._id, user.groups?.includes("alignmentForum") ? 1 : 0]))
     console.log("Created the maps")
 
     const invalidVotes = findInvalidVotes(allVotes, userKarmaMap)
