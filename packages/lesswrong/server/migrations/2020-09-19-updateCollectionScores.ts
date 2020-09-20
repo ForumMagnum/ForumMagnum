@@ -84,7 +84,7 @@ const recomputeUserKarma = async () => {
         $project: {
             authorId: 1,
             adjustedPower: {$cond: [{$ne: ['$userId', '$authorId']}, '$power', 0]},
-            adjustedAfPower: {$cond: [{$ne: ['$userId', '$authorId'], $eq: ['$documentIsAf', true]}, '$afPower', 0 ]}
+            adjustedAfPower: {$cond: [{$and: [{$ne: ['$userId', '$authorId']}, {$eq: ['$documentIsAf', true]}]}, '$afPower', 0 ]}
         }
     },
     {
