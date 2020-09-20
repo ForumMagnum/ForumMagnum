@@ -116,7 +116,7 @@ export default class MathUI extends Plugin {
 		formView.keystrokes.set( 'Enter', ( data, cancel ) => {
 			this.formView.fire( 'submit' );
 			this._closeFormView();
-		} );
+		});
 
 		this.listenTo( formView, 'updatedMath', () => {
 			this._balloon.updatePosition( this._getBalloonPositionData() );
@@ -282,7 +282,10 @@ export default class MathUI extends Plugin {
 			emitter: this.formView,
 			activator: () => this._isFormInPanel,
 			contextElements: [ this._balloon.view.element ],
-			callback: () => this.formView.fire( 'submit' )
+			callback: () => {
+				const mathCommand = this.editor.commands.get( 'math' );
+				this.formView.fire( 'submit' )
+			} 
 		} );
 	}
 
