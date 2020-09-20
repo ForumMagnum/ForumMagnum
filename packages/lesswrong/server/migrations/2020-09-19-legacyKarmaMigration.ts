@@ -3,7 +3,6 @@ import { registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes';
 import Users from '../../lib/vulcan-users';
 import { getVotePower } from '../../lib/voting/new_vote_types';
-import { getCollection } from '../vulcan-lib';
 
 
 registerMigration({
@@ -116,11 +115,6 @@ registerMigration({
     await Votes.rawCollection().bulkWrite(changes, { ordered: false });
 
     console.log("Finished writing changes")
-
-    await recomputeCollectionScores("Posts", true)
-    await recomputeCollectionScores("Comments", true)
-    await recomputeCollectionScores("Tags")
-    await recomputeUserKarma()
   }
 })
 
@@ -147,94 +141,4 @@ const findInvalidVotes = (allVotes: DbVote[], userKarmaMap: Map<string, number>)
     if (!cancelled && userKarmaMap.get(userId) === undefined) return [_id]
     return []
   })
-}
-
-const recomputeCollectionScores = async (collectionName:string, includeAf = false) => {
-  const collection = getCollection(collectionName);
-  const newScores = await Votes.rawCollection().aggregate([
-    {
-      $match: {
-        cancelled: false,
-        collectionName
-      }
-    },
-    {
-      $project: {
-          documentId: 1,
-          power: 1,
-          adjustedAfPower: {$cond: ['$documentIsAf', '$afPower', 0]}
-      }
-    },
-    {
-      $group: {
-        _id: `$documentId`,
-        karmaTotal: {$sum: "$power"},
-        karmaTotalAf: {$sum: "$adjustedAfPower"}
-      }
-    }
-  ], {
-    allowDiskUse: true
-  }).toArray()
-
-  await collection.rawCollection().bulkWrite(newScores.map(({_id, karmaTotal, karmaTotalAf}) => ({
-    updateOne: {
-      filter: { _id },
-      update: {
-        $set: includeAf ? 
-        {
-          baseScore: karmaTotal,
-          afBaseScore: karmaTotalAf
-        }
-        :
-        {
-          baseScore: karmaTotal,
-        }
-      }
-    }
-  })),
-  { ordered: false });
-
-  console.log(`Finished updating ${collectionName} scores. Updated ${newScores.length} documents.`)
-}
-
-const recomputeUserKarma = async () => {
-  const newScores = await Votes.rawCollection().aggregate([
-    {
-      $match: {
-        cancelled: false,
-        collectionName: {$in: ["Posts", "Comments"]}
-      }
-    },
-    {
-        $project: {
-            authorId: 1,
-            adjustedPower: {$cond: [{$ne: ['$userId', '$authorId']}, '$power', 0]},
-            adjustedAfPower: {$cond: [{$ne: ['$userId', '$authorId'], $eq: ['$documentIsAf', true]}, '$afPower', 0 ]}
-        }
-    },
-    {
-      $group: {
-        _id: '$authorId',
-        karmaTotal: {$sum: "$adjustedPower"},
-        afKarmaTotal: {$sum: "$adjustedAfPower"}
-      }
-    }
-  ], {
-    allowDiskUse: true
-  }).toArray()
-
-  await Users.rawCollection().bulkWrite(newScores.map(({_id, karmaTotal, afKarmaTotal}) => ({
-    updateOne: {
-      filter: { _id },
-      update: {
-        $set: {
-          karma: karmaTotal,
-          afKarma: afKarmaTotal
-        }
-      }
-    }
-  })),
-  { ordered: false });
-
-  console.log(`Finished updating User karma. Updated ${newScores.length} users.`)
 }
