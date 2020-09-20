@@ -282,10 +282,7 @@ export default class MathUI extends Plugin {
 			emitter: this.formView,
 			activator: () => this._isFormInPanel,
 			contextElements: [ this._balloon.view.element ],
-			callback: () => {
-				const mathCommand = this.editor.commands.get( 'math' );
-				this.formView.fire( 'submit' )
-			} 
+			callback: () => this.formView.fire( 'submit' )
 		} );
 	}
 
