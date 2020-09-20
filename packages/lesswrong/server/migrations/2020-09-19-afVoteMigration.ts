@@ -1,5 +1,5 @@
 
-import { registerMigration } from './migrationUtils';
+import { fillDefaultValues, registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
@@ -9,6 +9,11 @@ registerMigration({
   dateWritten: "2020-09-19",
   idempotent: true,
   action: async () => {
+    await fillDefaultValues({
+      collection: Votes,
+      fieldName: "documentIsAf",
+    });
+    
     const afPosts = await Posts.find({af: true}, {}, { _id: 1}).fetch()
     const afComments = await Comments.find({af: true}, {}, {_id: 1}).fetch()
 
