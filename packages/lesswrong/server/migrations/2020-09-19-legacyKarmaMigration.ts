@@ -172,7 +172,9 @@ const recomputeCollectionScores = async (collectionName:string, includeAf = fals
         karmaTotalAf: {$sum: "$adjustedAfPower"}
       }
     }
-  ]).toArray()
+  ], {
+    allowDiskUse: true
+  }).toArray()
 
   await collection.rawCollection().bulkWrite(newScores.map(({_id, karmaTotal, karmaTotalAf}) => ({
     updateOne: {
