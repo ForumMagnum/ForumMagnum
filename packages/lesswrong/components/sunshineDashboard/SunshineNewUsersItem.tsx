@@ -124,7 +124,10 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
     collection: Comments,
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
+    limit: 100
   });
+
+  const commentKarmaPreviews = comments ? comments.sort((c1, c2) => c2.baseScore - c1.baseScore) : []
 
   const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading } = Components
 
@@ -165,7 +168,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                   { user.commentCount || 0 }
                 </LWTooltip>
                 <MessageIcon className={classes.icon}/> 
-                {comments?.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
+                {commentKarmaPreviews?.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
                 { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
               </div>
               <SunshineNewUserPostsList posts={posts} user={user}/>
