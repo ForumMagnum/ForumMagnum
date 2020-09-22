@@ -31,6 +31,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: "unset"
     }
   },
+  collapsedDescription: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: 12,
+  },
   edit: {
     fontSize: "1rem",
     color: theme.palette.grey[500],
@@ -53,14 +59,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   }, 
   flags: {
     width: 380
+  },
+  collapsedPosts: {
+    width: 630,
+    padding: 8
+  },
+  collapsedFlags: {
+    width: 630,
+    padding: 8
+  },
+  tagName: {
+    maxWidth: 270,
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    fontSize: "1.2rem",
+    whiteSpace: "nowrap"
   }
 });
 
-const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
+const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = false }: {
   tag: TagPreviewFragment | TagWithFlagsFragment,
   classes: ClassesType,
   showFlags?: boolean,
-  flagId?: string
+  flagId?: string,
+  collapse?: boolean
 }) => {
   const { LinkCard, TagPreviewDescription, TagSmallPostLink, Loading, TagFlagItem } = Components;
   const currentUser = useCurrentUser();
@@ -80,7 +102,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
   });
 
   return <div className={classes.root}>
-    <div className={classes.description}>
+    <div className={classNames(classes.description, {[classes.collapsedDescription]: collapse})}>
       {editing ? 
         <EditTagForm 
           tag={tag} 
@@ -94,16 +116,20 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
             componentName: "LoginPopup", componentProps: {}
           })}
         >
-          <TagPreviewDescription tag={tag} />
+          {collapse ? <div className={classes.tagName}>
+            <strong>{tag.name}</strong>
+          </div> : <TagPreviewDescription tag={tag} />}
         </LinkCard>
       }
-      {currentUser && 
-        <a onClick={() => setEditing(true)} className={classes.edit}>
-          Edit
-        </a>
+      {currentUser && !collapse && 
+        <div>
+          <a onClick={() => setEditing(true)} className={classes.edit}>
+            Edit
+          </a>
+        </div>
       }
     </div>
-    {!showFlags && <div className={classes.posts}>
+    {!showFlags && <div className={classNames(classes.posts, {[classes.collapsedPosts]: collapse})}>
       <div>
         <Link to={Tags.getUrl(tag)} className={classes.postCount}>
           {tag.postCount} posts tagged <em>{tag.name}</em>
@@ -114,7 +140,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId }: {
         )}
       </div>
     </div>}
-    {showFlags && <div className={classNames(classes.posts, classes.flags)}>
+    {showFlags && <div className={classNames(classes.posts, classes.flags, {[classes.collapsedFlags]: collapse})}>
       {(tag as TagWithFlagsFragment)?.tagFlags?.map(tagFlag => <span key={tagFlag._id}>
         <QueryLink query={query.focus === tagFlag?._id ? {} : {focus: tagFlag?._id}}>
           <TagFlagItem 

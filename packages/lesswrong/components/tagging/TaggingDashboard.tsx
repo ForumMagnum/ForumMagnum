@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TagFlags } from '../../lib';
 import { Tags } from '../../lib/collections/tags/collection';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -26,6 +26,9 @@ const styles = theme => ({
   },
   editButton: {
     marginLeft: 8
+  },
+  collapseButton: {
+    marginLeft: 8
   }
 })
 
@@ -35,6 +38,7 @@ const TaggingDashboard = ({classes}: {
   const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
+  const [collapsed, setCollapsed] = useState(false)
   const { results: tags, loading} = useMulti({
     terms: {
       view: "tagsByTagFlag",
@@ -73,6 +77,10 @@ const TaggingDashboard = ({classes}: {
               {query.focus ? "Edit Tag Flag" : "New Tag Flag"}
             </span>
         }
+        <a 
+          className={classes.collapseButton} 
+          onClick={() => setCollapsed(!collapsed)}
+        > {collapsed ? "Uncollapse" : "Collapse"} Tags </a>
       </SectionButton>
     </SectionTitle>
     <div className={classes.flagList}>
@@ -85,6 +93,7 @@ const TaggingDashboard = ({classes}: {
       tag={tag} 
       showFlags
       flagId={query.focus}
+      collapse={collapsed}
     />)}
   </div>
 }
