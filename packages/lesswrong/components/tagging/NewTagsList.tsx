@@ -34,7 +34,7 @@ const NewTagsList = ({classes}:{
   const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
 
   const { results, loadMoreProps } = useMulti({
-    terms: {view:"newTags", limit: 8 },
+    terms: {view:"newTags", limit: 4 },
     collection: Tags,
     fragmentName: "SunshineTagFragment",
     enableTotal: true,

@@ -10,11 +10,11 @@ export const EditTagForm = ({tag, successCallback, cancelCallback}: {
     cancelCallback?: any
   }) => {
   return <Components.WrappedSmartForm
-    key={`${tag._id}_${tag?.description?.version}`}
+    key={`${tag?._id}_${tag?.description?.version}`}
     collection={Tags}
     documentId={tag._id}
     queryFragment={getFragment('TagEditFragment')}
-    mutationFragment={getFragment('TagFragment')}
+    mutationFragment={getFragment('TagWithFlagsFragment')}
     successCallback={successCallback}
     cancelCallback={cancelCallback}
   />

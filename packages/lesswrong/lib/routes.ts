@@ -533,7 +533,8 @@ addRoute(
   {
     name: 'taggingDashboard',
     path: '/tags/dashboard',
-    componentName: "TaggingDashboard"
+    componentName: "TaggingDashboard",
+    title: "Tagging Dashboard"
   }
 );
 
