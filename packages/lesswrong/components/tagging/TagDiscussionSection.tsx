@@ -39,7 +39,7 @@ const TagDiscussionSection = ({classes, tag}: {
     ssr: true
   });
   
-  const nestedComments = results && unflattenComments(results);
+  const nestedComments = !!results && unflattenComments(results);
   
   return (  
     <CommentsListSection
