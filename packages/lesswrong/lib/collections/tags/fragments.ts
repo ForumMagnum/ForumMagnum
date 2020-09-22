@@ -63,7 +63,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagWithFlagsFragment on Tag {
-    ...TagPreviewFragment
+    ...TagFragment
     tagFlagsIds
     tagFlags {
       ...TagFlagFragment
