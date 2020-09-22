@@ -162,7 +162,6 @@ const TagPage = ({classes}: {
   // 2. Then we have the real position
   // 3. Then we remove the tagFlag, we still want it to have the right next button
   const [nextTagPosition, setNextTagPosition] = useState<number | null>(null);
-  console.log(tagPositionInList)
   useEffect(() => {
     // Initial list position setting
     if (tagPositionInList >= 0) {
@@ -171,8 +170,9 @@ const TagPage = ({classes}: {
     if (nextTagPosition !== null && tagPositionInList < 0) {
       // Here we want to decrement the list positions by one, because we removed the original tag and so 
       // all the indices are moved to the next 
-      setNextTagPosition(nextTagPosition - 1)
+      setNextTagPosition(nextTagPosition => (nextTagPosition || 1) - 1)
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagPositionInList])
   const nextTag = otherTagsWithFlag && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithFlag[nextTagPosition]
 
