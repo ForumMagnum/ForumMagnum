@@ -5,7 +5,7 @@ import '../components/posts/TableOfContents';
 // vulcan:accounts
 import '../components/vulcan-accounts';
 import '../components/vulcan-core/vulcan-core-components';
-import { forumTypeSetting, hasEventsSetting } from './instanceSettings';
+import { forumTypeSetting } from './instanceSettings';
 // vulcan:forms
 import './vulcan-forms/components';
 import { importComponent } from './vulcan-lib';
@@ -230,7 +230,12 @@ importComponent("SmallSideVote", () => require('../components/votes/SmallSideVot
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // Events
-// In a past version, these `importComponent` definitions were skipped 
+// In a past version, these `importComponent` definitions were skipped if the hasEvents
+// setting wasn't set. This broke AF on, which doesn't have events in the sense that it
+// doesn't have events on its sidebar, but can have events if they're moved from LessWrong.
+// There's no actual benefit to gating these imports behind an if statement, anyways;
+// the source files behind them are only executed if actually used on a page, and
+// they aren't excluded from the bundle in any case.
 
 importComponent("EventsPast", () => require('../components/posts/EventsPast'));
 importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
@@ -378,6 +383,10 @@ importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'
 importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
 importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
 importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGradeDisplay'));
+importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
+importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
+importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
+importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
@@ -457,6 +466,7 @@ importComponent("FormComponentDateTime", () => require('../components/form-compo
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
+importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
 
 // importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 // importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));

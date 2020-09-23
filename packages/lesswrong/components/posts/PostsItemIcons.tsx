@@ -48,18 +48,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostsItemIcons = ({post, classes}: {
-  post: PostsBase,
-  classes: ClassesType,
-}) => {
-  const { OmegaIcon, LWTooltip } = Components;
+export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
+  const { LWTooltip } = Components;
 
-  return <span className={classes.iconSet}>
-    {post.curatedDate && <span className={classes.postIcon}>
+  return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="right">
         <Link to={curatedUrl}><StarIcon className={classes.icon}/></Link>
-      </LWTooltip>
-    </span>}
+      </LWTooltip> 
+    </span> 
+}
+
+const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
+
+
+const PostsItemIcons = ({post, classes, hideCuratedIcon}: {
+  post: PostsBase,
+  classes: ClassesType,
+  hideCuratedIcon?: boolean
+}) => {
+  const { OmegaIcon, LWTooltip, CuratedIcon } = Components;
+
+  return <span className={classes.iconSet}>
+    {post.curatedDate && !hideCuratedIcon && 
+      <CuratedIcon/>}
     
     {post.question && <span className={classes.postIcon}>
       <LWTooltip title={<div>Question <div><em>(click to view all questions)</em></div></div>} placement="right">
@@ -100,5 +111,6 @@ const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIco
 declare global {
   interface ComponentTypes {
     PostsItemIcons: typeof PostsItemIconsComponent
+    CuratedIcon: typeof CuratedIconComponent
   }
 }

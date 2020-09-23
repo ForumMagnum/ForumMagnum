@@ -10,16 +10,16 @@ import { useMessages } from '../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: 90,
     transition: ".25s",
     display: "flex",
     '& input': {
+      width: 70,
       cursor: "pointer"
     }
   },
   open: {
-    width: 300,
     '& input': {
+      width: 260,
       cursor: "unset"
     },
     [theme.breakpoints.down('xs')]: {

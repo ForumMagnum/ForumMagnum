@@ -162,6 +162,7 @@ const RecommendationsAndCurated = ({
               showLoadMore={false} 
               hideLastUnread={true} 
               boxShadow={false}
+              curatedIconLeft={true}
             />
           </AnalyticsContext>
         </div>

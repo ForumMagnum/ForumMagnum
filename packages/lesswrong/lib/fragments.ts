@@ -147,6 +147,8 @@ registerFragment(`
     
     abTestKey
     abTestOverrides
+
+    reenableDraftJs
   }
 `);
 
@@ -355,6 +357,7 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
+    reenableDraftJs
   }
 `);
 

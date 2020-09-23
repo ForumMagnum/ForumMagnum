@@ -50,6 +50,10 @@ import './collections/reports/views'
 // LWEvents
 import { LWEvents } from './collections/lwevents/index';
 
+// TagFlags
+import { TagFlags } from './collections/tagFlags/collection';
+import './collections/tagFlags/views';
+
 // DatabaseMetadata
 import './collections/databaseMetadata/collection';
 
@@ -196,5 +200,6 @@ export {
   Localgroups,
   Comments,
   Revisions, 
-  ReviewVotes
+  ReviewVotes,
+  TagFlags
 }
