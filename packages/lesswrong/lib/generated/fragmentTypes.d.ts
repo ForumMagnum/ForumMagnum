@@ -930,6 +930,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly hideTaggingProgressBar: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
 }
 
@@ -1085,6 +1086,7 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
+  readonly sortDrafts: string,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users

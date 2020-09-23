@@ -552,7 +552,7 @@ Posts.addView("scheduled", terms => ({
  * @summary Draft view
  */
 Posts.addView("drafts", terms => {
-  return {
+  let query = {
     selector: {
       userId: viewFieldAllowAny,
       $or: [{userId: terms.userId}, {shareWithUsers: terms.userId}],
@@ -565,9 +565,25 @@ Posts.addView("drafts", terms => {
       hiddenRelatedQuestion: viewFieldAllowAny,
     },
     options: {
-      sort: {modifiedAt: -1, createdAt: -1}
+      sort: {}
     }
-}});
+  }
+  switch (terms.sortDrafts) {
+    case 'wordCount': {
+      query.options.sort = {wordCount: -1, modifiedAt: -1, createdAt: -1}
+      break
+    }
+    default: {
+      query.options.sort = {modifiedAt: -1, createdAt: -1}
+    }
+  }
+  return query
+});
+
+ensureIndex(Posts,
+  augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
+  { name: "posts.userId_wordCount" }
+);
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }

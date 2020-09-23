@@ -30,6 +30,11 @@ export const formGroups = {
     name: "moderation",
     label: "Moderation & Moderation Guidelines",
   },
+  siteCustomizations: {
+    order: 1, 
+    label: "Site Customizations",
+    name: "siteCustomizations"
+  },
   banUser: {
     order:50,
     name: "banUser",
@@ -225,7 +230,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     order: 43,
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     control: "select",
     form: {
       // TODO - maybe factor out??
@@ -245,6 +250,26 @@ addFieldsDict(Users, {
     },
   },
 
+
+  sortDrafts: {
+    type: String,
+    optional: true,
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+    label: "Sort Drafts by",
+    order: 43,
+    group: formGroups.siteCustomizations,
+    control: "select",
+    form: {
+      options: function () { // options for the select form control
+        return [
+          {value:'wordCount', label: 'Wordcount'},
+          {value:'modifiedAt', label: 'Last Modified'},
+        ];
+      }
+    },
+  },
+
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
     order: 70,
@@ -253,7 +278,7 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     canCreate: ['members'],
     control: 'checkbox',
     label: "Hide Intercom"
@@ -270,7 +295,7 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
   },
 
@@ -965,7 +990,7 @@ addFieldsDict(Users, {
     hidden: false,
     label: "Hide the tagging progress bar",
     order: 45,
-    group: formGroups.default
+    group: formGroups.siteCustomizations
   },
 
   needsReview: {
@@ -1205,7 +1230,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     label: "Opt into experimental features",
     order: 70,
   },
