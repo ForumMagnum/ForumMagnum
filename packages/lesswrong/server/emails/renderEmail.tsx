@@ -15,6 +15,7 @@ import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
+import { getMergedStylesheet } from '../styleGeneration';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 import { computeContextFromUser, createClient, newMutation } from '../vulcan-lib';
 
@@ -156,7 +157,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
-  const css = sheetsRegistry.toString();
+  const { css } = getMergedStylesheet();
   const html = boilerplateGenerator({ css, body, title:subject })
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
