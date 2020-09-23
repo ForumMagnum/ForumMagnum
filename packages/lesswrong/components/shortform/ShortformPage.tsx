@@ -17,7 +17,7 @@ const ShortformPage = ({classes}: {
     <SingleColumnSection>
       <div className={classes.column}>
         <SectionTitle title="Shortform Content [Beta]"/>
-        <ShortformThreadList terms={{view: 'shortform', limit:20}} />
+        <ShortformThreadList />
       </div>
     </SingleColumnSection>
   )

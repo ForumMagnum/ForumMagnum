@@ -9,7 +9,7 @@ export default class MathCommand extends Command {
 		const selectedElement = selection.getSelectedElement();
 
 		model.change( writer => {
-			if ( selectedElement && ( selectedElement.is( 'mathtex' ) || selectedElement.is( 'mathtex-display' ) ) ) {
+			if ( selectedElement && ( selectedElement.is( 'element', 'mathtex' ) || selectedElement.is( 'element', 'mathtex-display' ) ) ) {
 				// Update selected element
 				const typeAttr = selectedElement.getAttribute( 'type' );
 				const existingEquation = selectedElement.getAttribute( 'equation' );
@@ -19,7 +19,7 @@ export default class MathCommand extends Command {
 					// Use already set type if found and is not forced
 					const type = forceOutputType ? outputType : typeAttr || outputType;
 					if ( equation ) {
-						const mathtex = writer.createElement( display ? 'mathtex-display' : 'mathtex', { equation, type } );
+						const mathtex = writer.createElement( display ? 'mathtex-display' : 'mathtex', { equation, type, display } );
 						model.insertContent( mathtex );
 						writer.setSelection( mathtex, 'after' );
 					} else {
@@ -28,7 +28,7 @@ export default class MathCommand extends Command {
 				}
 			} else {
 				// Create new model element
-				const mathtex = writer.createElement( display ? 'mathtex-display' : 'mathtex', { equation, type: outputType } );
+				const mathtex = writer.createElement( display ? 'mathtex-display' : 'mathtex', { equation, type: outputType, display } );
 				model.insertContent( mathtex );
 				writer.setSelection( mathtex, 'after' );
 			}
@@ -38,18 +38,14 @@ export default class MathCommand extends Command {
 	refresh() {
 		const model = this.editor.model;
 		const selection = model.document.selection;
+		const selectedElement = selection.getSelectedElement();
 
-		const isAllowed = model.schema.checkChild( selection.focus.parent, 'mathtex' ) ||
-			model.schema.checkChild( selection.focus.parent, 'mathtex-display' );
-		this.isEnabled = isAllowed;
+		this.isEnabled = selectedElement === null || ( selectedElement.is( 'element', 'mathtex' ) ||
+				selectedElement.is( 'element', 'mathtex-display' ) );
 
+				
 		const selectedEquation = getSelectedMathModelWidget( selection );
-		if ( selectedEquation ) {
-			this.value = selectedEquation.getAttribute( 'equation' );
-			this.display = selectedEquation.is( 'mathtex-display ' ) ? true : false;
-		} else {
-			this.value = null;
-			this.display = null;
-		}
+		this.value = selectedEquation ? selectedEquation.getAttribute( 'equation' ) : null;
+		this.display = selectedEquation ? selectedEquation.getAttribute( 'display' ) : null;
 	}
 }

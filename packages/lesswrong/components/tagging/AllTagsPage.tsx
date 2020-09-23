@@ -50,9 +50,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   edit: {
-    position: "absolute",
-    right: 5,
-    color: theme.palette.grey[600]
+    float: "right",
+    marginRight: 5,
+    color: theme.palette.grey[600],
   }
 })
 

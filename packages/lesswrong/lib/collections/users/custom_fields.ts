@@ -287,7 +287,7 @@ addFieldsDict(Users, {
   // This field-name is no longer accurate, but is here because we used to have that field
   // around and then removed `markDownCommentEditor` and merged it into this field.
   markDownPostEditor: {
-    order: 70,
+    order: 71,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -1232,7 +1232,7 @@ addFieldsDict(Users, {
     tooltip: "Get early access to new in-development features",
     group: formGroups.siteCustomizations,
     label: "Opt into experimental features",
-    order: 71,
+    order: 70,
   },
   reviewVotesQuadratic: {
     type: Boolean,
