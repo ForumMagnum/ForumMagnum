@@ -171,7 +171,7 @@ const TagProgressBar = ({ classes }: {
       }
       <div className={classes.secondaryInfo}>
         <div className={classes.helpText}>
-          <span className={classes.allTagsBarColor}>{Math.round((processedTagsTotal / allTagsToProcessTotal) * 100)}% of {allTagsToProcessTotal} pages from the LW 1.0 Wiki have been processed!{" "} </span>
+          <span className={classes.allTagsBarColor}>{processedTagsTotal} of {allTagsToProcessTotal} ({Math.round((processedTagsTotal / allTagsToProcessTotal) * 100)}%) pages from the LW 1.0 Wiki have been processed!{" "} </span>
         </div>
         <LWTooltip title={"Hide this progress bar from the frontpage"}>
           <a
