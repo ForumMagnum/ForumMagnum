@@ -61,7 +61,6 @@ const tableStyles = {
   borderSpacing: 0,
   border: "1px double #b3b3b3",
   margin: "auto",
-  width: "100%",
   height: "100%",
   textAlign: "left"
 }
