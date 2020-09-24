@@ -74,7 +74,7 @@ type EmailRenderContextType = {
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const addClassnames = (componentName: string, styles?: any) => {
+const addClassnames = (componentName: string, styles: any) => {
   const classesProxy = new Proxy({}, {
     get: function(obj: any, prop: any) {
       return `${componentName}-${prop}`;
