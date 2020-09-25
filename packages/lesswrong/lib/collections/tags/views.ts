@@ -110,13 +110,29 @@ Tags.addView('allLWWikiTags', terms => {
 
 ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportSlug: 1});
 
-Tags.addView('processedLWWikiTags', terms => {
+Tags.addView('unprocessedLWWikiTags', terms => {
   return {
     selector: {
       wikiOnly: viewFieldAllowAny, 
-      lesswrongWikiImportCompleted: true,
+      tagFlagsIds: 'B5nzngQDDci4syEzD',
     }
   }
 });
 
-ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportCompleted: 1});
+ensureIndex(Tags, {deleted: 1, adminOnly: 1, tagFlagsIds: 1});
+
+
+Tags.addView('tagsByTagFlag', terms => {
+  return {
+    selector: terms.tagFlagId ? 
+    {
+      tagFlagsIds: terms.tagFlagId,
+      wikiOnly: viewFieldAllowAny
+    } : 
+    {
+      tagFlagsIds: {$exists: true, $gt: []},
+      wikiOnly: viewFieldAllowAny
+    },
+    options: {sort: {createdAt: -1}}
+  }
+});

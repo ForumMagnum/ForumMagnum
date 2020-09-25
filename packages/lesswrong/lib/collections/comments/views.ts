@@ -288,6 +288,7 @@ Comments.addView('topShortform', function (terms) {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
+      deleted: false,
       ...timeRange
     },
     options: {sort: {baseScore: -1, postedAt: -1}}

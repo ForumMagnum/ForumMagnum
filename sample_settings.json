@@ -11,7 +11,7 @@
     "forumSettings": {
       "headerTitle": "LESSWRONG",
       "shortForumTitle": "LW",
-      "tabTitle": "LessWrong 2.0"
+      "tabTitle": "LessWrong"
     },
     "analytics": {
       "environment": "localhost"

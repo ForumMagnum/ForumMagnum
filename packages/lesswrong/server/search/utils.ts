@@ -202,6 +202,7 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
     defaultOrder: tag.defaultOrder,
     suggestedAsFilter: tag.suggestedAsFilter,
     postCount: tag.postCount,
+    wikiOnly: tag.wikiOnly,
     description,
   }];
 } 
