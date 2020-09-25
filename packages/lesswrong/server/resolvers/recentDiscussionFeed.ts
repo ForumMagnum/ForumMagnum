@@ -49,6 +49,7 @@ defineFeedResolver<Date>({
           sortField: "lastCommentedAt",
           context,
           selector: {
+            lastCommentedAt: {$exists: true},
             ...(af ? {af: true} : undefined),
           },
         }),

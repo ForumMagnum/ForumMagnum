@@ -81,7 +81,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads, classes }: {
       
       <div onClick={clickExpandDescription} className={classes.tagDescription}>
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml}}
+          dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
           description={`tag ${tag.name}`}
           className={classes.description}
         />

@@ -51,6 +51,8 @@ const RecentDiscussionFeed = ({
       </SectionTitle>
       {showShortformFeed && <ShortformSubmitForm />}
       <MixedTypeFeed
+        firstPageSize={10}
+        pageSize={20}
         resolverName="RecentDiscussionFeed"
         sortKeyType="Date"
         resolverArgs={{ af: 'Boolean' }}
@@ -88,11 +90,11 @@ const RecentDiscussionFeed = ({
           tagRevised: {
             fragmentName: "RevisionTagFragment",
             render: (revision: RevisionTagFragment) => <div>
-              <TagRevisionItem
+              {revision.tag && <TagRevisionItem
                 revision={revision}
                 documentId={revision.documentId}
                 linkUrl={Tags.getRevisionLink(revision.tag, revision.version)}
-              />
+              />}
             </div>,
           },
         }}
