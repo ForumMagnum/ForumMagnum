@@ -17,6 +17,7 @@ addGraphQLSchema(`
     scoreChange: Int
     description: String
     postId: String
+    tagSlug: String
   }
 `);
 

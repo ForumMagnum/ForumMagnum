@@ -7,14 +7,12 @@ import { useVote } from '../votes/withVote';
 const styles = (theme: ThemeType): JssStyles => ({
   voteRow: {
     ...theme.typography.body2,
-    ...theme.typography.commentStyle,
     ...theme.typography.smallText,
     color: theme.palette.grey[600]
   },
   headerCell: {
     fontWeight: 700,
     ...theme.typography.body2,
-    ...theme.typography.commentStyle,
   },
   votingCell: {
     textAlign: "center",
@@ -39,6 +37,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallCell: {
     textAlign: "center"
+  },
+  tagVotingTable: {
+    background: "white",
+    padding: 12,
+    paddingTop: 2,
+    ...theme.typography.commentStyle,
+    boxShadow: theme.boxShadow
   }
 })
 
@@ -48,6 +53,8 @@ const TagVoteActivityRow = ({vote, classes}: {
 }) => {
   const { FormatDate, VoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel, "TagRels")
+  if (!vote.tagRel?.post || !vote.tagRel?.tag)
+    return null;
   return (
     <tr key={vote._id} className={classes.voteRow}>
       <td><UsersName documentId={vote.userId}/></td>
@@ -83,7 +90,7 @@ const TagVoteActivityRow = ({vote, classes}: {
 const TagVoteActivity = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, LoadMore } = Components
+  const { SingleColumnSection, LoadMore, NewTagsList } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
     collection: Votes,
@@ -94,20 +101,24 @@ const TagVoteActivity = ({classes}: {
   })
 
   return <SingleColumnSection>
-    <table>
-      <tbody>
-        <tr className={classes.headerRow}>
-          <td className={classes.headerCell}> User </td>
-          <td className={classes.headerCell}> Post Title </td>
-          <td className={classes.headerCell}> Tag </td>
-          <td className={classes.headerCell}> Pow </td>
-          <td className={classes.headerCell}> When </td>
-          <td className={classes.headerCell}> Vote </td>
-        </tr>
-        {votes?.map(vote => <TagVoteActivityRow key={vote._id} vote={vote} classes={classes}/>)}
-      </tbody>
-    </table>
-    <LoadMore {...loadMoreProps} />
+    <NewTagsList />
+    <div className={classes.tagVotingTable}>
+      <h2>Tag Voting</h2>
+      <table>
+        <tbody>
+          <tr className={classes.headerRow}>
+            <td className={classes.headerCell}> User </td>
+            <td className={classes.headerCell}> Post Title </td>
+            <td className={classes.headerCell}> Tag </td>
+            <td className={classes.headerCell}> Pow </td>
+            <td className={classes.headerCell}> When </td>
+            <td className={classes.headerCell}> Vote </td>
+          </tr>
+          {votes?.map(vote => <TagVoteActivityRow key={vote._id} vote={vote} classes={classes}/>)}
+        </tbody>
+      </table>
+      <LoadMore {...loadMoreProps} />
+    </div>
   </SingleColumnSection>
 }
 

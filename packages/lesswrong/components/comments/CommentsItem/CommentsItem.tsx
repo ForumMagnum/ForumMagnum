@@ -116,7 +116,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 interface ExternalProps {
   refetch?: any,
-  comment: CommentsList|CommentsListWithPostMetadata,
+  comment: CommentsList|CommentsListWithParentMetadata,
   postPage?: boolean,
   nestingLevel: number,
   showPostTitle?: boolean,
@@ -149,7 +149,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: CommentsItemProps, nextState: CommentsItemState) {
     if(!shallowEqual(this.state, nextState))
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post"]))
@@ -159,7 +159,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
     return false;
   }
 
-  showReply = (event) => {
+  showReply = (event: React.MouseEvent) => {
     event.preventDefault();
     this.setState({showReply: true});
   }
@@ -232,7 +232,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               </div>
             )}
 
-            {showPostTitle && (comment as CommentsListWithPostMetadata)?.post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{(comment as CommentsListWithPostMetadata).post.title}</Link>}
+            {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{comment.post.title}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
@@ -388,6 +388,10 @@ const CommentsItemComponent = registerComponent<ExternalProps>(
     hocs: [ withMessages, withUser, withErrorBoundary ]
   }
 );
+
+function hasPostField(comment: CommentsList | CommentsListWithParentMetadata):comment is CommentsListWithParentMetadata {
+  return !!(comment as CommentsListWithParentMetadata).post
+}
 
 declare global {
   interface ComponentTypes {

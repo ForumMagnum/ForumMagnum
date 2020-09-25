@@ -28,7 +28,7 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId, upd
   document: any,
   collection: any,
   voteType: string,
-  user: DbUser|null,
+  user: DbUser,
   voteId: string,
   updateDocument: boolean
 }) => {
@@ -218,6 +218,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   if (!Users.canDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
+  if (!voteTypes[voteType]) throw new Error("Invalid vote type");
 
   const existingVote = await hasVotedServer({document, voteType, user});
 
@@ -231,7 +232,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   } else {
     await checkRateLimit({ document, collection, voteType, user });
 
-    if (voteTypes[voteType].exclusive) {
+    if (voteTypes[voteType]?.exclusive) {
       document = await clearVotesServer(voteOptions)
     }
 

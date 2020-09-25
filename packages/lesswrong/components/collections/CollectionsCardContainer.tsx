@@ -15,7 +15,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const CollectionsCardContainer = ({ classes, children }) => {
+const CollectionsCardContainer = ({ classes, children }: {
+  classes: ClassesType,
+  children: any,
+}) => {
   return <div className={classes.root}>
       { children }
   </div>

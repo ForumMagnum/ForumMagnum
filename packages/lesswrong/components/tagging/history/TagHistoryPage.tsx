@@ -85,7 +85,7 @@ const TagHistoryPage = ({classes}: {
         tagApplied: {
           fragmentName: "TagRelHistoryFragment",
           render: (application: TagRelHistoryFragment) => <div className={classes.singleLineEvent}>
-            Applied to {application.post.title} by <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
+            Applied to {application.post?.title} by <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
           </div>
         },
         tagDiscussionComment: {

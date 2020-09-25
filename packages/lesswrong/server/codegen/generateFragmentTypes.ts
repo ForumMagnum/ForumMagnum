@@ -140,6 +140,8 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
   if (!fieldType) {
     throw new Error(`Fragment ${fragmentName} contains field ${fieldName} on type ${collection.collectionName} which is not in the schema`);
   }
+
+  const {collection: subfieldCollection, nullable} = subfragmentTypeToCollection(fieldType);
   
   // Now check if the field has a sub-selector
   if (parsedFragmentField.selectionSet?.selections?.length > 0) {
@@ -151,12 +153,12 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
       const subfragmentName = parsedFragmentField.selectionSet.selections[0].name.value;
       if (fieldType.startsWith("Array<")) {
         return {
-          fieldType: `Array<${subfragmentName}>`,
+          fieldType: nullable ? `Array<${subfragmentName}>|null` : `Array<${subfragmentName}>`,
           subfragment: null
         };
       } else {
         return {
-          fieldType: subfragmentName,
+          fieldType: nullable ? `${subfragmentName}|null` : subfragmentName,
           subfragment: null
         };
       }
@@ -164,7 +166,6 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
     else
     {
       if (typeof fieldType !== "string") throw new Error("fieldType is not a string: was "+JSON.stringify(fieldType));
-      const {collection: subfieldCollection, nullable} = subfragmentTypeToCollection(fieldType);
       if (!subfieldCollection) {
         // eslint-disable-next-line no-console
         console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);

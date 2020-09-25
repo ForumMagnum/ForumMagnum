@@ -16,6 +16,10 @@ export const assert = (b: boolean, message?: string) => {
   }
 }
 
+function maybeNullable(type: string, nullable: boolean) {
+  return nullable ? `${type} | null` : type 
+}
+
 export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType): string {
   if (simplSchemaType.singleType == Array) {
     const elementFieldName = `${fieldName}.$`;
@@ -24,11 +28,12 @@ export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType):
     const typescriptStrElementType = simplSchemaTypeToTypescript(schema, elementFieldName, schema[elementFieldName].type);
     return `Array<${typescriptStrElementType}>`;
   } else if (simplSchemaType.singleType) {
-    if (simplSchemaType.singleType == String) return "string";
-    else if (simplSchemaType.singleType == Boolean) return "boolean";
-    else if (simplSchemaType.singleType == Number) return "number";
-    else if (simplSchemaType.singleType == Date) return "Date";
-    else if (simplSchemaType.singleType == SimpleSchema.Integer) return "number";
+    const nullable = !!schema[fieldName]?.nullable
+    if (simplSchemaType.singleType == String) return maybeNullable("string", nullable);
+    else if (simplSchemaType.singleType == Boolean) return maybeNullable("boolean", nullable);
+    else if (simplSchemaType.singleType == Number) return maybeNullable("number", nullable);
+    else if (simplSchemaType.singleType == Date) return maybeNullable("Date", nullable);
+    else if (simplSchemaType.singleType == SimpleSchema.Integer) return maybeNullable("number", nullable);
     
     const graphQLtype = simplSchemaToGraphQLtype(simplSchemaType.singleType);
     if (graphQLtype) {

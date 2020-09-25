@@ -1,10 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
+import _filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,35 +28,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
-  terms: any,
+const SunshineNewUserCommentsList = ({comments, user, classes}: {
+  comments: any,
   classes: ClassesType,
-  truncated?: boolean,
+  user: SunshineUsersList
 }) => {
-  const { results, loading } = useMulti({
-    terms,
-    collection: Comments,
-    fragmentName: 'CommentsListWithPostMetadata',
-    fetchPolicy: 'cache-and-network',
-  });
-  const { FormatDate, MetaInfo, Loading, SmallSideVote } = Components
+  const { FormatDate, MetaInfo, SmallSideVote } = Components
 
-  if (!results && loading && !truncated) return <Loading />
-  if (!results) return null 
+  if (!comments) return null 
+
+  const newComments = user.reviewedAt ? _filter(comments, comment => comment.postedAt > user.reviewedAt) : comments
+
   return (
     <div className={classes.root}>
-      {loading && !truncated && <Loading />}
-      {results.map(comment=><div className={classes.comment} key={comment._id}>
-        <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+      {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={comment._id}>
+        <Link to={Comments.getPageUrlFromIds({postId: comment.post?._id, postSlug: comment.post?.slug, tagSlug: comment.tag?.slug, commentId: comment._id})}>
           <MetaInfo>
-            {comment.deleted && "[Deleted] "}Comment on '{comment.post.title}'
+            {comment.deleted && "[Deleted] "}Comment on '{comment.post?.title}'
           </MetaInfo>
           <span className={classes.meta}>
             <MetaInfo><FormatDate date={comment.postedAt}/></MetaInfo>
             <SmallSideVote document={comment} collection={Comments}/>
           </span>
         </Link>
-        {!truncated && comment.deleted && <div><MetaInfo>`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]</MetaInfo></div>}
+        {comment.deleted && <div><MetaInfo>{`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
         <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}
     </div>

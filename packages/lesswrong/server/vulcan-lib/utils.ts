@@ -10,7 +10,7 @@ export const sanitizeAllowedTags = [
   'span', 'sub', 'sup', 'ins', 'del',
 ]
 
-export const sanitize = function(s) {
+export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
@@ -22,7 +22,11 @@ export const sanitize = function(s) {
       tr: ['style'],
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
-      span: ['style']
+      span: ['style'],
+      div: ['class']
+    },
+    allowedClasses: {
+      div: [ 'spoilers' ],
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,

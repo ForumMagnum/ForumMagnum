@@ -24,7 +24,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const Reviews2018 = ({classes}) => {
+const Reviews2018 = ({classes}: {
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")

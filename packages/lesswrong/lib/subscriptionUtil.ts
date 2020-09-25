@@ -1,7 +1,12 @@
 import { subscriptionTypes } from './collections/subscriptions/schema';
 import * as _ from 'underscore';
 
-export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document})
+export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document}: {
+  user: DbUser|UsersCurrent|null,
+  subscriptionType: any,
+  collectionName: CollectionNameString,
+  document: any,
+})
 {
   if (!user) return false;
   

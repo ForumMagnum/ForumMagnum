@@ -13,6 +13,7 @@ import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -118,7 +119,7 @@ const RecentDiscussionThread = ({
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { isRead, recordPostView } = useRecordPostView(post);
   const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
-  
+
   const markAsRead = useCallback(
     () => {
       setReadStatus(true);
@@ -135,7 +136,7 @@ const RecentDiscussionThread = ({
     },
     [setHighlightVisible, highlightVisible, markAsRead]
   );
-  
+
   const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, LinkPostMessage } = Components
 
   const lastCommentId = comments && comments[0]?._id
@@ -154,59 +155,61 @@ const RecentDiscussionThread = ({
   })
 
   return (
-    <div className={classes.root}>
-      <div className={classes.post}>
-        <div className={classes.postItem}>
-          <Link to={Posts.getPageUrl(post)} className={classes.title}>
-              {post.title}
-          </Link>
-          <div className={classes.threadMeta} onClick={showHighlight}>
-            <PostsItemMeta post={post}/>
-            <ShowOrHideHighlightButton
-              className={classes.showHighlight}
-              open={highlightVisible}/>
-          </div>
-        </div>
-        { post.contents?.htmlHighlight && highlightVisible ?
-          <div className={highlightClasses}>
-            <PostsHighlight post={post} />
-          </div>
-          : <div className={highlightClasses} onClick={showHighlight}>
-              { showSnippet && <>
-                <LinkPostMessage post={post} noMargin />
-                <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents?.htmlHighlight||null)}}
-                  description={`post ${post._id}`}
-                /></>
-              }
+    <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
+      <div className={classes.root}>
+        <div className={classes.post}>
+          <div className={classes.postItem}>
+            <Link to={Posts.getPageUrl(post)} className={classes.title}>
+                {post.title}
+            </Link>
+            <div className={classes.threadMeta} onClick={showHighlight}>
+              <PostsItemMeta post={post}/>
+              <ShowOrHideHighlightButton
+                className={classes.showHighlight}
+                open={highlightVisible}/>
             </div>
-        }
+          </div>
+          { post.contents?.htmlHighlight && highlightVisible ?
+            <div className={highlightClasses}>
+              <PostsHighlight post={post} />
+            </div>
+            : <div className={highlightClasses} onClick={showHighlight}>
+                { showSnippet && <>
+                  <LinkPostMessage post={post} noMargin />
+                  <ContentItemBody
+                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents?.htmlHighlight||null)}}
+                    description={`post ${post._id}`}
+                  /></>
+                }
+              </div>
+          }
+        </div>
+        {nestedComments.length ? <div className={classes.content}>
+          <div className={classes.commentsList}>
+            {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+              <div key={comment.item._id}>
+                <CommentsNode
+                  startThreadTruncated={true}
+                  expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                  scrollOnExpand
+                  nestingLevel={1}
+                  lastCommentId={lastCommentId}
+                  comment={comment.item}
+                  markAsRead={markAsRead}
+                  highlightDate={lastVisitedAt}
+                  //eslint-disable-next-line react/no-children-prop
+                  children={comment.children}
+                  key={comment.item._id}
+                  post={post}
+                  refetch={refetch}
+                  condensed
+                />
+              </div>
+            )}
+          </div>
+        </div> : null}
       </div>
-      {nestedComments.length ? <div className={classes.content}>
-        <div className={classes.commentsList}>
-          {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
-            <div key={comment.item._id}>
-              <CommentsNode
-                startThreadTruncated={true}
-                expandAllThreads={initialExpandAllThreads || expandAllThreads}
-                scrollOnExpand
-                nestingLevel={1}
-                lastCommentId={lastCommentId}
-                comment={comment.item}
-                markAsRead={markAsRead}
-                highlightDate={lastVisitedAt}
-                //eslint-disable-next-line react/no-children-prop
-                children={comment.children}
-                key={comment.item._id}
-                post={post}
-                refetch={refetch}
-                condensed
-              />
-            </div>
-          )}
-        </div>
-      </div> : null}
-    </div>
+    </AnalyticsContext>
   )
 };
 

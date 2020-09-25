@@ -1,19 +1,19 @@
 import { addVoteType } from './vote';
 // LESSWRONG – Added userSmallVotePower and userBigVotePower
 
-export const getVotePower = (karma, voteType) => {
+export const getVotePower = (karma: number, voteType: string) => {
   if (voteType == "smallUpvote") { return userSmallVotePower(karma, 1)}
   if (voteType == "smallDownvote") { return userSmallVotePower(karma, -1)}
   if (voteType == "bigUpvote") { return userBigVotePower(karma, 1)}
   if (voteType == "bigDownvote") { return userBigVotePower(karma, -1)}
 }
 
-export const userSmallVotePower = (karma, multiplier) => {
+export const userSmallVotePower = (karma: number, multiplier: number) => {
   if (karma >= 1000) { return 2 * multiplier }
   return 1 * multiplier
 }
 
-export const userBigVotePower = (karma, multiplier) => {
+export const userBigVotePower = (karma: number, multiplier: number) => {
   if (karma >= 500000) { return 16 * multiplier } // Thousand year old vampire
   if (karma >= 250000) { return 15 * multiplier }
   if (karma >= 175000) { return 14 * multiplier }

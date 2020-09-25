@@ -104,6 +104,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
+    bio
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -134,7 +135,6 @@ registerFragment(`
     karmaChangeLastOpened
     shortformFeedId
     viewUnreviewedComments
-    sunshineShowNewUserContent
     recommendationSettings
     
     auto_subscribe_to_my_posts
@@ -144,6 +144,13 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     hideTaggingProgressBar
+    
+    abTestKey
+    abTestOverrides
+
+    sortDrafts
+    
+    reenableDraftJs
   }
 `);
 
@@ -177,6 +184,7 @@ registerFragment(`
         scoreChange
         description
         postId
+        tagSlug
       }
     }
   }
@@ -351,7 +359,8 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
-    sunshineShowNewUserContent
+    sortDrafts
+    reenableDraftJs
   }
 `);
 
@@ -389,7 +398,6 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
-    sunshineShowNewUserContent
 
     # Emails
     email

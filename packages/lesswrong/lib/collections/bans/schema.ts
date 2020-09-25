@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 
-const schema = {
+const schema: SchemaType<DbBan> = {
   createdAt: {
     type: Date,
     optional: true,
@@ -22,7 +22,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true
     }),
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],

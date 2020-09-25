@@ -1,7 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
-import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -10,8 +8,10 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
+import { Tags } from '../../lib/collections/tags/collection';
+import { useMulti } from '../../lib/crud/withMulti';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: "white",
     padding: 10,
@@ -44,58 +44,73 @@ const styles = theme => ({
     flexBasis: 1,
     marginRight: "auto"
   },
-  link: {
+  allTagsBarColor: {
     color: theme.palette.primary.main
+  },
+  personalLink: {
+    color: theme.palette.grey[600]
   },
   text: {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: 4,
     alignItems: "center"
+  },
+  barRoot: {
+    marginBottom: 5,
+  },
+  bar2: {
+    backgroundColor: theme.palette.grey[600]
+  },
+  bar2Background: {
+    backgroundColor: "rgba(0,0,0,.1)"
   }
+
 });
 
-const TagProgressBar = ({classes}: {
+const TagProgressBar = ({ classes }: {
   classes: ClassesType,
 }) => {
 
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
-  const {mutate: updateUser} = useUpdate({
+  const { mutate: updateUser } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
-  const { totalCount: untaggedTotal } = useMulti({
+  const { totalCount: unprocessedTagsTotal = 0 } = useMulti({
     terms: {
-      view: "tagProgressUntagged",
+      view: "unprocessedLWWikiTags",
       limit: 0
     },
-    collection: Posts,
-    fragmentName: 'PostTagRelevance',
+    collection: Tags,
+    fragmentName: "TagFragment",
     enableTotal: true,
     fetchPolicy: 'cache-and-network',
     ssr: true
-  });
+  })
 
-  const { totalCount: postsTotal } = useMulti({
+  const { totalCount: allTagsToProcessTotal = 0 } = useMulti({
     terms: {
-      view: "tagProgressPosts",
+      view: "allLWWikiTags",
       limit: 0
     },
-    collection: Posts,
-    fragmentName: 'PostTagRelevance',
+    collection: Tags,
+    fragmentName: "TagFragment",
     enableTotal: true,
     fetchPolicy: 'cache-and-network',
     ssr: true
-  });
+  })
+
+  const processedTagsTotal = allTagsToProcessTotal - unprocessedTagsTotal;
 
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
-        selector: { _id: currentUser._id},
+        selector: { _id: currentUser._id },
         data: {
           hideTaggingProgressBar: true
         },
@@ -104,7 +119,7 @@ const TagProgressBar = ({classes}: {
         messageString: "Hid tagging progress bar from the frontpage",
         type: "success",
         action: () => void updateUser({
-          selector: { _id: currentUser._id},
+          selector: { _id: currentUser._id },
           data: {
             hideTaggingProgressBar: false
           },
@@ -118,63 +133,60 @@ const TagProgressBar = ({classes}: {
     }
   }
 
-  if (!untaggedTotal || !postsTotal) return null
+  if (!allTagsToProcessTotal || !processedTagsTotal) return null
+
+  const allPostsTooltip = processedTagsTotal < allTagsToProcessTotal ?
+    `${allTagsToProcessTotal - processedTagsTotal} pages out of ${allTagsToProcessTotal} from the LW 1.0 Wiki still need processing` :
+    `All tags and wiki pages from the LW Wiki import have been processed!`
 
   return <div className={classes.root}>
-      <div className={classes.inner}>
-        <div className={classes.text}>
-          <Link className={classes.title} to={"/posts/uqXQAWxLFW8WgShtk/open-call-for-taggers"}>
-            Tagging Progress
+    <div className={classes.inner}>
+      <div className={classes.text}>
+        <Link className={classes.title} to={"/posts/ELN6FpRLoeLJPgx8z/importing-the-old-lw-wiki-help-wanted"}>
+          LW 1.0 Wiki Import Progress
           </Link>
-          <LWTooltip title={<div>
-            <div>View all completely untagged posts, sorted by karma</div>
-            <div><em>(Click through to read posts, and then tag them)</em></div>
-          </div>}>
-            <PostsItem2MetaInfo>
-              <Link className={classes.link} to={"/allPosts?filter=untagged&timeframe=allTime&sortedBy=top"}>
-                Tag Posts
-              </Link>
-            </PostsItem2MetaInfo>
-          </LWTooltip>
-          <SeparatorBullet/>
-          <LWTooltip title={<div>
-            <div>View top posts that have been given generic core-tags, but could use more specific tags</div>
-            <div><em>(Click through to read posts, and then search for tags that will help users find specific, relevant content)</em></div>
-          </div>}>
-            <PostsItem2MetaInfo>
-              <Link className={classes.link} to={"/allPosts?filter=unNonCoreTagged&timeframe=allTime&sortedBy=top"}>
-                Improve Post Tags
-              </Link>
-            </PostsItem2MetaInfo>
-          </LWTooltip>
-        </div>
-        <LWTooltip 
-          className={classes.tooltip}
-          title={<div>
-            <div>{(postsTotal - untaggedTotal)} out of {postsTotal} posts have been tagged</div>
-            <div><em>(Filtered for 25+ karma)</em></div>
-          </div>}
-        >
-          <LinearProgress variant="determinate" value={((postsTotal - untaggedTotal)/postsTotal)*100} />
+        <PostsItem2MetaInfo>
+          <Link className={classes.allTagsBarColor} to={"/posts/ELN6FpRLoeLJPgx8z/importing-the-old-lw-wiki-help-wanted"}>
+            How to Help
+            </Link>
+          <SeparatorBullet />
+          <Link className={classes.allTagsBarColor} to="/tags/dashboard">
+            Process Pages
+          </Link>
+        </PostsItem2MetaInfo>
+        <LWTooltip title={<div>
+          <div>View all completely untagged posts, sorted by karma</div>
+          <div><em>(Click through to read posts, and then tag them)</em></div>
+        </div>}>
         </LWTooltip>
-        <div className={classes.secondaryInfo}>
-          <div className={classes.helpText}>
-            {(postsTotal - untaggedTotal)} out of {postsTotal} posts with more than 25 karma have been tagged
-          </div>
-          <LWTooltip title={"Hide this progress bar from the frontpage"}>
-            <a 
-              className={classes.hideButton}
-              onClick={hideClickHandler}
-            > 
-              Hide 
-            </a>
-          </LWTooltip>
-        </div>
       </div>
+      {
+        <LWTooltip className={classes.tooltip} title={allPostsTooltip}>
+          <LinearProgress
+            classes={{ root: classes.barRoot }}
+            variant="determinate"
+            value={(processedTagsTotal / allTagsToProcessTotal) * 100}
+          />
+        </LWTooltip>
+      }
+      <div className={classes.secondaryInfo}>
+        <div className={classes.helpText}>
+          <span className={classes.allTagsBarColor}>{allTagsToProcessTotal - processedTagsTotal} pages from the LW 1.0 Wiki still need processing.{" "} </span>
+        </div>
+        <LWTooltip title={"Hide this progress bar from the frontpage"}>
+          <a
+            className={classes.hideButton}
+            onClick={hideClickHandler}
+          >
+            Hide
+            </a>
+        </LWTooltip>
+      </div>
+    </div>
   </div>
 }
 
-const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, {styles, hocs:[withErrorBoundary]});
+const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
 
 declare global {
   interface ComponentTypes {

@@ -5,17 +5,17 @@ import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 const options = {
-  newCheck: (user, document) => {
+  newCheck: (user: DbUser|null, document: DbSequence|null) => {
     if (!user || !document) return false;
     return Users.owns(user, document) ? Users.canDo(user, 'sequences.new.own') : Users.canDo(user, `sequences.new.all`)
   },
 
-  editCheck: (user, document) => {
+  editCheck: (user: DbUser|null, document: DbSequence|null) => {
     if (!user || !document) return false;
     return Users.owns(user, document) ? Users.canDo(user, 'sequences.edit.own') : Users.canDo(user, `sequences.edit.all`)
   },
 
-  removeCheck: (user, document) => {
+  removeCheck: (user: DbUser|null, document: DbSequence|null) => {
     if (!user || !document) return false;
     return Users.owns(user, document) ? Users.canDo(user, 'sequences.edit.own') : Users.canDo(user, `sequences.edit.all`)
   },

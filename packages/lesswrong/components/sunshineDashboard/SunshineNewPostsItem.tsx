@@ -13,9 +13,7 @@ import Button from '@material-ui/core/Button';
 import gql from 'graphql-tag';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
-import GroupIcon from '@material-ui/icons/Group';
 import ClearIcon from '@material-ui/icons/Clear';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -95,19 +93,6 @@ const SunshineNewPostsItem = ({post, classes}: {
     })
   }
   
-  const handleMoveToCommunity = () => {
-    applyTags();
-    
-    void updatePost({
-      selector: { _id: post._id},
-      data: {
-        meta: true,
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
-    })
-  }
-
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
@@ -123,9 +108,9 @@ const SunshineNewPostsItem = ({post, classes}: {
 
   const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
-  const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
+  const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
-  const moderationSection = post.moderationStyle || post.user.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
+  const moderationSection = post.moderationStyle || post.user?.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
 
   return (
     <span {...eventHandlers}>
@@ -142,9 +127,6 @@ const SunshineNewPostsItem = ({post, classes}: {
               {post.submitToFrontpage && <Button onClick={handlePromote}>
                 <HomeIcon className={classes.icon} /> Frontpage
               </Button>}
-              {forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
-                <GroupIcon className={classes.icon} /> Community
-              </Button>}
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
@@ -155,11 +137,11 @@ const SunshineNewPostsItem = ({post, classes}: {
               </Link>
             </Typography>
             {moderationSection && <div className={classes.moderation}>
-              {(post.moderationStyle || post.user.moderationStyle) && <div>
+              {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>
                   <span>Mod Style: </span>
-                  { post.moderationStyle || post.user.moderationStyle }
-                  {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
+                  { post.moderationStyle || post.user?.moderationStyle }
+                  {!post.moderationStyle && post.user?.moderationStyle && <span> (Default User Style)</span>}
                 </MetaInfo>
               </div>}
               {(modGuidelinesHtml || userGuidelinesHtml) && <div>

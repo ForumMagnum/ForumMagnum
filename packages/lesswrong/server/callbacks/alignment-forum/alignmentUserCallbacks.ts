@@ -22,11 +22,11 @@ const getAlignmentForumAccount = async () => {
   return account;
 }
 
-function isAlignmentForumMember(user) {
+function isAlignmentForumMember(user: DbUser|null) {
   return user?.groups?.includes('alignmentForum')
 }
 
-export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
+export async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbUser, context) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     const lwAccount = await getAlignmentForumAccount();
     if (!lwAccount) throw Error("Unable to find the lwAccount to send the new alignment user message")
@@ -75,7 +75,7 @@ export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
 
 addCallback("users.edit.async", NewAlignmentUserSendPMAsync);
 
-async function NewAlignmentUserMoveShortform(newUser, oldUser, context) {
+async function NewAlignmentUserMoveShortform(newUser: DbUser, oldUser: DbUser, context) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
       await editMutation({

@@ -43,7 +43,7 @@ addFieldsDict(Posts, {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => comment.af && !comment.deleted,
+      filterFn: (comment: DbComment) => comment.af && !comment.deleted,
     }),
     label: "Alignment Comment Count",
     viewableBy: ['guests'],
@@ -68,12 +68,12 @@ addFieldsDict(Posts, {
     editableBy: ['alignmentForumAdmins', 'admins'],
     insertableBy: ['alignmentForumAdmins', 'admins'],
     control: 'checkbox',
-    onInsert: (post) => {
+    onInsert: (post: DbPost) => {
       if(!post.afSticky) {
         return false;
       }
     },
-    onEdit: (modifier, post) => {
+    onEdit: (modifier, post: DbPost) => {
       if (!(modifier.$set && modifier.$set.afSticky)) {
         return false;
       }

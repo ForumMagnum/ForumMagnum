@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -18,7 +18,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title, classes}) => {
+const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title, classes}: {
+  collectionName: CollectionNameString,
+  fragmentName: keyof FragmentTypes,
+  subscriptionType: string,
+  noSubscriptionsMessage: string,
+  renderDocument: (document: any)=>ReactNode,
+  title: React.ReactNode,
+  classes: ClassesType,
+}) => {
   const { SubscribedItem, SectionTitle, Loading } = Components;
   const currentUser = useCurrentUser();
   
@@ -65,7 +73,13 @@ declare global {
   }
 }
 
-const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocument, classes}) => {
+const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocument, classes}: {
+  collectionName: CollectionNameString,
+  fragmentName: keyof FragmentTypes,
+  subscription: SubscriptionState,
+  renderDocument: (document: any)=>ReactNode,
+  classes: ClassesType,
+}) => {
   const { Loading, SubscribeTo } = Components;
   const { document, loading } = useSingle({
     documentId: subscription.documentId,
@@ -97,7 +111,9 @@ declare global {
   }
 }
 
-const ViewSubscriptionsPage = ({classes}) => {
+const ViewSubscriptionsPage = ({classes}: {
+  classes: ClassesType,
+}) => {
   const { SingleColumnSection, SubscriptionsList, UsersNameDisplay } = Components;
   const currentUser = useCurrentUser();
   
@@ -113,7 +129,7 @@ const ViewSubscriptionsPage = ({classes}) => {
       collectionName="Users"
       subscriptionType="newPosts"
       fragmentName="UsersMinimumInfo"
-      renderDocument={user => <UsersNameDisplay user={user}/>}
+      renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
       noSubscriptionsMessage="You are not subscribed to any users' posts."
     />
     
@@ -122,7 +138,7 @@ const ViewSubscriptionsPage = ({classes}) => {
       collectionName="Posts"
       subscriptionType="newComments"
       fragmentName="PostsList"
-      renderDocument={post => post.title}
+      renderDocument={(post: PostsList) => post.title}
       noSubscriptionsMessage="You are not subscribed to comments on any posts."
     />
 
@@ -131,8 +147,8 @@ const ViewSubscriptionsPage = ({classes}) => {
       collectionName="Comments"
       subscriptionType="newReplies"
       fragmentName="ShortformComments"
-      renderDocument={comment => <Link to={Comments.getPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, commentId: comment?._id, permalink: true})}>
-        author: {comment?.author} post: {comment?.post?.title}
+      renderDocument={(comment: ShortformComments) => <Link to={Comments.getPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, commentId: comment?._id, permalink: true})}>
+        author: {comment?.user?.displayName} post: {comment?.post?.title}
       </Link>}
       noSubscriptionsMessage="You are not subscribed to any comment replies."
     />
@@ -142,7 +158,7 @@ const ViewSubscriptionsPage = ({classes}) => {
       collectionName="Localgroups"
       subscriptionType="newEvents"
       fragmentName="localGroupsBase"
-      renderDocument={group => group.name}
+      renderDocument={(group: localGroupsBase) => group.name}
       noSubscriptionsMessage="You are not subscribed to any local groups."
     />
 
@@ -151,7 +167,7 @@ const ViewSubscriptionsPage = ({classes}) => {
       collectionName="Tags"
       subscriptionType="newTagPosts"
       fragmentName="TagPreviewFragment"
-      renderDocument={tag => <Link to={Tags.getUrl(tag)}>{tag.name}</Link>}
+      renderDocument={(tag: TagPreviewFragment) => <Link to={Tags.getUrl(tag)}>{tag.name}</Link>}
       noSubscriptionsMessage="You are not subscribed to any tags."
     />
     

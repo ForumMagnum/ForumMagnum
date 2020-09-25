@@ -14,7 +14,7 @@ const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }:
   const { document, loading } = useSingle({
     documentId,
     collection: Comments,
-    fragmentName: 'CommentsListWithPostMetadata',
+    fragmentName: 'CommentsListWithParentMetadata',
   });
   if (document && !loading) {
     return (

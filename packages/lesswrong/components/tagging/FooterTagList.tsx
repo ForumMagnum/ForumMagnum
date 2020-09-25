@@ -11,7 +11,9 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle } from './FooterTag';
 import classNames from 'classnames';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import { curatedUrl } from '../recommendations/RecommendationsAndCurated'
 import Card from '@material-ui/core/Card';
+import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -42,8 +44,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo): Array<T> {
-  return _.sortBy(list, item=>toTag(item).core);
+export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
+  return _.sortBy(list, item=>toTag(item)?.core);
 }
 
 const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
@@ -100,14 +102,19 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
 
   let postType = <></>
   if (!hidePersonalOrFrontpage) {
-    postType = post.frontpageDate ?
-    <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}</Card>} tooltip={false}>
-      <div className={classes.frontpageOrPersonal}>Frontpage</div>
-    </LWTooltip>
-    :
-    <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].personal.tooltipBody}</Card>} tooltip={false}>
-      <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
-    </LWTooltip>
+    postType = post.curatedDate
+      ? <Link to={curatedUrl}>
+          <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].curated.tooltipBody}</Card>} tooltip={false}>
+            <div className={classes.frontpageOrPersonal}>Curated</div>
+          </LWTooltip>
+        </Link>
+      : post.frontpageDate
+        ? <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}</Card>} tooltip={false}>
+            <div className={classes.frontpageOrPersonal}>Frontpage</div>
+          </LWTooltip>
+        : <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].personal.tooltipBody}</Card>} tooltip={false}>
+            <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
+          </LWTooltip>
   }
 
   if (loading || !results) {
@@ -117,9 +124,11 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
     </div>;
   }
 
+
+
   return <span className={classes.root}>
     {sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag).map(tagRel =>
-      <FooterTag 
+      tagRel.tag && <FooterTag 
         key={tagRel._id} 
         tagRel={tagRel} 
         tag={tagRel.tag} 

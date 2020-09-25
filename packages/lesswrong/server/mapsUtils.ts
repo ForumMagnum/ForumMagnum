@@ -11,7 +11,7 @@ if (googleMapsApiKey) {
   });
 } else {
   // eslint-disable-next-line no-console
-  console.log("No Server-side Google maps API key provided, please provide one for proper timezone handling")
+  console.log("No Server-side Google maps API key provided, please provide one for proper event timezone handling")
 }
 
 export async function getLocalTime(time, googleLocation) {

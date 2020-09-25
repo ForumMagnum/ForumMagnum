@@ -1,11 +1,11 @@
 import Users from '../users/collection';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { Comments } from '../comments/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
-const schema = {
+const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({
@@ -80,7 +80,7 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    hidden: true
+    hidden: true,
   },
   // If this comment is in a tag discussion section, the _id of the tag.
   tagId: {
@@ -94,7 +94,7 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    hidden: true
+    hidden: true,
   },
   // The comment author's `_id`
   userId: {
@@ -150,7 +150,7 @@ const schema = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       return Comments.getPageUrl(comment, true)
     },
   }),
@@ -158,7 +158,7 @@ const schema = {
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       return Comments.getPageUrl(comment, false)
     },
   }),
@@ -196,7 +196,7 @@ const schema = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "parentCommentId",
-      filterFn: comment => !comment.deleted
+      filterFn: (comment: DbComment) => !comment.deleted
     }),
     canRead: ['guests'],
   },
@@ -205,7 +205,7 @@ const schema = {
     type: Array,
     graphQLtype: '[Comment]',
     viewableBy: ['guests'],
-    resolver: async (comment, args, context: ResolverContext) => {
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
       const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
       return await Comments.find(params.selector, params.options).fetch()
@@ -356,7 +356,7 @@ const schema = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -366,7 +366,7 @@ const schema = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (comment, args, context: ResolverContext) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;

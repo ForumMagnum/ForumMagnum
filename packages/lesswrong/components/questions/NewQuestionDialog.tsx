@@ -55,7 +55,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
             af
           }}
           cancelCallback={onClose}
-          successCallback={post => {
+          successCallback={(post: PostsList) => {
             history.push({pathname: Posts.getPageUrl(post)});
             flash({ messageString: "Post created.", type: 'success'});
             onClose()

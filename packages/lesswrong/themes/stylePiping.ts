@@ -12,7 +12,7 @@ const hideSpoilers = {
   }
 }
 
-const spoilerStyles = (theme) => ({
+const spoilerStyles = (theme: ThemeType) => ({
   '& p.spoiler': {
     margin: 0,
   },
@@ -38,7 +38,11 @@ const spoilerStyles = (theme) => ({
     },
     '&:hover': {
       background: 'rgba(0,0,0,.12)' // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
-    }
+    },
+    '& > p' : {
+      margin: '0 !important',
+      padding: '0.5em 8px !important'
+    },
   },
   '& p.spoiler-v2': {
     margin: 0,
@@ -57,7 +61,6 @@ const tableStyles = {
   borderSpacing: 0,
   border: "1px double #b3b3b3",
   margin: "auto",
-  width: "100%",
   height: "100%",
   textAlign: "left"
 }
@@ -99,7 +102,7 @@ const hrStyles = {
   }
 }
 
-const baseBodyStyles = theme => ({
+const baseBodyStyles = (theme: ThemeType) => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
   wordBreak: "break-word",
@@ -192,7 +195,7 @@ const baseBodyStyles = theme => ({
   }
 })
 
-export const postBodyStyles = (theme) => {
+export const postBodyStyles = (theme: ThemeType) => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
@@ -224,7 +227,7 @@ export const postBodyStyles = (theme) => {
   }
 }
 
-export const commentBodyStyles = theme => {
+export const commentBodyStyles = (theme: ThemeType) => {
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
@@ -268,13 +271,37 @@ export const commentBodyStyles = theme => {
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
 
+export const tagBodyStyles = (theme: ThemeType) => {
+  return {
+    ...commentBodyStyles(theme),
+    '&& h1': {
+      fontSize: '2rem',
+      marginTop: '3rem',
+      fontWeight:600,
+      ...theme.typography.commentStyle
+    }, 
+    '&& h2': {
+      fontSize: '1.7rem',
+      marginTop: '1.5rem',
+      fontWeight:500,
+      ...theme.typography.commentStyle
+    }, 
+    '&& h3': {
+      fontSize: '1.3rem',
+      marginTop: '1.5rem',
+      fontWeight:500,
+      ...theme.typography.commentStyle
+    }
+  }
+}
+
 // FIXME: Emails currently don't use this, because the expectations around font size and
 // typography are very different in an email. But some subset of these styles should
 // actually be applied, eg spoiler-tag handling, even though font selection shouldn't
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-const smallPostStyles = theme => ({
+const smallPostStyles = (theme: ThemeType) => ({
   ...theme.typography.body2,
   fontSize: "1.2rem",
   lineHeight: "1.8rem",
@@ -294,7 +321,7 @@ const smallPostStyles = theme => ({
   },
 })
 
-export const postHighlightStyles = theme => {
+export const postHighlightStyles = (theme: ThemeType) => {
   const postHighlightStyles = {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
@@ -305,7 +332,7 @@ export const postHighlightStyles = theme => {
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
 
-export const answerStyles = theme => {
+export const answerStyles = (theme: ThemeType) => {
   const answerStyles = {
     ...smallPostStyles(theme)
   }
@@ -323,7 +350,7 @@ export const pBodyStyle = {
   }
 }
 
-export const ckEditorStyles = theme => {
+export const ckEditorStyles = (theme: ThemeType) => {
   return {
     '& .ck': {
       '& code .public-DraftStyleDefault-block': {
@@ -431,7 +458,7 @@ export const ckEditorStyles = theme => {
   }
 }
 
-export const editorStyles = (theme, styleFunction) => ({
+export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)=>any) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
       marginBottom: '1em',  

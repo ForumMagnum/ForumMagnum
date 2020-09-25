@@ -3,7 +3,10 @@ import { Comments } from '../../../lib/collections/comments'
 import { addCallback, editMutation } from '../../vulcan-lib';
 import * as _ from 'underscore';
 
-function recalculateAFCommentMetadata(postId) {
+function recalculateAFCommentMetadata(postId: string|null) {
+  if (!postId)
+    return;
+  
   const afComments = Comments.find({
     postId:postId,
     af: true,
@@ -24,14 +27,14 @@ function recalculateAFCommentMetadata(postId) {
   })
 }
 
-function ModerateCommentsPostUpdate (comment, oldComment) {
+function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) {
   recalculateAFCommentMetadata(comment.postId)
 }
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 addCallback("comments.alignment.async", ModerateCommentsPostUpdate);
 
 
-function AlignmentCommentsNewOperations (comment) {
+function AlignmentCommentsNewOperations (comment: DbComment) {
   if (comment.af) {
     recalculateAFCommentMetadata(comment.postId)
   }
@@ -39,7 +42,7 @@ function AlignmentCommentsNewOperations (comment) {
 addCallback('comments.new.async', AlignmentCommentsNewOperations);
 
 //TODO: Probably change these to take a boolean argument?
-const updateParentsSetAFtrue = (comment) => {
+const updateParentsSetAFtrue = (comment: DbComment) => {
   Comments.update({_id:comment.parentCommentId}, {$set: {af: true}});
   const parent = Comments.findOne({_id: comment.parentCommentId});
   if (parent) {
@@ -47,7 +50,7 @@ const updateParentsSetAFtrue = (comment) => {
   }
 }
 
-const updateChildrenSetAFfalse = (comment) => {
+const updateChildrenSetAFfalse = (comment: DbComment) => {
   const children = Comments.find({parentCommentId: comment._id}).fetch();
   children.forEach((child)=> {
     Comments.update({_id:child._id}, {$set: {af: false}});
@@ -55,7 +58,7 @@ const updateChildrenSetAFfalse = (comment) => {
   })
 }
 
-function CommentsAlignmentEdit (comment, oldComment) {
+function CommentsAlignmentEdit (comment: DbComment, oldComment: DbComment) {
   if (comment.af && !oldComment.af) {
     updateParentsSetAFtrue(comment);
     recalculateAFCommentMetadata(comment.postId)
@@ -69,7 +72,7 @@ addCallback("comments.edit.async", CommentsAlignmentEdit);
 addCallback("comments.alignment.async", CommentsAlignmentEdit);
 
 
-function CommentsAlignmentNew (comment) {
+function CommentsAlignmentNew (comment: DbComment) {
   if (comment.af) {
     updateParentsSetAFtrue(comment);
     recalculateAFCommentMetadata(comment.postId)

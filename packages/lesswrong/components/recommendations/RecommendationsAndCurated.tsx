@@ -7,6 +7,7 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import Hidden from '@material-ui/core/Hidden';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -52,14 +53,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const defaultFrontpageSettings = {
-  method: "sample",
-  count: 3,
-  scoreOffset: 0,
-  scoreExponent: 3,
-  personalBlogpostModifier: 0,
-  frontpageModifier: 10,
-  curatedModifier: 50,
+const getFrontPageOverwrites = (haveCurrentUser: boolean) => {
+  if (forumTypeSetting.get() === 'EAForum') {
+    return {
+      method: haveCurrentUser ? 'sample' : 'top',
+      count: haveCurrentUser ? 3 : 5
+    }
+  }
+  return {
+    method: 'sample',
+    count: haveCurrentUser ? 3 : 2
+  }
 }
 
 const RecommendationsAndCurated = ({
@@ -82,6 +86,10 @@ const RecommendationsAndCurated = ({
     const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
+    const frontpageRecommendationSettings = {
+      ...settings,
+      ...getFrontPageOverwrites(!!currentUser)
+    }
 
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
@@ -95,28 +103,23 @@ const RecommendationsAndCurated = ({
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
-        Recently curated posts, as well as a random sampling of top-rated posts of all time
+        {forumTypeSetting.get() === 'EAForum' ?
+          'Assorted suggested reading, including some of the ' :
+          'Recently curated posts, as well as a random sampling of '}
+        top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
       </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    // defaultFrontpageSettings does not contain anything that overrides a user
-    // editable setting, so the reverse ordering here is fine
-    const frontpageRecommendationSettings = {
-      ...settings,
-      ...defaultFrontpageSettings,
-      count: currentUser ? 3 : 2,
-    }
-
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
- 
+
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
-        {currentUser && 
+        {currentUser &&
           <LWTooltip title="Customize your recommendations">
             <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize"/>
           </LWTooltip>
@@ -130,7 +133,7 @@ const RecommendationsAndCurated = ({
           onChange={(newSettings) => setSettings(newSettings)}
         /> }
 
-      {!currentUser && <div>
+      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
           <Hidden smDown implementation="css">
             <div className={classes.sequenceGrid}>
               <SequencesGridWrapper
@@ -159,6 +162,7 @@ const RecommendationsAndCurated = ({
               showLoadMore={false} 
               hideLastUnread={true} 
               boxShadow={false}
+              curatedIconLeft={true}
             />
           </AnalyticsContext>
         </div>
@@ -188,6 +192,10 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
+      {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
+        <TagProgressBar/>
+      </AnalyticsContext>}
+
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
@@ -199,7 +207,6 @@ const RecommendationsAndCurated = ({
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
       </AnalyticsContext> */}
-      {!currentUser?.hideTaggingProgressBar && <TagProgressBar/>}
     </SingleColumnSection>
   }
   
@@ -213,4 +220,3 @@ declare global {
     RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
   }
 }
-

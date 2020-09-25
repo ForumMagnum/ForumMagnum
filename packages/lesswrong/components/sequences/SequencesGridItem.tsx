@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 
@@ -33,6 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     lineHeight: 1.0,
     maxHeight: 32,
+    paddingTop: 2,
     display: "-webkit-box",
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": "vertical",
@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   meta: {
     paddingLeft: 12,
-    paddingTop: 12,
+    paddingTop: 10,
     paddingRight: 8,
     paddingBottom: 5,
     flexGrow: 1,
@@ -112,7 +112,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence.contents.plaintextDescription?.slice(0, 750)}>
+  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence?.contents?.plaintextDescription?.slice(0, 750)}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -123,11 +123,11 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
       </NoSSR>
     </div>
     <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
-      <Typography variant='title' className={classes.title}>
+      <div className={classes.title}>
         {sequence.draft && <span className={classes.draft}>[Draft] </span>}
         {sequence.title}
-      </Typography>
-      { showAuthor &&
+      </div>
+      { showAuthor && sequence.user &&
         <div className={classes.author}>
           by <Components.UsersName user={sequence.user} />
         </div>}
