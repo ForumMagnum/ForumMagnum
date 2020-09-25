@@ -7,6 +7,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
+import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -47,11 +48,15 @@ const AddPostsToTag = ({classes, tag}: {
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
-        ...TagRelMinimumFragment
+        ...TagRelCreationFragment
       }
     }
-    ${getFragment("TagRelMinimumFragment")}
-  `);
+    ${getFragment("TagRelCreationFragment")}
+  `, {
+    update(cache, { data: {addOrUpvoteTag: TagRel}  }) {
+      updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })
+    }
+  });
 
   const onPostSelected = useCallback(async (postId) => {
     setIsAwaiting(true)
