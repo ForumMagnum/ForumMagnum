@@ -19,21 +19,44 @@ export type FeedLoaderComponent<CutoffType, ResultType> = (props: {
   onLoadFinished: (result: FeedResponse<CutoffType, ResultType>) => void
 }) => null;
 
-const InfiniteScroller = <CutoffType extends any, ResultType extends any>({LoaderComponent, renderResult, endReached, initialLimit=25, pageSize=50}: {
+// Infinite scroller. This generates a list list of items, loading more pages of
+// results when the scroll position gets within `loadMoreDistance` pixels of the
+// bottom. In most cases this will be used indirectly, via a wrapper like
+// MixedTypeFeed, which defines what the actual elements are.
+//
+// The architecture of this is largely driven by Apollo, and in particular by
+// the awkward fact that Apollo queries work by having hooks with a fixed query,
+// and varying what query is to be run, means also varying what is attached to
+// the DOM.
+//
+// Pages boundaries are marked by a cutoff, of type CutoffType. In the common
+// case of a list sorted by date, the cutoff is the date of the last item in
+// the page; the next page will have results less-or-equal than it. As a special
+// case, a cutoff of null means either the first page (if attached to a query),
+// or means there are no results remaining (if attached to a response).
+//
+// The first page of results is handled separately, for SSR reasons; this
+// component should not be instantiated until the first page is already loaded.
+// Subsequent pages are loaded using LoaderComponent, which is a component that
+// is attached to the DOM when a page of results is being requested, and
+// executes a callback once when that page of results is available.
+//
+// Results have type ResultType and are rendered into React elements by the
+// renderResult function. If not provided, the results are presumed to be usable
+// as React elements as-is.
+const InfiniteScroller = <CutoffType extends any, ResultType extends any>({firstPage, LoaderComponent, renderResult, endReached, pageSize=50}: {
+  firstPage: FeedResponse<CutoffType,ResultType>,
   LoaderComponent: FeedLoaderComponent<CutoffType,ResultType>,
   renderResult?: (result: ResultType) => ReactNode,
   endReached?: ReactNode,
-  initialLimit?: number, pageSize?: number,
+  pageSize?: number,
 }) => {
-  console.log("In InfiniteScroller");
-  const [pendingQuery, setPendingQuery] = useState<FeedRequest<CutoffType>|null>({
-    cutoff: null,
-    limit: initialLimit
-  });
+  console.log(`In InfiniteScroller; firstPage ${firstPage?'provided':'absent'}`);
+  const [pendingQuery, setPendingQuery] = useState<FeedRequest<CutoffType>|null>(null);
   const [resultPages, setResultPages] = useState<ResultType[][]>([]);
-  const [cutoff, setCutoff] = useState<CutoffType|null>(null);
+  const [cutoff, setCutoff] = useState<CutoffType|null>(firstPage.cutoff);
   const [reachedEnd, setReachedEnd] = useState(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<any>(firstPage?.error || null);
   const bottomRef = useRef<HTMLDivElement|null>(null);
   
   const { Loading } = Components;
@@ -105,17 +128,17 @@ const InfiniteScroller = <CutoffType extends any, ResultType extends any>({Loade
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
   
-  console.log(`Rendering ${resultPages.length} pages`);
+  console.log(`Rendering ${1+resultPages.length} pages`);
   const result = <div>
+    <InfiniteScrollSegment key={`results-firstPage`} page={firstPage.results} renderResult={renderResult}/>
+    
     {resultPages.map((resultPage: ResultType[], pageIndex: number) =>
       <InfiniteScrollSegment key={`results-${pageIndex}`} page={resultPage} renderResult={renderResult}/>
     )}
     
     {pendingQuery && <Loading/>}
     
-    {!reachedEnd && !pendingQuery && <div ref={bottomRef}>
-      <a href="#" onClick={startLoadingMore}>Load More</a>
-    </div>}
+    {!reachedEnd && !pendingQuery && <div ref={bottomRef}/>}
     
     {error && <div>
       {error}
