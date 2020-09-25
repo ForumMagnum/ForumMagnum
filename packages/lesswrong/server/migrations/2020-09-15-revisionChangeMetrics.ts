@@ -9,12 +9,13 @@ registerMigration({
   action: async () => {
     await forEachDocumentBatchInCollection({
       collection: Revisions,
+      filter: {changeMetrics: {$exists: false}},
       batchSize: 1000,
       callback: async (revisions: Array<DbRevision>) => {
         const changes: Array<any> = [];
         await Promise.all(revisions.map(async (rev: DbRevision) => {
           const previousRev = await getPrecedingRev(rev);
-          const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", rev.html);
+          const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", rev.html||"");
           changes.push({
             updateOne: {
               filter: { _id: rev._id },
