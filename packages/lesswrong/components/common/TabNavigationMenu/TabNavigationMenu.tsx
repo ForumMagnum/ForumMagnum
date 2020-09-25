@@ -36,6 +36,8 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   const { TabNavigationItem } = Components
   const customComponentProps = {currentUser}
 
+  const showGatherTown = currentUser?.groups.includes("lwGatherTown")
+
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
@@ -57,6 +59,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
               onClick={onClickSection}
             />
           })}
+          {showGatherTown && <a href=""}
         </div>
     </AnalyticsContext>  )
 };

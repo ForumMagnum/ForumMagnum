@@ -7,6 +7,8 @@ import { conceptsIcon } from '../../icons/conceptsIcon';
 import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
+import { gatherIcon } from '../../icons/gatherIcon';
+
 
 import Home from '@material-ui/icons/Home'
 import Group from '@material-ui/icons/Group'
