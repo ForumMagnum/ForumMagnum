@@ -70,6 +70,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRecentDiscussion on Tag {
+    ...TagFragment
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment SunshineTagFragment on Tag {
     ...TagFragment
     user {

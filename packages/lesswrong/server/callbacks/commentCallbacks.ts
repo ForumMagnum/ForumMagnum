@@ -4,6 +4,7 @@ import { makeEditableOptions } from '../../lib/collections/comments/custom_field
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts";
+import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
@@ -72,10 +73,16 @@ addCallback('comments.new.validate', createShortformPost);
 
 function CommentsNewOperations (comment) {
 
-  // update post
-  Posts.update(comment.postId, {
-    $set:       {lastCommentedAt: new Date()},
-  });
+  // update lastCommentedAt field on post or tag
+  if (comment.postId) {
+    Posts.update(comment.postId, {
+      $set: {lastCommentedAt: new Date()},
+    });
+  } else if (comment.tagId) {
+    Tags.update(comment.tagId, {
+      $set: {lastCommentedAt: new Date()},
+    });
+  }
 
   return comment;
 }

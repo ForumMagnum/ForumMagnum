@@ -290,8 +290,9 @@ importComponent("AllComments", () => require('../components/comments/AllComments
 
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink'));
-importComponent("RecentDiscussionThread", () => require('../components/comments/RecentDiscussionThread'));
-importComponent("RecentDiscussionThreadsList", () => require('../components/comments/RecentDiscussionThreadsList'));
+importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
+importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
+importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
@@ -395,6 +396,7 @@ importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHi
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
 importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
+importComponent("RecentDiscussionTag", () => require('../components/recentDiscussion/RecentDiscussionTag'));
 importComponent("TagHistoryPage", () => require('../components/tagging/history/TagHistoryPage'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 

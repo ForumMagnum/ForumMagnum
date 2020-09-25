@@ -55,14 +55,14 @@ const TagPageRevisionSelect = ({ classes }: {
       />
       {revisions.map((rev, i)=> {
         if (i < (revisions.length-1)) {
-          return <TagRevisionItem 
-            key={rev.version} 
-            documentId={tag._id} 
-            revision={rev} 
+          return <TagRevisionItem
+            key={rev.version}
+            documentId={tag._id}
+            revision={rev}
             previousRevision={revisions[i+1]}
-            getRevisionUrl={getRevisionUrl}
+            linkUrl={Tags.getRevisionLink(tag, rev.version)}
           />
-        } 
+        }
       })}
     </div>}
   </SingleColumnSection>

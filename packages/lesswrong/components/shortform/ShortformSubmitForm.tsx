@@ -27,7 +27,10 @@ const forumHintText = {
   </div>
 }
 
-const ShortformSubmitForm = ({ classes, successCallback}) => {
+const ShortformSubmitForm = ({successCallback, classes}: {
+  successCallback?: any,
+  classes: ClassesType,
+}) => {
   const { CommentsNewForm } = Components;
 
   return (

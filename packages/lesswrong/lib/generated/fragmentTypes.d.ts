@@ -453,12 +453,17 @@ interface RevisionMetadata { // fragment on Revisions
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
-  readonly changeMetrics: any,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
-  readonly changeMetrics: any,
+  readonly documentId: string,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly user: UsersMinimumInfo,
+}
+
+interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
+  readonly tag: TagBasicInfo,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -645,6 +650,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly charsAdded: number,
   readonly charsRemoved: number,
   readonly deleted: boolean,
+  readonly lastCommentedAt: Date,
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
@@ -1474,6 +1480,10 @@ interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly description: RevisionEdit,
 }
 
+interface TagRecentDiscussion extends TagFragment { // fragment on Tags
+  readonly recentComments: Array<CommentsList>,
+}
+
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo,
 }
@@ -1517,7 +1527,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
-  readonly changeMetrics: any,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface VoteMinimumInfo { // fragment on Votes
@@ -1619,6 +1629,7 @@ interface FragmentTypes {
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
+  RevisionTagFragment: RevisionTagFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -1692,6 +1703,7 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
+  TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState

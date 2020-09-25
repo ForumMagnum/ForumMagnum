@@ -32,12 +32,12 @@ const styles = theme => ({
   }
 });
 
-const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRevisionUrl}: {
+const TagRevisionItem = ({documentId, revision, classes, previousRevision, linkUrl}: {
   revision: RevisionMetadataWithChangeMetrics,
   previousRevision?: RevisionMetadataWithChangeMetrics
   classes: ClassesType,
   documentId: string,
-  getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
+  linkUrl: string,
 }) => {
   const { CompareRevisions, FormatDate, UsersName, MetaInfo } = Components
 
@@ -46,12 +46,12 @@ const TagRevisionItem = ({documentId, revision, classes, previousRevision, getRe
 
   return <div className={classes.root}>
       <MetaInfo>
-        <Link to={getRevisionUrl(revision)}>
+        <Link to={linkUrl}>
           {revision.version}{" "}
           <FormatDate format={"LLL z"} date={revision.editedAt}/>{" "}
         </Link>
         <UsersName documentId={revision.userId}/>{" "}
-        <Link to={getRevisionUrl(revision)}>
+        <Link to={linkUrl}>
           {(added>0 && removed>0)
             && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
           {(added>0 && removed==0)

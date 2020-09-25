@@ -1,7 +1,8 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences, foreignKeyField } from '../../utils/schemaUtils';
+import { denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
+import moment from 'moment';
 
 const formGroups = {
   advancedOptions: {
@@ -11,7 +12,7 @@ const formGroups = {
     startCollapsed: true,
   },
 };
-  
+
 export const schema = {
   createdAt: {
     optional: true,
@@ -145,6 +146,12 @@ export const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  lastCommentedAt: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
+  },
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -179,7 +186,34 @@ export const schema = {
       label: name
     })),
     group: formGroups.advancedOptions,
-  }
+  },
+  
+  recentComments: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    viewableBy: ['guests'],
+    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const timeCutoff = moment(tag.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const comments = await Comments.find({
+        ...Comments.defaultView({}).selector,
+        tagId: tag._id,
+        score: {$gt:0},
+        deletedPublic: false,
+        postedAt: {$gt: timeCutoff},
+        ...(af ? {af:true} : {}),
+      }, {
+        limit: tagCommentsLimit,
+        sort: {postedAt:-1}
+      }).fetch();
+      return await accessFilterMultiple(currentUser, Comments, comments, context);
+    }
+  }),
+  'recentComments.$': {
+    type: Object,
+    foreignKey: 'Comments',
+  },
 }
 
 export const wikiGradeDefinitions = {

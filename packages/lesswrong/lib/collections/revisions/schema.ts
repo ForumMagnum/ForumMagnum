@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const ContentType = new SimpleSchema({
@@ -110,8 +110,32 @@ const schema = {
     type: Object,
     blackbox: true,
     viewableBy: ['guests']
-    // resolveAs defined in resolvers.js
   },
+  
+  tag: resolverOnlyField({
+    type: "Tag",
+    graphQLtype: "Tag",
+    viewableBy: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const {currentUser, Tags} = context;
+      if (revision.collectionName !== "Tags")
+        return null;
+      const tag = await context.Tags.loader.load(revision.documentId);
+      return await accessFilterSingle(currentUser, Tags, tag, context);
+    }
+  }),
+  post: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const {currentUser, Posts} = context;
+      if (revision.collectionName !== "Posts")
+        return null;
+      const post = await context.Posts.loader.load(revision.documentId);
+      return await accessFilterSingle(currentUser, Posts, post, context);
+    }
+  }),
 };
 
 export default schema;

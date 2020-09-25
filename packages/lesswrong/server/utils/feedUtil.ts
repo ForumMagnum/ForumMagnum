@@ -1,8 +1,6 @@
 import * as _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
-
-export const DATE_MAX = new Date(8640000000000000);
-export const DATE_MIN = new Date(-8640000000000000);
+import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 
 export function feedSubquery<ResultType, SortKeyType>(params: {
   type: string,
@@ -10,6 +8,36 @@ export function feedSubquery<ResultType, SortKeyType>(params: {
   doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>
 }) {
   return params;
+}
+
+export function viewBasedSubquery<ResultType extends DbObject, SortKeyType, SortFieldName extends keyof ResultType>({type, sortField, collection, context, selector}: {
+  type: string,
+  sortField: keyof ResultType,
+  collection: CollectionBase<ResultType>,
+  context: ResolverContext,
+  selector: MongoSelector<ResultType>,
+}) {
+  return feedSubquery({
+    type,
+    getSortKey: (item: ResultType): SortKeyType => (item[sortField] as unknown as SortKeyType),
+    doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
+      return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff});
+    }
+  });
+}
+
+export function fixedResultSubquery<ResultType extends DbObject, SortKeyType>({type, result, sortKey}: {
+  type: string,
+  result: ResultType,
+  sortKey: SortKeyType,
+}) {
+  return feedSubquery({
+    type,
+    getSortKey: (item: ResultType): SortKeyType => sortKey,
+    doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
+      return [result];
+    }
+  });
 }
 
 export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
@@ -90,4 +118,29 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, subqueries}:
 function isNonEmptyObject(obj: {}): boolean {
   return Object.keys(obj).length > 0;
 }
+
+export async function queryWithCutoff<ResultType extends DbObject>({context, collection, selector, limit, cutoffField, cutoff}: {
+  context: ResolverContext,
+  collection: CollectionBase<ResultType>,
+  selector: MongoSelector<ResultType>,
+  limit: number,
+  cutoffField: keyof ResultType,
+  cutoff: any,
+}) {
+  const defaultViewSelector = collection.defaultView ? collection.defaultView({}).selector : {};
+  const {currentUser} = context;
+  
+  const resultsRaw = await collection.find({
+    ...defaultViewSelector,
+    ...selector,
+    ...(cutoff && {[cutoffField]: {$lt: cutoff}}),
+  }, {
+    sort: {[cutoffField]: -1, _id: 1},
+    limit,
+  }).fetch();
+  
+  return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
+}
+
+
 

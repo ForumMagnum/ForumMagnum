@@ -1,5 +1,6 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Tags } from '../../../lib/collections/tags/collection';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 
@@ -57,10 +58,10 @@ const TagHistoryPage = ({classes}: {
     <div className={classes.feed}>
     <MixedTypeFeed
       resolverName="TagHistoryFeed"
-      extraVariables={{
+      resolverArgs={{
         tagId: "String!",
       }}
-      extraVariablesValues={{
+      resolverArgsValues={{
         tagId: tag?._id
       }}
       sortKeyType="Date"
@@ -77,7 +78,7 @@ const TagHistoryPage = ({classes}: {
             <TagRevisionItem
               revision={revision}
               documentId={tag._id}
-              getRevisionUrl={rev => '/' /*TODO*/}
+              linkUrl={Tags.getRevisionLink(tag, revision.version)}
             />
           </div>,
         },
