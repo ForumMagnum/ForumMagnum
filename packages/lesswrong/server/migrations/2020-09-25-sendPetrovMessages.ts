@@ -5,24 +5,24 @@ import { Conversations } from '../../lib/collections/conversations/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 
-const sendingAccountId = "6bgx9sEsqbZd9JRQi";
+const sendingAccountId = "XtphY3uYHwruKqDyG";
 
 const getMessageContents = (name: string, code: string) => `
-<p>Hey ${name},</p>
-<p>
-  I grant you a great opportunity today to destroy the lives of many fellow LessWrong users
-  using this small code and a great big button:
-</p>
-<p>
-  ${code}
-</p>
-<p>Good luck!</p>
-<p>Best, </p>
-<p>Ben Pace </p>
-`
+<p>Hello ${name}, </p>
+<p>On Petrov Day, we celebrate and practice not destroying the world.</p>
+<p>As is our annual tradition, I have selected a group of (275) LessWrong users to be given the opportunity of not
+    destroying LessWrong.</p>
+<p>This Petrov Day, if you, ${name}, enter the launch codes below on LessWrong, the Frontpage will go down for
+    24 hours, destroying a resource thousands of people view every day.</p>
+<p>Your personalised launch code: ${code} </p>
+<p>I hope to see you on the other side of this, with our honor intact.</p>
+<p>–Ben Pace & the LessWrong Team </p>
+<p>P.S. Here is <a href="https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019">the
+    on-site announcement</a>.
+</p>`
 
 const userCodes = {
-  ArkJChzSNsKGHwTAR: "asdsadsa"
+  EQNTWXLKMeWMp2FQS: "asdsadsa"
 }
 
 
@@ -32,15 +32,15 @@ registerMigration({
   idempotent: true,
   action: async () => {
 
-    const receivingUserIds = ["ArkJChzSNsKGHwTAR"]
+    const receivingUserIds = ["EQNTWXLKMeWMp2FQS", "EQNTWXLKMeWMp2FQS"]
 
     for (const receivingUserId of receivingUserIds) {
-      const sendingUser = Users.findOne({_id: sendingAccountId});
-      const receivingUser = Users.findOne({_id: receivingUserId})
+      const sendingUser = Users.findOne({ _id: sendingAccountId });
+      const receivingUser = Users.findOne({ _id: receivingUserId })
 
       const conversationData = {
         participantIds: [receivingUserId, sendingAccountId],
-        title: `Your Petrov Day Codes`
+        title: `Honoring Petrov Day: I am trusting you with the launch codes`
       };
       const conversation = await newMutation({
         collection: Conversations,
@@ -62,7 +62,7 @@ registerMigration({
           },
           conversationId: conversation.data._id
         }
-  
+
         await newMutation({
           collection: Messages,
           document: firstMessageData,
