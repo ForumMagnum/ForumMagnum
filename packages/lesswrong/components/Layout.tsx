@@ -280,7 +280,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const renderPetrovDay = 
       currentRoute?.name == "home"
       && forumTypeSetting.get() === "LessWrong"
-      // && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
 
     
     return (
