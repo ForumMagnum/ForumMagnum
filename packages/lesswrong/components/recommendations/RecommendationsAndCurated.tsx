@@ -192,9 +192,9 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
-      {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
+      {/* {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
         <TagProgressBar/>
-      </AnalyticsContext>}
+      </AnalyticsContext>} */}
 
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
