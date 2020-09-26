@@ -55,9 +55,7 @@ const petrovDayLaunchResolvers = {
           redirect: 'follow'
         });
         const text = await response.text()
-        console.log("text: " , text)
         const data = JSON.parse(text)
-        console.log("data: ", data, text)
         return {
           launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched
         }
