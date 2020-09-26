@@ -271,6 +271,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         
     const shouldUseGridLayout = standaloneNavigation
 
+    const renderPetrovDay = currentRoute?.name == "home" && forumTypeSetting.get() === "LessWrong"
+
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -316,7 +318,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              {currentRoute?.name == "home" && <PetrovDayWrapper/>}
+              {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>

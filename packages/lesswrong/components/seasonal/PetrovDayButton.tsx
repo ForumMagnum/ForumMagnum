@@ -13,10 +13,8 @@ import { Helmet } from 'react-helmet'
 // import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
-import gql from 'graphql-tag';
 import fetch from 'node-fetch'
 
-import { useMutation } from 'react-apollo';
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
@@ -93,9 +91,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 12,
     color: theme.palette.grey[500]
   },
+  info: {
+    marginTop: theme.spacing.unit*1.5,
+    width: 225,
+    color: theme.palette.grey[600]
+  },
   link: {
     marginTop: theme.spacing.unit*1.5,
-    color: theme.palette.grey[600]
+    color: theme.palette.primary.main
   }
 })
  
@@ -233,8 +236,9 @@ const PetrovDayButton = ({classes, refetch}: {
               Launch
             </Button>
           }
+          <p className={classes.info}>Enter launch codes to destroy LessWrong. (This is not an anonymous action)</p>
           <Link to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"} className={classes.link}>
-            What is this button about?
+            Learn More
           </Link>
         </div>
 
