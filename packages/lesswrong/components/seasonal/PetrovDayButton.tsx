@@ -14,6 +14,8 @@ import { Helmet } from 'react-helmet'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
 import fetch from 'node-fetch'
+import { useQuery } from 'react-apollo';
+import gql from 'graphql-tag';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -93,7 +95,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   info: {
     marginTop: theme.spacing.unit*1.5,
-    width: 225,
+    width: 234,
+    textAlign: "center",
+    lineHeight: "1.8em",
     color: theme.palette.grey[600]
   },
   link: {
@@ -101,27 +105,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main
   }
 })
- 
-// const PetrovDayData = `type MozillaHubsData {
-//   description: String
-//   id: String
-//   previewImage: String
-//   lastActivatedAt: String
-//   lobbyCount: Int
-//   memberCount: Int
-//   name: String
-//   roomSize: Int
-//   sceneId: String
-//   type: String
-//   url: String
-// }` 
-
-// addGraphQLSchema(MozillaHubsData);
-
-// const mozillaHubsAPIKeySetting = new DatabaseServerSetting<string | null>('mozillaHubsAPIKey', null)
-// const mozillaHubsUserIdSetting = new DatabaseServerSetting<string | null>('mozillaHubsUserId', null)
-
-
 
 const PetrovDayButton = ({classes, refetch}: {
   classes: ClassesType,
@@ -138,7 +121,6 @@ const PetrovDayButton = ({classes, refetch}: {
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
-
   
   const pressButton = () => {
     setPressed(true)
@@ -157,24 +139,32 @@ const PetrovDayButton = ({classes, refetch}: {
   const launch = async () => {
     if (!currentUser) return
     
-    const a = await fetch('/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `mutation petrovDayLaunchResolvers($launchCode: String) {
-          PetrovDayLaunchMissile(launchCode: $launchCode) {
-            launchCode
-            createdAt
-          }
-        }`,
-        variables: { launchCode: launchCode},
-      })
-    })
-
-    console.log(await a.json())
+    // const { data: rawData } = useQuery(gql`
+    //   query petrovDayLaunchResolvers {
+    //     PetrovDayCheckIfIncoming(external: false) {
+    //       launched
+    //     }
+    //   }
+    // `, {
+    //   ssr: true
+    // });
+    
+    // const a = await fetch('/graphql', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Accept': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     query: `mutation petrovDayLaunchResolvers($launchCode: String) {
+    //       PetrovDayLaunchMissile(launchCode: $launchCode) {
+    //         launchCode
+    //         createdAt
+    //       }
+    //     }`,
+    //     variables: { launchCode: launchCode},
+    //   })
+    // })
   }
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
