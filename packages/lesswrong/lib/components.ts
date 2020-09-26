@@ -123,6 +123,7 @@ importComponent("SubscribeDialog", () => require('../components/common/Subscribe
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
 importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount'));

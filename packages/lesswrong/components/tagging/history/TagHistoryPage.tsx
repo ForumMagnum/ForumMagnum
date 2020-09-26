@@ -45,7 +45,7 @@ const TagHistoryPage = ({classes}: {
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
   const { UsersName } = Components;
-  const {SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading} = Components;
+  const {SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost} = Components;
   
   if (loadingTag || !tag) {
     return <SingleColumnSection>
@@ -85,7 +85,9 @@ const TagHistoryPage = ({classes}: {
         tagApplied: {
           fragmentName: "TagRelHistoryFragment",
           render: (application: TagRelHistoryFragment) => <div className={classes.singleLineEvent}>
-            Applied to {application.post?.title} by <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
+            Applied to <LinkToPost post={application.post}/>
+            {" by "}
+            <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
           </div>
         },
         tagDiscussionComment: {

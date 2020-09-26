@@ -1416,7 +1416,7 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
 interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly createdAt: Date,
   readonly user: UsersMinimumInfo|null,
-  readonly post: PostsBase|null,
+  readonly post: PostsList|null,
 }
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels

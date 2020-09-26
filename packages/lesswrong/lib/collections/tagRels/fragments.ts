@@ -37,7 +37,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     post {
-      ...PostsBase
+      ...PostsList
     }
   }
 `);

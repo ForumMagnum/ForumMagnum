@@ -132,7 +132,7 @@ const InfiniteScroller = <CutoffType extends any, ResultType extends any>({first
       <InfiniteScrollSegment key={`results-${pageIndex}`} page={resultPage} renderResult={renderResult}/>
     )}
     
-    {pendingQuery && <Loading/>}
+    {!reachedEnd && <Loading/>}
     
     {!reachedEnd && !pendingQuery && <div ref={bottomRef}/>}
     

@@ -66,7 +66,7 @@ addGraphQLResolvers({
       }
       
       // Diff the revisions
-      return diffHtml(before.html, after.html, trim);
+      return diffHtml(before?.html||"", after.html||"", trim);
     }
   },
 });
