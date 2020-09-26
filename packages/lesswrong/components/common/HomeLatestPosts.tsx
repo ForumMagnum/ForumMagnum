@@ -63,10 +63,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { captureEvent } = useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
   const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
-  
-  const numPostsOnHomePageGroup = useABTest(numPostsOnHomePage);
-  const numPosts = parseInt(numPostsOnHomePageGroup);
-  const limit = parseInt(query.limit) || numPosts
+  const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
