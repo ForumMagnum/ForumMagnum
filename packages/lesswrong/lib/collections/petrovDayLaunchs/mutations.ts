@@ -358,7 +358,7 @@ const petrovDayLaunchResolvers = {
       //     launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched
       //   }
       // }
-      const launches = PetrovDayLaunchs.find().fetch()
+      const launches = await PetrovDayLaunchs.find().fetch()
       for (const launch of launches) {
         if (hashedCodes.includes(launch.hashedLaunchCode)) {
           return { launched: true }
