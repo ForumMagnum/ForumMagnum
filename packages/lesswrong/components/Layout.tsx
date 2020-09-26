@@ -271,12 +271,13 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         
     const shouldUseGridLayout = standaloneNavigation
 
-    const d = moment().utc().format('YYYY-MM-DD:HH:mm')
-    const renderPetrovDay = 
-      currentRoute?.name == "home" && 
-      forumTypeSetting.get() === "LessWrong" &&
-      d >= "2020-09-26:12:00" &&
-      d <= "2020-09-27:12:00"
+    const currentTime = new Date()
+    // 2020-09-26-07:00AM in Unix Epoch * 1000
+    const beforeTime = 1601103600000
+    // 2020-09-27-07:00AM in Unix Epoch * 1000
+    const afterTime = 1601190000000
+    const renderPetrovDay = beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+    
 
     return (
       <AnalyticsContext path={location.pathname}>
