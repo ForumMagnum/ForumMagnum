@@ -210,7 +210,7 @@ const PetrovDayButton = ({classes, refetch}: {
               </Button>
             }
             <p className={classes.info}>Enter launch codes to destroy LessWrong. (This is not an anonymous action)</p>
-            <Link to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"} className={classes.link}>
+            <Link to={"/posts/XfHXQPPKNY8BXkn72/honoring-petrov-day-on-lesswrong-in-2020"} className={classes.link}>
               Learn More
             </Link>
           </div>}
