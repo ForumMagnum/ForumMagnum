@@ -3,7 +3,7 @@ import { unstable_batchedUpdates } from 'react-dom';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useOnPageScroll } from './withOnPageScroll';
 
-const loadMoreDistance = 200;
+const loadMoreDistance = 500;
 
 export interface FeedRequest<CutoffType> {
   cutoff: CutoffType|null,
