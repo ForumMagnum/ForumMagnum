@@ -932,6 +932,8 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
+  readonly petrovPressedButtonDate: Date,
+  readonly petrovLaunchCodeDate: Date,
 }
 
 interface UserBookmarks { // fragment on Users
@@ -1086,7 +1088,9 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
+  readonly petrovPressedButtonDate: Date,
   readonly sortDrafts: string,
+  readonly reenableDraftJs: boolean,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
@@ -1465,7 +1469,6 @@ interface TagBasicInfo { // fragment on Tags
   readonly wikiGrade: number,
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
-  readonly tagFlagsIds: Array<string>,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
 }
@@ -1502,11 +1505,13 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly version: string,
 }
 
-interface TagWithFlagsFragment extends TagPreviewFragment { // fragment on Tags
+interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
+  readonly tagFlagsIds: Array<string>,
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
+  readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
 }
 
@@ -1586,6 +1591,18 @@ interface VotedItem { // fragment on Votes
   readonly documentId: string,
   readonly power: number,
   readonly votedAt: Date,
+}
+
+interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
+  readonly createdAt: Date,
+  readonly launchCode: string,
+  readonly hashedLaunchCode: string,
+}
+
+interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly launchCode: string,
 }
 
 interface NewRelatedPostRel { // fragment on PostRelations
@@ -1738,10 +1755,12 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   VotedItem: VotedItem
+  PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
+  PetrovDayLaunch: PetrovDayLaunch
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
 

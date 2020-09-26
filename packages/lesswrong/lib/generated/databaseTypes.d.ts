@@ -109,9 +109,7 @@ interface DbUser extends DbObject {
   beta: boolean
   reviewVotesQuadratic: boolean
   petrovPressedButtonDate: Date
-  petrovCodesEnteredDate: Date
-  petrovCodesEntered: string
-  petrovCodesEnteredHashed: string
+  petrovLaunchCodeDate: Date
   defaultToCKEditor: boolean
   signUpReCaptchaRating: number
   oldSlugs: Array<string>
@@ -647,6 +645,15 @@ interface DbRevision extends DbObject {
   wordCount: number
 }
 
+interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch> {
+}
+
+interface DbPetrovDayLaunch extends DbObject {
+  createdAt: Date
+  launchCode: string
+  hashedLaunchCode: string
+}
+
 interface LegacyDataCollection extends CollectionBase<DbLegacyData> {
 }
 
@@ -695,6 +702,7 @@ interface CollectionsByName {
   Localgroups: LocalgroupsCollection
   Subscriptions: SubscriptionsCollection
   Revisions: RevisionsCollection
+  PetrovDayLaunchs: PetrovDayLaunchsCollection
   LegacyData: LegacyDataCollection
   EmailTokens: EmailTokensCollection
 }
@@ -727,6 +735,7 @@ interface ObjectsByCollectionName {
   Localgroups: DbLocalgroup
   Subscriptions: DbSubscription
   Revisions: DbRevision
+  PetrovDayLaunchs: DbPetrovDayLaunch
   LegacyData: DbLegacyData
   EmailTokens: DbEmailTokens
 }
