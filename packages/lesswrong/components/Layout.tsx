@@ -276,9 +276,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const beforeTime = 1601103600000
     // 2020-09-27-07:00AM in Unix Epoch * 1000
     const afterTime = 1601190000000
-    const renderPetrovDay = beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
-    
+    const renderPetrovDay = 
+      currentRoute?.name == "home"
+      && forumTypeSetting.get() === "LessWrong"
+      // &&  beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
 
+    
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>

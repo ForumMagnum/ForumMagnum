@@ -14,7 +14,7 @@ import { Helmet } from 'react-helmet'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
 import fetch from 'node-fetch'
-import { useQuery } from 'react-apollo';
+import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
@@ -114,7 +114,17 @@ const PetrovDayButton = ({classes, refetch}: {
   const { petrovPressedButtonDate, petrovCodesEntered } = (currentUser || {}) as any; //FIXME: These fields are not in the fragment; add them back for next Petrov day if we want to do it again
   const [pressed, setPressed] = useState(petrovPressedButtonDate)
   const [launchCode, setLaunchCode] = useState(petrovCodesEntered)
+  const [launched, setLaunched] = useState(false)
 
+  const [ mutate ] = useMutation(gql`
+    mutation petrovDayLaunchResolvers($launchCode: String) {
+      PetrovDayLaunchMissile(launchCode: $launchCode) {
+        launchCode
+      }
+    }
+  `
+  );
+  
   const { LWTooltip, LoginPopupButton } = Components
 
   const {mutate: updateUser} = useUpdate({
@@ -138,33 +148,9 @@ const PetrovDayButton = ({classes, refetch}: {
 
   const launch = async () => {
     if (!currentUser) return
-    
-    // const { data: rawData } = useQuery(gql`
-    //   query petrovDayLaunchResolvers {
-    //     PetrovDayCheckIfIncoming(external: false) {
-    //       launched
-    //     }
-    //   }
-    // `, {
-    //   ssr: true
-    // });
-    
-    // const a = await fetch('/graphql', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Accept': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     query: `mutation petrovDayLaunchResolvers($launchCode: String) {
-    //       PetrovDayLaunchMissile(launchCode: $launchCode) {
-    //         launchCode
-    //         createdAt
-    //       }
-    //     }`,
-    //     variables: { launchCode: launchCode},
-    //   })
-    // })
+    mutate({ variables: { launchCode } })
+    setLaunched(true)
+
   }
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
@@ -185,54 +171,53 @@ const PetrovDayButton = ({classes, refetch}: {
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>
-        <div className={classes.panel}>
-          <Typography variant="display1" className={classes.title}>
-            <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
-          </Typography>
-          {currentUser ? 
-              <div className={classes.button}>
-                {renderButtonAsPressed ? 
-                  <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
-                    <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
-                  </LWTooltip>
-                  :
-                  <LWTooltip title="Are you sure?" placement="right">
-                    <div onClick={pressButton}>
-                      <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
-                      <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
-                    </div>
-                  </LWTooltip>
-                }
-              </div>
-            :
-            <div className={classes.button}>
-              <LoginPopupButton title={"Log in if you'd like to push the button"}>
-                <div>
-                  <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
-                  <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+        {!launched && <div className={classes.panel}>
+            <Typography variant="display1" className={classes.title}>
+              <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
+            </Typography>
+            {currentUser ? 
+                <div className={classes.button}>
+                  {renderButtonAsPressed ? 
+                    <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
+                      <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
+                    </LWTooltip>
+                    :
+                    <LWTooltip title="Are you sure?" placement="right">
+                      <div onClick={pressButton}>
+                        <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
+                        <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+                      </div>
+                    </LWTooltip>
+                  }
                 </div>
-              </LoginPopupButton>
-            </div>
-          }
+              :
+              <div className={classes.button}>
+                <LoginPopupButton title={"Log in if you'd like to push the button"}>
+                  <div>
+                    <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
+                    <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+                  </div>
+                </LoginPopupButton>
+              </div>
+            }
 
-          {renderButtonAsPressed && <TextField
-            onChange={updateLaunchCode}
-            placeholder={"Enter Launch Codes"}
-            margin="normal"
-            variant="outlined"
-          />}
-          {(renderLaunchButton) && 
-            <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
-              Launch
-            </Button>
-          }
-          <p className={classes.info}>Enter launch codes to destroy LessWrong. (This is not an anonymous action)</p>
-          <Link to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"} className={classes.link}>
-            Learn More
-          </Link>
+            {renderButtonAsPressed && <TextField
+              onChange={updateLaunchCode}
+              placeholder={"Enter Launch Codes"}
+              margin="normal"
+              variant="outlined"
+            />}
+            {(renderLaunchButton) && 
+              <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
+                Launch
+              </Button>
+            }
+            <p className={classes.info}>Enter launch codes to destroy LessWrong. (This is not an anonymous action)</p>
+            <Link to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"} className={classes.link}>
+              Learn More
+            </Link>
+          </div>}
         </div>
-
-      </div>
     </div>
   )
 }
