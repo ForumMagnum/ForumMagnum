@@ -51,7 +51,6 @@ const InfiniteScroller = <CutoffType extends any, ResultType extends any>({first
   endReached?: ReactNode,
   pageSize?: number,
 }) => {
-  console.log(`In InfiniteScroller; firstPage ${firstPage?'provided':'absent'}`);
   const [pendingQuery, setPendingQuery] = useState<FeedRequest<CutoffType>|null>(null);
   const [resultPages, setResultPages] = useState<ResultType[][]>([]);
   const [cutoff, setCutoff] = useState<CutoffType|null>(firstPage.cutoff);
@@ -103,7 +102,6 @@ const InfiniteScroller = <CutoffType extends any, ResultType extends any>({first
   // pending, does nothing.
   const startLoadingMore = useCallback(() => {
     if (!pendingQuery) {
-      console.log(`Setting pending query with cutoff: ${cutoff}`);
       setPendingQuery({cutoff, limit: pageSize});
     }
   }, [cutoff, pageSize, pendingQuery]);
@@ -117,7 +115,6 @@ const InfiniteScroller = <CutoffType extends any, ResultType extends any>({first
       && bottomRef?.current
       && elementIsNearVisible(bottomRef?.current, loadMoreDistance))
     {
-      console.log("Loading more because the bottom is visible");
       startLoadingMore();
     }
   }, [startLoadingMore]);
@@ -128,7 +125,6 @@ const InfiniteScroller = <CutoffType extends any, ResultType extends any>({first
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
   
-  console.log(`Rendering ${1+resultPages.length} pages`);
   const result = <div>
     <InfiniteScrollSegment key={`results-firstPage`} page={firstPage.results} renderResult={renderResult}/>
     
@@ -150,7 +146,6 @@ const InfiniteScroller = <CutoffType extends any, ResultType extends any>({first
     
     {pendingQuery && loaderComponentInstance}
   </div>
-  console.log("Finished InfiniteScroller");
   return result;
 }
 

@@ -67,7 +67,6 @@ defineFeedResolver<Date>({
         }),
       ],
     });
-    console.log(result);
     return result;
   }
 });
