@@ -146,9 +146,8 @@ const PetrovDayButton = ({classes, refetch}: {
 
   const launch = async () => {
     if (!currentUser) return
-    mutate({ variables: { launchCode } })
+    void mutate({ variables: { launchCode } })
     setLaunched(true)
-
   }
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
