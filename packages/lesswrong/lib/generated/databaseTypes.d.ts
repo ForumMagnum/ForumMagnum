@@ -109,6 +109,7 @@ interface DbUser extends DbObject {
   beta: boolean
   reviewVotesQuadratic: boolean
   petrovPressedButtonDate: Date
+  petrovLaunchCodeDate: Date
   defaultToCKEditor: boolean
   signUpReCaptchaRating: number
   oldSlugs: Array<string>

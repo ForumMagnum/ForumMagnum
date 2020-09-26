@@ -27,7 +27,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const logRocketSampleDensitySetting = new DatabasePublicSetting<number>('logRocket.sampleDensity', 5)
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601190000000)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
@@ -280,7 +280,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const renderPetrovDay = 
       currentRoute?.name == "home"
       && forumTypeSetting.get() === "LessWrong"
-      &&  beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+      // && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
 
     
     return (

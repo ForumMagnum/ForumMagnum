@@ -147,6 +147,10 @@ const PetrovDayButton = ({classes, refetch}: {
   const launch = async () => {
     if (!currentUser) return
     void mutate({ variables: { launchCode } })
+    void updateUser({
+      selector: {_id: currentUser!._id},
+      data: { petrovLaunchCodeDate: new Date() }
+    });
     setLaunched(true)
   }
 
@@ -168,7 +172,7 @@ const PetrovDayButton = ({classes, refetch}: {
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>
-        {!launched && <div className={classes.panel}>
+        {!launched && !currentUser?.petrovLaunchCodeDate && <div className={classes.panel}>
             <Typography variant="display1" className={classes.title}>
               <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
             </Typography>

@@ -1242,6 +1242,15 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     // hidden: ({currentUser}) => !currentUser.isAdmin
   },
+  petrovLaunchCodeDate: {
+    type: Date,
+    optional: true,
+    control: 'datetime',
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.adminOptions,
+    // hidden: ({currentUser}) => !currentUser.isAdmin
+  },
   defaultToCKEditor: {
     // this fieldis deprecated
     type: Boolean,

@@ -933,6 +933,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
+  readonly petrovLaunchCodeDate: Date,
 }
 
 interface UserBookmarks { // fragment on Users
