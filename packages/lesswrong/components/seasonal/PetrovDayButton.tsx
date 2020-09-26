@@ -147,10 +147,6 @@ const PetrovDayButton = ({classes, refetch}: {
   const launch = async () => {
     if (!currentUser) return
     void mutate({ variables: { launchCode } })
-    void updateUser({
-      selector: {_id: currentUser!._id},
-      data: { petrovLaunchCodeDate: new Date() }
-    });
     setLaunched(true)
   }
 

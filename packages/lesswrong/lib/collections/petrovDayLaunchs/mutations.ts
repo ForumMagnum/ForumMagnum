@@ -2,6 +2,7 @@ import { PetrovDayLaunchs } from "../..";
 // import fetch from 'node-fetch'
 
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, addGraphQLQuery, Utils } from "../../vulcan-lib";
+import Users from "../../vulcan-users";
 
 const PetrovDayCheckIfIncoming = `type PetrovDayCheckIfIncomingData {
   launched: Boolean
@@ -380,6 +381,14 @@ const petrovDayLaunchResolvers = {
           validate: false,
           currentUser,
         });
+        await Utils.updateMutator({
+          collection: Users,
+          documentId: currentUser._id,
+          data: {
+            petrovLaunchCodeDate: new Date()
+          },
+          validate: false
+        })
         return newLaunch.data
       }
     }
