@@ -12,10 +12,10 @@ import { InstantSearch, SearchBox, Index, Configure, Hits } from 'react-instants
 import { algoliaIndexNames, getSearchClient } from '../../lib/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
+import CloseIcon from '@material-ui/icons/Close';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    transition: ".25s",
     display: "flex",
     '& input': {
       width: 70,
@@ -23,13 +23,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   open: {
+    width: "100%",
     '& input': {
       width: 260,
       cursor: "unset"
     },
-    [theme.breakpoints.down('xs')]: {
-      width: "100%"
-    }
+    backgroundColor: "white",
+    padding: 8
   },
   icon: {
     height: 18,
@@ -38,10 +38,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500]
   },
   searchBar: {
-
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    paddingLeft: 8
   },
   search: {
-    
+    display: 'flex',
+    flexDirection: 'column',
+    width: "100%"
+  },
+  searchHeader: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  closeIcon: {
+    fontSize: '16px',
+    color: 'black',
+    cursor: 'pointer'
+  },
+  addButton: {
+    cursor: 'pointer',
+    alignItems: 'center',
+    color: 'rgba(0,0,0,0.6)',
+    display: 'flex'
   }
 });
 
@@ -70,8 +90,7 @@ const AddPostsToTag = ({classes, tag}: {
     }
   });
 
-  const onPostSelected = useCallback(async (event, postId) => {
-    event.preventDefault();
+  const onPostSelected = useCallback(async (postId) => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
@@ -91,21 +110,30 @@ const AddPostsToTag = ({classes, tag}: {
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent]);
 
-  const { SearchPagination, PostsSearchHit, Loading } = Components
-  return <div className={classNames(classes.root, {[classes.open]: searchOpen})} onClick={() => setSearchOpen(true)}>
-    {searchOpen && <SearchIcon className={classes.icon}/>}
-    {!searchOpen && !isAwaiting && <AddBoxIcon className={classes.icon}/>}
+  const { SearchPagination, PostsListEditorSearchHit, Loading } = Components
+  return <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
+    {!searchOpen && !isAwaiting && <span 
+      onClick={() => setSearchOpen(true)}
+      className={classes.addButton}
+    >
+      <AddBoxIcon className={classes.icon}/> Add Posts
+    </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch
         indexName={algoliaIndexNames.Posts}
         searchClient={getSearchClient()}
       > 
-        <div className={classes.searchBar}>
-          <SearchBox focusShortcuts={[]} autoFocus={true} />
+        <div className={classes.searchHeader}>
+          <div className={classes.searchBar}>
+            <SearchBox focusShortcuts={[]} autoFocus={true} reset={null} />
+            <CloseIcon className={classes.closeIcon} onClick={() => setSearchOpen(false)}/>
+          </div>
           <SearchPagination />
         </div>
-        <Configure hitsPerPage={6} />
-        <Hits hitComponent={(props) => <PostsSearchHit {...props} clickAction={onPostSelected} />} />
+        <Configure hitsPerPage={10} />
+        <Hits hitComponent={({hit}: {hit: any}) => <span onClick={() => onPostSelected(hit._id)}>
+          <PostsListEditorSearchHit hit={hit} />
+        </span>} />
       </InstantSearch>
     </div>}
   </div>
