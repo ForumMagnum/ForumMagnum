@@ -151,6 +151,7 @@ registerFragment(`
     sortDrafts
     
     reenableDraftJs
+    petrovPressedButtonDate
   }
 `);
 

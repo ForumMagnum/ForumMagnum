@@ -13,7 +13,6 @@ import { Helmet } from 'react-helmet'
 // import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
-import fetch from 'node-fetch'
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 
