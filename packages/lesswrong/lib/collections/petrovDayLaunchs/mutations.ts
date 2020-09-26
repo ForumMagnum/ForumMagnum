@@ -370,7 +370,7 @@ const petrovDayLaunchResolvers = {
   Mutation: {
     async PetrovDayLaunchMissile(root, { launchCode }, context: ResolverContext) {
       const { currentUser } = context
-      if (currentUser) {
+      if (currentUser && !currentUser.petrovLaunchCodeDate) {
         const newLaunch = await Utils.createMutator({
           collection: PetrovDayLaunchs,
           document: {

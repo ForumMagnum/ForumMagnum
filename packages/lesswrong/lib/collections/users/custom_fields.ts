@@ -1240,7 +1240,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
-    // hidden: ({currentUser}) => !currentUser.isAdmin
+    hidden: true
   },
   petrovLaunchCodeDate: {
     type: Date,
@@ -1249,7 +1249,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
-    // hidden: ({currentUser}) => !currentUser.isAdmin
+    hidden: true
   },
   defaultToCKEditor: {
     // this fieldis deprecated
