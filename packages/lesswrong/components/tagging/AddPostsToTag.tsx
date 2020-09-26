@@ -8,6 +8,10 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
+import { InstantSearch, SearchBox, Index, Configure, Hits } from 'react-instantsearch-dom';
+import { algoliaIndexNames, getSearchClient } from '../../lib/algoliaUtil';
+import { useCurrentUser } from '../common/withUser';
+import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,6 +36,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
     marginRight: 3,
     color: theme.palette.grey[500]
+  },
+  searchBar: {
+
+  },
+  search: {
+    
   }
 });
 
@@ -45,6 +55,8 @@ const AddPostsToTag = ({classes, tag}: {
   const { captureEvent } = useTracking()
   const { flash } = useMessages()
   const [ searchOpen, setSearchOpen ] = useState(false)  
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
@@ -58,7 +70,15 @@ const AddPostsToTag = ({classes, tag}: {
     }
   });
 
-  const onPostSelected = useCallback(async (postId) => {
+  const onPostSelected = useCallback(async (event, postId) => {
+    event.preventDefault();
+    if (!currentUser) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+      return
+    }
     setIsAwaiting(true)
     await mutate({
       variables: {
@@ -71,17 +91,23 @@ const AddPostsToTag = ({classes, tag}: {
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent]);
 
-  const { PostsSearchAutoComplete, Loading } = Components
-  return <div className={classNames(classes.root, {[classes.open]: searchOpen})} onClick={() => setSearchOpen(true)} onBlur={() => setSearchOpen(false)}>
+  const { SearchPagination, PostsSearchHit, Loading } = Components
+  return <div className={classNames(classes.root, {[classes.open]: searchOpen})} onClick={() => setSearchOpen(true)}>
     {searchOpen && <SearchIcon className={classes.icon}/>}
     {!searchOpen && !isAwaiting && <AddBoxIcon className={classes.icon}/>}
-    {isAwaiting 
-      ? <Loading/> 
-      : <PostsSearchAutoComplete 
-          clickAction={onPostSelected} 
-          placeholder={searchOpen ? "Search for posts" : "Add Posts"}
-        />
-    }
+    {searchOpen && <div className={classes.search}>
+      <InstantSearch
+        indexName={algoliaIndexNames.Posts}
+        searchClient={getSearchClient()}
+      > 
+        <div className={classes.searchBar}>
+          <SearchBox focusShortcuts={[]} autoFocus={true} />
+          <SearchPagination />
+        </div>
+        <Configure hitsPerPage={6} />
+        <Hits hitComponent={(props) => <PostsSearchHit {...props} clickAction={onPostSelected} />} />
+      </InstantSearch>
+    </div>}
   </div>
 }
 
