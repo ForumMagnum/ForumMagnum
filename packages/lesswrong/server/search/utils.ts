@@ -126,7 +126,9 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
   if (post.authorIsUnreviewed)
     return null;
   
-  const tags = Object.entries(post.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+  const tags = post.tagRelevance ? 
+    Object.entries(post.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+    : []
   const algoliaMetaInfo: AlgoliaDocument = {
     _id: post._id,
     userId: post.userId,

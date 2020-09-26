@@ -130,7 +130,10 @@ const AddPostsToTag = ({classes, tag}: {
           </div>
           <SearchPagination />
         </div>
-        <Configure hitsPerPage={10} />
+        <Configure
+          filters={`tags:-${tag._id}`}
+          hitsPerPage={10}
+        />
         <Hits hitComponent={({hit}: {hit: any}) => <span onClick={() => onPostSelected(hit._id)}>
           <PostsListEditorSearchHit hit={hit} />
         </span>} />
