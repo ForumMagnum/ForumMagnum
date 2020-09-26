@@ -370,16 +370,18 @@ const petrovDayLaunchResolvers = {
   Mutation: {
     async PetrovDayLaunchMissile(root, { launchCode }, context: ResolverContext) {
       const { currentUser } = context
-      const newLaunch = await Utils.createMutator({
-        collection: PetrovDayLaunchs,
-        document: {
-          launchCode,
-          hashedLaunchCode: hashPetrovCode(launchCode)
-        },
-        validate: false,
-        currentUser,
-      });
-      return newLaunch.data
+      if (currentUser) {
+        const newLaunch = await Utils.createMutator({
+          collection: PetrovDayLaunchs,
+          document: {
+            launchCode,
+            hashedLaunchCode: hashPetrovCode(launchCode)
+          },
+          validate: false,
+          currentUser,
+        });
+        return newLaunch.data
+      }
     }
   }
 };
