@@ -13,8 +13,6 @@ import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import Typography from '@material-ui/core/Typography';
-import { numPostsOnHomePage } from '../../lib/abTests';
-import { useABTest } from '../../lib/abTestUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
