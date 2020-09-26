@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
-import { mapsHeight } from '../localGroups/CommunityMap';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -25,14 +24,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     zIndex: theme.zIndexes.petrovDayButton,
     position:"relative",
-    height: mapsHeight,
+    height: 520,
   },
   panelBacking: {
     position: "absolute",
     top: 0,
     left: 0,
     width: "100%",
-    height: mapsHeight,
+    height: 520,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
