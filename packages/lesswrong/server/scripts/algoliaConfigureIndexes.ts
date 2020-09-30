@@ -53,6 +53,7 @@ export const algoliaConfigureIndexes = async () => {
       'searchable(authorDisplayName)',
       'authorSlug',
       'postedAt',
+      'tags'
     ],
     attributesToHighlight: ['title'],
     attributesToSnippet: ['body:20'],
