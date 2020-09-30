@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   open: {
     width: "100%",
     '& input': {
-      width: 260,
+      width: "calc(100% - 15px)",
       cursor: "unset"
     },
     backgroundColor: "white",
@@ -62,6 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     color: 'rgba(0,0,0,0.6)',
     display: 'flex'
+  },
+  postHit: {
+    cursor: "pointer"
   }
 });
 
@@ -110,7 +113,7 @@ const AddPostsToTag = ({classes, tag}: {
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent]);
 
-  const { SearchPagination, PostsListEditorSearchHit, Loading } = Components
+  const { SearchPagination, PostsListEditorSearchHit } = Components
   return <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
     {!searchOpen && !isAwaiting && <span 
       onClick={() => setSearchOpen(true)}
@@ -131,10 +134,10 @@ const AddPostsToTag = ({classes, tag}: {
           <SearchPagination />
         </div>
         <Configure
-          filters={`tags:-${tag._id}`}
+          facetFilters={`tags:-zxmLyuTr7nujF523s`}
           hitsPerPage={10}
         />
-        <Hits hitComponent={({hit}: {hit: any}) => <span onClick={() => onPostSelected(hit._id)}>
+        <Hits hitComponent={({hit}: {hit: any}) => <span className={classes.postHit} onClick={() => onPostSelected(hit._id)}>
           <PostsListEditorSearchHit hit={hit} />
         </span>} />
       </InstantSearch>
