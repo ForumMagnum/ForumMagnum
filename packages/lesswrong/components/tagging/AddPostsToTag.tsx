@@ -3,12 +3,11 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { useTracking } from "../../lib/analyticsEvents";
-import SearchIcon from '@material-ui/icons/Search';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
-import { InstantSearch, SearchBox, Index, Configure, Hits } from 'react-instantsearch-dom';
+import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
 import { algoliaIndexNames, getSearchClient } from '../../lib/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
