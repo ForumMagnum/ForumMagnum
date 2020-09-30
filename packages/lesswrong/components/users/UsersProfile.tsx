@@ -207,7 +207,8 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       }
     }
 
-    const draftTerms = {view: "drafts", userId: user._id, limit: 4}
+
+    const draftTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}

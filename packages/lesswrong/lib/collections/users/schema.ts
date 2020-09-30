@@ -248,7 +248,6 @@ const schema: SchemaType<DbUser> = {
       },
     },
   },
-
   lwWikiImport: {
     type: Boolean,
     optional: true, 

@@ -143,6 +143,10 @@ import './collections/users/views';
 // Comments
 import { Comments } from './collections/comments'
 
+import { PetrovDayLaunchs } from './collections/petrovDayLaunchs'
+
+
+
 // Votes
 import './collections/votes';
 
@@ -201,5 +205,6 @@ export {
   Comments,
   Revisions, 
   ReviewVotes,
+  PetrovDayLaunchs,
   TagFlags
 }

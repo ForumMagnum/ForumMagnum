@@ -468,8 +468,9 @@ importComponent("WrappedSmartForm", () => require('../components/form-components
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
 
-// importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
-// importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
+importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
+importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
+importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
 importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
