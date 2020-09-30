@@ -49,7 +49,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   searchHeader: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    // For some reason the pagination current page item is misaligned when we don't do it. 
+    // Maybe worth looking into why this is the case some other time.
+    '& .ais-Pagination-item--selected.ais-Pagination-item--page': {
+      position: 'relative',
+      bottom: 3
+    }
   },
   closeIcon: {
     fontSize: '16px',
@@ -127,6 +133,9 @@ const AddPostsToTag = ({classes, tag}: {
       > 
         <div className={classes.searchHeader}>
           <div className={classes.searchBar}>
+            {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+              * null is the only option that actually suppresses the extra X button.
+            // @ts-ignore */}
             <SearchBox focusShortcuts={[]} autoFocus={true} reset={null} />
             <CloseIcon className={classes.closeIcon} onClick={() => setSearchOpen(false)}/>
           </div>
