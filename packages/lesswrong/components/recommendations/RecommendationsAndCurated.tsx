@@ -83,7 +83,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -114,6 +114,8 @@ const RecommendationsAndCurated = ({
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+
+    const showGatherTown = currentUser?.walledGardenInvite
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
@@ -191,6 +193,10 @@ const RecommendationsAndCurated = ({
           <BookmarksList limit={3} />
         </AnalyticsContext>
       </div>}
+
+      {showGatherTown && <AnalyticsContext pageSectionContext="Gather Town Welcome">
+        <GatherTown/>
+      </AnalyticsContext>}
 
       {/* {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
         <TagProgressBar/>

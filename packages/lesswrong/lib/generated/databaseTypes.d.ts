@@ -22,6 +22,7 @@ interface DbUser extends DbObject {
   slug: string
   groups: Array<string>
   lwWikiImport: boolean
+  walledGardenInvite: boolean
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string

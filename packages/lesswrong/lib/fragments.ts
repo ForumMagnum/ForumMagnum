@@ -153,6 +153,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    walledGardenInvite
   }
 `);
 
@@ -364,6 +365,7 @@ registerFragment(`
     petrovPressedButtonDate
     sortDrafts
     reenableDraftJs
+    walledGardenInvite
   }
 `);
 

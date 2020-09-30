@@ -934,6 +934,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
+  readonly walledGardenInvite: boolean,
 }
 
 interface UserBookmarks { // fragment on Users
@@ -1091,6 +1092,7 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly petrovPressedButtonDate: Date,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
+  readonly walledGardenInvite: boolean,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users

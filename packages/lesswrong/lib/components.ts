@@ -261,6 +261,8 @@ importComponent("TabNavigationEventsList", () => require('../components/localGro
 importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
 importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
 
+importComponent("GatherTown", () => require('../components/localGroups/GatherTowns'));
+
 // comments
 
 importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
