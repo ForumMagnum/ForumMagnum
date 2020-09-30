@@ -29,7 +29,7 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
   // If clickAction is provided, disable link and replace with Click of the action
   return <div className={classes.root}>
     <Link
-      onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction(event, hit._id)}
+      onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       to={Posts.getPageUrl(hit)}
       target={Posts.getLinkTarget(hit)}
     >
