@@ -2,13 +2,17 @@ import { addCronJob } from './cronUtil';
 import { newMutation } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 
+const gatherTownRoomId = new DatabaseServerSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx")
+const gatherTownRoomName = new DatabaseServerSetting<string | null>("gatherTownRoomName", "lesswrong-campus")
+const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
+
 addCronJob({
   name: 'gatherTownGetUsers',
   schedule(parser) {
     return parser.text(`every 1 minute`);
   },
   async job() {
-    const gatherTownUsers = await getGatherTownUsers("the12thvirtue", "aPVfK3G76UukgiHx", "lesswrong-campus");
+    const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), gatherTownRoomId.get(), gatherTownRoomName.get());
     void newMutation({
       collection: LWEvents,
       document: {
@@ -27,6 +31,7 @@ addCronJob({
 
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
+import { DatabaseServerSetting } from './databaseSettings';
 
 const getGatherTownUsers = async (password, roomId, roomName) => {
   // Register new user to Firebase
