@@ -1398,6 +1398,20 @@ addFieldsDict(Users, {
     group: formGroups.default,
     label: "Restore the previous WYSIWYG editor",
     order: 72,
+  },
+  walledGardenInvite: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+  hideWalledGardenUI: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.siteCustomizations,
   }
 });
 
