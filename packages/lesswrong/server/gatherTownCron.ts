@@ -141,6 +141,7 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
           players[jsonResponse.message.info.name] = jsonResponse.message.info
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log(err)
       }
     }
@@ -165,4 +166,3 @@ function isJson(str) {
 
 // Wait utility function
 const wait = ms => new Promise((r, j) => setTimeout(r, ms))
-
