@@ -37,3 +37,14 @@ ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
 
 // Used in constructAkismetReport
 ensureIndex(LWEvents, {name:1, userId:1, createdAt:-1})
+
+LWEvents.addView("gatherTownUsers", function (terms) {
+  return {
+    selector: {
+      name: "gatherTownUsersCheck"
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+  }
+})
