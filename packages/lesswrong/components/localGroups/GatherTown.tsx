@@ -74,8 +74,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   userNames: {
     marginLeft: 5,
-    display: 'flex',
-    gap: '5px'
+  },
+  userName: {
+    marginLeft: 5
   }
 })
 
@@ -133,8 +134,8 @@ const GatherTown = ({classes}: {
           <div>A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm.</div>
         </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
-            Users Online: <span className={classes.userNames}>
-            {Object.keys(users).map(user => <span key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
+            Online: <span className={classes.userNames}>
+            {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
           </span>
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}> 

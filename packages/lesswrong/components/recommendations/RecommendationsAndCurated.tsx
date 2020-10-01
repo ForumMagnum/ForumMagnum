@@ -49,7 +49,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   posts: {
-    boxShadow: theme.boxShadow
+    boxShadow: theme.boxShadow,
+    whiteSpace: 'nowrap'
   }
 });
 
@@ -116,6 +117,9 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
+      {<AnalyticsContext pageSectionContext="Gather Town Welcome">
+        <GatherTown/>
+      </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
@@ -192,9 +196,7 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
-      {<AnalyticsContext pageSectionContext="Gather Town Welcome">
-        <GatherTown/>
-      </AnalyticsContext>}
+      
 
       {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
         <TagProgressBar/>
