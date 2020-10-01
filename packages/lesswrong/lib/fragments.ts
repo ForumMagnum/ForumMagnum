@@ -153,7 +153,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
-    walledGardenInvite
+    ...SharedUserBooleans
   }
 `);
 
@@ -327,6 +327,13 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SharedUserBooleans on User {
+    walledGardenInvite
+    hideWalledGardenUI
+  }
+`)
+
+registerFragment(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
     createdAt
@@ -365,7 +372,7 @@ registerFragment(`
     petrovPressedButtonDate
     sortDrafts
     reenableDraftJs
-    walledGardenInvite
+    ...SharedUserBooleans
   }
 `);
 

@@ -115,7 +115,8 @@ const RecommendationsAndCurated = ({
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
-    const showGatherTown = currentUser?.walledGardenInvite
+    console.log(currentUser)
+    // const showGatherTown = currentUser?.walledGardenInvite
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
@@ -194,7 +195,7 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
-      {showGatherTown && <AnalyticsContext pageSectionContext="Gather Town Welcome">
+      {<AnalyticsContext pageSectionContext="Gather Town Welcome">
         <GatherTown/>
       </AnalyticsContext>}
 

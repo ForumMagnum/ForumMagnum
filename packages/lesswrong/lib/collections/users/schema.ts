@@ -252,12 +252,6 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
-  },
-  walledGardenInvite: {
-    type: Boolean,
-    optional:true,
-    canUpdate: ['admins'],
-    group: adminGroup,
   }
 };
 
