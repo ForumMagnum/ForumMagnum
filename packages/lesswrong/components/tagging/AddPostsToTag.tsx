@@ -116,7 +116,7 @@ const AddPostsToTag = ({classes, tag}: {
     setIsAwaiting(false)
     flash({messageString: `Tagged post with '${tag.name} (Refresh Page)'`, type: "success"})
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
-  }, [mutate, flash, tag._id, tag.name, captureEvent]);
+  }, [mutate, flash, tag._id, tag.name, captureEvent, openDialog, currentUser]);
 
   const { SearchPagination, PostsListEditorSearchHit } = Components
   return <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
