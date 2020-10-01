@@ -11,23 +11,31 @@ import { useMessages } from '../common/withMessages';
 import { Tags } from '../../lib/collections/tags/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 
+export const progressBarRoot = (theme) => ({
+  background: "white",
+  padding: 10,
+  paddingLeft: 12,
+  paddingRight: 12,
+  fontSize: "1.3rem",
+  boxShadow: theme.boxShadow,
+  ...theme.typography.postStyle
+})
+
+export const secondaryInfo = (theme) => ({
+  display: 'flex',
+  ...theme.typography.commentStyle,
+  justifyContent: 'space-between',
+  fontSize: '1rem',
+  color: 'rgba(0,0,0,0.55)',
+  marginTop: 8
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    padding: 10,
-    paddingLeft: 12,
-    paddingRight: 12,
-    fontSize: "1.3rem",
-    boxShadow: theme.boxShadow,
-    ...theme.typography.postStyle
+    ...progressBarRoot(theme)
   },
   secondaryInfo: {
-    display: 'flex',
-    ...theme.typography.commentStyle,
-    justifyContent: 'space-between',
-    fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)',
-    marginTop: 8
+    ...secondaryInfo(theme)
   },
   helpText: {
   },

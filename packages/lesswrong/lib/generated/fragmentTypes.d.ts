@@ -864,7 +864,7 @@ interface NotificationsList { // fragment on Notifications
   readonly viewed: boolean,
 }
 
-interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
+interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly _id: string,
   readonly username: string,
   readonly createdAt: Date,
@@ -1056,7 +1056,12 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
 }
 
-interface UsersProfile extends UsersMinimumInfo { // fragment on Users
+interface SharedUserBooleans { // fragment on Users
+  readonly walledGardenInvite: boolean,
+  readonly hideWalledGardenUI: boolean,
+}
+
+interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly createdAt: Date,
   readonly isAdmin: boolean,
   readonly bio: string,
@@ -1154,6 +1159,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly deleted: boolean,
+  readonly hideWalledGardenUI: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -1717,6 +1723,7 @@ interface FragmentTypes {
   newEventFragment: newEventFragment
   lastEventFragment: lastEventFragment
   UsersMinimumInfo: UsersMinimumInfo
+  SharedUserBooleans: SharedUserBooleans
   UsersProfile: UsersProfile
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
