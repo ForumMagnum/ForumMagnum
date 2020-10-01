@@ -11,6 +11,7 @@ import Users from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
+import classNames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,7 +26,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     '&:hover $hide': {
       opacity: 1
-    }
+    },
+    marginBottom: 8
   },
   secondaryInfo: {
     ...secondaryInfo(theme),
@@ -37,6 +39,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...secondaryInfo(theme),
     justifyContent: 'flex-start',
     marginTop: 0
+  },
+  noUsers: {
+    fontSize: '0.8rem',
+    color: 'rgba(0,0,0,0.5)'
   },
   icon: {
     marginRight: 24,
@@ -60,6 +66,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2,
     display: 'inline-block',
     marginRight: '-2px'
+  },
+  redDot: {
+    color: theme.palette.error.main,
+    marginRight: 4,
+    top: '3.5px'
   },
   userNames: {
     marginLeft: 5,
@@ -126,8 +137,8 @@ const GatherTown = ({classes}: {
             {Object.keys(users).map(user => <span key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
           </span>
         </div>}
-        {userList && !userList.length && <div className={classes.usersOnlineList}> 
-          No users currently online. Check back later or be the first to join!
+        {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}> 
+          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.redDot)}/> No users currently online. Check back later or be the first to join!
         </div>}
       </div>
     </div>

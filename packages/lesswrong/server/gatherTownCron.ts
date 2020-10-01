@@ -6,27 +6,29 @@ const gatherTownRoomId = new DatabaseServerSetting<string | null>("gatherTownRoo
 const gatherTownRoomName = new DatabaseServerSetting<string | null>("gatherTownRoomName", "lesswrong-campus")
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
-addCronJob({
-  name: 'gatherTownGetUsers',
-  schedule(parser) {
-    return parser.text(`every 1 minute`);
-  },
-  async job() {
-    const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), gatherTownRoomId.get(), gatherTownRoomName.get());
-    void newMutation({
-      collection: LWEvents,
-      document: {
-        name: 'gatherTownUsersCheck',
-        important: false,
-        properties: {
-          time: new Date(),
-          gatherTownUsers
-        }
-      },
-      validate: false,
-    })
-  }
-});
+if (Meteor.isProduction) {
+  addCronJob({
+    name: 'gatherTownGetUsers',
+    schedule(parser) {
+      return parser.text(`every 3 minutes`);
+    },
+    async job() {
+      const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), gatherTownRoomId.get(), gatherTownRoomName.get());
+      void newMutation({
+        collection: LWEvents,
+        document: {
+          name: 'gatherTownUsersCheck',
+          important: false,
+          properties: {
+            time: new Date(),
+            gatherTownUsers
+          }
+        },
+        validate: false,
+      })
+    }
+  });
+}
 
 
 import fetch from 'node-fetch';
