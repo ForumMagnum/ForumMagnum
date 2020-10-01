@@ -104,8 +104,8 @@ const GatherTown = ({classes}: {
       <div>
         <div>You're invited to the <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus">Walled Garden Beta</a></div>
         <div className={classes.secondaryInfo}>
-          <div>A private, permanent virtual world. Coworking 12pm-6pm PT weekdays. Social hours at 1pm and 6pm.</div>
-          <a className={classes.hide} onClick={hideClickHandler}>Hide</a>
+          <div>A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm.</div>
+          <div className={classes.hide} onClick={hideClickHandler}>Hide</div>
         </div>
         {users && <div className={classes.usersOnlineList}>
             Users Online: <span className={classes.userNames}>
