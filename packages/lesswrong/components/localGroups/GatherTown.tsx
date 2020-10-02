@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 
 import { secondaryInfo } from '../tagging/TagProgressBar';
@@ -12,6 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,6 +78,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   userName: {
     marginLeft: 5
+  },
+  learn: {
+    marginLeft: 12,
+    fontSize: ".9em",
+    color: theme.palette.grey[500],
+    fontStyle: "italic"
   }
 })
 
@@ -101,6 +108,8 @@ const GatherTown = ({classes}: {
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
+
+  const { LWTooltip } = Components
 
 
   if (!currentUser || !currentUser.walledGardenInvite) return null
@@ -131,7 +140,7 @@ const GatherTown = ({classes}: {
       <div>
         <div>You're invited to the <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus">Walled Garden Beta</a></div>
         <div className={classes.secondaryInfo}>
-          <div>A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm.</div>
+          <div>A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm. <LWTooltip title="password: the12thvirtue"><Link to="/posts/znrqfd7Y5zthJDBvX/welcome-to-the-garden" className={classes.learn}>(Learn More)</Link></LWTooltip></div>
         </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
             Online: <span className={classes.userNames}>
