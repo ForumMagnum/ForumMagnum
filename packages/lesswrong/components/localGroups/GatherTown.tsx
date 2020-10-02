@@ -80,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 5
   },
   learn: {
-    marginLeft: 12,
+    marginLeft: 8,
     fontSize: ".9em",
     color: theme.palette.grey[500],
     fontStyle: "italic"
