@@ -103,7 +103,7 @@ const GatherTown = ({classes}: {
   });
 
 
-  if (!currentUser) return null
+  if (!currentUser || !currentUser.walledGardenInvite) return null
   if (currentUser.hideWalledGardenUI) return null
 
   const hideClickHandler = async () => {
