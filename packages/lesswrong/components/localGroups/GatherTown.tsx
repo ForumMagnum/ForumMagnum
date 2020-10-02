@@ -69,22 +69,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     marginRight: '-2px'
   },
-  redDot: {
-    color: theme.palette.error.main,
+  greyDot: {
+    color: theme.palette.grey[500],
     marginRight: 4,
     top: '3.5px'
   },
-  userNames: {
-    marginLeft: 5,
-    whiteSpace: "wrap"
-  },
   userName: {
-    marginLeft: 5,
+    marginRight: 5,
     whiteSpace: "pre"
   },
   learn: {
     marginLeft: 8,
-    fontSize: ".9em",
+    fontSize: ".8rem",
     color: theme.palette.grey[500],
     fontStyle: "italic"
   }
@@ -136,6 +132,16 @@ const GatherTown = ({classes}: {
       })
     })
   }
+
+  const tooltip = <LWTooltip title={
+    <div>
+      Click to read more about this space
+      <div>{"password: the12thvirtue"}</div></div>
+    }>
+      <Link to="/posts/znrqfd7Y5zthJDBvX/welcome-to-the-garden" className={classes.learn}>
+        Learn More
+      </Link>
+  </LWTooltip>
   return (
     <div className={classes.root}>
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />
@@ -143,18 +149,18 @@ const GatherTown = ({classes}: {
       <div>
         <div>You're invited to the <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus">Walled Garden Beta</a></div>
         <div className={classes.secondaryInfo}>
-          <div>A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm.</div>
+          <div>
+            A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm.
+          </div>
         </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
-            Online: 
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
+            {tooltip}
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}> 
-          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.redDot)}/> No users currently online. Check back later or be the first to join!
+          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/> No users currently online. Check back later or be the first to join!
+          {tooltip}
         </div>}
-      </div>
-      <div>
-        <LWTooltip title={<div>Click to read more about this space<div>{"password: the12thvirtue"}</div></div>}><Link to="/posts/znrqfd7Y5zthJDBvX/welcome-to-the-garden" className={classes.learn}>(Learn More)</Link></LWTooltip>
       </div>
     </div>
   )
