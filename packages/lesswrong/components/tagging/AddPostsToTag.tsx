@@ -81,7 +81,7 @@ const AddPostsToTag = ({classes, tag}: {
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const { captureEvent } = useTracking()
-  const { flash } = useMessages()
+  const { flash, clear } = useMessages()
   const [ searchOpen, setSearchOpen ] = useState(false)  
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -106,6 +106,7 @@ const AddPostsToTag = ({classes, tag}: {
       });
       return
     }
+    flash({messageString: `Tagged post with '${tag.name}'`, type: "success"})
     setIsAwaiting(true)
     await mutate({
       variables: {
@@ -114,7 +115,6 @@ const AddPostsToTag = ({classes, tag}: {
       },
     });    
     setIsAwaiting(false)
-    flash({messageString: `Tagged post with '${tag.name}'`, type: "success"})
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
   }, [mutate, flash, tag._id, tag.name, captureEvent, openDialog, currentUser]);
 
