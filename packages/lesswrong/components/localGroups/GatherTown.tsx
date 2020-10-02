@@ -39,6 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   usersOnlineList: {
     ...secondaryInfo(theme),
     justifyContent: 'flex-start',
+    flexWrap: "wrap",
     marginTop: 0
   },
   noUsers: {
@@ -75,9 +76,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   userNames: {
     marginLeft: 5,
+    whiteSpace: "wrap"
   },
   userName: {
-    marginLeft: 5
+    marginLeft: 5,
+    whiteSpace: "pre"
   },
   learn: {
     marginLeft: 8,
@@ -140,16 +143,18 @@ const GatherTown = ({classes}: {
       <div>
         <div>You're invited to the <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus">Walled Garden Beta</a></div>
         <div className={classes.secondaryInfo}>
-          <div>A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm. <LWTooltip title={<div>Click to read more about this space<div>{"password: the12thvirtue"}</div></div>}><Link to="/posts/znrqfd7Y5zthJDBvX/welcome-to-the-garden" className={classes.learn}>(Learn More)</Link></LWTooltip></div>
+          <div>A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm.</div>
         </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
-            Online: <span className={classes.userNames}>
+            Online: 
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
-          </span>
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}> 
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.redDot)}/> No users currently online. Check back later or be the first to join!
         </div>}
+      </div>
+      <div>
+        <LWTooltip title={<div>Click to read more about this space<div>{"password: the12thvirtue"}</div></div>}><Link to="/posts/znrqfd7Y5zthJDBvX/welcome-to-the-garden" className={classes.learn}>(Learn More)</Link></LWTooltip>
       </div>
     </div>
   )
