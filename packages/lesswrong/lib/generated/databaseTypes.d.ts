@@ -284,6 +284,7 @@ interface ReadStatusesCollection extends CollectionBase<DbReadStatus> {
 
 interface DbReadStatus extends DbObject {
   postId: string
+  tagId: string
   userId: string
   isRead: boolean
   lastUpdated: Date

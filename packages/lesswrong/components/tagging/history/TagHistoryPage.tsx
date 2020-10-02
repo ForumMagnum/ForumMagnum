@@ -44,8 +44,7 @@ const TagHistoryPage = ({classes}: {
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
-  const { UsersName } = Components;
-  const {SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost} = Components;
+  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost } = Components;
   
   if (loadingTag || !tag) {
     return <SingleColumnSection>
@@ -57,6 +56,7 @@ const TagHistoryPage = ({classes}: {
     <h1>{tag.name}</h1>
     <div className={classes.feed}>
     <MixedTypeFeed
+      pageSize={50}
       resolverName="TagHistoryFeed"
       resolverArgs={{
         tagId: "String!",
@@ -76,19 +76,25 @@ const TagHistoryPage = ({classes}: {
           fragmentName: "RevisionHistoryEntry",
           render: (revision: RevisionHistoryEntry) => <div>
             <TagRevisionItem
+              tag={tag}
               revision={revision}
+              headingStyle={"abridged"}
               documentId={tag._id}
-              linkUrl={Tags.getRevisionLink(tag, revision.version)}
             />
           </div>,
         },
         tagApplied: {
           fragmentName: "TagRelHistoryFragment",
-          render: (application: TagRelHistoryFragment) => <div className={classes.singleLineEvent}>
-            Applied to <LinkToPost post={application.post}/>
-            {" by "}
-            <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
-          </div>
+          render: (application: TagRelHistoryFragment) => {
+            if (!application.post)
+              return null;
+            
+            return <div className={classes.singleLineEvent}>
+              Applied to <LinkToPost post={application.post}/>
+              {" by "}
+              <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
+            </div>
+          }
         },
         tagDiscussionComment: {
           fragmentName: "CommentsList",

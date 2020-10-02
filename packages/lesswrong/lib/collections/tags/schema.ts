@@ -2,6 +2,7 @@ import { schemaDefaultValue } from '../../collectionUtils'
 import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
+import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 
 const formGroups = {
@@ -261,7 +262,44 @@ export const schema: SchemaType<DbTag> = {
     type: Boolean,
     optional: true,
     viewableBy: ['guests']
-  }
+  },
+  
+  // lastVisitedAt: If the user is logged in and has viewed this tag, the date
+  // they last viewed it. Otherwise, null.
+  lastVisitedAt: resolverOnlyField({
+    type: Date,
+    viewableBy: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
+      if (!currentUser) return null;
+
+      const readStatus = await getWithLoader(ReadStatuses,
+        `tagReadStatuses`,
+        { userId: currentUser._id },
+        'tagId', tag._id
+      );
+      if (!readStatus.length) return null;
+      return readStatus[0].lastUpdated;
+    }
+  }),
+  
+  isRead: resolverOnlyField({
+    type: Boolean,
+    viewableBy: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
+      if (!currentUser) return false;
+      
+      const readStatus = await getWithLoader(ReadStatuses,
+        `tagReadStatuses`,
+        { userId: currentUser._id },
+        'tagId', tag._id
+      );
+      if (!readStatus.length) return false;
+      return readStatus[0].isRead;
+    }
+  }),
+
 }
 
 export const wikiGradeDefinitions = {

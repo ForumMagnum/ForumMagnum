@@ -19,7 +19,7 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
-import { PostsReadContext } from './common/withRecordPostView';
+import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
@@ -133,6 +133,7 @@ interface LayoutState {
   timezone: string,
   toc: any,
   postsRead: Record<string,boolean>,
+  tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
 }
 
@@ -148,6 +149,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       timezone: savedTimezone,
       toc: null,
       postsRead: {},
+      tagsRead: {},
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
 
@@ -275,13 +277,19 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
-      <PostsReadContext.Provider value={{
+      <ItemsReadContext.Provider value={{
         postsRead: this.state.postsRead,
         setPostRead: (postId: string, isRead: boolean): void => {
           this.setState({
             postsRead: {...this.state.postsRead, [postId]: isRead}
           })
-        }
+        },
+        tagsRead: this.state.tagsRead,
+        setTagRead: (tagId: string, isRead: boolean): void => {
+          this.setState({
+            tagsRead: {...this.state.tagsRead, [tagId]: isRead}
+          })
+        },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
@@ -341,7 +349,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
-      </PostsReadContext.Provider>
+      </ItemsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
       </AnalyticsContext>

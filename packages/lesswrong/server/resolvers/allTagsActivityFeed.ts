@@ -1,54 +1,38 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
+import { accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { mergeFeedQueries, feedSubquery, defineFeedResolver, viewBasedSubquery } from '../utils/feedUtil';
+import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { defineFeedResolver, feedSubquery, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
-import * as _ from 'underscore';
 
 defineFeedResolver<Date>({
-  name: "TagHistoryFeed",
-  args: "tagId: String!",
+  name: "AllTagsActivityFeed",
+  args: "",
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
     tagCreated: Tag
-    tagApplied: TagRel
     tagRevision: Revision
     tagDiscussionComment: Comment
   `,
-  resolver: async ({limit=50, cutoff, args, context}: {
-    limit?: number,
-    cutoff?: Date,
-    args: {tagId: string},
+  resolver: async ({limit=20, cutoff, args, context}: {
+    limit?: number, cutoff?: Date,
+    args: {af: boolean},
     context: ResolverContext
   }) => {
-    const {tagId} = args;
+    type SortKeyType = Date;
     const {currentUser} = context;
     
-    const tagRaw = Tags.findOne({_id: tagId});
-    const tag = await accessFilterSingle(currentUser, Tags, tagRaw, context);
-    if (!tag) throw new Error("Tag not found");
-    
-    type SortKeyType = Date
-    
     const result = await mergeFeedQueries<SortKeyType>({
-      limit,
-      cutoff,
+      limit, cutoff,
       subqueries: [
         // Tag creation
-        fixedResultSubquery({
-          type: "tagCreated",
-          result: tag,
-          sortKey: tag.createdAt,
-        }),
-        // Tag applications
         viewBasedSubquery({
-          type: "tagApplied",
-          collection: TagRels,
+          type: "tagCreated",
+          collection: Tags,
           sortField: "createdAt",
           context,
-          selector: {tagId},
+          selector: {}
         }),
         // Tag revisions
         viewBasedSubquery({
@@ -57,7 +41,6 @@ defineFeedResolver<Date>({
           sortField: "editedAt",
           context,
           selector: {
-            documentId: tagId,
             collectionName: "Tags",
             fieldName: "description",
             
@@ -76,8 +59,7 @@ defineFeedResolver<Date>({
           sortField: "postedAt",
           context,
           selector: {
-            parentCommentId: null,
-            tagId,
+            tagId: {$ne: null},
           },
         }),
       ],

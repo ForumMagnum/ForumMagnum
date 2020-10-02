@@ -91,9 +91,10 @@ const RecentDiscussionFeed = ({
             fragmentName: "RevisionTagFragment",
             render: (revision: RevisionTagFragment) => <div>
               {revision.tag && <TagRevisionItem
+                tag={revision.tag}
                 revision={revision}
+                headingStyle="full"
                 documentId={revision.documentId}
-                linkUrl={Tags.getRevisionLink(revision.tag, revision.version)}
               />}
             </div>,
           },

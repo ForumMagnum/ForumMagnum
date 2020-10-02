@@ -270,6 +270,12 @@ addRoute(
     title: 'Tag Voting Activity'
   },
   {
+    name: 'tagFeed',
+    path: '/tagFeed',
+    componentName: 'TagActivityFeed',
+    title: 'Tag Activity'
+  },
+  {
     name: 'search',
     path: '/search',
     componentName: 'SearchPage',

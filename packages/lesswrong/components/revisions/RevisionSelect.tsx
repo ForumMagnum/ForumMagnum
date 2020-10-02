@@ -26,12 +26,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   radioDisabled: {
     color: "rgba(0,0,0,0) !important",
   },
-  charsAdded: {
-    color: "#008800",
-  },
-  charsRemoved: {
-    color: "#880000",
-  },
   button: {
     marginBottom: 12,
     marginTop: 6
@@ -60,7 +54,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   count?: number,
   totalCount?: number
 }) => {
-  const { FormatDate, UsersName, LoadMore, LWTooltip } = Components;
+  const { FormatDate, UsersName, LoadMore, LWTooltip, ChangeMetricsDisplay } = Components;
   
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
@@ -79,7 +73,6 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
       {revisions.map((rev,i) => {
         const beforeDisabled = i<=afterRevisionIndex;
         const afterDisabled = i>=beforeRevisionIndex;
-        const { added, removed } = rev.changeMetrics;
         
         return (
           <tr key={rev.version} className={classes.revisionRow}>
@@ -121,14 +114,9 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
               </Link>
             </td>
             <td>
-              {(added>0 && removed>0)
-                  && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
-                {(added>0 && removed==0)
-                  && <span className={classes.charsAdded}>(+{added})</span>}
-                {(added==0 && removed>0)
-                  && <span className={classes.charsRemoved}>(-{removed})</span>}
-                {" "}
-                {rev.commitMessage}
+              <ChangeMetricsDisplay changeMetrics={rev.changeMetrics}/>
+              {" "}
+              {rev.commitMessage}
             </td>
           </tr>
         )

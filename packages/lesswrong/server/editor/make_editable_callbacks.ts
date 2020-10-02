@@ -3,7 +3,7 @@ import { sanitize } from '../vulcan-lib/utils';
 import { Random } from 'meteor/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
-import Revisions from '../../lib/collections/revisions/collection'
+import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
@@ -453,11 +453,6 @@ export function addEditableCallbacks({collection, options = {}}: {
   
   addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationAfterCreate)
   //addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationAfterCreateOrUpdate)
-}
-
-interface ChangeMetrics {
-  added: number
-  removed: number
 }
 
 /// Given an HTML diff, where added sections are marked with <ins> and <del>

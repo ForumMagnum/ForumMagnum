@@ -1488,6 +1488,7 @@ interface TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean,
   readonly description: TagFragment_description|null,
 }
 
@@ -1499,11 +1500,20 @@ interface TagFragment_description { // fragment on Revisions
 }
 
 interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
-  readonly createdAt: Date,
   readonly user: UsersMinimumInfo|null,
 }
 
+interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
+  readonly user: UsersMinimumInfo|null,
+  readonly description: TagCreationHistoryFragment_description|null,
+}
+
+interface TagCreationHistoryFragment_description { // fragment on Revisions
+  readonly html: string,
+}
+
 interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
 }
 
@@ -1535,6 +1545,7 @@ interface TagEditFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagRecentDiscussion extends TagFragment { // fragment on Tags
+  readonly lastVisitedAt: Date,
   readonly recentComments: Array<CommentsList>,
 }
 
@@ -1757,6 +1768,7 @@ interface FragmentTypes {
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
   TagHistoryFragment: TagHistoryFragment
+  TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment

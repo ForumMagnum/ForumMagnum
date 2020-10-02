@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -6,6 +6,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import { useRecordTagView } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -50,9 +51,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0
     }
   },
+  metadata: {
+    fontSize: "1.1rem",
+    color: theme.palette.grey[600],
+    ...theme.typography.commentStyle,
+  },
 });
 
-const RecentDiscussionTag = ({ tag, comments, expandAllThreads, classes }: {
+const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, classes }: {
   tag: TagRecentDiscussion,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
@@ -60,13 +66,28 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads, classes }: {
 }) => {
   const { CommentsNode, ContentItemBody } = Components;
   const [truncated, setTruncated] = useState(true);
+  const [expandAllThreads, setExpandAllThreads] = useState(false);
+  const [readStatus, setReadStatus] = useState(false);
+  const { isRead, recordTagView } = useRecordTagView(tag);
+  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   
+  const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
   
-  const clickExpandDescription = () => {
+  const markAsRead = useCallback(
+    () => {
+      setReadStatus(true);
+      setMarkedAsVisitedAt(new Date());
+      setExpandAllThreads(true);
+      recordTagView({tag, extraEventProperties: {type: "recentDiscussionTagClick"}})
+    },
+    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordTagView, tag]
+  );
+  const clickExpandDescription = useCallback(() => {
     setTruncated(false);
-  };
+    setExpandAllThreads(true);
+  }, []);
   
   const descriptionHtml = tag.description?.html;
   const maybeTruncatedDescriptionHtml = truncated
@@ -78,6 +99,13 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads, classes }: {
       <Link to={Tags.getDiscussionUrl(tag)} className={classes.title}>
         {tag.name}
       </Link>
+      
+      <div className={classes.metadata}>
+        {tag.wikiOnly
+          ? <span>Wiki page</span>
+          : <span>Tag page - {tag.postCount} posts</span>
+        }
+      </div>
       
       <div onClick={clickExpandDescription} className={classes.tagDescription}>
         <ContentItemBody
@@ -94,13 +122,13 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads, classes }: {
           <div key={comment.item._id}>
             <CommentsNode
               startThreadTruncated={true}
-              //expandAllThreads={initialExpandAllThreads || expandAllThreads}
+              expandAllThreads={initialExpandAllThreads || expandAllThreads}
               scrollOnExpand
               nestingLevel={1}
               lastCommentId={lastCommentId}
               comment={comment.item}
-              //markAsRead={markAsRead}
-              //highlightDate={lastVisitedAt}
+              markAsRead={markAsRead}
+              highlightDate={lastVisitedAt}
               //eslint-disable-next-line react/no-children-prop
               children={comment.children}
               key={comment.item._id}
