@@ -43,6 +43,25 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRelCreationFragment on TagRel {
+    ...TagRelBasicInfo
+    tag {
+      ...TagPreviewFragment
+    }
+    post {
+      ...PostsList
+      tagRelevance
+      tagRel(tagId: $tagId) {
+        ...WithVoteTagRel
+      }
+    }
+    currentUserVotes {
+      ...VoteFragment
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagRelMinimumFragment on TagRel {
     ...TagRelBasicInfo
     tag {

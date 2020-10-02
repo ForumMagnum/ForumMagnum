@@ -68,7 +68,13 @@ const DeferredComponentsTable = {};
 type C<T=any> = React.ComponentType<T>
 type HoC<O,T> = (component: C<O>) => C<T>
 
-const addClassnames = (componentName: string) => {
+type EmailRenderContextType = {
+  isEmailRender: boolean
+}
+
+export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
+
+const addClassnames = (componentName: string, styles: any) => {
   const classesProxy = new Proxy({}, {
     get: function(obj: any, prop: any) {
       // Check that the prop is really a string. This isn't an error that comes
@@ -81,6 +87,12 @@ const addClassnames = (componentName: string) => {
     }
   });
   return (WrappedComponent) => (props) => {
+    const emailRenderContext = React.useContext(EmailRenderContext);
+    if (emailRenderContext?.isEmailRender) {
+      const withStylesHoc = withStyles(styles, {name: componentName})
+      const StylesWrappedComponent = withStylesHoc(WrappedComponent)
+      return <StylesWrappedComponent {...props}/>
+    }
     return <WrappedComponent {...props} classes={classesProxy}/>
   }
 }
@@ -102,7 +114,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
     if (Meteor.isClient && (window as any).missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
-      hocs.push(addClassnames(name));
+      hocs.push(addClassnames(name, styles));
     }
   }
   

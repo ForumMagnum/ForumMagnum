@@ -77,6 +77,8 @@ import './server/recommendations';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 
+import './server/gatherTownCron';
+
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 

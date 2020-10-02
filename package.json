@@ -135,7 +135,7 @@
     "intl": "^1.2.4",
     "jsdom": "^13.1.0",
     "jsonwebtoken": "^8.5.1",
-    "juice": "^1.11.0",
+    "juice": "^7.0.0",
     "logrocket": "^1.0.0",
     "lolex": "^3.0.0",
     "lru-cache": "^5.1.1",

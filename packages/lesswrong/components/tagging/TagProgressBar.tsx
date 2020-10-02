@@ -11,23 +11,31 @@ import { useMessages } from '../common/withMessages';
 import { Tags } from '../../lib/collections/tags/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 
+export const progressBarRoot = (theme) => ({
+  background: "white",
+  padding: 10,
+  paddingLeft: 12,
+  paddingRight: 12,
+  fontSize: "1.3rem",
+  boxShadow: theme.boxShadow,
+  ...theme.typography.postStyle
+})
+
+export const secondaryInfo = (theme) => ({
+  display: 'flex',
+  ...theme.typography.commentStyle,
+  justifyContent: 'space-between',
+  fontSize: '1rem',
+  color: 'rgba(0,0,0,0.55)',
+  marginTop: 8
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    padding: 10,
-    paddingLeft: 12,
-    paddingRight: 12,
-    fontSize: "1.3rem",
-    boxShadow: theme.boxShadow,
-    ...theme.typography.postStyle
+    ...progressBarRoot(theme)
   },
   secondaryInfo: {
-    display: 'flex',
-    ...theme.typography.commentStyle,
-    justifyContent: 'space-between',
-    fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)',
-    marginTop: 8
+    ...secondaryInfo(theme)
   },
   helpText: {
   },
@@ -136,7 +144,7 @@ const TagProgressBar = ({ classes }: {
   if (!allTagsToProcessTotal || !processedTagsTotal) return null
 
   const allPostsTooltip = processedTagsTotal < allTagsToProcessTotal ?
-    `${allTagsToProcessTotal - processedTagsTotal} pages out of ${allTagsToProcessTotal} from the LW 1.0 Wiki still need processing` :
+    `${allTagsToProcessTotal - processedTagsTotal} pages to go!` :
     `All tags and wiki pages from the LW Wiki import have been processed!`
 
   return <div className={classes.root}>
@@ -147,11 +155,11 @@ const TagProgressBar = ({ classes }: {
           </Link>
         <PostsItem2MetaInfo>
           <Link className={classes.allTagsBarColor} to={"/posts/ELN6FpRLoeLJPgx8z/importing-the-old-lw-wiki-help-wanted"}>
-            How to Help
+            What's the Import?
             </Link>
           <SeparatorBullet />
           <Link className={classes.allTagsBarColor} to="/tags/dashboard">
-            Process Pages
+            Help Process Pages
           </Link>
         </PostsItem2MetaInfo>
         <LWTooltip title={<div>
@@ -171,7 +179,7 @@ const TagProgressBar = ({ classes }: {
       }
       <div className={classes.secondaryInfo}>
         <div className={classes.helpText}>
-          <span className={classes.allTagsBarColor}>{allTagsToProcessTotal - processedTagsTotal} pages from the LW 1.0 Wiki still need processing.{" "} </span>
+          <span className={classes.allTagsBarColor}>{processedTagsTotal} of {allTagsToProcessTotal} ({Math.round((processedTagsTotal / allTagsToProcessTotal) * 100)}%) pages from the LW 1.0 Wiki have been processed!{" "} </span>
         </div>
         <LWTooltip title={"Hide this progress bar from the frontpage"}>
           <a

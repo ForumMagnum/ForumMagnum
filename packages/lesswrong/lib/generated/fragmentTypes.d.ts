@@ -875,7 +875,7 @@ interface NotificationsList { // fragment on Notifications
   readonly viewed: boolean,
 }
 
-interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
+interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly _id: string,
   readonly username: string,
   readonly createdAt: Date,
@@ -943,6 +943,8 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
+  readonly petrovPressedButtonDate: Date,
+  readonly petrovLaunchCodeDate: Date,
 }
 
 interface UserBookmarks { // fragment on Users
@@ -1065,7 +1067,12 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
 }
 
-interface UsersProfile extends UsersMinimumInfo { // fragment on Users
+interface SharedUserBooleans { // fragment on Users
+  readonly walledGardenInvite: boolean,
+  readonly hideWalledGardenUI: boolean,
+}
+
+interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly createdAt: Date,
   readonly isAdmin: boolean,
   readonly bio: string,
@@ -1097,6 +1104,7 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
+  readonly petrovPressedButtonDate: Date,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
 }
@@ -1162,6 +1170,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly deleted: boolean,
+  readonly hideWalledGardenUI: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -1627,6 +1636,18 @@ interface VotedItem { // fragment on Votes
   readonly votedAt: Date,
 }
 
+interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
+  readonly createdAt: Date,
+  readonly launchCode: string,
+  readonly hashedLaunchCode: string,
+}
+
+interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly launchCode: string,
+}
+
 interface NewRelatedPostRel { // fragment on PostRelations
   readonly _id: string,
   readonly type: string,
@@ -1741,6 +1762,7 @@ interface FragmentTypes {
   newEventFragment: newEventFragment
   lastEventFragment: lastEventFragment
   UsersMinimumInfo: UsersMinimumInfo
+  SharedUserBooleans: SharedUserBooleans
   UsersProfile: UsersProfile
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
@@ -1783,10 +1805,12 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   VotedItem: VotedItem
+  PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
+  PetrovDayLaunch: PetrovDayLaunch
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
 
