@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Tags } from '../../lib/collections/tags/collection';
 
 const TagActivityFeed = ({classes}: {
   classes: ClassesType

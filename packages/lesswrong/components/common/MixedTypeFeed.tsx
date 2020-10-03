@@ -99,7 +99,7 @@ const MixedTypeFeed = (args: {
         onLoadFinished: (result: FeedResponse<Date,any>) => void
       }) {
         const callbackInvoked = useRef({invoked:false});
-        const {data, loading, error} = useQuery(query, {
+        const {data, error} = useQuery(query, {
           variables: {
             ...resolverArgsValues,
             ...fragmentArgsValues,
