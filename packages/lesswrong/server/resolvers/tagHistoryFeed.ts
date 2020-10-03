@@ -4,7 +4,6 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
-import * as _ from 'underscore';
 
 defineFeedResolver<Date>({
   name: "TagHistoryFeed",

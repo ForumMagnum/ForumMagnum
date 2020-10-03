@@ -33,7 +33,7 @@ const RecentDiscussionFeed = ({
     [setShowShortformFeed, showShortformFeed]
   );
   
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, AnalyticsInViewTracker, LoadMore, MixedTypeFeed, RecentDiscussionThread, CommentsNode, TagRevisionItem, RecentDiscussionTag } = Components
+  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, MixedTypeFeed, RecentDiscussionThread, CommentsNode, TagRevisionItem, RecentDiscussionTag } = Components
   
   const refetch = useCallback(() => {
     // TODO

@@ -166,7 +166,8 @@ const InfiniteScrollSegment = <ResultType extends any>({page, renderResult}: {
 // the screen, is within `distance` of being visible. This is used for infinite
 // scroll; the next segment starts loading when the scroll position reaches
 // `distance` of the bottom.
-function elementIsNearVisible(element: HTMLElement, distance: number) {
+function elementIsNearVisible(element: HTMLElement|null, distance: number) {
+  if (!element) return false;
   const top = element.getBoundingClientRect().y;
   const windowHeight = window.innerHeight;
   return (top-distance) <= windowHeight;

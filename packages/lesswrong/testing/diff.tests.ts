@@ -1,6 +1,5 @@
 import { diffHtml, trimHtmlDiff } from '../server/resolvers/diffResolvers';
 import { chai } from 'meteor/practicalmeteor:chai';
-import chaiAsPromised from 'chai-as-promised';
 
 describe('diffHtml', () => {
   it('passes unchanged HTML through', () => {

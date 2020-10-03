@@ -1,7 +1,7 @@
 import Revisions from '../../lib/collections/revisions/collection'
 import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
-import { markdownToHtmlNoLaTeX, dataToMarkdown, getPrecedingRev } from '../editor/make_editable_callbacks'
+import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { addFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'

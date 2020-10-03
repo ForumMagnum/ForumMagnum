@@ -1,7 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
-import { accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { mergeFeedQueries, feedSubquery, defineFeedResolver, viewBasedSubquery } from '../utils/feedUtil';
-import { Posts } from '../../lib/collections/posts/collection';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery } from '../utils/feedUtil';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
@@ -21,7 +18,6 @@ defineFeedResolver<Date>({
     context: ResolverContext
   }) => {
     type SortKeyType = Date;
-    const {currentUser} = context;
     
     const result = await mergeFeedQueries<SortKeyType>({
       limit, cutoff,
