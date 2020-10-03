@@ -1,13 +1,7 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { Tags } from '../../../lib/collections/tags/collection';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
-
-interface HistoryEntry {
-  sortPosition: Date,
-  component: React.ReactNode,
-}
 
 const styles = (theme: ThemeType): JssStyles => ({
   feed: {
@@ -17,26 +11,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: 8,
   },
 });
-
-const tagCreationHistoryEntry = (tag: TagHistoryFragment): HistoryEntry => {
-  const {UsersName} = Components;
-  return {
-    sortPosition: tag.createdAt,
-    component: <div>
-      Created by <UsersName user={tag.user}/>
-    </div>
-  };
-}
-
-const revisionToHistoryEntry = (rev: RevisionMetadataWithChangeMetrics): HistoryEntry => {
-  const {UsersName} = Components;
-  return {
-    sortPosition: rev.editedAt,
-    component: <div>
-      Edited by <UsersName documentId={rev.userId}/>
-    </div>
-  };
-}
 
 const TagHistoryPage = ({classes}: {
   classes: ClassesType,

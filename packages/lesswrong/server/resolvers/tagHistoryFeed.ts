@@ -1,10 +1,9 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { defineFeedResolver, feedSubquery, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery } from '../utils/feedUtil';
 import * as _ from 'underscore';
 
 defineFeedResolver<Date>({

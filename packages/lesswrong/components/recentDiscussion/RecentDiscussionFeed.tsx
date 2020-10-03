@@ -1,9 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Tags } from '../../lib/collections/tags/collection';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -38,6 +34,10 @@ const RecentDiscussionFeed = ({
   );
   
   const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, AnalyticsInViewTracker, LoadMore, MixedTypeFeed, RecentDiscussionThread, CommentsNode, TagRevisionItem, RecentDiscussionTag } = Components
+  
+  const refetch = useCallback(() => {
+    // TODO
+  }, []);
 
   return (
     <SingleColumnSection>
@@ -72,6 +72,7 @@ const RecentDiscussionFeed = ({
             render: (post: PostsRecentDiscussion) => <div>
               <RecentDiscussionThread
                 post={post}
+                refetch={refetch}
                 comments={post.recentComments}
                 expandAllThreads={expandAll}
               />

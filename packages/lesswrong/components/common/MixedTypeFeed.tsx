@@ -1,6 +1,6 @@
 import React, {useRef} from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { FeedRequest, FeedResponse, FeedLoaderComponent } from './InfiniteScroller'
+import { FeedRequest, FeedResponse } from './InfiniteScroller'
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 
@@ -77,7 +77,7 @@ const MixedTypeFeed = (args: {
   const {InfiniteScroller, Loading} = Components;
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
   
-  const {data: firstPageData, loading: firstPageLoading, error: firstPageError} = useQuery(query, {
+  const {data: firstPageData, error: firstPageError} = useQuery(query, {
     variables: {
       ...resolverArgsValues,
       cutoff: null,
@@ -102,6 +102,7 @@ const MixedTypeFeed = (args: {
         const {data, loading, error} = useQuery(query, {
           variables: {
             ...resolverArgsValues,
+            ...fragmentArgsValues,
             cutoff: request.cutoff,
             limit: request.limit,
           },

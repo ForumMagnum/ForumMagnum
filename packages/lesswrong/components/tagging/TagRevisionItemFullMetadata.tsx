@@ -30,9 +30,8 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   revision: RevisionMetadataWithChangeMetrics,
   classes: ClassesType,
 }) => {
-  const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay } = Components
+  const { FormatDate, UsersName, ChangeMetricsDisplay } = Components
   const tagUrl = Tags.getUrl(tag);
-  const revUrl = Tags.getRevisionLink(tag, revision.version);
   
   return <div>
     <div className={classes.tagName}>

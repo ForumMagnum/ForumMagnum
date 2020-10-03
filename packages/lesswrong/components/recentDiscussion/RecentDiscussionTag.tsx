@@ -68,7 +68,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
-  const { isRead, recordTagView } = useRecordTagView(tag);
+  const {recordTagView} = useRecordTagView(tag);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   
   const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt

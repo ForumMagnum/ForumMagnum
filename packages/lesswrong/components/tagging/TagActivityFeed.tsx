@@ -5,7 +5,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 const TagActivityFeed = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, UsersName, FormatDate, NewTagItem, SectionTitle } = Components;
+  const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, NewTagItem, SectionTitle } = Components;
   
   return <SingleColumnSection>
     <SectionTitle title="Recent Tag/Wiki Activity"/>
