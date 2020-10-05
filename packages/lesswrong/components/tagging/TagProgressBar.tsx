@@ -91,26 +91,26 @@ const TagProgressBar = ({ classes }: {
 
   const { totalCount: unprocessedTagsTotal = 0 } = useMulti({
     terms: {
-      view: "unprocessedLWWikiTags",
-      limit: 0
+      view: "unprocessedLWWikiTags"
     },
     collection: Tags,
     fragmentName: "TagFragment",
     enableTotal: true,
     fetchPolicy: 'cache-and-network',
-    ssr: true
+    ssr: true,
+    limit: 0
   })
 
   const { totalCount: allTagsToProcessTotal = 0 } = useMulti({
     terms: {
-      view: "allLWWikiTags",
-      limit: 0
+      view: "allLWWikiTags"
     },
     collection: Tags,
     fragmentName: "TagFragment",
     enableTotal: true,
     fetchPolicy: 'cache-and-network',
-    ssr: true
+    ssr: true,
+    limit: 0
   })
 
   const processedTagsTotal = allTagsToProcessTotal - unprocessedTagsTotal;
