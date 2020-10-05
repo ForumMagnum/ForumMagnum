@@ -23,7 +23,8 @@ export const sanitize = function(s: string): string {
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       span: ['style'],
-      div: ['class']
+      div: ['class'],
+      a: ['href', 'name', 'target', 'rel']
     },
     allowedClasses: {
       div: [ 'spoilers' ],
