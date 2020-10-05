@@ -87,7 +87,6 @@ const TagProgressBar = ({ classes }: {
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
-
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
