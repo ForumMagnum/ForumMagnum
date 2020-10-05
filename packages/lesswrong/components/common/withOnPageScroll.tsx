@@ -10,5 +10,5 @@ export const useOnPageScroll = (onScrollFn: ()=>void) => {
         document.removeEventListener('scroll', onScrollFn);
       };
     }
-  });
+  }, [onScrollFn]);
 }

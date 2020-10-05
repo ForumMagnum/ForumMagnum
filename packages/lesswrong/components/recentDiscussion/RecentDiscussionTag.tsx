@@ -129,8 +129,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
               comment={comment.item}
               markAsRead={markAsRead}
               highlightDate={lastVisitedAt}
-              //eslint-disable-next-line react/no-children-prop
-              children={comment.children}
+              childComments={comment.children}
               key={comment.item._id}
               tag={tag}
               //refetch={refetch}

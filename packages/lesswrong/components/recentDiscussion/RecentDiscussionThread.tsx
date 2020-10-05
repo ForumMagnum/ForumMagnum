@@ -197,8 +197,7 @@ const RecentDiscussionThread = ({
                   comment={comment.item}
                   markAsRead={markAsRead}
                   highlightDate={lastVisitedAt}
-                  //eslint-disable-next-line react/no-children-prop
-                  children={comment.children}
+                  childComments={comment.children}
                   key={comment.item._id}
                   post={post}
                   refetch={refetch}
