@@ -8,8 +8,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
-import { Tags } from '../../lib/collections/tags/collection';
-import { useMulti } from '../../lib/crud/withMulti';
 
 export const progressBarRoot = (theme) => ({
   background: "white",
@@ -89,32 +87,6 @@ const TagProgressBar = ({ classes }: {
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
-  const { totalCount: unprocessedTagsTotal = 0 } = useMulti({
-    terms: {
-      view: "unprocessedLWWikiTags",
-      limit: 0
-    },
-    collection: Tags,
-    fragmentName: "TagFragment",
-    enableTotal: true,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  })
-
-  const { totalCount: allTagsToProcessTotal = 0 } = useMulti({
-    terms: {
-      view: "allLWWikiTags",
-      limit: 0
-    },
-    collection: Tags,
-    fragmentName: "TagFragment",
-    enableTotal: true,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  })
-
-  const processedTagsTotal = allTagsToProcessTotal - unprocessedTagsTotal;
-
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
@@ -141,11 +113,7 @@ const TagProgressBar = ({ classes }: {
     }
   }
 
-  if (!allTagsToProcessTotal || !processedTagsTotal) return null
-
-  const allPostsTooltip = processedTagsTotal < allTagsToProcessTotal ?
-    `${allTagsToProcessTotal - processedTagsTotal} pages to go!` :
-    `All tags and wiki pages from the LW Wiki import have been processed!`
+  const allPostsTooltip = `All tags and wiki pages from the LW Wiki import have been processed!`
 
   return <div className={classes.root}>
     <div className={classes.inner}>
@@ -173,13 +141,13 @@ const TagProgressBar = ({ classes }: {
           <LinearProgress
             classes={{ root: classes.barRoot }}
             variant="determinate"
-            value={(processedTagsTotal / allTagsToProcessTotal) * 100}
+            value={100}
           />
         </LWTooltip>
       }
       <div className={classes.secondaryInfo}>
         <div className={classes.helpText}>
-          <span className={classes.allTagsBarColor}>{processedTagsTotal} of {allTagsToProcessTotal} ({Math.round((processedTagsTotal / allTagsToProcessTotal) * 100)}%) pages from the LW 1.0 Wiki have been processed!{" "} </span>
+          <span className={classes.allTagsBarColor}> All pages from the LW 1.0 Wiki have been processed!{" "} </span>
         </div>
         <LWTooltip title={"Hide this progress bar from the frontpage"}>
           <a
