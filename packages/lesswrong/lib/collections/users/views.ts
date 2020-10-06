@@ -272,3 +272,11 @@ ensureIndex(Users, {petrovCodesEnteredHashed: 1})
 
 
 
+Users.addView("walledGardenInvitees", function () {
+  return {
+    selector: {
+      walledGardenInvite: true
+    }
+  }
+})
+ensureIndex(Users, {walledGardenInvite: 1})
