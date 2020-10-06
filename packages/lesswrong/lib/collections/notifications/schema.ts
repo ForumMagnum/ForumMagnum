@@ -1,7 +1,8 @@
 import Users from '../users/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { SchemaType } from '../../utils/schemaUtils';
 
-const schema = {
+const schema: SchemaType<DbNotification> = {
   userId: {
     type: String,
     foreignKey: "Users",

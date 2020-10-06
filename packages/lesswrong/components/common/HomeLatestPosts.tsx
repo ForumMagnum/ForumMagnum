@@ -14,7 +14,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
     display: "flex",
     marginBottom: 8,
@@ -27,12 +27,12 @@ const styles = theme => ({
     marginRight: "auto"
   },
   toggleFilters: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       display: "none"
     },
   },
   hideOnMobile: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       display: "none"
     }
   }
@@ -62,6 +62,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
   const limit = parseInt(query.limit) || 13
+  
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
 
@@ -84,7 +85,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             </LWTooltip>
           </Typography>
          
-          <AnalyticsContext pageSectionContext="tagFilterSettings">   
+          <AnalyticsContext pageSectionContext="tagFilterSettings">
               <div className={classes.toggleFilters}>
                 <SettingsButton 
                   label={filterSettingsVisible  ? "Hide Filters" : "Show Tag Filters"}
@@ -96,14 +97,14 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                       settings: filterSettings,
                       pageSectionContext: "latestPosts"
                     })
-                  }} /> 
+                  }} />
               </div>
               <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
                 <TagFilterSettings
                   filterSettings={filterSettings} setFilterSettings={(newSettings) => {
                     setFilterSettings(newSettings)
                     if (currentUser) {
-                      updateUser({
+                      void updateUser({
                         selector: { _id: currentUser._id},
                         data: {
                           frontpageFilterSettings: newSettings

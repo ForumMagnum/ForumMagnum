@@ -1,9 +1,8 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: theme.spacing.unit,
     fontStyle: "italic",
@@ -11,9 +10,11 @@ const styles = theme => ({
   }
 });
 
-const PostsNoResults = ({classes}) =>
+const PostsNoResults = ({classes}: {
+  classes: ClassesType,
+}) =>
   <Typography variant="body2" className={classes.root}>
-    <FormattedMessage id="posts.no_results"/>
+    No posts to display.
   </Typography>;
 
 const PostsNoResultsComponent = registerComponent('PostsNoResults', PostsNoResults, {styles});

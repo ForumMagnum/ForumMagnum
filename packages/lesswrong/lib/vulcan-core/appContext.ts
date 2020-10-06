@@ -13,7 +13,7 @@ export const ServerRequestStatusContext = React.createContext<any>(null);
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-export const parsePath = function parsePath(path) {
+export const parsePath = function parsePath(path: string) {
   var pathname = path || '/';
   var search = '';
   var hash = '';
@@ -90,7 +90,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
     }
   }
   
-  const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
+  const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
   const result = {
     currentRoute, RouteComponent, location, params,
     pathname: location.pathname,

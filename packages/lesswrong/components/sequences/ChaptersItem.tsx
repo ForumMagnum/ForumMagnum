@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginLeft: 10,
     fontSize: 20,
@@ -39,7 +39,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
 
   const { ChaptersEditForm, SectionTitle, SectionFooter,
     SectionButton, SequencesPostsList, ContentItemBody } = Components
-  const { html = "" } = chapter.contents
+  const html = chapter.contents?.html || ""
   if (edit) return (
     <ChaptersEditForm
       documentId={chapter._id}

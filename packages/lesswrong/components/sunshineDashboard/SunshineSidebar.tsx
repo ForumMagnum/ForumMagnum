@@ -6,7 +6,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     display:"none",
@@ -37,37 +37,43 @@ const SunshineSidebar = ({classes}) => {
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
 
-  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
+  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewTagsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
 
   if (!currentUser) return null
 
+  const showInitialSidebar = Users.canDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
+
   return (
     <div className={classes.root}>
-      {Users.canDo(currentUser, 'posts.moderate.all') && <div className={classes.background}>
+      {showInitialSidebar && <div className={classes.background}>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
         <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+        <SunshineNewTagsList />
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         
         {/* alignmentForumAdmins see AF content above the fold */}
-        { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
+        { currentUser.groups?.includes('alignmentForumAdmins') && <div>
           <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
           <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
           <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
         </div>}
       </div>}
 
-      { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
-        Hide Full Sidebar
-          <KeyboardArrowDownIcon />
-        </div>
-        :
-        <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
-          Show Full Sidebar
-          <KeyboardArrowRightIcon />
-        </div>}
+      {Users.canDo(currentUser, 'posts.moderate.all') && <div>
+        { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
+          Hide Full Sidebar
+            <KeyboardArrowDownIcon />
+          </div>
+          :
+          <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
+            Show Full Sidebar
+            <KeyboardArrowRightIcon />
+          </div>}
+      </div>}
 
-      { showSidebar && <div>
+
+      { showSidebar && Users.canDo(currentUser, 'posts.moderate.all') && <div>
         {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}        
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
 

@@ -9,7 +9,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, detectLocale, registerComponent, runCallbacks, Strings } from '../../lib/vulcan-lib';
+import { Components, registerComponent, runCallbacks, Strings } from '../../lib/vulcan-lib';
 import { MessageContext } from '../common/withMessages';
 
 const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', null) // An image used to represent the site on social media
@@ -24,10 +24,9 @@ class App extends PureComponent<any,any> {
     if (props.currentUser) {
       runCallbacks('events.identify', props.currentUser);
     }
-    const { locale, localeMethod } = this.initLocale();
+    const locale = localeSetting.get();
     this.state = {
       locale,
-      localeMethod,
       messages: [],
     };
     moment.locale(locale);
@@ -59,41 +58,6 @@ class App extends PureComponent<any,any> {
       this.setState({ messages: []});
     }, 500)
   }
-
-  initLocale = () => {
-    let userLocale = '';
-    let localeMethod = '';
-    const { cookies, locale } = this.props;
-    const availableLocales = Object.keys(Strings);
-    const detectedLocale = detectLocale();
-
-    if (locale) {
-      // 1. locale is passed through SSR process
-      // TODO: currently SSR locale is passed through cookies as a hack
-      userLocale = locale;
-      localeMethod = 'SSR';
-    } else if (cookies && cookies.get('locale')) {
-      // 2. look for a cookie
-      userLocale = cookies.get('locale');
-      localeMethod = 'cookie';
-    } else if (detectedLocale) {
-      // 3. else, check for browser settings
-      userLocale = detectedLocale;
-      localeMethod = 'browser';
-    }
-    // if user locale is available, use it; else compare first two chars
-    // of user locale with first two chars of available locales
-    const availableLocale = Strings[userLocale]
-      ? userLocale
-      : availableLocales.find(locale => locale.slice(0, 2) === userLocale.slice(0, 2));
-
-    // 4. if user-defined locale is available, use it; else default to setting or `en-US`
-    if (availableLocale) {
-      return { locale: availableLocale, localeMethod };
-    } else {
-      return { locale: localeSetting.get(), localeMethod: 'setting' };
-    }
-  };
 
   getLocale = (truncate?: boolean) => {
     return truncate ? this.state.locale.slice(0, 2) : this.state.locale;

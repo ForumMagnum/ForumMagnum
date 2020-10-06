@@ -1,8 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from "react";
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 
-const PostsNoMore = props => <p className="posts-no-more"><FormattedMessage id="posts.no_more"/></p>;
+const PostsNoMore = () => <p className="posts-no-more">No more posts.</p>;
 
 const PostsNoMoreComponent = registerComponent('PostsNoMore', PostsNoMore);
 

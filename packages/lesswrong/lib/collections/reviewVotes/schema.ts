@@ -1,9 +1,9 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 import SimpleSchema from 'simpl-schema'
 
-const schema = {
+const schema: SchemaType<DbReviewVote> = {
   createdAt: {
     type: Date,
     optional: true,
@@ -15,7 +15,8 @@ const schema = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],
@@ -27,6 +28,7 @@ const schema = {
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: true,
     }),
     viewableBy: ['guests'],
   },

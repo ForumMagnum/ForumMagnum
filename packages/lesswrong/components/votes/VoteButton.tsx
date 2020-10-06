@@ -12,7 +12,7 @@ import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.grey[400],
     fontSize: 'inherit',
@@ -106,7 +106,7 @@ const VoteButton = ({
     setBigVoteCompleted(false);
   }
 
-  const wrappedVote = (type) => {
+  const wrappedVote = (type: string) => {
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
@@ -129,7 +129,7 @@ const VoteButton = ({
     }
   }
 
-  const hasVoted = (type) => {
+  const hasVoted = (type: string) => {
     return hasVotedClient({userVotes: document.currentUserVotes, voteType: type})
   }
 

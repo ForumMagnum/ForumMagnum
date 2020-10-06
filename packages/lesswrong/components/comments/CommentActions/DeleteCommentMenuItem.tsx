@@ -27,7 +27,7 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
     });
   }
 
-  handleUndoDelete = (event) => {
+  handleUndoDelete = (event: React.MouseEvent) => {
     const { moderateCommentMutation, comment, flash } = this.props;
     event.preventDefault();
     moderateCommentMutation({

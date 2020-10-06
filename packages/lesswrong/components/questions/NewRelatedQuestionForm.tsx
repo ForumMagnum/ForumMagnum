@@ -4,7 +4,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
     maxWidth:650,
     paddingBottom: theme.spacing.unit*4,
@@ -68,10 +68,10 @@ const NewRelatedQuestionForm = ({ post, classes, refetch }: {
           hiddenRelatedQuestion: false,
           originalPostRelationSourceId: post._id
         }}
-        successCallback={(...args) => {
+        successCallback={() => {
           // This refetches the post data so that the Related Questions list will show the new question.
           refetch()
-          flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+          flash({ messageString: "Post created.", type: 'success'});
         }}
         formComponents={{
           FormSubmit: QuestionSubmit,

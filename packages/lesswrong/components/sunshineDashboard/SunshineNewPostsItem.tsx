@@ -13,12 +13,10 @@ import Button from '@material-ui/core/Button';
 import gql from 'graphql-tag';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
-import GroupIcon from '@material-ui/icons/Group';
 import ClearIcon from '@material-ui/icons/Clear';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postHighlightStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     width: 14,
     marginRight: 4
@@ -63,7 +61,7 @@ const SunshineNewPostsItem = ({post, classes}: {
       if (selectedTags[tagId])
         tagsApplied.push(tagId);
     }
-    addTagsMutation({
+    void addTagsMutation({
       variables: {
         postId: post._id,
         tagIds: tagsApplied,
@@ -73,7 +71,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const handleReview = () => {
     applyTags();
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         reviewedByUserId: currentUser!._id,
@@ -85,7 +83,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const handlePromote = () => {
     applyTags();
     
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         frontpageDate: new Date(),
@@ -95,24 +93,11 @@ const SunshineNewPostsItem = ({post, classes}: {
     })
   }
   
-  const handleMoveToCommunity = () => {
-    applyTags();
-    
-    updatePost({
-      selector: { _id: post._id},
-      data: {
-        meta: true,
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
-    })
-  }
-
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
       window.open(Users.getProfileUrl(post.user), '_blank');
-      updatePost({
+      void updatePost({
         selector: { _id: post._id},
         data: {
           draft: true,
@@ -123,9 +108,9 @@ const SunshineNewPostsItem = ({post, classes}: {
 
   const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
-  const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
+  const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
-  const moderationSection = post.moderationStyle || post.user.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
+  const moderationSection = post.moderationStyle || post.user?.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
 
   return (
     <span {...eventHandlers}>
@@ -142,9 +127,6 @@ const SunshineNewPostsItem = ({post, classes}: {
               {post.submitToFrontpage && <Button onClick={handlePromote}>
                 <HomeIcon className={classes.icon} /> Frontpage
               </Button>}
-              {forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
-                <GroupIcon className={classes.icon} /> Community
-              </Button>}
               <Button onClick={handleDelete}>
                 <ClearIcon className={classes.icon} /> Draft
               </Button>
@@ -155,11 +137,11 @@ const SunshineNewPostsItem = ({post, classes}: {
               </Link>
             </Typography>
             {moderationSection && <div className={classes.moderation}>
-              {(post.moderationStyle || post.user.moderationStyle) && <div>
+              {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>
                   <span>Mod Style: </span>
-                  { post.moderationStyle || post.user.moderationStyle }
-                  {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
+                  { post.moderationStyle || post.user?.moderationStyle }
+                  {!post.moderationStyle && post.user?.moderationStyle && <span> (Default User Style)</span>}
                 </MetaInfo>
               </div>}
               {(modGuidelinesHtml || userGuidelinesHtml) && <div>
@@ -171,7 +153,7 @@ const SunshineNewPostsItem = ({post, classes}: {
             </div>}
             <div className={classes.post}>
               <LinkPostMessage post={post} />
-              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html}} description={`post ${post._id}`}/> }
+              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
             </div>
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>

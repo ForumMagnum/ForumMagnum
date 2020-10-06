@@ -16,6 +16,10 @@ export const assert = (b: boolean, message?: string) => {
   }
 }
 
+function maybeNullable(type: string, nullable: boolean) {
+  return nullable ? `${type} | null` : type 
+}
+
 export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType): string {
   if (simplSchemaType.singleType == Array) {
     const elementFieldName = `${fieldName}.$`;
@@ -24,11 +28,12 @@ export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType):
     const typescriptStrElementType = simplSchemaTypeToTypescript(schema, elementFieldName, schema[elementFieldName].type);
     return `Array<${typescriptStrElementType}>`;
   } else if (simplSchemaType.singleType) {
-    if (simplSchemaType.singleType == String) return "string";
-    else if (simplSchemaType.singleType == Boolean) return "boolean";
-    else if (simplSchemaType.singleType == Number) return "number";
-    else if (simplSchemaType.singleType == Date) return "Date";
-    else if (simplSchemaType.singleType == SimpleSchema.Integer) return "number";
+    const nullable = !!schema[fieldName]?.nullable
+    if (simplSchemaType.singleType == String) return maybeNullable("string", nullable);
+    else if (simplSchemaType.singleType == Boolean) return maybeNullable("boolean", nullable);
+    else if (simplSchemaType.singleType == Number) return maybeNullable("number", nullable);
+    else if (simplSchemaType.singleType == Date) return maybeNullable("Date", nullable);
+    else if (simplSchemaType.singleType == SimpleSchema.Integer) return maybeNullable("number", nullable);
     
     const graphQLtype = simplSchemaToGraphQLtype(simplSchemaType.singleType);
     if (graphQLtype) {
@@ -42,13 +47,19 @@ export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType):
   }
 }
 
-export function graphqlTypeToTypescript(graphqlType: any): string {
+export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
   if (graphqlType == GraphQLJSON) return "any";
-  if (graphqlType.startsWith("[") && graphqlType.endsWith("]")) {
-    const arrayElementType = graphqlType.endsWith("!]") ? graphqlType.substr(1,graphqlType.length-3) : graphqlType.substr(1,graphqlType.length-2);
-    return `Array<${graphqlTypeToTypescript(arrayElementType )}>`;
+  
+  if (graphqlType.endsWith("!")) {
+    return graphqlTypeToTypescript(graphqlType.substr(0, graphqlType.length-1), true);
   }
+  
+  if (graphqlType.startsWith("[") && graphqlType.endsWith("]")) {
+    const arrayElementType = graphqlType.substr(1,graphqlType.length-2);
+    return `Array<${graphqlTypeToTypescript(arrayElementType, false)}>`;
+  }
+  
   switch(graphqlType) {
     case "Int": return "number";
     case "Boolean": return "boolean";
@@ -56,9 +67,16 @@ export function graphqlTypeToTypescript(graphqlType: any): string {
     case "Date": return "Date";
     case "Float": return "number";
     default:
-      if (typeof graphqlType=="string" && getCollection(getCollectionName(graphqlType))) {
-        return graphqlType;
-      } else if (graphqlType.collectionName) {
+      if (typeof graphqlType=="string") {
+        if (graphqlType.endsWith("!") && getCollection(getCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
+          return graphqlType;
+        } else if (getCollection(getCollectionName(graphqlType))) {
+          if (nonnull) return graphqlType;
+          else return `${graphqlType}|null`;
+        }
+      }
+      
+      if (graphqlType.collectionName) {
         return graphqlType.collectionName;
       } else {
         // TODO

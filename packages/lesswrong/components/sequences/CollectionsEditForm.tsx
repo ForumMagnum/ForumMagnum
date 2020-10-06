@@ -2,7 +2,11 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import React from 'react';
 import Collections from '../../lib/collections/collections/collection';
 
-const CollectionsEditForm = ({documentId, successCallback, cancelCallback}) => {
+const CollectionsEditForm = ({documentId, successCallback, cancelCallback}: {
+  documentId: string,
+  successCallback: any,
+  cancelCallback: any,
+}) => {
   return (
     <div className="chapters-edit-form">
       <Components.WrappedSmartForm

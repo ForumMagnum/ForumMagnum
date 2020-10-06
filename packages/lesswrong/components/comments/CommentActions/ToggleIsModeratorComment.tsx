@@ -19,14 +19,14 @@ const ToggleIsModeratorComment = ({comment}: {
     return null;
   }
   
-  const handleMarkAsModeratorComment = (event) => {
-    updateComment({
+  const handleMarkAsModeratorComment = (event: React.MouseEvent) => {
+    void updateComment({
       selector: { _id: comment._id },
       data: { moderatorHat: true }
     });
   }
-  const handleUnmarkAsModeratorComment = (event) => {
-    updateComment({
+  const handleUnmarkAsModeratorComment = (event: React.MouseEvent) => {
+    void updateComment({
       selector: { _id: comment._id },
       data: { moderatorHat: false }
     });

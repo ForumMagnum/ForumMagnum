@@ -3,20 +3,12 @@ import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { defaultFilterSettings } from '../../filterSettings';
-import { forumTypeSetting } from "../../instanceSettings";
-import { hasEventsSetting } from '../../publicSettings';
+import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
-
-export const hashPetrovCode = (code) => {
-  // @ts-ignore
-  const crypto = Npm.require('crypto');
-  var hash = crypto.createHash('sha256');
-  hash.update(code);
-  return hash.digest('base64');
-};
+import GraphQLJSON from 'graphql-type-json';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
@@ -29,6 +21,11 @@ export const formGroups = {
     order:60,
     name: "moderation",
     label: "Moderation & Moderation Guidelines",
+  },
+  siteCustomizations: {
+    order: 1, 
+    label: "Site Customizations",
+    name: "siteCustomizations"
   },
   banUser: {
     order:50,
@@ -86,6 +83,12 @@ export const defaultNotificationTypeSettings = {
   dayOfWeekGMT: "Monday",
 };
 
+export interface KarmaChangeSettingsType {
+  updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
+  timeOfDayGMT: number
+  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
+  showNegativeKarma: boolean
+}
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
@@ -173,7 +176,7 @@ const partiallyReadSequenceItem = new SimpleSchema({
 addFieldsDict(Users, {
   createdAt: {
     type: Date,
-    onInsert: (user, options) => {
+    onInsert: (user: DbUser, currentUser: DbUser) => {
       return user.createdAt || new Date();
     },
     canRead: ["guests"]
@@ -219,10 +222,10 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     order: 43,
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     control: "select",
     form: {
-      // TODO – maybe factor out??
+      // TODO - maybe factor out??
       options: function () { // options for the select form control
         let commentViews = [
           {value:'postCommentsTop', label: 'magical algorithm'},
@@ -239,6 +242,26 @@ addFieldsDict(Users, {
     },
   },
 
+
+  sortDrafts: {
+    type: String,
+    optional: true,
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+    label: "Sort Drafts by",
+    order: 43,
+    group: formGroups.siteCustomizations,
+    control: "select",
+    form: {
+      options: function () { // options for the select form control
+        return [
+          {value:'wordCount', label: 'Wordcount'},
+          {value:'modifiedAt', label: 'Last Modified'},
+        ];
+      }
+    },
+  },
+
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
     order: 70,
@@ -247,7 +270,7 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     canCreate: ['members'],
     control: 'checkbox',
     label: "Hide Intercom"
@@ -256,7 +279,7 @@ addFieldsDict(Users, {
   // This field-name is no longer accurate, but is here because we used to have that field
   // around and then removed `markDownCommentEditor` and merged it into this field.
   markDownPostEditor: {
-    order: 70,
+    order: 71,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -264,7 +287,7 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
   },
 
@@ -594,7 +617,7 @@ addFieldsDict(Users, {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user, args, context: ResolverContext) => {
+    resolver: async (user: DbUser, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = LWEvents.find(
         {userId: user._id, name: 'login'},
@@ -696,7 +719,7 @@ addFieldsDict(Users, {
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
-    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.jsx
+    type: karmaChangeSettingsType, // See KarmaChangeNotifierSettings.tsx
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [Users.owns, 'admins'],
@@ -950,6 +973,18 @@ addFieldsDict(Users, {
     label: "Hide the frontpage map"
   },
 
+  hideTaggingProgressBar: {
+    type: Boolean, 
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true, 
+    hidden: false,
+    label: "Hide the tagging progress bar",
+    order: 45,
+    group: formGroups.siteCustomizations
+  },
+
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -976,6 +1011,7 @@ addFieldsDict(Users, {
       resolverName: "reviewedByUser",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['sunshineRegiment', 'admins'],
@@ -1148,23 +1184,14 @@ addFieldsDict(Users, {
       idFieldName: "shortformFeedId",
       resolverName: "shortformFeed",
       collectionName: "Posts",
-      type: "Post"
+      type: "Post",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
-  },
-
-  sunshineShowNewUserContent: {
-    type: Boolean,
-    optional: true,
-    defaultValue: false,
-    canRead: ['guests'],
-    group: formGroups.adminOptions,
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
   },
 
   viewUnreviewedComments: {
@@ -1195,9 +1222,9 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     label: "Opt into experimental features",
-    order: 71,
+    order: 70,
   },
   reviewVotesQuadratic: {
     type: Boolean,
@@ -1212,32 +1239,17 @@ addFieldsDict(Users, {
     control: 'datetime',
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.adminOptions,
     hidden: true
   },
-  petrovCodesEnteredDate: {
+  petrovLaunchCodeDate: {
     type: Date,
     optional: true,
-    canRead: ['guests'],
     control: 'datetime',
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true
-  },
-  petrovCodesEntered: {
-    type: String,
-    optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.adminOptions,
     hidden: true
-  },
-  petrovCodesEnteredHashed: {
-    type: String,
-    optional: true,
-    ...denormalizedField({
-      needsUpdate: data => ('petrovCodesEntered' in data),
-      getValue: async (user) => {
-        return hashPetrovCode(user.petrovCodesEntered)
-      }
-    }),
   },
   defaultToCKEditor: {
     // this fieldis deprecated
@@ -1332,7 +1344,8 @@ addFieldsDict(Users, {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: async (user, { limit }, context: ResolverContext) => {
+      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
+        const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts, context);
@@ -1362,6 +1375,43 @@ addFieldsDict(Users, {
     }),
     canRead: ['guests'],
     ...schemaDefaultValue(0)
+  },
+  abTestKey: {
+    type: String,
+    optional: true,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+  abTestOverrides: {
+    type: GraphQLJSON, //Record<string,number>
+    optional: true, hidden: true,
+    canRead: [Users.owns],
+    canUpdate: ['admins'],
+  },
+  reenableDraftJs: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    tooltip: "Restore the old Draft-JS based editor",
+    group: formGroups.default,
+    label: "Restore the previous WYSIWYG editor",
+    order: 72,
+  },
+  walledGardenInvite: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+  hideWalledGardenUI: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.siteCustomizations,
   }
 });
 
@@ -1389,12 +1439,12 @@ makeEditable({
 addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
-const createDisplayName = user => {
+const createDisplayName = (user: DbUser): string=> {
   const profileName = Utils.getNestedProperty(user, 'profile.name');
   const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
   if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
-  return undefined;
+  return "[missing username]";
 }

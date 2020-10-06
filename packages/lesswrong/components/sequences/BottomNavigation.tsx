@@ -4,7 +4,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative"
   },

@@ -49,7 +49,12 @@ const SequencesGridWrapper = ({
   }
 };
 
-const SequencesGridWrapperComponent = registerComponent('SequencesGridWrapper', SequencesGridWrapper, {styles});
+const SequencesGridWrapperComponent = registerComponent('SequencesGridWrapper', SequencesGridWrapper, {
+  styles,
+  areEqual: {
+    terms: "deep"
+  }
+});
 
 declare global {
   interface ComponentTypes {

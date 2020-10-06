@@ -3,7 +3,7 @@ import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 
-function getDateFormat(dense, isThisYear) {
+function getDateFormat(dense: boolean, isThisYear: boolean): string {
   if (dense) {
     if (isThisYear) {
       return 'DD MMM'; // 5 Jan

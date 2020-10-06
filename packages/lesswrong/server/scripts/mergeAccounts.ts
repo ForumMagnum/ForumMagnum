@@ -5,6 +5,7 @@ import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
 
 
@@ -19,7 +20,12 @@ const transferOwnership = async ({documentId, targetUserId, collection, fieldNam
   })
 }
 
-const transferCollection = async ({sourceUserId, targetUserId, collectionName, fieldName = "userId"}) => {
+const transferCollection = async ({sourceUserId, targetUserId, collectionName, fieldName = "userId"}: {
+  sourceUserId: string,
+  targetUserId: string,
+  collectionName: CollectionNameString,
+  fieldName?: string
+}) => {
   const collection = getCollection(collectionName)
   const documents = await collection.find({[fieldName]: sourceUserId}).fetch()
   // eslint-disable-next-line no-console
@@ -29,8 +35,8 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
     // Transfer ownership of all revisions and denormalized references for editable fields
     const editableFieldNames = editableCollectionsFields[collectionName]
     if (editableFieldNames?.length) {
-      editableFieldNames.forEach((editableFieldName) => {
-        transferEditableField({documentId: doc._id, targetUserId, collection, fieldName: editableFieldName})
+      await asyncForeachSequential(editableFieldNames, async (editableFieldName) => {
+        await transferEditableField({documentId: doc._id, targetUserId, collection, fieldName: editableFieldName})
       })
     }
   }
@@ -39,9 +45,9 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
   })
 }
 
-const transferEditableField = ({documentId, targetUserId, collection, fieldName = "contents"}) => {
+const transferEditableField = async ({documentId, targetUserId, collection, fieldName = "contents"}) => {
   // Update the denormalized revision on the document
-  editMutation({
+  await editMutation({
     collection,
     documentId,
     set: {[`${fieldName}.userId`]: targetUserId},
@@ -52,7 +58,7 @@ const transferEditableField = ({documentId, targetUserId, collection, fieldName 
   Revisions.update({ documentId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
 }
 
-const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}) => {
+const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}: {sourceUserId: string, targetUserId: string, postId: string}) => {
   const sourceUserStatus = ReadStatuses.findOne({userId: sourceUserId, postId})
   const targetUserStatus = ReadStatuses.findOne({userId: targetUserId, postId})
   const sourceMostRecentlyUpdated = (sourceUserStatus && targetUserStatus) ? (new Date(sourceUserStatus.lastUpdated) > new Date(targetUserStatus.lastUpdated)) : !!sourceUserStatus
@@ -67,7 +73,7 @@ const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}) => {
   }
 }
 
-Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
+Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   const sourceUser = Users.findOne({_id: sourceUserId})
   const targetUser = Users.findOne({_id: targetUserId})
   if (!sourceUser) throw Error(`Can't find sourceUser with Id: ${sourceUserId}`)
@@ -161,7 +167,7 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
 }
 
 
-async function recomputeKarma(userId) {
+async function recomputeKarma(userId: string) {
   const user = await Users.findOne({_id: userId})
   if (!user) throw Error("Can't find user")
   const allTargetVotes = await Votes.find({

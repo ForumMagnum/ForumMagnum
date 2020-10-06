@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
@@ -9,7 +8,7 @@ import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
@@ -21,7 +20,8 @@ interface ExternalProps {
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
   highlightDate?: Date,
-  post: PostsBase,
+  post?: PostsBase,
+  tag?: TagBasicInfo,
   postPage?: boolean,
   condensed?: boolean,
   startThreadTruncated?: boolean,
@@ -56,7 +56,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
     addKeydownListener(this.handleKeyDown);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: CommentsListProps, nextState: CommentsListState) {
     if(!shallowEqual(this.state, nextState))
       return true;
 
@@ -68,7 +68,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
 
     if ((this.props.post==null) != (nextProps.post==null))
       return true;
-    if (this.props.post && this.props.post._id != nextProps.post._id)
+    if (this.props.post?._id != nextProps.post?._id)
       return true;
     if ((this.props.post as any)?.contents?.version != (nextProps.post as any)?.contents?.version)
       return true;
@@ -78,10 +78,10 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
     return false;
   }
 
-  commentTreesDiffer(oldComments, newComments) {
-    if(oldComments===null && newComments!==null) return true;
-    if(oldComments!==null && newComments===null) return true;
-    if(newComments===null) return false;
+  commentTreesDiffer(oldComments: Array<CommentTreeNode<CommentsList>>, newComments: Array<CommentTreeNode<CommentsList>>) {
+    if(!oldComments && !!newComments) return true;
+    if(!!oldComments && !newComments) return true;
+    if(!newComments) return false;
 
     if(oldComments.length != newComments.length)
       return true;
@@ -125,12 +125,12 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   }
 
   render() {
-    const { comments, highlightDate, post, postPage, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
+    const { comments, highlightDate, post, postPage, tag, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
 
     const { expandAllThreads } = this.state
-    const { lastVisitedAt } = post
-    const lastCommentedAt = Posts.getLastCommentedAt(post)
-    const unreadComments = lastVisitedAt < lastCommentedAt;
+    const lastVisitedAt = post?.lastVisitedAt;
+    const lastCommentedAt = post ? Posts.getLastCommentedAt(post) : null;
+    const unreadComments = lastVisitedAt && lastCommentedAt && (lastVisitedAt < lastCommentedAt);
 
     if (comments) {
       return (
@@ -151,6 +151,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
                 key={comment.item._id}
                 highlightDate={highlightDate}
                 post={post}
+                tag={tag}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
                 condensed={condensed}
@@ -158,7 +159,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
                 forceNotSingleLine={forceNotSingleLine}
                 hideSingleLineMeta={hideSingleLineMeta}
                 enableHoverPreview={enableHoverPreview}
-                shortform={post.shortform}
+                shortform={post?.shortform}
                 child={defaultNestingLevel > 1}
                 markAsRead={markAsRead}
               />)
@@ -169,9 +170,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
     } else {
       return (
         <div>
-          <p>
-            <FormattedMessage id="comments.no_comments"/>
-          </p>
+          <p>No comments to display.</p>
         </div>
       )
     }

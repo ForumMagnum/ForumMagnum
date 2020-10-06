@@ -68,7 +68,7 @@ export function passwordSignupFields() {
   return Accounts.ui._options.passwordSignupFields || 'USERNAME_AND_EMAIL';
 }
 
-export function validateEmail(email, showMessage, clearMessage) {
+export function validateEmail(email: string, showMessage, clearMessage): boolean {
   if (passwordSignupFields() === 'USERNAME_AND_OPTIONAL_EMAIL' && email === '') {
     return true;
   }
@@ -119,7 +119,7 @@ export function redirect(redirect) {
   }
 }
 
-export function capitalize(string) {
+export function capitalize(string: string): string {
   return string.replace(/-/, ' ').split(' ').map(word => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }).join(' ');

@@ -15,7 +15,7 @@ const TODAY_STRING = "[Today]"
 const TOMORROW_STRING = "[Tomorrow]"
 const HIGHLIGHT_LENGTH = 600
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   subItemOverride: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -78,7 +78,11 @@ const styles = createStyles(theme => ({
 }))
 
 
-const TabNavigationEventsList = ({ terms, onClick, classes }) => {
+const TabNavigationEventsList = ({ terms, onClick, classes }: {
+  terms: any,
+  onClick: ()=>void,
+  classes: ClassesType,
+}) => {
   const { timezone } = useTimezone();
   const { results } = useMulti({
     terms,
@@ -132,7 +136,6 @@ const TabNavigationEventsList = ({ terms, onClick, classes }) => {
                 <div dangerouslySetInnerHTML={{__html: highlight}} className={classes.highlight} />
               </React.Fragment>}
           </div>
-
         return (
           <LWTooltip key={event._id} placement="right-start" title={tooltip}>
             <MenuItemUntyped

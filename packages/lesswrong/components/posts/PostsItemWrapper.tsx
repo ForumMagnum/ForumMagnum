@@ -5,7 +5,7 @@ import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -42,7 +42,7 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
   classes: ClassesType,
   removeItem: any,
 }) => {
-  const { PostsTitle, PostsItem2MetaInfo } = Components
+  const { PostsTitle, PostsItem2MetaInfo, PostsUserAndCoauthors } = Components
   const { document, loading } = useSingle({
     documentId,
     collection: Posts,
@@ -56,7 +56,7 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
         <PostsTitle post={document} isLink={false}/>
       </span>
       <PostsItem2MetaInfo className={classes.meta}>
-        {document.user.displayName}
+        <PostsUserAndCoauthors post={document} abbreviateIfLong={true}/>
       </PostsItem2MetaInfo>
       <PostsItem2MetaInfo className={classes.meta}>
         {document.baseScore} points

@@ -1,14 +1,15 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 
-const schema = {
+const schema: SchemaType<DbReadStatus> = {
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: false,
     }),
   },
   userId: {
@@ -17,6 +18,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
   },
   isRead: {

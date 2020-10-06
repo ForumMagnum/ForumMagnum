@@ -3,7 +3,7 @@ import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     color: "rgba(0,0,0,.5)",
     fontSize: "12px",

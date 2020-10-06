@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import { FilterTag } from './filterSettings';
 // We initialize these public settings to make it available on both the client and the server,
 // but they get initialized via separate pathways on the client and on the server
 // Server: See databaseSettings.ts in the server directory
@@ -65,7 +66,6 @@ export const algoliaPrefixSetting = new DatabasePublicSetting<string | null>('al
 export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null) // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.webSocketUrl', null) // Websocket URL for CKEditor (for collaboration)
 export const logRocketApiKeySetting = new DatabasePublicSetting<string | null>('logRocket.apiKey', null) // LogRocket API Key
-export const hasEventsSetting = new DatabasePublicSetting<boolean>('hasEvents', true) // Whether the current connected server has events activated
 
 export const hideUnreviewedAuthorCommentsSettings = new DatabasePublicSetting<boolean>('hideUnreviewedAuthorComments', false) // Hide comments by unreviewed authors (prevents spam, but delays new user engagement)
 export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('cloudinary.cloudName', 'lesswrong-2-0') // Cloud name for cloudinary hosting
@@ -74,3 +74,11 @@ export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('fo
 
 export const localeSetting = new DatabasePublicSetting<string>('locale', 'en-US')
 export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('legacyRouteAcronym', 'lw') // Because the EA Forum was identical except for the change from /lw/ to /ea/
+
+// frontpageFilterSettings default tag filter
+//
+// At the risk of premature future-proofing, this setting, which is initially
+// here to allow the EA Forum to nudge down the visibility of posts with the
+// Community tag, can be trivially applied to personalBlog, frontpage, and
+// curated, if those ever get refactored into tags.
+export const defaultVisibilityTags = new DatabasePublicSetting<Array<FilterTag>>('defaultVisibilityTags', [])

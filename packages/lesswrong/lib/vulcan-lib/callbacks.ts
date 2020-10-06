@@ -46,9 +46,9 @@ export const addCallback = function (hook, callback) {
 
   Callbacks[formattedHook].push(callback);
   
-  if (Callbacks[formattedHook].length > 10) {
+  if (Callbacks[formattedHook].length > 15) {
     // eslint-disable-next-line no-console
-    console.log(`Warning: Excessively many hooks (${Callbacks[formattedHook].length}) on callback ${callback}.`);
+    console.log(`Warning: Excessively many callbacks (${Callbacks[formattedHook].length}) on hook ${formattedHook}.`);
   }
   
   return callback;

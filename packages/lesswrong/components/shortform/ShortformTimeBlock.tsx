@@ -4,7 +4,7 @@ import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import {queryIsUpdating} from '../common/queryStatusUtils'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   shortformGroup: {
     marginTop: 12,
   },
@@ -64,7 +64,7 @@ class ShortformTimeBlock extends Component<ShortformTimeBlockProps> {
         </div>
         {comments?.map((comment, i) =>
           <CommentsNode
-            comment={comment} post={comment.post}
+            comment={comment} post={comment.post || undefined}
             key={comment._id}
             forceSingleLine loadChildrenSeparately
           />)}

@@ -5,7 +5,7 @@ import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 import { ArrowSVG } from './Icons'
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
     width: 15, 
     height: 15,
@@ -14,7 +14,14 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }) => {
+const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+  event: PostsList,
+  handleMarkerClick: (eventId: string)=>void,
+  handleInfoWindowClose: (eventId: string)=>void,
+  infoOpen: boolean,
+  location: any,
+  classes: ClassesType,
+}) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}

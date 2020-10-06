@@ -28,15 +28,6 @@ export const filters: Record<string,any> = {
   "frontpage": {
     frontpageDate: {$gt: new Date(0)}
   },
-  "frontpageAndMeta": {
-    // NB:   Currently only used on EA Forum
-    // NB#2: Do not combine this with a view that specifies a selector with
-    // $or, as this will be overwritten.
-    $or: [
-      {frontpageDate: {$gt: new Date(0)}},
-      {meta: true}
-    ]
-  },
   "all": {
     groupId: null
   },
@@ -53,12 +44,26 @@ export const filters: Record<string,any> = {
   "untagged": {
     tagRelevance: {}
   },
+  "unNonCoreTagged": {
+    tagRelevance: {$exists: true},
+    baseScore: {$gt: 25},
+    $expr: {
+      $lt: [
+          {$size: 
+              {$filter: {
+                  // this was a hack during the Tagging Sprint, where we wanted people to tag posts with non-core-tags
+                  input: {$objectToArray: "$tagRelevance"},
+                  cond: {$not: {$in: ["$$this.k", ["xexCWMyds6QLWognu", "sYm3HiWcfZvrGu3ui", "izp6eeJJEg9v5zcur", "fkABsGCJZ6y9qConW", "Ng8Gice9KNkncxqcj", "MfpEPj6kJneT9gWT6", "3uE2pXvbcnS9nnZRE"]]}}
+              }}
+          }, 
+          1]
+    } 
+  },
   "tagged": {
     tagRelevance: {$ne: {}}
   },
   "includeMetaAndPersonal": {},
 }
-if (forumTypeSetting.get() === 'EAForum') filters.frontpage.meta = {$ne: true}
 
 /**
  * @summary Similar to filters (see docstring above), but specifying MongoDB-style sorts
@@ -148,7 +153,7 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
-const lwafGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
+const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
   if (filterSettings.personalBlog === "Hidden") {
     return {
       filter: {frontpageDate: {$gt: new Date(0)}},
@@ -173,48 +178,11 @@ const lwafGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, s
   }
 }
 
-// In ea-land, personal blog does not mean personal blog, it means community
-const eaGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
-  if (filterSettings.personalBlog === "Hidden") {
-    return {
-      filter: {frontpageDate: {$gt: new Date(0)}, meta: {$ne: true}},
-      softFilter: []
-    }
-  } else if (filterSettings.personalBlog === "Required") {
-    return {
-      filter: {frontpageDate: viewFieldNullOrMissing, meta: true},
-      softFilter: []
-    }
-  } else {
-    return {
-      filter: {
-        $or: [
-          {frontpageDate: {$gt: new Date(0)}},
-          {meta: true}
-        ]
-      },
-      // This is the same as the lwaf frontpageSoftFilter
-      softFilter: [
-        {$cond: {
-          if: "$frontpageDate",
-          then: 0,
-          else: filterModeToKarmaModifier(filterSettings.personalBlog)
-        }},
-      ],
-    }
-  }
-}
-
 function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
-  let frontpageFiltering: any;
-  if (forumTypeSetting.get() === 'EAForum') {
-    frontpageFiltering = eaGetFrontpageFilter(filterSettings)
-  } else {
-    frontpageFiltering = lwafGetFrontpageFilter(filterSettings)
-  }
+  const frontpageFiltering = getFrontpageFilter(filterSettings)
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
   
@@ -344,7 +312,6 @@ ensureIndex(Posts,
 
 
 // Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
-// EA-FORUM: Building this index will fail until you update to MongoDB 4.2. If you haven't enabled/started using tagging, then this is probably harmless.
 ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
 // Used for the latest posts list when soft-filtering tags
 ensureIndex(Posts,
@@ -585,7 +552,7 @@ Posts.addView("scheduled", terms => ({
  * @summary Draft view
  */
 Posts.addView("drafts", terms => {
-  return {
+  let query = {
     selector: {
       userId: viewFieldAllowAny,
       $or: [{userId: terms.userId}, {shareWithUsers: terms.userId}],
@@ -598,9 +565,25 @@ Posts.addView("drafts", terms => {
       hiddenRelatedQuestion: viewFieldAllowAny,
     },
     options: {
-      sort: {modifiedAt: -1, createdAt: -1}
+      sort: {}
     }
-}});
+  }
+  switch (terms.sortDrafts) {
+    case 'wordCount': {
+      query.options.sort = {wordCount: -1, modifiedAt: -1, createdAt: -1}
+      break
+    }
+    default: {
+      query.options.sort = {modifiedAt: -1, createdAt: -1}
+    }
+  }
+  return query
+});
+
+ensureIndex(Posts,
+  augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
+  { name: "posts.userId_wordCount" }
+);
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
@@ -730,13 +713,39 @@ ensureIndex(Posts,
   { name: "posts.shortformDiscussionThreadsList", }
 );
 
+Posts.addView("onlineEvents", function (terms) {
+  const yesterday = moment().subtract(1, 'days').toDate();
+  let query = {
+    selector: {
+      onlineEvent: true,
+      isEvent: true,
+      groupId: null,
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+    },
+    options: {
+      sort: {
+        startTime: -1,
+        createdAt: null,
+        _id: null
+      }
+    }
+  }
+  return query
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ onlineEvent:1, startTime:1 }),
+  { name: "posts.onlineEvents" }
+);
+
 Posts.addView("nearbyEvents", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
+  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   let query: any = {
     selector: {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
+      onlineEvent: onlineEvent,
       $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
       mongoLocation: {
         $near: {
@@ -769,9 +778,11 @@ ensureIndex(Posts,
 Posts.addView("events", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
+  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   return {
     selector: {
       isEvent: true,
+      onlineEvent: onlineEvent,
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
@@ -952,6 +963,7 @@ Posts.addView("pingbackPosts", terms => {
   return {
     selector: {
       "pingbacks.Posts": terms.postId,
+      baseScore: {$gt: 0}
     },
     options: {
       sort: { baseScore: -1 },
@@ -999,3 +1011,46 @@ Posts.addView("reviews2018", terms => {
 })
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
+
+Posts.addView("tagProgressUntagged", terms => {
+  return {
+    selector: {  
+      baseScore: {$gt: 25},
+      $or: [{tagRelevance: {}}, {tagRelevance: null}]
+    },
+  }
+})
+
+Posts.addView("personalTagProgressUntagged", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      baseScore: {$gt: 25},
+      $or: [{tagRelevance: {}}, {tagRelevance: null}]
+    },
+  }
+})
+
+Posts.addView("tagProgressPosts", terms => {
+  return {
+    selector: {
+      baseScore: {$gt:25},
+    },
+  }
+})
+
+Posts.addView("personalTagProgressPosts", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      baseScore: {$gt:25},
+    },
+  }
+})
+
+ensureIndex(Posts,
+  augmentForDefaultView({ userId: 1, tagRelevance: 1}),
+  {
+    name: "posts.users_tagged_posts",
+  }
+);

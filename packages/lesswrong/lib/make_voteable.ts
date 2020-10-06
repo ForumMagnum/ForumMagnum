@@ -1,13 +1,18 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 
-export const VoteableCollections: Array<any> = [];
+interface DbVoteable extends DbObject {
+  score: number,
+  baseScore: number,
+}
+
+export const VoteableCollections: Array<CollectionBase<DbVoteable>> = [];
 
 // options: {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = (collection, options?: any) => {
+export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>, options?: any): void => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 
@@ -20,7 +25,7 @@ export const makeVoteable = (collection, options?: any) => {
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document, args, context: ResolverContext) => {
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return [];
           const votes = await getWithLoader(Votes,
@@ -47,7 +52,7 @@ export const makeVoteable = (collection, options?: any) => {
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document, args, context: ResolverContext) => {
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           const votes = await getWithLoader(Votes,
             "votesByDocument",
@@ -73,7 +78,7 @@ export const makeVoteable = (collection, options?: any) => {
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: vote => !vote.cancelled
+        filterFn: (vote: DbVote) => !vote.cancelled
       }),
       viewableBy: ['guests'],
     },
@@ -83,7 +88,7 @@ export const makeVoteable = (collection, options?: any) => {
       optional: true,
       defaultValue: 0,
       canRead: customBaseScoreReadAccess || ['guests'],
-      onInsert: document => {
+      onInsert: (document: T): number => {
         // default to 0 if empty
         return document.baseScore || 0;
       }
@@ -94,7 +99,7 @@ export const makeVoteable = (collection, options?: any) => {
       optional: true,
       defaultValue: 0,
       canRead: ['guests'],
-      onInsert: document => {
+      onInsert: (document: T): number => {
         // default to 0 if empty
         return document.score || 0;
       }

@@ -24,7 +24,7 @@ import withHover from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',
@@ -75,20 +75,6 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
       open: false,
       anchorEl: null,
     }
-  }
-
-  handleClick = (event) => {
-    event.preventDefault();
-    this.setState({
-      open:true,
-      anchorEl: event.currentTarget,
-    });
-  };
-
-  handleRequestClose = () => {
-    this.setState({
-      open: false,
-    });
   }
 
   render() {

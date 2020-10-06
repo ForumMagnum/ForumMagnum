@@ -4,17 +4,17 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 const options = {
-  newCheck: (user, document) => {
+  newCheck: (user: DbUser|null, document: DbLWEvent|null) => {
     if (!user || !document) return false;
     return Users.owns(user, document) ? Users.canDo(user, 'events.new.own') : Users.canDo(user, `events.new.all`)
   },
 
-  editCheck: (user, document) => {
+  editCheck: (user: DbUser|null, document: DbLWEvent|null) => {
     if (!user || !document) return false;
     return Users.canDo(user, `events.edit.all`)
   },
 
-  removeCheck: (user, document) => {
+  removeCheck: (user: DbUser|null, document: DbLWEvent|null) => {
     if (!user || !document) return false;
     return Users.canDo(user, `events.remove.all`)
   },

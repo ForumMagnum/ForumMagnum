@@ -6,11 +6,10 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { Meteor } from 'meteor/meteor';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const SECONDARY_SPACING = 20
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   header: {
     position: 'relative',
     display:"flex",
@@ -72,9 +71,6 @@ const styles = theme => ({
     marginRight: SECONDARY_SPACING,
     display: 'inline-block',
   },
-  postType: {
-    marginRight: SECONDARY_SPACING
-  },
   divider: {
     marginTop: theme.spacing.unit*2,
     marginLeft:0,
@@ -90,7 +86,7 @@ const styles = theme => ({
 // Opera Mini.)
 const URLClass = getUrlClass()
 
-function getProtocol(url) {
+function getProtocol(url: string): string {
   if (Meteor.isServer)
     return new URLClass(url).protocol;
 
@@ -100,7 +96,7 @@ function getProtocol(url) {
   return parser.protocol;
 }
 
-function getHostname(url) {
+function getHostname(url: string): string {
   if (Meteor.isServer)
     return new URLClass(url).hostname;
 
@@ -110,28 +106,18 @@ function getHostname(url) {
   return parser.hostname;
 }
 
-const getContentType = (post) => {
-  if (forumTypeSetting.get() === 'EAForum') {
-    return (post.frontpageDate && 'frontpage') ||
-    (post.meta && 'meta') ||
-    'personal'
-  }
-  return post.frontpageDate ? 'frontpage' : 'personal'
-}
-
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, ContentType, LWTooltip, PostsPageDate,
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData} = Components;
+    PostsPageEventData, FooterTagList} = Components;
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
-  const contentType = getContentType(post)
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
@@ -148,9 +134,6 @@ const PostsPagePostHeader = ({post, classes}: {
         <div className={classes.secondaryInfo}>
           <span className={classes.authors}>
             <PostsAuthors post={post}/>
-          </span>
-          <span className={classes.postType}>
-            <ContentType type={contentType}/>
           </span>
           { post.feed && post.feed.user &&
             <LWTooltip title={`Crossposted from ${feedLinkDescription}`}>
@@ -175,14 +158,13 @@ const PostsPagePostHeader = ({post, classes}: {
         </div>
       </div>
       {!post.shortform && <div className={classes.headerVote}>
-        <PostsVote
-          collection={Posts}
-          post={post}
-          />
+        <PostsVote post={post} />
       </div>}
     </div>
     
-    {!post.shortform && <hr className={classes.divider}/>}
+    {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
+      <FooterTagList post={post} hideScore />
+    </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

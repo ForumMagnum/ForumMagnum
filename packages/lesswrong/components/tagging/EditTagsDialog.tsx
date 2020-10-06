@@ -6,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const EditTagsDialog = ({post, onClose }: {
-  post: PostsBase,
+  post: PostsList,
   onClose: ()=>void
 }) => {
   const { FooterTagList } = Components

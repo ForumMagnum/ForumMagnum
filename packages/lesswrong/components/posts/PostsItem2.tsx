@@ -9,18 +9,17 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
-import withRecordPostView from '../common/withRecordPostView';
+import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 
-export const styles = (theme) => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -32,7 +31,7 @@ export const styles = (theme) => ({
   },
   background: {
     width: "100%",
-    background: "white",
+    background: "white"
   },
   postsItem: {
     display: "flex",
@@ -45,6 +44,7 @@ export const styles = (theme) => ({
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
+      paddingLeft: 5
     },
   },
   withGrayHover: {
@@ -274,7 +274,7 @@ const dismissRecommendationTooltip = "Don't remind me to finish reading this seq
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const isSticky = (post, terms) => {
+const isSticky = (post: PostsList, terms: any) => {
   if (post && terms && terms.forum) {
     return (
       post.sticky ||
@@ -320,14 +320,12 @@ const PostsItem2 = ({
   // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
   // icon.
   bookmark=false,
-  // recordPostView, isRead: From the withRecordPostView HoC.
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
-  recordPostView,
-  isRead=false,
   hideAuthor=false,
   classes,
+  curatedIconLeft=false
 }: {
   post: PostsList,
   tagRel?: WithVoteTagRel|null,
@@ -348,13 +346,13 @@ const PostsItem2 = ({
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   hideAuthor?: boolean,
-  recordPostView?: any,
-  isRead?: boolean,
   classes: ClassesType,
+  curatedIconLeft?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
   const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
+  const { isRead, recordPostView } = useRecordPostView(post);
 
   const currentUser = useCurrentUser();
 
@@ -448,11 +446,12 @@ const PostsItem2 = ({
                       captureOnClick={false}
                   >
                     <PostsTitle
-                        postLink={postLink}
-                        post={post}
-                        read={isRead}
-                        sticky={isSticky(post, terms)}
-                        showQuestionTag={showQuestionTag}
+                      postLink={postLink}
+                      post={post}
+                      read={isRead}
+                      sticky={isSticky(post, terms)}
+                      showQuestionTag={showQuestionTag}
+                      curatedIconLeft={curatedIconLeft}
                     />
                   </AnalyticsTracker>
                 </span>
@@ -559,7 +558,10 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
-  hocs: [withRecordPostView, withErrorBoundary]
+  hocs: [withErrorBoundary],
+  areEqual: {
+    terms: "deep",
+  },
 });
 
 declare global {

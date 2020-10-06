@@ -9,7 +9,7 @@ import { Meteor } from 'meteor/meteor';
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",
@@ -256,7 +256,8 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
         const id = linkTag.getAttribute("id");
-        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id}/>
+        const rel = linkTag.getAttribute("rel")
+        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel}/>
         this.replaceElement(linkTag, replacementElement);
       }
       this.setState({updatedElements: true})

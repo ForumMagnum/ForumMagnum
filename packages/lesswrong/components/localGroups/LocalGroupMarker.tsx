@@ -4,7 +4,7 @@ import { GroupIconSVG } from './Icons'
 import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
     height: 15, 
     width: 15,
@@ -14,7 +14,14 @@ const styles = createStyles(theme => ({
 }))
 
 
-const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }) => {
+const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+  group: any,
+  handleMarkerClick: any,
+  handleInfoWindowClose: any,
+  infoOpen: boolean,
+  location: any,
+  classes: ClassesType,
+}) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
 

@@ -27,12 +27,7 @@ mdi.use(markdownItSub)
 
 import { mjpage }  from 'mathjax-node-page'
 
-const mjPageSettings = {
-  fragment: true, 
-  displayErrors: true,
-}
-
-function mjPagePromise(html, beforeSerializationCallback) {
+function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
@@ -42,7 +37,7 @@ function mjPagePromise(html, beforeSerializationCallback) {
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
-    mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
+    mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
 }
@@ -105,14 +100,14 @@ function wrapSpoilerTags(html) {
   return $.html()
 }
 
-const trimLeadingAndTrailingWhiteSpace = (html) => {
+const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   const $ = cheerio.load(`<div id="root">${html}</div>`)
   const topLevelElements = $('#root').children().get()
   // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
   // Then iterate backwards to trim trailing empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements.reverse(), $)
-  return $("#root").html()
+  return $("#root").html() || ""
 }
 
 const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
@@ -152,15 +147,15 @@ export function ckEditorMarkupToMarkdown(markup) {
   return turndownService.turndown(sanitize(markup))
 }
 
-export function markdownToHtmlNoLaTeX(markdown) {
+export function markdownToHtmlNoLaTeX(markdown: string): string {
   const randomId = Random.id()
   const renderedMarkdown = mdi.render(markdown, {docId: randomId})
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
-export async function markdownToHtml(markdown) {
+export async function markdownToHtml(markdown: string): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(html, Utils.trimLatexAndAddCSS)
 }
 
 export function removeCKEditorSuggestions(markup) {
@@ -184,7 +179,7 @@ export async function ckEditorMarkupToHtml(markup) {
   const html = sanitize(markupWithoutSuggestions)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(trimmedHtml, Utils.trimLatexAndAddCSS)
 }
 
 async function dataToHTML(data, type, sanitizeData = false) {

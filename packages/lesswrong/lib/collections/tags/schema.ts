@@ -1,5 +1,6 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences, foreignKeyField } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
+import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
 
 const formGroups = {
@@ -11,7 +12,7 @@ const formGroups = {
   },
 };
   
-export const schema = {
+export const schema: SchemaType<DbTag> = {
   createdAt: {
     optional: true,
     type: Date,
@@ -21,8 +22,9 @@ export const schema = {
   name: {
     type: String,
     viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    order: 1,
   },
   slug: {
     type: String,
@@ -87,6 +89,15 @@ export const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(0),
   },
+  descriptionTruncationCount: {
+    // number of paragraphs to display above-the-fold
+    type: Number,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(0),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",
@@ -103,7 +114,8 @@ export const schema = {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],
@@ -134,4 +146,95 @@ export const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  needsReview: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    ...schemaDefaultValue(true)
+  },
+  reviewedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "reviewedByUserId",
+      resolverName: "reviewedByUser",
+      collectionName: "Users",
+      type: "User",
+    }),
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    hidden: true,
+  },
+  // What grade is the current tag? See the wikiGradeDefinitions variable defined below for details.
+  wikiGrade: {
+    type: SimpleSchema.Integer, 
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    control: 'select',
+    ...schemaDefaultValue(2),
+    options: () => Object.entries(wikiGradeDefinitions).map(([grade, name]) => ({
+      value: parseInt(grade),
+      label: name
+    })),
+    group: formGroups.advancedOptions,
+  },
+
+  wikiOnly: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+    group: formGroups.advancedOptions
+  },
+
+  tagFlagsIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "tagFlagsIds",
+      resolverName: "tagFlags",
+      collectionName: "TagFlags",
+      type: "TagFlag",
+    }),
+    control: 'TagFlagToggleList',
+    label: "Flags: ",
+    optional: true,
+    order: 30,
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins']
+  },
+  'tagFlagsIds.$': {
+    type: String,
+    foreignKey: 'TagFlags',
+    optional: true
+  },
+  // Populated by the LW 1.0 wiki import, with the revision number
+  // that has the last full state of the imported post
+  lesswrongWikiImportRevision: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportSlug: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportCompleted: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests']
+  }
+}
+
+export const wikiGradeDefinitions = {
+  0: "Uncategorized",
+  1: "Flagged",
+  2: "Stub",
+  3: "C-Class",
+  4: "B-Class",
+  5: "A-Class"
 }

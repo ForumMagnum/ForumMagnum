@@ -31,3 +31,15 @@ export const asyncMapSequential = async <T,U>(list: Array<T>, fn: (x:T)=>Promise
 export const asyncMapParallel = async <T,U>(list: Array<T>, fn: (x:T)=>Promise<U>): Promise<Array<U>> => {
   return await Promise.all(_.map(list, i=>fn(i)));
 }
+
+/// Like Array.forEach, but with an async function. Runs the function on elements
+/// sequentially (no parallelism).
+export const asyncForeachSequential = async <T>(list: Array<T>, fn: (x:T)=>Promise<void>): Promise<void> => {
+  for (let x of list)
+    await fn(x);
+}
+
+/// Like Array.forEach, but with an async function. Runs the function on elements in parallel.
+export const asyncForeachParallel = async <T>(list: Array<T>, fn: (x:T)=>Promise<void>): Promise<void> => {
+  await Promise.all(list.map(x => fn(x)));
+}

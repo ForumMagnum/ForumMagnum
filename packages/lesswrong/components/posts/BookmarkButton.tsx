@@ -13,7 +13,7 @@ import {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[400]
@@ -39,7 +39,7 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   const { LWTooltip } = Components
 
 
-  const toggleBookmark = (event) => {
+  const toggleBookmark = (event: React.MouseEvent) => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
@@ -54,14 +54,14 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
       const bookmarks = currentUser.bookmarkedPostsMetadata || []
       const newBookmarks = _.without(bookmarks, _.findWhere(bookmarks, {postId: post._id}))
 
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: { bookmarkedPostsMetadata: newBookmarks }
       });
     } else {
       setBookmarked(true)
       const bookmarks = currentUser.bookmarkedPostsMetadata || []
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
       });

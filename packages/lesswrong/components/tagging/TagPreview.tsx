@@ -2,18 +2,18 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
+import { Posts } from '../../lib/collections/posts/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
+import { tagPostTerms } from './TagPage';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   card: {
     paddingTop: 8,
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 6,
-    width: 600,
+    width: 500,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
@@ -35,53 +35,51 @@ const styles = theme => ({
     marginRight: 4,
   },
   footerCount: {
+    borderTop: "solid 1px rgba(0,0,0,.08)",
+    paddingTop: 6,
     textAlign: "right",
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
-    color: theme.palette.primary.main,
+    color: theme.palette.lwTertiary.main,
     marginTop: 6,
-    marginBottom: 2,
-    marginRight: 6
+    marginBottom: 2
+  },
+  posts: {
+    marginTop: 12,
+    paddingTop: 8,
+    borderTop: "solid 1px rgba(0,0,0,.08)",
+    marginBottom: 8
   }
 });
 
-const previewPostCount = 3;
-
-const TagPreview = ({tag, classes, showCount=true}: {
+const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   tag: TagPreviewFragment,
   classes: ClassesType,
-  showCount?: boolean
+  showCount?: boolean,
+  postCount?: number
 }) => {
-  const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
+  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),
-    terms: {
-      view: "postsWithTag",
-      tagId: tag?._id,
-    },
-    collection: TagRels,
-    fragmentName: "TagRelFragment",
-    limit: previewPostCount,
+    terms: tagPostTerms(tag, {}),
+    collection: Posts,
+    fragmentName: "PostsList",
+    limit: postCount,
     ssr: true,
   });
 
   if (!tag) return null
-  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs", "")
 
   return (<div className={classes.card}>
-    {tag.description?.htmlHighlight ? <ContentItemBody
-      className={classes.tagDescription}
-      dangerouslySetInnerHTML={{__html: highlight}}
-      description={`tag ${tag.name}`}
-    /> : <div className={classes.tagDescription}><b>{tag.name}</b></div>
-    }
-    {!results && <PostsListPlaceholder count={previewPostCount} />}
-    {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} showBottomBorder={showCount || i!=2}/>
-    )}
-    {showCount && <div className={classes.footerCount}>
-      <Link to={Tags.getUrl(tag)}>{tag.postCount} posts</Link>
-    </div>}
+    <TagPreviewDescription tag={tag}/>
+    {!tag.wikiOnly && <>
+      {results ? <div className={classes.posts}>
+        {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
+      </div> : <Loading /> }
+      {showCount && <div className={classes.footerCount}>
+        <Link to={Tags.getUrl(tag)}>View all {tag.postCount} posts</Link>
+      </div>}
+    </>}
   </div>)
 }
 

@@ -47,11 +47,11 @@ export const zIndexes = {
   searchBar: 100000,
   commentBoxPopup: 10000000001, // has to be higher than Intercom, 
   // ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)
-  // petrovDayButton: 6,
-  // petrovDayLoss: 1000000
+  petrovDayButton: 6,
+  petrovDayLoss: 1000000
 }
 
-const createLWTheme = (theme) => {
+const createLWTheme = (theme: ThemeType) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 
@@ -226,8 +226,8 @@ const createLWTheme = (theme) => {
     palette: {
       commentBorderGrey: "rgba(72,94,144,0.16)",
     },
-    boxShadow: "none",
-    itemBorderBottom: "solid 2px rgba(0,0,0,.07)",
+    boxShadow: "0 1px 5px rgba(0,0,0,.025)",
+    itemBorderBottom: "solid 2px rgba(0,0,0,.05)",
     zIndexes: {
       ...zIndexes
     },

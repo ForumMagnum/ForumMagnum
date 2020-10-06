@@ -6,7 +6,10 @@ import moment from '../../lib/moment-timezone';
 
 const eventTimeFormat = "Do MMMM YYYY h:mm A"
 
-const EventInRadiusEmail = ({openingSentence, postId}) => {
+const EventInRadiusEmail = ({openingSentence, postId}: {
+  openingSentence: string,
+  postId: string,
+}) => {
   const { document: post, loading } = useSingle({
     documentId: postId,
     collection: Posts,

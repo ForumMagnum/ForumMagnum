@@ -43,7 +43,6 @@ registerFragment(`
 // note: fragment used by default on the UsersProfile fragment
 registerFragment(/* GraphQL */`
   fragment VotedItem on Vote {
-    # vulcan:voting
     documentId
     power
     votedAt

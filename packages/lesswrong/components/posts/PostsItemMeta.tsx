@@ -1,12 +1,12 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import React from 'react';
-import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { AnalyticsContext } from '../../lib/analyticsEvents'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   read: {
     opacity: ".8"
   },
@@ -24,7 +24,7 @@ const styles = theme => ({
   }
 })
 
-const DateWithoutTime = ({date}) => {
+const DateWithoutTime = ({date}: {date: Date}) => {
   const { timezone } = useTimezone();
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }
@@ -34,11 +34,9 @@ const PostsItemMeta = ({post, read, classes}: {
   read?: boolean,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
-  const { wordCount = 0 } = post.contents || {}
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { FormatDate, PostsStats, PostsUserAndCoauthors, LWTooltip } = Components;
+  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
       {!post.shortform && <span className={classes.info}>
@@ -70,26 +68,22 @@ const PostsItemMeta = ({post, read, classes}: {
         <PostsUserAndCoauthors post={post}/>
       </span>
 
-      {post.postedAt && !post.isEvent && <span className={classes.info}>
-        <FormatDate date={post.postedAt}/>
-      </span>}
-
-      {!!wordCount && !post.isEvent &&<span className={classes.info}>
-        <LWTooltip title={`${wordCount} words`}>
-          <span>{Math.floor(wordCount/300) || 1 } min read</span>
-        </LWTooltip>
-      </span>}
-
-      { currentUser && currentUser.isAdmin &&
-        <PostsStats post={post} />
-      }
-
       { afBaseScore && <span className={classes.info}>
         <LWTooltip title={<div>
           { afBaseScore } karma on alignmentforum.org
         </div>}>
           <span>Ω { afBaseScore }</span>
         </LWTooltip>
+      </span>}
+
+      <span className={classes.info}>
+        <AnalyticsContext pageElementContext="tagsList">
+          <FooterTagList post={post} hideScore hideAddTag hidePersonalOrFrontpage smallText/>
+        </AnalyticsContext>
+      </span>
+
+      {post.postedAt && !post.isEvent && <span className={classes.info}>
+        <FormatDate date={post.postedAt}/>
       </span>}
     </span>
 };

@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: "rgba(120,120,0,.08)"
   }
@@ -13,7 +13,7 @@ const SunshineNewCommentsList = ({ terms, classes }) => {
   const { results, totalCount } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'CommentsListWithPostMetadata',
+    fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: true,
   });
   const { SunshineListCount, SunshineNewCommentsItem, SunshineListTitle } = Components

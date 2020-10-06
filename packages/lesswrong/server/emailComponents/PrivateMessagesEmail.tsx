@@ -8,7 +8,7 @@ import './EmailFormatDate';
 import './EmailContentItemBody';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   message: {
   },
 });
@@ -48,7 +48,9 @@ const PrivateMessagesEmailComponent = registerComponent("PrivateMessagesEmail", 
 
 /// A list of users, nicely rendered with links, comma separators and an "and"
 /// conjunction between the last two (if there are at least two).
-const EmailListOfUsers = ({users}) => {
+const EmailListOfUsers = ({users}: {
+  users: Array<DbUser>
+}) => {
   const { EmailUsername } = Components;
   
   if (users.length === 0) {
@@ -67,7 +69,12 @@ const EmailListOfUsers = ({users}) => {
 }
 const EmailListOfUsersComponent = registerComponent("EmailListOfUsers", EmailListOfUsers);
 
-const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}) => {
+const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}: {
+  conversation: conversationsListFragment|DbConversation,
+  messages: Array<DbMessage>,
+  participantsById: Partial<Record<string,DbUser>>,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;
   const sitename = siteNameWithArticleSetting.get()
@@ -77,15 +84,15 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
     <p>Conversation with{" "}
       <EmailListOfUsers
         users={conversation.participantIds
-          .filter(id=>id!==currentUser!._id)
-          .map(id=>participantsById[id])
+          .filter((id: string)=>id!==currentUser!._id)
+          .map((id: string)=>participantsById[id]!)
         }
       />
     </p>
     <p><a href={conversationLink}>View this conversation on {sitename}</a>.</p>
     
     {messages.map((message,i) => <div className={classes.message} key={i}>
-      <EmailUsername user={participantsById[message.userId]}/>
+      <EmailUsername user={participantsById[message.userId]!}/>
       {" "}<EmailFormatDate date={message.createdAt}/>
       <EmailContentItemBody dangerouslySetInnerHTML={{__html: message.contents.html}}/>
     </div>)}

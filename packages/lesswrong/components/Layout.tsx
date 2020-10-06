@@ -26,6 +26,8 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const logRocketSampleDensitySetting = new DatabasePublicSetting<number>('logRocket.sampleDensity', 5)
+const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
@@ -53,13 +55,13 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   main: {
     paddingTop: 50,
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: "#f4f4f4",
+    background: theme.palette.background.default,
     minHeight: "100vh",
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
@@ -78,7 +80,7 @@ const styles = theme => ({
       minmax(0, min-content)
       minmax(0, 1fr)
       minmax(0, 765px)
-      minmax(0, 1.25fr)
+      minmax(0, 1.4fr)
       minmax(0, min-content)
     `,
     },
@@ -95,9 +97,6 @@ const styles = theme => ({
   whiteBackground: {
     background: "white",
   },
-  lightGreyBackground: {
-    background: "#f9f9f9",
-  },
   '@global': {
     p: pBodyStyle,
     '.mapboxgl-popup': {
@@ -109,7 +108,11 @@ const styles = theme => ({
       fontFamily: "GreekFallback",
       src: "local('Arial')",
       unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-    }
+    },
+    // Hide the CKEditor table alignment menu
+    '.ck-table-properties-form__alignment-row': {
+      display: "none !important"
+    },
   },
   searchResultsArea: {
     position: "absolute",
@@ -126,7 +129,7 @@ interface ExternalProps {
 }
 interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateUserProps {
   cookies: any,
-  theme: any,
+  theme: ThemeType,
 }
 interface LayoutState {
   timezone: string,
@@ -233,9 +236,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper } = Components
 
-    const showIntercom = currentUser => {
+    const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame">
           <ErrorBoundary>
@@ -270,6 +273,16 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         
     const shouldUseGridLayout = standaloneNavigation
 
+    const currentTime = new Date()
+    const beforeTime = petrovBeforeTime.get()
+    const afterTime = petrovAfterTime.get()
+
+    const renderPetrovDay = 
+      currentRoute?.name == "home"
+      && forumTypeSetting.get() === "LessWrong"
+      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+
+    
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -293,7 +306,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
                 { theme.typography.fontDownloads &&
                     theme.typography.fontDownloads.map(
-                      (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                      (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
                     )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
@@ -315,14 +328,14 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
+              {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
                 <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: currentRoute?.background === "white",
-                  [classes.lightGreyBackground]: currentRoute?.background === "lightGrey"
+                  [classes.whiteBackground]: currentRoute?.background === "white"
                 })}>
                   <ErrorBoundary>
                     <FlashMessages />

@@ -10,7 +10,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import withDialog from '../../common/withDialog'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   deleteWithoutTrace: {
     marginRight:"auto"
   },
@@ -31,7 +31,7 @@ interface DeleteCommentDialogState {
 class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteCommentDialogState> {
   state: DeleteCommentDialogState = { deletedReason: "" }
 
-  handleDelete = (event) => {
+  handleDelete = (event: React.MouseEvent) => {
     const { moderateCommentMutation, onClose, comment, flash } = this.props
     event.preventDefault();
     moderateCommentMutation({
@@ -45,7 +45,7 @@ class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteC
     }).catch(/* error */);
   }
 
-  handleDeletePublic = (event) => {
+  handleDeletePublic = (event: React.MouseEvent) => {
     const { moderateCommentMutation, onClose, comment, flash } = this.props
 
     event.preventDefault();

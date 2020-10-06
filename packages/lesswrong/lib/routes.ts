@@ -1,6 +1,6 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting } from './instanceSettings';
-import { hasEventsSetting, legacyRouteAcronymSetting } from './publicSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
+import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
@@ -11,12 +11,12 @@ const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
-const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional") 
+const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
 function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): PingbackDocument|null {
   if (!postId)
     return null;
-  
+
   if (parsedUrl.hash) {
     // If the URL contains a hash, it leads to either a comment or a landmark
     // within the post.
@@ -73,18 +73,26 @@ addRoute(
   {
     name:'users.account',
     path:'/account',
-    componentName: 'UsersAccount'
+    componentName: 'UsersAccount',
+    background: "white"
   },
   {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
     title: "Manage Subscriptions",
+    background: "white"
   },
   {
     name:'users.edit',
     path:'/users/:slug/edit',
-    componentName: 'UsersAccount'
+    componentName: 'UsersAccount',
+    background: "white"
+  },
+  {
+    name:'users.abTestGroups',
+    path:'/abTestGroups',
+    componentName: 'UsersViewABTests',
   },
 
   // Miscellaneous LW2 routes
@@ -92,12 +100,14 @@ addRoute(
     name: 'login',
     path: '/login',
     componentName: 'LoginPage',
-    title: "Login"
+    title: "Login",
+    background: "white"
   },
   {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
-    componentName: 'ResendVerificationEmailPage'
+    componentName: 'ResendVerificationEmailPage',
+    background: "white"
   },
   {
     name: 'inbox',
@@ -109,19 +119,22 @@ addRoute(
     name: 'conversation',
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
-    title: "Private Conversation"
+    title: "Private Conversation",
+    background: "white"
   },
 
   {
     name: 'newPost',
     path: '/newPost',
     componentName: 'PostsNewForm',
-    title: "New Post"
+    title: "New Post",
+    background: "white"
   },
   {
     name: 'editPost',
     path: '/editPost',
-    componentName: 'PostsEditPage'
+    componentName: 'PostsEditPage',
+    background: "white"
   },
   {
     name: 'collaboratePost',
@@ -141,7 +154,6 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
-    background: "lightGrey"
   },
   {
     name: 'sequences.single',
@@ -149,18 +161,19 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
-    background: "lightGrey"
   },
   {
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
-    componentName: 'SequencesEditForm'
+    componentName: 'SequencesEditForm',
+    background: "white"
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     componentName: 'SequencesNewForm',
-    title: "New Sequence"
+    title: "New Sequence",
+    background: "white"
   },
   {
     name: 'sequencesPost',
@@ -170,13 +183,15 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+    background: "white"
   },
 
   {
     name: 'chaptersEdit',
     path: '/chaptersEdit/:_id',
     componentName: 'ChaptersEditForm',
-    title: "Edit Chapter"
+    title: "Edit Chapter",
+    background: "white"
   },
 
   // Collections
@@ -202,6 +217,15 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
   },
   {
+    name: 'tagDiscussion',
+    path: '/tag/:slug/discussion',
+    componentName: 'TagDiscussionPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    background: "white"
+  },
+  {
     name: 'tagEdit',
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
@@ -214,16 +238,27 @@ addRoute(
     componentName: 'NewTagPage',
     title: "New Tag",
     subtitleComponentName: 'TagPageTitle',
+    background: "white"
   },
   {
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
-    title: "All Tags",
+    title: "Concepts Portal",
+  },
+  {
+    name: "Concepts",
+    path:'/concepts',
+    redirect: () => `/tags/all`,
   },
   {
     name: 'tagVoting',
     path: '/tagVoting',
+    redirect: () => `/tagActivity`,
+  },
+  {
+    name: 'tagActivity',
+    path: '/tagActivity',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
   },
@@ -292,11 +327,9 @@ if (forumTypeSetting.get() !== 'EAForum') {
     },
     {
       name: 'tagIndex',
-      path: '/tags',
-      componentName: 'PostsSingleRoute',
-      _id:"DHJBEsi4XJDw2fRFq",
-      background: postBackground
-    },
+      path:'/tags',
+      redirect: () => `/tags/all`,
+    }
   )
 }
 
@@ -373,8 +406,7 @@ if (hasEventsSetting.get()) {
       path: '/community',
       componentName: 'CommunityHome',
       title: "Community",
-      ...communitySubtitle,
-      background: "white"
+      ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
@@ -498,6 +530,12 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
+  {
+    name: 'taggingDashboard',
+    path: '/tags/dashboard',
+    componentName: "TaggingDashboard",
+    title: "Tagging Dashboard"
+  }
 );
 
 addRoute(
@@ -541,7 +579,8 @@ switch (forumTypeSetting.get()) {
       {
         name: 'home',
         path: '/',
-        componentName: 'EAHome'
+        componentName: 'EAHome',
+        sunshineSidebar: true
       },
       {
         name:'about',
@@ -549,6 +588,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'intro',
@@ -556,6 +596,7 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: introPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, introPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'contact',
@@ -563,12 +604,12 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: contactPostIdSetting.get(),
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'Community',
         path: '/meta',
-        componentName: 'Meta',
-        title: "Community"
+        redirect: () => `/tags/community`,
       },
       {
         name: 'eaSequencesHome',
@@ -576,15 +617,15 @@ switch (forumTypeSetting.get()) {
         componentName: 'EASequencesHome'
       },
       {
+        name: 'eaSequencesRedirect',
+        path: '/library',
+        redirect: () => '/sequences'
+      },
+      {
         name: "TagsAll",
         path:'/tags',
         redirect: () => `/tags/all`,
-      }
-      // {
-      //   name: 'eaHandbookHome',
-      //   path: '/handbook',
-      //   componentName: 'EASequencesHome'
-      // }
+      },
     );
     break
   default:

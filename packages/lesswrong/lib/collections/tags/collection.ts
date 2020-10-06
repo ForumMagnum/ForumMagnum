@@ -5,10 +5,14 @@ import { userCanCreateTags } from '../../betas';
 import Users from '../users/collection';
 import { schema } from './schema';
 
+type getUrlOptions = {
+  edit?: boolean, 
+  flagId?: string
+}
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Promise<Array<Record<string,any>>|null>
-  getUrl: (tag: DbTag | TagPreviewFragment) => string
+  getUrl: (tag: DbTag | TagBasicInfo, options?: getUrlOptions) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -17,13 +21,13 @@ export const Tags: ExtendedTagsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
-    newCheck: (user, tag) => {
+    newCheck: (user: DbUser|null, tag: DbTag|null) => {
       return userCanCreateTags(user);
     },
-    editCheck: (user, tag) => {
+    editCheck: (user: DbUser|null, tag: DbTag|null) => {
       return userCanCreateTags(user);
     },
-    removeCheck: (user, tag) => {
+    removeCheck: (user: DbUser|null, tag: DbTag|null) => {
       return false;
     },
   }),
@@ -32,7 +36,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
   if (Users.isAdmin(currentUser))
     return true;
-  else if (tag.deleted || tag.adminOnly)
+  else if (tag.deleted)
     return false;
   else
     return true;
@@ -48,11 +52,17 @@ export const tagDescriptionEditableOptions = {
     return {id: `tag:create`, verify:true}
   },
   revisionsHaveCommitMessages: true,
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members']
+  },
+  order: 10
 };
 
 makeEditable({
   collection: Tags,
-  options: tagDescriptionEditableOptions,
+  options: tagDescriptionEditableOptions
 });
 
 export default Tags;

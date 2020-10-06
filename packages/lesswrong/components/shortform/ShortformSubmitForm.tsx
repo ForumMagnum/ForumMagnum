@@ -2,10 +2,13 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginLeft: 12,
-    marginRight: 12
+    paddingLeft: 12,
+    paddingRight: 12,
+    background: "white",
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderRadius: 3
   }
 }) 
 
@@ -24,7 +27,10 @@ const forumHintText = {
   </div>
 }
 
-const ShortformSubmitForm = ({ classes, successCallback}) => {
+const ShortformSubmitForm = ({ classes, successCallback}: {
+  classes: ClassesType,
+  successCallback: any,
+}) => {
   const { CommentsNewForm } = Components;
 
   return (

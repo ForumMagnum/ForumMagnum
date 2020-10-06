@@ -34,6 +34,7 @@ export const algoliaConfigureIndexes = async () => {
     attributesToHighlight: ['authorDisplayName'],
     attributesToSnippet: ['body:20'],
     unretrievableAttributes: ['authorUserName'],
+    advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(postsIndex, {
     searchableAttributes: [
@@ -52,6 +53,7 @@ export const algoliaConfigureIndexes = async () => {
       'searchable(authorDisplayName)',
       'authorSlug',
       'postedAt',
+      'tags'
     ],
     attributesToHighlight: ['title'],
     attributesToSnippet: ['body:20'],
@@ -77,6 +79,7 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
     ],
+    advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(sequencesIndex, {
     searchableAttributes: [
@@ -88,6 +91,7 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
     ],
+    advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
     searchableAttributes: [
@@ -101,6 +105,8 @@ export const algoliaConfigureIndexes = async () => {
       'desc(postCount)',
     ],
     distinct: false,
+    attributesToSnippet: ['description:10'],
+    advancedSyntax: true
   });
   
   console.log("Done"); //eslint-disable-line no-console

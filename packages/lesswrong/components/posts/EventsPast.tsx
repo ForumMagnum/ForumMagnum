@@ -4,12 +4,14 @@ import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { forumAllPostsNumDaysSetting } from '../../lib/publicSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   daily: {
     padding: theme.spacing.unit
   }
 })
-const EventsPast = ({ classes }) => {
+const EventsPast = ({ classes }: {
+  classes: ClassesType,
+}) => {
   const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = forumAllPostsNumDaysSetting.get();

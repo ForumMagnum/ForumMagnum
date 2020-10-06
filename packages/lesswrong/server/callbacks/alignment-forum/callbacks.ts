@@ -74,7 +74,7 @@ async function updateAlignmentUserServer (newDocument, vote, multiplier) {
 }
 
 async function updateAlignmentUserServerCallback ({newDocument, vote}) {
-  updateAlignmentUserServer(newDocument, vote, 1)
+  await updateAlignmentUserServer(newDocument, vote, 1)
 }
 
 addCallback("votes.bigDownvote.async", updateAlignmentUserServerCallback);
@@ -83,7 +83,7 @@ addCallback("votes.smallDownvote.async", updateAlignmentUserServerCallback);
 addCallback("votes.smallUpvote.async", updateAlignmentUserServerCallback);
 
 async function cancelAlignmentUserKarmaServer ({newDocument, vote}) {
-  updateAlignmentUserServer(newDocument, vote, -1)
+  await updateAlignmentUserServer(newDocument, vote, -1)
 
 }
 
@@ -107,8 +107,8 @@ addCallback("votes.bigUpvote.client", updateAlignmentKarmaClientCallback);
 addCallback("votes.smallDownvote.client", updateAlignmentKarmaClientCallback);
 addCallback("votes.smallUpvote.client", updateAlignmentKarmaClientCallback);
 
-async function cancelAlignmentKarmaServerCallback ({newDocument, vote}) {
-  return await updateAlignmentKarmaServer(newDocument, vote)
+function cancelAlignmentKarmaServerCallback ({newDocument, vote}) {
+  void updateAlignmentKarmaServer(newDocument, vote)
 }
 
 addCallback("votes.cancel.sync", cancelAlignmentKarmaServerCallback);

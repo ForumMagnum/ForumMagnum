@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
@@ -15,7 +15,10 @@ const styles = theme => ({
   }
 })
 
-const CollectionsCardContainer = ({ classes, children }) => {
+const CollectionsCardContainer = ({ classes, children }: {
+  classes: ClassesType,
+  children: any,
+}) => {
   return <div className={classes.root}>
       { children }
   </div>

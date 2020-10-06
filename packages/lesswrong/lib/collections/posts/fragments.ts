@@ -52,7 +52,6 @@ registerFragment(`
     hiddenRelatedQuestion
     originalPostRelationSourceId
 
-    # vulcan:users
     userId
     
     # Local Event data
@@ -60,6 +59,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    onlineEvent
     startTime
     endTime
     localStartTime
@@ -104,11 +104,24 @@ registerFragment(`
       _id
       name
     }
-    bestAnswer {
-      ...CommentsList
+  }
+`);
+
+registerFragment(`
+  fragment PostTagRelevance on Post {
+    tagRelevance
+  }
+`);
+
+registerFragment(`
+  fragment PostsWithVotes on Post {
+    ...PostsBase
+    currentUserVotes{
+      ...VoteFragment
     }
   }
 `);
+
 
 registerFragment(`
   fragment PostsAuthors on Post {
@@ -127,22 +140,21 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostsList on Post {
+  fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
-    contents {
-      htmlHighlight
-      wordCount
-      version
-    }
     moderationGuidelines {
-      ...RevisionDisplay
-    }
-    customHighlight {
-      version
       html
     }
-
+    customHighlight {
+      html
+    }
+    lastPromotedComment {
+      ...CommentsList
+    }
+    bestAnswer {
+      ...CommentsList
+    }
     tags {
       ...TagPreviewFragment
     }
@@ -150,8 +162,20 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsList on Post {
+    ...PostsListBase
+    contents {
+      htmlHighlight
+      wordCount
+      version
+    }
+  }
+`);
+
+registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
+    tagRelevance
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
@@ -160,8 +184,7 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsDetails on Post {
-    ...PostsBase
-    ...PostsAuthors
+    ...PostsListBase
 
     # Sort settings
     commentSortOrder
@@ -261,9 +284,6 @@ registerFragment(`
     ...PostsRevision
     ...PostSequenceNavigation
     
-    tags {
-      ...TagPreviewFragment
-    }
     tableOfContentsRevision(version: $version)
   }
 `)
@@ -314,9 +334,6 @@ registerFragment(`
     version
     contents {
       ...RevisionDisplay
-    }
-    tags {
-      ...TagPreviewFragment
     }
   }
 `)
@@ -379,10 +396,16 @@ registerFragment(`
 
 registerFragment(`
   fragment SunshinePostsList on Post {
-    ...PostsList
+    ...PostsListBase
+
+    currentUserVotes{
+      ...VoteFragment
+    }
 
     contents {
       html
+      htmlHighlight
+      wordCount
     }
     
     user {

@@ -126,6 +126,9 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
   if (post.authorIsUnreviewed)
     return null;
   
+  const tags = post.tagRelevance ? 
+    Object.entries(post.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+    : []
   const algoliaMetaInfo: AlgoliaDocument = {
     _id: post._id,
     userId: post.userId,
@@ -143,7 +146,8 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
-    af: post.af
+    af: post.af,
+    tags
   };
   const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
@@ -182,6 +186,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
   if (tag.deleted) return null;
+  if (tag.adminOnly) return null;
   
   let description = ""
   if (tag.description?.originalContents?.type) {
@@ -201,9 +206,10 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
     defaultOrder: tag.defaultOrder,
     suggestedAsFilter: tag.suggestedAsFilter,
     postCount: tag.postCount,
+    wikiOnly: tag.wikiOnly,
     description,
   }];
-}
+} 
 
 
 // Do algoliaIndex.waitTask as an async function rather than a
@@ -359,7 +365,7 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   const ids = _.map(objects, o=>o._id);
   const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;
   // Workaround for getting filter to properly typecheck: https://github.com/microsoft/TypeScript/issues/16069#issuecomment-392022894
-  const isNotNull = <T extends object>(x:undefined | null | T) : x is T => !!x
+  const isNotNull = <T extends {}>(x:undefined | null | T) : x is T => !!x
   const algoliaObjectsNonnull: Array<AlgoliaDocument> = filter(algoliaObjects, isNotNull);
   const algoliaObjectsById = keyBy(algoliaObjectsNonnull, o=>o._id);
   
@@ -509,7 +515,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
 export async function algoliaExportById(collection, documentId: string) {
   const document = await collection.findOne({_id: documentId});
   if (document) {
-    algoliaDocumentExport({ documents: [document], collection });
+    await algoliaDocumentExport({ documents: [document], collection });
   }
 }
 

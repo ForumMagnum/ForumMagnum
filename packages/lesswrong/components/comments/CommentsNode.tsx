@@ -11,7 +11,7 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: `solid 1px ${theme.palette.commentBorderGrey}`,
     cursor: "default",
@@ -156,14 +156,15 @@ type ExternalProps = ({
   postPage?: boolean,
   children?: Array<CommentTreeNode<CommentsList>>,
   hideReply?: boolean,
+  tag?: TagBasicInfo,
 } & ({
   // Type of "post" needs to have more metadata if the loadChildrenSeparately
   // option is passed
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
   loadChildrenSeparately?: undefined|false,
 } | {
   loadChildrenSeparately: true,
-  post: PostsBase,
+  post?: PostsBase,
 }))
 
 type CommentsNodeProps = ExternalProps & WithUserProps & WithStylesProps & WithLocationProps;
@@ -254,7 +255,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     this.setState({collapsed: !this.state.collapsed});
   }
 
-  handleExpand = async (event) => {
+  handleExpand = async (event: React.MouseEvent) => {
     const { markAsRead, scrollOnExpand } = this.props
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
@@ -266,7 +267,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: CommentsNodeProps, nextState: CommentsNodeState) {
     if (!shallowEqual(this.state, nextState))
       return true;
     if (!shallowEqualExcept(this.props, nextProps, ["post", "children"]))
@@ -323,12 +324,13 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       comment, children, nestingLevel=1, highlightDate, post,
       muiTheme, postPage=false, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply, expandByDefault
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply, expandByDefault,
+      tag
     } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
-    if (!comment || !post)
+    if (!comment)
       return null;
 
     const { collapsed, highlighted } = this.state
@@ -373,8 +375,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, showPostTitle, collapsed, refetch, hideReply }
-    const passedThroughNodeProps = { postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview }
+    const passedThroughItemProps = { post, postPage, comment, showPostTitle, collapsed, refetch, hideReply, tag }
+    const passedThroughNodeProps = { postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview, tag }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -391,7 +393,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                         post={post}
                         nestingLevel={updatedNestingLevel}
                         parentCommentId={parentCommentId}
-                        hideKarma={post.hideCommentKarma}
+                        hideKarma={post?.hideCommentKarma}
                         hideSingleLineMeta={hideSingleLineMeta}
                         enableHoverPreview={enableHoverPreview}
                       />

@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
@@ -13,7 +13,10 @@ const styles = theme => ({
 })
 
 // Component for displaying details about currently selected conversation
-const ConversationDetails = ({conversation, classes}) => {
+const ConversationDetails = ({conversation, classes}: {
+  conversation: conversationsListFragment,
+  classes: ClassesType,
+}) => {
   const { openDialog } = useDialog();
   const { Loading, MetaInfo, UsersName } = Components
   if (!conversation?.participants?.length) return <Loading />

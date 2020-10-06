@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
     textAlign: "center",
     marginBottom: 32
@@ -36,7 +36,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     <AlignmentCrosspostMessage post={post} />
     { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
     <LinkPostMessage post={post} />
-    {query?.revision && <PostsRevisionMessage post={post} />}
+    {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }
 

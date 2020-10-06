@@ -42,7 +42,7 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
     const newDocument = performVoteClient({collection, document, user: currentUser, voteType, voteId});
 
     try {
-      mutate({
+      void mutate({
         variables: {
           documentId: document._id,
           voteType,
@@ -63,6 +63,6 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
     vote, collection,
     document: result,
     baseScore: (af ? result.afBaseScore : result.baseScore) || 0,
-    voteCount: (af ? result.afVoteCount : result.voteCount) || 0,
+    voteCount: (result.voteCount) || 0,
   };
 }

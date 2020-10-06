@@ -12,20 +12,17 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { withDialog } from '../../common/withDialog';
-import { tagStyle } from '../../tagging/FooterTag';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
-
-const NotFPSubmittedWarning = ({className}) => <div className={className}>
+const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     margin: 0,
     ...theme.typography.display3,
@@ -41,9 +38,6 @@ const styles = theme => ({
   promoteWarning: {
     fontSize: 20,
     marginLeft: 4,
-  },
-  editTags: {
-    ...tagStyle(theme)
   }
 })
 
@@ -65,7 +59,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
     setPostRead(post._id, true);
   }
-  
+
   handleMarkAsUnread = () => {
     const {markAsReadOrUnread, post, setPostRead} = this.props;
     markAsReadOrUnread({
@@ -74,7 +68,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
     setPostRead(post._id, false);
   }
-  
+
   handleMoveToMeta = () => {
     const { post, updatePost } = this.props
     updatePost({
@@ -112,7 +106,7 @@ class PostActions extends Component<PostActionsProps,{}> {
       },
     })
   }
-  
+
   handleMakeShortform = () => {
     const { post, updateUser } = this.props;
     updateUser({
@@ -162,9 +156,9 @@ class PostActions extends Component<PostActionsProps,{}> {
     const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     if (!post) return null;
     const postAuthor = post.user;
-    
+
     const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
-    
+
     return (
       <div className={classes.actions}>
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
@@ -175,7 +169,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             Edit
           </MenuItem>
         </Link>}
-        { Users.canCollaborate(currentUser, post) && 
+        { Users.canCollaborate(currentUser, post) &&
           <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
               <ListItemIcon>
@@ -206,7 +200,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
             unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
         </MenuItem>}
-        
+
         {currentUser && <MenuItem>
           <SubscribeTo document={post} showIcon
             subscribeMessage="Subscribe to comments"
@@ -216,13 +210,14 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
-        { Users.canDo(currentUser, "posts.edit.all") &&
-          <div onClick={this.handleOpenTagDialog}>
-            <MenuItem>
-              <div className={classes.editTags}>Edit Tags</div>
-            </MenuItem>
-          </div>
-        }
+        <div onClick={this.handleOpenTagDialog}>
+          <MenuItem>
+            <ListItemIcon>
+              <LocalOfferOutlinedIcon />
+            </ListItemIcon>
+            Edit Tags
+          </MenuItem>
+        </div>
         { isRead
           ? <div onClick={this.handleMarkAsUnread}>
               <MenuItem>
@@ -242,15 +237,9 @@ class PostActions extends Component<PostActionsProps,{}> {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <Tooltip placement="left" title={
-                  forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage ?
-                    'user did not select "Moderators may promote to Frontpage" option':''
-                }>
-                  <MenuItem>
-                    Move to {metaName}
-                    {forumTypeSetting.get() === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
-                  </MenuItem>
-                </Tooltip>
+                <MenuItem>
+                  Move to Meta
+                </MenuItem>
               </div>
             }
             { !post.frontpageDate &&
@@ -274,7 +263,7 @@ class PostActions extends Component<PostActionsProps,{}> {
                  </MenuItem>
                </div>
             }
-            
+
             { !post.shortform &&
                <div onClick={this.handleMakeShortform}>
                  <MenuItem>

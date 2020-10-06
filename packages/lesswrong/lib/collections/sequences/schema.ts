@@ -1,7 +1,7 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
-const schema = {
+const schema: SchemaType<DbSequence> = {
 
   // default properties
 
@@ -18,6 +18,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -70,7 +71,7 @@ const schema = {
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
-      resolver: (sequence, args, context: ResolverContext) => {
+      resolver: (sequence: DbSequence, args: void, context: ResolverContext): Array<DbChapter> => {
         const books = context.Chapters.find(
           {sequenceId: sequence._id},
         ).fetch();
@@ -165,7 +166,7 @@ const schema = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (sequence, args, context: ResolverContext) => {
+      resolver: (sequence: DbSequence, args: void, context: ResolverContext): DbCollection|null => {
         if (!sequence.canonicalCollectionSlug) return null;
         return context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
       }

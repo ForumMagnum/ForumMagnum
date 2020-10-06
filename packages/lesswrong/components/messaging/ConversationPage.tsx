@@ -8,7 +8,7 @@ import Conversations from '../../lib/collections/conversations/collection';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
     maxWidth: 550,
   },
@@ -77,7 +77,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
             collection={Messages}
             prefilledProps={ {conversationId: conversation._id} }
             mutationFragment={getFragment("messageListFragment")}
-            errorCallback={(message) => {
+            errorCallback={(message: any) => {
               //eslint-disable-next-line no-console
               console.error("Failed to send", message)
             }}

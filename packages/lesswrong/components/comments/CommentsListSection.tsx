@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import {
   Components,
   registerComponent
@@ -12,17 +11,19 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import classNames from 'classnames';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontWeight: 400,
-    maxWidth: 720,
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
-
     position: "relative"
+  },
+  maxWidthRoot: {
+    maxWidth: 720,
   },
   inline: {
     display: 'inline'
@@ -49,8 +50,9 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  lastEvent: any,
-  post: PostsDetails,
+  lastEvent?: any,
+  post?: PostsDetails,
+  tag?: TagBasicInfo,
   commentCount: number,
   loadMoreCount?: number,
   totalComments: number,
@@ -77,14 +79,14 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
       highlightDate:
         (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
           && new Date(lastEvent.properties.createdAt))
-        || (post && post.lastVisitedAt &&
+        || (post?.lastVisitedAt &&
           new Date(post.lastVisitedAt))
         || new Date(),
       anchorEl: null,
     }
   }
 
-  handleClick = event => {
+  handleClick = (event: React.MouseEvent) => {
     this.setState({ anchorEl: event.currentTarget });
   };
 
@@ -119,7 +121,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
             </span>
         }
       </Typography>
-      <Typography
+      {post && <Typography
         variant="body2"
         color="textSecondary"
         component='span'
@@ -133,8 +135,9 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
         >
-          {currentUser && <Components.LastVisitList
-            terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
+          {currentUser && post && <Components.LastVisitList
+            postId={post._id}
+            currentUser={currentUser}
             clickCallback={this.handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {
@@ -143,38 +146,38 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
             </MenuItem>
           })}
         </Menu>
-      </Typography>
+      </Typography>}
     </CommentsListMeta>
   }
 
   render() {
-    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true } = this.props;
+    const { currentUser, comments, post, tag, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true } = this.props;
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
-      <div className={classes.root}>
+      <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
 
-        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) && !post.draft &&
+        {newForm && (!currentUser || !post || Users.isAllowedToComment(currentUser, post)) && !post?.draft &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
-            <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
+            <div className={classes.newCommentLabel}>New Comment</div>
             <Components.CommentsNewForm
-              post={post}
+              post={post} tag={tag}
               prefilledProps={{
                 parentAnswerId: parentAnswerId}}
               type="comment"
             />
           </div>
         }
-        {currentUser && !Users.isAllowedToComment(currentUser, post) &&
+        {currentUser && post && !Users.isAllowedToComment(currentUser, post) &&
           <Components.CantCommentExplanation post={post}/>
         }
         <Components.CommentsList
           totalComments={totalComments}
           comments={comments}
           highlightDate={this.state.highlightDate}
-          post={post}
+          post={post} tag={tag}
           postPage
           startThreadTruncated={startThreadTruncated}
           parentAnswerId={parentAnswerId}

@@ -6,7 +6,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: 28,
     
@@ -63,7 +63,7 @@ const styles = theme => ({
 const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",
   post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
-  sequence: HasIdType,
+  sequence: HasIdType|null,
   classes: ClassesType,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);

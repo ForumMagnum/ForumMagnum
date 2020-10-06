@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     marginTop: 20
@@ -65,7 +65,11 @@ const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({subm
   </div>
 })
 
-const GroupFormDialog =  ({ onClose, classes, documentId }) => {
+const GroupFormDialog =  ({ onClose, classes, documentId }: {
+  onClose: ()=>void,
+  classes: ClassesType,
+  documentId: string,
+}) => {
   const { WrappedSmartForm } = Components
   const currentUser = useCurrentUser();
   const { flash } = useMessages();

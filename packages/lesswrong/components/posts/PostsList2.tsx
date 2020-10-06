@@ -11,7 +11,7 @@ const Error = ({error}) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   itemIsLoading: {
     opacity: .4,
   },
@@ -21,6 +21,9 @@ const styles = theme => ({
       marginLeft: 0,
       marginRight: 0,
     }
+  },
+  posts: {
+    boxShadow: theme.boxShadow
   },
   loadMore: {
     flexGrow: 1,
@@ -67,6 +70,8 @@ const PostsList2 = ({
   defaultToShowUnreadComments,
   itemsPerPage=25,
   hideAuthor=false,
+  boxShadow=true,
+  curatedIconLeft=false
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -85,7 +90,9 @@ const PostsList2 = ({
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
-  hideAuthor?: boolean
+  hideAuthor?: boolean,
+  boxShadow?: boolean
+  curatedIconLeft?: boolean,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -162,12 +169,13 @@ const PostsList2 = ({
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
-      <div>
+      <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {
           const props = {
             post,
             index: i,
             terms, showNominationCount, showReviewCount, dense,
+            curatedIconLeft: curatedIconLeft,
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",
@@ -180,25 +188,29 @@ const PostsList2 = ({
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        <div className={classes.loadMore}>
-            <LoadMore
-              loadMore={() => {
-                loadMore();
-                setHaveLoadedMore(true);
-              }}
-              disabled={!maybeMorePosts}
-              count={count}
-              totalCount={totalCount}
-            />
-            { !dimWhenLoading && showLoading && loading && <Loading />}
-          </div>
+        { maybeMorePosts && <div className={classes.loadMore}>
+          <LoadMore
+            loadMore={() => {
+              loadMore();
+              setHaveLoadedMore(true);
+            }}
+            count={count}
+            totalCount={totalCount}
+          />
+          { !dimWhenLoading && showLoading && loading && <Loading />}
+        </div>}
         { children }
       </SectionFooter>}
     </div>
   )
 }
 
-const PostsList2Component = registerComponent('PostsList2', PostsList2, {styles});
+const PostsList2Component = registerComponent('PostsList2', PostsList2, {
+  styles,
+  areEqual: {
+    terms: "deep",
+  },
+});
 
 declare global {
   interface ComponentTypes {

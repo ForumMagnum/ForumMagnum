@@ -4,10 +4,11 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import cheerio from 'cheerio';
 
 addGraphQLResolvers({
   Query: {
-    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string }, context: ResolverContext): Promise<string> {
+    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
       // Validate collectionName, fieldName
@@ -42,7 +43,8 @@ addGraphQLResolvers({
       
       const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
       const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
-      if (!before || !beforeUnfiltered) {
+      // If we don't provide a beforeRev at all, then just assume that all in the current revision is new
+      if (beforeRev && (!before || !beforeUnfiltered)) {
         throw new Error(`Could not find revision: ${beforeRev}`);
       }
       if (!after || !afterUnfiltered) {
@@ -50,15 +52,25 @@ addGraphQLResolvers({
       }
       
       // Diff the revisions
-      const diffHtmlUnsafe = diff(before.html, after.html);
+      const diffHtmlUnsafe = diff(before?.html || "", after.html);
       
+      const $ = cheerio.load(diffHtmlUnsafe)
+      if (trim) {
+        $('body').children().each(function(i, elem) {
+          const e = $(elem)
+          if (!e.find('ins').length && !e.find('del').length) {
+            e.remove()
+          }
+        })
+      }
+
       // Sanitize (in case node-htmldiff has any parsing glitches that would
       // otherwise lead to XSS)
-      const diffHtml = sanitize(diffHtmlUnsafe);
+      const diffHtml = sanitize($.html());
       return diffHtml;
     }
   },
 });
 
-addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String): String');
+addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String, trim: Boolean): String');
 

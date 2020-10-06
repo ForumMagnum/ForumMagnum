@@ -20,7 +20,7 @@ const cellStyle = () => ({
   wordBreak: "break-word"
 })
 
-const headerStyle = theme => ({
+const headerStyle = (theme: ThemeType) => ({
   fontSize: "1.1rem",
   fontWeight: 600,
   backgroundColor: theme.palette.grey[800],
@@ -34,7 +34,7 @@ const headerStyle = theme => ({
   zIndex: 1,
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: -150, // adjusting for footer
     position: "relative",

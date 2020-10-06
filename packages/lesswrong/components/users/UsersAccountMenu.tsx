@@ -6,7 +6,7 @@ import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withTracking } from '../../lib/analyticsEvents';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 5,
   },
@@ -35,12 +35,12 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
     }
   }
 
-  handleClick = (event) => {
+  handleClick = (event: React.MouseEvent) => {
     event.preventDefault();
     this.props.captureEvent("loginButtonClicked", {open: true})
     this.setState({
       open:true,
-      anchorEl: event.currentTarget,
+      anchorEl: event.currentTarget as HTMLElement,
     });
   };
 

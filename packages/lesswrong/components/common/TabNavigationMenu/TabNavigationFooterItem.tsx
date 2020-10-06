@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const smallIconSize = 23
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,

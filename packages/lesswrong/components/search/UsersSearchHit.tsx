@@ -3,7 +3,7 @@ import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: theme.spacing.unit,
     marginTop: theme.spacing.unit/2,
@@ -11,7 +11,7 @@ const styles = theme => ({
   },
 })
 
-const isLeftClick = (event) => {
+const isLeftClick = (event: MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
@@ -20,7 +20,7 @@ const UsersSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => <div className={classes.root}>
-  <Link to={Users.getProfileUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>
+  <Link to={Users.getProfileUrl(hit)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
     <Components.MetaInfo>
       <Components.FormatDate date={hit.createdAt}/>
     </Components.MetaInfo>

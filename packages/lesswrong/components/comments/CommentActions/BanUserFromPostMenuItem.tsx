@@ -19,7 +19,7 @@ const BanUserFromPostMenuItem = ({ comment, post }: {
     fragmentName: 'PostsPage',
   });
 
-  const handleBanUserFromPost = (event) => {
+  const handleBanUserFromPost = (event: React.MouseEvent) => {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on this post?")) {
       const commentUserId = comment.userId
@@ -30,7 +30,10 @@ const BanUserFromPostMenuItem = ({ comment, post }: {
       updatePost({
         selector: {_id: comment.postId},
         data: {bannedUserIds:bannedUserIds}
-      }).then(()=>flash({messageString: `User ${comment.user.displayName} is now banned from commenting on ${post.title}`}))
+      }).then(
+        ()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on ${post.title}`}),
+        ()=>flash({messageString: `Error banning user ${comment?.user?.displayName}`})
+      );
     }
   }
 

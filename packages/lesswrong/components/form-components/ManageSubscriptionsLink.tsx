@@ -3,14 +3,18 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit
   }
 });
 
-const ManageSubscriptionsLink = ({document, removeItem, classes }) => {
+const ManageSubscriptionsLink = ({document, removeItem, classes }: {
+  document: any,
+  removeItem: any,
+  classes: ClassesType,
+}) => {
   return <Link to="/manageSubscriptions">
     <Button color="secondary" variant="outlined"
       className={classes.button}

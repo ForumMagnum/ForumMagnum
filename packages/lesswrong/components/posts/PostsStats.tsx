@@ -1,7 +1,7 @@
 import { Components as C, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     opacity:.5,
     [theme.breakpoints.down('sm')]: {

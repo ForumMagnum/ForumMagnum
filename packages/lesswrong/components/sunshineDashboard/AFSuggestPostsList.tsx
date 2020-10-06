@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     marginRight: 4
   }

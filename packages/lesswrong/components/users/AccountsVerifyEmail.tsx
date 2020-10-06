@@ -2,17 +2,21 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
 import { withApollo } from 'react-apollo';
 import Users from '../../lib/collections/users/collection';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil'
 import { Accounts } from 'meteor/accounts-base';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     textAlign: "center",
   }
 });
 
-const AccountsVerifyEmail = ({currentUser, classes, client}) => {
+const AccountsVerifyEmail = ({classes, client}: {
+  classes: ClassesType,
+  client?: any,
+}) => {
+  const currentUser = useCurrentUser();
   const { params } = useLocation()
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
@@ -69,7 +73,7 @@ const AccountsVerifyEmail = ({currentUser, classes, client}) => {
 // Shadows AccountsVerifyEmail in meteor/vulcan:accounts
 const AccountsVerifyEmailComponent = registerComponent('AccountsVerifyEmail', AccountsVerifyEmail, {
   styles,
-  hocs: [withApollo, withUser],
+  hocs: [withApollo],
 });
 
 declare global {

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
@@ -12,22 +12,17 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   tag: {
     ...tagStyle(theme),
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
-    '&:hover': {
-      '& $closeButton': {
-        display: "inline"
-      }
-    }
   },
   description: {
     ...commentBodyStyles(theme),
-    padding: theme.spacing*2,
-    paddingtop: 20
+    margin: theme.spacing*2,
+    marginTop: 20
   },
   filterScore: {
     color: theme.palette.primary.dark,
@@ -36,9 +31,10 @@ const styles = theme => ({
   },
   filtering: {
     paddingLeft: 16,
-    paddingTop: 16,
+    paddingTop: 12,
     paddingRight: 16,
-    width: 600,
+    width: 500,
+    marginBottom: -4,
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('xs')]: {
       width: "calc(100% - 32px)",
@@ -46,46 +42,54 @@ const styles = theme => ({
   },
   filterRow: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "flex-start",
+    paddingBottom: 2,
+    paddingLeft: 2,
+    paddingRight: 2
   },
-  filterLabel: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600]
+  removeLabel: {
+    color: theme.palette.grey[600],
+    flexGrow: 1,
+    textAlign: "right"
   },
   filterButton: {
-    marginTop: 8,
-    marginRight: 8,
-    padding: 4,
-    paddingLeft: 8,
-    paddingRight: 8,
+    marginRight: 16,
+    color: theme.palette.grey[500],
     ...theme.typography.smallText,
     display: "inline-block",
     cursor: "pointer",
-    borderRadius: 2,
-    border: "solid 1px rgba(0,0,0,.1)",
-  },
-  label: {
-    marginRight: "auto"
   },
   selected: {
+    color: "black",
     backgroundColor: "rgba(0,0,0,.1)",
-    border: "none"
+    padding: 4,
+    paddingLeft: 8,
+    paddingRight: 8,
+    marginTop: -4,
+    marginBottom: -4,
+    borderRadius: 2,
+  },
+  input: {
+    padding: 0,
+    paddingBottom: 2,
+    width: 50,
+    "-webkit-appearance": "none",
+    "-moz-appearance": "textfield"
   }
 });
 
-const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemove=false, onChangeMode, onRemove, classes, description}: {
+const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
   mode: FilterMode,
   canRemove?: boolean,
   onChangeMode: (mode: FilterMode)=>void,
   onRemove?: ()=>void,
-  classes: ClassesType,
-  hover?: boolean,
-  anchorEl?: any,
   description?: React.ReactNode
+  classes: ClassesType,
 }) => {
   const { LWTooltip, PopperCard, TagPreview } = Components
+  const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
   const { document: tag } = useSingle({
     documentId: tagId,
@@ -101,14 +105,14 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
   </span>
 
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
-  return <span>
+  return <span {...eventHandlers}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ? <Link to={`tag/${tag.slug}`}>
         {tagLabel}
       </Link>
       : tagLabel
       }
-      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom"
+      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start"
         modifiers={{
           flip: {
             behavior: ["bottom-start", "top-end", "bottom-start"],
@@ -118,17 +122,6 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
       >
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
-            <div className={classes.filterLabel}>
-              Set Filter
-            </div>
-            {canRemove &&
-              <div className={classes.filterLabel} onClick={ev => {if (onRemove) onRemove()}}>
-                <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
-                  <a>Remove Filter</a>
-                </LWTooltip>
-              </div>}
-          </div>
-          <div>
             <LWTooltip title={filterModeToTooltip("Hidden")}>
               <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
                 Hidden
@@ -160,36 +153,51 @@ const FilterModeRawComponent = ({tagId="", label, hover, anchorEl, mode, canRemo
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip("Required")}>
-              <span className={classNames(classes.filterButton)} onClick={ev => onChangeMode("Required")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Required"})} onClick={ev => onChangeMode("Required")}>
                 Required
               </span>
             </LWTooltip>
-            <Input placeholder="Other" type="number" defaultValue={otherValue} onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}/>
+            <Input 
+              className={classes.filterInput} 
+              placeholder="Other" 
+              type="number" 
+              disableUnderline
+              classes={{input:classes.input}}
+              defaultValue={otherValue} 
+
+              onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
+            />
+            {canRemove && !tag?.core &&
+              <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
+                <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
+                  <a>Remove</a>
+                </LWTooltip>
+              </div>}
           </div>
           {description && <div className={classes.description}>
             {description}
           </div>}
         </div>
-        <TagPreview tag={tag} showCount={false}/>
+        <TagPreview tag={tag} showCount={false} postCount={3}/>
       </PopperCard>
     </AnalyticsContext>
   </span>
 }
 
-function filterModeToTooltip(mode: FilterMode): string {
+function filterModeToTooltip(mode: FilterMode): React.ReactNode {
   switch (mode) {
     case "Required":
-      return "ONLY posts with this tag will appear in Latest Posts."
+      return <div><em>Required.</em> ONLY posts with this tag will appear in Latest Posts.</div>
     case "Hidden":
-      return "Posts with this tag will be not appear in Latest Posts."
+      return <div><em>Hidden.</em> Posts with this tag will be not appear in Latest Posts.</div>
     case 0:
     case "Default":
-      return "This tag will be ignored for filtering and sorting."
+      return <div><em>+0.</em> This tag will be ignored for filtering and sorting.</div>
     default:
       if (mode<0)
-        return `These posts will be shown less often (as though their score were ${-mode} points lower).`
+        return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
       else
-        return `These posts will be shown more often (as though their score were ${mode} points higher).`
+        return <div><em>+{mode}.</em> These posts will be shown more often (as though their score were {mode} points higher).</div>
   }
 }
 
@@ -206,9 +214,7 @@ function filterModeToStr(mode: FilterMode): string {
   }
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent,
-  {styles, hocs: [withHover({pageElementContext: "tagFilterMode"}, ({tagId, label, mode})=>({tagId, label, mode}))]
-  });
+const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
 
 declare global {
   interface ComponentTypes {

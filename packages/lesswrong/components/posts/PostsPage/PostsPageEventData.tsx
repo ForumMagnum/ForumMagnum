@@ -2,7 +2,7 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
     marginTop:theme.spacing.unit*3,
     ...theme.typography.postStyle,

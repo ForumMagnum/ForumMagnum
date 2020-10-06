@@ -105,9 +105,9 @@ Vulcan.postgresImport = async () => {
   commentData = deepObjectExtend(commentData, commentMetaData);
   // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
   // @ts-ignore
-  commentData = mapValues(commentData,
+  commentData = await Promise.all(mapValues(commentData,
     (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
-  );
+  ));
 
   let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
@@ -248,7 +248,7 @@ const insertUser = async (user) => {
     if (err.code == 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        newMutation({
+        await newMutation({
           collection: Users,
           document: newUser,
           validate: false
@@ -380,7 +380,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
   };
 }
 
-const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
+const legacyCommentToNewComment = async (comment, legacyId, author, parentPost) => {
   //eslint-disable-next-line no-console
   if (!author) {console.warn("Missing author for comment:", comment)}
   //eslint-disable-next-line no-console
@@ -404,7 +404,7 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
         type: "markdown",
         data: comment.body
       },
-      html: comment.body && sanitize(markdownToHtml(comment.body))
+      html: comment.body && sanitize(await markdownToHtml(comment.body))
     },
   };
 }

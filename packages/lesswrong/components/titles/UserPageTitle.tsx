@@ -8,7 +8,11 @@ import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
 
-const UserPageTitle = ({isSubtitle, siteName, classes}) => {
+const UserPageTitle = ({isSubtitle, siteName, classes}: {
+  isSubtitle: boolean,
+  siteName: string,
+  classes: ClassesType,
+}) => {
   const { params: {slug} } = useLocation();
   const { results, loading } = useMulti({
     terms: {

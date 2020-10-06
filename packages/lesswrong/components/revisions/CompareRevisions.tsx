@@ -3,14 +3,14 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   differences: {
     "& ins": {
-      background: "#88ff88",
+      background: "#d4ead4",
       textDecoration: "none",
     },
     "& del": {
-      background: "#ff8888",
+      background: "#f0d3d3",
       textDecoration: "none",
     },
   },
@@ -22,22 +22,24 @@ const CompareRevisions = ({
   documentId,
   versionBefore,
   versionAfter,
-  classes
+  classes,
+  trim=false
 }: {
   collectionName: string,
   fieldName: string,
   documentId: string,
-  versionBefore: string,
+  versionBefore: string | undefined,
   versionAfter: string,
   classes: ClassesType,
+  trim?: boolean
 }) => {
-  const { ContentItemBody } = Components;
+  const { ContentItemBody, ErrorMessage, Loading } = Components;
   
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
   const { data: diffResult, loading: loadingDiff, error } = useQuery(gql`
-    query RevisionsDiff($collectionName: String, $fieldName: String, $id: String, $beforeRev: String, $afterRev: String) {
-      RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev)
+    query RevisionsDiff($collectionName: String, $fieldName: String, $id: String, $beforeRev: String, $afterRev: String, $trim: Boolean) {
+      RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)
     }
   `, {
     variables: {
@@ -46,16 +48,17 @@ const CompareRevisions = ({
       id: documentId,
       beforeRev: versionBefore,
       afterRev: versionAfter,
+      trim: trim
     },
     ssr: true,
   });
   
   if (error) {
-    return <Components.ErrorMessage message={error.message}/>
+    return <ErrorMessage message={error.message}/>
   }
   
   if (loadingDiff)
-    return <Components.Loading/>
+    return <Loading/>
   
   const diffResultHtml = diffResult?.RevisionsDiff;
   return (

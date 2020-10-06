@@ -22,7 +22,7 @@ const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-export const sharedStyles = theme => ({
+export const sharedStyles = (theme: ThemeType): JssStyles => ({
   removeButton: {
     color: theme.palette.error.main,
     marginRight: 'auto',
@@ -68,7 +68,7 @@ export const sharedStyles = theme => ({
   },
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   ...sharedStyles(theme),
   distanceSection: {
     marginTop: 30,
@@ -106,7 +106,10 @@ const styles = theme => ({
 })
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
-const EventNotificationsDialog = ({ onClose, classes }) => {
+const EventNotificationsDialog = ({ onClose, classes }: {
+  onClose: ()=>void,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { Loading } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
@@ -196,7 +199,7 @@ const EventNotificationsDialog = ({ onClose, classes }) => {
         </div>
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{
-            mutate({selector: {_id: currentUser._id}, data: {
+            void mutate({selector: {_id: currentUser._id}, data: {
               nearbyEventsNotifications: false,
               nearbyEventsNotificationsLocation: null, 
               nearbyEventsNotificationsRadius: null, 
@@ -207,7 +210,7 @@ const EventNotificationsDialog = ({ onClose, classes }) => {
             Stop notifying me
           </a>}
           <a className={classes.submitButton} onClick={()=>{
-            mutate({selector: {_id: currentUser!._id}, data: {
+            void mutate({selector: {_id: currentUser!._id}, data: {
               nearbyEventsNotifications: true,
               nearbyEventsNotificationsLocation: location, 
               nearbyEventsNotificationsRadius: distance, 

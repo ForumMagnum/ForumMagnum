@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     paddingBottom: "2px",
     fontSize: "16px",
@@ -23,7 +23,11 @@ const styles = theme => ({
   },
 });
 
-const ModerationGuidelinesEditForm = ({ postId, onClose, classes }) => {
+const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
+  postId: string,
+  onClose: ()=>void,
+  classes: ClassesType,
+}) => {
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className="form-submit">
       <Button

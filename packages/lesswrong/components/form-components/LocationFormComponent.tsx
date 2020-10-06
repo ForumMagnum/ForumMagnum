@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
-export const geoSuggestStyles = theme => ({
+export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
   "& .geosuggest": {
     fontSize: "1rem",
     position: "relative",
@@ -73,7 +73,7 @@ export const geoSuggestStyles = theme => ({
   }
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...geoSuggestStyles(theme)
   }
@@ -82,10 +82,12 @@ const styles = theme => ({
 const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
 
 export const useGoogleMaps = (identifier, libraries = ['places']) => {
-  const [ mapsLoaded, setMapsLoaded ] = useState((window as any)?.google)
+  const [ mapsLoaded, setMapsLoaded ] = useState((typeof window !== 'undefined') ? (window as any).google : null)
   const callbackName = `${identifier}_googleMapsLoaded`
   useEffect(() => {
-    window[callbackName] = () => setMapsLoaded(true)
+    if (Meteor.isClient) {
+      window[callbackName] = () => setMapsLoaded(true)
+    }
   })
   const tagId = `${identifier}_googleMapsScriptTag`
   if (Meteor.isClient) {
@@ -103,7 +105,11 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
 
 
 
-const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
+const LocationFormComponent = ({document, updateCurrentValues, classes}: {
+  document: any,
+  updateCurrentValues: any,
+  classes: ClassesType,
+}) => {
   const location = document?.location || ""
   const [ mapsLoaded ] = useGoogleMaps("LocationFormComponent")
   useEffect(() => {

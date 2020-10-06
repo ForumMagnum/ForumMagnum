@@ -1,12 +1,10 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import NoSSR from 'react-no-ssr';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
 
@@ -34,6 +32,7 @@ const styles = theme => ({
     fontSize: 16,
     lineHeight: 1.0,
     maxHeight: 32,
+    paddingTop: 2,
     display: "-webkit-box",
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": "vertical",
@@ -58,7 +57,7 @@ const styles = theme => ({
 
   meta: {
     paddingLeft: 12,
-    paddingTop: 12,
+    paddingTop: 10,
     paddingRight: 8,
     paddingBottom: 5,
     flexGrow: 1,
@@ -67,9 +66,15 @@ const styles = theme => ({
     justifyContent: "center",
     background: "white",
   },
-  bookItemStyle: {
+  bookItemShadowStyle: {
+    boxShadow: "none",
+    '&:hover': {
+      boxShadow: "none",
+    }
+  },
+  bookItemContentStyle: {
     paddingLeft: 0,
-    paddingRight: 0
+    paddingRight: 0,
   },
   hiddenAuthor: {
     paddingBottom: 8
@@ -104,11 +109,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { hover, anchorEl } = useHover()
-  const { PopperCard, SequenceTooltip, LinkCard } = Components;
+  const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classes.root} to={url} tooltip={sequence.contents.plaintextDescription}>
+  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence?.contents?.plaintextDescription?.slice(0, 750)}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -118,19 +122,16 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
         />
       </NoSSR>
     </div>
-    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemStyle]: bookItemStyle})}>
-      <Typography variant='title' className={classes.title}>
+    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
+      <div className={classes.title}>
         {sequence.draft && <span className={classes.draft}>[Draft] </span>}
         {sequence.title}
-      </Typography>
-      { showAuthor &&
+      </div>
+      { showAuthor && sequence.user &&
         <div className={classes.author}>
           by <Components.UsersName user={sequence.user} />
         </div>}
     </div>
-    <PopperCard open={hover} anchorEl={anchorEl}>
-      <SequenceTooltip sequence={sequence}/>
-    </PopperCard>
   </LinkCard>
 }
 

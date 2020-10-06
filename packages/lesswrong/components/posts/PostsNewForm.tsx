@@ -7,7 +7,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSsr from '@material-ui/core/NoSsr';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
@@ -56,7 +56,7 @@ const PostsNewForm = ({classes}: {
             prefilledProps={prefilledProps}
             successCallback={post => {
               history.push({pathname: Posts.getPageUrl(post)});
-              flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+              flash({ messageString: "Post created.", type: 'success'});
             }}
             eventForm={eventForm}
             repeatErrors

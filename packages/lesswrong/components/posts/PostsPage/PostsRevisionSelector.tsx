@@ -6,11 +6,13 @@ import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../../lib/moment-timezone';
 
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     verticalAlign: 'text-top',
     fontSize: 'inherit',
-    marginRight: 4
+    marginRight: 4,
+    position: 'relative',
+    top: 3
   },
   button: {
     cursor: 'pointer'

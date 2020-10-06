@@ -2,6 +2,7 @@
 export function loadMathJax() {
 	if ( !window.MathJax ) {
 		window.MathJax = {
+			loader: {load: ['[tex]/colorV2']},
 			options: {
 				renderActions: {
 					addMenu: [],
@@ -13,7 +14,7 @@ export function loadMathJax() {
 					color: [],
 					colorV2: [ 'color' ]
 				},
-				packages: { '[+]': [ 'noerrors' ] }
+				packages: { '[+]': [ 'noerrors', 'color' ] }
 			},
 			startup: {
 				typeset: false,
@@ -22,7 +23,7 @@ export function loadMathJax() {
 			}
 		};
 		const script = document.createElement( 'script' );
-		script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+		script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js';
 		document.head.appendChild( script );
 	}
 }
