@@ -83,7 +83,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown, TagProgressBar } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -116,6 +116,9 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
+      {<AnalyticsContext pageSectionContext="Gather Town Welcome">
+        <GatherTown/>
+      </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
@@ -192,9 +195,11 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
-      {/* {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
+      
+
+      {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
         <TagProgressBar/>
-      </AnalyticsContext>} */}
+      </AnalyticsContext>}
 
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">

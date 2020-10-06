@@ -1,7 +1,7 @@
 import { Utils, Collections } from '../vulcan-lib';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 
-export const cacheUpdateGenerator = (typeName, mutationType) => {
+export const cacheUpdateGenerator = (typeName, mutationType: 'update' | 'create' | 'delete') => {
   switch(mutationType) {
     case('update'): {
       return (store, { data: { [getUpdateMutationName(typeName)]: {data: document} } }: any) => {
@@ -72,7 +72,6 @@ export const handleCreateMutation = ({ document, results, parameters: { selector
 // Theoretically works for upserts
 export const handleUpdateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
   if (!document) return results;
-
   if (Utils.mingoBelongsToSet(document, selector)) {
     // edited document belongs to the list
     if (!Utils.mingoIsInSet(results, document)) {
@@ -87,7 +86,6 @@ export const handleUpdateMutation = ({ document, results, parameters: { selector
     // if edited doesn't belong to current list anymore (based on view selector), remove it
     results = Utils.mingoRemoveFromSet(results, document);
   }
-
   return {
     ...results,
     __typename: `Multi${typeName}Output`
