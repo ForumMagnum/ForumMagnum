@@ -65,7 +65,6 @@ importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubt
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
 importComponent("Home2", () => require('../components/common/Home2'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
-importComponent("InfiniteScroller", () => require('../components/common/InfiniteScroller'));
 importComponent("Meta", () => require('../components/common/Meta'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker'));
 importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender'));

@@ -69,11 +69,14 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
     Query: {
       [name]: async (root: void, args: any, context: ResolverContext) => {
         const {limit, cutoff, ...rest} = args;
-        return await resolver({
-          limit, cutoff,
-          args: rest,
-          context
-        });
+        return {
+          __typename: `${name}QueryResults`,
+          ...await resolver({
+            limit, cutoff,
+            args: rest,
+            context
+          })
+        };
       }
     },
   });
