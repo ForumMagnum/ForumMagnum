@@ -112,9 +112,10 @@ const MixedTypeFeed = (args: {
   const {Loading} = Components;
   
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
-  const {data, loading, error, fetchMore, refetch} = useQuery(query, {
+  const {data, error, fetchMore, refetch} = useQuery(query, {
     variables: {
       ...resolverArgsValues,
+      ...fragmentArgsValues,
       cutoff: null,
       limit: firstPageSize,
     },
@@ -136,6 +137,7 @@ const MixedTypeFeed = (args: {
     await fetchMore({
       variables: {
         ...resolverArgsValues,
+        ...fragmentArgsValues,
         cutoff: data[resolverName].cutoff,
         limit: pageSize,
       },
