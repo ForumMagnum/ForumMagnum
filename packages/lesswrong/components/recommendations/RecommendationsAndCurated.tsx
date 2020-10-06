@@ -49,8 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   posts: {
-    boxShadow: theme.boxShadow,
-    whiteSpace: 'nowrap'
+    boxShadow: theme.boxShadow
   }
 });
 
