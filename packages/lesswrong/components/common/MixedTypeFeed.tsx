@@ -92,9 +92,14 @@ const MixedTypeFeed = (args: {
   firstPageSize?: number,
   
   // The number of elements per page, on pages other than the first page.
-  pageSize?: number
+  pageSize?: number,
+  
+  // Ref that will be populated with a function that makes this feed refetch
+  // (refetching everything, shrinking it to one page, and potentially scrolling
+  // up by a bunch.)
+  refetchRef?: {current: null|(()=>void)},
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20 } = args;
+  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef } = args;
   
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
@@ -107,7 +112,7 @@ const MixedTypeFeed = (args: {
   const {Loading} = Components;
   
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
-  const {data, loading, error, fetchMore} = useQuery(query, {
+  const {data, loading, error, fetchMore, refetch} = useQuery(query, {
     variables: {
       ...resolverArgsValues,
       cutoff: null,
@@ -116,6 +121,9 @@ const MixedTypeFeed = (args: {
     fetchPolicy: "cache-and-network",
     ssr: true,
   });
+  
+  if (refetchRef && refetch)
+    refetchRef.current = refetch;
   
   // Whether we've reached the end. The end-marker is when a query returns null
   // for the cutoff.

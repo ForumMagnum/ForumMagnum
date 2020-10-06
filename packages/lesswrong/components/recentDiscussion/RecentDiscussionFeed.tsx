@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
@@ -16,6 +16,7 @@ const RecentDiscussionFeed = ({
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
+  const refetchRef = useRef<null|(()=>void)>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
   
@@ -36,8 +37,9 @@ const RecentDiscussionFeed = ({
   const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag } = Components
   
   const refetch = useCallback(() => {
-    // TODO
-  }, []);
+    if (refetchRef.current)
+      refetchRef.current();
+  }, [refetchRef]);
 
   return (
     <SingleColumnSection>
@@ -49,10 +51,11 @@ const RecentDiscussionFeed = ({
           </SectionButton>
         </div>}
       </SectionTitle>
-      {showShortformFeed && <ShortformSubmitForm />}
+      {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
       <MixedTypeFeed
         firstPageSize={10}
         pageSize={20}
+        refetchRef={refetchRef}
         resolverName="RecentDiscussionFeed"
         sortKeyType="Date"
         resolverArgs={{ af: 'Boolean' }}
