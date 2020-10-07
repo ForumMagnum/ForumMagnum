@@ -150,7 +150,7 @@ const GatherTown = ({classes}: {
         <div>You're invited to the <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus">Walled Garden Beta</a></div>
         <div className={classes.secondaryInfo}>
           <div>
-            A private, permanent virtual world. Coworking on weekdays. Schelling Social hours at 10:30am, 3pm and 6pm PT.
+            A private, permanent virtual world. Coworking on weekdays. Schelling Social hours at Tues 3pm PT, and Thurs 6pm PT.
           </div>
         </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
