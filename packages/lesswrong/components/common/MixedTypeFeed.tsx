@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect, useCallback} from 'react';
+import React, {useRef, useEffect, useCallback} from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
 import { useQuery } from 'react-apollo';
 import { useOnPageScroll } from './withOnPageScroll';
