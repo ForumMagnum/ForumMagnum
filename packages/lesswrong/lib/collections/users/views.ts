@@ -276,6 +276,11 @@ Users.addView("walledGardenInvitees", function () {
   return {
     selector: {
       walledGardenInvite: true
+    },
+    options: {
+      sort: {
+        displayName: 1
+      }
     }
   }
 })
