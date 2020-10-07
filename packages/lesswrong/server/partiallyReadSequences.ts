@@ -176,7 +176,11 @@ addGraphQLResolvers({
   Mutation: {
     async updateContinueReading(root: void, {sequenceId, postId}: {sequenceId: string, postId: string}, context: ResolverContext) {
       const { currentUser } = context;
-      if (!currentUser) throw new Error("Must be logged in to record continue-reading status");
+      if (!currentUser) {
+        // If not logged in, this is ignored, but is not an error (in future
+        // versions it might associate with a clientID rather than a userID).
+        return null;
+      }
       
       await updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId);
       
