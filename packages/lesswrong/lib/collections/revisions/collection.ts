@@ -45,4 +45,9 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   return true;
 }
 
+export interface ChangeMetrics {
+  added: number
+  removed: number
+}
+
 export default Revisions;

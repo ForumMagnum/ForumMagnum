@@ -77,7 +77,13 @@ export const EmailRenderContext = React.createContext<EmailRenderContextType|nul
 const addClassnames = (componentName: string, styles: any) => {
   const classesProxy = new Proxy({}, {
     get: function(obj: any, prop: any) {
-      return `${componentName}-${prop}`;
+      // Check that the prop is really a string. This isn't an error that comes
+      // up normally, but apparently React devtools will try to query for non-
+      // string properties sometimes when using the component debugger.
+      if (typeof prop === "string")
+        return `${componentName}-${prop}`;
+      else
+        return `${componentName}-invalid`;
     }
   });
   return (WrappedComponent) => (props) => {

@@ -9,7 +9,16 @@ const schema: SchemaType<DbReadStatus> = {
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
-      nullable: false,
+      nullable: true,
+    }),
+  },
+  tagId: {
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
     }),
   },
   userId: {
@@ -38,5 +47,6 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
 addUniversalFields({collection: ReadStatuses});
 
 ensureIndex(ReadStatuses, {userId:1, postId:1, isRead:1, lastUpdated:1})
+ensureIndex(ReadStatuses, {userId:1, tagId:1, isRead:1, lastUpdated:1})
 
 export default ReadStatuses;

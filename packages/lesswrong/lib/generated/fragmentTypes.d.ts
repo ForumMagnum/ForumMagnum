@@ -457,7 +457,17 @@ interface RevisionMetadata { // fragment on Revisions
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
-  readonly changeMetrics: any,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
+  readonly documentId: string,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly user: UsersMinimumInfo|null,
+}
+
+interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
+  readonly tag: TagBasicInfo|null,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -671,6 +681,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly charsAdded: number,
   readonly charsRemoved: number,
   readonly deleted: boolean,
+  readonly lastCommentedAt: Date,
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
@@ -1411,6 +1422,12 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
+interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly createdAt: Date,
+  readonly user: UsersMinimumInfo|null,
+  readonly post: PostsList|null,
+}
+
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVotes: Array<VoteFragment>,
@@ -1480,6 +1497,7 @@ interface TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean,
   readonly description: TagFragment_description|null,
 }
 
@@ -1490,7 +1508,21 @@ interface TagFragment_description { // fragment on Revisions
   readonly version: string,
 }
 
+interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
+  readonly user: UsersMinimumInfo|null,
+}
+
+interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
+  readonly user: UsersMinimumInfo|null,
+  readonly description: TagCreationHistoryFragment_description|null,
+}
+
+interface TagCreationHistoryFragment_description { // fragment on Revisions
+  readonly html: string,
+}
+
 interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
 }
 
@@ -1519,6 +1551,11 @@ interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
+}
+
+interface TagRecentDiscussion extends TagFragment { // fragment on Tags
+  readonly lastVisitedAt: Date,
+  readonly recentComments: Array<CommentsList>,
 }
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
@@ -1564,7 +1601,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
-  readonly changeMetrics: any,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface VoteMinimumInfo { // fragment on Votes
@@ -1677,6 +1714,8 @@ interface FragmentTypes {
   WithVoteComment: WithVoteComment
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
+  RevisionHistoryEntry: RevisionHistoryEntry
+  RevisionTagFragment: RevisionTagFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -1745,14 +1784,18 @@ interface FragmentTypes {
   SuggestAlignmentUser: SuggestAlignmentUser
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
+  TagRelHistoryFragment: TagRelHistoryFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagHistoryFragment: TagHistoryFragment
+  TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagEditFragment: TagEditFragment
+  TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
