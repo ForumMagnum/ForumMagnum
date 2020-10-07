@@ -43,6 +43,7 @@ const mozillaHubsResolvers = {
       const rawRoomData:any = await getDataFromMozillaHubs()
       if (!rawRoomData) return null
       const processedData = JSON.parse(rawRoomData)
+      if (!processedData?.entries) return null;
       const correctRoom = processedData.entries.find(entry => entry.id === roomId)
       if (!correctRoom) return null
       const { 

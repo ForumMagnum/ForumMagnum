@@ -226,6 +226,13 @@ addRoute(
     background: "white"
   },
   {
+    name: 'tagHistory',
+    path: '/tag/:slug/history',
+    componentName: 'TagHistoryPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+  },
+  {
     name: 'tagEdit',
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
@@ -261,6 +268,12 @@ addRoute(
     path: '/tagActivity',
     componentName: 'TagVoteActivity',
     title: 'Tag Voting Activity'
+  },
+  {
+    name: 'tagFeed',
+    path: '/tagFeed',
+    componentName: 'TagActivityFeed',
+    title: 'Tag Activity'
   },
   {
     name: 'search',
