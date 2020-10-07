@@ -107,7 +107,7 @@ const MixedTypeFeed = (args: {
   // Whether there is a pending query. This is indirect (inside an object)
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
-  const [queryIsPending] = useState({isPending: false});
+  const queryIsPending = useRef(false);
   
   const {Loading} = Components;
   
@@ -142,7 +142,7 @@ const MixedTypeFeed = (args: {
         limit: pageSize,
       },
       updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-        queryIsPending.isPending = false;
+        queryIsPending.current = false;
         if (!fetchMoreResult) {
           return prev;
         }
@@ -156,7 +156,7 @@ const MixedTypeFeed = (args: {
         };
       }
     });
-  }, [fetchMore, pageSize, data, resolverName, resolverArgsValues, queryIsPending.isPending])
+  }, [fetchMore, pageSize, data, resolverName, resolverArgsValues, fragmentArgsValues, queryIsPending])
   
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start
@@ -168,12 +168,12 @@ const MixedTypeFeed = (args: {
       && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
       && !reachedEnd)
     {
-      if (!queryIsPending.isPending) {
-        queryIsPending.isPending = true;
+      if (!queryIsPending.current) {
+        queryIsPending.current = true;
         void requestMore();
       }
     }
-  }, [requestMore, queryIsPending.isPending, reachedEnd]);
+  }, [requestMore, queryIsPending, reachedEnd]);
   
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
