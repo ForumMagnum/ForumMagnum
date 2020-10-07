@@ -62,7 +62,8 @@ const tableStyles = {
   border: "1px double #b3b3b3",
   margin: "auto",
   height: "100%",
-  textAlign: "left"
+  textAlign: "left",
+  width: '100%'
 }
 
 const tableCellStyles = {
@@ -178,6 +179,10 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& table': {
     ...tableStyles
+  },
+  // CKEditor wraps tables in a figure element
+  '& figure.table': {
+    display: 'table'
   },
   '& td, & th': {
     ...tableCellStyles
