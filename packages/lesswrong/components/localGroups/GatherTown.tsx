@@ -108,7 +108,7 @@ const GatherTown = ({classes}: {
     fragmentName: 'UsersCurrent',
   });
 
-  const { LWTooltip, FormatDate } = Components
+  const { LWTooltip } = Components
 
 
   if (!currentUser || !currentUser.walledGardenInvite) return null
