@@ -17,6 +17,9 @@ registerFragment(`
     descriptionTruncationCount
     wikiGrade
     createdAt
+    wikiOnly
+    lesswrongWikiImportSlug
+    lesswrongWikiImportRevision
   }
 `);
 
@@ -28,6 +31,7 @@ registerFragment(`
       html
       htmlHighlight
       plaintextDescription
+      version
     }
   }
 `);
@@ -37,9 +41,14 @@ registerFragment(`
     ...TagBasicInfo
     description(version: $version) {
       _id
+      version
       html
       htmlHighlight
       plaintextDescription
+      
+      user {
+        ...UsersMinimumInfo
+      }
     }
   }
 `);
@@ -50,13 +59,25 @@ registerFragment(`
     description {
       _id
       htmlHighlight
+      version
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithFlagsFragment on Tag {
+    ...TagFragment
+    tagFlagsIds
+    tagFlags {
+      ...TagFlagFragment
+    } 
   }
 `);
 
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
+    tagFlagsIds
     description {
       ...RevisionEdit
     }

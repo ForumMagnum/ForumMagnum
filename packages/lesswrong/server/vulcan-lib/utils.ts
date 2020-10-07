@@ -22,7 +22,12 @@ export const sanitize = function(s: string): string {
       tr: ['style'],
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
-      span: ['style']
+      span: ['style'],
+      div: ['class'],
+      a: ['href', 'name', 'target', 'rel']
+    },
+    allowedClasses: {
+      div: [ 'spoilers' ],
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,

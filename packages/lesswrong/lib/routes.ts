@@ -244,7 +244,7 @@ addRoute(
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
-    title: "All Tags",
+    title: "Concepts Portal",
   },
   {
     name: "Concepts",
@@ -530,6 +530,12 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
+  {
+    name: 'taggingDashboard',
+    path: '/tags/dashboard',
+    componentName: "TaggingDashboard",
+    title: "Tagging Dashboard"
+  }
 );
 
 addRoute(
@@ -603,7 +609,7 @@ switch (forumTypeSetting.get()) {
       {
         name: 'Community',
         path: '/meta',
-        redirect: () => `/tags/all`,
+        redirect: () => `/tags/community`,
       },
       {
         name: 'eaSequencesHome',

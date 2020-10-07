@@ -136,7 +136,6 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
                 <div dangerouslySetInnerHTML={{__html: highlight}} className={classes.highlight} />
               </React.Fragment>}
           </div>
-
         return (
           <LWTooltip key={event._id} placement="right-start" title={tooltip}>
             <MenuItemUntyped

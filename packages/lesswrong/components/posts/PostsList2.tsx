@@ -71,6 +71,7 @@ const PostsList2 = ({
   itemsPerPage=25,
   hideAuthor=false,
   boxShadow=true,
+  curatedIconLeft=false
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -91,6 +92,7 @@ const PostsList2 = ({
   itemsPerPage?: number,
   hideAuthor?: boolean,
   boxShadow?: boolean
+  curatedIconLeft?: boolean,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -174,6 +176,7 @@ const PostsList2 = ({
             post,
             index: i,
             terms, showNominationCount, showReviewCount, dense,
+            curatedIconLeft: curatedIconLeft,
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",

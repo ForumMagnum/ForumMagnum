@@ -49,7 +49,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}
       to={href}
       dangerouslySetInnerHTML={{__html: useTagName ? tag?.name : innerHTML}}
     />
-    {showPostCount && <span className={classes.count}>({tag?.postCount})</span>}
+    {!!showPostCount && <span className={classes.count}>({tag?.postCount})</span>}
   </span>;
 }
 

@@ -1,5 +1,5 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
 
@@ -24,6 +24,7 @@ export const schema: SchemaType<DbTag> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
+    order: 1,
   },
   slug: {
     type: String,
@@ -114,7 +115,7 @@ export const schema: SchemaType<DbTag> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],
@@ -179,6 +180,53 @@ export const schema: SchemaType<DbTag> = {
       label: name
     })),
     group: formGroups.advancedOptions,
+  },
+
+  wikiOnly: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+    group: formGroups.advancedOptions
+  },
+
+  tagFlagsIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "tagFlagsIds",
+      resolverName: "tagFlags",
+      collectionName: "TagFlags",
+      type: "TagFlag",
+    }),
+    control: 'TagFlagToggleList',
+    label: "Flags: ",
+    optional: true,
+    order: 30,
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins']
+  },
+  'tagFlagsIds.$': {
+    type: String,
+    foreignKey: 'TagFlags',
+    optional: true
+  },
+  // Populated by the LW 1.0 wiki import, with the revision number
+  // that has the last full state of the imported post
+  lesswrongWikiImportRevision: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportSlug: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportCompleted: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests']
   }
 }
 

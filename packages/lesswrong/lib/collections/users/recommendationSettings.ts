@@ -28,8 +28,8 @@ const recommendationAlgorithmSettingsSchema = new SimpleSchema({
 
 const recommendationSettingsSchema = new SimpleSchema({
   frontpage: recommendationAlgorithmSettingsSchema,
+  frontpageEA: recommendationAlgorithmSettingsSchema,
   recommendationspage: recommendationAlgorithmSettingsSchema,
-  afterpost: recommendationAlgorithmSettingsSchema,
 });
 
 addFieldsDict(Users, {

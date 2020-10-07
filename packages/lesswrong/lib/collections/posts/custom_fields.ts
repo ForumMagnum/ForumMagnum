@@ -290,7 +290,7 @@ addFieldsDict(Posts, {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -758,6 +758,18 @@ addFieldsDict(Posts, {
   localEndTime: {
     type: Date,
     viewableBy: ['guests'],
+  },
+
+  onlineEvent: {
+    type: Boolean,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    group: formGroups.event,
+    order: 0,
+    ...schemaDefaultValue(false),
   },
 
   mongoLocation: {

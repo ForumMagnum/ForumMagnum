@@ -9,23 +9,31 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 
+export const progressBarRoot = (theme) => ({
+  background: "white",
+  padding: 10,
+  paddingLeft: 12,
+  paddingRight: 12,
+  fontSize: "1.3rem",
+  boxShadow: theme.boxShadow,
+  ...theme.typography.postStyle
+})
+
+export const secondaryInfo = (theme) => ({
+  display: 'flex',
+  ...theme.typography.commentStyle,
+  justifyContent: 'space-between',
+  fontSize: '1rem',
+  color: 'rgba(0,0,0,0.55)',
+  marginTop: 8
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    padding: 10,
-    paddingLeft: 12,
-    paddingRight: 12,
-    fontSize: "1.3rem",
-    boxShadow: theme.boxShadow,
-    ...theme.typography.postStyle
+    ...progressBarRoot(theme)
   },
   secondaryInfo: {
-    display: 'flex',
-    ...theme.typography.commentStyle,
-    justifyContent: 'space-between',
-    fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)',
-    marginTop: 8
+    ...secondaryInfo(theme)
   },
   helpText: {
   },
@@ -66,24 +74,23 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 });
 
-const TagProgressBar = ({classes}: {
+const TagProgressBar = ({ classes }: {
   classes: ClassesType,
 }) => {
 
-  const { LWTooltip } = Components;
+  const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
-  const {mutate: updateUser} = useUpdate({
+  const { mutate: updateUser } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
-
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
-        selector: { _id: currentUser._id},
+        selector: { _id: currentUser._id },
         data: {
           hideTaggingProgressBar: true
         },
@@ -92,7 +99,7 @@ const TagProgressBar = ({classes}: {
         messageString: "Hid tagging progress bar from the frontpage",
         type: "success",
         action: () => void updateUser({
-          selector: { _id: currentUser._id},
+          selector: { _id: currentUser._id },
           data: {
             hideTaggingProgressBar: false
           },
@@ -106,45 +113,56 @@ const TagProgressBar = ({classes}: {
     }
   }
 
-  const allPostsTooltip = "All posts with 25+ karma are tagged! Woop! Woop!"
+  const allPostsTooltip = `All tags and wiki pages from the LW Wiki import have been processed!`
 
   return <div className={classes.root}>
-      <div className={classes.inner}>
-        <div className={classes.text}>
-          <Link className={classes.title} to={"/posts/gNb2wSKDYDPJ6Mxmz/woop-woop-tagging-progress-bar-is-at-100-celebration-on-sun"}>
-            Tagging Progress
+    <div className={classes.inner}>
+      <div className={classes.text}>
+        <Link className={classes.title} to={"/posts/ELN6FpRLoeLJPgx8z/importing-the-old-lw-wiki-help-wanted"}>
+          LW 1.0 Wiki Import Progress
           </Link>
-          <LWTooltip title={<div>
-            <div>View all completely untagged posts, sorted by karma</div>
-            <div><em>(Click through to read posts, and then tag them)</em></div>
-          </div>}>
-          </LWTooltip>
-        </div>
+        <PostsItem2MetaInfo>
+          <Link className={classes.allTagsBarColor} to={"/posts/ELN6FpRLoeLJPgx8z/importing-the-old-lw-wiki-help-wanted"}>
+            What's the Import?
+            </Link>
+          <SeparatorBullet />
+          <Link className={classes.allTagsBarColor} to="/tags/dashboard">
+            Help Process Pages
+          </Link>
+        </PostsItem2MetaInfo>
+        <LWTooltip title={<div>
+          <div>View all completely untagged posts, sorted by karma</div>
+          <div><em>(Click through to read posts, and then tag them)</em></div>
+        </div>}>
+        </LWTooltip>
+      </div>
+      {
         <LWTooltip className={classes.tooltip} title={allPostsTooltip}>
-          <LinearProgress 
-            classes={{root: classes.barRoot}} 
-            variant="determinate" 
-            value={100} 
+          <LinearProgress
+            classes={{ root: classes.barRoot }}
+            variant="determinate"
+            value={100}
           />
         </LWTooltip>
-        <div className={classes.secondaryInfo}>
-          <div className={classes.helpText}>
-            <span className={classes.allTagsBarColor}>All posts with 25+ karma have been tagged.{" "} </span>
-          </div>
-          <LWTooltip title={"Hide this progress bar from the frontpage"}>
-            <a 
-              className={classes.hideButton}
-              onClick={hideClickHandler}
-            > 
-              Hide 
-            </a>
-          </LWTooltip>
+      }
+      <div className={classes.secondaryInfo}>
+        <div className={classes.helpText}>
+          <span className={classes.allTagsBarColor}> All pages from the LW 1.0 Wiki have been processed!{" "} </span>
         </div>
+        <LWTooltip title={"Hide this progress bar from the frontpage"}>
+          <a
+            className={classes.hideButton}
+            onClick={hideClickHandler}
+          >
+            Hide
+            </a>
+        </LWTooltip>
       </div>
+    </div>
   </div>
 }
 
-const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, {styles, hocs:[withErrorBoundary]});
+const TagProgressBarComponent = registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
 
 declare global {
   interface ComponentTypes {
