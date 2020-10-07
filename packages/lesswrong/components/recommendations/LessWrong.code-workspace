@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../../LessWrong-Credentials"
+		}
+	],
+	"settings": {
+		"deepscan.enable": true
+	}
+}

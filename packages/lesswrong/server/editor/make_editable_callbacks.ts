@@ -49,9 +49,9 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
-    const callbackAndMarkFinished = (result) => {
+    const callbackAndMarkFinished = (...args) => {
       finished = true;
-      return beforeSerializationCallback(result);
+      return beforeSerializationCallback(...args);
     };
     
     mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
