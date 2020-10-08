@@ -356,6 +356,12 @@ if (forumTypeSetting.get() === 'LessWrong') {
       ...hpmorSubtitle,
     },
     {
+      name: 'Walled Garden',
+      path: '/walledGarden',
+      componentName: 'WalledGardenHome',
+      title: "Walled Garden",
+    },
+    {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
       componentName: 'PostsSingleSlug',

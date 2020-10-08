@@ -139,7 +139,7 @@ const GatherTown = ({classes}: {
       Click to read more about this space
       <div>{"password: the12thvirtue"}</div></div>
     }>
-      <Link to="/posts/znrqfd7Y5zthJDBvX/welcome-to-the-garden" className={classes.learn}>
+      <Link to="/walledGarden" className={classes.learn}>
         Learn More
       </Link>
   </LWTooltip>
@@ -153,7 +153,7 @@ const GatherTown = ({classes}: {
         </AnalyticsTracker>
         <div className={classes.secondaryInfo}>
           <div>
-            A private, permanent virtual world. Coworking 2pm-7pm PT weekdays. Schelling Social hours at 1pm and 7pm.
+            A private, permanent virtual world. Coworking on weekdays. Schelling Social hours at Tues 3pm PT, and Thurs 6pm PT.
           </div>
         </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>

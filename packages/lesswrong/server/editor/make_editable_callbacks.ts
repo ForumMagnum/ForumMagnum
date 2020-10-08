@@ -7,6 +7,7 @@ import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collec
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
+import Sentry from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
@@ -32,14 +33,30 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
+    let finished = false;
+    
+    setTimeout(() => {
+      if (!finished) {
+        const errorMessage = `Timed out in mjpage when processing html: ${html}`;
+        Sentry.captureException(new Error(errorMessage));
+        // eslint-disable-next-line no-console
+        console.error(errorMessage);
+      }
+    }, 10000);
+    
     const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
+    const callbackAndMarkFinished = (...args) => {
+      finished = true;
+      return beforeSerializationCallback(...args);
+    };
+    
     mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
-      .on('beforeSerialization', beforeSerializationCallback);
+      .on('beforeSerialization', callbackAndMarkFinished);
   })
 }
 
