@@ -148,7 +148,7 @@ const GatherTown = ({classes}: {
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
-        <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}}>
+        <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
           <div>You're invited to the <a href={gatherTownURL}>Walled Garden Beta</a></div>
         </AnalyticsTracker>
         <div className={classes.secondaryInfo}>
