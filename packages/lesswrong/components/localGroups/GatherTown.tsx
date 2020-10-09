@@ -13,6 +13,9 @@ import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+
+const gatherMessage = new DatabasePublicSetting<string>('gatherTownMessage', 'Coworking on weekdays. Schelling Social hours at Tues 1pm PT, and Thurs 6pm PT.')
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -153,7 +156,7 @@ const GatherTown = ({classes}: {
         </AnalyticsTracker>
         <div className={classes.secondaryInfo}>
           <div>
-            A private, permanent virtual world. Coworking on weekdays. Schelling Social hours at Tues 3pm PT, and Thurs 6pm PT.
+            A private, permanent virtual world. {gatherMessage.get()}
           </div>
         </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
