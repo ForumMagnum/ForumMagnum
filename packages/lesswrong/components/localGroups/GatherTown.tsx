@@ -179,4 +179,3 @@ declare global {
     GatherTown: typeof GatherTownComponent
   }
 }
-
