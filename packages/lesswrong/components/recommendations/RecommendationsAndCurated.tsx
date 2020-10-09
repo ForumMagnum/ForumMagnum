@@ -116,7 +116,7 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {<AnalyticsContext pageSectionContext="Gather Town Welcome">
+      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
       </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
@@ -160,10 +160,10 @@ const RecommendationsAndCurated = ({
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 
-              terms={{view:"curated", limit: currentUser ? 3 : 2}} 
-              showLoadMore={false} 
-              hideLastUnread={true} 
+            <PostsList2
+              terms={{view:"curated", limit: currentUser ? 3 : 2}}
+              showLoadMore={false}
+              hideLastUnread={true}
               boxShadow={false}
               curatedIconLeft={true}
             />
@@ -195,7 +195,7 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
-      
+
 
       {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
         <TagProgressBar/>
@@ -214,7 +214,7 @@ const RecommendationsAndCurated = ({
       </AnalyticsContext> */}
     </SingleColumnSection>
   }
-  
+
   return render();
 }
 
