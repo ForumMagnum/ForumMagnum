@@ -108,7 +108,7 @@ const GatherTown = ({classes}: {
     fragmentName: 'UsersCurrent',
   });
 
-  const { LWTooltip } = Components
+  const { LWTooltip, AnalyticsTracker } = Components
 
 
   if (!currentUser || !currentUser.walledGardenInvite) return null
@@ -133,6 +133,7 @@ const GatherTown = ({classes}: {
     })
   }
 
+  const gatherTownURL = "https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"
   const tooltip = <LWTooltip title={
     <div>
       Click to read more about this space
@@ -147,7 +148,9 @@ const GatherTown = ({classes}: {
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
-        <div>You're invited to the <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus">Walled Garden Beta</a></div>
+        <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
+          <div>You're invited to the <a href={gatherTownURL}>Walled Garden Beta</a></div>
+        </AnalyticsTracker>
         <div className={classes.secondaryInfo}>
           <div>
             A private, permanent virtual world. Coworking on weekdays. Schelling Social hours at Tues 3pm PT, and Thurs 6pm PT.
@@ -157,7 +160,7 @@ const GatherTown = ({classes}: {
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
             {tooltip}
         </div>}
-        {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}> 
+        {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/> No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
