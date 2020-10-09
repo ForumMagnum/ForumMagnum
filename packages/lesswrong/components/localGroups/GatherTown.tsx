@@ -13,8 +13,7 @@ import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
+import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 
 const gatherMessage = new DatabasePublicSetting<string>('gatherTownMessage', 'Coworking on weekdays. Schelling Social hours at Tues 1pm PT, and Thurs 6pm PT.')
 
