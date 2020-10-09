@@ -6,11 +6,11 @@ import gql from 'graphql-tag';
 const styles = (theme: ThemeType): JssStyles => ({
   differences: {
     "& ins": {
-      background: "#88ff88",
+      background: "#d4ead4",
       textDecoration: "none",
     },
     "& del": {
-      background: "#ff8888",
+      background: "#f0d3d3",
       textDecoration: "none",
     },
   },
@@ -28,7 +28,7 @@ const CompareRevisions = ({
   collectionName: string,
   fieldName: string,
   documentId: string,
-  versionBefore: string,
+  versionBefore: string|null,
   versionAfter: string,
   classes: ClassesType,
   trim?: boolean
@@ -38,7 +38,7 @@ const CompareRevisions = ({
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
   const { data: diffResult, loading: loadingDiff, error } = useQuery(gql`
-    query RevisionsDiff($collectionName: String, $fieldName: String, $id: String, $beforeRev: String, $afterRev: String, $trim: Boolean) {
+    query RevisionsDiff($collectionName: String!, $fieldName: String!, $id: String!, $beforeRev: String, $afterRev: String!, $trim: Boolean) {
       RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)
     }
   `, {

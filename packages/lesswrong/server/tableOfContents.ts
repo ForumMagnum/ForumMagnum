@@ -210,7 +210,7 @@ async function getTocAnswers (document) {
     return [
       {anchor: "answers", level:1, title:'Answers'}, 
       ...answerSections,
-      {divider:true, level: 0, anchor: "postHeadingsDivider"}
+      {divider:true, level: 0, anchor: "postAnswersDivider"}
     ]
   } else {
     return []

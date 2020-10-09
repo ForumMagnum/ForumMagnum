@@ -68,7 +68,7 @@ export default class AutoMath extends Plugin {
 
 		// Get equation text
 		for ( const node of walker ) {
-			if ( node.item.is( 'textProxy' ) ) {
+			if ( node.item.is( '$textProxy' ) ) {
 				text += node.item.data;
 			}
 		}
@@ -107,7 +107,7 @@ export default class AutoMath extends Plugin {
 					const params = Object.assign( extractDelimiters( text ), {
 						type: mathConfig.outputType
 					} );
-					const mathElement = writer.createElement( 'mathtex', params );
+					const mathElement = writer.createElement(params.display ? 'mathtex-display' : 'mathtex', params );
 
 					editor.model.insertContent( mathElement, insertPosition );
 

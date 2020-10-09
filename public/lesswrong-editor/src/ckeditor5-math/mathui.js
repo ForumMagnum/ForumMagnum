@@ -116,7 +116,7 @@ export default class MathUI extends Plugin {
 		formView.keystrokes.set( 'Enter', ( data, cancel ) => {
 			this.formView.fire( 'submit' );
 			this._closeFormView();
-		} );
+		});
 
 		this.listenTo( formView, 'updatedMath', () => {
 			this._balloon.updatePosition( this._getBalloonPositionData() );

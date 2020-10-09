@@ -3,10 +3,12 @@ import { sanitize } from '../vulcan-lib/utils';
 import { Random } from 'meteor/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
-import Revisions from '../../lib/collections/revisions/collection'
+import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
+import Sentry from '@sentry/node';
+import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 import * as _ from 'underscore';
@@ -31,14 +33,30 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
+    let finished = false;
+    
+    setTimeout(() => {
+      if (!finished) {
+        const errorMessage = `Timed out in mjpage when processing html: ${html}`;
+        Sentry.captureException(new Error(errorMessage));
+        // eslint-disable-next-line no-console
+        console.error(errorMessage);
+      }
+    }, 10000);
+    
     const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
+    const callbackAndMarkFinished = (...args) => {
+      finished = true;
+      return beforeSerializationCallback(...args);
+    };
+    
     mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
-      .on('beforeSerialization', beforeSerializationCallback);
+      .on('beforeSerialization', callbackAndMarkFinished);
   })
 }
 
@@ -333,6 +351,7 @@ export function addEditableCallbacks({collection, options = {}}: {
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
+      const changeMetrics = htmlToChangeMetrics("", html);
       
       // FIXME: This doesn't define documentId, because it's filled in in the
       // after-create callback, passing through an intermediate state where it's
@@ -351,6 +370,7 @@ export function addEditableCallbacks({collection, options = {}}: {
         version,
         updateType: 'initial',
         commitMessage,
+        changeMetrics,
       });
       
       return {
@@ -392,6 +412,9 @@ export function addEditableCallbacks({collection, options = {}}: {
       
       let newRevisionId;
       if (await revisionIsChange(newDocument, fieldName)) {
+        const previousRev = await getLatestRev(newDocument._id, fieldName);
+        const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
+        
         // FIXME: See comment on the other Connectors.create call in this file.
         // Missing _id and schemaVersion.
         // @ts-ignore
@@ -406,6 +429,7 @@ export function addEditableCallbacks({collection, options = {}}: {
           version,
           updateType,
           commitMessage,
+          changeMetrics,
         });
         newRevisionId = newRevision._id;
       } else {
@@ -447,3 +471,33 @@ export function addEditableCallbacks({collection, options = {}}: {
   addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationAfterCreate)
   //addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationAfterCreateOrUpdate)
 }
+
+/// Given an HTML diff, where added sections are marked with <ins> and <del>
+/// tags, count the number of chars added and removed. This is used for providing
+/// a quick distinguisher between small and large changes, on revision history
+/// lists.
+const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
+  const parsedHtml = cheerio.load(diffHtml);
+  
+  const insertedChars = countCharsInTag(parsedHtml, "ins");
+  const removedChars = countCharsInTag(parsedHtml, "del");
+  
+  return { added: insertedChars, removed: removedChars };
+}
+
+const countCharsInTag = (parsedHtml: CheerioStatic, tagName: string) => {
+  const instancesOfTag = parsedHtml(tagName);
+  let cumulative = 0;
+  for (let i=0; i<instancesOfTag.length; i++) {
+    const tag = instancesOfTag[i];
+    const text = cheerio(tag).text();
+    cumulative += text.length;
+  }
+  return cumulative;
+}
+
+export const htmlToChangeMetrics = (oldHtml: string, newHtml: string): ChangeMetrics => {
+  const htmlDiff = diff(oldHtml, newHtml);
+  return diffToChangeMetrics(htmlDiff);
+}
+

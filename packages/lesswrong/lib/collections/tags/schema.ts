@@ -1,7 +1,9 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils } from '../../vulcan-lib';
+import { getWithLoader } from '../../loaders';
+import moment from 'moment';
 
 const formGroups = {
   advancedOptions: {
@@ -11,7 +13,7 @@ const formGroups = {
     startCollapsed: true,
   },
 };
-  
+
 export const schema: SchemaType<DbTag> = {
   createdAt: {
     optional: true,
@@ -24,6 +26,7 @@ export const schema: SchemaType<DbTag> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
+    order: 1,
   },
   slug: {
     type: String,
@@ -114,7 +117,7 @@ export const schema: SchemaType<DbTag> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: false,
+      nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],
@@ -144,6 +147,12 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
+  },
+  lastCommentedAt: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
   },
   needsReview: {
     type: Boolean,
@@ -179,7 +188,118 @@ export const schema: SchemaType<DbTag> = {
       label: name
     })),
     group: formGroups.advancedOptions,
-  }
+  },
+  
+  recentComments: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    viewableBy: ['guests'],
+    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const timeCutoff = moment(tag.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const comments = await Comments.find({
+        ...Comments.defaultView({}).selector,
+        tagId: tag._id,
+        score: {$gt:0},
+        deletedPublic: false,
+        postedAt: {$gt: timeCutoff},
+        ...(af ? {af:true} : {}),
+      }, {
+        limit: tagCommentsLimit,
+        sort: {postedAt:-1}
+      }).fetch();
+      return await accessFilterMultiple(currentUser, Comments, comments, context);
+    }
+  }),
+  'recentComments.$': {
+    type: Object,
+    foreignKey: 'Comments',
+  },
+
+  wikiOnly: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+    group: formGroups.advancedOptions
+  },
+
+  tagFlagsIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "tagFlagsIds",
+      resolverName: "tagFlags",
+      collectionName: "TagFlags",
+      type: "TagFlag",
+    }),
+    control: 'TagFlagToggleList',
+    label: "Flags: ",
+    optional: true,
+    order: 30,
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins']
+  },
+  'tagFlagsIds.$': {
+    type: String,
+    foreignKey: 'TagFlags',
+    optional: true
+  },
+  // Populated by the LW 1.0 wiki import, with the revision number
+  // that has the last full state of the imported post
+  lesswrongWikiImportRevision: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportSlug: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  lesswrongWikiImportCompleted: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests']
+  },
+  
+  // lastVisitedAt: If the user is logged in and has viewed this tag, the date
+  // they last viewed it. Otherwise, null.
+  lastVisitedAt: resolverOnlyField({
+    type: Date,
+    viewableBy: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
+      if (!currentUser) return null;
+
+      const readStatus = await getWithLoader(ReadStatuses,
+        `tagReadStatuses`,
+        { userId: currentUser._id },
+        'tagId', tag._id
+      );
+      if (!readStatus.length) return null;
+      return readStatus[0].lastUpdated;
+    }
+  }),
+  
+  isRead: resolverOnlyField({
+    type: Boolean,
+    viewableBy: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
+      if (!currentUser) return false;
+      
+      const readStatus = await getWithLoader(ReadStatuses,
+        `tagReadStatuses`,
+        { userId: currentUser._id },
+        'tagId', tag._id
+      );
+      if (!readStatus.length) return false;
+      return readStatus[0].isRead;
+    }
+  }),
+
 }
 
 export const wikiGradeDefinitions = {

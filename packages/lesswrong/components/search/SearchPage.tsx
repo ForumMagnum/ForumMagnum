@@ -181,7 +181,7 @@ const SearchPage = ({classes}:{
             <Index indexName={algoliaIndexNames.Tags}>
               <div className={classes.header}>
                 <Typography variant="body1">
-                  Tags
+                  Tags and Wiki
                 </Typography>
                 <SearchPagination />
               </div>

@@ -8,6 +8,7 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
+
 import Home from '@material-ui/icons/Home'
 import Group from '@material-ui/icons/Group'
 import LocalOffer from '@material-ui/icons/LocalOffer';
@@ -26,6 +27,7 @@ const EventsList = ({currentUser, onClick}) => {
     currentUser.mongoLocation.coordinates[0]
   let eventsListTerms: any = {
     view: 'events',
+    onlineEvent: false,
     limit: 3,
   }
   if (lat && lng) {
@@ -33,11 +35,16 @@ const EventsList = ({currentUser, onClick}) => {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: 3,
+      limit: 2,
     }
+  }
+  const onlineTerms = {
+    view: 'onlineEvents',
+    limit: 2
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
+      <TabNavigationEventsList onClick={onClick} terms={onlineTerms} />
       <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
     </AnalyticsContext>
   </span>

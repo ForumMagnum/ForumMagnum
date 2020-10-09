@@ -38,7 +38,11 @@ const spoilerStyles = (theme: ThemeType) => ({
     },
     '&:hover': {
       background: 'rgba(0,0,0,.12)' // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
-    }
+    },
+    '& > p' : {
+      margin: '0 !important',
+      padding: '0.5em 8px !important'
+    },
   },
   '& p.spoiler-v2': {
     margin: 0,
@@ -57,9 +61,9 @@ const tableStyles = {
   borderSpacing: 0,
   border: "1px double #b3b3b3",
   margin: "auto",
-  width: "100%",
   height: "100%",
-  textAlign: "left"
+  textAlign: "left",
+  width: '100%'
 }
 
 const tableCellStyles = {
@@ -176,6 +180,10 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& table': {
     ...tableStyles
   },
+  // CKEditor wraps tables in a figure element
+  '& figure.table': {
+    display: 'table'
+  },
   '& td, & th': {
     ...tableCellStyles
   },
@@ -266,6 +274,30 @@ export const commentBodyStyles = (theme: ThemeType) => {
     }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
+}
+
+export const tagBodyStyles = (theme: ThemeType) => {
+  return {
+    ...commentBodyStyles(theme),
+    '&& h1': {
+      fontSize: '2rem',
+      marginTop: '3rem',
+      fontWeight:600,
+      ...theme.typography.commentStyle
+    }, 
+    '&& h2': {
+      fontSize: '1.7rem',
+      marginTop: '1.5rem',
+      fontWeight:500,
+      ...theme.typography.commentStyle
+    }, 
+    '&& h3': {
+      fontSize: '1.3rem',
+      marginTop: '1.5rem',
+      fontWeight:500,
+      ...theme.typography.commentStyle
+    }
+  }
 }
 
 // FIXME: Emails currently don't use this, because the expectations around font size and

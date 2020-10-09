@@ -90,7 +90,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
     }
   }
   
-  const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
+  const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
   const result = {
     currentRoute, RouteComponent, location, params,
     pathname: location.pathname,

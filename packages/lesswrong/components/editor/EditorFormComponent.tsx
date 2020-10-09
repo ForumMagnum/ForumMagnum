@@ -14,7 +14,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
-import { userHasCkEditor, userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
+import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -196,7 +196,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   async componentDidMount() {
-    const { currentUser, form, document, fieldName } = this.props
+    const { form } = this.props
 
     this.context.addToSubmitForm(this.submitData);
 
@@ -216,12 +216,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       window.addEventListener("beforeunload", this.unloadEventListener );
     }
 
-    if (userHasCkEditor(currentUser) || (document && document[fieldName]?.originalContents?.type === "ckEditorMarkup")) {
-      let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
-      const Editor = EditorModule.default
-      this.ckEditor = Editor
-      this.setState({ckEditorLoaded: true})
-    }
+    let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
+    const Editor = EditorModule.default
+    this.ckEditor = Editor
+    this.setState({ckEditorLoaded: true})
     
     if (Meteor.isClient) {
       this.restoreFromLocalStorage();
@@ -527,9 +525,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getUserDefaultEditor = (user) => {
-    if (userHasCkEditor(user)) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
-    return "draftJS"
+    if (user?.reenableDraftJs) return "draftJS"
+    return "ckEditorMarkup"
   }
 
 
@@ -554,9 +552,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   
   renderCommitMessageInput = () => {
     const { currentUser, formType, fieldName, form, classes } = this.props
-    if (!currentUser || !userCanCreateCommitMessages(currentUser) || formType !== "edit") { return null }
-    
     const collectionName = form.collectionName;
+    if (!currentUser || (!userCanCreateCommitMessages(currentUser) && collectionName !== "Tags") || formType !== "edit") { return null }
+    
+    
     const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
     if (!fieldHasCommitMessages) return null;
     
@@ -593,8 +592,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   renderVersionSelect = () => {
     const { classes, document, currentUser } = this.props
 
-    if (!userHasCkEditor(currentUser)) return null
-
+    if (!currentUser?.isAdmin) return null
     if (!this.getCurrentRevision()) return null
     return <span className={classes.select}>
         <Components.SelectVersion
@@ -610,7 +608,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
     const { LWTooltip } = Components
-    if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
+    if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
       <LWTooltip title="Warning! Changing format will erase your content" placement="left">

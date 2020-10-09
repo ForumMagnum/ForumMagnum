@@ -59,6 +59,7 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    onlineEvent
     startTime
     endTime
     localStartTime
@@ -174,11 +175,10 @@ registerFragment(`
   }
 `);
 
-
-
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
+    tagRelevance
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
@@ -403,7 +403,7 @@ registerFragment(`
 
 registerFragment(`
   fragment SunshinePostsList on Post {
-    ...PostsList
+    ...PostsListBase
 
     currentUserVotes{
       ...VoteFragment
@@ -413,6 +413,7 @@ registerFragment(`
       _id
       html
       htmlHighlight
+      wordCount
     }
     
     user {

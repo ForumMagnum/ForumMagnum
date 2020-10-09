@@ -13,9 +13,10 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting, hasEventsSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import Typography from '@material-ui/core/Typography';
 import { separatorBulletStyles } from '../common/SectionFooter';
+import { taglineSetting } from '../common/HeadTags';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -175,7 +176,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const { slug, classes, currentUser, loading, results, location } = this.props;
     const { query } = location;
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -206,7 +207,8 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       }
     }
 
-    const draftTerms = {view: "drafts", userId: user._id, limit: 4}
+
+    const draftTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
@@ -220,9 +222,13 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     
     const username = Users.getDisplayName(user)
+    const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
+        <HeadTags
+          description={metaDescription}
+        />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
