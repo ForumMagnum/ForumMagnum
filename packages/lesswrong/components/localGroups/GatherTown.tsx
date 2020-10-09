@@ -14,6 +14,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 
 const gatherMessage = new DatabasePublicSetting<string>('gatherTownMessage', 'Coworking on weekdays. Schelling Social hours at Tues 1pm PT, and Thurs 6pm PT.')
 
@@ -136,7 +137,7 @@ const GatherTown = ({classes}: {
     })
   }
 
-  const gatherTownURL = "https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"
+  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
   const tooltip = <LWTooltip title={
     <div>
       Click to read more about this space
