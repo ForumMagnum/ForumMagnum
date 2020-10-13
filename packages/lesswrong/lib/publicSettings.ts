@@ -82,3 +82,6 @@ export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('lega
 // Community tag, can be trivially applied to personalBlog, frontpage, and
 // curated, if those ever get refactored into tags.
 export const defaultVisibilityTags = new DatabasePublicSetting<Array<FilterTag>>('defaultVisibilityTags', [])
+
+export const gatherTownRoomId = new DatabasePublicSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx")
+export const gatherTownRoomName = new DatabasePublicSetting<string | null>("gatherTownRoomName", "lesswrong-campus")
