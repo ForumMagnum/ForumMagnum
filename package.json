@@ -184,7 +184,7 @@
     "speakingurl": "^9.0.0",
     "tlds": "^1.203.1",
     "turndown": "^4.0.2",
-    "typescript": "^3.7.3",
+    "typescript": "^3.8.3",
     "underscore": "^1.9.1",
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
