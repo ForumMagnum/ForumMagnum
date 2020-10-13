@@ -970,7 +970,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
   showMessage(messageId, type?: any, clearTimeout?: any, field?: any) {
     if (messageId) {
-      this.setState(({ messages = [] }) => {
+      this.setState(({messages = []}: {messages?: Array<any>}) => {
         messages.push({
           message: this.context.intl.formatMessage({id: messageId}) || messageId || "Unknown Error",
           type,
