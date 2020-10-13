@@ -1,4 +1,4 @@
-import { SchemaType } from '../../utils/schemaUtils'
+import type { SchemaType } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbPetrovDayLaunch> = {
   createdAt: {

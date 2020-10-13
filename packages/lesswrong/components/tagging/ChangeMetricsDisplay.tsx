@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { ChangeMetrics } from '../../lib/collections/revisions/collection';
+import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   charsAdded: {
