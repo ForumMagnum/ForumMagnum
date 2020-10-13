@@ -5,7 +5,7 @@ import '../components/posts/TableOfContents';
 // vulcan:accounts
 import '../components/vulcan-accounts';
 import '../components/vulcan-core/vulcan-core-components';
-import { forumTypeSetting, hasEventsSetting } from './instanceSettings';
+import { forumTypeSetting } from './instanceSettings';
 // vulcan:forms
 import './vulcan-forms/components';
 import { importComponent } from './vulcan-lib';
@@ -135,6 +135,7 @@ importComponent("UsersNameWrapper", () => require('../components/users/UsersName
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay'));
 importComponent("UsersSingle", () => require('../components/users/UsersSingle'));
 importComponent("UsersEmailVerification", () => require('../components/users/UsersEmailVerification'));
+importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));
 importComponent("ViewSubscriptionsPage", () => require('../components/users/ViewSubscriptionsPage'));
 importComponent("EmailConfirmationRequiredCheckbox", () => require('../components/users/EmailConfirmationRequiredCheckbox'));
 importComponent("LoginPage", () => require('../components/users/LoginPage'));
@@ -228,33 +229,40 @@ importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
-// events
+// Events
+// In a past version, these `importComponent` definitions were skipped if the hasEvents
+// setting wasn't set. This broke AF on, which doesn't have events in the sense that it
+// doesn't have events on its sidebar, but can have events if they're moved from LessWrong.
+// There's no actual benefit to gating these imports behind an if statement, anyways;
+// the source files behind them are only executed if actually used on a page, and
+// they aren't excluded from the bundle in any case.
 
-if (hasEventsSetting.get()) {
-  importComponent("EventsPast", () => require('../components/posts/EventsPast'));
-  importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
-  importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
-  importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
-  importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
-  importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper'));
-  importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog'));
-  importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog'));
-  importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup'));
-  importComponent("EventTime", () => require('../components/localGroups/EventTime'));
-  importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity'));
-  importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker'));
-  importComponent("LocalEventMarker", () => require('../components/localGroups/LocalEventMarker'));
-  importComponent("LocalGroupPage", () => require('../components/localGroups/LocalGroupPage'));
-  importComponent("LocalGroupSingle", () => require('../components/localGroups/LocalGroupSingle'));
-  importComponent("GroupFormLink", () => require('../components/localGroups/GroupFormLink'));
-  importComponent("SmallMapPreview", () => require('../components/localGroups/SmallMapPreview'));
-  importComponent("GroupLinks", () => require('../components/localGroups/GroupLinks'));
-  importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList'));
-  importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem'));
-  importComponent("TabNavigationEventsList", () => require('../components/localGroups/TabNavigationEventsList'));
-  importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
-  importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
-}
+importComponent("EventsPast", () => require('../components/posts/EventsPast'));
+importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
+importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
+importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
+importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
+importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper'));
+importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog'));
+importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog'));
+importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup'));
+importComponent("EventTime", () => require('../components/localGroups/EventTime'));
+importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity'));
+importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker'));
+importComponent("LocalEventMarker", () => require('../components/localGroups/LocalEventMarker'));
+importComponent("LocalGroupPage", () => require('../components/localGroups/LocalGroupPage'));
+importComponent("LocalGroupSingle", () => require('../components/localGroups/LocalGroupSingle'));
+importComponent("GroupFormLink", () => require('../components/localGroups/GroupFormLink'));
+importComponent("SmallMapPreview", () => require('../components/localGroups/SmallMapPreview'));
+importComponent("GroupLinks", () => require('../components/localGroups/GroupLinks'));
+importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList'));
+importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem'));
+importComponent("TabNavigationEventsList", () => require('../components/localGroups/TabNavigationEventsList'));
+importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
+importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
+
+importComponent("WalledGardenHome", () => require('../components/localGroups/WalledGardenHome'));
+importComponent("GatherTown", () => require('../components/localGroups/GatherTown'));
 
 // comments
 
@@ -343,6 +351,8 @@ importComponent("SunshineNewUsersList", () => require('../components/sunshineDas
 importComponent("SunshineNewPostsList", () => require('../components/sunshineDashboard/SunshineNewPostsList'));
 importComponent("SunshineNewPostsItem", () => require('../components/sunshineDashboard/SunshineNewPostsItem'));
 importComponent("SunshineNewCommentsItem", () => require('../components/sunshineDashboard/SunshineNewCommentsItem'));
+importComponent("CommentKarmaWithPreview", () => require('../components/sunshineDashboard/CommentKarmaWithPreview'));
+importComponent("PostKarmaWithPreview", () => require('../components/sunshineDashboard/PostKarmaWithPreview'));
 importComponent("SunshineNewCommentsList", () => require('../components/sunshineDashboard/SunshineNewCommentsList'));
 importComponent("SunshineReportedContentList", () => require('../components/sunshineDashboard/SunshineReportedContentList'));
 importComponent("SunshineReportedItem", () => require('../components/sunshineDashboard/SunshineReportedItem'));
@@ -376,12 +386,18 @@ importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'
 importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
 importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
 importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGradeDisplay'));
+importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
+importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
+importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
+importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("TagRevisionItem", () => require('../components/tagging/TagRevisionItem'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
+importComponent("TagDiscussionPage", () => require('../components/tagging/TagDiscussionPage'));
+importComponent("TagDiscussion", () => require('../components/tagging/TagDiscussion'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));
@@ -453,9 +469,11 @@ importComponent("FormComponentDateTime", () => require('../components/form-compo
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
+importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
 
-// importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
-// importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
+importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
+importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
+importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
 importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 

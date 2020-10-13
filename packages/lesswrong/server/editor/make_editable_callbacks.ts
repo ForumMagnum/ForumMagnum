@@ -7,6 +7,7 @@ import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
+import Sentry from '@sentry/node';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 import * as _ from 'underscore';
@@ -27,18 +28,34 @@ mdi.use(markdownItSub)
 
 import { mjpage }  from 'mathjax-node-page'
 
-function mjPagePromise(html, beforeSerializationCallback) {
+function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
+    let finished = false;
+    
+    setTimeout(() => {
+      if (!finished) {
+        const errorMessage = `Timed out in mjpage when processing html: ${html}`;
+        Sentry.captureException(new Error(errorMessage));
+        // eslint-disable-next-line no-console
+        console.error(errorMessage);
+      }
+    }, 10000);
+    
     const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
+    const callbackAndMarkFinished = (...args) => {
+      finished = true;
+      return beforeSerializationCallback(...args);
+    };
+    
     mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
-      .on('beforeSerialization', beforeSerializationCallback);
+      .on('beforeSerialization', callbackAndMarkFinished);
   })
 }
 
@@ -100,14 +117,14 @@ function wrapSpoilerTags(html) {
   return $.html()
 }
 
-const trimLeadingAndTrailingWhiteSpace = (html) => {
+const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   const $ = cheerio.load(`<div id="root">${html}</div>`)
   const topLevelElements = $('#root').children().get()
   // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
   // Then iterate backwards to trim trailing empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements.reverse(), $)
-  return $("#root").html()
+  return $("#root").html() || ""
 }
 
 const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
@@ -147,13 +164,13 @@ export function ckEditorMarkupToMarkdown(markup) {
   return turndownService.turndown(sanitize(markup))
 }
 
-export function markdownToHtmlNoLaTeX(markdown) {
+export function markdownToHtmlNoLaTeX(markdown: string): string {
   const randomId = Random.id()
   const renderedMarkdown = mdi.render(markdown, {docId: randomId})
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
-export async function markdownToHtml(markdown) {
+export async function markdownToHtml(markdown: string): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
   return await mjPagePromise(html, Utils.trimLatexAndAddCSS)
 }

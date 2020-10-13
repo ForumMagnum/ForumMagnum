@@ -12,20 +12,6 @@ export const moderationOptionsGroup = {
 };
 
 addFieldsDict(Comments, {
-  // The comment author's `_id`
-  userId: {
-    ...foreignKeyField({
-      idFieldName: "userId",
-      resolverName: "user",
-      collectionName: "Users",
-      type: "User",
-    }),
-    optional: true,
-    canRead: ['guests'],
-    canCreate: ['members'],
-    hidden: true,
-  },
-
   // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     type: Boolean,
@@ -133,6 +119,7 @@ addFieldsDict(Comments, {
       resolverName: "deletedByUser",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -185,6 +172,7 @@ addFieldsDict(Comments, {
       resolverName: "reviewedByUser",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],

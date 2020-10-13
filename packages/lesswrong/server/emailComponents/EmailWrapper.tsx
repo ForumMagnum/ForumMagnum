@@ -13,7 +13,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
+const EmailWrapper = ({user, unsubscribeAllLink, children, classes}: {
+  user: DbUser,
+  unsubscribeAllLink: string,
+  children: React.ReactNode,
+  classes: ClassesType,
+}) => {
   const accountLink = `${Utils.getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()
   
@@ -58,27 +63,31 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
       {/* 100% wrapper */}
       <div className={classes.root}>
         <table {...outerTableProps}>
-          <tr>
-            <td className="wrapper" {...outerTdProps}>
+          <tbody>
+            <tr>
+              <td className="wrapper" {...outerTdProps}>
 
-              {/* 600px container (white background) */}
-              <table className="container" {...innerTableProps}>
-                <tr>
-                  <td className="container-padding" {...innerTdProps}>
-                    <br/>
-                    {children}
-                  </td>
-                </tr>
-                <tr><td className="container-padding">
-                  <br/><br/>
-                  <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
-                  (from all emails from {siteNameWithArticle})
-                  or <a href={accountLink}>Change your notifications settings</a>
-                  <br/><br/>
-                </td></tr>
-              </table>
-            </td>
-          </tr>
+                {/* 600px container (white background) */}
+                <table className="container" {...innerTableProps}>
+                  <tbody>
+                    <tr>
+                      <td className="container-padding" {...innerTdProps}>
+                        <br/>
+                        {children}
+                      </td>
+                    </tr>
+                    <tr><td className="container-padding">
+                      <br/><br/>
+                      <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
+                      (from all emails from {siteNameWithArticle})
+                      or <a href={accountLink}>Change your notifications settings</a>
+                      <br/><br/>
+                    </td></tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
       <br/><br/>

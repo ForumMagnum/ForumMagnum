@@ -6,7 +6,7 @@ import { addCallback, runQuery } from '../vulcan-lib';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import * as _ from 'underscore';
 
-async function getCompleteCollection(id) {
+async function getCompleteCollection(id: string) {
   const query = `
   query CodexComplete {
     collection(input: {selector: {documentId:"${id}"}}) {
@@ -42,7 +42,7 @@ async function getCompleteCollection(id) {
   return result
 }
 
-async function getAllCollectionPosts(id) {
+async function getAllCollectionPosts(id: string) {
   let queryResult: any = await getCompleteCollection(id);
 
   let allCollectionPosts: Array<any> = [];
@@ -74,7 +74,7 @@ async function getAllCollectionPosts(id) {
   }
 }
 
-function updateCollectionSequences(sequences, collectionSlug) {
+function updateCollectionSequences(sequences: Array<DbSequence>, collectionSlug: string) {
   _.range(sequences.length).forEach((i) => {
     Sequences.update(sequences[i]._id, {$set: {
       canonicalCollectionSlug: collectionSlug,
@@ -82,7 +82,7 @@ function updateCollectionSequences(sequences, collectionSlug) {
   })
 }
 
-function updateCollectionPosts(posts, collectionSlug) {
+function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: string) {
   _.range(posts.length).forEach((i) => {
     const currentPost = posts[i]
 
@@ -104,7 +104,7 @@ function updateCollectionPosts(posts, collectionSlug) {
   })
 }
 
-async function UpdateCollectionLinks (book) {
+async function UpdateCollectionLinks (book: DbBook) {
   const collectionId = book.collectionId
   const results = await getAllCollectionPosts(collectionId)
 

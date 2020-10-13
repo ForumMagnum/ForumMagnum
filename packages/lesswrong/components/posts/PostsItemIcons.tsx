@@ -5,12 +5,10 @@ import Posts from '../../lib/collections/posts/collection';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
-import GroupIcon from '@material-ui/icons/Group';
 import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-const MetaIcon = forumTypeSetting.get() === 'EAForum' ? GroupIcon : DetailsIcon
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
@@ -50,22 +48,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostsItemIcons = ({post, classes}: {
-  post: PostsBase,
-  classes: ClassesType,
-}) => {
-  const { OmegaIcon, LWTooltip } = Components;
+export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
+  const { LWTooltip } = Components;
 
-  const isPersonalBlogpost = forumTypeSetting.get() === 'EAForum' ?
-    !(post.frontpageDate || post.meta) :
-    !post.frontpageDate
-
-  return <span className={classes.iconSet}>
-    {post.curatedDate && <span className={classes.postIcon}>
+  return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="right">
         <Link to={curatedUrl}><StarIcon className={classes.icon}/></Link>
-      </LWTooltip>
-    </span>}
+      </LWTooltip> 
+    </span> 
+}
+
+const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
+
+
+const PostsItemIcons = ({post, classes, hideCuratedIcon}: {
+  post: PostsBase,
+  classes: ClassesType,
+  hideCuratedIcon?: boolean
+}) => {
+  const { OmegaIcon, LWTooltip, CuratedIcon } = Components;
+
+  return <span className={classes.iconSet}>
+    {post.curatedDate && !hideCuratedIcon && 
+      <CuratedIcon/>}
     
     {post.question && <span className={classes.postIcon}>
       <LWTooltip title={<div>Question <div><em>(click to view all questions)</em></div></div>} placement="right">
@@ -79,7 +84,7 @@ const PostsItemIcons = ({post, classes}: {
       </LWTooltip>
     </span>}
 
-    {isPersonalBlogpost && <span className={classes.postIcon}>
+    {!post.frontpageDate && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
         <PersonIcon className={classes.icon}/>
       </LWTooltip>
@@ -87,7 +92,7 @@ const PostsItemIcons = ({post, classes}: {
 
     {post.meta && <span className={classes.postIcon}>
       <LWTooltip title={<div>Meta <div><em>(Click to view all meta content)</em></div></div>} placement="right">
-        <Link to={"/tag/site-meta"}><MetaIcon className={classes.icon}/></Link>
+        <Link to={"/tag/site-meta"}><DetailsIcon className={classes.icon}/></Link>
       </LWTooltip>
     </span>}
 
@@ -106,6 +111,6 @@ const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIco
 declare global {
   interface ComponentTypes {
     PostsItemIcons: typeof PostsItemIconsComponent
+    CuratedIcon: typeof CuratedIconComponent
   }
 }
-

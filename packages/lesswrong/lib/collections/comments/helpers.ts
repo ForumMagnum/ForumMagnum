@@ -3,6 +3,7 @@ import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts';
 import Users from "../users/collection";
 import { Comments } from './collection';
+import { Tags } from '../tags/collection';
 
 
 /**
@@ -20,21 +21,39 @@ Comments.getAuthorName = function (comment: DbComment): string {
  */
 // LW: Overwrite the original example-forum Comments.getPageUrl
 Comments.getPageUrl = function(comment: CommentsList|DbComment, isAbsolute = false): string {
-  const post = Posts.findOne(comment.postId);
-  if (!post) throw Error(`Unable to find post for comment: ${comment}`)
-  return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
+  if (comment.postId) {
+    const post = Posts.findOne(comment.postId);
+    if (!post) throw Error(`Unable to find post for comment: ${comment}`)
+    return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
+  } else if (comment.tagId) {
+    const tag = Tags.findOne(comment.tagId);
+    if (!tag) throw Error(`Unable to find tag for comment: ${comment}`)
+    return `/tag/${tag.slug}/discussion#${comment._id}`;
+  } else {
+    throw Error(`Unable to find document for comment: ${comment}`)
+  }
 };
 
-Comments.getPageUrlFromIds = function({postId, postSlug, commentId, permalink=true, isAbsolute=false}: {
-  postId: string, postSlug: string, commentId: string,
+Comments.getPageUrlFromIds = function({postId, postSlug, tagSlug, commentId, permalink=true, isAbsolute=false}: {
+  postId?: string,
+  postSlug?: string,
+  tagSlug?: string,
+  commentId: string,
   permalink: boolean, isAbsolute: boolean,
 }): string {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
-  if (permalink) {
-    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
+  if (postId) {
+    if (permalink) {
+      return `${prefix}/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
+    } else {
+      return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
+    }
+  } else if (tagSlug) {
+    return `${prefix}/tag/${tagSlug}/discussion#${commentId}`;
   } else {
-    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
+    //throw new Error("Comments.getPageUrlFromIds needs a post or tag");
+    return "/"
   }
 }
 
@@ -53,7 +72,7 @@ Comments.defaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimu
   }
 }
 
-Comments.getDefaultView = (post: PostsDetails|DbPost, currentUser: UsersCurrent|null): string => {
+Comments.getDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): string => {
   return (post?.commentSortOrder) || (currentUser?.commentSorting) || "postCommentsTop"
 }
 

@@ -39,17 +39,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 // described in https://www.sarasoueidan.com/blog/nested-links/, we make the
 // card background and card contents siblings rather than nested, then use
 // z-index to control which is clickable.
-const LinkCard = ({children, to, tooltip, className, classes}: {
+const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
   children?: React.ReactNode,
   to: string,
   tooltip?: any,
   className?: string,
   classes: ClassesType,
+  onClick?: any
 }) => {
   const card = (
     <div className={classNames(className, classes.root)}>
       <div className={classes.background}>
-        <Link to={to}/>
+        {onClick ? <a onClick={onClick}/> : <Link to={to} />}
       </div>
       {children}
     </div>

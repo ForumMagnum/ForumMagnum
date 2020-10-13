@@ -126,6 +126,9 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
   if (post.authorIsUnreviewed)
     return null;
   
+  const tags = post.tagRelevance ? 
+    Object.entries(post.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+    : []
   const algoliaMetaInfo: AlgoliaDocument = {
     _id: post._id,
     userId: post.userId,
@@ -143,7 +146,8 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
-    af: post.af
+    af: post.af,
+    tags
   };
   const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
@@ -202,9 +206,10 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
     defaultOrder: tag.defaultOrder,
     suggestedAsFilter: tag.suggestedAsFilter,
     postCount: tag.postCount,
+    wikiOnly: tag.wikiOnly,
     description,
   }];
-}
+} 
 
 
 // Do algoliaIndex.waitTask as an async function rather than a

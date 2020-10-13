@@ -90,7 +90,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
             <Link to={Tags.getUrl(tag)}>
               <b>{tag.name}</b>
             </Link>
-            <ContentItemBody dangerouslySetInnerHTML={{__html: tag.description?.html}} description={`tag ${tag._id}`}/>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: tag.description?.html || ""}} description={`tag ${tag._id}`}/>
           </div>
           <div className={classes.postCount}>
             {tag.postCount} posts

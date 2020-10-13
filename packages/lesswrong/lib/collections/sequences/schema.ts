@@ -18,6 +18,7 @@ const schema: SchemaType<DbSequence> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],

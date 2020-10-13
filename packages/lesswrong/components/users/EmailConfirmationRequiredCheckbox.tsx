@@ -1,10 +1,11 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Users from '../../lib/collections/users/collection';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
 const EmailConfirmationRequiredCheckbox = (props) => {
-  let { currentUser, label, ...otherProps } = props;
+  const currentUser = useCurrentUser();
+  let { label, ...otherProps } = props;
   
   if(Users.emailAddressIsVerified(currentUser)) {
     return (
@@ -23,9 +24,7 @@ const EmailConfirmationRequiredCheckbox = (props) => {
   }
 }
 
-const EmailConfirmationRequiredCheckboxComponent = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox, {
-  hocs: [withUser]
-});
+const EmailConfirmationRequiredCheckboxComponent = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox);
 
 declare global {
   interface ComponentTypes {

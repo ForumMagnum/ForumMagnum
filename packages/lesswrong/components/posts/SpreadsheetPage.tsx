@@ -20,7 +20,7 @@ const cellStyle = () => ({
   wordBreak: "break-word"
 })
 
-const headerStyle = theme => ({
+const headerStyle = (theme: ThemeType) => ({
   fontSize: "1.1rem",
   fontWeight: 600,
   backgroundColor: theme.palette.grey[800],

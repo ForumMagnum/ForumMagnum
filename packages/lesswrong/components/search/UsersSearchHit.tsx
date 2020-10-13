@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const isLeftClick = (event) => {
+const isLeftClick = (event: MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
@@ -20,7 +20,7 @@ const UsersSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => <div className={classes.root}>
-  <Link to={Users.getProfileUrl(hit)} onClick={(event) => isLeftClick(event) && clickAction && clickAction()}>
+  <Link to={Users.getProfileUrl(hit)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
     <Components.MetaInfo>
       <Components.FormatDate date={hit.createdAt}/>
     </Components.MetaInfo>

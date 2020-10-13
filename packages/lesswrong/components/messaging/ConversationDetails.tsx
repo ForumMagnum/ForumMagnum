@@ -13,7 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 // Component for displaying details about currently selected conversation
-const ConversationDetails = ({conversation, classes}) => {
+const ConversationDetails = ({conversation, classes}: {
+  conversation: conversationsListFragment,
+  classes: ClassesType,
+}) => {
   const { openDialog } = useDialog();
   const { Loading, MetaInfo, UsersName } = Components
   if (!conversation?.participants?.length) return <Loading />

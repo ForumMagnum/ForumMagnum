@@ -1,3 +1,10 @@
+/*
+ * Type definitions for mongo operations and our mongo collections
+ *
+ * This file could arguably be .d.ts (and it did use to be), but when it was, it
+ * was getting ignored by the type checker as an external library file, as
+ * --skipLibCheck just ignores all .d.ts files.
+ */
 
 interface CollectionBase<T extends DbObject> {
   collectionName: CollectionNameString
@@ -12,7 +19,6 @@ interface CollectionBase<T extends DbObject> {
   simpleSchema: any
   addField: any
   helpers: any
-  defaultView: any,
   
   // TODO: Type-system plumbing should handle the fact that loaders are available
   // if you get the collection via a resolver's context, but not available if you
@@ -24,7 +30,12 @@ interface CollectionBase<T extends DbObject> {
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T | null
-  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => WriteResult
+  // Return result is number of documents **matched** not affected
+  //
+  // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
+  // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
+  // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
+  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => number
   remove: any
   insert: any
   aggregate: any
@@ -55,6 +66,16 @@ interface HasIdType {
 // Common base type for everything with a userId field
 interface HasUserIdType {
   userId: string
+}
+
+interface VoteableType extends HasIdType, HasUserIdType {
+  score: number
+  baseScore: number
+  voteCount: number
+}
+
+interface VoteableTypeClient extends VoteableType {
+  currentUserVotes: Array<VoteFragment>
 }
 
 // Common base type for results of database lookups.

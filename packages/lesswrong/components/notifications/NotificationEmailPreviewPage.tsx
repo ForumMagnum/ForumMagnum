@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 
-const parseIds = (urlStr) => {
+const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
   return urlStr.split(",");
 }
@@ -49,7 +49,7 @@ const NotificationEmailPreviewPage = () => {
       <br/><br/>
       
       {loading && <Components.Loading/>}
-      {!loading && emails && emails.map((email,i) =>
+      {!loading && emails && emails.map((email, i:number) =>
         <Components.EmailPreview key={i} email={email}/>
       )}
   </Components.SingleColumnSection>

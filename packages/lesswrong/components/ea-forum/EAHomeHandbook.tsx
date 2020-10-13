@@ -157,10 +157,10 @@ const EAHomeHandbook = ({ classes, documentId }) => {
           <Link to={`/s/${document._id}`}>{document.title}</Link>
         </Typography>
         <div className={classes.divider} />
-        <Typography variant='display1' className={classNames(classes.overImageText, classes.description)}>
+        {document.user && <Typography variant='display1' className={classNames(classes.overImageText, classes.description)}>
           Intro Sequence by{' '}
           <Link to={`/users/${document.user.slug}`}>{document.user.displayName}</Link>
-        </Typography>
+        </Typography>}
         <Button
           variant='contained'
           color='primary'

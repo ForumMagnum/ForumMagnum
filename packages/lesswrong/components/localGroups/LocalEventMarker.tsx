@@ -14,7 +14,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }))
 
-const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }) => {
+const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+  event: PostsList,
+  handleMarkerClick: (eventId: string)=>void,
+  handleInfoWindowClose: (eventId: string)=>void,
+  infoOpen: boolean,
+  location: any,
+  classes: ClassesType,
+}) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}

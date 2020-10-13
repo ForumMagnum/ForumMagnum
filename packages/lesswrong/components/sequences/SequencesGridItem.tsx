@@ -112,7 +112,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence.contents.plaintextDescription?.slice(0, 750)}>
+  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence?.contents?.plaintextDescription?.slice(0, 750)}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
@@ -127,7 +127,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
         {sequence.draft && <span className={classes.draft}>[Draft] </span>}
         {sequence.title}
       </div>
-      { showAuthor &&
+      { showAuthor && sequence.user &&
         <div className={classes.author}>
           by <Components.UsersName user={sequence.user} />
         </div>}

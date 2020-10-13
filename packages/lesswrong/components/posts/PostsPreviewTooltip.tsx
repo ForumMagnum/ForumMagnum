@@ -6,12 +6,11 @@ import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sortTags } from '../tagging/FooterTagList';
 
 export const POST_PREVIEW_WIDTH = 400
 
-export const highlightStyles = theme => ({
+export const highlightStyles = (theme: ThemeType) => ({
   ...postHighlightStyles(theme),
   marginTop: theme.spacing.unit*2.5,
   marginBottom: theme.spacing.unit*1.5,
@@ -118,15 +117,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
-
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
 
   if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.meta) categories.push(`${metaName} Post`)
+  if (post.meta) categories.push(`Meta Post`)
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
 
   if (categories.length > 0)
@@ -137,7 +134,7 @@ const getPostCategory = (post: PostsBase) => {
 
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   postsList?: boolean,
-  post: PostsList|null,
+  post: PostsList|SunshinePostsList|null,
   classes: ClassesType,
   comment?: any,
 }) => {
@@ -224,4 +221,3 @@ declare global {
     PostsPreviewTooltip: typeof PostsPreviewTooltipComponent
   }
 }
-
