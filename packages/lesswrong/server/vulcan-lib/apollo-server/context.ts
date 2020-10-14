@@ -14,22 +14,22 @@ import Sentry from '@sentry/node';
 import DataLoader from 'dataloader';
 import { Accounts } from 'meteor/accounts-base';
 import { check } from 'meteor/check';
-import { Meteor } from 'meteor/meteor';
 import Cookies from 'universal-cookie';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
+import Users from '../../../lib/collections/users/collection';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
-const getUser = async loginToken => {
+const getUser = async (loginToken: string): Promise<DbUser|null> => {
   if (loginToken) {
     check(loginToken, String)
 
     const hashedToken = Accounts._hashLoginToken(loginToken)
 
-    const user = await Meteor.users.rawCollection().findOne({
+    const user = Users.findOne({
       'services.resume.loginTokens.hashedToken': hashedToken
     })
 
@@ -49,6 +49,8 @@ const getUser = async loginToken => {
       }
     }
   }
+  
+  return null;
 }
 
 // initial request will get the login token from a cookie, subsequent requests from
@@ -98,12 +100,8 @@ export const computeContextFromUser = async (user, headers): Promise<ResolverCon
   let context: ResolverContext = {...GraphQLSchema.context};
 
   generateDataLoaders(context);
-
-  // note: custom default resolver doesn't currently work
-  // see https://github.com/apollographql/apollo-server/issues/716
-  // @options.fieldResolver = (source, args, context, info) => {
-  //   return source[info.fieldName];
-  // }
+  if (user)
+    context.Users.loader.prime(user._id, user);
 
   setupAuthToken(user, context);
 

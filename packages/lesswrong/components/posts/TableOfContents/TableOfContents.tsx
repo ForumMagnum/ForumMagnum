@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   stickyBlock: {
     position: "sticky",
     fontSize: 12,

@@ -12,7 +12,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 const MetaIcon = forumTypeSetting.get() === 'EAForum' ? GroupIcon : DetailsIcon
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,

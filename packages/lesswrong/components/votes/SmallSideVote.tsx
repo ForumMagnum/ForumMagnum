@@ -9,7 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Comments } from '../../lib/collections/comments';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   vote: {
     fontSize: 25,
     lineHeight: 0.6,

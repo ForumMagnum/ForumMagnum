@@ -5,7 +5,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { Posts } from '../../../lib/collections/posts';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,

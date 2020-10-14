@@ -6,7 +6,7 @@ import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
 import { CoreReadingCollection } from '../sequences/CoreReading';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     maxWidth: 347,

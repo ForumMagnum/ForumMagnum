@@ -10,7 +10,7 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 
-const styles = createStyles(theme => ({
+const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
   groupInfo: {
     ...sectionFooterLeftStyles

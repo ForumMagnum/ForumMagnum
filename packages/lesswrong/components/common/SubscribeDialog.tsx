@@ -23,7 +23,7 @@ import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   thresholdSelector: {
     display: "flex",
     flexDirection: "row",

@@ -11,7 +11,6 @@ registerFragment(`
     slug
     groups
     services
-
     karma
   }
 `);
@@ -144,6 +143,7 @@ registerFragment(`
     bookmarkedPostsMetadata
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
+    hideTaggingProgressBar
   }
 `);
 
@@ -339,7 +339,6 @@ registerFragment(`
 
 registerFragment(`
   fragment commentWithContextFragment on Comment {
-    # example-forum
     _id
     parentCommentId
     topLevelCommentId
@@ -347,13 +346,11 @@ registerFragment(`
       ...RevisionDisplay
     }
     postedAt
-    # vulcan:users
+    
     userId
     user {
       ...UsersMinimumInfo
     }
-    # example-forum
-    # vulcan:voting
     currentUserVotes{
       ...VoteFragment
     }
@@ -364,12 +361,11 @@ registerFragment(`
 
 registerFragment(`
   fragment commentInlineFragment on Comment {
-    # example-forum
     _id
     contents {
       ...RevisionDisplay
     }
-    # vulcan:users
+
     userId
     user {
       ...UsersMinimumInfo
@@ -379,7 +375,6 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersMinimumInfo on User {
-    # vulcan:users
     _id
     slug
     oldSlugs
@@ -405,7 +400,6 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersProfile on User {
-    # vulcan:users
     ...UsersMinimumInfo
     createdAt
     isAdmin
@@ -413,11 +407,9 @@ registerFragment(`
     htmlBio
     website
     groups
-    # example-forum
     postCount
     afPostCount
     frontpagePostCount
-    # example-forum
     commentCount
     sequenceCount
     afCommentCount
@@ -448,12 +440,10 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersMapEntry on User {
-    # vulcan:users
     ...UsersMinimumInfo
     createdAt
     isAdmin
     groups
-    # example-forum
     location
     googleLocation
     mapLocation
@@ -537,6 +527,7 @@ registerFragment(`
     notificationSharedWithMe
 
     hideFrontpageMap
+    hideTaggingProgressBar
 
     deleted
   }
@@ -630,10 +621,6 @@ registerFragment(`
     voteCount
   }
 `);
-
-//
-// example-forum migrated fragments
-//
 
 registerFragment(`
   fragment RevisionDisplay on Revision {

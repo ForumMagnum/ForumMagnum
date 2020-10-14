@@ -36,7 +36,11 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
   }
 }
 
-const PostsCommentsThreadComponent = registerComponent('PostsCommentsThread', PostsCommentsThread);
+const PostsCommentsThreadComponent = registerComponent('PostsCommentsThread', PostsCommentsThread, {
+  areEqual: {
+    terms: "deep",
+  }
+});
 
 declare global {
   interface ComponentTypes {

@@ -9,7 +9,7 @@ import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import Users from '../../lib/collections/users/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
   },
   loadingRoot: {
@@ -115,8 +115,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
               componentProps: {}
             });
             ev.preventDefault();
-          } else {
-            setTimeout(() => setLoading(true), 0)
           }
         }}
       >
@@ -143,6 +141,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
           mutationFragment={getFragment(fragment)}
           successCallback={wrappedSuccessCallback}
           cancelCallback={wrappedCancelCallback}
+          submitCallback={(data) => { 
+            setLoading(true);
+            return data
+          }}
           errorCallback={() => setLoading(false)}
           prefilledProps={prefilledProps}
           layout="elementOnly"

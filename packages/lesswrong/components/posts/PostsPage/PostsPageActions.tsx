@@ -6,7 +6,7 @@ import withUser from '../../common/withUser';
 import { withTracking } from '../../../lib/analyticsEvents';
 import ClickawayListener from '@material-ui/core/ClickAwayListener';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     verticalAlign: 'middle'
   },

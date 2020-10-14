@@ -280,6 +280,7 @@ importComponent("CommentActions", () => require('../components/comments/CommentA
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
 importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentActions/ToggleIsModeratorComment'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
@@ -360,6 +361,7 @@ importComponent("SunshineListCount", () => require('../components/sunshineDashbo
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
+importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'));
 importComponent("AddTagButton", () => require('../components/tagging/AddTagButton'));
 importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTagsChecklist'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
@@ -373,9 +375,11 @@ importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsD
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
 importComponent("AllTagsAlphabetical", () => require('../components/tagging/AllTagsAlphabetical'));
 importComponent("TagRelevanceButton", () => require('../components/tagging/TagRelevanceButton'));
+importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGradeDisplay'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
+importComponent("TagRevisionItem", () => require('../components/tagging/TagRevisionItem'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
@@ -388,6 +392,7 @@ importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHi
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
 importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
+importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));

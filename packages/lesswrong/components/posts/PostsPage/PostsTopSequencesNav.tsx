@@ -7,7 +7,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { Sequences } from '../../../lib/collections/sequences/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft:-20,
     display: "flex",

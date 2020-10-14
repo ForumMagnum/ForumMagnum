@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
-import truncatise from 'truncatise';
+import { truncatise } from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
 import Users from '../../../lib/collections/users/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
@@ -13,7 +13,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { commentBodyStyles } from '../../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"

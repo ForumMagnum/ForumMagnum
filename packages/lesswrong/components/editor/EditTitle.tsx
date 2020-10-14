@@ -4,7 +4,7 @@ import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,

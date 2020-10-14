@@ -1,20 +1,15 @@
 import { addCronJob } from '../cronUtil';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
-import { newMutation, editMutation } from '../vulcan-lib';
+import { newMutation, editMutation, Vulcan } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
-addCronJob({
-  name: 'addNewRSSPosts',
-  schedule(parser) {
-    return parser.text('every 10 minutes');
-  },
-  async job() {
-    const feedparser = require('feedparser-promised');
-
-    const feeds = RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
-    await asyncForeachSequential(feeds, async feed => {
+const runRSSImport = async () => {
+  const feedparser = require('feedparser-promised');
+  const feeds = RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
+  await asyncForeachSequential(feeds, async feed => {
+    try {
       // create array of all posts in current rawFeed object
       let previousPosts = feed.rawFeed || [];
 
@@ -74,11 +69,21 @@ addCronJob({
           currentUser: lwUser,
           validate: false,
         })
-      }).catch( (error) => {
-        // console.log(feed);
-        //eslint-disable-next-line no-console
-        console.error('RSS error: ', error);
-      });
-    })
-  }
+      })
+    } catch(error) {
+      //eslint-disable-next-line no-console
+      console.error('RSS error: ', error, feed);
+    }
+  })
+}
+
+
+addCronJob({
+  name: 'addNewRSSPosts',
+  schedule(parser) {
+    return parser.text('every 10 minutes');
+  },
+  job: runRSSImport
 });
+
+Vulcan.runRSSImport = runRSSImport

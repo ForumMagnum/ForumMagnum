@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     display: "inline",
     fontSize: "1.25rem",

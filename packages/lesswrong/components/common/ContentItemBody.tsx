@@ -9,7 +9,7 @@ import { Meteor } from 'meteor/meteor';
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",

@@ -1,8 +1,8 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 
-const schema = {
+const schema: SchemaType<DbReadStatus> = {
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",

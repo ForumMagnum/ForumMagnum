@@ -16,4 +16,4 @@ git clone https://github.com/elasticdog/transcrypt.git
 
 # Deploy
 cp $deploy_config_path ./config.secret; # Have to copy this because mup deploy resolves in directory relative to config file
-bash ./travis_wait "mup deploy --config config.secret --settings $settings_path";
+bash scripts/travis_wait "mup deploy --config config.secret --settings $settings_path";

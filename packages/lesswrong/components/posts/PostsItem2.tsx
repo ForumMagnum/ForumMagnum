@@ -20,7 +20,7 @@ export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 
-export const styles = (theme) => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -556,7 +556,10 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
-  hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary],
+  areEqual: {
+    terms: "deep",
+  },
 });
 
 declare global {

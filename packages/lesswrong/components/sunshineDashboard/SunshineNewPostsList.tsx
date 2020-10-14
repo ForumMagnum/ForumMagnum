@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor:"rgba(0,80,0,.08)"
   }

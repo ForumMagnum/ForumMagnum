@@ -22,7 +22,9 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
     }
-  `);
+  `, {
+    ignoreResults: true
+  });
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();

@@ -45,7 +45,7 @@ const HeadlineTwoButton = createBlockStyleButton({
     </svg>),
 });
 
-const styleMap = theme => ({
+const styleMap = (theme: ThemeType) => ({
   'CODE': theme.typography.code
 })
 
@@ -58,11 +58,11 @@ function customBlockStyleFn(contentBlock) {
 
 interface EditorFormProps {
   isClient: boolean,
-  theme: any,
+  theme: ThemeType,
   editorState: any,
   onChange: any,
   commentEditor: boolean,
-  className: string,
+  className: string
 }
 
 class EditorForm extends Component<EditorFormProps,{}> {
@@ -91,7 +91,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
       { button: BoldButton,                    commentEditor: true   },
       { button: ItalicButton,                  commentEditor: true   },
       { button: UnderlineButton,               commentEditor: true   },
-      { button: LinkButton,             commentEditor: true   },
+      { button: LinkButton,                    commentEditor: true   },
       { button: Separator,                     commentEditor: true   },
       { button: HeadlineOneButton,             commentEditor: false  },
       { button: HeadlineTwoButton,             commentEditor: true   },

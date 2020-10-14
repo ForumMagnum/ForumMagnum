@@ -28,7 +28,8 @@ export const sanitize = function(s) {
       ...(sanitizeHtml.defaults as any).allowedStyles,
       figure: {
         'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'height': [/^(?:\d|\.)+(?:px|em|%)$/]
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'padding': [/^.*$/],
       },
       table: {
         'background-color': [/^.*$/],
@@ -37,7 +38,8 @@ export const sanitize = function(s) {
         'border-right': [/^.*$/],
         'border-top': [/^.*$/],
         'text-align': [/^.*$/],
-        'vertical-align': [/^.*$/]
+        'vertical-align': [/^.*$/],
+        'padding': [/^.*$/],
       },
       td: {
         'background-color': [/^.*$/],
@@ -48,7 +50,8 @@ export const sanitize = function(s) {
         'width': [/^(?:\d|\.)+(?:px|em|%)$/],
         'height': [/^(?:\d|\.)+(?:px|em|%)$/],
         'text-align': [/^.*$/],
-        'vertical-align': [/^.*$/]
+        'vertical-align': [/^.*$/],
+        'padding': [/^.*$/],
       },
       th: {
         'background-color': [/^.*$/],
@@ -59,7 +62,8 @@ export const sanitize = function(s) {
         'width': [/^(?:\d|\.)+(?:px|em|%)$/],
         'height': [/^(?:\d|\.)+(?:px|em|%)$/],
         'text-align': [/^.*$/],
-        'vertical-align': [/^.*$/]
+        'vertical-align': [/^.*$/],
+        'padding': [/^.*$/],
       },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899

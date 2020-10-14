@@ -7,7 +7,7 @@ import React from 'react';
 import { registerComponent, Utils } from '../../lib/vulcan-lib';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     height: 48
   }

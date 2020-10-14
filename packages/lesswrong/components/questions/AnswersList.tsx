@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {
@@ -59,7 +59,12 @@ const AnswersList = ({terms, post, classes}: {
   }
 };
 
-const AnswersListComponent = registerComponent('AnswersList', AnswersList, {styles});
+const AnswersListComponent = registerComponent('AnswersList', AnswersList, {
+  styles,
+  areEqual: {
+    terms: "deep",
+  }
+});
 
 declare global {
   interface ComponentTypes {

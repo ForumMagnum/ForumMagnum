@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
 
     // TODO: Pick typography for this button. (This is just the typography that

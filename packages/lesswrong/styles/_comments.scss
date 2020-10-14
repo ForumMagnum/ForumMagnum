@@ -1,15 +1,5 @@
 
 $comments-font: Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
-$ea-blue: #0c869b;
-
-@keyframes ea-blue-fade {
-  from {
-    background: #00B2BE;
-  }
-  to {
-    background: rgba(255, 255, 255, 0);
-  }
-}
 
 .comments-node-root {
   margin-bottom:1.3em;

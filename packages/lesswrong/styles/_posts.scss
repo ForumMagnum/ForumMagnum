@@ -1,54 +1,8 @@
 
-//////////////////////////////////////////////////////
-// Post List                                        //
-//////////////////////////////////////////////////////
-
-.recent-posts-title-component {
-  font-style: italic;
-  margin-top: 20px;
-  font-size: 1.2rem;
-  line-height: 1.6rem;
-  color: rgba(0,0,0,0.6);
-
-  a:hover {
-    color: rgba(0,0,0,0.4) !important;
-  }
-  @include mui-breakpoint-down-sm {
-    br {
-      display: none;
-    }
-    margin-top: 0px;
-    display: inline;
-  }
-  @include max-tiny() {
-    margin-top:10px;
-  }
-}
-
-.posts-load-more, .comments-load-more {
-  font-size: 16px;
-  color: #0C869B;
-
-  margin-left: 10px;
-  padding-top: 5px;
-
-  @include max-small() {
-    margin-top:20px;
-  }
-  @include max-tiny() {
-    margin-left:0;
-  }
-}
 
 //////////////////////////////////////////////////////
 // Other Elements                                   //
 //////////////////////////////////////////////////////
-
-.posts-edit-form-admin{
-  @include flex-center;
-  justify-content: space-between;
-  margin-bottom: $vmargin * 2;
-}
 
 svg.drag-handle {
     pointer-events: none;
