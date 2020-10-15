@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  user: UsersMinimumInfo,
+  user: UsersMinimumInfo|null|undefined,
   nofollow?: boolean,
   simple?: boolean,
 }

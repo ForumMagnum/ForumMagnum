@@ -284,12 +284,13 @@ const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
+const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   classes: ClassesType,
   href: string,
   innerHTML: string,
   onsite?: boolean,
   id?: string,
+  rel?: string
 }) => {
   const { LWPopper } = Components
   const { eventHandlers, hover, anchorEl, stopHover } = useHover({
@@ -309,9 +310,9 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
       </LWPopper>
 
       {onsite
-        ? <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+        ? <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
         : <Components.AnalyticsTracker eventType="link" eventProps={{to: href}}>
-            <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+            <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
           </Components.AnalyticsTracker>}
     </span>
   );

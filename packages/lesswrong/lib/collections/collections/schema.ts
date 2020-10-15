@@ -19,6 +19,7 @@ const schema: SchemaType<DbCollection> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: true
     }),
     optional: true,
     viewableBy: ['guests'],

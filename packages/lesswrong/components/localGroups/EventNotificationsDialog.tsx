@@ -106,7 +106,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
-const EventNotificationsDialog = ({ onClose, classes }) => {
+const EventNotificationsDialog = ({ onClose, classes }: {
+  onClose: ()=>void,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { Loading } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}

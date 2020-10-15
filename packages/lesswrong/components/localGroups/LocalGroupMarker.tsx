@@ -14,7 +14,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }) => {
+const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+  group: any,
+  handleMarkerClick: any,
+  handleInfoWindowClose: any,
+  infoOpen: boolean,
+  location: any,
+  classes: ClassesType,
+}) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
 

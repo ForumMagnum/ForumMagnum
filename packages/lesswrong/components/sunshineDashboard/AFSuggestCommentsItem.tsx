@@ -52,9 +52,9 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+            {comment.post && <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>
-            </Link>
+            </Link>}
             <Components.CommentBody comment={comment}/>
           </Typography>
         </Components.SidebarHoverOver>

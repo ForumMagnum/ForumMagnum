@@ -62,6 +62,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
   const limit = parseInt(query.limit) || 13
+  
   const now = moment().tz(timezone);
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
 

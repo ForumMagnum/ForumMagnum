@@ -43,7 +43,6 @@ if (!Meteor.isPackageTest) {
     // console.log("Set Mail URL environment variable");
     process.env.MAIL_URL = mailUrlSetting.get() || undefined;
     // console.log("Set Root URL variable");
-    // TODO what's this used for
-    process.env.ROOT_URL = "http://www.lesswrong.com/";
+    process.env.ROOT_URL = "https://www.lesswrong.com/";
   }
 }

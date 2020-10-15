@@ -2,8 +2,6 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
-import { Link } from '../../lib/reactRouterWrapper'
-import Users from '../../lib/collections/users/collection';
 
 const styles = theme => ({
   root: {
@@ -36,7 +34,7 @@ const NewTagsList = ({classes}:{
   const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
 
   const { results, loadMoreProps } = useMulti({
-    terms: {view:"newTags", limit: 8 },
+    terms: {view:"newTags", limit: 4 },
     collection: Tags,
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
@@ -49,11 +47,11 @@ const NewTagsList = ({classes}:{
     <table>
       <tbody>
         {results?.map(tag => <tr key={tag._id}>
-          <Link to={Users.getProfileUrl(tag.user)} className={classes.user}>
+          {tag.user && <td className={classes.user}>
             <MetaInfo>
               <UsersNameDisplay user={tag.user}/>
             </MetaInfo>
-          </Link>
+          </td>}
           <td className={classes.tag}>
             <TagsListItem tag={tag}/>
           </td>

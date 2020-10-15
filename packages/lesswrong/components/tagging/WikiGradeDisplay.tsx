@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const wikiGradeDescriptions = {
+const wikiGradeDescriptions: Partial<Record<number,string>> = {
   1: "This tag has been flagged for review",
   2: "This tag is a stub, you can contribute by extending it!",
   3: "This tag is C-Class, it meets the basic requirements, but there is still a lot of room to improve this tag",

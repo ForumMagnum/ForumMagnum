@@ -83,7 +83,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, TagProgressBar } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -116,6 +116,9 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
+      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+        <GatherTown/>
+      </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
@@ -159,10 +162,11 @@ const RecommendationsAndCurated = ({
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2 
               terms={{view:"curated", limit: currentUser ? 3 : 2}} 
-              showNoResults={false}
+              // TODO; showNoResults={false}
               showLoadMore={false} 
               hideLastUnread={true} 
               boxShadow={false}
+              curatedIconLeft={true}
             />
           </AnalyticsContext>
         </div>
@@ -205,7 +209,7 @@ const RecommendationsAndCurated = ({
       </AnalyticsContext> */}
     </SingleColumnSection>
   }
-  
+
   return render();
 }
 

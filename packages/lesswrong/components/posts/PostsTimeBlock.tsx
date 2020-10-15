@@ -181,7 +181,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
               </div>
               <div className={classes.posts}>
                 {posts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts.length -1}/>
+                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts!.length -1}/>
                 )}
               </div>
             </div>

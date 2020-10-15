@@ -83,7 +83,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const sortings = {
+const sortings: Partial<Record<string,string>> = {
   magic: "Magic (New & Upvoted)",
   recentComments: "Recent Comments",
   new: "New",
@@ -113,7 +113,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     showSettings: false
   }
 
-  displaySequenceSection = (canEdit, user)  => {
+  displaySequenceSection = (canEdit: boolean, user: UsersProfile)  => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
@@ -207,7 +207,8 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       }
     }
 
-    const draftTerms = {view: "drafts", userId: user._id, limit: 4}
+
+    const draftTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
@@ -217,7 +218,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     // maintain backward compatibility with bookmarks
     const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
-    const ownPage = currentUser && currentUser._id === user._id
+    const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     
     const username = Users.getDisplayName(user)

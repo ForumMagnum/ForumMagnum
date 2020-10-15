@@ -55,8 +55,10 @@ import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
+import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
+import Spoilers from './spoilers-plugin';
 //
 import { CleanStyleTags } from './clean-styles-plugin'
 
@@ -120,7 +122,9 @@ const postEditorPlugins = [
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags
+	CleanStyleTags,
+	Spoilers,
+	AutoLink
 ];
 
 PostEditor.builtinPlugins = [
@@ -227,7 +231,9 @@ CommentEditor.builtinPlugins = [
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags
+	CleanStyleTags,
+	Spoilers,
+	AutoLink
 ];
 
 CommentEditor.defaultConfig = {

@@ -13,7 +13,7 @@ const SunshineNewCommentsList = ({ terms, classes }) => {
   const { results, totalCount } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'CommentsListWithPostMetadata',
+    fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: true,
   });
   const { SunshineListCount, SunshineNewCommentsItem, SunshineListTitle } = Components

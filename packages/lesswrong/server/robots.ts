@@ -9,6 +9,7 @@ import { PublicInstanceSetting } from '../lib/instanceSettings';
 // If set, this takes precedence over the robotsTxt setting.
 const disallowCrawlersSetting = new PublicInstanceSetting<boolean>('disallowCrawlers', false, "optional")
 
+
 // robotsTxt: Optional setting to entirely replace the contents of robots.txt,
 // to allow quickly banning a bad crawler or a slow endpoint without a redeploy,
 // if quick response is needed. If null (the default), robots.txt is generated

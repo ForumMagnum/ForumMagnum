@@ -50,9 +50,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   edit: {
-    position: "absolute",
-    right: 5,
-    color: theme.palette.grey[600]
+    float: "right",
+    marginRight: 5,
+    color: theme.palette.grey[600],
   }
 })
 
@@ -112,7 +112,7 @@ const AllTagsPage = ({classes}: {
                 <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
                 :
                 <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: tag?.description.html || ""}}
+                  dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
                   description={`tag ${tag?.name}`}
                 />
               }

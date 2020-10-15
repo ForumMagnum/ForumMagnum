@@ -11,7 +11,7 @@ export const algoliaIndexNames: Record<AlgoliaIndexCollectionName, string> = {
   Users: ALGOLIA_PREFIX+'users',
   Sequences: ALGOLIA_PREFIX+'sequences',
   Tags: ALGOLIA_PREFIX+'tags',
-};
+} as Record<CollectionNameString,string>;
 
 export const isAlgoliaEnabled = !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get();
 

@@ -136,7 +136,8 @@ addFieldsDict(Posts, {
       idFieldName: "feedId",
       resolverName: "feed",
       collectionName: "RSSFeeds",
-      type: "RSSFeed"
+      type: "RSSFeed",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -288,7 +289,8 @@ addFieldsDict(Posts, {
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -325,7 +327,8 @@ addFieldsDict(Posts, {
       idFieldName: "canonicalSequenceId",
       resolverName: "canonicalSequence",
       collectionName: "Sequences",
-      type: "Sequence"
+      type: "Sequence",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -367,7 +370,8 @@ addFieldsDict(Posts, {
       idFieldName: "canonicalBookId",
       resolverName: "canonicalBook",
       collectionName: "Books",
-      type: "Book"
+      type: "Book",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -638,8 +642,8 @@ addFieldsDict(Posts, {
     type: Boolean,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    insertableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
-    editableBy: (currentUser, document) => Users.canCommentLock(currentUser, document),
+    insertableBy: (currentUser: DbUser|null, document: DbPost) => Users.canCommentLock(currentUser, document),
+    editableBy: (currentUser: DbUser|null, document: DbPost) => Users.canCommentLock(currentUser, document),
     optional: true,
     control: "checkbox",
   },
@@ -675,6 +679,7 @@ addFieldsDict(Posts, {
       resolverName: "group",
       collectionName: "Localgroups",
       type: "Localgroup",
+      nullable: true,
     }),
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -701,6 +706,7 @@ addFieldsDict(Posts, {
       resolverName: "reviewedByUser",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     viewableBy: ['guests'],
@@ -752,6 +758,18 @@ addFieldsDict(Posts, {
   localEndTime: {
     type: Date,
     viewableBy: ['guests'],
+  },
+
+  onlineEvent: {
+    type: Boolean,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    group: formGroups.event,
+    order: 0,
+    ...schemaDefaultValue(false),
   },
 
   mongoLocation: {

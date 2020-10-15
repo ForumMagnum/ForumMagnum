@@ -36,6 +36,7 @@ const createDisplayName = (user: DbUser): string => {
 const adminGroup = {
   name: 'admin',
   order: 100,
+  label: "Admin",
 };
 
 const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
@@ -247,6 +248,11 @@ const schema: SchemaType<DbUser> = {
       },
     },
   },
+  lwWikiImport: {
+    type: Boolean,
+    optional: true, 
+    canRead: ['guests'],
+  }
 };
 
 export default schema;

@@ -11,7 +11,7 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-export const sequencesImageScrim = theme => ({
+export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
   bottom: 0,
   height: 150,
@@ -148,7 +148,7 @@ const SequencesPage = ({ documentId, classes }: {
         <SectionFooter>
           <div className={classes.meta}>
             <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.userId && <span className={classes.metaItem}> by <UsersName user={document.user}>
+            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user}>
               {document.user.displayName}
             </UsersName></span>}
           </div>

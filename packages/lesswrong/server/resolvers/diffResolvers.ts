@@ -43,7 +43,8 @@ addGraphQLResolvers({
       
       const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
       const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
-      if (!before || !beforeUnfiltered) {
+      // If we don't provide a beforeRev at all, then just assume that all in the current revision is new
+      if (beforeRev && (!before || !beforeUnfiltered)) {
         throw new Error(`Could not find revision: ${beforeRev}`);
       }
       if (!after || !afterUnfiltered) {
@@ -51,7 +52,7 @@ addGraphQLResolvers({
       }
       
       // Diff the revisions
-      const diffHtmlUnsafe = diff(before.html, after.html);
+      const diffHtmlUnsafe = diff(before?.html || "", after.html);
       
       const $ = cheerio.load(diffHtmlUnsafe)
       if (trim) {

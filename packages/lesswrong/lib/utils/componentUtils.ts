@@ -1,5 +1,5 @@
 
-export function debugShouldComponentUpdate(description, log, oldProps, oldState, nextProps, nextState)
+export function debugShouldComponentUpdate(description: string, log: (message:string)=>void, oldProps: any, oldState: any, nextProps: any, nextState: any)
 {
   for(let key in nextState) {
     if(oldState[key] != nextState[key]) {
@@ -23,7 +23,7 @@ export function debugShouldComponentUpdate(description, log, oldProps, oldState,
 
 // Do a shallow comparison between two objects. Returns true if a[k]===b[k] for
 // every key k, and both objects have the same set of keys.
-export function shallowEqual(a,b) {
+export function shallowEqual(a: any, b: any) {
   if (!a && !b) { return true; }
   if ((!a && b) || (a && !b)) { return false; }
 
@@ -44,7 +44,7 @@ export function shallowEqual(a,b) {
 // may differ without making the objects count as unequal. Returns true if
 // a[k]===b[k] for every key k not in ignoredKeys, and both objects have the
 // same set of keys.
-export function shallowEqualExcept(a,b, ignoredKeys) {
+export function shallowEqualExcept(a: any, b: any, ignoredKeys: Array<string>) {
   if (!a && !b) { return true; }
   if ((!a && b) || (a && !b)) { return false; }
 

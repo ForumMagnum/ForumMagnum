@@ -8,7 +8,11 @@ import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
+const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
+  isSubtitle: boolean,
+  siteName: string,
+  classes: ClassesType,
+}) => {
   const { params: {_id, postId} } = useLocation();
   const { document: post, loading } = useSingle({
     documentId: _id || postId,

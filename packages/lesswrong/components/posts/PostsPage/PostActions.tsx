@@ -18,7 +18,7 @@ import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { withDialog } from '../../common/withDialog';
 
-const NotFPSubmittedWarning = ({className}) => <div className={className}>
+const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
 

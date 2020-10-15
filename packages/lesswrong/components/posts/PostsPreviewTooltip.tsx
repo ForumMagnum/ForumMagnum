@@ -10,7 +10,7 @@ import { sortTags } from '../tagging/FooterTagList';
 
 export const POST_PREVIEW_WIDTH = 400
 
-export const highlightStyles = theme => ({
+export const highlightStyles = (theme: ThemeType) => ({
   ...postHighlightStyles(theme),
   marginTop: theme.spacing.unit*2.5,
   marginBottom: theme.spacing.unit*1.5,
@@ -134,7 +134,7 @@ const getPostCategory = (post: PostsBase) => {
 
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   postsList?: boolean,
-  post: PostsList|null,
+  post: PostsList|SunshinePostsList|null,
   classes: ClassesType,
   comment?: any,
 }) => {

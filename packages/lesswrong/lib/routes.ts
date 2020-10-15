@@ -89,6 +89,11 @@ addRoute(
     componentName: 'UsersAccount',
     background: "white"
   },
+  {
+    name:'users.abTestGroups',
+    path:'/abTestGroups',
+    componentName: 'UsersViewABTests',
+  },
 
   // Miscellaneous LW2 routes
   {
@@ -212,6 +217,15 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
   },
   {
+    name: 'tagDiscussion',
+    path: '/tag/:slug/discussion',
+    componentName: 'TagDiscussionPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    background: "white"
+  },
+  {
     name: 'tagEdit',
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
@@ -230,7 +244,7 @@ addRoute(
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
-    title: "All Tags",
+    title: "Concepts Portal",
   },
   {
     name: "Concepts",
@@ -327,6 +341,12 @@ if (forumTypeSetting.get() === 'LessWrong') {
       componentName: 'HPMOR',
       title: "Harry Potter and the Methods of Rationality",
       ...hpmorSubtitle,
+    },
+    {
+      name: 'Walled Garden',
+      path: '/walledGarden',
+      componentName: 'WalledGardenHome',
+      title: "Walled Garden",
     },
     {
       name: 'HPMOR.posts.single',
@@ -516,6 +536,12 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
+  {
+    name: 'taggingDashboard',
+    path: '/tags/dashboard',
+    componentName: "TaggingDashboard",
+    title: "Tagging Dashboard"
+  }
 );
 
 addRoute(

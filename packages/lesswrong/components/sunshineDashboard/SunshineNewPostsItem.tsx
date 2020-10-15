@@ -108,9 +108,9 @@ const SunshineNewPostsItem = ({post, classes}: {
 
   const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
-  const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
+  const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
-  const moderationSection = post.moderationStyle || post.user.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
+  const moderationSection = post.moderationStyle || post.user?.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
 
   return (
     <span {...eventHandlers}>
@@ -137,11 +137,11 @@ const SunshineNewPostsItem = ({post, classes}: {
               </Link>
             </Typography>
             {moderationSection && <div className={classes.moderation}>
-              {(post.moderationStyle || post.user.moderationStyle) && <div>
+              {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>
                   <span>Mod Style: </span>
-                  { post.moderationStyle || post.user.moderationStyle }
-                  {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
+                  { post.moderationStyle || post.user?.moderationStyle }
+                  {!post.moderationStyle && post.user?.moderationStyle && <span> (Default User Style)</span>}
                 </MetaInfo>
               </div>}
               {(modGuidelinesHtml || userGuidelinesHtml) && <div>
@@ -153,7 +153,7 @@ const SunshineNewPostsItem = ({post, classes}: {
             </div>}
             <div className={classes.post}>
               <LinkPostMessage post={post} />
-              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html}} description={`post ${post._id}`}/>
+              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
             </div>
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>

@@ -14,7 +14,7 @@ const generateMergedStylesheet = (): string => {
   const componentsWithStyles = _.filter(Object.keys(ComponentsTable),
     componentName=>ComponentsTable[componentName].options?.styles);
   
-  const DummyComponent = (props) => <div/>
+  const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
     {componentsWithStyles.map(componentName => {
       const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
