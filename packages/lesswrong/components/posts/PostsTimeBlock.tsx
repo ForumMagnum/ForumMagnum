@@ -9,7 +9,6 @@ import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,19 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   divider: {/* Exists only to get overriden by the eaTheme */}
 })
 
-const defaultPostTypes = [
-  {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
-  {name: 'personal', postIsType: post => !post.frontpageDate, label: 'Personal Blogposts'}
+const postTypes = [
+  {name: 'frontpage', postIsType: (post: PostsBase) => !!post.frontpageDate, label: 'Frontpage Posts'},
+  {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
-const postTypes = {
-  LessWrong: defaultPostTypes,
-  AlignmentForum: defaultPostTypes,
-  EAForum: [
-    {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
-    {name: 'meta', postIsType: post => post.meta, label: 'Community Posts'},
-    {name: 'personal', postIsType: post => !(post.frontpageDate || post.meta), label: 'Personal Blogposts'}
-   ]
-}
 
 interface ExternalProps {
   terms: any,
@@ -131,7 +121,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
-    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -142,9 +132,9 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       return null
     }
 
-    const postGroups = postTypes[forumTypeSetting.get()].map(type => ({
+    const postGroups = postTypes.map(type => ({
       ...type,
-      posts: posts?.filter(type.postIsType)
+      posts: posts?.filter(type.postIsType) || []
     }))
 
     return (

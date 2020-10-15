@@ -1,9 +1,8 @@
 import SimpleSchema from 'simpl-schema';
-import { forumTypeSetting } from '../../instanceSettings';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 
-const baseDefaultAlgorithmSettings = {
+export const defaultAlgorithmSettings = {
   method: "top",
   count: 10,
   scoreOffset: 0,
@@ -15,10 +14,6 @@ const baseDefaultAlgorithmSettings = {
   curatedModifier: 50,
   onlyUnread: true,
 };
-
-export const defaultAlgorithmSettings = forumTypeSetting.get() === 'EAForum' ?
-  {...baseDefaultAlgorithmSettings, metaModifier: 0} :
-  baseDefaultAlgorithmSettings
 
 const recommendationAlgorithmSettingsSchema = new SimpleSchema({
   method: String,
@@ -33,8 +28,8 @@ const recommendationAlgorithmSettingsSchema = new SimpleSchema({
 
 const recommendationSettingsSchema = new SimpleSchema({
   frontpage: recommendationAlgorithmSettingsSchema,
+  frontpageEA: recommendationAlgorithmSettingsSchema,
   recommendationspage: recommendationAlgorithmSettingsSchema,
-  afterpost: recommendationAlgorithmSettingsSchema,
 });
 
 addFieldsDict(Users, {

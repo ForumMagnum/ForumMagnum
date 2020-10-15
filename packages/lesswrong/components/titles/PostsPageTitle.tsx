@@ -8,8 +8,6 @@ import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
-
 const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
   const { params: {_id, postId} } = useLocation();
   const { document: post, loading } = useSingle({
@@ -40,7 +38,7 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
     return null;
   } else if (post.meta) {
     return (<span className={classes.subtitle}>
-      <Link to="/meta">{metaName}</Link>
+      <Link to="/meta">Meta</Link>
     </span>);
   } else if (post.userId) {
     // TODO: For personal blogposts, put the user in the sutitle. There was an
@@ -58,4 +56,3 @@ declare global {
     PostsPageHeaderTitle: typeof PostsPageHeaderTitleComponent
   }
 }
-

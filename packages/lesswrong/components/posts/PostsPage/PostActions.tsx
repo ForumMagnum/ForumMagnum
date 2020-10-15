@@ -17,9 +17,6 @@ import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { withDialog } from '../../common/withDialog';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
-
-const metaName = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Meta'
 
 const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -240,15 +237,9 @@ class PostActions extends Component<PostActionsProps,{}> {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <Tooltip placement="left" title={
-                  forumTypeSetting.get() === 'EAForum' && post.submitToFrontpage ?
-                    'user did not select "Moderators may promote to Frontpage" option':''
-                }>
-                  <MenuItem>
-                    Move to {metaName}
-                    {forumTypeSetting.get() === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
-                  </MenuItem>
-                </Tooltip>
+                <MenuItem>
+                  Move to Meta
+                </MenuItem>
               </div>
             }
             { !post.frontpageDate &&

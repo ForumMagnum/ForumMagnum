@@ -5,12 +5,10 @@ import Posts from '../../lib/collections/posts/collection';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
-import GroupIcon from '@material-ui/icons/Group';
 import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-const MetaIcon = forumTypeSetting.get() === 'EAForum' ? GroupIcon : DetailsIcon
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
@@ -56,10 +54,6 @@ const PostsItemIcons = ({post, classes}: {
 }) => {
   const { OmegaIcon, LWTooltip } = Components;
 
-  const isPersonalBlogpost = forumTypeSetting.get() === 'EAForum' ?
-    !(post.frontpageDate || post.meta) :
-    !post.frontpageDate
-
   return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="right">
@@ -79,15 +73,15 @@ const PostsItemIcons = ({post, classes}: {
       </LWTooltip>
     </span>}
 
-    {isPersonalBlogpost && <span className={classes.postIcon}>
+    {!post.frontpageDate && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
         <PersonIcon className={classes.icon}/>
       </LWTooltip>
     </span>}
 
     {post.meta && <span className={classes.postIcon}>
-      <LWTooltip title={<div>Community <div><em>(Click to view all Community posts)</em></div></div>} placement="right">
-        <Link to={"/meta"}><MetaIcon className={classes.icon}/></Link>
+      <LWTooltip title={<div>Meta <div><em>(Click to view all meta content)</em></div></div>} placement="right">
+        <Link to={"/tag/site-meta"}><DetailsIcon className={classes.icon}/></Link>
       </LWTooltip>
     </span>}
 

@@ -28,15 +28,6 @@ export const filters: Record<string,any> = {
   "frontpage": {
     frontpageDate: {$gt: new Date(0)}
   },
-  "frontpageAndMeta": {
-    // NB:   Currently only used on EA Forum
-    // NB#2: Do not combine this with a view that specifies a selector with
-    // $or, as this will be overwritten.
-    $or: [
-      {frontpageDate: {$gt: new Date(0)}},
-      {meta: true}
-    ]
-  },
   "all": {
     groupId: null
   },
@@ -60,7 +51,6 @@ export const filters: Record<string,any> = {
       $lt: [
           {$size: 
               {$filter: {
-                  // ea-forum-look-here
                   // this was a hack during the Tagging Sprint, where we wanted people to tag posts with non-core-tags
                   input: {$objectToArray: "$tagRelevance"},
                   cond: {$not: {$in: ["$$this.k", ["xexCWMyds6QLWognu", "sYm3HiWcfZvrGu3ui", "izp6eeJJEg9v5zcur", "fkABsGCJZ6y9qConW", "Ng8Gice9KNkncxqcj", "MfpEPj6kJneT9gWT6", "3uE2pXvbcnS9nnZRE"]]}}
@@ -74,7 +64,6 @@ export const filters: Record<string,any> = {
   },
   "includeMetaAndPersonal": {},
 }
-if (forumTypeSetting.get() === 'EAForum') filters.frontpage.meta = {$ne: true}
 
 /**
  * @summary Similar to filters (see docstring above), but specifying MongoDB-style sorts
@@ -164,7 +153,7 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
-const lwafGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
+const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
   if (filterSettings.personalBlog === "Hidden") {
     return {
       filter: {frontpageDate: {$gt: new Date(0)}},
@@ -189,48 +178,11 @@ const lwafGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, s
   }
 }
 
-// In ea-land, personal blog does not mean personal blog, it means community
-const eaGetFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
-  if (filterSettings.personalBlog === "Hidden") {
-    return {
-      filter: {frontpageDate: {$gt: new Date(0)}, meta: {$ne: true}},
-      softFilter: []
-    }
-  } else if (filterSettings.personalBlog === "Required") {
-    return {
-      filter: {frontpageDate: viewFieldNullOrMissing, meta: true},
-      softFilter: []
-    }
-  } else {
-    return {
-      filter: {
-        $or: [
-          {frontpageDate: {$gt: new Date(0)}},
-          {meta: true}
-        ]
-      },
-      // This is the same as the lwaf frontpageSoftFilter
-      softFilter: [
-        {$cond: {
-          if: "$frontpageDate",
-          then: 0,
-          else: filterModeToKarmaModifier(filterSettings.personalBlog)
-        }},
-      ],
-    }
-  }
-}
-
 function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
-  let frontpageFiltering: any;
-  if (forumTypeSetting.get() === 'EAForum') {
-    frontpageFiltering = eaGetFrontpageFilter(filterSettings)
-  } else {
-    frontpageFiltering = lwafGetFrontpageFilter(filterSettings)
-  }
+  const frontpageFiltering = getFrontpageFilter(filterSettings)
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
   

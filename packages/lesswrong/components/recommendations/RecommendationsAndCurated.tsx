@@ -203,7 +203,6 @@ const RecommendationsAndCurated = ({
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
       </AnalyticsContext> */}
-      {!currentUser?.hideTaggingProgressBar && <TagProgressBar/>}
     </SingleColumnSection>
   }
   
