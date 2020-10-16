@@ -11,6 +11,7 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { addCallback, editMutation, newMutation, removeMutation, runCallbacksAsync } from '../vulcan-lib';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
+import { loadRevision } from '../revisionsCache';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -220,7 +221,10 @@ function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) 
 addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
 function NewCommentsEmptyCheck (comment: DbComment) {
-  const { data } = (comment.contents && comment.contents.originalContents) || {}
+  // This runs with comments.new.validate, which precedes the callbacks that move
+  // the contents from the comment to the revisions table, so there's a contents
+  // field here (not captured in the type system).
+  const { data } = ((comment as any).contents?.originalContents) || {}
   if (!data) {
     throw new Error("You cannot submit an empty comment");
   }
@@ -229,7 +233,12 @@ function NewCommentsEmptyCheck (comment: DbComment) {
 addCallback("comments.new.validate", NewCommentsEmptyCheck);
 
 export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComment: DbComment, {currentUser}: {currentUser: DbUser}) {
-  if (currentUser._id !== newComment.userId && newComment.deleted && newComment.contents && newComment.contents.html) {
+  if (currentUser._id !== newComment.userId && newComment.deleted) {
+    const contents = await loadRevision({collection: Comments, doc: newComment});
+    
+    // No need to send a comment-deleted notification if the comment is somehow empty
+    if (!contents?.html) return;
+    
     const onWhat = newComment.tagId
       ? await Tags.findOne(newComment.tagId)?.name
       : (newComment.postId
@@ -269,7 +278,7 @@ export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComme
 
     const secondMessageData = {
       userId: lwAccount._id,
-      contents: newComment.contents,
+      contents: contents,
       conversationId: conversation.data._id
     }
 

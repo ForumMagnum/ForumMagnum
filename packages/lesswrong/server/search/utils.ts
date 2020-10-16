@@ -16,6 +16,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
+import { loadRevision } from '../revisionsCache';
 
 type AlgoliaDocument = {
   _id: string,
@@ -61,8 +62,9 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaDocument>|
     algoliaComment.postSlug = parentPost.slug;
   }
   let body = ""
-  if (comment.contents?.originalContents?.type) {
-    const { data, type } = comment.contents.originalContents
+  const contents = await loadRevision({ collection: Comments, doc: comment });
+  if (contents?.originalContents?.type) {
+    const { data, type } = contents.originalContents
     body = dataToMarkdown(data, type)
   }
   //  Limit comment size to ensure we stay below Algolia search Limit
@@ -92,7 +94,8 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaDocumen
   }
   //  Limit comment size to ensure we stay below Algolia search Limit
   // TODO: Actually limit by encoding size as opposed to characters
-  const { html = "" } = sequence.contents || {};
+  const contents = await loadRevision({collection: Sequences, doc: sequence});
+  const { html = "" } = contents || {};
   const plaintextBody = htmlToText.fromString(html);
   algoliaSequence.plaintextDescription = plaintextBody.slice(0, 2000);
   return [algoliaSequence]
@@ -162,8 +165,9 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
   }
   let postBatch: Array<AlgoliaDocument> = [];
   let body = ""
-  if (post.contents?.originalContents?.type) {
-    const { data, type } = post.contents.originalContents
+  const contents = await loadRevision({ collection: Posts, doc: post });
+  if (contents?.originalContents?.type) {
+    const { data, type } = contents.originalContents
     body = dataToMarkdown(data, type)
   }
   if (body) {
@@ -189,8 +193,9 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
   if (tag.adminOnly) return null;
   
   let description = ""
-  if (tag.description?.originalContents?.type) {
-    const { data, type } = tag.description.originalContents
+  const descriptionRev = await loadRevision({collection: Tags, doc: tag, fieldName: "description"});
+  if (descriptionRev?.originalContents?.type) {
+    const { data, type } = descriptionRev.originalContents
     description = dataToMarkdown(data, type)
   }
   // Limit tag description  size to ensure we stay below Algolia search Limit

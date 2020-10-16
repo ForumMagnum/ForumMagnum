@@ -976,30 +976,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    resolveAs: {
-      type: 'Boolean',
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
-        const { LWEvents, currentUser } = context;
-        if(currentUser){
-          const query = {
-            name:'toggled-user-moderation-guidelines',
-            documentId: post.userId,
-            userId: currentUser._id
-          }
-          const sort = {sort:{createdAt:-1}}
-          const event = await LWEvents.findOne(query, sort);
-          const author = await Users.findOne({_id: post.userId});
-          if (event) {
-            return !!(event.properties && event.properties.targetState)
-          } else {
-            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
-          }
-        } else {
-          return false
-        }
-      },
-      addOriginalField: false
-    }
+    // Resolver in postResolvers
   },
 
   moderationStyle: {

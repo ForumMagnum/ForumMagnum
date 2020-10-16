@@ -1,7 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from '../vulcan-lib';
 import { Conversations } from '../../lib/collections/conversations/collection';
+import { Messages } from '../../lib/collections/messages/collection';
 import { useCurrentUser } from '../../components/common/withUser';
+import { useSingle } from '../../lib/crud/withSingle';
 import * as _ from 'underscore';
 import './EmailUsername';
 import './EmailFormatDate';
@@ -76,7 +78,7 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;
+  const { EmailListOfUsers } = Components;
   const sitename = siteNameWithArticleSetting.get()
   const conversationLink = Conversations.getPageUrl(conversation, true);
   
@@ -92,19 +94,37 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
     <p><a href={conversationLink}>View this conversation on {sitename}</a>.</p>
     
     {messages.map((message,i) => <div className={classes.message} key={i}>
-      <EmailUsername user={participantsById[message.userId]!}/>
-      {" "}<EmailFormatDate date={message.createdAt}/>
-      <EmailContentItemBody dangerouslySetInnerHTML={{__html: message.contents.html}}/>
+      <PrivateMessagesEmailMessage messageId={message._id}/>
     </div>)}
   </React.Fragment>);
 }
 
 const PrivateMessagesEmailConversationComponent = registerComponent("PrivateMessagesEmailConversation", PrivateMessagesEmailConversation, {styles});
 
+const PrivateMessagesEmailMessage = ({messageId}: {
+  messageId: string,
+}) => {
+  const {document: message, loading} = useSingle({
+    documentId: messageId,
+    collection: Messages,
+    fragmentName: "messageListFragment",
+  });
+  const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
+  
+  return <>
+    <EmailUsername user={message.user}/>
+    {" "}<EmailFormatDate date={message.createdAt}/>
+    <EmailContentItemBody dangerouslySetInnerHTML={{__html: message.contents?.html}}/>
+  </>
+}
+
+const PrivateMessagesEmailMessageComponent = registerComponent("PrivateMessagesEmailMessage", PrivateMessagesEmailMessage);
+
 declare global {
   interface ComponentTypes {
     PrivateMessagesEmail: typeof PrivateMessagesEmailComponent,
     EmailListOfUsers: typeof EmailListOfUsersComponent,
     PrivateMessagesEmailConversation: typeof PrivateMessagesEmailConversationComponent,
+    PrivateMessagesEmailMessage: typeof PrivateMessagesEmailMessageComponent,
   }
 }

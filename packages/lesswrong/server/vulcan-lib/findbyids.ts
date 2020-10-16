@@ -1,8 +1,7 @@
 
-/**
- * @summary Find by ids, for DataLoader, inspired by https://github.com/tmeasday/mongo-find-by-ids/blob/master/index.js
- */
-const findByIds = async <T extends DbObject>(collection: CollectionBase<T>, ids: Array<string>, context: any): Promise<Array<T|null>> => {
+// Find by ids, for DataLoader.
+// Inspired by https://github.com/tmeasday/mongo-find-by-ids/blob/master/index.js
+const findByIds = async <T extends DbObject>(collection: CollectionBase<T>, ids: Array<string>): Promise<Array<T|null>> => {
   if (ids.length === 0) return [];
   
   if (ids.length === 1) {

@@ -24,7 +24,6 @@ import './server/scripts/hpmorImport';
 import './server/scripts/algoliaExport';
 import './server/scripts/algoliaConfigureIndexes';
 import './server/scripts/brokenLinksReport';
-import './server/scripts/fixBodyField';
 import './server/scripts/fixKarmaField';
 import './server/scripts/fixEmailField';
 import './server/scripts/fixFrontpageCount';

@@ -345,25 +345,18 @@ const schema: SchemaType<DbPost> = {
   },
   
   // DEPRECATED field for GreaterWrong backwards compatibility
-  wordCount: resolverOnlyField({
+  wordCount: {
     type: Number,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return 0;
-      return contents.wordCount;
-    }
-  }),
+    optional: true,
+  },
+  
   // DEPRECATED field for GreaterWrong backwards compatibility
-  htmlBody: resolverOnlyField({
+  htmlBody: {
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return "";
-      return contents.html;
-    }
-  }),
+    optional: true,
+  },
 
   submitToFrontpage: {
     type: Boolean,

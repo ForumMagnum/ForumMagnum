@@ -7,6 +7,7 @@ import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collec
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
+import { addEditableResolvers } from './editableResolvers';
 import Sentry from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
@@ -337,6 +338,8 @@ export function addEditableCallbacks({collection, options = {}}: {
     // of the new callbacks.
     deactivateNewCallback,
   } = options
+  
+  addEditableResolvers({collection, options});
 
   const collectionName = collection.collectionName;
   const { typeName } = collection.options

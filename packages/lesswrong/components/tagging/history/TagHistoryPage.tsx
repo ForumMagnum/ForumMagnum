@@ -10,6 +10,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   singleLineEvent: {
     margin: 8,
   },
+  newCommentLabel: {
+    paddingLeft: theme.spacing.unit*1.5,
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    fontWeight: 600,
+    marginTop: 12
+  },
+  newComment: {
+    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    position: 'relative',
+    borderRadius: 3,
+    marginBottom: "1.3em",
+    "@media print": {
+      display: "none"
+    }
+  },
 });
 
 const TagHistoryPage = ({classes}: {
@@ -28,6 +44,15 @@ const TagHistoryPage = ({classes}: {
   
   return <SingleColumnSection>
     <h1>{tag.name}</h1>
+    
+    {tag && <div className={classes.newComment}>
+      <div className={classes.newCommentLabel}>New Comment</div>
+      <Components.CommentsNewForm
+        tag={tag}
+        type="comment"
+      />
+    </div>}
+    
     <div className={classes.feed}>
     <MixedTypeFeed
       pageSize={50}

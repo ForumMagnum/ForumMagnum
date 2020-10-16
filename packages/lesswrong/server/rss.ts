@@ -9,6 +9,8 @@ import { rssTermsToUrl } from '../lib/rss_urls';
 import { addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
+import { loadRevision } from './revisionsCache';
+import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
@@ -45,7 +47,7 @@ export const servePostRSS = async (terms, url?: string) => {
   const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
   const restrictedPosts = await accessFilterMultiple(null, Posts, postsCursor, null);
 
-  restrictedPosts.forEach((post) => {
+  await asyncForeachSequential(restrictedPosts, async (post) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -63,9 +65,10 @@ export const servePostRSS = async (terms, url?: string) => {
 
     const postLink = `<a href="${Posts.getPageUrl(post, true)}#comments">Discuss</a>`;
     const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
+    const contents = await loadRevision({collection: Posts, doc: post});
     const feedItem: any = {
       title: post.title,
-      description: `Published on ${formattedTime}<br/><br/>${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
+      description: `Published on ${formattedTime}<br/><br/>${(contents?.html) || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
@@ -91,12 +94,13 @@ export const serveCommentRSS = async (terms, url?: string) => {
   parameters.options.limit = 50;
   const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);
-
-  restrictedComments.forEach(function(comment) {
+  
+  await asyncForeachSequential(restrictedComments, async (comment: DbComment) => {
     const parentTitle = getCommentParentTitle(comment)
+    const contents = await loadRevision({collection: Comments, doc: comment});
     feed.item({
      title: 'Comment on ' + parentTitle,
-     description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${contents?.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
      url: Comments.getPageUrl(comment, true),

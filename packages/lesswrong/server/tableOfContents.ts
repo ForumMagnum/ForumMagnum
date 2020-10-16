@@ -8,6 +8,7 @@ import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
+import { loadRevision } from './revisionsCache';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -187,8 +188,9 @@ async function getTocAnswers (document) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-  const answerSections = answers.map((answer) => {
-    const { html = "" } = answer.contents || {}
+  const answerSections = await Promise.all(answers.map(async (answer) => {
+    const rev = await loadRevision({collection: Comments, doc: answer});
+    const { html = "" } = rev || {}
     const highlight = truncate(html, 900)
     let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
     
@@ -204,7 +206,7 @@ async function getTocAnswers (document) {
       anchor: answer._id,
       level: 2
     };
-  })
+  }));
 
   if (answerSections.length) {
     return [
@@ -232,7 +234,7 @@ async function getTocComments (document) {
 }
 
 const getTableOfContentsData = async ({document, version, currentUser, context}: {
-  document: any,
+  document: DbPost,
   version: string,
   currentUser: DbUser|null,
   context: ResolverContext,
@@ -245,7 +247,8 @@ const getTableOfContentsData = async ({document, version, currentUser, context}:
       return null;
     html = revision.html;
   } else {
-    html = document?.contents?.html;
+    const contents = await loadRevision({collection: Posts, doc: document});
+    html = contents?.html;
   }
   
   const tableOfContents = extractTableOfContents(html)

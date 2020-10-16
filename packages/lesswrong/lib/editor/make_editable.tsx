@@ -85,32 +85,6 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       ...permissions,
       order,
       control: 'EditorFormComponent',
-      resolveAs: {
-        type: 'Revision',
-        arguments: 'version: String',
-        resolver: async (doc: T, args: {version: string}, context: ResolverContext): Promise<DbRevision|null> => {
-          const { version } = args;
-          const { currentUser, Revisions } = context;
-          const field = fieldName || "contents"
-          const { checkAccess } = Revisions
-          if (version) {
-            const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            if (!revision) return null;
-            return await checkAccess(currentUser, revision, context) ? revision : null
-          }
-          return {
-            editedAt: (doc[field]?.editedAt) || new Date(),
-            userId: doc[field]?.userId,
-            commitMessage: doc[field]?.commitMessage,
-            originalContents: (doc[field]?.originalContents) || {},
-            html: doc[field]?.html,
-            updateType: doc[field]?.updateType,
-            version: doc[field]?.version,
-            wordCount: doc[field]?.wordCount,
-          } as DbRevision;
-          //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
-        }
-      },
       form: {
         hintText: hintText,
         fieldName: fieldName || "contents",
@@ -120,34 +94,23 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         getLocalStorageId,
       },
     },
+
+    [fieldName ? `${fieldName}_latest` : "contents_latest"]: {
+      type: String,
+      viewableBy: ['guests'],
+      optional: true,
+    },
     
     [Utils.camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
       viewableBy: ['guests'],
       optional: true,
-      resolveAs: {
-        type: '[Revision]',
-        arguments: 'limit: Int = 5',
-        resolver: async (post: T, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
-          const { limit } = args;
-          const { currentUser, Revisions } = context;
-          const field = fieldName || "contents"
-          const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
-          return await accessFilterMultiple(currentUser, Revisions, resolvedDocs, context);
-        }
-      }
     },
     
     [Utils.camelCaseify(`${fieldName}Version`)]: {
       type: String,
       viewableBy: ['guests'],
       optional: true,
-      resolveAs: {
-        type: 'String',
-        resolver: (post: T): string => {
-          return post[fieldName || "contents"]?.version
-        }
-      }
     }
   });
   

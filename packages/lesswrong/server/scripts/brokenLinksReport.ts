@@ -1,6 +1,7 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection';
+import { loadRevision } from '../revisionsCache';
 import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';
 import { URL } from 'url';
@@ -78,7 +79,8 @@ const describePost = async (post:DbPost) =>
 // meant to be handled by a person) includes the title/author/karma of the
 // post and a list of broken things within it.
 const checkPost = async (post:DbPost) => {
-  const { html = "" } = post.contents || {}
+  const contents = await loadRevision({collection: Posts, doc: post});
+  const { html = "" } = contents || {}
   const images = getImagesInHtml(html);
   const links = getLinksInHtml(html);
   

@@ -8,6 +8,7 @@ import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
+import { revisionCacheComputedField } from '../revisionsCache';
 import * as _ from 'underscore';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
@@ -67,40 +68,89 @@ addFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
+      resolver: (revision: DbRevision, args: void, context: ResolverContext) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "markdown",
+          computeField: (rev: DbRevision) => {
+            const {originalContents: { data, type }} = rev;
+            return dataToMarkdown(data, type);
+          }
+        });
+      }
     }
   },
   draftJS: {
     type: Object,
     resolveAs: {
       type: 'JSON',
-      resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
+      resolver: (revision: DbRevision, args: void, context: ResolverContext) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "draftJS",
+          computeField: (rev: DbRevision) => {
+            const {originalContents: { data, type }} = rev;
+            return dataToDraftJS(data, type);
+          }
+        });
+      }
     }
   },
   ckEditorMarkup: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents: {data, type}, html}) => (type === 'ckEditorMarkup' ? data : html) // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
+      resolver: (revision: DbRevision, args: void, context: ResolverContext) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "ckEditorMarkup",
+          computeField: (rev: DbRevision) => {
+            const {originalContents: { data, type }, html} = rev;
+            // For ckEditorMarkup we just fall back to HTML, since it's a
+            // superset of html
+            if (type === 'ckEditorMarkup')
+              return data;
+            else
+              return html;
+          }
+        });
+      }
     }
   },
   htmlHighlight: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => highlightFromHTML(html)
+      resolver: (revision: DbRevision, args: void, context: ResolverContext) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "htmlHighlight",
+          computeField: (rev: DbRevision) => {
+            const {html} = rev;
+            return highlightFromHTML(html);
+          }
+        });
+      }
     }
   },
   plaintextDescription: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => {
+      resolver: (revision: DbRevision, args: void, context: ResolverContext) => {
+        const {html} = revision;
         if (!html) return
-        const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true})
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "plaintextDescription",
+          computeField: (rev: DbRevision) => {
+            const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+            return htmlToText
+              .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true})
+              .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+          }
+        });
       }
     }
   },
@@ -109,17 +159,25 @@ addFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => {
-        const mainTextHtml = sanitizeHtml(
-          html, {
-            allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
-            nonTextTags: ['blockquote', 'img', 'style']
+      resolver: (revision: DbRevision, args: void, context: ResolverContext) => {
+        const {html} = revision;
+        
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "plaintextMainText",
+          computeField: (rev: DbRevision) => {
+            const mainTextHtml = sanitizeHtml(
+              html, {
+                allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
+                nonTextTags: ['blockquote', 'img', 'style']
+              }
+            )
+            const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
+            return htmlToText
+              .fromString(truncatedHtml)
+              .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
           }
-        )
-        const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        });
       }
     }
   },

@@ -268,11 +268,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onCreate: async ({newDocument}) => {
-      if (!newDocument.postId) return "1.0.0";
-      const post = await Posts.findOne({_id: newDocument.postId})
-      return (post && post.contents && post.contents.version) || "1.0.0"
-    }
+    // Populated by onCreate in commentResolvers
   },
 
   promoted: {
@@ -353,25 +349,17 @@ const schema: SchemaType<DbComment> = {
   },
   
   // DEPRECATED field for GreaterWrong backwards compatibility
-  wordCount: resolverOnlyField({
+  wordCount: {
     type: Number,
     viewableBy: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      const contents = comment.contents;
-      if (!contents) return 0;
-      return contents.wordCount;
-    }
-  }),
+    optional: true,
+  },
   // DEPRECATED field for GreaterWrong backwards compatibility
-  htmlBody: resolverOnlyField({
+  htmlBody: {
     type: String,
     viewableBy: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      const contents = comment.contents;
-      if (!contents) return "";
-      return contents.html;
-    }
-  }),
+    optional: true,
+  },
 };
 
 export default schema;

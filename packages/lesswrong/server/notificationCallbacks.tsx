@@ -19,6 +19,7 @@ import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 import { Components, addCallback, createMutator, updateMutator } from './vulcan-lib';
+import { loadRevision } from './revisionsCache';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
@@ -561,13 +562,16 @@ async function PostsNewMeetupNotifications ({document: newPost}: {document: DbPo
 addCallback("post.create.async", PostsNewMeetupNotifications)
 
 async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+  const oldRev = await loadRevision({collection: Posts, fieldName: "contents", doc: oldPost});
+  const newRev = await loadRevision({collection: Posts, fieldName: "contents", doc: newPost})
+  
   if (
     (
       (!newPost.draft && oldPost.draft) || 
       (newPost.mongoLocation && !newPost.mongoLocation) || 
       (newPost.startTime !== oldPost.startTime) || 
       (newPost.endTime !== oldPost.endTime) || 
-      (newPost.contents?.html !== oldPost.contents?.html) ||
+      (newRev?.html !== oldRev?.html) ||
       (newPost.title !== oldPost.title)
     )
     && newPost.mongoLocation && newPost.isEvent && !newPost.draft) 

@@ -7,6 +7,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { urlIsBroken } from '../scripts/utils'
 import { Posts } from '../../lib/collections/posts/collection';
+import { loadRevision } from '../revisionsCache';
 import cheerio from 'cheerio'
 
 function findInsecureImages ($: any): Array<string> {
@@ -63,7 +64,8 @@ function updateHtmlWithSecureImages($: any, imageUpdates: Map<string, string>): 
 }
 
 async function getFixedHTML (post: DbPost): Promise<{shouldUpdate: boolean, fixedHtml?: string}> {
-  const html = post.contents?.html
+  const contents = await loadRevision({collection: Posts, doc: post});
+  const html = contents?.html
   if (!html || !html.length) {
     return {shouldUpdate: false}
   }
