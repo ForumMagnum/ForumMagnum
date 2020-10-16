@@ -1,4 +1,4 @@
-import { isClient, isServer, runAfterDelay, deferWithoutDelay } from '../executionEnvironment';
+import { isServer, runAfterDelay, deferWithoutDelay } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { debug } from './debug';

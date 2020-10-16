@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { getLoginServices } from '../../lib/vulcan-accounts/helpers';
 import { meteorUsersCollection } from '../../lib/meteorAccounts';
 import { publishDDP } from '../../lib/meteorDdp';
