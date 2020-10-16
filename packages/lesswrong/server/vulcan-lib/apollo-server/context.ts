@@ -12,7 +12,7 @@
 
 import Sentry from '@sentry/node';
 import DataLoader from 'dataloader';
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../../lib/meteorAccounts';
 import { check } from 'meteor/check';
 import Cookies from 'universal-cookie';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';

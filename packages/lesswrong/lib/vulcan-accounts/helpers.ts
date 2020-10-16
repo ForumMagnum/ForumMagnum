@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import { isClient, runAfterDelay } from '../executionEnvironment';
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 import { ServiceConfiguration } from 'meteor/service-configuration';
 
 let browserHistory;

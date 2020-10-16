@@ -19,3 +19,10 @@ export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
 
 // Like setTimeout, but with fiber handling
 export const runAfterDelay = Meteor.setTimeout;
+
+// Like setTimeout with 0 timeout, possibly different priority, and fiber handling
+export const deferWithoutDelay = Meteor.delay;
+
+export const runAtInterval = Meteor.setInterval;
+
+export const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;

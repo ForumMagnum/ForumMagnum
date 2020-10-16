@@ -1,4 +1,4 @@
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 import { Bans } from '../../lib/collections/bans/collection';
 import { ForwardedWhitelist } from '../forwarded_whitelist';
 import { Meteor } from 'meteor/meteor';

@@ -1,4 +1,4 @@
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 import { isPackageTest } from '../../lib/executionEnvironment';
 import { mailUrlSetting } from '../vulcan-core/start';
 

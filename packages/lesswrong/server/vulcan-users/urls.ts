@@ -1,5 +1,5 @@
 import { onStartup, getAbsoluteUrl } from '../../lib/executionEnvironment';
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 
 onStartup(() => {
   if (typeof Accounts !== 'undefined') {

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
@@ -9,8 +8,9 @@ import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { Utils } from './utils';
 export * from './getCollection';
+import { wrapAsync } from '../executionEnvironment';
+import { meteorUsersCollection } from '../meteorAccounts';
 
-const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;
 // import { debug } from './debug';
 
 // 'Maximum documents per request'
@@ -117,8 +117,8 @@ export const createCollection = (options: any): any => {
 
   // initialize new Mongo collection
   const collection =
-    collectionName === 'Users' && Meteor.users
-      ? Meteor.users
+    collectionName === 'Users' && meteorUsersCollection
+      ? meteorUsersCollection
       : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
 
   // decorate collection with options

@@ -1,7 +1,7 @@
 /* eslint-disable meteor/no-session */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts, Session, meteorLogout, meteorLoginWithPassword, meteorLoginWithMethod } from '../../lib/meteorAccounts';
 import { KEY_PREFIX } from '../../lib/vulcan-accounts/login_session';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 import { intlShape } from '../../lib/vulcan-i18n';
@@ -9,8 +9,6 @@ import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent';
 import sha1 from 'crypto-js/sha1';
 import { isClient, runAfterDelay } from '../../lib/executionEnvironment';
-import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
 import * as _ from 'underscore';
 
 
@@ -612,7 +610,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   signOut() {
-    Meteor.logout(() => {
+    meteorLogout(() => {
       this.props.handlers.switchToSignIn();
       // this.setState({
       //   formState: STATES.SIGN_IN,
@@ -672,7 +670,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     // }
 
     if (!error) {
-      Meteor.loginWithPassword(loginSelector, password, (error, result) => {
+      meteorLoginWithPassword(loginSelector, password, (error, result) => {
         onSubmitHook(error,formState);
         if (error) {
           // eslint-disable-next-line no-console
@@ -682,7 +680,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
             const {salt, username} = error.details;
             const toHash = (`${salt}${username} ${password}`)
             const lw1PW = salt + sha1(toHash).toString();
-            Meteor.loginWithPassword({username: error.details.username}, lw1PW, (error, result) => {
+            meteorLoginWithPassword({username: error.details.username}, lw1PW, (error, result) => {
               if (!error) {
                 loginResultCallback(() => this.state.onSignedInHook(this.props));
                 self.props.handlers.switchToProfile();
@@ -742,7 +740,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       serviceName = 'meteorDeveloperAccount';
     }
 
-    const loginWithService = Meteor['loginWith' + capitalService()];
+    const loginWithService = meteorLoginWithMethod(capitalService());
 
     let options: any = {}; // use default scope unless specified
     if (Accounts.ui._options.requestPermissions[serviceName])

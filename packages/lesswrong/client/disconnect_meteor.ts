@@ -1,5 +1,5 @@
-import { Meteor } from 'meteor/meteor';
 import { onStartup } from '../lib/executionEnvironment';
+import { disconnectDdp, reconnectDdp } from '../lib/meteorDdp';
 
 var disconnectTimer: any = null;
 
@@ -16,7 +16,7 @@ function disconnectIfHidden() {
     if (document.hidden) {
       createDisconnectTimeout();
     } else {
-      Meteor.reconnect();
+      reconnectDdp();
     }
 }
 
@@ -24,7 +24,7 @@ function createDisconnectTimeout() {
     removeDisconnectTimeout();
 
     disconnectTimer = setTimeout(function () {
-        Meteor.disconnect();
+        disconnectDdp();
     }, disconnectTime);
 }
 

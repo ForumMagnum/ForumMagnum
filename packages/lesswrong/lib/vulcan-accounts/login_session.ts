@@ -1,9 +1,8 @@
 /* eslint-disable meteor/no-session */
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts, Session } from '../../lib/meteorAccounts';
 import { loginResultCallback, getLoginServices } from './helpers';
 import * as _ from 'underscore';
 import { isClient } from '../executionEnvironment';
-import { Session } from 'meteor/session';
 
 const VALID_KEYS = [
   'dropdownVisible',
