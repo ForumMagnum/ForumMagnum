@@ -13,7 +13,6 @@
 import Sentry from '@sentry/node';
 import DataLoader from 'dataloader';
 import { Accounts } from '../../../lib/meteorAccounts';
-import { check } from 'meteor/check';
 import Cookies from 'universal-cookie';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { Collections } from '../../../lib/vulcan-lib/collections';
@@ -25,7 +24,8 @@ import Users from '../../../lib/collections/users/collection';
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 const getUser = async (loginToken: string): Promise<DbUser|null> => {
   if (loginToken) {
-    check(loginToken, String)
+    if (typeof loginToken !== 'String')
+      throw new Error("Login token is not a string");
 
     const hashedToken = Accounts._hashLoginToken(loginToken)
 
