@@ -11,7 +11,7 @@ import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
-import { Random } from 'meteor/random';
+import { randomId } from '../../lib/random';
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -354,7 +354,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
   const body = htmlToText.fromString(post.article);
   const isPublished = post.sr_id === "2" || post.sr_id === "3" || post.sr_id === "3391" || post.sr_id === "4";
   return {
-    _id: Random.id(),
+    _id: randomId(),
     legacy: true,
     legacyId: legacyId,
     legacyData: post,
@@ -386,7 +386,7 @@ const legacyCommentToNewComment = async (comment, legacyId, author, parentPost) 
   //eslint-disable-next-line no-console
   if (!parentPost) {console.warn("Missing parent post for comment: ", comment)}
   return {
-    _id: Random.id(),
+    _id: randomId(),
     legacy: true,
     legacyId: legacyId,
     legacyParentId: comment.parent_id,
