@@ -10,7 +10,7 @@ import rng from './seedrandom';
 // groups.
 //
 // You can see what A/B test groups you're in by going to
-//   /users/<user-slug>/abtests
+//   /abTestGroups
 //
 // Logged-out users are assigned an A/B test group based on their ClientID. If
 // they create a new account, that account inherits the test groups of the
