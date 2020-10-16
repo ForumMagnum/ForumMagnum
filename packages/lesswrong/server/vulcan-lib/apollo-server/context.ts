@@ -24,7 +24,7 @@ import Users from '../../../lib/collections/users/collection';
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 const getUser = async (loginToken: string): Promise<DbUser|null> => {
   if (loginToken) {
-    if (typeof loginToken !== 'String')
+    if (typeof loginToken !== 'string')
       throw new Error("Login token is not a string");
 
     const hashedToken = Accounts._hashLoginToken(loginToken)
