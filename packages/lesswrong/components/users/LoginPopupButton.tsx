@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const LoginPopupButton = ({classes, children, title}: {
   classes: ClassesType,
   children: React.ReactNode,
-  title: string,
+  title?: string,
 }) => {
   const currentUser = useCurrentUser();
   // This component is intended only for buttons whose sole purpose is logging a user in 

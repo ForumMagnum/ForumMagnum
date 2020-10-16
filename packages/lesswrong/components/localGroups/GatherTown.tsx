@@ -142,7 +142,7 @@ const GatherTown = ({classes}: {
       Click to read more about this space
       <div>{"password: the12thvirtue"}</div></div>
     }>
-      <Link to="/walledGarden" className={classes.learn}>
+      <Link to="/walledGardenInfo" className={classes.learn}>
         Learn More
       </Link>
   </LWTooltip>

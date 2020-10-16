@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
-import { commentBodyStyles } from '../../themes/stylePiping'
+import { postBodyStyles } from '../../themes/stylePiping'
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+
+export const gardenOpenToPublic = new DatabasePublicSetting<string>('gardenOpenToPublic', false)
 
 const styles = (theme) => ({
   welcomeText: {
-    ...commentBodyStyles(theme)
+    ...postBodyStyles(theme)
   },
   iframePositioning: {
     position: "absolute",
@@ -34,21 +37,19 @@ const styles = (theme) => ({
 *
 * */
 
-
 function validateInviteCode(code: string) {
+  if (!code) return false
   return (code.length > 3)
 }
 
-
 const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
-  const { SingleColumnSection } = Components
-  const { query, params: { slug } } = useLocation();
-  const { inviteCode: inviteCodeQuery } = query;
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker } = Components
+  const { query } = useLocation();
+  const { inviteCode } = query;
   const currentUser = useCurrentUser();
 
-  const isSunday =  (new Date()).getDay() === 0;
-  const hasInvite = currentUser?.walledGardenInvite;
-  console.log({hasInvite, isSunday, inviteCodeQuery});
+
+  const isOpenToPublic = gardenOpenToPublic.get()
 
   const [onboarded, setOnboarded] = useState(false);
 
@@ -60,20 +61,21 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
         </div>
         : <SingleColumnSection className={classes.welcomeText}>
           <p>Welcome to the Walled Garden, a curated space for truthseekers!&nbsp;</p>
-          <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays and
-            for public events. Otherwise, it is open by invite only.</p>
+          <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays from 12pm to 4pm PT. Otherwise, it is open by invite only.</p>
           <ul>
             <li>Please wear headphones, preferably with a microphone!</li>
-            <li>Restart your browser to solve most technical problems.</li>
-            <li>Respawn (<i>gear icon</i> &gt; <i>respawn</i>) if you get lost or stuck.</li>
-            <li>All interactions are voluntary. You are not compelled to talk to anyone.</li>
+            <li>Technical Problems? Restart your browser.</li>
+            <li>Lost or stuck? Respawn (<i>gear icon</i> &gt; <i>respawn</i>)</li>
+            <li>Interactions are voluntary. It's okay to leave conversations.</li>
             <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right) or
               email (team@lesswrong.com).
             </li>
           </ul>
-          <a onClick={() => setOnboarded(true)}>
-            <b>Enter the Garden</b>
-          </a>
+          <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{isOpenToPublic, inviteCode, isMember: currentUser?.walledGardenInvite}}>
+            <a onClick={() => setOnboarded(true)}>
+              <b>Enter the Garden</b>
+            </a>
+          </AnalyticsTracker>
         </SingleColumnSection>
       }
     </div>
@@ -83,17 +85,17 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
     return innerPortal(onboarded)
   }
 
-  if (isSunday) {
+  if (isOpenToPublic) {
     return innerPortal(onboarded)
   }
 
-  if (validateInviteCode(inviteCodeQuery)) {
+  if (validateInviteCode(inviteCode)) {
     return innerPortal(onboarded)
   }
 
   return <SingleColumnSection className={classes.welcomeText}>
     <p>The Walled Garden is a private virtual space managed by the LessWrong team.</p>
-    <p>It is closed right now. Please return on Sunday when it is open to everyone. If you have a non-Sunday invite, you may need to log in.</p>
+    <p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to <LoginPopupButton><b>Log In</b></LoginPopupButton>.</p>
   </SingleColumnSection>
 }
 
