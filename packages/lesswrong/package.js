@@ -36,7 +36,6 @@ Package.onUse( function(api) {
     'http',
     'meteorhacks:picker@1.0.3',
     'littledata:synced-cron@1.1.0',
-    'meteorhacks:inject-initial@1.0.4',
   ]);
   
   // dependencies of vulcan-accounts

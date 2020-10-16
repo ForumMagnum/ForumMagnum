@@ -1,6 +1,5 @@
 import { onStartup } from '../../lib/executionEnvironment';
 import { startSyncedCron } from '../cronUtil';
-import { Inject } from 'meteor/meteorhacks:inject-initial';
 import { DatabaseServerSetting } from '../databaseSettings';
 
 export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
@@ -13,4 +12,3 @@ onStartup(function() {
   startSyncedCron();
 });
 
-Inject.obj('serverTimezoneOffset', {offset: new Date().getTimezoneOffset()});
