@@ -216,7 +216,6 @@ module.exports = {
       "sinon",
       "sinon-chai",
       "chai-enzyme",
-      "meteor/meteorhacks:inject-initial",
       "meteor/littledata:synced-cron",
       "meteor/meteorhacks:picker"
     ],

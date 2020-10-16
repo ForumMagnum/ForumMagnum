@@ -5,10 +5,11 @@ import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
+import { isProduction } from '../lib/executionEnvironment';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
-if (Meteor.isProduction) {
+if (isProduction) {
   addCronJob({
     name: 'gatherTownGetUsers',
     schedule(parser) {

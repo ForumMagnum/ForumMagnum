@@ -1,5 +1,5 @@
 import bowser from 'bowser';
-import { Meteor } from 'meteor/meteor';
+import { isClient, isServer } from '../../executionEnvironment';
 import { userHasCkEditor } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { Utils } from '../../vulcan-lib';
@@ -238,7 +238,7 @@ Users.getProfileUrlFromSlug = (userSlug: string, isAbsolute=false): string => {
 
 
 const clientRequiresMarkdown = (): boolean => {
-  if (Meteor.isClient &&
+  if (isClient &&
       window &&
       window.navigator &&
       window.navigator.userAgent) {
@@ -283,7 +283,7 @@ Users.getLocation = (currentUser: UsersCurrent|null): UserLocation => {
   if (currentUserLat && currentUserLng) {
     // First return a location from the user profile, if set
     return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true}
-  } else if (Meteor.isServer) {
+  } else if (isServer) {
     // If there's no location in the user profile, we may still be able to get
     // a location from the browser--but not in SSR.
     return {lat: placeholderLat, lng:placeholderLng, loading: true, known: false};

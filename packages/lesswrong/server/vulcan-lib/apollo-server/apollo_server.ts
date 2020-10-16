@@ -8,7 +8,7 @@
 //import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 
-import { Meteor } from 'meteor/meteor';
+import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
 
 import { WebApp } from 'meteor/webapp';
 import bodyParser from 'body-parser';
@@ -107,7 +107,7 @@ export const setupToolsMiddlewares = config => {
   WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
 };
 
-Meteor.startup(() => {
+onStartup(() => {
   // Vulcan specific options
   const config = {
     path: '/graphql',
@@ -133,7 +133,7 @@ Meteor.startup(() => {
     playground: getPlaygroundConfig(config),
     introspection: true,
     // context optionbject or a function of the current request (+ maybe some other params)
-    debug: Meteor.isDevelopment,
+    debug: isDevelopment,
     
     //engine: engineConfig,
     schema: GraphQLSchema.executableSchema,
@@ -143,7 +143,7 @@ Meteor.startup(() => {
       console.error(e.extensions.exception)
       return formatError(e);
     },
-    //tracing: Meteor.isDevelopment,
+    //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
     context: ({ req }) => computeContextFromReq(req),
