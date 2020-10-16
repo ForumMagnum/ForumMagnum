@@ -16,3 +16,6 @@ export const getInstanceSettings = () => Meteor.settings;
 export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
   return Meteor.absoluteUrl(maybeRelativeUrl);
 }
+
+// Like setTimeout, but with fiber handling
+export const runAfterDelay = Meteor.setTimeout;

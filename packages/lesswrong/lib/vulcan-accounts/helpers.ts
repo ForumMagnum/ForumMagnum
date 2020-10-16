@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { isClient } from '../executionEnvironment';
+import { isClient, runAfterDelay } from '../executionEnvironment';
 import { Accounts } from 'meteor/accounts-base';
 import { ServiceConfiguration } from 'meteor/service-configuration';
 
@@ -108,7 +108,7 @@ export function redirect(redirect) {
   if (isClient) {
     if (window.history) {
       // Run after all app specific redirects, i.e. to the login screen.
-      Meteor.setTimeout(() => {
+      runAfterDelay(() => {
         if (browserHistory) {
           browserHistory.push(redirect);
         } else {

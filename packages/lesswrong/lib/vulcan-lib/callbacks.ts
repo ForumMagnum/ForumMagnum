@@ -1,4 +1,4 @@
-import { isClient, isServer } from '../executionEnvironment';
+import { isClient, isServer, runAfterDelay } from '../executionEnvironment';
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
 
@@ -261,7 +261,7 @@ export const waitUntilCallbacksFinished = () => {
   return new Promise(resolve => {
     function finishOrWait() {
       if (callbacksArePending()) {
-        Meteor.setTimeout(finishOrWait, 20);
+        runAfterDelay(finishOrWait, 20);
       } else {
         resolve();
       }

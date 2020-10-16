@@ -1,11 +1,12 @@
 import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../lib/executionEnvironment';
 
 var disconnectTimer: any = null;
 
 // 60 seconds by default
 var disconnectTime = 60 * 1000;
 
-Meteor.startup(disconnectIfHidden);
+onStartup(disconnectIfHidden);
 
 document.addEventListener('visibilitychange', disconnectIfHidden);
 
