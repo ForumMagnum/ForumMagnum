@@ -1,6 +1,5 @@
 import { initializeSetting } from './publicSettings'
-import { Meteor } from 'meteor/meteor'
-import { isServer, isDevelopment } from './executionEnvironment';
+import { isServer, isDevelopment, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -13,6 +12,7 @@ export const Settings: Record<string,any> = {};
 const getSetting = <T>(settingName: string, settingDefault?: T): T => {
 
   let setting;
+  const instanceSettings = getInstanceSettings();
 
   // if a default value has been registered using registerSetting, use it
   if (typeof settingDefault === 'undefined' && Settings[settingName])
@@ -20,9 +20,9 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
 
   if (isServer) {
     // look in public, private, and root
-    const rootSetting = getNestedProperty(Meteor.settings, settingName);
-    const privateSetting = Meteor.settings.private && getNestedProperty(Meteor.settings.private, settingName);
-    const publicSetting = Meteor.settings.public && getNestedProperty(Meteor.settings.public, settingName);
+    const rootSetting = getNestedProperty(instanceSettings, settingName);
+    const privateSetting = instanceSettings.private && getNestedProperty(instanceSettings.private, settingName);
+    const publicSetting = instanceSettings.public && getNestedProperty(instanceSettings.public, settingName);
     
     // if setting is an object, "collect" properties from all three places
     if (typeof rootSetting === 'object' || typeof privateSetting === 'object' || typeof publicSetting === 'object') {
@@ -46,7 +46,7 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
 
   } else {
     // look only in public
-    const publicSetting = Meteor.settings.public && getNestedProperty(Meteor.settings.public, settingName);
+    const publicSetting = instanceSettings.public && getNestedProperty(instanceSettings.public, settingName);
     setting = typeof publicSetting !== 'undefined' ? publicSetting : settingDefault;
   }
 
@@ -113,4 +113,4 @@ export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', 
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
-export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', Meteor.absoluteUrl(), "optional")
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")

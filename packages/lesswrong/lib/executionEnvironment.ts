@@ -11,3 +11,8 @@ export const onStartup = (fn: ()=>void) => {
   Meteor.startup(fn);
 }
 
+export const getInstanceSettings = () => Meteor.settings;
+
+export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
+  return Meteor.absoluteUrl(maybeRelativeUrl);
+}
