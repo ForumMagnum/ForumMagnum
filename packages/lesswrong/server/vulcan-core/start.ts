@@ -1,5 +1,5 @@
-import { SyncedCron } from 'meteor/littledata:synced-cron';
 import { onStartup } from '../../lib/executionEnvironment';
+import { startSyncedCron } from '../cronUtil';
 import { Inject } from 'meteor/meteorhacks:inject-initial';
 import { DatabaseServerSetting } from '../databaseSettings';
 
@@ -10,9 +10,7 @@ if (mailUrlSetting.get()) {
 }
 
 onStartup(function() {
-  if (typeof SyncedCron !== 'undefined') {
-    SyncedCron.start();
-  }
+  startSyncedCron();
 });
 
 Inject.obj('serverTimezoneOffset', {offset: new Date().getTimezoneOffset()});

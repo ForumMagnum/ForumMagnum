@@ -20,3 +20,9 @@ export function addCronJob(options: any)
     }
   });
 }
+
+export function startSyncedCron() {
+  if (typeof SyncedCron !== 'undefined') {
+    SyncedCron.start();
+  }
+}
