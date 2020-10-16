@@ -8,6 +8,7 @@ const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationali
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
+const walledGardenPortalSubtitle = { subtitleLink: '/walledGardenPortal', subtitle: "Walled Garden"};
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
@@ -347,6 +348,13 @@ if (forumTypeSetting.get() === 'LessWrong') {
       path: '/walledGarden',
       componentName: 'WalledGardenHome',
       title: "Walled Garden",
+    },
+    {
+      name: 'Walled Garden Portal',
+      path: '/walledGardenPortal',
+      componentName: 'WalledGardenPortal',
+      title: "Walled Garden Portal",
+      ...walledGardenPortalSubtitle
     },
     {
       name: 'HPMOR.posts.single',
