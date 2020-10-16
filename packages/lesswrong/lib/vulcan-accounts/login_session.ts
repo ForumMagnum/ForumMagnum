@@ -2,7 +2,7 @@
 import { Accounts } from 'meteor/accounts-base';
 import { loginResultCallback, getLoginServices } from './helpers';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../executionEnvironment';
 import { Session } from 'meteor/session';
 
 const VALID_KEYS = [
@@ -59,7 +59,7 @@ Accounts._loginButtonsSession = {
   }
 };
 
-if (Meteor.isClient){
+if (isClient){
   // In the login redirect flow, we'll have the result of the login
   // attempt at page load time when we're redirected back to the
   // application.  Register a callback to update the UI (i.e. to close

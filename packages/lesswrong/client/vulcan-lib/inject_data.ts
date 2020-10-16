@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../../lib/executionEnvironment';
 import { EJSON } from 'meteor/ejson';
 
 // InjectData object
@@ -21,14 +21,14 @@ export const InjectData = {
 
   // get data when DOM loaded
   getData(key, callback) {
-    Meteor.startup(() => {
+    onStartup(() => {
       callback(this._data[key]);
     });
   },
 };
 
 // when DOM loaded, decode string from <script> and save the data
-Meteor.startup(() => {
+onStartup(() => {
   const dom = document.querySelector('script[type="text/inject-data"]');
   const injectedDataString = dom?.textContent ? dom.textContent.trim() : '';
   InjectData._data = InjectData._decode(injectedDataString) || {};

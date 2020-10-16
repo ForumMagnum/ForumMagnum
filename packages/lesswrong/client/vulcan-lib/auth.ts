@@ -8,6 +8,7 @@
 import Cookies from 'universal-cookie';
 
 import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../../lib/executionEnvironment';
 
 const cookie = new Cookies();
 
@@ -43,7 +44,7 @@ function initToken() {
   }
 }
 
-Meteor.startup(() => {
+onStartup(() => {
   initToken();
 });
 

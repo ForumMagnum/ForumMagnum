@@ -9,6 +9,7 @@ import {
 } from '../vulcan-lib';
 import clone from 'lodash/clone';
 import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../../lib/executionEnvironment';
 import { Accounts } from 'meteor/accounts-base';
 import * as _ from 'underscore';
 
@@ -98,7 +99,7 @@ function onCreateUserCallback(options, user) {
   return user;
 }
 
-Meteor.startup(() => {
+onStartup(() => {
   if (typeof Accounts !== 'undefined') {
     Accounts.onCreateUser(onCreateUserCallback)
   }

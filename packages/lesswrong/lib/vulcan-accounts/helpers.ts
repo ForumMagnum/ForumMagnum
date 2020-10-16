@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../executionEnvironment';
 import { Accounts } from 'meteor/accounts-base';
 import { ServiceConfiguration } from 'meteor/service-configuration';
 
@@ -53,7 +53,7 @@ export function loginResultCallback(service, err?: any) {
     // loginButtonsSession.errorMessage(err.reason || "Unknown error");
   }
 
-  if (Meteor.isClient) {
+  if (isClient) {
     if (typeof redirect === 'string'){
       window.location.href = '/';
     }
@@ -105,7 +105,7 @@ export function validateUsername(username, showMessage, clearMessage, formState)
 }
 
 export function redirect(redirect) {
-  if (Meteor.isClient) {
+  if (isClient) {
     if (window.history) {
       // Run after all app specific redirects, i.e. to the login screen.
       Meteor.setTimeout(() => {

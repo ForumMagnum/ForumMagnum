@@ -4,7 +4,7 @@ import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
-import { Meteor } from 'meteor/meteor';
+import { isAnyTest } from '../../lib/executionEnvironment';
 import { Random } from 'meteor/random';
 import { Accounts } from 'meteor/accounts-base';
 
@@ -155,7 +155,7 @@ async function subscribeOnSignup (user: DbUser) {
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
-  if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+  if (!isAnyTest) {
     Accounts.sendVerificationEmail(user._id);
     
     if (subscribeToCurated) {

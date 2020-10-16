@@ -1,5 +1,6 @@
 import { initializeSetting } from './publicSettings'
 import { Meteor } from 'meteor/meteor'
+import { isServer, isDevelopment } from './executionEnvironment';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -17,7 +18,7 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
   if (typeof settingDefault === 'undefined' && Settings[settingName])
     settingDefault = Settings[settingName].defaultValue;
 
-  if (Meteor.isServer) {
+  if (isServer) {
     // look in public, private, and root
     const rootSetting = getNestedProperty(Meteor.settings, settingName);
     const privateSetting = Meteor.settings.private && getNestedProperty(Meteor.settings.private, settingName);
@@ -78,7 +79,7 @@ export class PublicInstanceSetting<SettingValueType> {
     private settingType: "optional" | "warning" | "required"
   ) {
     initializeSetting(settingName, "instance")
-    if (Meteor.isDevelopment && settingType !== "optional") {
+    if (isDevelopment && settingType !== "optional") {
       const settingValue = getSetting(settingName)
       if (typeof settingValue === 'undefined') {
         if (settingType === "warning") {

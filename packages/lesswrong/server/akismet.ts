@@ -4,7 +4,7 @@ import { Comments } from '../lib/collections/comments/collection'
 import { editMutation, addCallback, runCallbacksAsync } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
-import { Meteor } from 'meteor/meteor';
+import { isDevelopment } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
@@ -38,7 +38,7 @@ async function constructAkismetReport({document, type = "post"}) {
       comment_author : author.displayName,
       comment_author_email : author.email,
       comment_content : document.contents && document.contents.html, 
-      is_test: Meteor.isDevelopment
+      is_test: isDevelopment
     }
 }
 

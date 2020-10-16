@@ -1,5 +1,5 @@
 import { SyncedCron } from 'meteor/littledata:synced-cron';
-import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../../lib/executionEnvironment';
 import { Inject } from 'meteor/meteorhacks:inject-initial';
 import { DatabaseServerSetting } from '../databaseSettings';
 
@@ -9,7 +9,7 @@ if (mailUrlSetting.get()) {
   process.env.MAIL_URL = mailUrlSetting.get() || undefined;
 }
 
-Meteor.startup(function() {
+onStartup(function() {
   if (typeof SyncedCron !== 'undefined') {
     SyncedCron.start();
   }

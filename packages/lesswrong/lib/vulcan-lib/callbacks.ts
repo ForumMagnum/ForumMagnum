@@ -1,3 +1,4 @@
+import { isClient, isServer } from '../executionEnvironment';
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
 
@@ -197,7 +198,7 @@ export const runCallbacksAsync: any = function () {
 
   const callbacks = Array.isArray(hook) ? hook : Callbacks[hook];
 
-  if (Meteor.isServer && typeof callbacks !== 'undefined' && !!callbacks.length) {
+  if (isServer && typeof callbacks !== 'undefined' && !!callbacks.length) {
     let pendingDeferredCallbackStart = markCallbackStarted(hook);
 
     // use defer to avoid holding up client

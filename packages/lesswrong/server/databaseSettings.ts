@@ -1,4 +1,5 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
+import { isDevelopment } from '../lib/executionEnvironment';
 import { Meteor } from 'meteor/meteor';
 import { publicSettings, initializeSetting, registeredSettings } from '../lib/publicSettings'
 import groupBy from 'lodash/groupBy';
@@ -22,7 +23,7 @@ function refreshSettingsCaches() {
   serverSettingsCache = serverSettingsObject?.value || {__initialized: true}
   // We modify the publicSettings object that is made available in lib to allow both the client and the server to access it
   Object.assign(publicSettings, publicSettingsObject?.value || {__initialized: true})
-  if (Meteor.isDevelopment && runValidateSettings) {
+  if (isDevelopment && runValidateSettings) {
     // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
     setTimeout(() => validateSettings(registeredSettings, publicSettings, serverSettingsCache), 30000)
   }

@@ -1,4 +1,5 @@
 import { SyncedCron } from 'meteor/littledata:synced-cron';
+import { isAnyTest, onStartup } from '../lib/executionEnvironment';
 import { Meteor } from 'meteor/meteor';
 
 SyncedCron.options = {
@@ -10,8 +11,8 @@ SyncedCron.options = {
 
 export function addCronJob(options: any)
 {
-  Meteor.startup(function() {
-    if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+  onStartup(function() {
+    if (!isAnyTest) {
       // Defer starting of cronjobs until 20s after server startup
       Meteor.setTimeout(() => {
         SyncedCron.add(options);

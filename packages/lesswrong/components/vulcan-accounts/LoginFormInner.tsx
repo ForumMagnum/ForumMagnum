@@ -8,6 +8,7 @@ import { intlShape } from '../../lib/vulcan-i18n';
 import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent';
 import sha1 from 'crypto-js/sha1';
+import { isClient } from '../../lib/executionEnvironment';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import * as _ from 'underscore';
@@ -347,7 +348,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     }
 
     if (this.showPasswordChangeForm()) {
-      if (Meteor.isClient && !Accounts._loginButtonsSession.get('resetPasswordToken')) {
+      if (isClient && !Accounts._loginButtonsSession.get('resetPasswordToken')) {
         loginFields.push(this.getPasswordField());
       }
       loginFields.push(this.getNewPasswordField());

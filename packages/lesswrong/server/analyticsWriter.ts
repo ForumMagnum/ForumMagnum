@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+import { isDevelopment } from '../lib/executionEnvironment';
 import { Random } from 'meteor/random';
 import { Pool } from 'pg';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
@@ -72,7 +72,7 @@ const getAnalyticsConnection = (): Pool|null => {
 // TODO: Defer/batch so that this doesn't affect SSR speed?
 function writeEventToAnalyticsDB({type, timestamp, props}) {
   const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
-  const environmentDescription = Meteor.isDevelopment ? "development" : environmentDescriptionSetting.get()
+  const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
   const queryValues = [environmentDescription, type, timestamp, props];
   
   const connection = getAnalyticsConnection();

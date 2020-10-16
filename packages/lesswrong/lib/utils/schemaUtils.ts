@@ -2,7 +2,7 @@ import { addCallback, getCollection } from '../vulcan-lib';
 import Users from '../collections/users/collection';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import * as _ from 'underscore';
 
@@ -311,7 +311,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
   
-  if (Meteor.isServer)
+  if (isServer)
   {
     // When inserting a new document which potentially needs to be counted, follow
     // its reference and update with $inc.

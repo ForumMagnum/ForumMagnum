@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useContext } from 'react';
 import { forumTypeSetting } from './instanceSettings';
@@ -102,7 +102,7 @@ export const withNavigation = (WrappedComponent: any) => {
 }
 
 export const getUrlClass = (): typeof URL => {
-  if (Meteor.isServer) {
+  if (isServer) {
     return require('url').URL
   } else {
     return URL
