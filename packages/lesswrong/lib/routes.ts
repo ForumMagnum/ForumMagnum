@@ -345,13 +345,13 @@ if (forumTypeSetting.get() === 'LessWrong') {
     },
     {
       name: 'Walled Garden',
-      path: '/walledGardenInfo',
+      path: '/walledGarden',
       componentName: 'WalledGardenHome',
       title: "Walled Garden",
     },
     {
       name: 'Walled Garden Portal',
-      path: '/walledGarden',
+      path: '/walledGardenPortal',
       componentName: 'WalledGardenPortal',
       title: "Walled Garden Portal",
       ...walledGardenPortalSubtitle

@@ -142,7 +142,7 @@ const GatherTown = ({classes}: {
       Click to read more about this space
       <div>{"password: the12thvirtue"}</div></div>
     }>
-      <Link to="/walledGardenInfo" className={classes.learn}>
+      <Link to="/walledGarden" className={classes.learn}>
         Learn More
       </Link>
   </LWTooltip>
@@ -152,7 +152,7 @@ const GatherTown = ({classes}: {
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
         <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
-          <div><Link to={"/walledGarden"}>Walled Garden Beta</Link></div>
+          <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
         </AnalyticsTracker>
         <div className={classes.secondaryInfo}>
           <div>
