@@ -21,7 +21,7 @@ export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
 export const runAfterDelay = Meteor.setTimeout;
 
 // Like setTimeout with 0 timeout, possibly different priority, and fiber handling
-export const deferWithoutDelay = Meteor.delay;
+export const deferWithoutDelay = Meteor.defer;
 
 export const runAtInterval = Meteor.setInterval;
 
