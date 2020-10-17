@@ -25,19 +25,6 @@ const styles = (theme) => ({
   }
 })
 
-/* TO DO LIST
-* - link parsing for shared links
-* - query whether host is in Garden
-* - Sidebar: office-hours, create new event, add calendar to own, share invite-link
-*
-* Flows:
-* 1) full member -> page renders normally
-* 2) garden set to open (for weekend): fully open message and renders for all
-* 3) has link: a) event link, event currently running ? render : "sorry, event is over"
-* b) event is personal code, host in garden? render : "sorry, host is not in the garden"
-*
-* */
-
 function validateInviteCode(code: string) {
   // TODO: Stub. Implement real thing.
   if (!code) return false
