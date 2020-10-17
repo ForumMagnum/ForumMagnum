@@ -4,8 +4,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 
-export const gardenOpenToPublic = new DatabasePublicSetting<string>('gardenOpenToPublic', false)
+export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
 const styles = (theme) => ({
   welcomeText: {
@@ -38,6 +39,7 @@ const styles = (theme) => ({
 * */
 
 function validateInviteCode(code: string) {
+  // TODO: Stub. Implement real thing.
   if (!code) return false
   return (code.length > 3)
 }
@@ -63,8 +65,8 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
           <p>Welcome to the Walled Garden, a curated space for truthseekers!&nbsp;</p>
           <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays from 12pm to 4pm PT. Otherwise, it is open by invite only.</p>
           <ul>
-            <li>Please wear headphones, preferably with a microphone!</li>
-            <li>Technical Problems? Restart your browser.</li>
+            <li>Please wear headphones, preferably with a microphone! (<Link to="/posts/DEe5cvpaTQeF9kkru/tips-for-the-most-immersive-video-calls">Tips on audio setup</Link>)</li>
+            <li>Technical Problems? Refresh the tab.</li>
             <li>Lost or stuck? Respawn (<i>gear icon</i> &gt; <i>respawn</i>)</li>
             <li>Interactions are voluntary. It's okay to leave conversations.</li>
             <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right) or
@@ -95,7 +97,7 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
 
   return <SingleColumnSection className={classes.welcomeText}>
     <p>The Walled Garden is a private virtual space managed by the LessWrong team.</p>
-    <p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to <LoginPopupButton><b>Log In</b></LoginPopupButton>.</p>
+<p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
   </SingleColumnSection>
 }
 
