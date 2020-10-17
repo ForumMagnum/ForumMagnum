@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
@@ -55,11 +55,13 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
 
   const [onboarded, setOnboarded] = useState(false);
 
+  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
+
   const innerPortal = (onboarded:boolean)  => {
     return <div>
       { onboarded
         ? <div className={classes.iframePositioning}>
-            <iframe className={classes.iframeStyling} src="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"></iframe>
+            <iframe className={classes.iframeStyling} src={gatherTownURL}></iframe>
         </div>
         : <SingleColumnSection className={classes.welcomeText}>
           <p>Welcome to the Walled Garden, a curated space for truthseekers!&nbsp;</p>
