@@ -162,6 +162,7 @@ const RecommendationsAndCurated = ({
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
+              showNoResults={false}
               showLoadMore={false}
               hideLastUnread={true}
               boxShadow={false}
