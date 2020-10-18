@@ -1,0 +1,21 @@
+{
+  "__schema": {
+    "types": [
+      {
+        "kind": "UNION",
+        "name": "Voteable",
+        "possibleTypes": [
+          {
+            "name": "TagRel"
+          },
+          {
+            "name": "Post"
+          },
+          {
+            "name": "Comment"
+          }
+        ]
+      }
+    ]
+  }
+}

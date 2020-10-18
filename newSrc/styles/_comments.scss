@@ -1,0 +1,100 @@
+
+$comments-font: Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+.comments-node-root {
+  margin-bottom:1.3em;
+
+  @include max-small() {
+    margin-bottom:10px;
+  }
+  @include max-tiny() {
+    margin-bottom:8px;
+    padding-top:5px;
+  }
+}
+.comments-node .comments-node {
+  @include max-tiny() {
+    margin-left:5px;
+    margin-bottom:5px;
+  }
+}
+
+.comments-edit-form {
+  position:relative;
+  padding-bottom:12px;
+  .form-submit {
+    text-align: right;
+    margin-right:10px;
+  }
+}
+
+.comments-load-more {
+  margin-left: 10px;
+}
+
+.comments-node-even {
+  background-color: rgb(242,242,242);
+}
+.comments-node-odd {
+  background-color: rgb(252,252,252);
+}
+.comments-node-root {
+  background-color: white;
+}
+.comments-node-its-getting-nested-here {
+  margin-left:7px !important;
+  margin-bottom:7px !important;
+}
+.comments-node-so-take-off-all-your-margins {
+  margin-left:6px !important;
+  margin-bottom:6px !important;
+}
+.comments-node-im-getting-so-nested {
+  margin-left:5px !important;
+  margin-bottom:5px !important;
+}
+.comments-node-im-gonna-drop-my-margins {
+  margin-left:5px !important;
+  margin-bottom:5px !important;
+}
+.comments-node-what-are-you-even-arguing-about {
+  margin-left:4px !important;
+  margin-bottom:4px !important;
+}
+.comments-node-are-you-sure-this-is-a-good-idea {
+  margin-left:3px !important;
+  margin-bottom:3px !important;
+}
+.comments-node-seriously-what-the-fuck {
+  margin-left:2px !important;
+  margin-bottom:2px !important;
+  transform: rotate(.5deg);
+}
+.comments-node-are-you-curi-and-lumifer-specifically {
+  margin-left:1px !important;
+  margin-bottom:1px !important;
+  transform: rotate(1deg);
+}
+.comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho {
+  margin-left:1px !important;
+  margin-bottom:1px !important;
+  transform: rotate(-1deg);
+}
+
+.recent-comments-node {
+  &.loading {
+    min-height:80px;
+    padding:35px;
+    background-color: rgb(242,242,242);
+  }
+
+  .comments-node {
+    margin:0;
+  }
+  &.comments-node-root {
+    background-color:none;
+    margin-bottom:.8em;
+    position:inherit;
+  }
+}
+
