@@ -7,12 +7,13 @@ import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collec
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
-import Sentry from '@sentry/node';
+import { captureException } from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
-import TurndownService from 'turndown';
-const turndownService = new TurndownService()
+// WEBPACK MIGRATION: Turndown relies on jsdom which makes everything sad
+// import TurndownService from 'turndown';
+// const turndownService = new TurndownService()
 import * as _ from 'underscore';
-turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+// turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
@@ -27,7 +28,7 @@ mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
 
-import { mjpage }  from 'mathjax-node-page'
+// import { mjpage }  from 'mathjax-node-page'
 
 function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
@@ -38,7 +39,7 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
     setTimeout(() => {
       if (!finished) {
         const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-        Sentry.captureException(new Error(errorMessage));
+        captureException(new Error(errorMessage));
         // eslint-disable-next-line no-console
         console.error(errorMessage);
       }
@@ -54,9 +55,9 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
       finished = true;
       return beforeSerializationCallback(...args);
     };
-    
-    mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
-      .on('beforeSerialization', callbackAndMarkFinished);
+    // WEBPACK MIGRATION: Replace mathjax-node-page
+    // mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
+    //   .on('beforeSerialization', callbackAndMarkFinished);
   })
 }
 
@@ -157,12 +158,14 @@ export async function draftJSToHtmlWithLatex(draftJS) {
 }
 
 export function htmlToMarkdown(html) {
-  return turndownService.turndown(html)
+  return ""
+  // return turndownService.turndown(html)
 }
 
 export function ckEditorMarkupToMarkdown(markup) {
   // Sanitized CKEditor markup is just html
-  return turndownService.turndown(sanitize(markup))
+  return ""
+  // return turndownService.turndown(sanitize(markup))
 }
 
 export function markdownToHtmlNoLaTeX(markdown: string): string {

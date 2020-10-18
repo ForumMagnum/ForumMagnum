@@ -9,8 +9,11 @@ import SimpleSchema from 'simpl-schema';
 export const Globals: any = {};
 export const Vulcan = Globals;
 
-(global as any).Globals = Globals;
-(global as any).Vulcan = Globals;
+// (function(global) {
+//   (global as any).Globals = Globals;
+//   (global as any).Vulcan = Globals;
+// })(global || window)
+
 
 // eslint-disable-next-line no-undef
 Globals.VERSION = '2.0.0';

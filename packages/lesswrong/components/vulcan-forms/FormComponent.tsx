@@ -366,7 +366,7 @@ class FormComponent extends Component<any,any> {
   getDocument: PropTypes.func.isRequired
 };
 
-module.exports = FormComponent;
+export default FormComponent;
 
 const FormComponentComponent = registerComponent('FormComponent', FormComponent);
 

@@ -11,7 +11,7 @@ import * as reactRouter from 'react-router';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink } from "../components/common/HashLink";
-import { parseQuery } from './routeUtil'
+import { parseQuery, useLocation } from './routeUtil'
 import qs from 'qs'
 
 
@@ -24,7 +24,7 @@ export const withRouter = (WrappedComponent) => {
       {...props}
     />
   }
-  return reactRouter.withRouter(WithRouterWrapper);
+  return reactRouterDom.withRouter(WithRouterWrapper);
 }
 
 
@@ -42,13 +42,14 @@ export const Link = (props) => {
   return <HashLink {...props} onMouseDown={handleClick}/>
 }
 
-export const QueryLink = reactRouter.withRouter(({query, location, staticContext, merge=false, ...rest}) => {
+export const QueryLink = ({query, merge=false, ...rest}) => {
+  const { query: existingQuery } = useLocation()
   // Merge determines whether we do a shallow merge with the existing query parameters, or replace them completely
-  const newSearchString = merge ? qs.stringify({...parseQuery(location), ...query}) : qs.stringify(query)
+  const newSearchString = merge ? qs.stringify({...existingQuery, ...query}) : qs.stringify(query)
   return <reactRouterDom.Link
     {...rest}
     to={{...location, search: newSearchString}}
   />
-})
+}
 
 export const Redirect = reactRouter.Redirect;

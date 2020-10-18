@@ -1,23 +1,20 @@
 {
-  "compilerOptions": {
-    "lib": ["es2015", "dom"],
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "jsx": "react",
-    "esModuleInterop": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "downlevelIteration": true,
-    "resolveJsonModule": true
-  },
-  "include": [
-    "packages/lesswrong/**/*.ts",
-    "packages/lesswrong/**/*.tsx",
-    "packages/**/*.js",
-    "packages/**/*.jsx"
-  ],
-  "types": [
-      "meteor-typings"
-  ]
-}
+    "compilerOptions": {
+      "jsx": "react",
+      "lib": ["es6", "dom"],
+      "rootDir": "src",
+      "module": "commonjs",
+      "target": "es5",
+      "sourceMap": true,
+      "moduleResolution": "node",
+      "esModuleInterop": true
+    },
+    "include": [
+      "./src"
+    ],
+    "exclude": [
+      "node_modules",
+      "build"
+    ],
+    
+  }

@@ -4,7 +4,7 @@ import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 
 // Database ID string that this config file should match with
-const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning")
+const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', undefined, "warning")
 
 onStartup(() => {
   const expectedDatabaseId = expectedDatabaseIdSetting.get();

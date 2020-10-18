@@ -131,7 +131,7 @@ class FormNestedArray extends PureComponent<any,any> {
   formComponents: PropTypes.object.isRequired
 };
 
-module.exports = FormNestedArray;
+export default FormNestedArray;
 
 const FormNestedArrayComponent = registerComponent('FormNestedArray', FormNestedArray);
 

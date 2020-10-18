@@ -11,7 +11,7 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import Users from "../users/collection";
 import { Posts } from './collection';
 import { Sequences } from '../sequences/collection';
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 
 export const formGroups = {
   default: {
@@ -947,7 +947,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
@@ -964,7 +964,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },

@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { registerComponent, Components, addCallback, removeCallback } from '../../lib/vulcan-lib';
-import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
-import classNames from 'classnames';
-import SearchIcon from '@material-ui/icons/Search';
-import CloseIcon from '@material-ui/icons/Close';
-import Portal from '@material-ui/core/Portal';
+// import { InstantSearch, SearchBox } from 'react-instantsearch-dom';
+// import classNames from 'classnames';
+// import SearchIcon from '@material-ui/icons/Search';
+// import CloseIcon from '@material-ui/icons/Close';
+// import Portal from '@material-ui/core/Portal';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+// import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs'
 
-const VirtualMenu = connectMenu(() => null);
+// const VirtualMenu = connectMenu(() => null);
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -188,42 +188,42 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     const { searchOpen, inputOpen, currentQuery } = this.state
     const { SearchBarResults } = Components
 
-    if(!isAlgoliaEnabled) {
-      return <div>Search is disabled (Algolia App ID not configured on server)</div>
-    }
+    // if(!isAlgoliaEnabled) {
+    return <div>Search is disabled (Algolia App ID not configured on server)</div>
+    // }
 
-    return <div className={classes.root} onKeyDown={this.handleKeyDown}>
-      <div className={classes.rootChild}>
-        <InstantSearch
-          indexName={algoliaIndexNames.Posts}
-          searchClient={getSearchClient()}
-          onSearchStateChange={this.queryStateControl}
-        >
-          <div className={classNames(
-            classes.searchInputArea,
-            {"open": inputOpen},
-            {[classes.alignmentForum]: alignmentForum}
-          )}>
-            {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
-            <div onClick={this.handleSearchTap}>
-              <SearchIcon className={classes.searchIcon}/>
-              {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-                * null is the only option that actually suppresses the extra X button.
-               // @ts-ignore */}
-              {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
-            </div>
-            { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
-              <CloseIcon className={classes.closeSearchIcon}/>
-            </div>}
-            <div>
-              { searchOpen && <Portal container={searchResultsArea.current}>
-                  <SearchBarResults closeSearch={this.closeSearch} currentQuery={currentQuery} />
-                </Portal> }
-            </div>
-          </div>
-        </InstantSearch>
-      </div>
-    </div>
+    // return <div className={classes.root} onKeyDown={this.handleKeyDown}>
+    //   <div className={classes.rootChild}>
+    //     <InstantSearch
+    //       indexName={algoliaIndexNames.Posts}
+    //       searchClient={getSearchClient()}
+    //       onSearchStateChange={this.queryStateControl}
+    //     >
+    //       <div className={classNames(
+    //         classes.searchInputArea,
+    //         {"open": inputOpen},
+    //         {[classes.alignmentForum]: alignmentForum}
+    //       )}>
+    //         {/* {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />} */}
+    //         <div onClick={this.handleSearchTap}>
+    //           <SearchIcon className={classes.searchIcon}/>
+    //           {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
+    //             * null is the only option that actually suppresses the extra X button.
+    //            // @ts-ignore */}
+    //           {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
+    //         </div>
+    //         { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
+    //           <CloseIcon className={classes.closeSearchIcon}/>
+    //         </div>}
+    //         <div>
+    //           { searchOpen && <Portal container={searchResultsArea.current}>
+    //               <SearchBarResults closeSearch={this.closeSearch} currentQuery={currentQuery} />
+    //             </Portal> }
+    //         </div>
+    //       </div>
+    //     </InstantSearch>
+    //   </div>
+    // </div>
   }
 }
 

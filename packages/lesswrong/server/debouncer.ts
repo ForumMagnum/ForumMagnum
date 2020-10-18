@@ -1,4 +1,4 @@
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
@@ -248,8 +248,8 @@ export const dispatchPendingEvents = async () => {
         }, {
           $set: { failed: true }
         });
-        Sentry.captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
-        Sentry.captureException(e);
+        captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
+        captureException(e);
       }
     }
     

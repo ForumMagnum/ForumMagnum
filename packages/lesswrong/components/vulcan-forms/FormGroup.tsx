@@ -189,7 +189,7 @@ class FormGroup extends PureComponent<any,any> {
   currentUser: PropTypes.object
 };
 
-module.exports = FormGroup;
+export default FormGroup;
 
 const FormGroupComponent = registerComponent('FormGroup', FormGroup);
 

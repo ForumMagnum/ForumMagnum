@@ -139,7 +139,7 @@ const MixedTypeFeed = (args: {
       variables: {
         ...resolverArgsValues,
         ...fragmentArgsValues,
-        cutoff: data[resolverName].cutoff,
+        cutoff: data && data[resolverName].cutoff,
         limit: pageSize,
       },
       updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {

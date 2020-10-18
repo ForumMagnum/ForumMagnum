@@ -6,8 +6,6 @@
  * E.g on first page loading
  */
 import Cookies from 'universal-cookie';
-
-import { Meteor } from 'meteor/meteor';
 import { onStartup, deferWithoutDelay } from '../../lib/executionEnvironment';
 
 const cookie = new Cookies();
@@ -52,17 +50,17 @@ onStartup(() => {
 // This part of the code overrides the default localStorage function,
 // so that when Meteor.loginToken is set, it is also automatically
 // stored as a cookie (necessary for SSR to work as expected for all HTTP requests)
-const originalSetItem = Meteor._localStorage.setItem;
-Meteor._localStorage.setItem = function setItem(key: string, value: string) {
-  if (key === 'Meteor.loginToken') {
-    deferWithoutDelay(initToken);
-  }
-  originalSetItem.call(Meteor._localStorage, key, value);
-};
-const originalRemoveItem = Meteor._localStorage.removeItem;
-Meteor._localStorage.removeItem = function removeItem(key: string) {
-  if (key === 'Meteor.loginToken') {
-    deferWithoutDelay(initToken);
-  }
-  originalRemoveItem.call(Meteor._localStorage, key);
-};
+// const originalSetItem = Meteor._localStorage.setItem;
+// Meteor._localStorage.setItem = function setItem(key: string, value: string) {
+//   if (key === 'Meteor.loginToken') {
+//     deferWithoutDelay(initToken);
+//   }
+//   originalSetItem.call(Meteor._localStorage, key, value);
+// };
+// const originalRemoveItem = Meteor._localStorage.removeItem;
+// Meteor._localStorage.removeItem = function removeItem(key: string) {
+//   if (key === 'Meteor.loginToken') {
+//     deferWithoutDelay(initToken);
+//   }
+//   originalRemoveItem.call(Meteor._localStorage, key);
+// };

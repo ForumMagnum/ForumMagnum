@@ -1127,7 +1127,7 @@ class SmartForm extends Component<any,any> {
   currentValues: PropTypes.object
 };
 
-module.exports = SmartForm;
+export default SmartForm;
 
 const FormComponent = registerComponent("Form", SmartForm, {
   hocs: [withCollectionProps]

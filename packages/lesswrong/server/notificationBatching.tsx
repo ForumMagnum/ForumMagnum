@@ -9,7 +9,7 @@ import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from './vulcan-lib';
 import { UnsubscribeAllToken } from './emails/emailTokens';
 import { generateEmail, sendEmail, logSentEmail } from './emails/renderEmail';
-import Sentry from '@sentry/node';
+import { captureException } from '@sentry/node';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -93,7 +93,7 @@ export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, sub
     await sendEmail(email);
     await logSentEmail(email, user);
   } catch(e) {
-    Sentry.captureException(e);
+    captureException(e);
   }
 }
 

@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { onPageLoad } from 'meteor/server-render';
+// import { onPageLoad } from 'meteor/server-render';
 import AppGenerator from './AppGenerator';
 import { onStartup } from '../../lib/executionEnvironment';
-
 import { createApolloClient } from '../vulcan-lib/apollo-client/apolloClient';
 import { populateComponentsApp } from '../../lib/vulcan-lib';
 
@@ -21,17 +20,13 @@ onStartup(() => {
   }
 
   const abTestGroups = {};
-  const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroups={abTestGroups} />
-  );
+  const Main = () => <AppGenerator apolloClient={apolloClient} abTestGroups={abTestGroups} />
 
-  onPageLoad(() => {
-    ReactDOM.hydrate(
-      <Main />,
-      document.getElementById('react-app'),
-      () => {
-        apolloClient.disableNetworkFetches = false;
-      }
-    );
-  });
+  ReactDOM.hydrate(
+    <Main />,
+    document.getElementById('react-app'),
+    () => {
+      apolloClient.disableNetworkFetches = false;
+    }
+  );
 });

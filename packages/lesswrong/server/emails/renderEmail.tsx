@@ -1,7 +1,7 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
 import Juice from 'juice';
-import { Email } from 'meteor/email';
+// import { Email } from 'meteor/email';
 import React from 'react';
 import { ApolloProvider, getDataFromTree } from 'react-apollo';
 import { renderToString } from 'react-dom/server';
@@ -213,7 +213,7 @@ export async function sendEmail(renderedEmail)
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     
-    Email.send(renderedEmail); // From meteor's 'email' package
+    // Email.send(renderedEmail); // From meteor's 'email' package
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 
 const scrollIndicatorColor = "#ddd";
@@ -125,7 +125,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
-      Sentry.captureException(e);
+      captureException(e);
       // eslint-disable-next-line no-console
       console.error(e);
     }

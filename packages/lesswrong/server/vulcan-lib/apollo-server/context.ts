@@ -10,7 +10,7 @@
  * @see https://github.com/apollographql/apollo-server/issues/420
  */
 
-import Sentry from '@sentry/node';
+import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
 import { Accounts } from '../../../lib/meteorAccounts';
 import Cookies from 'universal-cookie';
@@ -64,7 +64,7 @@ const setupAuthToken = (user, context) => {
     context.userId = user._id;
     context.currentUser = user;
     
-    Sentry.configureScope(scope => {
+    configureScope(scope => {
       scope.setUser({
         id: user._id,
         email: user.email,

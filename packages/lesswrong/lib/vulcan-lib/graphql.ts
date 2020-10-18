@@ -8,7 +8,7 @@ Utilities to generate the app's GraphQL schema
 
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
-import GraphQLDate from 'graphql-date';
+import { DateResolver } from 'graphql-scalars';
 import './config';
 import { Utils } from './utils';
 import {
@@ -131,7 +131,7 @@ export const GraphQLSchema: any = {
   // add resolvers
   resolvers: {
     JSON: GraphQLJSON,
-    Date: GraphQLDate,
+    Date: DateResolver,
   },
   addResolvers(resolvers) {
     this.resolvers = deepmerge(this.resolvers, resolvers);

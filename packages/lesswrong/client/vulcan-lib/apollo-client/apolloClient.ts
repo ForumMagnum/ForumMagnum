@@ -3,7 +3,7 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
 import introspectionQueryResultData from '../../../lib/vulcan-lib/fragmentTypes.json'
 import { BatchHttpLink } from 'apollo-link-batch-http';
-import meteorAccountsLink from './links/meteor';
+// import meteorAccountsLink from './links/meteor';
 import errorLink from './links/error';
 
 export const createApolloClient = () => {
@@ -20,7 +20,7 @@ export const createApolloClient = () => {
   });
   
   return new ApolloClient({
-    link: ApolloLink.from([errorLink, meteorAccountsLink, httpLink]),
+    link: ApolloLink.from([errorLink, httpLink]),
     cache
   });
 };

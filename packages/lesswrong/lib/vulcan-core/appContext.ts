@@ -3,7 +3,7 @@ import { Components, Routes } from '../vulcan-lib';
 // eslint-disable-next-line no-restricted-imports
 import { matchPath } from 'react-router';
 import qs from 'qs'
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
 
 export const LocationContext = React.createContext<any>(null);
@@ -85,7 +85,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
       // image link and it mattered" and "bot tried a weird URL and it didn't
       // resolve to anything".
       if (isClient) {
-        Sentry.captureException(new Error(`404 not found: ${location.pathname}`));
+        captureException(new Error(`404 not found: ${location.pathname}`));
       }
     }
   }
@@ -98,6 +98,9 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
     hash: location.hash,
     query: parseQuery(location),
   };
+
+  console.log("Route results:");
+  console.log(result);
   
   if (currentRoute && currentRoute.redirect) {
     const redirectTo = currentRoute.redirect(result);

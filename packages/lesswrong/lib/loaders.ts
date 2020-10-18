@@ -1,4 +1,6 @@
 import { Utils } from './vulcan-lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+// Polifyfill because for some reason dataloader uses `setImmediate` a non-standard API that isn't supported in most browsersy
+import 'setimmediate'
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 

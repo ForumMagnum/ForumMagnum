@@ -9,7 +9,7 @@ try {
 } catch(e) {
   // swallow errors
 }
-export const loginButtonsSession = Accounts._loginButtonsSession;
+// export const loginButtonsSession = Accounts._loginButtonsSession;
 export const STATES = {
   SIGN_IN: Symbol('SIGN_IN'),
   SIGN_UP: Symbol('SIGN_UP'),
@@ -34,7 +34,6 @@ export function getLoginServices() {
 }
 // Export getLoginServices using old style globals for accounts-base which
 // requires it.
-this.getLoginServices = getLoginServices;
 
 export function hasPasswordService() {
   // First look for OAuth services.

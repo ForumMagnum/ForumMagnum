@@ -17,6 +17,16 @@
             "outputCapture": "std",
             "port": 9229,
             "timeout": 60000
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Webpack Build",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["run", "start"],
+            "outputCapture": "std",
+            "timeout": 60000,
+            "runtimeVersion": "14.14.0"
         }
     ],
     "compounds": [

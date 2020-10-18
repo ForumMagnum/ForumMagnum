@@ -1,5 +1,4 @@
 import { Utils } from '../../lib/vulcan-lib';
-let mjAPI = require('mathjax-node')
 
 Utils.trimLatexAndAddCSS = (dom, css) => {
   // Remove empty paragraphs
@@ -36,10 +35,10 @@ const MATHJAX_OPTIONS = {
   delayStartupTypeset: true,
 }
 
-mjAPI.config({
-  MathJax: MATHJAX_OPTIONS
-});
-mjAPI.start();
+// mjAPI.config({
+//   MathJax: MATHJAX_OPTIONS
+// });
+// mjAPI.start();
 
 Utils.preProcessLatex = async (content) => {
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
@@ -60,12 +59,14 @@ Utils.preProcessLatex = async (content) => {
   for (let key in content.entityMap) { // Can't use forEach with await
     let value = content.entityMap[key];
     if(value.type === "INLINETEX" && value.data.teX) {
-      const mathJax = await mjAPI.typeset({
-            math: value.data.teX,
-            format: "inline-TeX",
-            html: true,
-            css: !mathjaxStyleUsed,
-      })
+      // WEBPACK MIGRATION: We have to replace mathjax-node, because it's horrible and relies on an old version of jsdom that breaks everything
+      const mathJax = {css: "", html: ""};
+      // const mathJax = await mjAPI.typeset({
+      //       math: value.data.teX,
+      //       format: "inline-TeX",
+      //       html: true,
+      //       css: !mathjaxStyleUsed,
+      // })
       value.data = {...value.data, html: mathJax.html};
       if (!mathjaxStyleUsed) {
         value.data.css = mathJax.css;

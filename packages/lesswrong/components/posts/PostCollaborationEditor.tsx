@@ -34,13 +34,14 @@ const PostCollaborationEditor = ({ classes }: {
   const editorRef = useRef<any>(null)
   const [editorLoaded, setEditorLoaded] = useState(false)
   useEffect(() => {
-    const importEditor = async () => {
-      let EditorModule = await import('../async/CKPostEditor')
-      const Editor = EditorModule.default
-      editorRef.current = Editor
-      setEditorLoaded(true)
-    }
-    void importEditor();
+    // WEBPACK REFACTOR: HAVE TO FIX THESE DYNAMIC IMPORTS
+    // const importEditor = async () => {
+    //   let EditorModule = await import('../async/CKPostEditor')
+    //   const Editor = EditorModule.default
+    //   editorRef.current = Editor
+    //   setEditorLoaded(true)
+    // }
+    // void importEditor();
   }, [])
 
   const { query: { postId } } = useLocation();

@@ -120,7 +120,7 @@ const RecommendationsAndCurated = ({
         <GatherTown/>
       </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
-        <Link to={"/recommendations"}>Recommendations</Link>
+        <Link to={"/recommendations"}>Recommendations!!</Link>
       </LWTooltip>}>
         {currentUser &&
           <LWTooltip title="Customize your recommendations">

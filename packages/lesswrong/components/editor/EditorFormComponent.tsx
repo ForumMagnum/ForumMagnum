@@ -215,11 +215,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       }
       window.addEventListener("beforeunload", this.unloadEventListener );
     }
-
-    let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
-    const Editor = EditorModule.default
-    this.ckEditor = Editor
-    this.setState({ckEditorLoaded: true})
+    // WEBPACK REFACTOR: Need to fix these dynamic imports
+    // let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
+    // const Editor = EditorModule.default
+    // this.ckEditor = Editor
+    // this.setState({ckEditorLoaded: true})
     
     if (isClient) {
       this.restoreFromLocalStorage();

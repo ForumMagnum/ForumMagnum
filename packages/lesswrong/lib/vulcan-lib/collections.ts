@@ -1,4 +1,3 @@
-import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../publicSettings';
@@ -8,7 +7,6 @@ import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { Utils } from './utils';
 export * from './getCollection';
-import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
 
 // import { debug } from './debug';
@@ -33,78 +31,101 @@ export const getCollectionName = (typeName): CollectionNameString => Utils.plura
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
-/**
- * @summary replacement for Collection2's attachSchema. Pass either a schema, to
- * initialize or replace the schema, or some fields, to extend the current schema
- * @class Mongo.Collection
- */
-Mongo.Collection.prototype.attachSchema = function(schemaOrFields) {
-  if (schemaOrFields instanceof SimpleSchema) {
-    this.simpleSchema = () => schemaOrFields;
-  } else {
-    this.simpleSchema().extend(schemaOrFields);
+
+class Collection {
+  attachSchema = function(schemaOrFields) {
+    if (schemaOrFields instanceof SimpleSchema) {
+      this.simpleSchema = () => schemaOrFields;
+    } else {
+      this.simpleSchema().extend(schemaOrFields);
+    }
   }
-};
-
-/**
- * @summary Add an additional field (or an array of fields) to a schema.
- * @param {Object|Object[]} field
- */
-Mongo.Collection.prototype.addField = function(fieldOrFieldArray) {
-  const collection = this;
-  const schema = collection.simpleSchema()._schema;
-  const fieldSchema = {};
-
-  const fieldArray = Array.isArray(fieldOrFieldArray) ? fieldOrFieldArray : [fieldOrFieldArray];
-
-  // loop over fields and add them to schema (or extend existing fields)
-  fieldArray.forEach(function(field) {
-    const newField = {...schema[field.fieldName], ...field.fieldSchema};
-    fieldSchema[field.fieldName] = newField;
+  addField = function(fieldOrFieldArray) {
+    const collection = this;
+    const schema = collection.simpleSchema()._schema;
+    const fieldSchema = {};
+  
+    const fieldArray = Array.isArray(fieldOrFieldArray) ? fieldOrFieldArray : [fieldOrFieldArray];
+  
+    // loop over fields and add them to schema (or extend existing fields)
+    fieldArray.forEach(function(field) {
+      const newField = {...schema[field.fieldName], ...field.fieldSchema};
+      fieldSchema[field.fieldName] = newField;
+    });
+  
+    // add field schema to collection schema
+    collection.attachSchema(fieldSchema);
+  };
+  removeField = function(fieldName) {
+    var collection = this;
+    var schema = _.omit(collection.simpleSchema()._schema, fieldName);
+  
+    // add field schema to collection schema
+    collection.attachSchema(new SimpleSchema(schema));
+  };
+  addDefaultView = function(view) {
+    this.defaultView = view;
+  };
+  addView = function(viewName, view) {
+    this.views[viewName] = view;
+  };
+  aggregate = () => ({
+    toArray: () => []
   });
+  findOne = function(...args) {
+    return {}
+  };
+  find = () => ({
+    fetch: () => []
+  });
+  rawCollection = () => ({
+    aggregate: () => ({
+      toArray: () => []
+    }),
+    bulkWrite: () => {}
+  })
+  _ensureIndex = function() {
+    console.log("ensureIndex")
+  }
+}
+// // /**
+// //  * @summary replacement for Collection2's attachSchema. Pass either a schema, to
+// //  * initialize or replace the schema, or some fields, to extend the current schema
+// //  * @class Mongo.Collection
+// //  */
+// Mongo.Collection.prototype.
 
-  // add field schema to collection schema
-  collection.attachSchema(fieldSchema);
-};
+// /**
+//  * @summary Add an additional field (or an array of fields) to a schema.
+//  * @param {Object|Object[]} field
+//  */
+// Mongo.Collection.prototype.
 
-/**
- * @summary Remove a field from a schema.
- * @param {String} fieldName
- */
-Mongo.Collection.prototype.removeField = function(fieldName) {
-  var collection = this;
-  var schema = _.omit(collection.simpleSchema()._schema, fieldName);
+// /**
+//  * @summary Remove a field from a schema.
+//  * @param {String} fieldName
+//  */
+// Mongo.Collection.prototype.
 
-  // add field schema to collection schema
-  collection.attachSchema(new SimpleSchema(schema));
-};
+// /**
+//  * @summary Add a default view function.
+//  * @param {Function} view
+//  */
+// Mongo.Collection.prototype.
 
-/**
- * @summary Add a default view function.
- * @param {Function} view
- */
-Mongo.Collection.prototype.addDefaultView = function(view) {
-  this.defaultView = view;
-};
+// /**
+//  * @summary Add a named view function.
+//  * @param {String} viewName
+//  * @param {Function} view
+//  */
+// Mongo.Collection.prototype.
 
-/**
- * @summary Add a named view function.
- * @param {String} viewName
- * @param {Function} view
- */
-Mongo.Collection.prototype.addView = function(viewName, view) {
-  this.views[viewName] = view;
-};
-
-/**
- * @summary Allow mongodb aggregation
- * @param {Array} pipelines mongodb pipeline
- * @param {Object} options mongodb option object
- */
-Mongo.Collection.prototype.aggregate = function(pipelines, options) {
-  var coll = this.rawCollection();
-  return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
-};
+// /**
+//  * @summary Allow mongodb aggregation
+//  * @param {Array} pipelines mongodb pipeline
+//  * @param {Object} options mongodb option object
+//  */
+// Mongo.Collection.prototype.
 
 export const createCollection = (options: any): any => {
   const {
@@ -116,10 +137,10 @@ export const createCollection = (options: any): any => {
   } = options;
 
   // initialize new Mongo collection
-  const collection =
-    collectionName === 'Users' && meteorUsersCollection
-      ? meteorUsersCollection
-      : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
+  const collection = new Collection();
+    // collectionName === 'Users' && meteorUsersCollection
+    //   ? meteorUsersCollection
+    //   : 
 
   // decorate collection with options
   collection.options = options;

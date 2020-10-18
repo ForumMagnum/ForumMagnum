@@ -34,6 +34,7 @@ export const getHeaderTextColor = (theme: ThemeType) => {
   }
 }
 
+
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",

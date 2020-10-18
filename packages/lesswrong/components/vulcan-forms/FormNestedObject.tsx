@@ -67,7 +67,7 @@ class FormNestedObject extends PureComponent<any> {
   formComponents: PropTypes.object
 };
 
-module.exports = FormNestedObject;
+export default FormNestedObject;
 
 const FormNestedObjectComponent = registerComponent('FormNestedObject', FormNestedObject);
 

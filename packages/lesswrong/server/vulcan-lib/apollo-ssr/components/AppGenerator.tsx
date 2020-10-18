@@ -4,7 +4,7 @@
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 // eslint-disable-next-line no-restricted-imports
-import { StaticRouter } from 'react-router';
+import { StaticRouter } from 'react-router-dom';
 import { Components } from '../../../../lib/vulcan-lib/components';
 import { CookiesProvider } from 'react-cookie';
 import Cookies from 'universal-cookie';
@@ -19,16 +19,16 @@ const AppGenerator = ({ req, apolloClient, serverRequestStatus, abTestGroups }) 
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
   const cookies = new Cookies(req.cookies); // req.universalCookies;
   const App = (
-    <ApolloProvider client={apolloClient}>
-      {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
-      <StaticRouter location={req.url} context={{}}>
-        <CookiesProvider cookies={cookies}>
-          <ABTestGroupsContext.Provider value={abTestGroups}>
-            <Components.App serverRequestStatus={serverRequestStatus}/>
-          </ABTestGroupsContext.Provider>
-        </CookiesProvider>
-      </StaticRouter>
-    </ApolloProvider>
+    <StaticRouter location={req.url} context={{}}>
+      <ApolloProvider client={apolloClient}>
+        {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
+          <CookiesProvider cookies={cookies}>
+            <ABTestGroupsContext.Provider value={abTestGroups}>
+              <Components.App serverRequestStatus={serverRequestStatus}/>
+            </ABTestGroupsContext.Provider>
+          </CookiesProvider>
+      </ApolloProvider>
+    </StaticRouter>
   );
   return App;
 };

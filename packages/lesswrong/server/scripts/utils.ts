@@ -69,18 +69,18 @@ export function getFieldsWithAttribute(schema, attributeName: string): Array<str
 
 export async function urlIsBroken(url: string): Promise<boolean> {
   try {
-    let result = HTTP.call('GET', url, {timeout: 5000});
-    if (result.statusCode >= 300 && result.statusCode <= 399) {
-      // Redirect. In principle this shouldn't happen because meteor's HTTP.call
-      // is documented to follow redirects by default. But maybe it does happen.
-      //eslint-disable-next-line no-console
-      console.log("Got "+result.statusCode+" redirect on "+url)
-      return false
-    } else if (result.statusCode !== 200) {
-      return true
-    } else {
-      return false
-    }
+    // let result = HTTP.call('GET', url, {timeout: 5000});
+    // if (result.statusCode >= 300 && result.statusCode <= 399) {
+    //   // Redirect. In principle this shouldn't happen because meteor's HTTP.call
+    //   // is documented to follow redirects by default. But maybe it does happen.
+    //   //eslint-disable-next-line no-console
+    //   console.log("Got "+result.statusCode+" redirect on "+url)
+    //   return false
+    // } else if (result.statusCode !== 200) {
+    //   return true
+    // } else {
+    //   return false
+    // }
   } catch(e) {
     return true
   }

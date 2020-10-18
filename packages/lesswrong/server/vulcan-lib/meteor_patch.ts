@@ -1,4 +1,4 @@
-import { WebApp } from 'meteor/webapp';
+// import { WebApp } from 'meteor/webapp';
 
 // NOTE: simplified version of webAppConnectHandlersUse that doesn't do anything
 // export const webAppConnectHandlersUse = (app, options) => {
@@ -7,66 +7,66 @@ import { WebApp } from 'meteor/webapp';
 
 // TODO: figure out if still needed?
 // clever webAppConnectHandlersUse
-export const webAppConnectHandlersUse = (name, route, fn?: any, options?: any) => {
-  // init
-  if (typeof name === 'function') {
-    options = route;
-    fn = name;
-    route = '/';
-    name = undefined;
-  } else if (name[0] === '/') {
-    options = fn;
-    fn = route;
-    route = name;
-    name = undefined;
-  } else if (typeof route === 'function') {
-    options = fn;
-    fn = route;
-    route = '/';
-  }
-  options = options || {};
-  route = options.route ? options.route : route;
+// export const webAppConnectHandlersUse = (name, route, fn?: any, options?: any) => {
+//   // init
+//   if (typeof name === 'function') {
+//     options = route;
+//     fn = name;
+//     route = '/';
+//     name = undefined;
+//   } else if (name[0] === '/') {
+//     options = fn;
+//     fn = route;
+//     route = name;
+//     name = undefined;
+//   } else if (typeof route === 'function') {
+//     options = fn;
+//     fn = route;
+//     route = '/';
+//   }
+//   options = options || {};
+//   route = options.route ? options.route : route;
 
-  // newfn
-  let done = false;
-  const newfn = (req, res, next) => {
-    if (!fn.stack && !fn._router && done && options.once) {
-      next();
-      return;
-    }
-    done = true;
+//   // newfn
+//   let done = false;
+//   const newfn = (req, res, next) => {
+//     if (!fn.stack && !fn._router && done && options.once) {
+//       next();
+//       return;
+//     }
+//     done = true;
 
-    fn(req, res, next);
+//     fn(req, res, next);
 
-    if (!fn.stack && !fn._router && options.autoNext) {
-      next();
-    }
-  };
+//     if (!fn.stack && !fn._router && options.autoNext) {
+//       next();
+//     }
+//   };
 
-  // use it
-  let connectHandlers;
-  if (options.raw) {
-    connectHandlers = WebApp.rawConnectHandlers;
-  } else {
-    connectHandlers = WebApp.connectHandlers;
-  }
-  connectHandlers.use(route, newfn);
+//   // use it
+//   let connectHandlers;
+//   if (options.raw) {
+//     connectHandlers = WebApp.rawConnectHandlers;
+//   } else {
+//     connectHandlers = WebApp.connectHandlers;
+//   }
+//   connectHandlers.use(route, newfn);
 
-  // get handle
-  let handle;
-  if (options.unshift) {
-    const item = connectHandlers.stack.pop();
-    connectHandlers.stack.unshift(item);
-    handle = connectHandlers.stack[0].handle;
-  } else {
-    handle = connectHandlers.stack[connectHandlers.stack.length - 1].handle;
-  }
+//   // get handle
+//   let handle;
+//   if (options.unshift) {
+//     const item = connectHandlers.stack.pop();
+//     connectHandlers.stack.unshift(item);
+//     handle = connectHandlers.stack[0].handle;
+//   } else {
+//     handle = connectHandlers.stack[connectHandlers.stack.length - 1].handle;
+//   }
 
-  // copy options to handle
-  Object.keys(options).forEach((key) => {
-    handle[key] = options[key];
-  });
-};
+//   // copy options to handle
+//   Object.keys(options).forEach((key) => {
+//     handle[key] = options[key];
+//   });
+// };
 
 // NOTE: breaks /graphql endpoint in production
 // TODO: figure out what this does and if it's still needed?

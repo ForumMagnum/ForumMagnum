@@ -7,15 +7,8 @@ import createFocusPlugin from 'draft-js-focus-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
-import createDividerPlugin from './editor-plugins/divider';
-import createMathjaxPlugin from './editor-plugins/draft-js-mathjax-plugin/src'
-import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 import { withTheme } from '@material-ui/core/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';
-import LinkButton from './editor-plugins/LinkButton'
-import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
-import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
-import ImageButton from './editor-plugins/image/ImageButton';
 import { Map } from 'immutable';
 import {
   createBlockStyleButton,
@@ -75,6 +68,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
   }
 
   initializePlugins = (isClient, commentEditor) => {
+    // WEBPACK MIGRATION: REMOVED A BUNCH OF editor-plugin code here because it kept throwing me errors
     const linkPlugin = createLinkPlugin();
     const alignmentPlugin = createAlignmentPlugin();
     const focusPlugin = createFocusPlugin();
@@ -85,19 +79,15 @@ class EditorForm extends Component<EditorFormProps,{}> {
       focusPlugin.decorator,
     );
 
-    const dividerPlugin = createDividerPlugin({decorator});
 
     const toolbarButtons = [
       { button: BoldButton,                    commentEditor: true   },
       { button: ItalicButton,                  commentEditor: true   },
       { button: UnderlineButton,               commentEditor: true   },
-      { button: LinkButton,                    commentEditor: true   },
       { button: Separator,                     commentEditor: true   },
       { button: HeadlineOneButton,             commentEditor: false  },
       { button: HeadlineTwoButton,             commentEditor: true   },
       { button: BlockquoteButton,              commentEditor: true   },
-      { button: dividerPlugin.DividerButton,   commentEditor: false  },
-      { button: ImageButton,                   commentEditor: false  },
     ]
 
     const inlineToolbarPlugin = createInlineToolbarPlugin({
@@ -109,9 +99,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
 
     const richButtonsPlugin = createRichButtonsPlugin();
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
-    const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
 
-    const linkifyPlugin = createLinkifyPlugin();
 
     const imagePlugin = createImagePlugin({ decorator });
     let plugins = [
@@ -123,31 +111,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
       linkPlugin,
       richButtonsPlugin,
       blockBreakoutPlugin,
-      markdownShortcutsPlugin,
-      dividerPlugin,
-      linkifyPlugin
     ];
-
-    if (isClient) {
-      const mathjaxPlugin = createMathjaxPlugin(
-        {
-          completion: 'manual',
-          mathjaxConfig: {
-            jax: ['input/TeX', 'output/CommonHTML'],
-            TeX: {
-              extensions: ['autoload-all.js', 'Safe.js'],
-            },
-            messageStyle: 'none',
-            showProcessingMessages: false,
-            showMathMenu: false,
-            showMathMenuMSIE: false,
-            preview: 'none',
-            delayStartupTypeset: true,
-          }
-        }
-      )
-      plugins.push(mathjaxPlugin);
-    }
 
     return plugins;
   }

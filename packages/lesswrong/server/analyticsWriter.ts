@@ -1,6 +1,7 @@
 import { isDevelopment } from '../lib/executionEnvironment';
 import { randomId } from '../lib/random';
-import { Pool } from 'pg';
+// WEBPACK REFACTOR: Had to get rid of pg import for reasons I don't fully understand
+// import { Pool } from 'pg';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { DatabaseServerSetting } from './databaseSettings';
@@ -43,14 +44,14 @@ addGraphQLResolvers({
 });
 addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
 
-let analyticsConnectionPool:Pool|null = null;
+let analyticsConnectionPool:null = null;
 
 let missingConnectionStringWarned = false;
 
 // Return the Analytics database connection pool, if configured. If no
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
-const getAnalyticsConnection = (): Pool|null => {
+const getAnalyticsConnection = (): null => {
   const connectionString = connectionStringSetting.get()
   // We make sure that the settingsCache is initialized before we access the connection strings
   if (!connectionString) {
@@ -62,7 +63,7 @@ const getAnalyticsConnection = (): Pool|null => {
     return null;
   }
   if (!analyticsConnectionPool)
-    analyticsConnectionPool = new Pool({ connectionString });
+    // analyticsConnectionPool = new Pool({ connectionString });
   return analyticsConnectionPool;
 }
 

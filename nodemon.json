@@ -1,0 +1,6 @@
+{
+  "events": {
+    "restart": "npm run build"
+  },
+  "ext": "js jsx mjs json ts tsx"
+}

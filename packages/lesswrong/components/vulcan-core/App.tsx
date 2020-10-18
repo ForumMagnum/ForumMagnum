@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { withApollo } from 'react-apollo';
 // eslint-disable-next-line no-restricted-imports
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
@@ -112,6 +112,8 @@ class App extends PureComponent<any,any> {
     }
 
     const { RouteComponent } = location;
+    console.log("App.tsx props:")
+    console.log(this.props)
     return (
       <LocationContext.Provider value={this.locationContext}>
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>

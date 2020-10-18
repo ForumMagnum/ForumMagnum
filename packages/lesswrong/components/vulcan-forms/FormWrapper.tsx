@@ -31,7 +31,7 @@ import { intlShape } from '../../lib/vulcan-i18n';
 // FormWrapper passes props around in bulk, and Form has a bunch of prop-name
 // handling by string gluing, so it's hard to be sure this is safe.
 // eslint-disable-next-line no-restricted-imports
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { graphql, withApollo } from 'react-apollo';
 import compose from 'lodash/flowRight';
 import {
