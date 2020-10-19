@@ -256,12 +256,12 @@ const getResumeSequences = async (currentUser, context: ResolverContext) => {
       const { sequenceId, collectionId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
         sequence: sequenceId
-          ? await context["Sequences"].loader.load(sequenceId)
+          ? await context.loaders.Sequences.load(sequenceId)
           : null,
         collection: collectionId
-          ? await context["Collections"].loader.load(collectionId)
+          ? await context.loaders.Collections.load(collectionId)
           : null,
-        nextPost: await context["Posts"].loader.load(nextPostId),
+        nextPost: await context.loaders.Posts.load(nextPostId),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,

@@ -8,7 +8,7 @@ const specificResolvers = {
       let user: any = null;
       const userId: string|null = (context as any)?.userId;
       if (userId) {
-        user = await context.Users.loader.load(userId);
+        user = await context.loaders.Users.load(userId);
 
         if (user.services) {
           Object.keys(user.services).forEach(key => {
@@ -30,7 +30,7 @@ const defaultOptions = {
 const resolvers = {
   multi: {
     async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
-      const { currentUser, Users: UsersContext } = context;
+      const { currentUser } = context;
       const { terms = {}, enableCache = false, enableTotal = false } = input;
 
       if (cacheControl && enableCache) {
@@ -52,7 +52,7 @@ const resolvers = {
       const restrictedUsers = Users.restrictViewableFields(currentUser, Users, viewableUsers);
 
       // prime the cache
-      restrictedUsers.forEach(user => UsersContext.loader.prime(user._id, user));
+      restrictedUsers.forEach(user => context.loaders.Users.prime(user._id, user));
 
       const data: any = { results: restrictedUsers };
 
@@ -67,7 +67,7 @@ const resolvers = {
 
   single: {
     async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
-      const { currentUser, Users: UsersContext } = context;
+      const { currentUser } = context;
       const { selector = {}, enableCache = false } = input;
       const { documentId, slug } = selector;
 
@@ -78,7 +78,7 @@ const resolvers = {
 
       // don't use Dataloader if user is selected by slug
       const user = documentId
-        ? await UsersContext.loader.load(documentId)
+        ? await context.loaders.Users.load(documentId)
         : slug
         ? await Utils.Connectors.get(Users, { slug })
         : await Utils.Connectors.get(Users);

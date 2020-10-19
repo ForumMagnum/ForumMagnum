@@ -17,13 +17,13 @@ import * as _ from 'underscore';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader<T extends DbObject>(collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: string, id: string, projection:any=undefined): Promise<Array<T>>
+export async function getWithLoader<T extends DbObject>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: string, id: string, projection:any=undefined): Promise<Array<T>>
 {
-  if (!collection.extraLoaders) {
-    collection.extraLoaders = {};
+  if (!context.extraLoaders) {
+    context.extraLoaders = {};
   }
-  if (!collection.extraLoaders[loaderName]) {
-    collection.extraLoaders[loaderName] = new DataLoader(async (docIDs: Array<string>) => {
+  if (!context.extraLoaders[loaderName]) {
+    context.extraLoaders[loaderName] = new DataLoader(async (docIDs: Array<string>) => {
       let query = {
         ...baseQuery,
         [groupByField]: {$in: docIDs}
@@ -36,14 +36,14 @@ export async function getWithLoader<T extends DbObject>(collection: CollectionBa
     })
   }
 
-  return await collection.extraLoaders[loaderName].load(id);
+  return await context.extraLoaders[loaderName].load(id);
 }
 
-export async function getWithCustomLoader<T extends DbObject, ID>(collection: CollectionBase<T>, loaderName: string, id: ID, idsToResults: (ids: Array<ID>)=>Promise<Array<T>>): Promise<Array<T>>
+export async function getWithCustomLoader<T extends DbObject, ID>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, id: ID, idsToResults: (ids: Array<ID>)=>Promise<Array<T>>): Promise<Array<T>>
 {
-  if (!collection.extraLoaders[loaderName]) {
-    collection.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
+  if (!context.extraLoaders[loaderName]) {
+    context.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
   }
 
-  return await collection.extraLoaders[loaderName].load(id);
+  return await context.extraLoaders[loaderName].load(id);
 }

@@ -24,12 +24,6 @@ interface CollectionBase<T extends DbObject> {
   addField: any
   helpers: any
   
-  // TODO: Type-system plumbing should handle the fact that loaders are available
-  // if you get the collection via a resolver's context, but not available if you
-  // just import the collection.
-  loader: DataLoader<string,T>
-  extraLoaders: Record<string,any>
-  
   rawCollection: any
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
@@ -108,7 +102,10 @@ interface HasCreatedAtType extends DbObject {
 
 interface ResolverContext extends CollectionsByName {
   headers: any,
+  userId: string|null,
   currentUser: DbUser|null,
   locale: string,
+  loaders: Record<CollectionNameString, DataLoader<string,any>>
+  extraLoaders: Record<string,any>
 }
 }
