@@ -40,7 +40,7 @@ export const runGraphQL = async (query: any, variables: any = {}, context?: any)
   // within the scope of this specific request,
   // decorate each collection with a new Dataloader object and add it to context
   Collections.forEach((collection: any) => {
-    collection.loader = new DataLoader((ids: Array<string>) => findByIds(collection, ids, queryContext), {
+    collection.loader = new DataLoader((ids: Array<string>) => findByIds(collection, ids), {
       cache: true,
     });
     queryContext[collection.options.collectionName] = collection;
