@@ -290,6 +290,11 @@ const theme = createLWTheme({
         boxShadow: "0 1px 5px rgba(0,0,0,.025)",
       }
     },
+    TagSmallPostLink: {
+      wrap: {
+        lineHeight: '1.2em'
+      }
+    },
     TagsDetailsItem: {
       description: {
         maxWidth: 490,
