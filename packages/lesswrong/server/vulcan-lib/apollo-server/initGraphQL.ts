@@ -3,7 +3,7 @@
  */
 
 import { makeExecutableSchema } from 'apollo-server';
-import { getAdditionalSchemas, queries, mutations, getContext, getDirectives, getResolvers, getCollections, addGraphQLQuery, addGraphQLResolvers, addGraphQLMutation } from '../../../lib/vulcan-lib/graphql';
+import { getAdditionalSchemas, queries, mutations, getContext, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import {
   selectorInputTemplate,
@@ -29,9 +29,12 @@ import {
   deleteMutationTemplate,
 } from '../../../lib/vulcan-lib/graphql_templates';
 import { Utils } from '../../../lib/vulcan-lib/utils';
+import deepmerge from 'deepmerge';
+import GraphQLJSON from 'graphql-type-json';
+import GraphQLDate from 'graphql-date';
 import * as _ from 'underscore';
 
-const getQueries = () =>
+const queriesToGraphQL = (queries): string =>
   `type Query {
 ${queries.map(q =>
         `${
@@ -45,7 +48,7 @@ ${queries.map(q =>
 }
 
 `;
-const getMutations = () =>
+const mutationsToGraphQL = (mutations): string =>
   mutations.length > 0
     ? `
 ${
@@ -66,25 +69,36 @@ ${mutations
 
 `
     : '';
-// typeDefs
-const generateTypeDefs = () => [`
-scalar JSON
-scalar Date
-
-${getAdditionalSchemas()}
-${getCollectionsSchemas()}
-${getQueries()}
-${getMutations()}
-`];
 
 // generate GraphQL schemas for all registered collections
-export const getCollectionsSchemas = () => {
-  const collectionsSchemas = getCollections()
-    .map(collection => {
-      return generateSchema(collection);
-    })
-    .join('');
-  return collectionsSchemas;
+const getTypeDefs = () => {
+  const schemaContents: Array<string> = [
+    "scalar JSON",
+    "scalar Date",
+    getAdditionalSchemas(),
+  ];
+  
+  const allQueries = [...queries];
+  const allMutations = [...mutations];
+  const allResolvers: Array<any> = [];
+  
+  for (let collection of getCollections()) {
+    const { schema, addedQueries, addedResolvers, addedMutations } = generateSchema(collection);
+
+    for (let query of addedQueries) allQueries.push(query);
+    for (let resolver of addedResolvers) allResolvers.push(resolver);
+    for (let mutation of addedMutations) allMutations.push(mutation);
+    
+    schemaContents.push(schema);
+  }
+  
+  schemaContents.push(queriesToGraphQL(allQueries));
+  schemaContents.push(mutationsToGraphQL(allMutations));
+  
+  return {
+    schemaText: schemaContents.join("\n"),
+    addedResolvers: allResolvers,
+  };
 }
 
 // get GraphQL type for a given schema and field name
@@ -145,6 +159,7 @@ const getFields = (schema, typeName) => {
     selectorUnique: [],
     orderBy: [],
   };
+  const addedResolvers: Array<any> = [];
 
   Object.keys(schema).forEach(fieldName => {
     const field = schema[fieldName];
@@ -199,7 +214,7 @@ const getFields = (schema, typeName) => {
             },
           },
         };
-        addGraphQLResolvers(resolver);
+        addedResolvers.push(resolver);
 
         // if addOriginalField option is enabled, also add original field to schema
         if (field.resolveAs.addOriginalField && fieldType) {
@@ -241,7 +256,7 @@ const getFields = (schema, typeName) => {
       }
     }
   });
-  return fields;
+  return { fields, resolvers: addedResolvers };
 };
 
 // generate a GraphQL schema corresponding to a given collection
@@ -258,7 +273,7 @@ const generateSchema = (collection) => {
 
   const schema = collection.simpleSchema()._schema;
 
-  const fields = getFields(schema, typeName);
+  const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
 
   const { interfaces = [], resolvers, mutations } = collection.options;
 
@@ -267,6 +282,10 @@ const generateSchema = (collection) => {
     : `Type for ${collectionName}`;
 
   const { mainType, create, update, selector, selectorUnique, orderBy } = fields;
+  
+  let addedQueries: Array<any> = [];
+  let addedResolvers: Array<any> = [...fieldResolvers];
+  let addedMutations: Array<any> = [];
 
   if (mainType.length) {
     schemaFragments.push(
@@ -301,7 +320,7 @@ const generateSchema = (collection) => {
 
       // single
       if (resolvers.single) {
-        addGraphQLQuery(singleQueryTemplate({ typeName }), resolvers.single.description);
+        addedQueries.push({query: singleQueryTemplate({ typeName }), description: resolvers.single.description});
         queryResolvers[Utils.camelCaseify(typeName)] = resolvers.single.resolver.bind(
           resolvers.single
         );
@@ -309,12 +328,12 @@ const generateSchema = (collection) => {
 
       // multi
       if (resolvers.multi) {
-        addGraphQLQuery(multiQueryTemplate({ typeName }), resolvers.multi.description);
+        addedQueries.push({query: multiQueryTemplate({ typeName }), description: resolvers.multi.description});
         queryResolvers[
           Utils.camelCaseify(Utils.pluralize(typeName))
         ] = resolvers.multi.resolver.bind(resolvers.multi);
       }
-      addGraphQLResolvers({ Query: { ...queryResolvers } });
+      addedResolvers.push({ Query: { ...queryResolvers } });
     }
 
     if (!_.isEmpty(mutations)) {
@@ -328,7 +347,7 @@ const generateSchema = (collection) => {
             `// Warning: you defined a "create" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "create" mutation or define a "canCreate" property on a field to disable this warning`
           );
         } else {
-          addGraphQLMutation(createMutationTemplate({ typeName }), mutations.create.description);
+          addedMutations.push({mutation: createMutationTemplate({ typeName }), description: mutations.create.description});
           mutationResolvers[`create${typeName}`] = mutations.create.mutation.bind(
             mutations.create
           );
@@ -343,7 +362,7 @@ const generateSchema = (collection) => {
             `// Warning: you defined an "update" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "update" mutation or define a "canUpdate" property on a field to disable this warning`
           );
         } else {
-          addGraphQLMutation(updateMutationTemplate({ typeName }), mutations.update.description);
+          addedMutations.push({mutation: updateMutationTemplate({ typeName }), description: mutations.update.description});
           mutationResolvers[`update${typeName}`] = mutations.update.mutation.bind(
             mutations.update
           );
@@ -358,7 +377,7 @@ const generateSchema = (collection) => {
             `// Warning: you defined an "upsert" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "upsert" mutation or define a "canUpdate" property on a field to disable this warning`
           );
         } else {
-          addGraphQLMutation(upsertMutationTemplate({ typeName }), mutations.upsert.description);
+          addedMutations.push({mutation: upsertMutationTemplate({ typeName }), description: mutations.upsert.description});
           mutationResolvers[`upsert${typeName}`] = mutations.upsert.mutation.bind(
             mutations.upsert
           );
@@ -367,10 +386,10 @@ const generateSchema = (collection) => {
       // delete
       if (mutations.delete) {
         // e.g. "deleteMovie(input: DeleteMovieInput) : Movie"
-        addGraphQLMutation(deleteMutationTemplate({ typeName }), mutations.delete.description);
+        addedMutations.push({mutation: deleteMutationTemplate({ typeName }), description: mutations.delete.description});
         mutationResolvers[`delete${typeName}`] = mutations.delete.mutation.bind(mutations.delete);
       }
-      addGraphQLResolvers({ Mutation: { ...mutationResolvers } });
+      addedResolvers.push({ Mutation: { ...mutationResolvers } });
     }
     graphQLSchema = schemaFragments.join('\n\n') + '\n\n\n';
   } else {
@@ -380,17 +399,35 @@ const generateSchema = (collection) => {
     );
   }
 
-  return graphQLSchema;
+  return {
+    schema: graphQLSchema,
+    addedQueries,
+    addedResolvers,
+    addedMutations
+  };
 };
 
 
 
 export const initGraphQL = () => {
   runCallbacks('graphql.init.before');
-  const typeDefs = generateTypeDefs();
+  
+  const { schemaText, addedResolvers } = getTypeDefs();
+  
+  let allResolvers = deepmerge(
+    getResolvers(),
+    {
+      JSON: GraphQLJSON,
+      Date: GraphQLDate,
+    }
+  );
+  for (let addedResolverGroup of addedResolvers) {
+    allResolvers = deepmerge(allResolvers, addedResolverGroup);
+  }
+  
   executableSchema = makeExecutableSchema({
-    typeDefs,
-    resolvers: getResolvers(),
+    typeDefs: schemaText,
+    resolvers: allResolvers,
     schemaDirectives: getDirectives(),
   });
 
