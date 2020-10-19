@@ -1,7 +1,7 @@
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { SchemaLink } from 'apollo-link-schema';
-import { getExecutableSchema } from '../../../lib/vulcan-lib/graphql';
+import { getExecutableSchema } from '../apollo-server/initGraphQL';
 import { ApolloLink } from 'apollo-link';
 
 // This client is used to prefetch data server side (necessary for SSR)

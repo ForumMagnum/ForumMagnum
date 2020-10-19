@@ -17,7 +17,7 @@ import { check } from 'meteor/check';
 import Cookies from 'universal-cookie';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { Collections } from '../../../lib/vulcan-lib/collections';
-import { getSchemaContextBase } from '../../../lib/vulcan-lib/graphql';
+import { getSchemaContextBase } from './initGraphQL';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';

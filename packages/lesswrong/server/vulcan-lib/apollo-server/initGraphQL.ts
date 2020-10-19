@@ -69,14 +69,22 @@ ${getMutations()}
 export const initGraphQL = () => {
   runCallbacks('graphql.init.before');
   const typeDefs = generateTypeDefs();
-  const executableSchema = makeExecutableSchema({
+  executableSchema = makeExecutableSchema({
     typeDefs,
     resolvers: GraphQLSchema.resolvers,
     schemaDirectives: GraphQLSchema.directives,
   });
 
-  GraphQLSchema.executableSchema = executableSchema;
   return executableSchema;
 };
 
-export default initGraphQL;
+let executableSchema: any = null;
+export const getExecutableSchema = () => {
+  if (!executableSchema) {
+    throw new Error('Warning: trying to access executable schema before it has been created by the server.');
+  }
+  return executableSchema;
+};
+
+export const getSchemaContextBase = () => GraphQLSchema.context;
+

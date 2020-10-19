@@ -20,11 +20,9 @@ import getVoyagerConfig from './voyager';
 import { graphiqlMiddleware, getGraphiqlConfig } from './graphiql';
 import getPlaygroundConfig from './playground';
 
-import initGraphQL from './initGraphQL';
+import { initGraphQL, getExecutableSchema } from './initGraphQL';
 //import { engineConfig } from './engine';
 import { computeContextFromReq } from './context';
-
-import { getExecutableSchema } from '../../../lib/vulcan-lib/graphql';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
 // onPageLoad is mostly equivalent to an Express middleware

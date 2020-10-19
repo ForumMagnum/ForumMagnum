@@ -8,7 +8,7 @@ import { graphql } from 'graphql';
 import merge from 'lodash/merge';
 import { localeSetting } from '../../lib/publicSettings';
 import { Collections } from '../../lib/vulcan-lib/collections';
-import { getExecutableSchema } from '../../lib/vulcan-lib/graphql';
+import { getExecutableSchema } from './apollo-server/initGraphQL';
 import findByIds from './findbyids';
 
 function writeGraphQLErrorToStderr(errors)

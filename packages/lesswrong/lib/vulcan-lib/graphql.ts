@@ -393,16 +393,6 @@ export const GraphQLSchema: any = {
 
     return graphQLSchema;
   },
-
-  // getters
-  getExecutableSchema() {
-    if (!this.executableSchema) {
-      throw new Error(
-        'Warning: trying to access executable schema before it has been created by the server.'
-      );
-    }
-    return this.executableSchema;
-  },
 };
 
 export const addGraphQLCollection = GraphQLSchema.addCollection.bind(GraphQLSchema);
@@ -413,6 +403,3 @@ export const addGraphQLResolvers = GraphQLSchema.addResolvers.bind(GraphQLSchema
 export const removeGraphQLResolver = GraphQLSchema.removeResolver.bind(GraphQLSchema);
 export const addToGraphQLContext = GraphQLSchema.addToContext.bind(GraphQLSchema);
 export const addGraphQLDirective = GraphQLSchema.addDirective.bind(GraphQLSchema);
-
-export const getExecutableSchema = () => GraphQLSchema.getExecutableSchema();
-export const getSchemaContextBase = () => GraphQLSchema.context;
