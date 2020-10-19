@@ -22,7 +22,7 @@ jobs:
       provider: script
       script: bash ./deploy.sh ./settings-staging.json ./config-staging.secret
       on:
-        branch: ea-forum-devel
+        branch: ea-dev
   - script: skip
     name: "Deploy Production"
     if: branch = ea-master AND type != pull_request
@@ -30,4 +30,4 @@ jobs:
       provider: script
       script: bash ./deploy.sh ./settings-prod.json ./config-prod.secret
       on:
-        branch: ea-forum-master
+        branch: ea-master
