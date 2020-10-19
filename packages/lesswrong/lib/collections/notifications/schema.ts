@@ -1,6 +1,6 @@
 import Users from '../users/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { SchemaType } from '../../utils/schemaUtils';
+import type { SchemaType } from '../../utils/schemaUtils';
 
 const schema: SchemaType<DbNotification> = {
   userId: {
