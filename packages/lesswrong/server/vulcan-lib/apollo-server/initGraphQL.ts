@@ -3,7 +3,6 @@
  */
 
 import { makeExecutableSchema } from 'apollo-server';
-import { mergeSchemas } from 'graphql-tools';
 import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 
@@ -67,7 +66,7 @@ ${getMutations()}
 `,
 ];
 
-const initGraphQL = () => {
+export const initGraphQL = () => {
   runCallbacks('graphql.init.before');
   const typeDefs = generateTypeDefs();
   const executableSchema = makeExecutableSchema({
@@ -75,11 +74,9 @@ const initGraphQL = () => {
     resolvers: GraphQLSchema.resolvers,
     schemaDirectives: GraphQLSchema.directives,
   });
-  // only call mergeSchemas if we actually have stitchedSchemas
-  const mergedSchema = GraphQLSchema.stitchedSchemas.length > 0 ? mergeSchemas({ schemas: [executableSchema, ...GraphQLSchema.stitchedSchemas] }) : executableSchema;
 
   GraphQLSchema.finalSchema = typeDefs;
-  GraphQLSchema.executableSchema = mergedSchema;
+  GraphQLSchema.executableSchema = executableSchema;
   return executableSchema;
 };
 

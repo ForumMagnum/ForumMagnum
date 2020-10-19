@@ -84,12 +84,6 @@ const getGraphQLType = (schema, fieldName, isInput = false) => {
 };
 
 export const GraphQLSchema: any = {
-  // used for schema stitching
-  stitchedSchemas: [],
-  addStitchedSchema(schema) {
-    this.stitchedSchemas.push(schema);
-  },
-
   // collections used to auto-generate schemas
   collections: [],
   addCollection(collection) {
