@@ -75,7 +75,6 @@ export const initGraphQL = () => {
     schemaDirectives: GraphQLSchema.directives,
   });
 
-  GraphQLSchema.finalSchema = typeDefs;
   GraphQLSchema.executableSchema = executableSchema;
   return executableSchema;
 };

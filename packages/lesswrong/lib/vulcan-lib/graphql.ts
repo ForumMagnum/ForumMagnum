@@ -395,12 +395,6 @@ export const GraphQLSchema: any = {
   },
 
   // getters
-  getSchema() {
-    if (!(this.finalSchema && this.finalSchema.length)) {
-      throw new Error('Warning: trying to access schema before it has been created by the server.');
-    }
-    return this.finalSchema[0];
-  },
   getExecutableSchema() {
     if (!this.executableSchema) {
       throw new Error(
