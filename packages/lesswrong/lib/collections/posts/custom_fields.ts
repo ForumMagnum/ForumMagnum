@@ -491,7 +491,7 @@ addFieldsDict(Posts, {
     resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
       const { sequenceId } = args;
       const { currentUser, Sequences: SequencesContext } = context;
-      let sequence = null;
+      let sequence: DbSequence|null = null;
       if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
         sequence = await SequencesContext.loader.load(sequenceId);
       } else if (post.canonicalSequenceId) {

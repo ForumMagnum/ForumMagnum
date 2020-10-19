@@ -5,6 +5,11 @@
  * was getting ignored by the type checker as an external library file, as
  * --skipLibCheck just ignores all .d.ts files.
  */
+import DataLoader from 'dataloader';
+
+/// This file is wrapped in 'declare global' because it's an ambient declaration
+/// file (meaning types in this file can be used without being imported).
+declare global {
 
 interface CollectionBase<T extends DbObject> {
   collectionName: CollectionNameString
@@ -22,7 +27,7 @@ interface CollectionBase<T extends DbObject> {
   // TODO: Type-system plumbing should handle the fact that loaders are available
   // if you get the collection via a resolver's context, but not available if you
   // just import the collection.
-  loader: any
+  loader: DataLoader<string,T>
   extraLoaders: Record<string,any>
   
   rawCollection: any
@@ -105,4 +110,5 @@ interface ResolverContext extends CollectionsByName {
   headers: any,
   currentUser: DbUser|null,
   locale: string,
+}
 }

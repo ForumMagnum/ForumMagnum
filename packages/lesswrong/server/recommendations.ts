@@ -272,7 +272,7 @@ const getResumeSequences = async (currentUser, context: ResolverContext) => {
   // Filter out results where nextPost is null. (Specifically, this filters out
   // the default sequences on dev databases, which would otherwise cause a crash
   // down the line.)
-  return _.filter(results, result=>result.nextPost);
+  return _.filter(results, result=>!!result.nextPost);
 }
 
 
