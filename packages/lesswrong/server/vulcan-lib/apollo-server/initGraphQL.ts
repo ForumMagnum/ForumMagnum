@@ -1,6 +1,5 @@
-/**
- * Init the graphQL schema
- */
+// Generate GraphQL-syntax schemas from resolvers &c that were set up with
+// addGraphQLResolvers &c.
 
 import { makeExecutableSchema } from 'apollo-server';
 import { getAdditionalSchemas, queries, mutations, getContext, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';

@@ -1,14 +1,9 @@
-// TODO: this should not be loaded on the client?
-
-/*
-
-Utilities to generate the app's GraphQL schema
-
-*/
+// Functions for defining the GraphQL schema and API. Stores the added schemas
+// in global variables, where the server (but not the client) may wind up
+// handing them to graphql libraries.
 
 import deepmerge from 'deepmerge';
 import './config';
-import * as _ from 'underscore';
 
 
 // collections used to auto-generate schemas
