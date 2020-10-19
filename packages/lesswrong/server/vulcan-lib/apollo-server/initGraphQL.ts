@@ -259,7 +259,7 @@ const getFields = (schema, typeName) => {
 };
 
 // generate a GraphQL schema corresponding to a given collection
-const generateSchema = (collection) => {
+const generateSchema = (collection: CollectionBase<DbObject>) => {
   let graphQLSchema = '';
 
   const schemaFragments: Array<string> = [];

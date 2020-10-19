@@ -9,8 +9,7 @@
 interface CollectionBase<T extends DbObject> {
   collectionName: CollectionNameString
   typeName: string,
-  options: any
-  
+  options: CollectionOptions
   addDefaultView: any
   addView: any
   defaultView: (terms: any) => any
@@ -40,6 +39,17 @@ interface CollectionBase<T extends DbObject> {
   insert: any
   aggregate: any
   _ensureIndex: any
+}
+
+interface CollectionOptions {
+  typeName: string
+  collectionName: CollectionNameString
+  singleResolverName: string
+  multiResolverName: string
+  mutations: any
+  resolvers: any
+  interfaces: Array<string>
+  description: string
 }
 
 interface FindResult<T> {
