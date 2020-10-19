@@ -3,12 +3,12 @@
  */
 
 import { makeExecutableSchema } from 'apollo-server';
-import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
+import { getAdditionalSchemas, getCollectionsSchemas, queries, mutations, getContext, getDirectives, getResolvers } from '../../../lib/vulcan-lib/graphql';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 
 const getQueries = () =>
   `type Query {
-${GraphQLSchema.queries
+${queries
     .map(
       q =>
         `${
@@ -24,13 +24,13 @@ ${GraphQLSchema.queries
 
 `;
 const getMutations = () =>
-  GraphQLSchema.mutations.length > 0
+  mutations.length > 0
     ? `
 ${
-        GraphQLSchema.mutations.length > 0
+        mutations.length > 0
           ? `type Mutation {
 
-${GraphQLSchema.mutations
+${mutations
               .map(
                 m =>
                   `${
@@ -55,9 +55,9 @@ const generateTypeDefs = () => [
 scalar JSON
 scalar Date
 
-${GraphQLSchema.getAdditionalSchemas()}
+${getAdditionalSchemas()}
 
-${GraphQLSchema.getCollectionsSchemas()}
+${getCollectionsSchemas()}
 
 ${getQueries()}
 
@@ -71,8 +71,8 @@ export const initGraphQL = () => {
   const typeDefs = generateTypeDefs();
   executableSchema = makeExecutableSchema({
     typeDefs,
-    resolvers: GraphQLSchema.resolvers,
-    schemaDirectives: GraphQLSchema.directives,
+    resolvers: getResolvers(),
+    schemaDirectives: getDirectives(),
   });
 
   return executableSchema;
@@ -86,5 +86,5 @@ export const getExecutableSchema = () => {
   return executableSchema;
 };
 
-export const getSchemaContextBase = () => GraphQLSchema.context;
+export const getSchemaContextBase = () => getContext();
 
