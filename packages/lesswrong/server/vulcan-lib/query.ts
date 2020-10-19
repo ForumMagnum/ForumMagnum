@@ -8,7 +8,7 @@ import { graphql } from 'graphql';
 import merge from 'lodash/merge';
 import { localeSetting } from '../../lib/publicSettings';
 import { Collections } from '../../lib/vulcan-lib/collections';
-import { GraphQLSchema } from '../../lib/vulcan-lib/graphql';
+import { getExecutableSchema } from '../../lib/vulcan-lib/graphql';
 import findByIds from './findbyids';
 
 function writeGraphQLErrorToStderr(errors)
@@ -35,7 +35,7 @@ export const runGraphQL = async (query: any, variables: any = {}, context?: any)
     locale: localeSetting.get(),
   };
   const queryContext = merge(defaultContext, context);
-  const executableSchema = GraphQLSchema.getExecutableSchema();
+  const executableSchema = getExecutableSchema();
 
   // within the scope of this specific request,
   // decorate each collection with a new Dataloader object and add it to context

@@ -24,7 +24,7 @@ import initGraphQL from './initGraphQL';
 //import { engineConfig } from './engine';
 import { computeContextFromReq } from './context';
 
-import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
+import { getExecutableSchema } from '../../../lib/vulcan-lib/graphql';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
 // onPageLoad is mostly equivalent to an Express middleware
@@ -136,7 +136,7 @@ Meteor.startup(() => {
     debug: Meteor.isDevelopment,
     
     //engine: engineConfig,
-    schema: GraphQLSchema.executableSchema,
+    schema: getExecutableSchema(),
     formatError: (e) => {
       Sentry.captureException(e);
       // eslint-disable-next-line no-console

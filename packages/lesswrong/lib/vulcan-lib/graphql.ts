@@ -425,3 +425,6 @@ export const addGraphQLResolvers = GraphQLSchema.addResolvers.bind(GraphQLSchema
 export const removeGraphQLResolver = GraphQLSchema.removeResolver.bind(GraphQLSchema);
 export const addToGraphQLContext = GraphQLSchema.addToContext.bind(GraphQLSchema);
 export const addGraphQLDirective = GraphQLSchema.addDirective.bind(GraphQLSchema);
+
+export const getExecutableSchema = () => GraphQLSchema.getExecutableSchema();
+export const getSchemaContextBase = () => GraphQLSchema.context;

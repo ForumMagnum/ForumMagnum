@@ -17,7 +17,7 @@ import { check } from 'meteor/check';
 import Cookies from 'universal-cookie';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { Collections } from '../../../lib/vulcan-lib/collections';
-import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
+import { getSchemaContextBase } from '../../../lib/vulcan-lib/graphql';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
@@ -97,7 +97,7 @@ const generateDataLoaders = (context) => {
 
 
 export const computeContextFromUser = async (user, headers): Promise<ResolverContext> => {
-  let context: ResolverContext = {...GraphQLSchema.context};
+  let context: ResolverContext = {...getSchemaContextBase()};
 
   generateDataLoaders(context);
   if (user)
