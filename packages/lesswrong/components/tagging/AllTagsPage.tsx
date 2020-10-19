@@ -71,7 +71,7 @@ const AllTagsPage = ({classes}: {
     },
     collection: Tags,
     fragmentName: "TagPreviewFragment",
-    limit: 20,
+    limit: 5,
     itemsPerPage: 100,
     ssr: true
   });

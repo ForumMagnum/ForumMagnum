@@ -109,7 +109,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Tags}>
               <div className={classes.header}>
-                <Typography variant="body1">Tags and Wiki</Typography>
+                <Typography variant="body1">Tags</Typography>
               </div>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />
@@ -151,4 +151,3 @@ declare global {
     SearchBarResults: typeof SearchBarResultsComponent
   }
 }
-
