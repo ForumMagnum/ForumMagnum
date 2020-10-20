@@ -1,4 +1,4 @@
-import { Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from './vulcan-lib';
+import { Connectors, runCallbacks, runCallbacksAsync, createMutator, updateMutator } from './vulcan-lib';
 import Votes from '../lib/collections/votes/collection';
 import Users from '../lib/collections/users/collection';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
@@ -37,7 +37,7 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId, upd
   // create vote and insert it
   const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
   delete vote.__typename;
-  await newMutation({
+  await createMutator({
     collection: Votes,
     document: vote,
     validate: false,
@@ -82,7 +82,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
   if (votes.length) {
     for (let vote of votes) {
       // Cancel the existing votes
-      await editMutation({
+      await updateMutator({
         collection: Votes,
         documentId: vote._id,
         set: { cancelled: true },
@@ -100,7 +100,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
         power: -vote.power,
         votedAt: new Date(),
       };
-      await newMutation({
+      await createMutator({
         collection: Votes,
         document: unvote,
         validate: false,
@@ -153,14 +153,14 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     power: -vote.power,
     votedAt: new Date(),
   };
-  await newMutation({
+  await createMutator({
     collection: Votes,
     document: unvote,
     validate: false,
   });
 
   // Set the cancelled field on the vote object to true
-  await editMutation({
+  await updateMutator({
     collection: Votes,
     documentId: vote._id,
     set: { cancelled: true },

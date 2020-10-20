@@ -1,4 +1,4 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from '../vulcan-lib';
+import { addCallback, runCallbacks, runCallbacksAsync, createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -122,7 +122,7 @@ addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighl
 
 function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {
-    void newMutation({
+    void createMutator({
       collection: PostRelations,
       document: {
         type: "subQuestion",

@@ -1,6 +1,6 @@
 import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
-import { addCallback, editMutation } from '../../vulcan-lib';
+import { addCallback, updateMutator } from '../../vulcan-lib';
 import * as _ from 'underscore';
 
 function recalculateAFCommentMetadata(postId: string|null) {
@@ -16,7 +16,7 @@ function recalculateAFCommentMetadata(postId: string|null) {
   const lastComment:DbComment = _.max(afComments, function(c){return c.postedAt;})
   const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:postId})?.postedAt || new Date()
 
-  void editMutation({
+  void updateMutator({
     collection:Posts,
     documentId: postId,
     set: {

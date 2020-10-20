@@ -1,4 +1,4 @@
-import { newMutation, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
+import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -163,7 +163,7 @@ export const createDummyPost = async (user?: any, data?: any) => {
     title: Random.id(),
   }
   const postData = {...defaultData, ...data};
-  const newPostResponse = await newMutation({
+  const newPostResponse = await createMutator({
     collection: Posts,
     document: postData,
     currentUser: user || defaultUser,
@@ -181,7 +181,7 @@ export const createDummyUser = async (data?: any) => {
     reviewedByUserId: "fakeuserid" // TODO: make this user_id correspond to something real that would hold up if we had proper validation
   }
   const userData = {...defaultData, ...data};
-  const newUserResponse = await newMutation({
+  const newUserResponse = await createMutator({
     collection: Users,
     document: userData,
     validate: false,
@@ -206,7 +206,7 @@ export const createDummyComment = async (user: any, data?: any) => {
     defaultData.postId = randomPost._id; // By default, just grab ID from a random post
   }
   const commentData = {...defaultData, ...data};
-  const newCommentResponse = await newMutation({
+  const newCommentResponse = await createMutator({
     collection: Comments,
     document: commentData,
     currentUser: user || defaultUser,
@@ -222,7 +222,7 @@ export const createDummyConversation = async (user: any, data?: any) => {
     participantIds: [user._id],
   }
   const conversationData = {...defaultData, ...data};
-  const newConversationResponse = await newMutation({
+  const newConversationResponse = await createMutator({
     collection: Conversations,
     document: conversationData,
     currentUser: user,
@@ -238,7 +238,7 @@ export const createDummyMessage = async (user: any, data?: any) => {
     userId: user._id,
   }
   const messageData = {...defaultData, ...data};
-  const newMessageResponse = await newMutation({
+  const newMessageResponse = await createMutator({
     collection: Messages,
     document: messageData,
     currentUser: user,

@@ -9,7 +9,7 @@ import Users from "../../lib/collections/users/collection";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
-import { addCallback, editMutation, newMutation, removeMutation, runCallbacksAsync } from '../vulcan-lib';
+import { addCallback, updateMutator, createMutator, deleteMutator, runCallbacksAsync } from '../vulcan-lib';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 
 
@@ -22,7 +22,7 @@ const getLessWrongAccount = async () => {
       username: "LessWrong",
       email: "lesswrong@lesswrong.com",
     }
-    const newAccount = await newMutation({
+    const newAccount = await createMutator({
       collection: Users,
       document: userData,
       validate: false,
@@ -41,7 +41,7 @@ async function createShortformPost (comment: DbComment, currentUser: DbUser) {
       });
     }
     
-    const post = await newMutation({
+    const post = await createMutator({
       collection: Posts,
       document: {
         userId: currentUser._id,
@@ -52,7 +52,7 @@ async function createShortformPost (comment: DbComment, currentUser: DbUser) {
       currentUser,
       validate: false,
     })
-    await editMutation({
+    await updateMutator({
       collection: Users,
       documentId: currentUser._id,
       set: {
@@ -129,7 +129,7 @@ function CommentsRemoveChildrenComments (comment: DbComment, currentUser: DbUser
   const childrenComments = Comments.find({parentCommentId: comment._id}).fetch();
 
   childrenComments.forEach(childComment => {
-    void removeMutation({
+    void deleteMutator({
       collection: Comments,
       documentId: childComment._id,
       currentUser: currentUser,
@@ -206,7 +206,7 @@ function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) 
     const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
     const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:comment.postId})?.postedAt || new Date()
   
-    void editMutation({
+    void updateMutator({
       collection:Posts,
       documentId: comment.postId,
       set: {
@@ -243,7 +243,7 @@ export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComme
       participantIds: [newComment.userId, lwAccount._id],
       title: `Comment deleted on ${onWhat}`
     }
-    const conversation = await newMutation({
+    const conversation = await createMutator({
       collection: Conversations,
       document: conversationData,
       currentUser: lwAccount,
@@ -273,14 +273,14 @@ export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComme
       conversationId: conversation.data._id
     }
 
-    await newMutation({
+    await createMutator({
       collection: Messages,
       document: firstMessageData,
       currentUser: lwAccount,
       validate: false
     })
 
-    await newMutation({
+    await createMutator({
       collection: Messages,
       document: secondMessageData,
       currentUser: lwAccount,

@@ -1,7 +1,7 @@
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
-import { Vulcan, newMutation, Utils } from '../vulcan-lib';
+import { Vulcan, createMutator, Utils } from '../vulcan-lib';
 import { sanitize } from '../vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/make_editable_callbacks';
@@ -239,7 +239,7 @@ const bulkUpdateUsers = async (users, userMap) => {
 const insertUser = async (user) => {
   // console.log("insertUser", user);
   try {
-    await newMutation({
+    await createMutator({
       collection: Users,
       document: user,
       validate: false
@@ -248,7 +248,7 @@ const insertUser = async (user) => {
     if (err.code == 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        await newMutation({
+        await createMutator({
           collection: Users,
           document: newUser,
           validate: false

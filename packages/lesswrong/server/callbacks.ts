@@ -10,7 +10,7 @@ import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
-import { getCollection, addCallback, newMutation, editMutation, removeMutation, Utils, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, Utils, runCallbacksAsync, runQuery } from './vulcan-lib';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 
@@ -19,7 +19,7 @@ async function updateConversationActivity (message: DbMessage) {
   const user = Users.findOne(message.userId);
   const conversation = Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
-  await editMutation({
+  await updateMutator({
     collection: Conversations,
     documentId: conversation._id,
     set: {latestActivity: message.createdAt},
@@ -113,7 +113,7 @@ async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);
   for (let post of posts) {
-    await editMutation({
+    await updateMutator({
       collection: Posts,
       documentId: post._id,
       set: {status: 5},
@@ -126,7 +126,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for post ${post._id}: `, notifications);
     for (let notification of notifications) {
-      await removeMutation({
+      await deleteMutator({
         collection: Notifications,
         documentId: notification._id,
         validate: false,
@@ -137,7 +137,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for post ${post._id}: `, reports);
     for (let report of reports) {
-      await editMutation({
+      await updateMutator({
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
@@ -155,7 +155,7 @@ async function userDeleteContent(user: DbUser) {
   console.info("Deleting comments: ", comments);
   for (let comment of comments) {
     if (!comment.deleted) {
-      await editMutation({
+      await updateMutator({
         collection: Comments,
         documentId: comment._id,
         set: {deleted: true, deletedDate: new Date()},
@@ -169,7 +169,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for comment ${comment._id}: `, notifications);
     for (let notification of notifications) {
-      await removeMutation({
+      await deleteMutator({
         collection: Notifications,
         documentId: notification._id,
         validate: false,
@@ -180,7 +180,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for comment ${comment._id}: `, reports);
     for (let report of reports) {
-      await editMutation({
+      await updateMutator({
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
@@ -224,7 +224,7 @@ async function userIPBan(user: DbUser) {
         comment: "Automatic IP ban",
         ip: ip,
       }
-      await newMutation({
+      await createMutator({
         collection: Bans,
         document: ban,
         currentUser: user,

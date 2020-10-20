@@ -1,7 +1,7 @@
 import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
 import { Comments } from '../lib/collections/comments/collection'
-import { editMutation, addCallback, runCallbacksAsync } from './vulcan-lib';
+import { updateMutator, addCallback, runCallbacksAsync } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 import { Meteor } from 'meteor/meteor';
@@ -76,7 +76,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
       if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
-        await editMutation({
+        await updateMutator({
           collection: Posts,
           documentId: post._id,
           set: {status: 4},
@@ -100,7 +100,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
         if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
           // eslint-disable-next-line no-console
           console.log("Deleting comment from user below spam threshold", comment)
-          await editMutation({
+          await updateMutator({
             collection: Comments,
             documentId: comment._id,
             set: {

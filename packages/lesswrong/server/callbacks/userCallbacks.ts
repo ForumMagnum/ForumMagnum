@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { addCallback, editMutation } from '../vulcan-lib';
+import { addCallback, updateMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
@@ -63,7 +63,7 @@ async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
     // to now so that it goes to the right place int he latest posts list.
     const unreviewedPosts = Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
     for (let post of unreviewedPosts) {
-      await editMutation<DbPost>({
+      await updateMutator<DbPost>({
         collection: Posts,
         documentId: post._id,
         set: {
@@ -196,7 +196,7 @@ async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
     // So, don't bother checking for an old post in the shortformFeedId field.
     
     // Mark the post as shortform
-    await editMutation({
+    await updateMutator({
       collection: Posts,
       documentId: post._id,
       set: { shortform: true },

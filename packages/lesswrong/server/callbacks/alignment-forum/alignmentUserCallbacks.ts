@@ -1,4 +1,4 @@
-import { addCallback, newMutation, editMutation } from '../../vulcan-lib';
+import { addCallback, createMutator, updateMutator } from '../../vulcan-lib';
 import Users from "../../../lib/collections/users/collection";
 import Messages from '../../../lib/collections/messages/collection';
 import Conversations from '../../../lib/collections/conversations/collection';
@@ -12,7 +12,7 @@ const getAlignmentForumAccount = async () => {
       displayName: "AI Alignment Forum",
       email: "aialignmentforum@lesswrong.com",
     }
-    const response = await newMutation({
+    const response = await createMutator({
       collection: Users,
       document: userData,
       validate: false,
@@ -34,7 +34,7 @@ export async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbU
       participantIds: [newUser._id, lwAccount._id],
       title: `Welcome to the AI Alignment Forum!`
     }
-    const conversation = await newMutation({
+    const conversation = await createMutator({
       collection: Conversations,
       document: conversationData,
       currentUser: lwAccount,
@@ -63,7 +63,7 @@ export async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbU
       },
       conversationId: conversation.data._id
     }
-    void newMutation({
+    void createMutator({
       collection: Messages,
       document: firstMessageData,
       currentUser: lwAccount,
@@ -78,7 +78,7 @@ addCallback("users.edit.async", NewAlignmentUserSendPMAsync);
 async function NewAlignmentUserMoveShortform(newUser: DbUser, oldUser: DbUser, context) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
-      await editMutation({
+      await updateMutator({
         collection:Posts,
         documentId: newUser.shortformFeedId,
         set: {

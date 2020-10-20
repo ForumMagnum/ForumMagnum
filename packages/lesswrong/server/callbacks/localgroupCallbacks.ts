@@ -1,4 +1,4 @@
-import { addCallback, newMutation } from '../vulcan-lib';
+import { addCallback, createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 
 import { Localgroups, makeEditableOptions } from '../../lib/collections/localgroups/collection'
@@ -14,7 +14,7 @@ function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser:
   const post = {...groupWelcomePostTemplate, ...newFields};
   //eslint-disable-next-line no-console
   console.info("Creating new post for new group", post);
-  void newMutation({
+  void createMutator({
     collection: Posts,
     document: post,
     currentUser,

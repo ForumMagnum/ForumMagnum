@@ -1,5 +1,5 @@
 import { LWEvents } from '../lib/collections/lwevents/collection';
-import { newMutation } from './vulcan-lib';
+import { createMutator } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { ForwardedWhitelist } from './forwarded_whitelist';
 import { Accounts } from 'meteor/accounts-base';
@@ -17,7 +17,7 @@ Meteor.onConnection(async (connection) => {
   let currentUser = await getDummyUser();
   const ip = (connection.httpHeaders && connection.httpHeaders["x-real-ip"]) || connection.clientAddress;
   
-  void newMutation({
+  void createMutator({
     collection: LWEvents,
     document: {
       name: 'newConnection',
@@ -36,7 +36,7 @@ Meteor.onConnection(async (connection) => {
   connection.onClose(() => {
     //eslint-disable-next-line no-console
     console.info(`closed Meteor connection from ${connection.clientAddress}`);
-    void newMutation({
+    void createMutator({
       collection: LWEvents,
       document: {
         name: 'closeConnection',
@@ -65,7 +65,7 @@ Accounts.onLogin(async (login) => {
       referrer: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['referer']
     }
   }
-  void newMutation({
+  void createMutator({
     collection: LWEvents,
     document: document,
     currentUser: await getDummyUser(),

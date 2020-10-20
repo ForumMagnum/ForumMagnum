@@ -605,11 +605,6 @@ export const deleteMutator = async <T extends DbObject>({
   return { data: document };
 };
 
-// OpenCRUD backwards compatibility
-export const newMutation = createMutator;
-export const editMutation = updateMutator;
-export const removeMutation = deleteMutator;
-
 Utils.createMutator = createMutator;
 Utils.updateMutator = updateMutator;
 Utils.deleteMutator = deleteMutator;

@@ -1,4 +1,4 @@
-import { addCallback, editMutation, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
+import { addCallback, updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import Sequences from '../lib/collections/sequences/collection';
 import Posts from '../lib/collections/posts/collection';
@@ -92,7 +92,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
 }
 
 export const setUserPartiallyReadSequences = async (userId: string, newPartiallyReadSequences) => {
-  await editMutation({
+  await updateMutator({
     collection: Users,
     documentId: userId,
     set: {
