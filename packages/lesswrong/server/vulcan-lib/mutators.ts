@@ -38,7 +38,6 @@ import {
   dataToModifier,
   modifierToData,
 } from '../../lib/vulcan-lib/validation';
-import { debug, debugGroup, debugGroupEnd } from '../../lib/vulcan-lib/debug';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
 import clone from 'lodash/clone';
@@ -76,8 +75,6 @@ export const createMutator = async <T extends DbObject>({
 
   const { collectionName, typeName } = collection.options;
   const schema = collection.simpleSchema()._schema;
-
-  startDebugMutator(collectionName, 'Update', { validate, document });
 
   /*
 
@@ -231,8 +228,6 @@ export const createMutator = async <T extends DbObject>({
     collection
   );
 
-  endDebugMutator(collectionName, 'Create', { document });
-
   return { data: document as T };
 };
 
@@ -274,8 +269,6 @@ export const updateMutator = async <T extends DbObject>({
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
   data = data || modifierToData({ $set: set, $unset: unset });
-
-  startDebugMutator(collectionName, 'Update', { selector, data });
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -469,8 +462,6 @@ export const updateMutator = async <T extends DbObject>({
     collection
   );
 
-  endDebugMutator(collectionName, 'Update', { modifier });
-
   return { data: document };
 };
 
@@ -611,8 +602,6 @@ export const deleteMutator = async <T extends DbObject>({
     collection
   );
 
-  endDebugMutator(collectionName, 'Delete');
-
   return { data: document };
 };
 
@@ -623,23 +612,6 @@ export const removeMutation = deleteMutator;
 export const newMutator = createMutator;
 export const editMutator = updateMutator;
 export const removeMutator = deleteMutator;
-
-const startDebugMutator = (name, action, properties) => {
-  debug('');
-  debugGroup(`--------------- start \x1b[36m${name} ${action} Mutator\x1b[0m ---------------`);
-  Object.keys(properties).forEach(p => {
-    debug(`// ${p}: `, properties[p]);
-  });
-};
-
-const endDebugMutator = (name, action, properties = {}) => {
-  Object.keys(properties).forEach(p => {
-    debug(`// ${p}: `, properties[p]);
-  });
-  debugGroupEnd();
-  debug(`--------------- end \x1b[36m${name} ${action} Mutator\x1b[0m ---------------`);
-  debug('');
-};
 
 Utils.createMutator = createMutator;
 Utils.updateMutator = updateMutator;
