@@ -609,9 +609,6 @@ export const deleteMutator = async <T extends DbObject>({
 export const newMutation = createMutator;
 export const editMutation = updateMutator;
 export const removeMutation = deleteMutator;
-export const newMutator = createMutator;
-export const editMutator = updateMutator;
-export const removeMutator = deleteMutator;
 
 Utils.createMutator = createMutator;
 Utils.updateMutator = updateMutator;
