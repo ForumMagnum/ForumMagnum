@@ -31,7 +31,7 @@ to the client.
 
 */
 
-import { runCallbacks, runCallbacksAsync, Utils } from '../../lib/vulcan-lib/index';
+import { Utils } from '../../lib/vulcan-lib/utils';
 import {
   validateDocument,
   validateData,
@@ -74,7 +74,7 @@ export const createMutator = async <T extends DbObject>({
   // we don't want to modify the original document
   document = data || document;
 
-  const { collectionName, typeName } = collection;
+  const { collectionName } = collection;
   const schema = collection.simpleSchema()._schema;
   
   // Cast because the type system doesn't know that the collectionName on a
@@ -265,7 +265,7 @@ export const updateMutator = async <T extends DbObject>({
 }): Promise<{
   data: T
 }> => {
-  const { collectionName, typeName } = collection;
+  const { collectionName } = collection;
   const schema = collection.simpleSchema()._schema;
 
   // OpenCRUD backwards compatibility
@@ -490,7 +490,7 @@ export const deleteMutator = async <T extends DbObject>({
 }): Promise<{
   data: T|null|undefined
 }> => {
-  const { collectionName, typeName } = collection;
+  const { collectionName } = collection;
   const schema = collection.simpleSchema()._schema;
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
