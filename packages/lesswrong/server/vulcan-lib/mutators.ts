@@ -175,12 +175,18 @@ export const createMutator = async <T extends DbObject>({
   });
   document = await runCallbacks({ name: '*.create.before', iterator: document, properties });
   // OpenCRUD backwards compatibility
-  document = await runCallbacks(
-    `${collectionName.toLowerCase()}.new.before`,
-    document,
-    currentUser
-  );
-  document = await runCallbacks(`${collectionName.toLowerCase()}.new.sync`, document, currentUser);
+  document = await runCallbacks({
+    name: `${collectionName.toLowerCase()}.new.before`,
+    iterator: document,
+    properties: [
+      currentUser
+    ]
+  });
+  document = await runCallbacks({
+    name: `${collectionName.toLowerCase()}.new.sync`,
+    iterator: document,
+    properties: [currentUser]
+  });
 
   /*
 
@@ -202,7 +208,11 @@ export const createMutator = async <T extends DbObject>({
   });
   document = await runCallbacks({ name: '*.create.after', iterator: document, properties });
   // OpenCRUD backwards compatibility
-  document = await runCallbacks(`${collectionName.toLowerCase()}.new.after`, document, currentUser);
+  document = await runCallbacks({
+    name: `${collectionName.toLowerCase()}.new.after`,
+    iterator: document,
+    properties: [currentUser]
+  });
 
   // note: query for document to get fresh document with collection-hooks effects applied
   const queryResult = await Connectors.get(collection, document._id);
@@ -217,16 +227,18 @@ export const createMutator = async <T extends DbObject>({
   // note: make sure properties.document is up to date
   await runCallbacksAsync({
     name: `${typeName.toLowerCase()}.create.async`,
-    properties: { ...properties, document: document },
+    properties: [{ ...properties, document: document }],
   });
-  await runCallbacksAsync({ name: '*.create.async', properties });
+  await runCallbacksAsync({ name: '*.create.async', properties: [properties] });
   // OpenCRUD backwards compatibility
-  await runCallbacksAsync(
-    `${collectionName.toLowerCase()}.new.async`,
-    document,
-    currentUser,
-    collection
-  );
+  await runCallbacksAsync({
+    name: `${collectionName.toLowerCase()}.new.async`,
+    iterator: document,
+    properties: [
+      currentUser,
+      collection
+    ]
+  });
 
   return { data: document as T };
 };
@@ -374,22 +386,26 @@ export const updateMutator = async <T extends DbObject>({
   data = await runCallbacks({ name: '*.update.before', iterator: data, properties });
   // OpenCRUD backwards compatibility
   data = modifierToData(
-    await runCallbacks(
-      `${collectionName.toLowerCase()}.edit.before`,
-      dataToModifier(data),
-      oldDocument,
-      currentUser,
-      document
-    )
+    await runCallbacks({
+      name: `${collectionName.toLowerCase()}.edit.before`,
+      iterator: dataToModifier(data),
+      properties: [
+        oldDocument,
+        currentUser,
+        document
+      ]
+    })
   );
   data = modifierToData(
-    await runCallbacks(
-      `${collectionName.toLowerCase()}.edit.sync`,
-      dataToModifier(data),
-      oldDocument,
-      currentUser,
-      document
-    )
+    await runCallbacks({
+      name: `${collectionName.toLowerCase()}.edit.sync`,
+      iterator: dataToModifier(data),
+      properties: [
+        oldDocument,
+        currentUser,
+        document
+      ]
+    })
   );
 
   // update connector requires a modifier, so get it from data
@@ -438,12 +454,14 @@ export const updateMutator = async <T extends DbObject>({
   });
   document = await runCallbacks({ name: '*.update.after', iterator: document, properties });
   // OpenCRUD backwards compatibility
-  document = await runCallbacks(
-    `${collectionName.toLowerCase()}.edit.after`,
-    document,
-    oldDocument,
-    currentUser
-  );
+  document = await runCallbacks({
+    name: `${collectionName.toLowerCase()}.edit.after`,
+    iterator: document,
+    properties: [
+      oldDocument,
+      currentUser
+    ]
+  });
 
   /*
 
@@ -451,16 +469,18 @@ export const updateMutator = async <T extends DbObject>({
 
   */
   // run async callbacks
-  await runCallbacksAsync({ name: `${typeName.toLowerCase()}.update.async`, properties });
-  await runCallbacksAsync({ name: '*.update.async', properties });
+  await runCallbacksAsync({ name: `${typeName.toLowerCase()}.update.async`, properties: [properties] });
+  await runCallbacksAsync({ name: '*.update.async', properties: [properties] });
   // OpenCRUD backwards compatibility
-  await runCallbacksAsync(
-    `${collectionName.toLowerCase()}.edit.async`,
-    document,
-    oldDocument,
-    currentUser,
-    collection
-  );
+  await runCallbacksAsync({
+    name: `${collectionName.toLowerCase()}.edit.async`,
+    properties: [
+      document,
+      oldDocument,
+      currentUser,
+      collection
+    ]
+  });
 
   return { data: document };
 };
@@ -571,8 +591,16 @@ export const deleteMutator = async <T extends DbObject>({
   });
   await runCallbacks({ name: '*.delete.before', iterator: document, properties });
   // OpenCRUD backwards compatibility
-  await runCallbacks(`${collectionName.toLowerCase()}.remove.before`, document, currentUser);
-  await runCallbacks(`${collectionName.toLowerCase()}.remove.sync`, document, currentUser);
+  await runCallbacks({
+    name: `${collectionName.toLowerCase()}.remove.before`,
+    iterator: document,
+    properties: [currentUser]
+  });
+  await runCallbacks({
+    name: `${collectionName.toLowerCase()}.remove.sync`,
+    iterator: document,
+    properties: [currentUser]
+  });
 
   /*
 
@@ -592,15 +620,17 @@ export const deleteMutator = async <T extends DbObject>({
   Async
 
   */
-  await runCallbacksAsync({ name: `${typeName.toLowerCase()}.delete.async`, properties });
-  await runCallbacksAsync({ name: '*.delete.async', properties });
+  await runCallbacksAsync({ name: `${typeName.toLowerCase()}.delete.async`, properties: [properties] });
+  await runCallbacksAsync({ name: '*.delete.async', properties: [properties] });
   // OpenCRUD backwards compatibility
-  await runCallbacksAsync(
-    `${collectionName.toLowerCase()}.remove.async`,
-    document,
-    currentUser,
-    collection
-  );
+  await runCallbacksAsync({
+    name: `${collectionName.toLowerCase()}.remove.async`,
+    properties: [
+      document,
+      currentUser,
+      collection
+    ]
+  });
 
   return { data: document };
 };

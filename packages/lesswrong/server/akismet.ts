@@ -122,7 +122,10 @@ addCallback('comments.new.after', checkCommentForSpamWithAkismet);
 
 function runReportCloseCallbacks(newReport, oldReport) {
   if (newReport.closedAt && !oldReport.closedAt) {
-    runCallbacksAsync('reports.close.async', newReport);
+    runCallbacksAsync({
+      name: 'reports.close.async',
+      properties: [newReport]
+    });
   }
 }
 

@@ -19,7 +19,11 @@ import { addCallback, Connectors, runCallbacks, runCallbacksAsync } from '../../
 
 function PostsEditRunPostApprovedSyncCallbacks(modifier, post) {
   if (modifier.$set && Posts.isApproved(modifier.$set) && !Posts.isApproved(post)) {
-    modifier = runCallbacks('posts.approve.sync', modifier, post);
+    modifier = runCallbacks({
+      name: 'posts.approve.sync',
+      iterator: modifier,
+      properties: [post]
+    });
   }
   return modifier;
 }
@@ -31,7 +35,10 @@ addCallback('posts.edit.sync', PostsEditRunPostApprovedSyncCallbacks);
 
 function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
   if (Posts.isApproved(post) && !Posts.isApproved(oldPost)) {
-    runCallbacksAsync('posts.approve.async', post);
+    runCallbacksAsync({
+      name: 'posts.approve.async',
+      properties: [post]
+    });
   }
 }
 addCallback('posts.edit.async', PostsEditRunPostApprovedAsyncCallbacks);

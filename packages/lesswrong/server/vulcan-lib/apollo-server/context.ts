@@ -73,7 +73,10 @@ const setupAuthToken = (user, context) => {
     });
     
     // identify user to any server-side analytics providers
-    runCallbacks('events.identify', user);
+    runCallbacks({
+      name: 'events.identify',
+      iterator: user
+    });
   } else {
     context.userId = undefined;
     context.currentUser = undefined;

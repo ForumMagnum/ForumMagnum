@@ -7,7 +7,7 @@ import { Utils } from './utils';
 /**
  * @summary Format callback hook names
  */
-const formatHookName = (hook: string|null): string => hook?.toLowerCase() || "";
+const formatHookName = (hook: string|null|undefined): string => hook?.toLowerCase() || "";
 
 /**
  * @summary A list of all registered callback hooks
@@ -78,35 +78,23 @@ export const removeCallback = function (hookName, callback) {
  *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
-export const runCallbacks: any = function (this: any) {
-
-  let hook, item, args, callbacks, ignoreExceptions, formattedHook;
-  if (typeof arguments[0] === 'object' && arguments.length === 1) {
-    const singleArgument = arguments[0];
-    hook = singleArgument.name;
-    formattedHook = formatHookName(hook);
-    item = singleArgument.iterator;
-    args = singleArgument.properties;
-    if ("ignoreExceptions" in singleArgument)
-      ignoreExceptions = singleArgument.ignoreExceptions;
-    else
-      ignoreExceptions = true;
-    // if callbacks option is passed used that, else use formatted hook name
-    callbacks = singleArgument.callbacks ? singleArgument.callbacks : Callbacks[formattedHook];
-  } else {
-    // OpenCRUD backwards compatibility
-    // the first argument is the name of the hook or an array of functions
-    hook = arguments[0];
-    formattedHook = formatHookName(hook);
-    // the second argument is the item on which to iterate
-    item = arguments[1];
-    // successive arguments are passed to each iteration
-    args = Array.prototype.slice.call(arguments).slice(2);
-    // if first argument is an array, use that as callbacks array; else use formatted hook name
-    callbacks = Array.isArray(hook) ? hook : Callbacks[formattedHook];
-    
+export const runCallbacks = function (this: any, options: {
+  name?: string,
+  iterator?: any,
+  properties?: any,
+  ignoreExceptions?: boolean,
+  callbacks?: any,
+}) {
+  const hook = options.name;
+  const formattedHook = formatHookName(hook);
+  const item = options.iterator;
+  const args = options.properties;
+  let ignoreExceptions: boolean;
+  if ("ignoreExceptions" in options)
+    ignoreExceptions = !!options.ignoreExceptions;
+  else
     ignoreExceptions = true;
-  }
+  const callbacks = options.callbacks ? options.callbacks : Callbacks[formattedHook];
 
   // flag used to detect the callback that initiated the async context
   let asyncContext = false;
@@ -180,20 +168,9 @@ export const runCallbacks: any = function (this: any) {
  * @param {String} hook - First argument: the name of the hook
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
-export const runCallbacksAsync: any = function () {
-
-  let hook, args;
-  if (typeof arguments[0] === 'object' && arguments.length === 1) {
-    const singleArgument = arguments[0];
-    hook = singleArgument.name;
-    args = [singleArgument.properties]; // wrap in array for apply
-  } else {
-    // OpenCRUD backwards compatibility
-    // the first argument is the name of the hook or an array of functions
-    hook = formatHookName(arguments[0]);
-    // successive arguments are passed to each iteration
-    args = Array.prototype.slice.call(arguments).slice(1);
-  }
+export const runCallbacksAsync = function (options: {name: string, properties: Array<any>}) {
+  const hook = options.name;
+  const args = options.properties;
 
   const callbacks = Array.isArray(hook) ? hook : Callbacks[hook];
 

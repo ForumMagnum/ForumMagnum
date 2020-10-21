@@ -13,7 +13,7 @@ Vulcan.runPostEditCallbacks = () => {
     const { html = "" } = post.contents || {}
     if (html) {
       try {
-        Posts.update(post._id,runCallbacks("posts.edit.sync", {$set: { html }}, post))
+        Posts.update(post._id, runCallbacks({name: "posts.edit.sync", iterator: {$set: { html }}, properties: [post]}))
       } catch (e) {
         //eslint-disable-next-line no-console
         console.error(e)

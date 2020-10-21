@@ -12,7 +12,11 @@ const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
-    data = runCallbacks("post.undraft.before", data, post);
+    data = runCallbacks({
+      name: "post.undraft.before",
+      iterator: data,
+      properties: [post]
+    });
   }
   return data;
 }
@@ -20,7 +24,10 @@ addCallback("post.update.before", PostsEditRunPostUndraftedSyncCallbacks);
 
 function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    runCallbacksAsync("posts.undraft.async", newPost, oldPost)
+    runCallbacksAsync({
+      name: "posts.undraft.async",
+      properties: [newPost, oldPost]
+    })
   }
   return newPost
 }
@@ -28,7 +35,10 @@ addCallback("posts.edit.async", PostsEditRunPostUndraftedAsyncCallbacks);
 
 function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
   if (newPost.draft && !oldPost.draft) {
-    runCallbacksAsync("posts.draft.async", newPost, oldPost)
+    runCallbacksAsync({
+      name: "posts.draft.async",
+      properties: [newPost, oldPost]
+    })
   }
   return newPost
 }

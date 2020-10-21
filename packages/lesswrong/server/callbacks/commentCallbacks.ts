@@ -99,7 +99,10 @@ addCallback('comments.new.sync', CommentsNewOperations);
  * @param {object} collection - The collection the item belongs to
  */
 function UpvoteAsyncCallbacksAfterDocumentInsert(item, user, collection) {
-  runCallbacksAsync('upvote.async', item, user, collection, 'upvote');
+  runCallbacksAsync({
+    name: 'upvote.async',
+    properties: [item, user, collection, 'upvote']
+  });
 }
 addCallback('comments.new.async', UpvoteAsyncCallbacksAfterDocumentInsert);
 
@@ -194,7 +197,10 @@ addCallback('comments.new.validate', CommentsNewRateLimit);
 
 function CommentsEditSoftDeleteCallback (comment: DbComment, oldComment: DbComment, currentUser: DbUser) {
   if (comment.deleted && !oldComment.deleted) {
-    runCallbacksAsync('comments.moderate.async', comment, oldComment, {currentUser});
+    runCallbacksAsync({
+      name: 'comments.moderate.async',
+      properties: [comment, oldComment, {currentUser}]
+    });
   }
 }
 addCallback("comments.edit.async", CommentsEditSoftDeleteCallback);

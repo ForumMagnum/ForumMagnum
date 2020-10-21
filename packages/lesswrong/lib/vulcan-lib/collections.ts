@@ -197,21 +197,25 @@ export const createCollection = (options: any): any => {
     }
 
     // iterate over posts.parameters callbacks
-    parameters = runCallbacks(
-      `${typeName.toLowerCase()}.parameters`,
-      parameters,
-      _.clone(terms),
-      apolloClient,
-      context
-    );
+    parameters = runCallbacks({
+      name: `${typeName.toLowerCase()}.parameters`,
+      iterator: parameters,
+      properties: [
+        _.clone(terms),
+        apolloClient,
+        context
+      ]
+    });
     // OpenCRUD backwards compatibility
-    parameters = runCallbacks(
-      `${collectionName.toLowerCase()}.parameters`,
-      parameters,
-      _.clone(terms),
-      apolloClient,
-      context
-    );
+    parameters = runCallbacks({
+      name: `${collectionName.toLowerCase()}.parameters`,
+      iterator: parameters,
+      properties: [
+        _.clone(terms),
+        apolloClient,
+        context
+      ]
+    });
 
     // sort using terms.orderBy (overwrite defaultView's sort)
     if (terms.orderBy && !_.isEmpty(terms.orderBy)) {

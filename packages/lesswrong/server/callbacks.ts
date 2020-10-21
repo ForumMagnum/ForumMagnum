@@ -31,7 +31,10 @@ addCallback("messages.new.async", updateConversationActivity);
 
 function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.voteBanned && !oldUser.voteBanned) {
-    runCallbacksAsync('users.voteBanned.async', user);
+    runCallbacksAsync({
+      name: 'users.voteBanned.async',
+      properties: [user]
+    });
   }
   return user;
 }
@@ -39,7 +42,10 @@ addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
 
 async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    runCallbacksAsync('users.nullifyVotes.async', user);
+    runCallbacksAsync({
+      name: 'users.nullifyVotes.async',
+      properties: [user]
+    });
   }
   return user;
 }
@@ -48,7 +54,10 @@ addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
 
 function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.deleteContent && !oldUser.deleteContent) {
-    runCallbacksAsync('users.deleteContent.async', user);
+    runCallbacksAsync({
+      name: 'users.deleteContent.async',
+      properties: [user]
+    });
   }
   return user;
 }
@@ -56,7 +65,10 @@ addCallback("users.edit.async", userEditDeleteContentCallbacksAsync);
 
 function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
-    runCallbacksAsync('users.ban.async', user);
+    runCallbacksAsync({
+      name: 'users.ban.async',
+      properties: [user]
+    });
   }
   return user;
 }
@@ -147,7 +159,10 @@ async function userDeleteContent(user: DbUser) {
       })
     }
     
-    runCallbacksAsync('posts.purge.async', post)
+    runCallbacksAsync({
+      name: 'posts.purge.async',
+      properties: [post]
+    })
   }
 
   const comments = Comments.find({userId: user._id}).fetch();
@@ -190,7 +205,10 @@ async function userDeleteContent(user: DbUser) {
       })
     }
 
-    runCallbacksAsync('comments.purge.async', comment)
+    runCallbacksAsync({
+      name: 'comments.purge.async',
+      properties: [comment]
+    })
   }
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);

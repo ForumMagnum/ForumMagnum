@@ -106,8 +106,15 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
         validate: false,
       });
 
-      runCallbacks(`votes.cancel.sync`, {newDocument, vote}, collection, user);
-      runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
+      runCallbacks({
+        name: `votes.cancel.sync`,
+        iterator: {newDocument, vote},
+        properties: [collection, user]
+      });
+      runCallbacksAsync({
+        name: `votes.cancel.async`,
+        properties: [{newDocument, vote}, collection, user]
+      });
     }
     if (updateDocument) {
       await Connectors.update(collection,
@@ -225,9 +232,16 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   if (existingVote) {
     if (toggleIfAlreadyVoted) {
       let voteDocTuple = await cancelVoteServer(voteOptions);
-      voteDocTuple = await runCallbacks(`votes.cancel.sync`, voteDocTuple, collection, user);
+      voteDocTuple = await runCallbacks({
+        name: `votes.cancel.sync`,
+        iterator: voteDocTuple,
+        properties: [collection, user]
+      });
       document = voteDocTuple.newDocument;
-      runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
+      runCallbacksAsync({
+        name: `votes.cancel.async`,
+        properties: [voteDocTuple, collection, user]
+      });
     }
   } else {
     await checkRateLimit({ document, collection, voteType, user });
@@ -237,9 +251,16 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
     }
 
     let voteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
-    voteDocTuple = await runCallbacks(`votes.${voteType}.sync`, voteDocTuple, collection, user);
+    voteDocTuple = await runCallbacks({
+      name: `votes.${voteType}.sync`,
+      iterator: voteDocTuple,
+      properties: [collection, user]
+    });
     document = voteDocTuple.newDocument;
-    runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
+    runCallbacksAsync({
+      name: `votes.${voteType}.async`,
+      properties: [voteDocTuple, collection, user]
+    });
   }
 
   document.__typename = collection.options.typeName;
