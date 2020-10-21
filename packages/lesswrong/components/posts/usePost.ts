@@ -22,7 +22,6 @@ export const usePostBySlug = ({slug}: {slug: string}):
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,
-    ssr: true,
   });
   
   if (results && results.length>0 && results[0]._id) {
@@ -60,7 +59,6 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,
-    ssr: true,
   });
   
   if (results && results.length>0 && results[0]._id) {

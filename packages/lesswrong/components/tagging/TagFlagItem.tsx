@@ -57,7 +57,6 @@ const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: 
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
-    ssr: true,
     skip: !tagFlag || !showNumber,
     enableTotal: true
   });

@@ -25,7 +25,6 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
     enableTotal: false,
     pollInterval: 0,
     queryLimitName: "recentCommentsLimit",
-    ssr: true
   });
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)

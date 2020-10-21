@@ -91,7 +91,6 @@ const ShortformTimeBlockComponent = registerComponent<ExternalProps>('ShortformT
       fetchPolicy: 'cache-and-network',
       enableTotal: true,
       limit: 5,
-      ssr: true,
     }),
   ]
 });

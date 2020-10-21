@@ -179,7 +179,6 @@ const ReviewVotingPage = ({classes}: {
     collection: Posts,
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
-    ssr: true
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
@@ -187,7 +186,6 @@ const ReviewVotingPage = ({classes}: {
     collection: ReviewVotes,
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
-    ssr: true
   })
 
   const {mutate: updateUser} = useUpdate({

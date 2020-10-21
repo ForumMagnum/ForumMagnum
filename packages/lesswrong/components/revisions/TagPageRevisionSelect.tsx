@@ -29,7 +29,6 @@ const TagPageRevisionSelect = ({ classes }: {
     fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
-    ssr: true,
     enableTotal: true
   });
   

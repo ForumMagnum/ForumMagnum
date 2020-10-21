@@ -70,7 +70,6 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
     collection: TagRels,
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
-    ssr: true,
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)

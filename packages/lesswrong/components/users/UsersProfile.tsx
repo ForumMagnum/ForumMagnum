@@ -330,7 +330,6 @@ const UsersProfileComponent = registerComponent<ExternalProps>(
         collection: Users,
         fragmentName: 'UsersProfile',
         enableTotal: false,
-        ssr: true
       }),
       withLocation, withNavigation,
     ]

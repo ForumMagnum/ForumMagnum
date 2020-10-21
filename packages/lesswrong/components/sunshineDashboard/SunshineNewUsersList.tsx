@@ -24,7 +24,6 @@ const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
     collection: Users,
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    ssr: true,
     itemsPerPage: 60
   });
   const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem, LoadMore } = Components

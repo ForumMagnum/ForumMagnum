@@ -69,7 +69,7 @@ export function withMulti({
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
-  ssr = false, //LESSWRONG: SSR defaults false
+  ssr = true,
   extraVariables,
   fetchPolicy,
   notifyOnNetworkStatusChange,
@@ -221,7 +221,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
-  ssr = false, //LESSWRONG: SSR defaults false
+  ssr = true,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
