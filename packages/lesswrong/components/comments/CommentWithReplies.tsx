@@ -75,8 +75,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
           comment={comment}
           markAsRead={this.markAsRead}
           highlightDate={lastVisitedAt}
-          //eslint-disable-next-line react/no-children-prop
-          children={nestedComments}
+          childComments={nestedComments}
           key={comment._id}
           post={post}
           condensed

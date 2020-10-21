@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
+import type { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';

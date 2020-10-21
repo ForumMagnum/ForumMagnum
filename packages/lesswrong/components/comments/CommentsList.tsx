@@ -6,7 +6,7 @@ import withGlobalKeydown from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
-import { CommentTreeNode } from '../../lib/utils/unflatten';
+import type { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -146,8 +146,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
                 parentCommentId={parentCommentId}
                 nestingLevel={defaultNestingLevel}
                 lastCommentId={lastCommentId}
-                //eslint-disable-next-line react/no-children-prop
-                children={comment.children}
+                childComments={comment.children}
                 key={comment.item._id}
                 highlightDate={highlightDate}
                 post={post}

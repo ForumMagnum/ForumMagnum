@@ -26,6 +26,7 @@ registerFragment(`
 registerFragment(`
   fragment TagFragment on Tag {
     ...TagBasicInfo
+    isRead
     description {
       html
       htmlHighlight
@@ -36,8 +37,30 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagHistoryFragment on Tag {
+    ...TagBasicInfo
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagCreationHistoryFragment on Tag {
+    ...TagFragment
+    user {
+      ...UsersMinimumInfo
+    }
+    description {
+      html
+    }
+  }
+`);
+
+registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagBasicInfo
+    isRead
     description(version: $version) {
       version
       html
@@ -77,6 +100,16 @@ registerFragment(`
     tagFlagsIds
     description {
       ...RevisionEdit
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagRecentDiscussion on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
     }
   }
 `);

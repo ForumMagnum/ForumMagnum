@@ -7,7 +7,8 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUt
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Posts } from "../../../lib/collections/posts";
+import { Posts } from "../../../lib/collections/posts/collection";
+import { Tags } from "../../../lib/collections/tags/collection";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
@@ -233,6 +234,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
             )}
 
             {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{comment.post.title}</Link>}
+            {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={Tags.getUrl(comment.tag)}>{comment.tag.name}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
@@ -389,8 +391,12 @@ const CommentsItemComponent = registerComponent<ExternalProps>(
   }
 );
 
-function hasPostField(comment: CommentsList | CommentsListWithParentMetadata):comment is CommentsListWithParentMetadata {
+function hasPostField(comment: CommentsList | CommentsListWithParentMetadata): comment is CommentsListWithParentMetadata {
   return !!(comment as CommentsListWithParentMetadata).post
+}
+
+function hasTagField(comment: CommentsList | CommentsListWithParentMetadata): comment is CommentsListWithParentMetadata {
+  return !!(comment as CommentsListWithParentMetadata).tag
 }
 
 declare global {

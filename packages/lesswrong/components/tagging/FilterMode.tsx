@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterMode } from '../../lib/filterSettings';
+import type { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';

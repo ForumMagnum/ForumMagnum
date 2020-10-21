@@ -114,3 +114,27 @@ export const initializeFragment = (fragmentName) => {
 export const getAllFragmentNames = () => {
   return Object.keys(Fragments);
 }
+
+
+const addFragmentDependencies = (fragments: Array<keyof FragmentTypes>): Array<keyof FragmentTypes> => {
+  const result = [...fragments];
+  for (let i=0; i<result.length; i++) {
+    const dependencies = Fragments[result[i]].subFragments;
+    if (dependencies) {
+      _.forEach(dependencies, (subfragment: keyof FragmentTypes) => {
+        if (!_.find(result, (s: keyof FragmentTypes)=>s==subfragment))
+          result.push(subfragment);
+      });
+    }
+  }
+  return result;
+}
+
+// Given a fragment name (or an array of fragment names), return text which can
+// be added to a graphql query to define that fragment (or fragments) and its
+// (or their) dependencies.
+export const fragmentTextForQuery = (fragmentOrFragments: keyof FragmentTypes|Array<keyof FragmentTypes>): string => {
+  const rootFragments: Array<keyof FragmentTypes> = Array.isArray(fragmentOrFragments) ? fragmentOrFragments : [fragmentOrFragments];
+  const fragmentsUsed = addFragmentDependencies(rootFragments);
+  return fragmentsUsed.map(fragmentName => getFragmentText(fragmentName)).join("\n");
+}

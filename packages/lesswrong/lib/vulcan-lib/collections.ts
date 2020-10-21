@@ -159,7 +159,7 @@ export const createCollection = (options: any): any => {
 
   // ------------------------------------- Parameters -------------------------------- //
 
-  collection.getParameters = (terms = {}, apolloClient, context) => {
+  collection.getParameters = (terms:any = {}, apolloClient, context) => {
     // console.log(terms);
 
     let parameters: any = {

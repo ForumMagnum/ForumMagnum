@@ -1,7 +1,7 @@
 import moment from 'moment';
 import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
-import { FilterMode, FilterSettings } from '../../filterSettings';
+import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -87,7 +87,7 @@ export const sortings = {
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
+  const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
