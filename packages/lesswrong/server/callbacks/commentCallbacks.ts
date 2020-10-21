@@ -11,6 +11,7 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { addCallback, updateMutator, createMutator, deleteMutator, runCallbacksAsync } from '../vulcan-lib';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
+import { getCollectionHooks } from '../mutationCallbacks';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -382,7 +383,7 @@ async function moveToAnswers (modifier, comment: DbComment) {
 }
 addCallback("comments.edit.sync", moveToAnswers)
 
-function HandleReplyToAnswer (comment: DbComment, properties)
+getCollectionHooks("Comments").createBefore.add(function HandleReplyToAnswer (comment: DbComment, properties)
 {
   if (comment.parentCommentId) {
     let parentComment = Comments.findOne(comment.parentCommentId)
@@ -405,8 +406,7 @@ function HandleReplyToAnswer (comment: DbComment, properties)
       return modifiedComment;
     }
   }
-}
-addCallback('comment.create.before', HandleReplyToAnswer);
+});
 
 function SetTopLevelCommentId (comment: DbComment, context)
 {

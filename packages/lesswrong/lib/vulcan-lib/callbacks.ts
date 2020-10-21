@@ -4,6 +4,32 @@ import * as _ from 'underscore';
 import { debug } from './debug';
 import { Utils } from './utils';
 
+export class CallbackHook<IteratorType,ArgumentsType extends any[]> {
+  name: string
+  
+  constructor(name: string) {
+    this.name = name;
+  }
+  
+  add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|undefined) => {
+    addCallback(this.name, fn);
+  }
+  
+  runCallbacks = ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): IteratorType => {
+    return runCallbacks({
+      name: this.name,
+      iterator, properties, ignoreExceptions
+    });
+  }
+  
+  runCallbacksAsync = async (properties: ArgumentsType) => {
+    return await runCallbacksAsync({
+      name: this.name,
+      properties
+    });
+  }
+}
+
 /**
  * @summary Format callback hook names
  */
@@ -35,7 +61,7 @@ export const registerCallback = function (callback) {
  * @param {String} hook - The name of the hook
  * @param {Function} callback - The callback function
  */
-export const addCallback = function (hook, callback) {
+export const addCallback = function (hook: string, callback) {
 
   const formattedHook = formatHookName(hook);
 
@@ -60,7 +86,7 @@ export const addCallback = function (hook, callback) {
  * @param {Function} callback - A reference to the function which was previously
  *   passed to addCallback.
  */
-export const removeCallback = function (hookName, callback) {
+export const removeCallback = function (hookName: string, callback) {
   const formattedHook = formatHookName(hookName);
   Callbacks[formattedHook] = _.reject(Callbacks[formattedHook],
     c => c === callback

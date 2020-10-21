@@ -40,6 +40,7 @@ import {
 } from '../../lib/vulcan-lib/validation';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
+import { getCollectionHooks } from '../mutationCallbacks';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
@@ -168,10 +169,10 @@ export const createMutator = async <T extends DbObject>({
   Before
 
   */
-  document = await runCallbacks({
-    name: `${typeName.toLowerCase()}.create.before`,
-    iterator: document,
-    properties,
+  //document = await runCallbacks({
+  document = await getCollectionHooks(collectionName).createBefore.runCallbacks({
+    iterator: document as T,
+    properties: [properties],
   });
   document = await runCallbacks({ name: '*.create.before', iterator: document, properties });
   // OpenCRUD backwards compatibility
