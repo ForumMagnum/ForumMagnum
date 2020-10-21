@@ -101,12 +101,6 @@ export const createMutator = async <T extends DbObject>({
       properties,
       ignoreExceptions: false,
     });
-    validationErrors = await runCallbacks({
-      name: '*.create.validate',
-      iterator: validationErrors,
-      properties,
-      ignoreExceptions: false,
-    });
     // OpenCRUD backwards compatibility
     document = await runCallbacks({
       name: `${collectionName.toLowerCase()}.new.validate`,
@@ -174,7 +168,6 @@ export const createMutator = async <T extends DbObject>({
     iterator: document as T,
     properties: [properties],
   });
-  document = await runCallbacks({ name: '*.create.before', iterator: document, properties });
   // OpenCRUD backwards compatibility
   document = await runCallbacks({
     name: `${collectionName.toLowerCase()}.new.before`,
@@ -207,7 +200,6 @@ export const createMutator = async <T extends DbObject>({
     iterator: document,
     properties,
   });
-  document = await runCallbacks({ name: '*.create.after', iterator: document, properties });
   // OpenCRUD backwards compatibility
   document = await runCallbacks({
     name: `${collectionName.toLowerCase()}.new.after`,
@@ -230,7 +222,6 @@ export const createMutator = async <T extends DbObject>({
     name: `${typeName.toLowerCase()}.create.async`,
     properties: [{ ...properties, document: document }],
   });
-  await runCallbacksAsync({ name: '*.create.async', properties: [properties] });
   // OpenCRUD backwards compatibility
   await runCallbacksAsync({
     name: `${collectionName.toLowerCase()}.new.async`,
@@ -324,12 +315,6 @@ export const updateMutator = async <T extends DbObject>({
       properties,
       ignoreExceptions: false,
     });
-    validationErrors = await runCallbacks({
-      name: '*.update.validate',
-      iterator: validationErrors,
-      properties,
-      ignoreExceptions: false,
-    });
     // OpenCRUD backwards compatibility
     data = modifierToData(
       await runCallbacks({
@@ -384,7 +369,6 @@ export const updateMutator = async <T extends DbObject>({
     iterator: data,
     properties,
   });
-  data = await runCallbacks({ name: '*.update.before', iterator: data, properties });
   // OpenCRUD backwards compatibility
   data = modifierToData(
     await runCallbacks({
@@ -453,7 +437,6 @@ export const updateMutator = async <T extends DbObject>({
     iterator: document,
     properties,
   });
-  document = await runCallbacks({ name: '*.update.after', iterator: document, properties });
   // OpenCRUD backwards compatibility
   document = await runCallbacks({
     name: `${collectionName.toLowerCase()}.edit.after`,
@@ -471,7 +454,6 @@ export const updateMutator = async <T extends DbObject>({
   */
   // run async callbacks
   await runCallbacksAsync({ name: `${typeName.toLowerCase()}.update.async`, properties: [properties] });
-  await runCallbacksAsync({ name: '*.update.async', properties: [properties] });
   // OpenCRUD backwards compatibility
   await runCallbacksAsync({
     name: `${collectionName.toLowerCase()}.edit.async`,
@@ -546,12 +528,6 @@ export const deleteMutator = async <T extends DbObject>({
       properties,
       ignoreExceptions: false,
     });
-    validationErrors = await runCallbacks({
-      name: '*.delete.validate',
-      iterator: validationErrors,
-      properties,
-      ignoreExceptions: false,
-    });
     // OpenCRUD backwards compatibility
     document = await runCallbacks({
       name: `${collectionName.toLowerCase()}.remove.validate`,
@@ -590,7 +566,6 @@ export const deleteMutator = async <T extends DbObject>({
     iterator: document,
     properties,
   });
-  await runCallbacks({ name: '*.delete.before', iterator: document, properties });
   // OpenCRUD backwards compatibility
   await runCallbacks({
     name: `${collectionName.toLowerCase()}.remove.before`,
@@ -622,7 +597,6 @@ export const deleteMutator = async <T extends DbObject>({
 
   */
   await runCallbacksAsync({ name: `${typeName.toLowerCase()}.delete.async`, properties: [properties] });
-  await runCallbacksAsync({ name: '*.delete.async', properties: [properties] });
   // OpenCRUD backwards compatibility
   await runCallbacksAsync({
     name: `${collectionName.toLowerCase()}.remove.async`,
