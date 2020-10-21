@@ -40,7 +40,7 @@ import {
 } from '../../lib/vulcan-lib/validation';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties } from '../mutationCallbacks';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
@@ -57,7 +57,7 @@ export const createMutator = async <T extends DbObject>({
   collection,
   document,
   data,
-  currentUser,
+  currentUser=null,
   validate=true,
   context,
 }: {
@@ -74,8 +74,12 @@ export const createMutator = async <T extends DbObject>({
   // we don't want to modify the original document
   document = data || document;
 
-  const { collectionName, typeName } = collection.options;
+  const { collectionName, typeName } = collection;
   const schema = collection.simpleSchema()._schema;
+  
+  // Cast because the type system doesn't know that the collectionName on a
+  // collection object identifies the collection object type
+  const hooks = getCollectionHooks(collectionName) as unknown as CollectionMutationCallbacks<T>;
 
   /*
 
@@ -84,7 +88,12 @@ export const createMutator = async <T extends DbObject>({
   Note: keep newDocument for backwards compatibility
 
   */
-  const properties = { data, currentUser, collection, context, document, newDocument: document, schema };
+  const properties: CreateCallbackProperties<T> = {
+    data, currentUser, collection, context,
+    document: document as T, // Pretend this isn't Partial<T>
+    newDocument: document as T, // Pretend this isn't Partial<T>
+    schema
+  };
 
   /*
 
@@ -95,16 +104,14 @@ export const createMutator = async <T extends DbObject>({
     let validationErrors: Array<any> = [];
     validationErrors = validationErrors.concat(validateDocument(document, collection, context));
     // run validation callbacks
-    validationErrors = await runCallbacks({
-      name: `${typeName.toLowerCase()}.create.validate`,
+    validationErrors = await hooks.createValidate.runCallbacks({
       iterator: validationErrors,
-      properties,
+      properties: [properties],
       ignoreExceptions: false,
     });
     // OpenCRUD backwards compatibility
-    document = await runCallbacks({
-      name: `${collectionName.toLowerCase()}.new.validate`,
-      iterator: document,
+    document = await hooks.newValidate.runCallbacks({
+      iterator: document as T, // Pretend this isn't Partial<T>
       properties: [currentUser, validationErrors],
       ignoreExceptions: false,
     });
@@ -163,22 +170,19 @@ export const createMutator = async <T extends DbObject>({
   Before
 
   */
-  //document = await runCallbacks({
-  document = await getCollectionHooks(collectionName).createBefore.runCallbacks({
-    iterator: document as T,
+  document = await hooks.createBefore.runCallbacks({
+    iterator: document as T, // Pretend this isn't Partial<T>
     properties: [properties],
   });
   // OpenCRUD backwards compatibility
-  document = await runCallbacks({
-    name: `${collectionName.toLowerCase()}.new.before`,
-    iterator: document,
+  document = await hooks.newBefore.runCallbacks({
+    iterator: document as T, // Pretend this isn't Partial<T>
     properties: [
       currentUser
     ]
   });
-  document = await runCallbacks({
-    name: `${collectionName.toLowerCase()}.new.sync`,
-    iterator: document,
+  document = await hooks.newSync.runCallbacks({
+    iterator: document as T, // Pretend this isn't Partial<T>
     properties: [currentUser]
   });
 
@@ -195,15 +199,13 @@ export const createMutator = async <T extends DbObject>({
 
   */
   // run any post-operation sync callbacks
-  document = await runCallbacks({
-    name: `${typeName.toLowerCase()}.create.after`,
-    iterator: document,
-    properties,
+  document = await hooks.createAfter.runCallbacks({
+    iterator: document as T, // Pretend this isn't Partial<T>
+    properties: [properties],
   });
   // OpenCRUD backwards compatibility
-  document = await runCallbacks({
-    name: `${collectionName.toLowerCase()}.new.after`,
-    iterator: document,
+  document = await hooks.newAfter.runCallbacks({
+    iterator: document as T, // Pretend this isn't Partial<T>
     properties: [currentUser]
   });
 
@@ -218,19 +220,15 @@ export const createMutator = async <T extends DbObject>({
 
   */
   // note: make sure properties.document is up to date
-  await runCallbacksAsync({
-    name: `${typeName.toLowerCase()}.create.async`,
-    properties: [{ ...properties, document: document }],
-  });
+  await hooks.createAsync.runCallbacksAsync(
+    [{ ...properties, document: document as T }],
+  );
   // OpenCRUD backwards compatibility
-  await runCallbacksAsync({
-    name: `${collectionName.toLowerCase()}.new.async`,
-    iterator: document,
-    properties: [
-      currentUser,
-      collection
-    ]
-  });
+  await hooks.newAsync.runCallbacksAsync([
+    document as T, // Pretend this isn't Partial<T>
+    currentUser,
+    collection
+  ]);
 
   return { data: document as T };
 };
@@ -246,10 +244,10 @@ export const updateMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
-  data,
+  data: dataParam,
   set = {},
   unset = {},
-  currentUser,
+  currentUser=null,
   validate=true,
   context,
   document: oldDocument,
@@ -267,12 +265,16 @@ export const updateMutator = async <T extends DbObject>({
 }): Promise<{
   data: T
 }> => {
-  const { collectionName, typeName } = collection.options;
+  const { collectionName, typeName } = collection;
   const schema = collection.simpleSchema()._schema;
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
-  data = data || modifierToData({ $set: set, $unset: unset });
+  let data = dataParam || modifierToData({ $set: set, $unset: unset });
+  
+  // Cast because the type system doesn't know that the collectionName on a
+  // collection object identifies the collection object type
+  const hooks = getCollectionHooks(collectionName) as unknown as CollectionMutationCallbacks<T>;
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -297,7 +299,13 @@ export const updateMutator = async <T extends DbObject>({
   Properties
 
   */
-  const properties = { data, oldDocument, document, newDocument: document, currentUser, collection, context, schema };
+  const properties: UpdateCallbackProperties<T> = {
+    data: data||{},
+    oldDocument,
+    document,
+    newDocument: document,
+    currentUser, collection, context, schema
+  };
 
   /*
 
@@ -309,16 +317,14 @@ export const updateMutator = async <T extends DbObject>({
 
     validationErrors = validationErrors.concat(validateData(data, document, collection, context));
 
-    validationErrors = await runCallbacks({
-      name: `${typeName.toLowerCase()}.update.validate`,
+    validationErrors = await hooks.updateValidate.runCallbacks({
       iterator: validationErrors,
-      properties,
+      properties: [properties],
       ignoreExceptions: false,
     });
     // OpenCRUD backwards compatibility
     data = modifierToData(
-      await runCallbacks({
-        name: `${collectionName.toLowerCase()}.edit.validate`,
+      await hooks.editValidate.runCallbacks({
         iterator: dataToModifier(data),
         properties: [document, currentUser, validationErrors],
         ignoreExceptions: false,
@@ -364,15 +370,13 @@ export const updateMutator = async <T extends DbObject>({
   Before
 
   */
-  data = await runCallbacks({
-    name: `${typeName.toLowerCase()}.update.before`,
+  data = await hooks.updateBefore.runCallbacks({
     iterator: data,
-    properties,
+    properties: [properties],
   });
   // OpenCRUD backwards compatibility
   data = modifierToData(
-    await runCallbacks({
-      name: `${collectionName.toLowerCase()}.edit.before`,
+    await hooks.editBefore.runCallbacks({
       iterator: dataToModifier(data),
       properties: [
         oldDocument,
@@ -382,8 +386,7 @@ export const updateMutator = async <T extends DbObject>({
     })
   );
   data = modifierToData(
-    await runCallbacks({
-      name: `${collectionName.toLowerCase()}.edit.sync`,
+    await hooks.editSync.runCallbacks({
       iterator: dataToModifier(data),
       properties: [
         oldDocument,
@@ -432,14 +435,12 @@ export const updateMutator = async <T extends DbObject>({
   After
 
   */
-  document = await runCallbacks({
-    name: `${typeName.toLowerCase()}.update.after`,
+  document = await hooks.updateAfter.runCallbacks({
     iterator: document,
-    properties,
+    properties: [properties],
   });
   // OpenCRUD backwards compatibility
-  document = await runCallbacks({
-    name: `${collectionName.toLowerCase()}.edit.after`,
+  document = await hooks.editAfter.runCallbacks({
     iterator: document,
     properties: [
       oldDocument,
@@ -453,17 +454,14 @@ export const updateMutator = async <T extends DbObject>({
 
   */
   // run async callbacks
-  await runCallbacksAsync({ name: `${typeName.toLowerCase()}.update.async`, properties: [properties] });
+  await hooks.updateAsync.runCallbacksAsync([properties]);
   // OpenCRUD backwards compatibility
-  await runCallbacksAsync({
-    name: `${collectionName.toLowerCase()}.edit.async`,
-    properties: [
-      document,
-      oldDocument,
-      currentUser,
-      collection
-    ]
-  });
+  await hooks.editAsync.runCallbacksAsync([
+    document,
+    oldDocument,
+    currentUser,
+    collection
+  ]);
 
   return { data: document };
 };
@@ -477,7 +475,7 @@ export const deleteMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
-  currentUser,
+  currentUser=null,
   validate=true,
   context,
   document,
@@ -492,10 +490,14 @@ export const deleteMutator = async <T extends DbObject>({
 }): Promise<{
   data: T|null|undefined
 }> => {
-  const { collectionName, typeName } = collection.options;
+  const { collectionName, typeName } = collection;
   const schema = collection.simpleSchema()._schema;
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
+  
+  // Cast because the type system doesn't know that the collectionName on a
+  // collection object identifies the collection object type
+  const hooks = getCollectionHooks(collectionName) as unknown as CollectionMutationCallbacks<T>;
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -512,7 +514,7 @@ export const deleteMutator = async <T extends DbObject>({
   Properties
 
   */
-  const properties = { document, currentUser, collection, context, schema };
+  const properties: DeleteCallbackProperties<T> = { document, currentUser, collection, context, schema };
 
   /*
 
@@ -522,15 +524,13 @@ export const deleteMutator = async <T extends DbObject>({
   if (validate) {
     let validationErrors: any = [];
 
-    validationErrors = await runCallbacks({
-      name: `${typeName.toLowerCase()}.delete.validate`,
+    validationErrors = await hooks.deleteValidate.runCallbacks({
       iterator: validationErrors,
-      properties,
+      properties: [properties],
       ignoreExceptions: false,
     });
     // OpenCRUD backwards compatibility
-    document = await runCallbacks({
-      name: `${collectionName.toLowerCase()}.remove.validate`,
+    document = await hooks.removeValidate.runCallbacks({
       iterator: document,
       properties: [currentUser],
       ignoreExceptions: false,
@@ -561,19 +561,16 @@ export const deleteMutator = async <T extends DbObject>({
   Before
 
   */
-  await runCallbacks({
-    name: `${typeName.toLowerCase()}.delete.before`,
+  await hooks.deleteBefore.runCallbacks({
     iterator: document,
-    properties,
+    properties: [properties],
   });
   // OpenCRUD backwards compatibility
-  await runCallbacks({
-    name: `${collectionName.toLowerCase()}.remove.before`,
+  await hooks.removeBefore.runCallbacks({
     iterator: document,
     properties: [currentUser]
   });
-  await runCallbacks({
-    name: `${collectionName.toLowerCase()}.remove.sync`,
+  await hooks.removeSync.runCallbacks({
     iterator: document,
     properties: [currentUser]
   });
@@ -596,16 +593,13 @@ export const deleteMutator = async <T extends DbObject>({
   Async
 
   */
-  await runCallbacksAsync({ name: `${typeName.toLowerCase()}.delete.async`, properties: [properties] });
+  await hooks.deleteAsync.runCallbacksAsync([properties]);
   // OpenCRUD backwards compatibility
-  await runCallbacksAsync({
-    name: `${collectionName.toLowerCase()}.remove.async`,
-    properties: [
-      document,
-      currentUser,
-      collection
-    ]
-  });
+  await hooks.removeAsync.runCallbacksAsync([
+    document,
+    currentUser,
+    collection
+  ]);
 
   return { data: document };
 };

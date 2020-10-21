@@ -4,26 +4,38 @@ import * as _ from 'underscore';
 import { debug } from './debug';
 import { Utils } from './utils';
 
-export class CallbackHook<IteratorType,ArgumentsType extends any[]> {
+export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
   
   constructor(name: string) {
     this.name = name;
   }
   
-  add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|undefined) => {
+  add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType>|undefined) => {
     addCallback(this.name, fn);
   }
   
-  runCallbacks = ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): IteratorType => {
+  runCallbacks = ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
     return runCallbacks({
       name: this.name,
       iterator, properties, ignoreExceptions
     });
   }
+}
+
+export class CallbackHook<ArgumentsType extends any[]> {
+  name: string
   
-  runCallbacksAsync = async (properties: ArgumentsType) => {
-    return await runCallbacksAsync({
+  constructor(name: string) {
+    this.name = name;
+  }
+  
+  add = (fn: (...args: ArgumentsType)=>void|Promise<void>) => {
+    addCallback(this.name, fn);
+  }
+  
+  runCallbacksAsync = async (properties: ArgumentsType): Promise<void> => {
+    await runCallbacksAsync({
       name: this.name,
       properties
     });

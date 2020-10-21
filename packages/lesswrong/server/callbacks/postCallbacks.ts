@@ -8,6 +8,7 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
+import { getCollectionHooks } from '../mutationCallbacks';
 const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
@@ -75,13 +76,11 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
 addCallback("votes.smallUpvote.async", increaseMaxBaseScore);
 addCallback("votes.bigUpvote.async", increaseMaxBaseScore);
 
-function PostsNewDefaultLocation (post) {
+getCollectionHooks("Posts").newSync.add(function PostsNewDefaultLocation(post: DbPost): DbPost {
   return {...post, ...getDefaultPostLocationFields(post)}
-}
+});
 
-addCallback("posts.new.sync", PostsNewDefaultLocation);
-
-function PostsNewDefaultTypes (post) {
+getCollectionHooks("Posts").newSync.add(function PostsNewDefaultTypes(post: DbPost): DbPost {
   if (post.isEvent && post.groupId && !post.types) {
     const localgroup = Localgroups.findOne(post.groupId) 
     if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
@@ -89,18 +88,14 @@ function PostsNewDefaultTypes (post) {
     post = {...post, types}
   }
   return post
-}
-
-addCallback("posts.new.sync", PostsNewDefaultTypes);
+});
 
 // LESSWRONG – bigUpvote
-async function LWPostsNewUpvoteOwnPost(post) {
+getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost};
-}
-
-addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
+});
 
 function PostsNewUserApprovedStatus (post) {
   const postAuthor = Users.findOne(post.userId);
