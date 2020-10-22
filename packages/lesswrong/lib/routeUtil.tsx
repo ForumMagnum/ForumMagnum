@@ -3,7 +3,7 @@ import qs from 'qs';
 import React, { useContext } from 'react';
 import { forumTypeSetting } from './instanceSettings';
 import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext } from './vulcan-core/appContext';
-import { RouterLocation } from './vulcan-lib/routes';
+import type { RouterLocation } from './vulcan-lib/routes';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.

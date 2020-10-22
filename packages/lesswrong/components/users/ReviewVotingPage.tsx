@@ -501,7 +501,7 @@ const computeTotalCost = (votes: vote[]) => {
   return sumBy(votes, ({score}) => sumOf1ToN(score))
 }
 
-function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: T[]):[K, T | undefined][] {
+function createPostVoteTuples<K extends HasIdType,T extends vote> (posts: K[], votes: T[]):[K, T | undefined][] {
   return posts.map(post => {
     const voteForPost = votes.find(vote => vote.postId === post._id)
     return [post, voteForPost]

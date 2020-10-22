@@ -10,7 +10,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
-import { CommentTreeNode } from '../../lib/utils/unflatten';
+import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"

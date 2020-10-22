@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { parseRoute, parsePath } from '../../lib/vulcan-core/appContext';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
-import Sentry from '@sentry/core';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Meteor } from 'meteor/meteor';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -11,12 +10,14 @@ export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription
   return parseRoute({
     location: parsePath(onsiteUrl),
     onError: (pathname) => {
-      if (Meteor.isClient) {
-        if (contentSourceDescription)
-          Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
-        else
-          Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
-      }
+      // Don't capture broken links in Sentry (too spammy, but maybe we'll
+      // put this back some day).
+      //if (Meteor.isClient) {
+      //  if (contentSourceDescription)
+      //    Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
+      //  else
+      //    Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
+      //}
     }
   });
 }

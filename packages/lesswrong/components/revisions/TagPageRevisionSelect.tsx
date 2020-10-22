@@ -54,12 +54,13 @@ const TagPageRevisionSelect = ({ classes }: {
         totalCount={totalCount}
       />
       {revisions.map((rev, i)=> {
-        return <TagRevisionItem 
-          key={rev.version} 
-          documentId={tag._id} 
-          revision={rev} 
+        return <TagRevisionItem
+          key={rev.version}
+          tag={tag}
+          headingStyle="abridged"
+          documentId={tag._id}
+          revision={rev}
           previousRevision={revisions[i+1]}
-          getRevisionUrl={getRevisionUrl}
         />
       })}
       <LoadMore {...loadMoreProps}/>

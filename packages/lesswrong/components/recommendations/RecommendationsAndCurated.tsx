@@ -83,7 +83,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown, TagProgressBar } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -116,7 +116,7 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {<AnalyticsContext pageSectionContext="Gather Town Welcome">
+      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
       </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
@@ -160,10 +160,11 @@ const RecommendationsAndCurated = ({
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 
-              terms={{view:"curated", limit: currentUser ? 3 : 2}} 
-              showLoadMore={false} 
-              hideLastUnread={true} 
+            <PostsList2
+              terms={{view:"curated", limit: currentUser ? 3 : 2}}
+              showNoResults={false}
+              showLoadMore={false}
+              hideLastUnread={true}
               boxShadow={false}
               curatedIconLeft={true}
             />
@@ -195,12 +196,6 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
-      
-
-      {!currentUser?.hideTaggingProgressBar && <AnalyticsContext pageSectionContext="Tag Progress Bar: LW Wiki Import">
-        <TagProgressBar/>
-      </AnalyticsContext>}
-
       {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
@@ -214,7 +209,7 @@ const RecommendationsAndCurated = ({
       </AnalyticsContext> */}
     </SingleColumnSection>
   }
-  
+
   return render();
 }
 

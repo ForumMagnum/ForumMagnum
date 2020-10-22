@@ -72,10 +72,14 @@ async function createShortformPost (comment: DbComment, currentUser: DbUser) {
 addCallback('comments.new.validate', createShortformPost);
 
 function CommentsNewOperations (comment: DbComment) {
-  // update post
+  // update lastCommentedAt field on post or tag
   if (comment.postId) {
     Posts.update(comment.postId, {
-      $set:       {lastCommentedAt: new Date()},
+      $set: {lastCommentedAt: new Date()},
+    });
+  } else if (comment.tagId) {
+    Tags.update(comment.tagId, {
+      $set: {lastCommentedAt: new Date()},
     });
   }
 

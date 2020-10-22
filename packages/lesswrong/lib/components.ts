@@ -114,12 +114,15 @@ importComponent("NavigationStandalone", () => require('../components/common/TabN
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
+importComponent("MixedTypeFeed", () => require('../components/common/MixedTypeFeed'));
+
 // Outgoing RSS Feed builder
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget'));
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
 importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount'));
@@ -261,6 +264,8 @@ importComponent("TabNavigationEventsList", () => require('../components/localGro
 importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
 importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
 
+importComponent("WalledGardenHome", () => require('../components/localGroups/WalledGardenHome'));
+importComponent("WalledGardenPortal", () => require('../components/localGroups/WalledGardenPortal'));
 importComponent("GatherTown", () => require('../components/localGroups/GatherTown'));
 
 // comments
@@ -294,8 +299,9 @@ importComponent("AllComments", () => require('../components/comments/AllComments
 
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink'));
-importComponent("RecentDiscussionThread", () => require('../components/comments/RecentDiscussionThread'));
-importComponent("RecentDiscussionThreadsList", () => require('../components/comments/RecentDiscussionThreadsList'));
+importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
+importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
+importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
@@ -392,7 +398,11 @@ importComponent("TagDiscussionSection", () => require('../components/tagging/Tag
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
+importComponent("ChangeMetricsDisplay", () => require('../components/tagging/ChangeMetricsDisplay'));
+importComponent("NewTagItem", () => require('../components/tagging/NewTagItem'));
 importComponent("TagRevisionItem", () => require('../components/tagging/TagRevisionItem'));
+importComponent("TagRevisionItemShortMetadata", () => require('../components/tagging/TagRevisionItemShortMetadata'));
+importComponent("TagRevisionItemFullMetadata", () => require('../components/tagging/TagRevisionItemFullMetadata'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
 importComponent("TagDiscussionPage", () => require('../components/tagging/TagDiscussionPage'));
@@ -407,6 +417,9 @@ importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHi
 importComponent("TagVoteActivity", () => require('../components/tagging/TagVoteActivity'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance'));
 importComponent("TagSmallPostLink", () => require('../components/tagging/TagSmallPostLink'));
+importComponent("RecentDiscussionTag", () => require('../components/recentDiscussion/RecentDiscussionTag'));
+importComponent("TagHistoryPage", () => require('../components/tagging/history/TagHistoryPage'));
+importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 
 // SequenceEditor
