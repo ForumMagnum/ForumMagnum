@@ -97,7 +97,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   allEvents: {
-    fontSize: ".8em"
+    fontSize: ".8em",
+    fontStyle: "italic"
   }
 })
 
@@ -201,7 +202,7 @@ const GatherTown = ({classes}: {
           {events.slice(0,2).map((event,i)=><div key={`event-${i}`}>{eventComponent(event)}
           </div>)}
           <LWTooltip title={eventsList}>
-              <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>(See All)</a>
+              <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
           </LWTooltip>
         </div>}
       </div>
