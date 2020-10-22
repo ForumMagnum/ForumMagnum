@@ -69,7 +69,6 @@ export function withMulti({
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
-  ssr = true,
   extraVariables,
   fetchPolicy,
   notifyOnNetworkStatusChange,
@@ -83,7 +82,6 @@ export function withMulti({
   enableTotal?: boolean,
   enableCache?: boolean,
   extraQueries?: any,
-  ssr?: boolean,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   notifyOnNetworkStatusChange?: boolean,
@@ -142,7 +140,7 @@ export function withMulti({
             },
             // note: pollInterval can be set to 0 to disable polling (20s by default)
             pollInterval,
-            ssr,
+            ssr: true,
           };
 
           if (fetchPolicy) {
@@ -221,7 +219,6 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
-  ssr = true,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
@@ -238,7 +235,6 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   enableTotal?: boolean,
   enableCache?: boolean,
   extraQueries?: any,
-  ssr?: boolean,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
@@ -293,7 +289,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
     pollInterval, 
     fetchPolicy,
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
-    ssr,
+    ssr: true,
     skip,
     notifyOnNetworkStatusChange: true
   }

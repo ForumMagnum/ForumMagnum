@@ -15,7 +15,6 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
-    ssr: false,
   });
   
   if (loading && !results) {
