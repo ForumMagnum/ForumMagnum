@@ -1,0 +1,25 @@
+import { GardenCodes } from './collection';
+import { ensureIndex } from '../../collectionUtils';
+import {Tags} from "../tags/collection";
+import {viewFieldAllowAny} from "../../vulcan-lib";
+
+GardenCodes.addView('allGardenCodes', terms => {
+  return {
+    selector: {
+      deleted: false,
+    },
+    options: {
+      sort: {startTime: 1},
+    },
+  };
+});
+
+GardenCodes.addView('gardenCodeBySlug', terms => {
+  return {
+    selector: {
+      slug: terms.slug
+    },
+  };
+});
+
+ensureIndex(GardenCodes, {deleted:1});

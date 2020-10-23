@@ -1,44 +1,62 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import {Components, getFragment, registerComponent} from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
 import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import { GardenCodes } from "../../lib/collections/gardencodes/collection";
+import { GardenCodeWidget } from "./GardenCodeWidget";
+import { useMulti } from "../../lib/crud/withMulti";
+import moment from '../../lib/moment-timezone';
+import {useSingle} from "../../lib/crud/withSingle";
+import {ExpandedDate} from "../common/FormatDate";
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
 const styles = (theme) => ({
   welcomeText: {
-    ...postBodyStyles(theme)
+    ...postBodyStyles(theme),
+    marginTop: "100px"
   },
   iframePositioning: {
     position: "absolute",
-    width: "100%",
-    top: 0,
+    top: 64,
+    // left: 150,
+    width: "100%", //"calc(100% - 150px)",
+    height: "calc(100vh - 264px)",
     zIndex: theme.zIndexes.gatherTownIframe,
   },
   iframeStyling: {
     width: "100%",
-    height: "100vh",
-    border: "none",
+    height: "100%",
+    border: "none"
+  },
+  inviteCodeWidget: {
+    position: "absolute",
+    left: "50px",
+    width: "500px"
   }
 })
 
-function validateInviteCode(code: string) {
-  // TODO: Stub. Implement real thing.
-  if (!code) return false
-  return (code.length > 3)
+
+function validateGardenCode(gardenCode: GardenCodeFragment | null ) {
+  return !gardenCode?.deleted && moment().isBetween(gardenCode?.startTime, gardenCode?.endTime)
 }
 
 const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker } = Components
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, GardenCodeWidget } = Components
+  const currentUser = useCurrentUser();
+  const isOpenToPublic = gardenOpenToPublic.get()
+
   const { query } = useLocation();
   const { inviteCode } = query;
-  const currentUser = useCurrentUser();
 
-
-  const isOpenToPublic = gardenOpenToPublic.get()
+  const { document: gardenCode } = useSingle({
+    documentId: inviteCode?.slice(0, 17),
+    collection: GardenCodes,
+    fragmentName: "GardenCodeFragment"
+  })
 
   const [onboarded, setOnboarded] = useState(false);
 
@@ -48,9 +66,17 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
     return <div>
       { onboarded
         ? <div className={classes.iframePositioning}>
-            <iframe className={classes.iframeStyling} src={gatherTownURL}></iframe>
+            <iframe className={classes.iframeStyling} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
+          <div className={classes.inviteCodeWidget}>
+              {!!currentUser && currentUser.walledGardenInvite && <GardenCodeWidget/>}
+            </div>
         </div>
         : <SingleColumnSection className={classes.welcomeText}>
+          {!!gardenCode && <p>
+            Congratulations! Your invite code to <strong>{gardenCode.title}</strong> is valid until <strong><ExpandedDate date={gardenCode.endTime}/></strong>
+            <hr/>
+          </p>
+          }
           <p>Welcome to the Walled Garden, a curated space for truthseekers!&nbsp;</p>
           <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays from 12pm to 4pm PT. Otherwise, it is open by invite only.</p>
           <ul>
@@ -80,8 +106,15 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
     return innerPortal(onboarded)
   }
 
-  if (validateInviteCode(inviteCode)) {
+  if (!!inviteCode && validateGardenCode(gardenCode)) {
     return innerPortal(onboarded)
+  }
+
+  if (!!inviteCode && !validateGardenCode(gardenCode)) {
+    return <SingleColumnSection className={classes.welcomeText}>
+      <p>Unfortunately, your invite link to the Walled Garden is not currently valid. The event period may not yet have begun or may have ended already.</p>
+      <p>Please request another link from your host or return when the Garden is open to the public on Sunday between 12pm and 4pm PT.</p>
+    </SingleColumnSection>
   }
 
   return <SingleColumnSection className={classes.welcomeText}>

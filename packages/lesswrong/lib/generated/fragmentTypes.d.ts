@@ -165,6 +165,7 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -555,6 +556,13 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface gatherTownEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface TagFlagFragment { // fragment on TagFlags
   readonly _id: string,
   readonly createdAt: Date,
@@ -580,6 +588,30 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly deleted: boolean,
   readonly slug: string,
   readonly order: number,
+}
+
+interface GardenCodeFragment { // fragment on GardenCodes
+  readonly _id: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly gatherTownUsername: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+  readonly validOnlyWithHost: boolean,
+}
+
+interface GardenCodesDefaultFragment { // fragment on GardenCodes
+  readonly createdAt: Date,
+  readonly title: string,
+  readonly userId: string,
+  readonly gatherTownUsername: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+  readonly validOnlyWithHost: boolean,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -1170,7 +1202,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly deleted: boolean,
-  readonly hideWalledGardenUI: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -1426,6 +1457,17 @@ interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly createdAt: Date,
   readonly user: UsersMinimumInfo|null,
   readonly post: PostsList|null,
+}
+
+interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment|null,
+  readonly post: TagRelCreationFragment_post|null,
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
+interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
 }
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1724,9 +1766,12 @@ interface FragmentTypes {
   LWEventsDefaultFragment: LWEventsDefaultFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  gatherTownEventFragment: gatherTownEventFragment
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
+  GardenCodeFragment: GardenCodeFragment
+  GardenCodesDefaultFragment: GardenCodesDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   SequencesDefaultFragment: SequencesDefaultFragment
@@ -1785,6 +1830,7 @@ interface FragmentTypes {
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
   TagRelHistoryFragment: TagRelHistoryFragment
+  TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo
@@ -1812,5 +1858,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"GardenCodes"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
 

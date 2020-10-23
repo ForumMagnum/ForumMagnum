@@ -54,6 +54,10 @@ import { LWEvents } from './collections/lwevents/index';
 import { TagFlags } from './collections/tagFlags/collection';
 import './collections/tagFlags/views';
 
+// GardenCodes
+import { GardenCodes } from "./collections/gardencodes/collection";
+import './collections/gardencodes/views'
+
 // DatabaseMetadata
 import './collections/databaseMetadata/collection';
 
@@ -203,8 +207,9 @@ export {
   Bans,
   Localgroups,
   Comments,
-  Revisions, 
+  Revisions,
   ReviewVotes,
   PetrovDayLaunchs,
-  TagFlags
+  TagFlags,
+  GardenCodes
 }
