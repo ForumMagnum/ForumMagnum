@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterMode } from '../../lib/filterSettings';
+import type { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -167,7 +167,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
               onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
             />
-            {canRemove && !tag?.core &&
+            {canRemove && !tag?.suggestedAsFilter &&
               <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
                 <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
                   <a>Remove</a>

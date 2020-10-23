@@ -15,6 +15,8 @@ import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 
+export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
+
 const gatherMessage = new DatabasePublicSetting<string>('gatherTownMessage', 'Coworking on weekdays. Schelling Social hours at Tues 1pm PT, and Thurs 6pm PT.')
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -113,8 +115,9 @@ const GatherTown = ({classes}: {
 
   const { LWTooltip, AnalyticsTracker } = Components
 
-
-  if (!currentUser || !currentUser.walledGardenInvite) return null
+  if (!currentUser) return null
+  if (!gardenOpenToPublic.get() && !currentUser.walledGardenInvite) return null
+  if (gardenOpenToPublic.get() && currentUser.karma < 100) return null
   if (currentUser.hideWalledGardenUI) return null
 
   const hideClickHandler = async () => {
@@ -137,7 +140,8 @@ const GatherTown = ({classes}: {
   }
 
   const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
-  const tooltip = <LWTooltip title={
+
+  const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
     <div>
       Click to read more about this space
       <div>{"password: the12thvirtue"}</div></div>
@@ -145,14 +149,15 @@ const GatherTown = ({classes}: {
       <Link to="/walledGarden" className={classes.learn}>
         Learn More
       </Link>
-  </LWTooltip>
+  </LWTooltip> : null
+
   return (
     <div className={classes.root}>
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
         <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
-          <div>You're invited to the <a href={gatherTownURL}>Walled Garden Beta</a></div>
+          <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
         </AnalyticsTracker>
         <div className={classes.secondaryInfo}>
           <div>
