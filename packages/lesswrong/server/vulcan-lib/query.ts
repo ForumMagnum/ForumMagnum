@@ -11,7 +11,7 @@ import { getCollectionsByName, generateDataLoaders } from './apollo-server/conte
 function writeGraphQLErrorToStderr(errors)
 {
   // eslint-disable-next-line no-console
-  console.error(`runGraphQL error: ${errors[0].message}`);
+  console.error(`runQuery error: ${errors[0].message}`);
   // eslint-disable-next-line no-console
   console.error(errors);
 }
@@ -26,7 +26,7 @@ export function setOnGraphQLError(fn)
 }
 
 // note: if no context is passed, default to running requests with full admin privileges
-export const runGraphQL = async (query: string, variables: any = {}, context?: Partial<ResolverContext>) => {
+export const runQuery = async (query: string, variables: any = {}, context?: Partial<ResolverContext>) => {
   const executableSchema = getExecutableSchema();
   const queryContext = createAdminContext(context);
 
@@ -61,5 +61,3 @@ export const createAdminContext = (options?: Partial<ResolverContext>): Resolver
     currentUser: {isAdmin: true} as DbUser,
   };
 }
-
-export const runQuery = runGraphQL; //backwards compatibility
