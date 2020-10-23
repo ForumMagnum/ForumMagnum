@@ -4,8 +4,8 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
 import { gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 import { gardenOpenToPublic } from './GatherTown';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme) => ({
   welcomeText: {
