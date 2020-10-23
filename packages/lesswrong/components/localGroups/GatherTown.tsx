@@ -133,7 +133,7 @@ const GatherTown = ({classes}: {
     }
 
     if (Meteor.isClient) {
-      getCalendarEvents(eventsCallback)
+      void getCalendarEvents(eventsCallback)
     }
   }, [])
 

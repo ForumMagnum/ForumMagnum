@@ -10,7 +10,7 @@ export const getCalendarEvents = async (callback) => {
   document.body.appendChild(script);
 
   script.onload = () => { 
-    window.gapi.load('client:auth2', initClient);
+    gapi.load('client:auth2', initClient);
     loadEvents(callback)
   }
 }
@@ -18,10 +18,10 @@ const loadEvents = (callback) => {
   const twoHoursAgo = (new Date(new Date().getTime()-(2*60*60*1000))).toISOString()
   const oneWeekFromNow = (new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()
   function start() {
-    window.gapi.client.init({
+    gapi.client.init({
       'apiKey': API_KEY
     }).then(function() {
-      return window.gapi.client.request({
+      return gapi.client.request({
         'path': `https://www.googleapis.com/calendar/v3/calendars/${CAL_ID}/events`,
         'params': {
           'timeMin': twoHoursAgo,
@@ -36,14 +36,15 @@ const loadEvents = (callback) => {
       let events = response.result.items
       callback(events)
     }, function(reason) {
+      // eslint-disable-next-line no-console
       console.log(reason);
     });
   }
-  window.gapi.load('client', start)
+  gapi.load('client', start)
 }
 
 function initClient() {
-  window.gapi.client.init({
+  gapi.client.init({
     apiKey: API_KEY,
     // clientId: CLIENT_ID,
     discoveryDocs: DISCOVERY_DOCS,
