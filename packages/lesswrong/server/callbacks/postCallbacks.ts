@@ -29,7 +29,6 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyn
       properties: [newPost, oldPost]
     })
   }
-  return newPost
 });
 
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
@@ -39,7 +38,6 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostDraftedAsyncC
       properties: [newPost, oldPost]
     })
   }
-  return newPost
 });
 
 // set postedAt when a post is moved out of drafts
@@ -143,7 +141,6 @@ getCollectionHooks("Posts").editAsync.add(function UpdatePostShortform (newPost,
       { multi: true }
     );
   }
-  return newPost;
 });
 
 // If an admin changes the "hideCommentKarma" setting of a post after it

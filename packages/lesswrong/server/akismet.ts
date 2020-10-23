@@ -71,6 +71,8 @@ client.verifyKey()
   });
 
 getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkismet(post, currentUser) {
+  if (!currentUser) throw new Error("Submitted post has no associated user");
+  
   if (akismetKeySetting.get()) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
@@ -93,6 +95,8 @@ getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkis
 });
 
 getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment, currentUser) {
+    if (!currentUser) throw new Error("Submitted comment has no associated user");
+    
     if (akismetKeySetting.get()) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
       if (spam) {

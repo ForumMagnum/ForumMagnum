@@ -48,8 +48,6 @@ getCollectionHooks("Tags").createValidate.add((validationErrors: Array<any>, {do
   const existing = Tags.find({name: normalizedName, deleted:false}).fetch();
   if (existing.length > 0)
     throw new Error("A tag by that name already exists");
-  
-  return tag;
 });
 
 getCollectionHooks("Tags").updateValidate.add((validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}) => {
@@ -68,8 +66,6 @@ getCollectionHooks("Tags").updateValidate.add((validationErrors: Array<any>, {ol
       ...newDocument, name: newName
     }
   }
-  
-  return newDocument;
 });
 
 getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}) => {

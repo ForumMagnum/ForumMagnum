@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 
 addEditableCallbacks({collection: Chapters, options: makeEditableOptions})
 
-async function ChaptersEditCanonizeCallback (chapter: DbChapter): Promise<DbChapter> {
+async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   const posts = await Sequences.getAllPosts(chapter.sequenceId)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
@@ -45,7 +45,6 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter): Promise<DbChap
       }});
     }
   })
-  return chapter
 }
 
 getCollectionHooks("Chapters").newAsync.add(ChaptersEditCanonizeCallback);

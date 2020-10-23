@@ -5,7 +5,7 @@ import { Localgroups, makeEditableOptions } from '../../lib/collections/localgro
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { getCollectionHooks } from '../mutationCallbacks';
 
-getCollectionHooks("Localgroups").createAfter.add(function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser: DbUser}) {
+getCollectionHooks("Localgroups").createAfter.add(function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser: DbUser|null}) {
   const newFields = {
     title: `Welcome to ${group.name} [Edit With Your Details]`,
     groupId: group._id,

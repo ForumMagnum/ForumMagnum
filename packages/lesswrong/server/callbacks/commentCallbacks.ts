@@ -119,8 +119,6 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
     Posts.update(postId, {
       $set: {lastCommentedAt},
     });
-  
-    return comment;
   }
 });
 
@@ -136,8 +134,6 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemoveChil
       validate: false
     });
   });
-
-  return comment;
 });
 
 //////////////////////////////////////////////////////

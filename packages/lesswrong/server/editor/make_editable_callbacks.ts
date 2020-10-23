@@ -458,15 +458,13 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
   
   getCollectionHooks(collectionName).updateBefore.add(editorSerializationEdit);
 
-  async function editorSerializationAfterCreate(newDoc, { oldDocument }) {
+  async function editorSerializationAfterCreate(newDoc) {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
     await Revisions.update(
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
-    
-    return newDoc
   }
   
   getCollectionHooks(collectionName).createAfter.add(editorSerializationAfterCreate)

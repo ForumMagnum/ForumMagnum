@@ -36,7 +36,6 @@ getCollectionHooks("Users").editAsync.add(function userEditVoteBannedCallbacksAs
       properties: [user]
     });
   }
-  return user;
 });
 
 getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
@@ -46,7 +45,6 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
       properties: [user]
     });
   }
-  return user;
 });
 
 
@@ -57,7 +55,6 @@ getCollectionHooks("Users").editAsync.add(function userEditDeleteContentCallback
       properties: [user]
     });
   }
-  return user;
 });
 
 getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
@@ -67,7 +64,6 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
       properties: [user]
     });
   }
-  return user;
 });
 
 // document, voteType, collection, user, updateDocument
