@@ -4,7 +4,7 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 
 getCollectionHooks("Sequences").newAsync.add(function SequenceNewCreateChapter(sequence) {
-  if (sequence._id && !sequence.chaptersDummy) {
+  if (sequence._id) {
     Chapters.insert({sequenceId:sequence._id})
   }
 });
