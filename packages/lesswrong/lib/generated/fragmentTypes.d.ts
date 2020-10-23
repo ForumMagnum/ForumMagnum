@@ -594,24 +594,20 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly _id: string,
   readonly title: string,
   readonly userId: string,
-  readonly gatherTownUsername: string,
   readonly deleted: boolean,
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
-  readonly validOnlyWithHost: boolean,
 }
 
 interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly createdAt: Date,
   readonly title: string,
   readonly userId: string,
-  readonly gatherTownUsername: string,
   readonly deleted: boolean,
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
-  readonly validOnlyWithHost: boolean,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -1102,6 +1098,7 @@ interface UsersMinimumInfo { // fragment on Users
 interface SharedUserBooleans { // fragment on Users
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
+  readonly hideWalledGardenPortalBar: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users

@@ -6,6 +6,9 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {postBodyStyles} from "../../themes/stylePiping";
 import {useTracking} from "../../lib/analyticsEvents";
 import { ExpandedDate } from "../common/FormatDate";
+import { useUpdate } from '../../lib/crud/withUpdate';
+import Users from "../../lib/vulcan-users";
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme) => ({
   welcomeText: {
@@ -18,28 +21,48 @@ const styles = (theme) => ({
 
 export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
   const { SectionTitle, FormatDate } = Components
-  const placeHolderSlug = 'ruby-asFw34jkfa'
+
+  const currentUser =  useCurrentUser()
+  const { mutate: updateUser } = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  })
 
   const { captureEvent } = useTracking()
 
   // const [codeGenerated, setCodeGenerated] = useState(false)
-  const [currentCode, setCurrentCode] = useState(null)
+  const [currentCode, setCurrentCode] = useState<GardenCodeFragment|null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
+  const [hideBottomBar, setHideBottomBar] = useState(currentUser?.hideWalledGardenPortalBar||false)
 
   const autoselectCode = (event) => {
     event.target.select()
   }
 
-  const generatedLink = `https://wwww.lesswrong.com/walledGarden?inviteCode=${currentCode?._id}-${currentCode?.slug||""}`
+  const generatedLink = `https://wwww.lesswrong.com/walledGarden?inviteCode=${currentCode?._id}-${currentCode?.slug}`
+
+  if (!currentUser) return null
 
   return <div>
-    <SectionTitle title={"Generate personal invite links!"} />
-    { !!currentCode
-      ? <div>
-        {console.log(currentCode) }
-        {/*Here is your code! It is valid between {moment(new Date(currentCode?.startTime))} and {moment(new Date(currentCode?.endTime))}.*/}
-        Here is your invite link! It is valid between <strong><ExpandedDate date={currentCode?.startTime}/></strong>
-        and <strong><ExpandedDate date={currentCode?.endTime}/></strong>
+    <Button onClick={ async () => {
+      setHideBottomBar(!hideBottomBar);
+      void updateUser({
+          selector: { _id: currentUser._id },
+          data: {
+            hideWalledGardenPortalBar: !hideBottomBar
+          },
+        })
+    }}>
+      <strong>{hideBottomBar ? "Show" : "Hide"} Bottom Bar</strong>
+    </Button>
+
+    {!hideBottomBar && <SectionTitle title={"Generate personal invite links!"}>
+      {!!currentCode
+        ? <div>
+          {console.log(currentCode)}
+          {/*Here is your code! It is valid between {moment(new Date(currentCode?.startTime))} and {moment(new Date(currentCode?.endTime))}.*/}
+          Here is your invite link! It is valid between <strong><ExpandedDate date={currentCode?.startTime}/></strong>
+          and <strong><ExpandedDate date={currentCode?.endTime}/></strong>
           <TextField
             className={classes.inviteCode}
             // label={"Your code!"}
@@ -50,9 +73,9 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
           />
           <CopyToClipboard
             text={generatedLink}
-            onCopy={ (text, result) => {
+            onCopy={(text, result) => {
               setCopiedCode(result);
-              captureEvent("gardenCodeLinkCopied", {generatedLink});
+              captureEvent("gardenCodeLinkCopied", {generatedLink})
             }}
           >
             <Button color="primary">{copiedCode ? "Copied!" : "Copy Link"}</Button>
@@ -64,18 +87,25 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
             Generate New Code
           </Button>
         </div>
-    : <div>
-        <div>
-          <p>You can host guests in the Walled Garden, even if they're not full-time members. Use invite links to set up office hours, events, and general hangouts. Feel free to invite anyone who is considerate of those around them.</p>
-          <p> Invite codes are valid for 4 hours from start time.</p>
+        : <div>
+          <div>
+            <p>You can host guests in the Walled Garden, even if they're not full-time members. Use invite links to set
+              up office hours, events, and general hangouts. Feel free to invite anyone who is considerate of those
+              around them.</p>
+            <p> Invite codes are valid for 4 hours from start time.</p>
+          </div>
+          <Components.WrappedSmartForm
+            collection={GardenCodes}
+            mutationFragment={getFragment("GardenCodeFragment")}
+            queryFragment={getFragment("GardenCodeFragment")}
+            successCallback={code => {
+              setCurrentCode(code)
+            }}
+          />
         </div>
-      <Components.WrappedSmartForm
-        collection={GardenCodes}
-        mutationFragment={getFragment("GardenCodeFragment")}
-        queryFragment={getFragment("GardenCodeFragment")}
-        successCallback={ code => {setCurrentCode(code)}}
-      />
-    </div>
+      }
+      {/*<iframe src={"https://cuckoo.team/lesswrong"}></iframe>*/}
+    </SectionTitle>
     }
   </div>
 }

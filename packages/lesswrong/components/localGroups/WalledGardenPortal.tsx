@@ -6,11 +6,9 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { GardenCodes } from "../../lib/collections/gardencodes/collection";
-import { GardenCodeWidget } from "./GardenCodeWidget";
-import { useMulti } from "../../lib/crud/withMulti";
+import { useSingle } from "../../lib/crud/withSingle";
+import { ExpandedDate } from "../common/FormatDate";
 import moment from '../../lib/moment-timezone';
-import {useSingle} from "../../lib/crud/withSingle";
-import {ExpandedDate} from "../common/FormatDate";
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 

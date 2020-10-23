@@ -1,7 +1,6 @@
 import { createCollection, Utils } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import {foreignKeyField, SchemaType} from '../../utils/schemaUtils'
-import { makeEditable } from '../../editor/make_editable';
 import './fragments';
 import './permissions';
 import Users from '../../vulcan-users';
