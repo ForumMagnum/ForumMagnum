@@ -57,7 +57,12 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
           >
             <Button color="primary">{copiedCode ? "Copied!" : "Copy Link"}</Button>
           </CopyToClipboard>
-          <Button onClick={() => setCurrentCode(null)}>Generate New Code</Button>
+          <Button onClick={() => {
+            setCurrentCode(null)
+            setCopiedCode(false)
+          }}>
+            Generate New Code
+          </Button>
         </div>
     : <div>
         <div>
