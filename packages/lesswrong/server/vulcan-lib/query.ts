@@ -56,8 +56,9 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
 }
 export const createAdminContext = (options?: Partial<ResolverContext>): ResolverContext => {
   return {
-    ...createAnonymousContext(options),
+    ...createAnonymousContext(),
     // HACK: Instead of a full user object, this is just a mostly-empty object with isAdmin set to true
     currentUser: {isAdmin: true} as DbUser,
+    ...options,
   };
 }
