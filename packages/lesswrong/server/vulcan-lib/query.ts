@@ -3,14 +3,10 @@
 Run a GraphQL request from the server with the proper context
 
 */
-import DataLoader from 'dataloader';
 import { graphql } from 'graphql';
-import merge from 'lodash/merge';
 import { localeSetting } from '../../lib/publicSettings';
-import { Collections } from '../../lib/vulcan-lib/collections';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { getCollectionsByName, generateDataLoaders } from './apollo-server/context';
-import findByIds from './findbyids';
 
 function writeGraphQLErrorToStderr(errors)
 {
