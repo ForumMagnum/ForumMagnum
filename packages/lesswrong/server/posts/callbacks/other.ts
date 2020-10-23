@@ -43,19 +43,6 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsync
 });
 
 //////////////////////////////////////////////////////
-// users.remove.async                               //
-//////////////////////////////////////////////////////
-
-getCollectionHooks("Users").removeAsync.add(function UsersRemoveDeletePosts(user, options) {
-  if (options.deletePosts) {
-    Posts.remove({ userId: user._id });
-  } else {
-    // not sure if anything should be done in that scenario yet
-    // Posts.update({userId: userId}, {$set: {author: '\[deleted\]'}}, {multi: true});
-  }
-});
-
-//////////////////////////////////////////////////////
 // posts.click.async                                //
 //////////////////////////////////////////////////////
 

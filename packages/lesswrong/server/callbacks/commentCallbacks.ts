@@ -155,16 +155,6 @@ getCollectionHooks("Comments").createBefore.add(function AddReferrerToComment(co
 });
 
 
-getCollectionHooks("Users").removeAsync.add(async function UsersRemoveDeleteComments (user: DbUser, options) {
-  if (options.deleteComments) {
-    Comments.remove({userId: user._id});
-  } else {
-    // not sure if anything should be done in that scenario yet
-    // Comments.update({userId: userId}, {$set: {author: '\[deleted\]'}}, {multi: true});
-  }
-});
-
-
 const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
 getCollectionHooks("Comments").newValidate.add(function CommentsNewRateLimit (comment: DbComment, user: DbUser) {
   if (!Users.isAdmin(user)) {
