@@ -7,6 +7,7 @@ import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { Accounts } from 'meteor/accounts-base';
+import { getCollectionHooks } from '../mutationCallbacks';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -41,7 +42,7 @@ function updateModerateOwnPersonal({newDocument, vote}) {
 addCallback("votes.smallUpvote.async", updateModerateOwnPersonal);
 addCallback("votes.bigUpvote.async", updateModerateOwnPersonal);
 
-function maybeSendVerificationEmail (modifier, user: DbUser)
+getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
 {
   if(modifier.$set.whenConfirmationEmailSent
       && (!user.whenConfirmationEmailSent
@@ -49,12 +50,11 @@ function maybeSendVerificationEmail (modifier, user: DbUser)
   {
     Accounts.sendVerificationEmail(user._id);
   }
-}
-addCallback("users.edit.sync", maybeSendVerificationEmail);
+});
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
-async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
+getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
@@ -80,13 +80,12 @@ async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
     // flag doesn't control whether they're indexed in Algolia.
     Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
-}
-addCallback("users.edit.async", approveUnreviewedSubmissions);
+});
 
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
-function makeFirstUserAdminAndApproved (user: DbUser) {
+getCollectionHooks("Users").newSync.add(function makeFirstUserAdminAndApproved (user: DbUser) {
   const realUsersCount = Users.find({}).count();
   if (realUsersCount === 0) {
     user.reviewedByUserId = "firstAccount"; //HACK
@@ -96,10 +95,9 @@ function makeFirstUserAdminAndApproved (user: DbUser) {
     user.groups.push("sunshineRegiment");
   }
   return user;
-}
-addCallback('users.new.sync', makeFirstUserAdminAndApproved);
+});
 
-function clearKarmaChangeBatchOnSettingsChange (modifier, user: DbUser)
+getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSettingsChange (modifier, user: DbUser)
 {
   if (modifier.$set && modifier.$set.karmaChangeNotifierSettings) {
     if (!user.karmaChangeNotifierSettings.updateFrequency
@@ -108,8 +106,7 @@ function clearKarmaChangeBatchOnSettingsChange (modifier, user: DbUser)
       modifier.$set.karmaChangeBatchStart = null;
     }
   }
-}
-addCallback("users.edit.sync", clearKarmaChangeBatchOnSettingsChange);
+});
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
 const getCaptchaRating = async (token): Promise<string> => {
@@ -128,7 +125,7 @@ const getCaptchaRating = async (token): Promise<string> => {
     );
   });
 }
-async function addReCaptchaRating (user: DbUser) {
+getCollectionHooks("Users").newAsync.add(async function addReCaptchaRating (user: DbUser) {
   if (reCaptchaSecretSetting.get()) {
     const reCaptchaToken = user?.profile?.reCaptchaToken 
     if (reCaptchaToken) {
@@ -142,10 +139,9 @@ async function addReCaptchaRating (user: DbUser) {
       }
     }
   }
-}
-addCallback('users.new.async', addReCaptchaRating);
+});
 
-async function subscribeOnSignup (user: DbUser) {
+getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
   // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
   const subscribeToCurated = user.profile?.subscribeToCurated;
   if (subscribeToCurated) {
@@ -162,19 +158,17 @@ async function subscribeOnSignup (user: DbUser) {
       await bellNotifyEmailVerificationRequired(user);
     }
   }
-}
-addCallback('users.new.async', subscribeOnSignup);
+});
 
 // When creating a new account, populate their A/B test group key from their
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
-async function setABTestKeyOnSignup (user) {
+getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user) {
   const abTestKey = user.profile?.clientId || Random.id();
   Users.update(user._id, {$set: {abTestKey: abTestKey}});
-}
-addCallback('users.new.async', setABTestKeyOnSignup);
+});
 
-async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
   if (newUser.shortformFeedId !== oldUser.shortformFeedId)
   {
     const post = await Posts.findOne({_id: newUser.shortformFeedId});
@@ -204,5 +198,4 @@ async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
       validate: false,
     });
   }
-}
-addCallback("users.edit.async", handleSetShortformPost);
+});

@@ -11,7 +11,7 @@ import { getDefaultPostLocationFields } from '../posts/utils'
 import { getCollectionHooks } from '../mutationCallbacks';
 const MINIMUM_APPROVAL_KARMA = 5
 
-function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
+getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
     data = runCallbacks({
       name: "post.undraft.before",
@@ -20,10 +20,9 @@ function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
     });
   }
   return data;
-}
-addCallback("post.update.before", PostsEditRunPostUndraftedSyncCallbacks);
+});
 
-function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
     runCallbacksAsync({
       name: "posts.undraft.async",
@@ -31,10 +30,9 @@ function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
     })
   }
   return newPost
-}
-addCallback("posts.edit.async", PostsEditRunPostUndraftedAsyncCallbacks);
+});
 
-function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
   if (newPost.draft && !oldPost.draft) {
     runCallbacksAsync({
       name: "posts.draft.async",
@@ -42,12 +40,9 @@ function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
     })
   }
   return newPost
-}
-addCallback("posts.edit.async", PostsEditRunPostDraftedAsyncCallbacks);
+});
 
-/**
- * @summary set postedAt when a post is moved out of drafts
- */
+// set postedAt when a post is moved out of drafts
 function PostsSetPostedAt (data, oldPost) {
   data.postedAt = new Date();
   return data;
@@ -97,16 +92,14 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
  return {...post, ...votedPost};
 });
 
-function PostsNewUserApprovedStatus (post) {
+getCollectionHooks("Posts").newSync.add(function PostsNewUserApprovedStatus (post) {
   const postAuthor = Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...post, authorIsUnreviewed: true}
   }
-}
+});
 
-addCallback("posts.new.sync", PostsNewUserApprovedStatus);
-
-function AddReferrerToPost(post, properties)
+getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, properties)
 {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
@@ -118,14 +111,13 @@ function AddReferrerToPost(post, properties)
       userAgent: userAgent,
     };
   }
-}
-addCallback("post.create.before", AddReferrerToPost);
+});
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighlight})
 
-function PostsNewPostRelation (post) {
+getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {
     void createMutator({
       collection: PostRelations,
@@ -138,10 +130,9 @@ function PostsNewPostRelation (post) {
     })
   }
   return post
-}
-addCallback("posts.new.after", PostsNewPostRelation);
+});
 
-function UpdatePostShortform (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(function UpdatePostShortform (newPost, oldPost) {
   if (!!newPost.shortform !== !!oldPost.shortform) {
     const shortform = !!newPost.shortform;
     Comments.update(
@@ -153,14 +144,13 @@ function UpdatePostShortform (newPost, oldPost) {
     );
   }
   return newPost;
-}
-addCallback("posts.edit.async", UpdatePostShortform );
+});
 
 // If an admin changes the "hideCommentKarma" setting of a post after it
 // already has comments, update those comments' hideKarma field to have the new
 // setting. This should almost never be used, as we really don't want to
 // surprise users by revealing their supposedly hidden karma.
-async function UpdateCommentHideKarma (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma (newPost, oldPost) {
   if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
 
   const comments = Comments.find({postId: newPost._id})
@@ -174,8 +164,7 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
     }
   }))
   await Comments.rawCollection().bulkWrite(updates)
-}
-addCallback("posts.edit.async", UpdateCommentHideKarma);
+});
 
 export async function newDocumentMaybeTriggerReview (document) {
   const author = await Users.findOne(document.userId);
@@ -184,11 +173,10 @@ export async function newDocumentMaybeTriggerReview (document) {
   }
   return document
 }
-addCallback("posts.new.after", newDocumentMaybeTriggerReview);
+getCollectionHooks("Posts").newAfter.add(newDocumentMaybeTriggerReview);
 
-async function updatedPostMaybeTriggerReview (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
     await newDocumentMaybeTriggerReview(newPost)
   }
-}
-addCallback("posts.edit.async", updatedPostMaybeTriggerReview);
+});

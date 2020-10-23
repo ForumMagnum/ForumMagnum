@@ -5,6 +5,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
+import { getCollectionHooks } from '../mutationCallbacks';
 
 function isValidTagName(name: string) {
   return true;
@@ -30,7 +31,7 @@ export async function updatePostDenormalizedTags(postId: string) {
   await Posts.update({_id:postId}, {$set: {tagRelevance: tagRelDict}});
 }
 
-addCallback("tag.create.validate", (validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
+getCollectionHooks("Tags").createValidate.add((validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
   if (!isValidTagName(tag.name))
     throw new Error("Invalid tag name (use only letters, digits and dash)");
   
@@ -51,7 +52,7 @@ addCallback("tag.create.validate", (validationErrors: Array<any>, {document: tag
   return tag;
 });
 
-addCallback("tag.update.validate", (validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}) => {
+getCollectionHooks("Tags").updateValidate.add((validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}) => {
   const newName = normalizeTagName(newDocument.name);
   if (oldDocument.name !== newName) { // Tag renamed?
     if (!isValidTagName(newDocument.name))
@@ -71,7 +72,7 @@ addCallback("tag.update.validate", (validationErrors: Array<any>, {oldDocument, 
   return newDocument;
 });
 
-addCallback("tag.update.after", async (newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}) => {
+getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}) => {
   // If this is soft deleting a tag, then cascade to also soft delete any
   // tagRels that go with it.
   if (newDoc.deleted && !oldDocument.deleted) {
@@ -80,7 +81,7 @@ addCallback("tag.update.after", async (newDoc: DbTag, {oldDocument}: {oldDocumen
   return newDoc;
 });
 
-addCallback("tagRels.new.after", async (tagRel: DbTagRel) => {
+getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   // When you add a tag, vote for it as relevant
   var tagCreator = Users.findOne(tagRel.userId);
   const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })

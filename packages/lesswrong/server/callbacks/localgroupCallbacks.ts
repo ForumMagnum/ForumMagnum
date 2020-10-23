@@ -1,10 +1,11 @@
-import { addCallback, createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 
 import { Localgroups, makeEditableOptions } from '../../lib/collections/localgroups/collection'
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
+import { getCollectionHooks } from '../mutationCallbacks';
 
-function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser: DbUser}) {
+getCollectionHooks("Localgroups").createAfter.add(function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser: DbUser}) {
   const newFields = {
     title: `Welcome to ${group.name} [Edit With Your Details]`,
     groupId: group._id,
@@ -20,8 +21,7 @@ function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser:
     currentUser,
     validate: false,
   })
-}
-addCallback("localgroup.create.after", GroupsNewDefaultPost);
+});
 
 const groupWelcomePostTemplate = {
   contents: {

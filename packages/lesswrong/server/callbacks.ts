@@ -11,10 +11,11 @@ import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
 import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, Utils, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 
-async function updateConversationActivity (message: DbMessage) {
+getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
   // Update latest Activity timestamp on conversation when new message is added
   const user = Users.findOne(message.userId);
   const conversation = Conversations.findOne(message.conversationId);
@@ -26,10 +27,9 @@ async function updateConversationActivity (message: DbMessage) {
     currentUser: user,
     validate: false,
   });
-}
-addCallback("messages.new.async", updateConversationActivity);
+});
 
-function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.voteBanned && !oldUser.voteBanned) {
     runCallbacksAsync({
       name: 'users.voteBanned.async',
@@ -37,10 +37,9 @@ function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
     });
   }
   return user;
-}
-addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
+});
 
-async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
     runCallbacksAsync({
       name: 'users.nullifyVotes.async',
@@ -48,11 +47,10 @@ async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser)
     });
   }
   return user;
-}
-addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
+});
 
 
-function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.deleteContent && !oldUser.deleteContent) {
     runCallbacksAsync({
       name: 'users.deleteContent.async',
@@ -60,10 +58,9 @@ function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
     });
   }
   return user;
-}
-addCallback("users.edit.async", userEditDeleteContentCallbacksAsync);
+});
 
-function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
     runCallbacksAsync({
       name: 'users.ban.async',
@@ -71,8 +68,7 @@ function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
     });
   }
   return user;
-}
-addCallback("users.edit.async", userEditBannedCallbacksAsync);
+});
 
 // document, voteType, collection, user, updateDocument
 
@@ -254,15 +250,14 @@ async function userIPBan(user: DbUser) {
 }
 addCallback("users.ban.async", userIPBan);
 
-function fixUsernameOnExternalLogin(user: DbUser) {
+getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user: DbUser) {
   if (!user.username) {
     user.username = user.slug;
   }
   return user;
-}
-addCallback("users.new.sync", fixUsernameOnExternalLogin);
+});
 
-function fixUsernameOnGithubLogin(user: DbUser) {
+getCollectionHooks("Users").newSync.add(function fixUsernameOnGithubLogin(user: DbUser) {
   if (user.services && user.services.github) {
     //eslint-disable-next-line no-console
     console.info("Github login detected, setting username and slug manually");
@@ -271,10 +266,9 @@ function fixUsernameOnGithubLogin(user: DbUser) {
     user.slug = Utils.getUnusedSlugByCollectionName('Users', basicSlug)
   }
   return user;
-}
-addCallback("users.new.sync", fixUsernameOnGithubLogin);
+});
 
-function updateReadStatus(event: DbLWEvent) {
+getCollectionHooks("LWEvents").newSync.add(function updateReadStatus(event: DbLWEvent) {
   if (event.userId && event.documentId) {
     ReadStatuses.update({
       postId: event.documentId,
@@ -288,5 +282,4 @@ function updateReadStatus(event: DbLWEvent) {
       upsert: true
     });
   }
-}
-addCallback('lwevents.new.sync', updateReadStatus);
+});

@@ -1,8 +1,9 @@
-import { addCallback, createMutator, updateMutator } from '../../vulcan-lib';
+import { createMutator, updateMutator } from '../../vulcan-lib';
 import Users from "../../../lib/collections/users/collection";
 import Messages from '../../../lib/collections/messages/collection';
 import Conversations from '../../../lib/collections/conversations/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
+import { getCollectionHooks } from '../../mutationCallbacks';
 
 const getAlignmentForumAccount = async () => {
   let account = Users.findOne({username: "AI Alignment Forum"});
@@ -26,7 +27,7 @@ function isAlignmentForumMember(user: DbUser|null) {
   return user?.groups?.includes('alignmentForum')
 }
 
-export async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbUser, context) {
+getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbUser, context) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     const lwAccount = await getAlignmentForumAccount();
     if (!lwAccount) throw Error("Unable to find the lwAccount to send the new alignment user message")
@@ -71,11 +72,9 @@ export async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbU
       context
     })
   }
-}
+});
 
-addCallback("users.edit.async", NewAlignmentUserSendPMAsync);
-
-async function NewAlignmentUserMoveShortform(newUser: DbUser, oldUser: DbUser, context) {
+getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserMoveShortform(newUser: DbUser, oldUser: DbUser, context) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
       await updateMutator({
@@ -89,6 +88,5 @@ async function NewAlignmentUserMoveShortform(newUser: DbUser, oldUser: DbUser, c
       })
     }
   }
-}
+});
 
-addCallback("users.edit.async", NewAlignmentUserMoveShortform);

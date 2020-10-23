@@ -1,10 +1,11 @@
-import { addCallback, updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
+import { updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import Sequences from '../lib/collections/sequences/collection';
 import Posts from '../lib/collections/posts/collection';
 import Collections from '../lib/collections/collections/collection';
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
+import { getCollectionHooks } from './mutationCallbacks';
 
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
@@ -109,7 +110,7 @@ const userHasPartiallyReadSequence = (user: DbUser, sequenceId: string): boolean
   return _.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId);
 }
 
-const EventUpdatePartialReadStatusCallback = async (event: DbLWEvent) => {
+getCollectionHooks("LWEvents").newAsync.add(async function EventUpdatePartialReadStatusCallback(event: DbLWEvent) {
   if (event.name === 'post-view' && event.properties.sequenceId) {
     const user = await Users.findOne({_id: event.userId});
     if (!user) return;
@@ -123,9 +124,7 @@ const EventUpdatePartialReadStatusCallback = async (event: DbLWEvent) => {
       await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId);
     }
   }
-}
- 
-addCallback('lwevents.new.async', EventUpdatePartialReadStatusCallback);
+});
 
 // Given a user and an array of post IDs, return a dictionary from
 // postID=>bool, true if the user has read the post and false otherwise.

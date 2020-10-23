@@ -6,6 +6,7 @@ import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 import { Meteor } from 'meteor/meteor';
 import { DatabaseServerSetting } from './databaseSettings';
+import { getCollectionHooks } from './mutationCallbacks';
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
 
@@ -69,7 +70,7 @@ client.verifyKey()
     console.log('Akismet key check failed: ' + err.message);
   });
 
-async function checkPostForSpamWithAkismet(post, currentUser) {
+getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkismet(post, currentUser) {
   if (akismetKeySetting.get()) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
@@ -89,11 +90,9 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
     }
   }
   return post
-}
+});
 
-addCallback('posts.new.after', checkPostForSpamWithAkismet);
-
-async function checkCommentForSpamWithAkismet(comment, currentUser) {
+getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKeySetting.get()) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
       if (spam) {
@@ -117,8 +116,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
       }
     }
     return comment
-  }
-addCallback('comments.new.after', checkCommentForSpamWithAkismet);
+});
 
 function runReportCloseCallbacks(newReport, oldReport) {
   if (newReport.closedAt && !oldReport.closedAt) {
@@ -129,7 +127,7 @@ function runReportCloseCallbacks(newReport, oldReport) {
   }
 }
 
-addCallback('reports.edit.async', runReportCloseCallbacks)
+getCollectionHooks("Reports").editAsync.add(runReportCloseCallbacks)
 
 async function akismetReportSpamHam(report) {
   if (report.reportedAsSpam) {

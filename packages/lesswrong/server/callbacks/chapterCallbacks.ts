@@ -2,12 +2,12 @@ import { makeEditableOptions, Chapters } from '../../lib/collections/chapters/co
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { Sequences } from '../../lib/collections/sequences/collection';
 import { Posts } from '../../lib/collections/posts/collection'
-import { addCallback } from '../../lib/vulcan-lib';
+import { getCollectionHooks } from '../mutationCallbacks';
 import * as _ from 'underscore';
 
 addEditableCallbacks({collection: Chapters, options: makeEditableOptions})
 
-async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
+async function ChaptersEditCanonizeCallback (chapter: DbChapter): Promise<DbChapter> {
   const posts = await Sequences.getAllPosts(chapter.sequenceId)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
@@ -48,5 +48,5 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   return chapter
 }
 
-addCallback("chapters.new.async", ChaptersEditCanonizeCallback);
-addCallback("chapters.edit.async", ChaptersEditCanonizeCallback);
+getCollectionHooks("Chapters").newAsync.add(ChaptersEditCanonizeCallback);
+getCollectionHooks("Chapters").editAsync.add(ChaptersEditCanonizeCallback);
