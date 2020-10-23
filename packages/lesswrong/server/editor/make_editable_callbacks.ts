@@ -340,7 +340,6 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
   } = options
 
   const collectionName = collection.collectionName;
-  const { typeName } = collection.options
 
   async function editorSerializationBeforeCreate (doc, { currentUser }) {
     if (doc[fieldName]?.originalContents) {
