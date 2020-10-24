@@ -19,7 +19,7 @@ const schema: SchemaType<DbGardenCode> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Create a label for your custom invite code"
+    label: "Create a name for your event"
   },
   userId: {
     ...foreignKeyField({

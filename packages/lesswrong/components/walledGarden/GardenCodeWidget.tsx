@@ -22,44 +22,27 @@ const styles = (theme) => ({
 export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
   const { SectionTitle, FormatDate } = Components
 
+  const { captureEvent } = useTracking()
   const currentUser =  useCurrentUser()
   const { mutate: updateUser } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   })
 
-  const { captureEvent } = useTracking()
-
-  // const [codeGenerated, setCodeGenerated] = useState(false)
   const [currentCode, setCurrentCode] = useState<GardenCodeFragment|null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
-  const [hideBottomBar, setHideBottomBar] = useState(currentUser?.hideWalledGardenPortalBar||false)
 
   const autoselectCode = (event) => {
     event.target.select()
   }
 
-  const generatedLink = `https://wwww.lesswrong.com/walledGarden?inviteCode=${currentCode?._id}-${currentCode?.slug}`
+  const generatedLink = `localhost:3000/walledGardenPortal?inviteCode=${currentCode?._id}-${currentCode?.slug}`
 
   if (!currentUser) return null
 
-  return <div>
-    <Button onClick={ async () => {
-      setHideBottomBar(!hideBottomBar);
-      void updateUser({
-          selector: { _id: currentUser._id },
-          data: {
-            hideWalledGardenPortalBar: !hideBottomBar
-          },
-        })
-    }}>
-      <strong>{hideBottomBar ? "Show" : "Hide"} Bottom Bar</strong>
-    </Button>
-
-    {!hideBottomBar && <SectionTitle title={"Generate personal invite links!"}>
+  return <SectionTitle title={"Generate personal invite links!"}>
       {!!currentCode
         ? <div>
-          {console.log(currentCode)}
           {/*Here is your code! It is valid between {moment(new Date(currentCode?.startTime))} and {moment(new Date(currentCode?.endTime))}.*/}
           Here is your invite link! It is valid between <strong><ExpandedDate date={currentCode?.startTime}/></strong>
           and <strong><ExpandedDate date={currentCode?.endTime}/></strong>
@@ -88,26 +71,23 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
           </Button>
         </div>
         : <div>
-          <div>
-            <p>You can host guests in the Walled Garden, even if they're not full-time members. Use invite links to set
-              up office hours, events, and general hangouts. Feel free to invite anyone who is considerate of those
-              around them.</p>
-            <p> Invite codes are valid for 4 hours from start time.</p>
-          </div>
-          <Components.WrappedSmartForm
-            collection={GardenCodes}
-            mutationFragment={getFragment("GardenCodeFragment")}
-            queryFragment={getFragment("GardenCodeFragment")}
-            successCallback={code => {
-              setCurrentCode(code)
-            }}
-          />
+            <div>
+              <p>You can host guests in the Walled Garden, even if they're not full-time members. Use invite links to set
+                up office hours, events, and general hangouts. Feel free to invite anyone who is considerate of those
+                around them.</p>
+              <p> Invite codes are valid for 4 hours from start time.</p>
+            </div>
+            <Components.WrappedSmartForm
+              collection={GardenCodes}
+              mutationFragment={getFragment("GardenCodeFragment")}
+              queryFragment={getFragment("GardenCodeFragment")}
+              successCallback={code => {
+                setCurrentCode(code)
+              }}
+            />
         </div>
       }
-      {/*<iframe src={"https://cuckoo.team/lesswrong"}></iframe>*/}
     </SectionTitle>
-    }
-  </div>
 }
 
 const GardenCodeWidgetComponent = registerComponent('GardenCodeWidget', GardenCodeWidget, {styles});

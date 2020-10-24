@@ -264,10 +264,11 @@ importComponent("TabNavigationEventsList", () => require('../components/localGro
 importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
 importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
 
-importComponent("WalledGardenHome", () => require('../components/localGroups/WalledGardenHome'));
-importComponent("WalledGardenPortal", () => require('../components/localGroups/WalledGardenPortal'));
-importComponent("GardenCodeWidget", () => require('../components/localGroups/GardenCodeWidget'));
-importComponent("GatherTown", () => require('../components/localGroups/GatherTown'));
+importComponent("WalledGardenHome", () => require('../components/walledGarden/WalledGardenHome'));
+importComponent("WalledGardenPortal", () => require('../components/walledGarden/WalledGardenPortal'));
+importComponent("GardenCodeWidget", () => require('../components/walledGarden/GardenCodeWidget'));
+importComponent("WalledGardenPortalBar", () => require('../components/walledGarden/WalledGardenPortalBar'));
+importComponent("GatherTown", () => require('../components/walledGarden/GatherTown'));
 
 // comments
 
