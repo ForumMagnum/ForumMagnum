@@ -157,7 +157,7 @@ const GatherTown = ({classes}: {
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
         <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
-          <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
+          <div><a to={gatherTownURL}>Walled Garden Beta</a></div>
         </AnalyticsTracker>
         <div className={classes.secondaryInfo}>
           <div>
