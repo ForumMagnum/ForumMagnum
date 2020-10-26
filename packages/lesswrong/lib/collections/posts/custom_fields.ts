@@ -321,6 +321,17 @@ addFieldsDict(Posts, {
     foreignKey: 'Users',
     optional: true
   },
+  
+  // Cloudinary image id for an image that will be used as the OpenGraph image
+  socialPreviewImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    control: "ImageUpload",
+    group: formGroups.advancedOptions,
+  },
 
   canonicalSequenceId: {
     ...foreignKeyField({
