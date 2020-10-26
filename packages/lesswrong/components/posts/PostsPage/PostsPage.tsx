@@ -143,12 +143,15 @@ class PostsPage extends Component<PostsPageProps> {
       const description = this.getDescription(post)
       const ogUrl = Posts.getPageUrl(post, true) // open graph
       const canonicalUrl = post.canonicalSource || ogUrl
+      const socialPreviewImageUrl = `https://res.cloudinary.com/cea/image/upload/${post.socialPreviewImageId}`
+      console.log("PostsPage -> render -> socialPreviewImageUrl", socialPreviewImageUrl)
+      // console.log("PostsPage -> render -> post.socialPreviewImageId", post.socialPreviewImageId)
 
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags
-                ogUrl={ogUrl} canonicalUrl={canonicalUrl}
+                ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
                 title={post.title} description={description} noIndex={post.noIndex || !!commentId}
               />
               {/* Header/Title */}

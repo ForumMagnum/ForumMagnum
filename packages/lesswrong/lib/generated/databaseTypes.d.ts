@@ -489,6 +489,7 @@ interface DbPost extends DbObject {
   frontpageDate: Date
   collectionTitle: string
   coauthorUserIds: Array<string>
+  socialPreviewImageId: string
   canonicalSequenceId: string
   canonicalCollectionSlug: string
   canonicalBookId: string

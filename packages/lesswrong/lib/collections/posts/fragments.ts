@@ -46,6 +46,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+    socialPreviewImageId
 
     # questions
     question

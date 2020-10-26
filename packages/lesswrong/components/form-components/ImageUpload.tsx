@@ -10,6 +10,7 @@ import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/pub
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
+const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -20,6 +21,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: "white",
   }
 });
+
+const cloudinaryArgsByImageType = {
+  gridImageId: {
+    min_image_height: 80,
+    min_image_width: 203,
+    cropping_aspect_ratio: 2.5375,
+    upload_preset: cloudinaryUploadPresetGridImageSetting.get(),
+  },
+  bannerImageId: {
+    min_image_height: 380,
+    min_image_width: 1600,
+    cropping_aspect_ratio: 2.5375,
+    cropping_default_selection_ratio: 3,
+    upload_preset: cloudinaryUploadPresetBannerSetting.get(),
+  },
+  socialPreviewImage: {
+    min_image_height: 400,
+    min_image_width: 700,
+    cropping_aspect_ratio: 1.91,
+    cropping_default_selection_ratio: 3,
+    upload_preset: cloudinaryUploadPresetSocialPreviewSetting.get(),
+  },
+}
 
 class ImageUpload extends Component<any,any> {
   constructor(props, context) {
@@ -51,31 +75,17 @@ class ImageUpload extends Component<any,any> {
   }
 
   uploadWidget = () => {
-    let min_image_height, min_image_width, cropping_aspect_ratio, cropping_default_selection_ratio, upload_preset;
-    if (this.props.name == "gridImageId") {
-      min_image_height = 80;
-      min_image_width = 203;
-      cropping_aspect_ratio = 2.5375;
-      upload_preset = cloudinaryUploadPresetGridImageSetting.get();
-    } else if (this.props.name == "bannerImageId") {
-      min_image_height = 380;
-      min_image_width = 1600;
-      cropping_aspect_ratio = 2.5375;
-      cropping_default_selection_ratio = 3;
-      upload_preset = cloudinaryUploadPresetBannerSetting.get()
-    }
+    const cloudinaryArgs = cloudinaryArgsByImageType[this.props.name]
+    if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
+    console.log("ImageUpload -> uploadWidget -> cloudinaryArgs", cloudinaryArgs)
     // @ts-ignore
-    cloudinary.openUploadWidget(
-      {cropping: "server",
+    cloudinary.openUploadWidget({
+      cropping: "server",
       cloud_name: cloudinaryCloudNameSetting.get(),
-      upload_preset,
       theme: 'minimal',
-      min_image_height,
-      min_image_width,
       cropping_validate_dimension: true,
       cropping_show_dimensions: true,
-      cropping_default_selection_ratio,
-      cropping_aspect_ratio
+      ...cloudinaryArgs
     }, this.setImageInfo);
   }
   render(){
