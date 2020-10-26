@@ -464,6 +464,7 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
+    return newDoc;
   }
   
   getCollectionHooks(collectionName).createAfter.add(editorSerializationAfterCreate)
