@@ -86,12 +86,12 @@ export class CollectionMutationCallbacks<T extends DbObject> {
     this.editAsync = new CallbackHook<[T,T,DbUser|null,CollectionBase<T>]>(`${collectionName.toLowerCase()}.edit.async`)
   
     this.deleteValidate = new CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<T>]>(`${typeName.toLowerCase()}.delete.validate`);
-    this.removeValidate = new CallbackChainHook<T,[DbUser|null]>(`collectionName.toLowerCase()}.remove.validate`);
-    this.deleteBefore = new CallbackChainHook<T,[DeleteCallbackProperties<T>]>(`typeName.toLowerCase()}.delete.before`);
-    this.removeBefore = new CallbackChainHook<T,[DbUser|null]>(`collectionName.toLowerCase()}.remove.before`);
-    this.removeSync = new CallbackChainHook<T,[DbUser|null]>(`collectionName.toLowerCase()}.remove.sync`);
-    this.deleteAsync = new CallbackHook<[DeleteCallbackProperties<T>]>(`typeName.toLowerCase()}.delete.async`);
-    this.removeAsync = new CallbackHook<[T,DbUser|null,CollectionBase<T>]>(`collectionName.toLowerCase()}.remove.async`);
+    this.removeValidate = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.remove.validate`);
+    this.deleteBefore = new CallbackChainHook<T,[DeleteCallbackProperties<T>]>(`${typeName.toLowerCase()}.delete.before`);
+    this.removeBefore = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.remove.before`);
+    this.removeSync = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.remove.sync`);
+    this.deleteAsync = new CallbackHook<[DeleteCallbackProperties<T>]>(`${typeName.toLowerCase()}.delete.async`);
+    this.removeAsync = new CallbackHook<[T,DbUser|null,CollectionBase<T>]>(`${collectionName.toLowerCase()}.remove.async`);
   }
 }
 
