@@ -11,10 +11,18 @@ import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme) => ({
-  welcomeText: {
+  messageStyling: {
     ...postBodyStyles(theme)
   },
-  inviteCode: {
+  portalBarButton: {
+    position: "absolute",
+    left: "50%",
+  },
+  gardenCodeWidget: {
+    width: "450px",
+    marginLeft: "30px",
+    marginTop: "20px"
+    // marginRight: "20px"
 
   }
 })
@@ -30,26 +38,28 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
 
   const { captureEvent } = useTracking()
 
-  const [hideBottomBar, setHideBottomBar] = useState(currentUser?.hideWalledGardenPortalBar||false)
+  const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar||false)
 
 
   if (!currentUser) return null
 
   return <div>
-    <Button onClick={ async () => {
-      setHideBottomBar(!hideBottomBar);
+    <Button className={classes.portalBarButton} onClick={ async () => {
+      setHideBar(!hideBar);
       void updateUser({
         selector: { _id: currentUser._id },
         data: {
-          hideWalledGardenPortalBar: !hideBottomBar
+          hideWalledGardenPortalBar: !hideBar
         },
       })
     }}>
-      <strong>{hideBottomBar ? "Show" : "Hide"} Bottom Bar</strong>
+      <strong>{hideBar ? "Show" : "Hide"} Bar</strong>
     </Button>
 
-    {!hideBottomBar && <div>
-      <GardenCodeWidget/>}
+    {!hideBar && <div>
+      <div className={classes.gardenCodeWidget}>
+        <GardenCodeWidget/>
+      </div>
       {/*//eventCalendar*/}
       {/*<iframe src={"https://cuckoo.team/lesswrong"}></iframe>*/}
     </div>

@@ -9,9 +9,10 @@ import { ExpandedDate } from "../common/FormatDate";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
+import Typography from '@material-ui/core/Typography';
 
 const styles = (theme) => ({
-  welcomeText: {
+  messageStyling: {
     ...postBodyStyles(theme)
   },
   inviteCode: {
@@ -40,54 +41,51 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
 
   if (!currentUser) return null
 
-  return <SectionTitle title={"Generate personal invite links!"}>
-      {!!currentCode
-        ? <div>
+  return <div>
+    <Typography variant="title">Generate Invite Links</Typography>
+    {!!currentCode
+      ? <div>
           {/*Here is your code! It is valid between {moment(new Date(currentCode?.startTime))} and {moment(new Date(currentCode?.endTime))}.*/}
           Here is your invite link! It is valid between <strong><ExpandedDate date={currentCode?.startTime}/></strong>
           and <strong><ExpandedDate date={currentCode?.endTime}/></strong>
           <TextField
-            className={classes.inviteCode}
-            // label={"Your code!"}
-            onClick={autoselectCode}
-            onSelect={autoselectCode}
-            value={generatedLink}
-            fullWidth
+          className={classes.inviteCode}
+          // label={"Your code!"}
+          onClick={autoselectCode}
+          onSelect={autoselectCode}
+          value={generatedLink}
+          fullWidth
           />
           <CopyToClipboard
-            text={generatedLink}
-            onCopy={(text, result) => {
-              setCopiedCode(result);
-              captureEvent("gardenCodeLinkCopied", {generatedLink})
-            }}
+          text={generatedLink}
+          onCopy={(text, result) => {
+          setCopiedCode(result);
+          captureEvent("gardenCodeLinkCopied", {generatedLink})
+          }}
           >
-            <Button color="primary">{copiedCode ? "Copied!" : "Copy Link"}</Button>
+          <Button color="primary">{copiedCode ? "Copied!" : "Copy Link"}</Button>
           </CopyToClipboard>
           <Button onClick={() => {
-            setCurrentCode(null)
-            setCopiedCode(false)
+          setCurrentCode(null)
+          setCopiedCode(false)
           }}>
-            Generate New Code
+          Generate New Code
           </Button>
-        </div>
-        : <div>
-            <div>
-              <p>You can host guests in the Walled Garden, even if they're not full-time members. Use invite links to set
-                up office hours, events, and general hangouts. Feel free to invite anyone who is considerate of those
-                around them.</p>
-              <p> Invite codes are valid for 4 hours from start time.</p>
-            </div>
-            <Components.WrappedSmartForm
-              collection={GardenCodes}
-              mutationFragment={getFragment("GardenCodeFragment")}
-              queryFragment={getFragment("GardenCodeFragment")}
-              successCallback={code => {
-                setCurrentCode(code)
-              }}
-            />
-        </div>
-      }
-    </SectionTitle>
+          </div>
+      : <div>
+          <div>
+            <p>Use invite links to set up symposiums, co-working, general hangouts, and other events.
+              Feel free to invite anyone who is considerate of those around them.
+              Invite codes are valid for 4 hours from start time.</p>
+          </div>
+          <Components.WrappedSmartForm
+            collection={GardenCodes}
+            mutationFragment={getFragment("GardenCodeFragment")}
+            queryFragment={getFragment("GardenCodeFragment")}
+            successCallback={code => setCurrentCode(code)}/>
+      </div>
+    }
+  </div>
 }
 
 const GardenCodeWidgetComponent = registerComponent('GardenCodeWidget', GardenCodeWidget, {styles});

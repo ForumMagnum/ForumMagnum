@@ -12,31 +12,38 @@ import moment from '../../lib/moment-timezone';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
+const barWidth = "300px"
+const barHeight = "250px"
+
 const styles = (theme) => ({
-  welcomeText: {
+  messageStyling: {
     ...postBodyStyles(theme),
     marginTop: "100px"
   },
-  iframePositioning: {
+  innerPortalPositioning: {
     position: "absolute",
-    top: 64,
-    // left: 150,
-    width: "100%", //"calc(100% - 150px)",
-    height: "calc(100vh - 264px)",
+    top: 0,
+    width: "100vw", //"calc(100% - 150px)",
+    height: "100vh", //"calc(100vh - 264px)",
     zIndex: theme.zIndexes.gatherTownIframe,
   },
-  iframeStyling: {
+  iframePositioning: {
+    // position: "absolute",
+    // top: 64,
+    // leftMargin: "-55px", //`calc(${barWidth} - 55px)`,
+    // width: "calc(100% + 55px)",//`calc(100% - ${barWidth} + 55px)`,//"100%",
     width: "100%",
-    height: "100%",
-    border: "none"
+    height: `calc(100% - ${barHeight})`,
+    border: "none",
   },
-  inviteCodeQueryWidget: {
-    position: "absolute",
-    left: "50px",
-    width: "500px"
-  }
+  portalBarPositioning: {
+    // position: "absolute",
+    // left: 0,
+    // // bottom: barHeight, //0,
+    height: barHeight,
+    width: "100%",
+  },
 })
-
 
 
 const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
@@ -67,8 +74,6 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
     }, 1000*10);
     return () => clearInterval(interval)
   }, [setExpiredGardenCode, moreThanFourHoursAfterCodeExpiry, gardenCode]);
-
-
   // console.log({
   //   gardenCode,
   //   expiredGardenCode,
@@ -83,7 +88,7 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
 
   const innerPortal = ()  => {
 
-    if (!onboarded)  return <SingleColumnSection className={classes.welcomeText}>
+    if (!onboarded)  return <SingleColumnSection className={classes.messageStyling}>
       {!!gardenCode && <div>
         <p>
           Congratulations! Your invite code to <strong>{gardenCode.title}</strong> is valid (and will be for next many hours).
@@ -109,14 +114,14 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
       </AnalyticsTracker>
     </SingleColumnSection>
 
-  return <div className={classes.iframePositioning}>
-        <iframe className={classes.iframeStyling} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
-          <div className={classes.inviteCodeQueryWidget}>
-              {!!currentUser && currentUser.walledGardenInvite && <WalledGardenPortalBar/>}
-            </div>
-        </div>
-
+    return <div className={classes.innerPortalPositioning}>
+      <iframe className={classes.iframePositioning} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
+      <div className={classes.portalBarPositioning}>
+        {!!currentUser && currentUser.walledGardenInvite && <WalledGardenPortalBar />}
+      </div>
+    </div>
   }
+
 
   //Access Granted Cases
   if (currentUser?.walledGardenInvite) return innerPortal()
@@ -131,23 +136,23 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
     <p>We hope you had a really great time! :)</p>
   </SingleColumnSection>
 
-  if (moment(gardenCode?.startTime).isAfter(new Date())) return <SingleColumnSection className={classes.welcomeText}>
+  if (moment(gardenCode?.startTime).isAfter(new Date())) return <SingleColumnSection className={classes.messageStyling}>
     <p>Your invite code is for an event that has yet started! Please come back at <strong><ExpandedDate date={gardenCode?.startTime}/></strong></p>}
   </SingleColumnSection>
 
-  if (moment(gardenCode?.endTime).isBefore(new Date())) return <SingleColumnSection className={classes.welcomeText}>
+  if (moment(gardenCode?.endTime).isBefore(new Date())) return <SingleColumnSection className={classes.messageStyling}>
     <p>Unfortunately, your invite code is for an event that has already ended.
       Please request another link from your host or return when the Garden is open to the public on Sunday between 12pm and 4pm PT.
     </p>
   </SingleColumnSection>
 
-  if ((!!inviteCodeQuery && !gardenCode) || gardenCode?.deleted) return <SingleColumnSection className={classes.welcomeText}>
+  if ((!!inviteCodeQuery && !gardenCode) || gardenCode?.deleted) return <SingleColumnSection className={classes.messageStyling}>
     <p>Unfortunately, your invite link to the Garden is not valid.
       Please request another link from your host or return when the Garden is open to the public on Sundays between 12pm and 4pm PT.
       </p>
     </SingleColumnSection>
 
-  return <SingleColumnSection className={classes.welcomeText}> {/*Generic message when no code provided and not open/no invite */}
+  return <SingleColumnSection className={classes.messageStyling}> {/*Generic message when no code provided and not open/no invite */}
     <p>The Walled Garden is a private virtual space managed by the LessWrong team.</p>
     <p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
   </SingleColumnSection>
