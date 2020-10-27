@@ -98,9 +98,6 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
     hash: location.hash,
     query: parseQuery(location),
   };
-
-  console.log("Route results:");
-  console.log(result);
   
   if (currentRoute && currentRoute.redirect) {
     const redirectTo = currentRoute.redirect(result);

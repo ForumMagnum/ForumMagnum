@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx esbuild ./newSrc/server.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./newSrc/static/server/js/bundle2.js' --platform=node --external:canvas --sourcemap && npx esbuild ./newSrc/client.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./newSrc/static/client/js/bundle.js' --sourcemap --target=es6 --define:global=window",
+    "build": "npx esbuild ./newSrc/server.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./newSrc/static/server/js/bundle2.js' --platform=node --external:canvas --minify --sourcemap && npx esbuild ./newSrc/client.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./newSrc/static/client/js/bundle.js' --minify --sourcemap --target=es6 --define:global=window",
     "start": "export NODE_ENV=development && nodemon --ignore './newSrc/static/' --exec 'yarn run build && node -- newSrc/static/server/js/bundle2.js'",
     "build:prod": "export NODE_ENV=production && webpack -p",
     "start:prod": "export NODE_ENV=production && nodemon --ignore './src/static/' --exec 'yarn run build && node -- newSrc/static/server/js/bundle.js'"
@@ -121,7 +121,7 @@
     "escape-string-regexp": "^1.0.5",
     "express": "5.0.0-alpha.8",
     "feedparser-promised": "^1.2.2",
-    "graphql": "^14.5.8",
+    "graphql": "^14.0.0",
     "graphql-date": "^1.0.2",
     "graphql-scalars": "^1.4.0",
     "graphql-server-express": "^0.6.0",
@@ -197,6 +197,8 @@
     "webpack-node-externals": "^2.5.2"
   },
   "resolutions": {
-    "jsdom": "^16.4.0"
+    "jsdom": "^16.4.0",
+    "graphql": "^14.0.0",
+    "graphql-tools": "4.0.7"
   }
 }
