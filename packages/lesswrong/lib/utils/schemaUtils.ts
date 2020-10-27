@@ -22,8 +22,8 @@ export interface CollectionFieldSpecification<T extends DbObject> {
   denormalized?: boolean,
   canAutoDenormalize?: boolean,
   canAutofillDefault?: boolean,
-  needsUpdate?: any,
-  getValue?: any,
+  needsUpdate?: (doc: Partial<T>) => boolean,
+  getValue?: (doc: T, context: ResolverContext) => any,
   foreignKey?: any,
   
   min?: number,
@@ -58,9 +58,9 @@ export interface CollectionFieldSpecification<T extends DbObject> {
   //    they return undefined the field value is left unchanged.
   //    
   onInsert?: (doc: T, currentUser: DbUser) => any,
-  onCreate?: (args: {data: T, currentUser: DbUser, collection: CollectionBase<T>, context?: any, document: T, newDocument: T, schema: any, fieldName: string}) => any,
+  onCreate?: (args: {data: T, currentUser: DbUser, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: any, fieldName: string}) => any,
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser, newDocument: T) => any,
-  onUpdate?: (args: {data: any, oldDocument: T, newDocument: T, document: T, currentUser: DbUser, collection: CollectionBase<T>, context: any, schema: any, fieldName: string}) => any,
+  onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser, collection: CollectionBase<T>, context: ResolverContext, schema: any, fieldName: string}) => any,
   onRemove?: any,
   onDelete?: any,
   
@@ -89,7 +89,7 @@ const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DataType>
 
-    const resolvedDoc = await collection.loader.load(doc[fieldName])
+    const resolvedDoc = await context.loaders[collectionName].load(doc[fieldName])
     if (!resolvedDoc) {
       if (!nullable) {
         // eslint-disable-next-line no-console
@@ -119,7 +119,7 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DbType>
 
-    const resolvedDocs: Array<DbType> = await collection.loader.loadMany(keys)
+    const resolvedDocs: Array<DbType> = await context.loaders[collectionName].loadMany(keys)
 
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
@@ -273,18 +273,18 @@ SimpleSchema.extendOptions(['canAutoDenormalize'])
 // of other collections, because it doesn't set up callbacks for changes in
 // those collections)
 export function denormalizedField<T extends DbObject>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: T) => boolean,
-  getValue: (doc: T) => any,
+  needsUpdate?: (doc: Partial<T>) => boolean,
+  getValue: (doc: T, context: ResolverContext) => any,
 }): CollectionFieldSpecification<T> {
   return {
-    onUpdate: async ({data, document}) => {
+    onUpdate: async ({data, document, context}) => {
       if (!needsUpdate || needsUpdate(data)) {
-        return await getValue(document)
+        return await getValue(document, context)
       }
     },
-    onCreate: async ({newDocument}) => {
+    onCreate: async ({newDocument, context}) => {
       if (!needsUpdate || needsUpdate(newDocument)) {
-        return await getValue(newDocument)
+        return await getValue(newDocument, context)
       }
     },
     denormalized: true,
@@ -377,10 +377,10 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     denormalized: true,
     canAutoDenormalize: true,
     
-    getValue: async (document: SourceType): Promise<any> => {
+    getValue: async (document: SourceType, context: ResolverContext): Promise<number> => {
       const foreignCollection: CollectionBase<TargetType> = getCollection(foreignCollectionName);
       const docsThatMayCount = await getWithLoader(
-        foreignCollection,
+        context, foreignCollection,
         `denormalizedCount_${collectionName}.${fieldName}`,
         { },
         foreignFieldName,

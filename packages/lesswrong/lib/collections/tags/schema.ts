@@ -273,7 +273,7 @@ export const schema: SchemaType<DbTag> = {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
 
-      const readStatus = await getWithLoader(ReadStatuses,
+      const readStatus = await getWithLoader(context, ReadStatuses,
         `tagReadStatuses`,
         { userId: currentUser._id },
         'tagId', tag._id
@@ -290,7 +290,7 @@ export const schema: SchemaType<DbTag> = {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;
       
-      const readStatus = await getWithLoader(ReadStatuses,
+      const readStatus = await getWithLoader(context, ReadStatuses,
         `tagReadStatuses`,
         { userId: currentUser._id },
         'tagId', tag._id

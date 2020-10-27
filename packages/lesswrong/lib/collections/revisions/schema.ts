@@ -120,7 +120,7 @@ const schema: SchemaType<DbRevision> = {
       const {currentUser, Tags} = context;
       if (revision.collectionName !== "Tags")
         return null;
-      const tag = await context.Tags.loader.load(revision.documentId);
+      const tag = await context.loaders.Tags.load(revision.documentId);
       return await accessFilterSingle(currentUser, Tags, tag, context);
     }
   }),
@@ -132,7 +132,7 @@ const schema: SchemaType<DbRevision> = {
       const {currentUser, Posts} = context;
       if (revision.collectionName !== "Posts")
         return null;
-      const post = await context.Posts.loader.load(revision.documentId);
+      const post = await context.loaders.Posts.load(revision.documentId);
       return await accessFilterSingle(currentUser, Posts, post, context);
     }
   }),
