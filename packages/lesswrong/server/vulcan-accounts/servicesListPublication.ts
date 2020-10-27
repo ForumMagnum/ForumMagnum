@@ -1,7 +1,8 @@
-import { Meteor } from 'meteor/meteor';
 import { getLoginServices } from '../../lib/vulcan-accounts/helpers';
+import { meteorUsersCollection } from '../../lib/meteorAccounts';
+import { publishDDP } from '../../lib/meteorDdp';
 
-Meteor.publish('servicesList', function(this: any) {
+publishDDP('servicesList', function(this: any) {
   let services = getLoginServices();
   // @ts-ignore
   if (Package['accounts-password']) {
@@ -10,5 +11,5 @@ Meteor.publish('servicesList', function(this: any) {
   let fields = {};
   // Publish the existing services for a user, only name or nothing else.
   services.forEach(service => fields[`services.${service.name}.name`] = 1);
-  return Meteor.users.find({ _id: this.userId }, { fields: fields});
+  return meteorUsersCollection.find({ _id: this.userId }, { fields: fields});
 });

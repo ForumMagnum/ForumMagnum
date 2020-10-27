@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 
 function useEventListener(eventName, handler){
   // Create a ref that stores handler
@@ -17,7 +17,7 @@ function useEventListener(eventName, handler){
 
   useEffect(
     () => {
-      if (Meteor.isClient) {
+      if (isClient) {
 
         // eslint-disable-next-line no-console
         if (!window.addEventListener) console.log("Error: eventListener not available");
@@ -49,7 +49,7 @@ function useBeforeUnloadTracking() {
 
 function usePageVisibility() {
   const { captureEvent } = useTracking()
-  const doc = (Meteor.isClient)? document : null
+  const doc = isClient ? document : null
   const [pageIsVisible, setPageIsVisible] = useState(!doc?.hidden)
   const [pageVisibilityState, setPageVisibilityState] = useState(doc?.visibilityState)
 

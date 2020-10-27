@@ -1,4 +1,4 @@
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 
 Accounts.ui._options = {
   ...Accounts.ui._options,

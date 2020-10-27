@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import EditorForm from './EditorForm'
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 
 interface EditorFormContainerProps {
   className: string,
@@ -19,7 +19,7 @@ class EditorFormContainer extends Component<EditorFormContainerProps,EditorFormC
     const { editorState } = this.state;
     return (
       <EditorForm
-        isClient={Meteor.isClient}
+        isClient={isClient}
         editorState={editorState}
         onChange={this.onChange}
         commentEditor={this.props.form && this.props.form.commentEditor}
