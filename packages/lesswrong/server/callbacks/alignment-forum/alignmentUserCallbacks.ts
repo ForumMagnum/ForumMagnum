@@ -27,7 +27,7 @@ function isAlignmentForumMember(user: DbUser|null) {
   return user?.groups?.includes('alignmentForum')
 }
 
-getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbUser, context) {
+getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserSendPMAsync (newUser: DbUser, oldUser: DbUser) {
   if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     const lwAccount = await getAlignmentForumAccount();
     if (!lwAccount) throw Error("Unable to find the lwAccount to send the new alignment user message")
@@ -40,7 +40,6 @@ getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserSendPMA
       document: conversationData,
       currentUser: lwAccount,
       validate: false,
-      context
     });
 
     let firstMessageContent =
@@ -69,7 +68,6 @@ getCollectionHooks("Users").editAsync.add(async function NewAlignmentUserSendPMA
       document: firstMessageData,
       currentUser: lwAccount,
       validate: false,
-      context
     })
   }
 });
