@@ -3,7 +3,7 @@ import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib
 import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import {Button, TextField} from "@material-ui/core";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {postBodyStyles} from "../../themes/stylePiping";
+import {commentBodyStyles} from "../../themes/stylePiping";
 import {useTracking} from "../../lib/analyticsEvents";
 import { ExpandedDate } from "../common/FormatDate";
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 
 const styles = (theme) => ({
   messageStyling: {
-    ...postBodyStyles(theme)
+    ...commentBodyStyles(theme)
   },
   inviteCode: {
 
@@ -41,7 +41,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
 
   if (!currentUser) return null
 
-  return <div>
+  return <div className={classes.messageStyling}>
     <Typography variant="title">Generate Invite Links</Typography>
     {!!currentCode
       ? <div>

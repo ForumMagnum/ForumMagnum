@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { GardenCodes } from "../../lib/collections/gardencodes/collection";
-import {Button, TextField} from "@material-ui/core";
+import {Button, TextField, Typography} from "@material-ui/core";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {postBodyStyles} from "../../themes/stylePiping";
+import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import {useTracking} from "../../lib/analyticsEvents";
 import { ExpandedDate } from "../common/FormatDate";
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -11,8 +11,8 @@ import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme) => ({
-  messageStyling: {
-    ...postBodyStyles(theme)
+  root: {
+    ...commentBodyStyles(theme)
   },
   portalBarButton: {
     position: "absolute",
@@ -23,12 +23,19 @@ const styles = (theme) => ({
     marginLeft: "30px",
     marginTop: "20px"
     // marginRight: "20px"
-
-  }
+  },
+  eventWidget: {
+    width: "450px",
+    marginLeft: "30px",
+    marginTop: "20px"
+  },
+  body: {
+    display: 'flex',
+  },
 })
 
 export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
-  const { GardenCodeWidget } = Components
+  const { GardenCodeWidget, WalledGardenEvents } = Components
 
   const currentUser =  useCurrentUser()
   const { mutate: updateUser } = useUpdate({
@@ -43,7 +50,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
 
   if (!currentUser) return null
 
-  return <div>
+  return <div className={classes.root}>
     <Button className={classes.portalBarButton} onClick={ async () => {
       setHideBar(!hideBar);
       void updateUser({
@@ -56,10 +63,15 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
       <strong>{hideBar ? "Show" : "Hide"} Bar</strong>
     </Button>
 
-    {!hideBar && <div>
+    {!hideBar && <div className={classes.body}>
       <div className={classes.gardenCodeWidget}>
         <GardenCodeWidget/>
       </div>
+      <div className={classes.eventWidget}>
+        <Typography variant="title">Upcoming Events</Typography>
+        <WalledGardenEvents />
+      </div>
+      
       {/*//eventCalendar*/}
       {/*<iframe src={"https://cuckoo.team/lesswrong"}></iframe>*/}
     </div>

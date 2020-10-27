@@ -266,6 +266,7 @@ importComponent("GroupFormDialog", () => require('../components/localGroups/Grou
 
 importComponent("WalledGardenHome", () => require('../components/walledGarden/WalledGardenHome'));
 importComponent("WalledGardenPortal", () => require('../components/walledGarden/WalledGardenPortal'));
+importComponent("WalledGardenEvents", () => require('../components/walledGarden/WalledGardenEvents'));
 importComponent("GardenCodeWidget", () => require('../components/walledGarden/GardenCodeWidget'));
 importComponent("WalledGardenPortalBar", () => require('../components/walledGarden/WalledGardenPortalBar'));
 importComponent("GatherTown", () => require('../components/walledGarden/GatherTown'));

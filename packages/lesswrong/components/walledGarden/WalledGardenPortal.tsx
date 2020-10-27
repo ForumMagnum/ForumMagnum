@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Components, getFragment, registerComponent} from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
@@ -9,11 +9,12 @@ import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import { useSingle } from "../../lib/crud/withSingle";
 import { ExpandedDate } from "../common/FormatDate";
 import moment from '../../lib/moment-timezone';
-
-export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
+import { gardenOpenToPublic } from './GatherTown';
 
 const barWidth = "300px"
 const barHeight = "250px"
+
+const gatherTownLeftMenuWidth = 55 // We want to hide this menu, so we apply a negative margin on the iframe
 
 const styles = (theme) => ({
   messageStyling: {
@@ -23,24 +24,27 @@ const styles = (theme) => ({
   innerPortalPositioning: {
     position: "absolute",
     top: 0,
-    width: "100vw", //"calc(100% - 150px)",
-    height: "calc(100vh - 65px)", //"calc(100vh - 264px)",
+    width: "100vw", 
+    height: "calc(100vh - 65px)",
     zIndex: theme.zIndexes.gatherTownIframe,
+    display: 'flex',
+    flexDirection: 'column',
+    
   },
   iframePositioning: {
     // position: "absolute",
     // top: 64,
     // leftMargin: "-55px", //`calc(${barWidth} - 55px)`,
     // width: "calc(100% + 55px)",//`calc(100% - ${barWidth} + 55px)`,//"100%",
-    width: "100%",
-    height: `calc(100% - ${barHeight})`,
+    width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
+    height: "100%",
     border: "none",
+    marginLeft: -gatherTownLeftMenuWidth
   },
   portalBarPositioning: {
     // position: "absolute",
     // left: 0,
     // // bottom: barHeight, //0,
-    height: barHeight,
     width: "100%",
   },
 })
@@ -63,7 +67,9 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
   const validateGardenCode = (gardenCode: GardenCodeFragment | null ) => {
     return !gardenCode?.deleted && moment().isBetween(gardenCode?.startTime, gardenCode?.endTime)
   }
-  const moreThanFourHoursAfterCodeExpiry = (gardenCode) => moment(gardenCode?.endTime).add(4,'hours').isBefore(new Date())
+  const moreThanFourHoursAfterCodeExpiry = useCallback((gardenCode) => 
+    moment(gardenCode?.endTime).add(4,'hours').isBefore(new Date())
+  , [])
 
   const [onboarded, setOnboarded] = useState(true);
   const [expiredGardenCode, setExpiredGardenCode] = useState(moreThanFourHoursAfterCodeExpiry(gardenCode));

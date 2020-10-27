@@ -41,10 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: 'rgba(0,0,0,0.55)',
     marginTop: 8
   },
-  eventTime: {
-    fontSize: ".8em",
-    opacity: .75
-  },
   usersOnlineList: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
@@ -118,24 +114,13 @@ const GatherTown = ({classes}: {
   const userList = users && Object.keys(users)
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
-  const [ events, setEvents ] = useState([])
 
   const { mutate: updateUser } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
 
-  const { LWTooltip, AnalyticsTracker } = Components
-
-  useEffect(() => {
-    const eventsCallback = (events) => {
-      setEvents(_uniqBy(events, 'summary'))
-    }
-
-    if (Meteor.isClient) {
-      void getCalendarEvents(eventsCallback)
-    }
-  }, [])
+  const { LWTooltip, AnalyticsTracker, WalledGardenEvents } = Components
 
   if (!currentUser) return null
   if (!gardenOpenToPublic.get() && !currentUser.walledGardenInvite) return null
@@ -173,14 +158,9 @@ const GatherTown = ({classes}: {
       </Link>
   </LWTooltip> : null
 
-  const eventComponent = (event) => <span>
-    {event.summary}{" "}
-    <span className={classes.eventTime}>{moment(new Date(event.start.dateTime)).calendar()}</span>
-  </span>
-
-  const eventsList = <div>
-    {events.map((event, i)=><div key={`event-full-${i}`}>{eventComponent(event)}</div>)}
-  </div>
+  // const eventsList = <div>
+  //   {events.map((event, i)=><div key={`event-full-${i}`}>{eventComponent(event)}</div>)}
+  // </div>
 
   return (
     <div className={classes.root}>
@@ -198,13 +178,11 @@ const GatherTown = ({classes}: {
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/> No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        {(events.length > 0) && <div className={classes.secondaryInfo}>
-          {events.slice(0,2).map((event,i)=><div key={`event-${i}`}>{eventComponent(event)}
-          </div>)}
-          <LWTooltip title={eventsList}>
-              <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
-          </LWTooltip>
-        </div>}
+        <WalledGardenEvents />
+        <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
+        {/* <LWTooltip title={eventsList}>
+            
+        </LWTooltip> */}
       </div>
     </div>
   )
