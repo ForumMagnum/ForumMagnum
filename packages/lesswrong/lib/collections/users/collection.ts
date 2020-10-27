@@ -1,7 +1,7 @@
 import schema from './schema';
 import resolvers from '../../vulcan-users/resolvers';
 import { createCollection, addGraphQLQuery, Utils } from '../../vulcan-lib';
-import { Meteor } from 'meteor/meteor';
+import { meteorUsersCollection } from '../../meteorAccounts';
 
 const performCheck = (mutation, user: DbUser|null, document: DbUser) => {
   if (!mutation.check(user, document))
@@ -177,13 +177,12 @@ interface ExtendedUsersCollection extends UsersCollection {
 }
 
 export const Users: ExtendedUsersCollection = createCollection({
-  collection: Meteor.users,
+  collection: meteorUsersCollection,
   collectionName: 'Users',
   typeName: 'User',
   schema,
   resolvers,
   mutations,
-  description: 'A user object'
 });
 
 addGraphQLQuery('currentUser: User');

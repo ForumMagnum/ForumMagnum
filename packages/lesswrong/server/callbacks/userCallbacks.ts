@@ -4,10 +4,10 @@ import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
-import { Accounts } from 'meteor/accounts-base';
+import { isAnyTest } from '../../lib/executionEnvironment';
+import { randomId } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { Accounts } from '../../lib/meteorAccounts';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -151,7 +151,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
-  if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+  if (!isAnyTest) {
     Accounts.sendVerificationEmail(user._id);
     
     if (subscribeToCurated) {
@@ -164,7 +164,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
 getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user) {
-  const abTestKey = user.profile?.clientId || Random.id();
+  const abTestKey = user.profile?.clientId || randomId();
   Users.update(user._id, {$set: {abTestKey: abTestKey}});
 });
 

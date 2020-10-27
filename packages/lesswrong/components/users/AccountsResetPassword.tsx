@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { STATES } from '../../lib/vulcan-accounts/helpers';
 import { useLocation } from '../../lib/routeUtil'
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 
 const AccountsResetPassword = () => {
   const { params: { token } } = useLocation()

@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+import { isServer, runAfterDelay, deferWithoutDelay } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { debug } from './debug';
@@ -212,11 +212,11 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 
   const callbacks = Array.isArray(hook) ? hook : Callbacks[hook];
 
-  if (Meteor.isServer && typeof callbacks !== 'undefined' && !!callbacks.length) {
+  if (isServer && typeof callbacks !== 'undefined' && !!callbacks.length) {
     let pendingDeferredCallbackStart = markCallbackStarted(hook);
 
     // use defer to avoid holding up client
-    Meteor.defer(function () {
+    deferWithoutDelay(function () {
       // run all post submit server callbacks on post object successively
       callbacks.forEach(function (this: any, callback) {
         debug(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
@@ -275,7 +275,7 @@ export const waitUntilCallbacksFinished = () => {
   return new Promise(resolve => {
     function finishOrWait() {
       if (callbacksArePending()) {
-        Meteor.setTimeout(finishOrWait, 20);
+        runAfterDelay(finishOrWait, 20);
       } else {
         resolve();
       }

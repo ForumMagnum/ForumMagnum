@@ -5,7 +5,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../../../lib/executionEnvironment';
 
 const SECONDARY_SPACING = 20
 
@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const URLClass = getUrlClass()
 
 function getProtocol(url: string): string {
-  if (Meteor.isServer)
+  if (isServer)
     return new URLClass(url).protocol;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -97,7 +97,7 @@ function getProtocol(url: string): string {
 }
 
 function getHostname(url: string): string {
-  if (Meteor.isServer)
+  if (isServer)
     return new URLClass(url).hostname;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript

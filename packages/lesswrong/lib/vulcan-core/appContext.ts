@@ -4,7 +4,7 @@ import { Components, Routes } from '../vulcan-lib';
 import { matchPath } from 'react-router';
 import qs from 'qs'
 import Sentry from '@sentry/core';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../executionEnvironment';
 
 export const LocationContext = React.createContext<any>(null);
 export const SubscribeLocationContext = React.createContext<any>(null);
@@ -84,7 +84,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
       // images), but we can't really distinguish between "post contained a broken
       // image link and it mattered" and "bot tried a weird URL and it didn't
       // resolve to anything".
-      if (Meteor.isClient) {
+      if (isClient) {
         Sentry.captureException(new Error(`404 not found: ${location.pathname}`));
       }
     }

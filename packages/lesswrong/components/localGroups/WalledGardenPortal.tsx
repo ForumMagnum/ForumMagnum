@@ -3,10 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
-import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
+import { gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
+import { gardenOpenToPublic } from './GatherTown';
 import { Link } from '../../lib/reactRouterWrapper';
-
-export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
 const styles = (theme) => ({
   welcomeText: {

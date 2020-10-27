@@ -5,7 +5,7 @@ import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
 import { voteTypes, createVote } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
 import moment from 'moment';
-import { Random } from 'meteor/random';
+import { randomId } from '../lib/random';
 import * as _ from 'underscore';
 
 
@@ -203,7 +203,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
 // ### updateDocument
 // if set to true, this will perform its own database updates. If false, will only
 // return an updated document without performing any database operations on it.
-export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = Random.id(), user, updateDocument = true, toggleIfAlreadyVoted = true }: {
+export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = randomId(), user, updateDocument = true, toggleIfAlreadyVoted = true }: {
   documentId?: string,
   document?: any,
   voteType: string,
