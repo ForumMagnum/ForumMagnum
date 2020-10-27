@@ -17,7 +17,6 @@ const SunshineNewPostsList = ({ terms, classes }) => {
     collection: Posts,
     fragmentName: 'SunshinePostsList',
     enableTotal: true,
-    ssr: true
   });
   const currentUser = useCurrentUser();
   

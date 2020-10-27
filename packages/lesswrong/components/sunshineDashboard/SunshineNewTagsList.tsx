@@ -17,7 +17,6 @@ const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
     collection: Tags,
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
-    ssr: true
   });
   const currentUser = useCurrentUser();
   

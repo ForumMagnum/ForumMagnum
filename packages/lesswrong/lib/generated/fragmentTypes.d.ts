@@ -168,6 +168,7 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -561,6 +562,13 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
 interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
   readonly userId: string,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface gatherTownEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
@@ -1180,7 +1188,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly deleted: boolean,
-  readonly hideWalledGardenUI: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -1438,6 +1445,17 @@ interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly createdAt: Date,
   readonly user: UsersMinimumInfo|null,
   readonly post: PostsList|null,
+}
+
+interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment|null,
+  readonly post: TagRelCreationFragment_post|null,
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
+interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
 }
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1739,6 +1757,7 @@ interface FragmentTypes {
   LWEventsDefaultFragment: LWEventsDefaultFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  gatherTownEventFragment: gatherTownEventFragment
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
@@ -1800,6 +1819,7 @@ interface FragmentTypes {
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
   TagRelHistoryFragment: TagRelHistoryFragment
+  TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo

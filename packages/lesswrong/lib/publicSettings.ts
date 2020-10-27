@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import { FilterTag } from './filterSettings';
+import type { FilterTag } from './filterSettings';
 // We initialize these public settings to make it available on both the client and the server,
 // but they get initialized via separate pathways on the client and on the server
 // Server: See databaseSettings.ts in the server directory
@@ -82,3 +82,6 @@ export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('lega
 // Community tag, can be trivially applied to personalBlog, frontpage, and
 // curated, if those ever get refactored into tags.
 export const defaultVisibilityTags = new DatabasePublicSetting<Array<FilterTag>>('defaultVisibilityTags', [])
+
+export const gatherTownRoomId = new DatabasePublicSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx")
+export const gatherTownRoomName = new DatabasePublicSetting<string | null>("gatherTownRoomName", "lesswrong-campus")

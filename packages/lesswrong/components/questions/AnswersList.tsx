@@ -39,7 +39,6 @@ const AnswersList = ({terms, post, classes}: {
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
-    ssr: true
   });
   const { Answer, SectionTitle } = Components
 

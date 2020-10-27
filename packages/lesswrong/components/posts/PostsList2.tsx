@@ -109,7 +109,6 @@ const PostsList2 = ({
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    ssr: true,
     itemsPerPage: itemsPerPage,
     ...tagVariables
   });

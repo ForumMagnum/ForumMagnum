@@ -1,9 +1,11 @@
 import { addCronJob } from './cronUtil';
 import { newMutation } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
+import fetch from 'node-fetch';
+import WebSocket from 'ws';
+import { DatabaseServerSetting } from './databaseSettings';
+import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
 
-const gatherTownRoomId = new DatabaseServerSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx")
-const gatherTownRoomName = new DatabaseServerSetting<string | null>("gatherTownRoomName", "lesswrong-campus")
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
 if (Meteor.isProduction) {
@@ -29,11 +31,6 @@ if (Meteor.isProduction) {
     }
   });
 }
-
-
-import fetch from 'node-fetch';
-import WebSocket from 'ws';
-import { DatabaseServerSetting } from './databaseSettings';
 
 const getGatherTownUsers = async (password, roomId, roomName) => {
   // Register new user to Firebase
