@@ -1,6 +1,6 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 
 Vulcan.importLW1Passwords = async () =>
 {

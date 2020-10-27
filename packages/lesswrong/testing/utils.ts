@@ -5,7 +5,7 @@ import { Comments } from '../lib/collections/comments'
 import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
-import { Random } from 'meteor/random';
+import { randomId } from '../lib/random';
 
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
@@ -160,7 +160,7 @@ export const createDummyPost = async (user?: any, data?: any) => {
   const defaultUser = await createDefaultUser();
   const defaultData = {
     userId: (user && user._id) ? user._id : defaultUser._id,
-    title: Random.id(),
+    title: randomId(),
   }
   const postData = {...defaultData, ...data};
   const newPostResponse = await createMutator({
@@ -174,7 +174,7 @@ export const createDummyPost = async (user?: any, data?: any) => {
 }
 
 export const createDummyUser = async (data?: any) => {
-  const testUsername = Random.id()
+  const testUsername = randomId()
   const defaultData = {
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
@@ -281,7 +281,7 @@ function stringifyObject(obj_from_json){
 
 export const userUpdateFieldFails = async ({user, document, fieldName, newValue, collectionType, fragment}: any) => {
   if (newValue === undefined) {
-    newValue = Random.id()
+    newValue = randomId()
   }
 
   let newValueString = JSON.stringify(newValue)
@@ -307,7 +307,7 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   let comparedValue = newValue
 
   if (newValue === undefined) {
-    comparedValue = Random.id()
+    comparedValue = randomId()
     newValue = comparedValue;
   }
 

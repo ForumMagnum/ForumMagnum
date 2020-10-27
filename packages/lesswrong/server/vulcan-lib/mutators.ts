@@ -160,7 +160,7 @@ export const createMutator = async <T extends DbObject>({
   }
 
   // TODO: find that info in GraphQL mutations
-  // if (Meteor.isServer && this.connection) {
+  // if (isServer && this.connection) {
   //   post.userIP = this.connection.clientAddress;
   //   post.userAgent = this.connection.httpHeaders['user-agent'];
   // }

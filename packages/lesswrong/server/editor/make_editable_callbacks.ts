@@ -1,7 +1,7 @@
 import { Utils, Connectors } from '../vulcan-lib';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
-import { Random } from 'meteor/random';
+import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
@@ -167,8 +167,8 @@ export function ckEditorMarkupToMarkdown(markup) {
 }
 
 export function markdownToHtmlNoLaTeX(markdown: string): string {
-  const randomId = Random.id()
-  const renderedMarkdown = mdi.render(markdown, {docId: randomId})
+  const id = randomId()
+  const renderedMarkdown = mdi.render(markdown, {docId: id})
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 

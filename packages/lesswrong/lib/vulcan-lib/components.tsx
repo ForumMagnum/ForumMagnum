@@ -2,6 +2,7 @@ import compose from 'lodash/flowRight';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
+import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 type ComparisonFn = (prev: any, next: any)=>boolean
@@ -111,7 +112,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (Meteor.isClient && (window as any).missingMainStylesheet) {
+    if (isClient && (window as any).missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));

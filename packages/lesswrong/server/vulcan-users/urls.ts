@@ -1,10 +1,10 @@
-import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
+import { onStartup, getAbsoluteUrl } from '../../lib/executionEnvironment';
+import { Accounts } from '../../lib/meteorAccounts';
 
-Meteor.startup(() => {
+onStartup(() => {
   if (typeof Accounts !== 'undefined') {
-    Accounts.urls.resetPassword = token => Meteor.absoluteUrl(`reset-password/${token}`);
-    Accounts.urls.enrollAccount = token => Meteor.absoluteUrl(`enroll-account/${token}`);
-    Accounts.urls.verifyEmail = token => Meteor.absoluteUrl(`verify-email/${token}`);
+    Accounts.urls.resetPassword = token => getAbsoluteUrl(`reset-password/${token}`);
+    Accounts.urls.enrollAccount = token => getAbsoluteUrl(`enroll-account/${token}`);
+    Accounts.urls.verifyEmail = token => getAbsoluteUrl(`verify-email/${token}`);
   }
 });

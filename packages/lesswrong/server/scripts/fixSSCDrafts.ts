@@ -1,11 +1,11 @@
 import { Posts } from '../../lib/collections/posts';
 import { runQuery } from '../vulcan-lib';
-import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../../lib/executionEnvironment';
 
 let runSSCFix = false;
 
 if (runSSCFix) {
-  Meteor.startup(function () {
+  onStartup(function () {
     async function completeCodex() {
       const query = `
       query CodexComplete {

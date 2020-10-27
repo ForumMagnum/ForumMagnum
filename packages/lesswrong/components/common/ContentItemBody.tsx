@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Sentry from '@sentry/core';
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../../lib/executionEnvironment';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
@@ -170,7 +170,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   markScrollableLaTeX = () => {
     const { classes } = this.props;
     
-    if(!Meteor.isServer && this.bodyRef && this.bodyRef.current) {
+    if(!isServer && this.bodyRef && this.bodyRef.current) {
       let latexBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("mjx-chtml"));
       for(let i=0; i<latexBlocks.length; i++) {
         let latexBlock = latexBlocks[i];

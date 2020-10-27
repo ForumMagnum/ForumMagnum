@@ -1,9 +1,9 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 
 export const useOnPageScroll = (onScrollFn: ()=>void) => {
   React.useEffect(() => {
-    if (Meteor.isClient) {
+    if (isClient) {
       document.addEventListener('scroll', onScrollFn)
       
       return function cleanup() {

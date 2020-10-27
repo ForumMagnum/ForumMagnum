@@ -2,7 +2,7 @@ import algoliasearch from 'algoliasearch';
 import htmlToText from 'html-to-text';
 import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
-import { Meteor } from 'meteor/meteor';
+import { isAnyTest } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import { Comments } from '../../lib/collections/comments';
@@ -470,7 +470,7 @@ export function getAlgoliaAdminClient()
   const algoliaAdminKey = algoliaAdminKeySetting.get()
   
   if (!algoliaAppId || !algoliaAdminKey) {
-    if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+    if (!isAnyTest) {
       //eslint-disable-next-line no-console
       console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
     }
@@ -492,7 +492,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
     // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
     return;
   }
-  // if (Meteor.isDevelopment) {  // Only run document export in production environment
+  // if (isDevelopment) {  // Only run document export in production environment
   //   return null
   // }
   let client = getAlgoliaAdminClient();

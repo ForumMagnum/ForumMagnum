@@ -1,7 +1,7 @@
 import { Utils } from '../vulcan-lib';
 import Users from '../collections/users/collection';
 import moment from 'moment';
-import { Meteor } from 'meteor/meteor';
+import { meteorCurrentUserFromFiberContext } from '../meteorAccounts';
 
 ////////////////////
 //  User Getters  //
@@ -13,10 +13,10 @@ import { Meteor } from 'meteor/meteor';
  */
 Users.getUser = function(userOrUserId: DbUser|string|undefined): DbUser|null {
   if (typeof userOrUserId === 'undefined') {
-    if (!Meteor.user()) {
+    if (!meteorCurrentUserFromFiberContext()) {
       throw new Error();
     } else {
-      return Meteor.user();
+      return meteorCurrentUserFromFiberContext();
     }
   } else if (typeof userOrUserId === 'string') {
     return Users.findOne(userOrUserId);

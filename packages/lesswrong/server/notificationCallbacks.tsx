@@ -17,7 +17,7 @@ import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../lib/executionEnvironment';
 import { Components, addCallback, createMutator, updateMutator } from './vulcan-lib';
 import { getCollectionHooks } from './mutationCallbacks';
 
@@ -417,7 +417,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
 
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
-  if(Meteor.isServer) {
+  if(isServer) {
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
     let notifiedUsers: Array<any> = [];
