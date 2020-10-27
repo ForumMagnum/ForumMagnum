@@ -25,7 +25,7 @@ addGraphQLResolvers({
       
       const collection = context[collectionName];
       
-      const documentUnfiltered = await collection.loader.load(id);
+      const documentUnfiltered = await context.loaders[collectionName].load(id);
       
       // Check that the user has access to the document
       const document = await accessFilterSingle(currentUser, collection, documentUnfiltered, context);

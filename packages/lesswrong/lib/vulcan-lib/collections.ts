@@ -106,7 +106,16 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
-export const createCollection = (options: any): any => {
+export const createCollection = (options: {
+  typeName: string,
+  collectionName?: CollectionNameString,
+  schema: any,
+  generateGraphQLSchema?: boolean,
+  dbCollectionName?: string,
+  collection?: any,
+  resolvers?: any,
+  mutations?: any,
+}): any => {
   const {
     typeName,
     collectionName = getCollectionName(typeName),

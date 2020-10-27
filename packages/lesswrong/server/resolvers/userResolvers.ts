@@ -5,8 +5,8 @@ import { addFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 addFieldsDict(Users, {
   htmlBio: {
     ...denormalizedField({
-      needsUpdate: (data) => ('bio' in data),
-      getValue: async (user) => {
+      needsUpdate: (data: Partial<DbUser>) => ('bio' in data),
+      getValue: async (user: DbUser) => {
         if (!user.bio) return "";
         return await markdownToHtml(user.bio);
       }
@@ -14,8 +14,8 @@ addFieldsDict(Users, {
   },
   htmlMapMarkerText: {
     ...denormalizedField({
-      needsUpdate: (data) => ('mapMarkerText' in data),
-      getValue: async (user) => {
+      needsUpdate: (data: Partial<DbUser>) => ('mapMarkerText' in data),
+      getValue: async (user: DbUser) => {
         if (!user.mapMarkerText) return "";
         return await markdownToHtml(user.mapMarkerText);
       }

@@ -183,7 +183,6 @@ export const Users: ExtendedUsersCollection = createCollection({
   schema,
   resolvers,
   mutations,
-  description: 'A user object'
 });
 
 addGraphQLQuery('currentUser: User');

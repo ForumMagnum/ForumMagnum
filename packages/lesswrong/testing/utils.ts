@@ -168,7 +168,6 @@ export const createDummyPost = async (user?: any, data?: any) => {
     document: postData,
     currentUser: user || defaultUser,
     validate: false,
-    context: {},
   });
   return newPostResponse.data
 }
@@ -185,7 +184,6 @@ export const createDummyUser = async (data?: any) => {
     collection: Users,
     document: userData,
     validate: false,
-    context: {},
   })
   return newUserResponse.data;
 }
@@ -211,7 +209,6 @@ export const createDummyComment = async (user: any, data?: any) => {
     document: commentData,
     currentUser: user || defaultUser,
     validate: false,
-    context: {},
   });
   return newCommentResponse.data
 }
@@ -227,7 +224,6 @@ export const createDummyConversation = async (user: any, data?: any) => {
     document: conversationData,
     currentUser: user,
     validate: false,
-    context: {},
   });
   return newConversationResponse.data
 }
@@ -243,7 +239,6 @@ export const createDummyMessage = async (user: any, data?: any) => {
     document: messageData,
     currentUser: user,
     validate: false,
-    context: {},
   });
   return newMessageResponse.data
 }
@@ -328,5 +323,4 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   const response = runQuery(query,{},{currentUser:user})
   const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
   return (response as any).should.eventually.deep.equal(expectedOutput);
-
 }

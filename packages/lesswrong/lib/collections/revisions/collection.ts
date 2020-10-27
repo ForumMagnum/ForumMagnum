@@ -36,7 +36,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   const { collectionName, documentId } = revision;
   const collection = getCollection(collectionName);
   const document = context
-    ? await context[collectionName].loader.load(documentId)
+    ? await context.loaders[collectionName].load(documentId)
     : await collection.findOne(documentId);
   
   if (!await collection.checkAccess(user, document, context))

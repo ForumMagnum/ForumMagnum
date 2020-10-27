@@ -167,7 +167,7 @@ addFieldsDict(Posts, {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
 
-      const readStatus = await getWithLoader(ReadStatuses,
+      const readStatus = await getWithLoader(context, ReadStatuses,
         `readStatuses`,
         { userId: currentUser._id },
         'postId', post._id
@@ -184,7 +184,7 @@ addFieldsDict(Posts, {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;
       
-      const readStatus = await getWithLoader(ReadStatuses,
+      const readStatus = await getWithLoader(context, ReadStatuses,
         `readStatuses`,
         { userId: currentUser._id },
         'postId', post._id
@@ -244,7 +244,7 @@ addFieldsDict(Posts, {
         // did a hacky thing.
         const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
           async userId => {
-            const user = await context.Users.loader.load(userId)
+            const user = await context.loaders.Users.load(userId)
             return user.displayName;
           }
         ))
@@ -426,7 +426,7 @@ addFieldsDict(Posts, {
       if (sequenceId) {
         const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
         if (nextPostID) {
-          const nextPost = await Posts.loader.load(nextPostID);
+          const nextPost = await context.loaders.Posts.load(nextPostID);
           return await accessFilterSingle(currentUser, Posts, nextPost, context);
         }
       }
@@ -437,7 +437,7 @@ addFieldsDict(Posts, {
       if(post.canonicalSequenceId) {
         const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
         if (!nextPostID) return null;
-        const nextPost = await Posts.loader.load(nextPostID);
+        const nextPost = await context.loaders.Posts.load(nextPostID);
         return await accessFilterSingle(currentUser, Posts, nextPost, context);
       }
 
@@ -459,7 +459,7 @@ addFieldsDict(Posts, {
       if (sequenceId) {
         const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
         if (prevPostID) {
-          const prevPost = await Posts.loader.load(prevPostID);
+          const prevPost = await context.loaders.Posts.load(prevPostID);
           return await accessFilterSingle(currentUser, Posts, prevPost, context);
         }
       }
@@ -470,7 +470,7 @@ addFieldsDict(Posts, {
       if(post.canonicalSequenceId) {
         const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
         if (!prevPostID) return null;
-        const prevPost = await Posts.loader.load(prevPostID);
+        const prevPost = await context.loaders.Posts.load(prevPostID);
         return await accessFilterSingle(currentUser, Posts, prevPost, context);
       }
 
@@ -490,12 +490,12 @@ addFieldsDict(Posts, {
     graphqlArguments: 'sequenceId: String',
     resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
       const { sequenceId } = args;
-      const { currentUser, Sequences: SequencesContext } = context;
-      let sequence = null;
+      const { currentUser } = context;
+      let sequence: DbSequence|null = null;
       if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
-        sequence = await SequencesContext.loader.load(sequenceId);
+        sequence = await context.loaders.Sequences.load(sequenceId);
       } else if (post.canonicalSequenceId) {
-        sequence = await SequencesContext.loader.load(post.canonicalSequenceId);
+        sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
       }
 
       return await accessFilterSingle(currentUser, Sequences, sequence, context);
