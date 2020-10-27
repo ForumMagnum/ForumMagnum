@@ -352,7 +352,7 @@ export const updateMutator = async <T extends DbObject>({
     let autoValue;
     if (schema[fieldName].onUpdate) {
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onUpdate(properties);
+      autoValue = await schema[fieldName].onUpdate({...properties, fieldName});
     } else if (schema[fieldName].onEdit) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
