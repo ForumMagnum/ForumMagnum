@@ -1,7 +1,7 @@
 import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection';
-import { addCallback } from '../vulcan-lib';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { getCollectionHooks } from '../mutationCallbacks';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -12,24 +12,22 @@ const postIntervalSetting = new DatabasePublicSetting<number>('forum.postInterva
 const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPostsPerDay', 5) // Maximum number of posts a user can create in a day
 
 // Post rate limiting
-function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
+getCollectionHooks("Posts").createValidate.add(function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
   if (!post.draft) {
     enforcePostRateLimit(currentUser);
   }
   
   return validationErrors;
-}
-addCallback('post.create.validate', PostsNewRateLimit);
+});
 
-function PostsUndraftRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
+getCollectionHooks("Posts").updateValidate.add(function PostsUndraftRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
   // Only undrafting is rate limited, not other edits
   if (oldDocument.draft && !newDocument.draft) {
     enforcePostRateLimit(currentUser);
   }
   
   return validationErrors;
-}
-addCallback('post.update.validate', PostsUndraftRateLimit);
+});
 
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.

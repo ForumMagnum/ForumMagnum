@@ -68,7 +68,7 @@ ${getMutations()}
 ];
 
 const initGraphQL = () => {
-  runCallbacks('graphql.init.before');
+  runCallbacks({name: 'graphql.init.before'});
   const typeDefs = generateTypeDefs();
   const executableSchema = makeExecutableSchema({
     typeDefs,

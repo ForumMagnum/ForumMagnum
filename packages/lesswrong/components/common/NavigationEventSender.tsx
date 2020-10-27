@@ -16,7 +16,10 @@ const NavigationEventSender = () => {
       if (location.pathname !== lastLocation?.pathname) {
         // Don't send the callback on the initial pageload, only on post-load navigations
         if (lastLocation) {
-          runCallbacks('router.onUpdate', {oldLocation: lastLocation, newLocation: location});
+          runCallbacks({
+            name: 'router.onUpdate',
+            iterator: {oldLocation: lastLocation, newLocation: location}
+          });
         }
         lastLocation = _.clone(location);
       }

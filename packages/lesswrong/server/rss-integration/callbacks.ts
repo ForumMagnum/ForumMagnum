@@ -1,6 +1,6 @@
-import { addCallback } from '../../lib/vulcan-lib';
+import { getCollectionHooks } from '../mutationCallbacks';
 
-async function populateRawFeed(feed) {
+getCollectionHooks("RSSFeeds").newSync.add(async function populateRawFeed(feed) {
   const feedparser = require('feedparser-promised');
   const url = feed.url;
   const currentPosts = await feedparser.parse(url);
@@ -8,6 +8,4 @@ async function populateRawFeed(feed) {
   //eslint-disable-next-line no-console
   console.log("Imported new RSS feeds, set past posts to: ", feed.rawFeed);
   return feed;
-}
-
-addCallback("rssfeeds.new.sync", populateRawFeed);
+});
