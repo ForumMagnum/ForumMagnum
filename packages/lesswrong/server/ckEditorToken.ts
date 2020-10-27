@@ -16,6 +16,10 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const userId = req.headers['user-id']
   const formType = req.headers['form-type']
   
+  if (Array.isArray(documentId)) throw new Error("Multiple documentId headers");
+  if (Array.isArray(userId)) throw new Error("Multiple userId headers");
+  if (Array.isArray(formType)) throw new Error("Multiple formType headers");
+  
   const ckEditorId = getCKEditorDocumentId(documentId, userId, formType)
 
   const user = await getUserFromReq(req)
