@@ -2,7 +2,27 @@ import SimpleSchema from 'simpl-schema';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
 
-export const defaultAlgorithmSettings = {
+export interface RecommendationsAlgorithm {
+  method: "top"|"sample"
+  count?: number
+  scoreOffset: number
+  scoreExponent: number
+  
+  coronavirus?: boolean
+  review2018?: boolean
+  nomination2018?: boolean
+  includePersonal?: boolean
+  includeMeta?: boolean
+  minimumBaseScore?: number
+  excludeDefaultRecommendations?: boolean
+  onlyUnread?: boolean
+  
+  curatedModifier?: number
+  frontpageModifier?: number
+  personalBlogpostModifier?: number
+}
+
+export const defaultAlgorithmSettings: RecommendationsAlgorithm = {
   method: "top",
   count: 10,
   scoreOffset: 0,

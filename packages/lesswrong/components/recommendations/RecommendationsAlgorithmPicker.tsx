@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
-import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
+import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { archiveRecommendationsName } from './ConfigurableRecommendationsList';
@@ -40,7 +40,11 @@ const recommendationAlgorithms = [
   }
 ];
 
-export function getRecommendationSettings({settings, currentUser, configName})
+export function getRecommendationSettings({settings, currentUser, configName}: {
+  settings: RecommendationsAlgorithm|null,
+  currentUser: UsersCurrent|null,
+  configName: string,
+})
 {
   if (settings)
    return settings;
@@ -63,7 +67,7 @@ const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: any,
   configName: string,
-  onChange: any,
+  onChange: (newSettings: RecommendationsAlgorithm)=>void,
   showAdvanced?: boolean,
   classes: ClassesType
 }) => {
