@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import { FilterTag } from './filterSettings';
+import type { FilterTag } from './filterSettings';
 // We initialize these public settings to make it available on both the client and the server,
 // but they get initialized via separate pathways on the client and on the server
 // Server: See databaseSettings.ts in the server directory

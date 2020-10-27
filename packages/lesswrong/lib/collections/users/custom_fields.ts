@@ -512,7 +512,6 @@ addFieldsDict(Users, {
   },
 
   bookmarkedPostsMetadata: {
-    type: Array,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true,

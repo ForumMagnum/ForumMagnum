@@ -24,7 +24,7 @@ const styles = (theme) => ({
     position: "absolute",
     top: 0,
     width: "100vw", //"calc(100% - 150px)",
-    height: "100vh", //"calc(100vh - 264px)",
+    height: "calc(100vh - 65px)", //"calc(100vh - 264px)",
     zIndex: theme.zIndexes.gatherTownIframe,
   },
   iframePositioning: {

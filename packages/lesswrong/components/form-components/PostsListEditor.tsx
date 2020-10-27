@@ -82,6 +82,8 @@ class PostsListEditor extends Component<any,any> {
     const disabledElements = ['input', 'textarea', 'select', 'option', 'button', 'svg', 'path'];
     if (disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
+    } else {
+      return false;
     }
   }
 
