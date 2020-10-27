@@ -55,7 +55,7 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
       return beforeSerializationCallback(...args);
     };
     
-    mjpage(html, { fragment: true, errorHandler } , {html: true, css: true}, resolve)
+    mjpage(html, { fragment: true, errorHandler, format: ["MathML", "TeX"] } , {html: true, css: true}, resolve)
       .on('beforeSerialization', callbackAndMarkFinished);
   })
 }
