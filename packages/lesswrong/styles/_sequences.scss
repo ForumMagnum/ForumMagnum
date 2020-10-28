@@ -91,18 +91,18 @@
       margin-bottom: 0em;
     }
     .form-input.input-bannerImageId {
-      margin-top:65px;
+      margin-top:90px;  // Match Forum header
       position: absolute !important;
       left:0;
       max-width:100%;
 
       @include mui-breakpoint-down-sm {
-        margin-top:40px;
+        margin-top:79px;  // Match Forum header
         padding:0;
       }
       .form-input-errors {
         position:absolute;
-        top:45px;
+        top:84px;
         left:7px;
         text-align: left;
       }
