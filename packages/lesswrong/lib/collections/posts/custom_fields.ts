@@ -61,7 +61,6 @@ export const formGroups = {
     name: "advancedOptions",
     label: "Options",
     startCollapsed: true,
-    flexStyle: true
   },
   highlight: {
     order: 21,
