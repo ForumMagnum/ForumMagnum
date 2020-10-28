@@ -73,8 +73,8 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
           </div>
       : <div>
           <div>
-            <p>Use invite links to set up symposiums, co-working, general hangouts, and other events.
-              Feel free to invite anyone who is considerate of those around them.
+            <p>Use invite links to set up co-working, general hangouts, and other events.
+              Feel free to invite anyone who is considerate of those around them.<br/>
               Invite codes are valid for 4 hours from start time.</p>
           </div>
           <Components.WrappedSmartForm

@@ -57,11 +57,13 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
     },
     collection: GardenCodes,
     fragmentName: "GardenCodeFragment",
-    limit: 1,
+    limit: 10,
     ssr: true,
   });
 
   const gardenCode = (results && results.length>0 && (results[0] as HasIdType)._id) ? results[0] as FragmentTypes["GardenCodeFragment"]|null : null
+
+  console.log({query, inviteCodeQuery, results, gardenCode})
 
   const validateGardenCode = (gardenCode: GardenCodeFragment | null ) => {
     return !gardenCode?.deleted && moment().isBetween(gardenCode?.startTime, gardenCode?.endTime)
@@ -79,6 +81,7 @@ const WalledGardenPortal = ({classes}:{classes:ClassesType}) => {
     }, 1000*10);
     return () => clearInterval(interval)
   }, [setExpiredGardenCode, moreThanFourHoursAfterCodeExpiry, gardenCode]);
+
   // console.log({
   //   gardenCode,
   //   expiredGardenCode,

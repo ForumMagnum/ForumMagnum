@@ -35,7 +35,7 @@ const styles = (theme) => ({
   },
   pomodoroTimerIframe: {
     width: "450px",
-    height: "250px",
+    height: "300px",
     marginTop: "5px"
   },
   body: {
@@ -60,7 +60,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
 
   const { captureEvent } = useTracking()
 
-  const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar||false)
+  const [hideBar, setHideBar] = useState(false) //currentUser?.hideWalledGardenPortalBar||false)
 
 
   if (!currentUser) return null
