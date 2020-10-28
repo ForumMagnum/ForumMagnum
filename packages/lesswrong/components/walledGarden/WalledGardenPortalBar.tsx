@@ -33,11 +33,6 @@ const styles = (theme) => ({
   pomodoroTimerWidget: {
     ...widgetStyling
   },
-  pomodoroTimerIframe: {
-    width: "450px",
-    height: "300px",
-    marginTop: "5px"
-  },
   body: {
     display: "flex",
     justifyContent: "space-evenly"
@@ -94,7 +89,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
         </div>
       </div>
       <div className={classes.pomodoroTimerWidget}>
-        <PomodoroWidget/>
+        <PomodoroWidget />
       </div>
     </div>
     }

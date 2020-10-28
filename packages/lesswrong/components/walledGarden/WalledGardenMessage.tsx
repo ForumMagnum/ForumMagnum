@@ -12,7 +12,7 @@ const styles = (theme) => ({
 
 const WalledGardenMessage = ({children, classes}) => {
   const { SingleColumnSection } = Components
-  return <SingleColumnSection> className={classes.messageStyling}
+  return <SingleColumnSection className={classes.messageStyling}>
     {children}
   </SingleColumnSection>
 }

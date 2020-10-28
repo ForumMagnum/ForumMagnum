@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { Button } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography';
 
 const styles = (theme) => ({
   pomodoroWidgetHeader: {
-    display: "flex"
+    display: "flex",
+    alignItems: 'center'
   },
   hideShowButton: {
     paddingLeft: "5px",
     paddingRight: "5px",
     paddingTop: "2px",
     paddingBottom: "2px",
-  }
+  },
+  pomodoroTimerIframe: {
+    width: "450px",
+    height: "230px",
+    marginTop: "5px",
+    paddingRight: 20,
+    border: 'none'
+  },
 })
 
 export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {

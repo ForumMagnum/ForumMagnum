@@ -1,23 +1,18 @@
 import { GardenCodes } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
-GardenCodes.addView('allGardenCodes', terms => {
+GardenCodes.addDefaultView(terms => {
+  if (!terms?.code) return {
+    selector: {
+      keyDoesNotExist: "valueDoesNotExist"
+    }
+  }
   return {
     selector: {
-      deleted: false,
-    },
-    options: {
-      sort: {startTime: 1},
-    },
-  };
-});
+      code: terms.code,
+      deleted: false
+    }
+  }
+})
 
-GardenCodes.addView('gardenCodeByCode', terms => {
-  return {
-    selector: {
-      code: terms.code
-    },
-  };
-});
-
-ensureIndex(GardenCodes, {deleted:1});
+ensureIndex(GardenCodes, {code:1, deleted: 1});
