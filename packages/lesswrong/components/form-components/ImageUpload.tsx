@@ -13,13 +13,23 @@ const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('c
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    marginTop: theme.spacing.unit,
+    "& img": {
+      display: "block",
+      marginBottom: 8,
+    },
+  },
   button: {
     background: "rgba(0,0,0, 0.5)",
     "&:hover": {
       background: "rgba(0,0,0,.35)"
     },
     color: "white",
-  }
+  },
+  imageIcon: {
+    marginRight: theme.spacing.unit
+  },
 });
 
 const cloudinaryArgsByImageType = {
@@ -36,12 +46,27 @@ const cloudinaryArgsByImageType = {
     cropping_default_selection_ratio: 3,
     upload_preset: cloudinaryUploadPresetBannerSetting.get(),
   },
-  socialPreviewImage: {
+  socialPreviewImageId: {
     min_image_height: 400,
     min_image_width: 700,
     cropping_aspect_ratio: 1.91,
     cropping_default_selection_ratio: 3,
     upload_preset: cloudinaryUploadPresetSocialPreviewSetting.get(),
+  },
+}
+
+const formPreviewSizeByImageType = {
+  gridImageId: {
+    width: 203,
+    height: 80
+  },
+  bannerImageId: {
+    width: "auto",
+    height: 380
+  },
+  socialPreviewImageId: {
+    width: 153,
+    height: 80
   },
 }
 
@@ -89,27 +114,28 @@ class ImageUpload extends Component<any,any> {
     }, this.setImageInfo);
   }
   render(){
-    const { classes } = this.props;
+    const { classes, name, label } = this.props;
+    const formPreviewSize = formPreviewSizeByImageType[name]
+    if (!formPreviewSize) throw new Error("Unsupported image upload type")
+    console.log('ImageUploadSpacewardRender8')
     
     return (
-      <div className="upload">
+      <div className={classes.root}>
         <Helmet>
           <script src="https://widget.cloudinary.com/global/all.js" type="text/javascript"/>
           <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'/>
         </Helmet>
-        <div className="image-upload-description">{this.props.label}</div>
         {this.state.imageId &&
           <Components.CloudinaryImage
             publicId={this.state.imageId}
-            width={this.props.name == "gridImageId" ? "203" : "auto"}
-            height={this.props.name == "bannerImageId" ? "380" : "80"}
+            {...formPreviewSize}
           /> }
         <Button
           onClick={this.uploadWidget}
           className={classNames("image-upload-button", classes.button)}
         >
-          <ImageIcon/>
-          {this.state.imageId ? `Replace ${this.props.label}` : `Upload ${this.props.label}`}
+          <ImageIcon className={classes.imageIcon}/>
+          {this.state.imageId ? `Replace ${label}` : `Upload ${label}`}
         </Button>
       </div>
     );
