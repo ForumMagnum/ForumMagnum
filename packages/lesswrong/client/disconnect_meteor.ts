@@ -1,11 +1,12 @@
-import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../lib/executionEnvironment';
+import { disconnectDdp, reconnectDdp } from '../lib/meteorDdp';
 
 var disconnectTimer: any = null;
 
 // 60 seconds by default
 var disconnectTime = 60 * 1000;
 
-Meteor.startup(disconnectIfHidden);
+onStartup(disconnectIfHidden);
 
 document.addEventListener('visibilitychange', disconnectIfHidden);
 
@@ -15,7 +16,7 @@ function disconnectIfHidden() {
     if (document.hidden) {
       createDisconnectTimeout();
     } else {
-      Meteor.reconnect();
+      reconnectDdp();
     }
 }
 
@@ -23,7 +24,7 @@ function createDisconnectTimeout() {
     removeDisconnectTimeout();
 
     disconnectTimer = setTimeout(function () {
-        Meteor.disconnect();
+        disconnectDdp();
     }, disconnectTime);
 }
 

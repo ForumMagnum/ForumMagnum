@@ -9,7 +9,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { Meteor } from 'meteor/meteor';
+import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
 
 import { WebApp } from 'meteor/webapp';
 import bodyParser from 'body-parser';
@@ -21,11 +21,9 @@ import getVoyagerConfig from './voyager';
 import { graphiqlMiddleware, getGraphiqlConfig } from './graphiql';
 import getPlaygroundConfig from './playground';
 
-import initGraphQL from './initGraphQL';
+import { initGraphQL, getExecutableSchema } from './initGraphQL';
 //import { engineConfig } from './engine';
 import { computeContextFromReq } from './context';
-
-import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
 // onPageLoad is mostly equivalent to an Express middleware
@@ -108,7 +106,7 @@ export const setupToolsMiddlewares = config => {
   WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
 };
 
-Meteor.startup(() => {
+onStartup(() => {
   // Vulcan specific options
   const config = {
     path: '/graphql',
@@ -134,10 +132,10 @@ Meteor.startup(() => {
     playground: getPlaygroundConfig(config),
     introspection: true,
     // context optionbject or a function of the current request (+ maybe some other params)
-    debug: Meteor.isDevelopment,
+    debug: isDevelopment,
     
     //engine: engineConfig,
-    schema: GraphQLSchema.executableSchema,
+    schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
       // eslint-disable-next-line no-console
@@ -146,7 +144,7 @@ Meteor.startup(() => {
       // and that doesn't require a cast here
       return formatError(e) as any;
     },
-    //tracing: Meteor.isDevelopment,
+    //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
     context: ({ req }) => computeContextFromReq(req),

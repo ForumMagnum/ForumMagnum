@@ -146,7 +146,7 @@ const mapTagIdsToSlugs = async (tagIds: Array<string>, context: ResolverContext|
   const mapping: Record<string,string> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {
     const tag = context
-      ? await context.Tags.loader.load(tagId)
+      ? await context.loaders.Tags.load(tagId)
       : await Tags.findOne(tagId)
     if (tag?.slug)
       mapping[tagId] = tag.slug;

@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Meteor } from 'meteor/meteor';
+import { isServer, isAnyTest, runAfterDelay } from './executionEnvironment';
 import * as _ from 'underscore';
 import { addFieldsDict, CollectionFieldSpecification } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
@@ -74,7 +74,7 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
 
 export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
-  if (Meteor.isServer) {
+  if (isServer) {
     const buildIndex = async () => {
       try {
         if (options.name && await conflictingIndexExists(collection, index, options)) {
@@ -105,10 +105,10 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
     // In unit tests, build indexes immediately, because (a) indexes probably
     // don't exist yet, and (b) building indexes in the middle of a later test
     // risks making that test time out.
-    if (Meteor.isTest || Meteor.isAppTest || Meteor.isPackageTest) {
+    if (isAnyTest) {
       await buildIndex();
     } else {
-      Meteor.setTimeout(buildIndex, 15000);
+      runAfterDelay(buildIndex, 15000);
     }
   }
 }

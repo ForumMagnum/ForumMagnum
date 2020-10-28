@@ -71,7 +71,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = (await runQuery(query,{},user)) as any;
+    const { data: { posts: {results: posts} } } = await runQuery(query,{},{currentUser:user}) as any;
     (_.pluck(posts, '_id') as any).should.not.include(frontpagePost1._id);
     (_.pluck(posts, '_id') as any).should.not.include(frontpagePost2._id);
     (_.pluck(posts, '_id') as any).should.not.include(frontpagePost3._id);
@@ -98,7 +98,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = (await runQuery(query,{},user)) as any
+    const { data: { posts: {results: posts} } } = await runQuery(query,{},{currentUser:user}) as any
     const idList = _.pluck(posts, '_id');
     (idList.indexOf(curatedPost1._id) as any).should.be.below(idList.indexOf(curatedPost2._id));
     (idList.indexOf(curatedPost2._id) as any).should.be.below(idList.indexOf(curatedPost3._id));
@@ -122,7 +122,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = (await runQuery(query,{},user)) as any;
+    const { data: { posts: {results: posts} } } = await runQuery(query,{},{currentUser:user}) as any;
     (_.pluck(posts, '_id') as any).should.include(frontpagePost1._id);
     (_.pluck(posts, '_id') as any).should.include(frontpagePost2._id);
     (_.pluck(posts, '_id') as any).should.include(frontpagePost3._id);

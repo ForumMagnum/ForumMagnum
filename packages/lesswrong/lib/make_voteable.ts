@@ -34,7 +34,7 @@ export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return [];
-          const votes = await getWithLoader(Votes,
+          const votes = await getWithLoader(context, Votes,
             `votesByUser${currentUser._id}`,
             {
               userId: currentUser._id,
@@ -60,7 +60,7 @@ export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>
         type: '[Vote]',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
-          const votes = await getWithLoader(Votes,
+          const votes = await getWithLoader(context, Votes,
             "votesByDocument",
             {
               cancelled: false,

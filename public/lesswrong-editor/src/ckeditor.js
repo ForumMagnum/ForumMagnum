@@ -219,6 +219,7 @@ CommentEditor.builtinPlugins = [
 	Link,
 	List,
 	Paragraph,
+	Code,
 	CodeBlock,
 	PasteFromOffice,
 	RemoveFormat,

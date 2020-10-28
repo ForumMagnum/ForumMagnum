@@ -8,8 +8,8 @@ import {
   debugGroupEnd,
 } from '../vulcan-lib';
 import clone from 'lodash/clone';
-import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
+import { onStartup, wrapAsync } from '../../lib/executionEnvironment';
+import { Accounts } from '../../lib/meteorAccounts';
 import * as _ from 'underscore';
 
 // Takes a function that returns a promise and wraps it with Meteor.wrapAsync
@@ -25,7 +25,7 @@ function asyncWrapper(func) {
   }
   // Then we make sure to pass through the old arguments properly
   return (...args) => {
-    return Meteor.wrapAsync(functionWithCallback)(args)
+    return wrapAsync(functionWithCallback)(args)
   }
 }
 
@@ -98,7 +98,7 @@ function onCreateUserCallback(options, user) {
   return user;
 }
 
-Meteor.startup(() => {
+onStartup(() => {
   if (typeof Accounts !== 'undefined') {
     Accounts.onCreateUser(onCreateUserCallback)
   }

@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+import { onStartup, isServer } from './executionEnvironment';
 
 /* When refreshing the page, tell the browser to remember the scroll position.
  * Otherwise, users get scrolled to the top of the page.
@@ -17,8 +17,8 @@ function rememberScrollPositionOnPageReload() {
   });
 }
 
-Meteor.startup(() => {
-  if (!Meteor.isServer) {
+onStartup(() => {
+  if (!isServer) {
     rememberScrollPositionOnPageReload();
   }
 });

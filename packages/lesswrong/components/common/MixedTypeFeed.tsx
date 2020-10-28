@@ -2,6 +2,7 @@ import React, {useRef, useEffect, useCallback} from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
 import { useQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
+import { isClient } from '../../lib/executionEnvironment';
 import gql from 'graphql-tag';
 
 const loadMoreDistance = 500;
@@ -163,7 +164,7 @@ const MixedTypeFeed = (args: {
   // loading it.
   const maybeStartLoadingMore = useCallback(() => {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
-    if (Meteor.isClient
+    if (isClient
       && bottomRef?.current
       && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
       && !reachedEnd)
