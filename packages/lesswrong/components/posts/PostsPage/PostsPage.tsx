@@ -144,8 +144,6 @@ class PostsPage extends Component<PostsPageProps> {
       const ogUrl = Posts.getPageUrl(post, true) // open graph
       const canonicalUrl = post.canonicalSource || ogUrl
       const socialPreviewImageUrl = `https://res.cloudinary.com/cea/image/upload/${post.socialPreviewImageId}`
-      console.log("PostsPage -> render -> socialPreviewImageUrl", socialPreviewImageUrl)
-      // console.log("PostsPage -> render -> post.socialPreviewImageId", post.socialPreviewImageId)
 
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>

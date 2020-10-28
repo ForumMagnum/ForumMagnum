@@ -102,7 +102,6 @@ class ImageUpload extends Component<any,any> {
   uploadWidget = () => {
     const cloudinaryArgs = cloudinaryArgsByImageType[this.props.name]
     if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
-    console.log("ImageUpload -> uploadWidget -> cloudinaryArgs", cloudinaryArgs)
     // @ts-ignore
     cloudinary.openUploadWidget({
       cropping: "server",
@@ -117,7 +116,6 @@ class ImageUpload extends Component<any,any> {
     const { classes, name, label } = this.props;
     const formPreviewSize = formPreviewSizeByImageType[name]
     if (!formPreviewSize) throw new Error("Unsupported image upload type")
-    console.log('ImageUploadSpacewardRender8')
     
     return (
       <div className={classes.root}>
