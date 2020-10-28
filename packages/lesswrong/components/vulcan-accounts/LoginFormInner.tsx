@@ -1,15 +1,14 @@
 /* eslint-disable meteor/no-session */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts, Session, meteorLogout, meteorLoginWithPassword, meteorLoginWithMethod } from '../../lib/meteorAccounts';
 import { KEY_PREFIX } from '../../lib/vulcan-accounts/login_session';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent';
 import sha1 from 'crypto-js/sha1';
-import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
+import { isClient, runAfterDelay } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 
 
@@ -194,8 +193,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
   getUsernameOrEmailField() {
     return {
       id: 'usernameOrEmail',
-      hint: this.context.intl.formatMessage({id: 'accounts.enter_username_or_email'}),
-      label: this.context.intl.formatMessage({id: 'accounts.username_or_email'}),
+      hint: 'Enter username or email',
+      label: 'Username or email',
       required: true,
       defaultValue: this.state.currentUsername || '',
       onChange: this.handleChange.bind(this, 'usernameOrEmail'),
@@ -206,8 +205,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
   getUsernameField() {
     return {
       id: 'username',
-      hint: this.context.intl.formatMessage({id: 'accounts.enter_username'}),
-      label: this.context.intl.formatMessage({id: 'accounts.username'}),
+      hint: "Enter username",
+      label: "Username",
       required: true,
       defaultValue: this.state.currentUsername || '',
       onChange: this.handleChange.bind(this, 'username'),
@@ -218,8 +217,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
   getEmailField() {
     return {
       id: 'email',
-      hint: this.context.intl.formatMessage({id: 'accounts.enter_email'}),
-      label: this.context.intl.formatMessage({id: 'accounts.email'}),
+      hint: "Enter email",
+      label: "Email",
       type: 'email',
       required: true,
       defaultValue: this.state.email || '',
@@ -231,8 +230,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
   getPasswordField() {
     return {
       id: 'password',
-      hint: this.context.intl.formatMessage({id: 'accounts.enter_password'}),
-      label: this.context.intl.formatMessage({id: 'accounts.password'}),
+      hint: "Enter password",
+      label: "Password",
       type: 'password',
       required: true,
       defaultValue: this.state.password || '',
@@ -244,8 +243,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
   getSetPasswordField() {
     return {
       id: 'newPassword',
-      hint: this.context.intl.formatMessage({id: 'accounts.enter_password'}),
-      label: this.context.intl.formatMessage({id: 'accounts.choose_password'}),
+      hint: "Enter password",
+      label: "Choose password",
       type: 'password',
       required: true,
       onChange: this.handleChange.bind(this, 'newPassword')
@@ -255,8 +254,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
   getNewPasswordField() {
     return {
       id: 'newPassword',
-      hint: this.context.intl.formatMessage({id: 'accounts.enter_new_password'}),
-      label: this.context.intl.formatMessage({id: 'accounts.new_password'}),
+      hint: "Enter new password",
+      label: "New password",
       type: 'password',
       required: true,
       onChange: this.handleChange.bind(this, 'newPassword'),
@@ -274,7 +273,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
         break;
     }
     this.setState({ [field]: value });
-    this.setDefaultFieldValues({ [field]: value });
   }
 
   fields() {
@@ -348,7 +346,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     }
 
     if (this.showPasswordChangeForm()) {
-      if (Meteor.isClient && !Accounts._loginButtonsSession.get('resetPasswordToken')) {
+      if (isClient && !Accounts._loginButtonsSession.get('resetPasswordToken')) {
         loginFields.push(this.getPasswordField());
       }
       loginFields.push(this.getNewPasswordField());
@@ -386,7 +384,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (currentUser && formState == STATES.PROFILE) {
       loginButtons.push({
         id: 'signOut',
-        label: this.context.intl.formatMessage({id: 'accounts.sign_out'}),
+        label: "Sign out",
         disabled: waiting,
         onClick: this.signOut.bind(this)
       });
@@ -395,7 +393,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (this.showCreateAccountLink() && this.props.showSignUpLink) {
       loginButtons.push({
         id: 'switchToSignUp',
-        label: this.context.intl.formatMessage({id: 'accounts.sign_up'}),
+        label: 'Sign up',
         type: 'link',
         href: signUpPath,
         onClick: this.switchToSignUp.bind(this)
@@ -405,7 +403,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if ((formState == STATES.SIGN_UP || formState == STATES.PASSWORD_RESET) && this.props.showSignInLink) {
       loginButtons.push({
         id: 'switchToSignIn',
-        label: this.context.intl.formatMessage({id: 'accounts.sign_in'}),
+        label: 'Sign in',
         type: 'link',
         href: loginPath,
         onClick: this.switchToSignIn.bind(this)
@@ -415,7 +413,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (this.showForgotPasswordLink()) {
       loginButtons.push({
         id: 'switchToPasswordReset',
-        label: this.context.intl.formatMessage({id: 'accounts.forgot_password'}),
+        label: 'Forgot password',
         type: 'link',
         href: resetPasswordPath,
         onClick: this.switchToPasswordReset.bind(this)
@@ -429,7 +427,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       ) {
       loginButtons.push({
         id: 'switchToChangePassword',
-        label: this.context.intl.formatMessage({id: 'accounts.change_password'}),
+        label: 'Change password',
         type: 'link',
         href: changePasswordPath,
         onClick: this.switchToChangePassword.bind(this)
@@ -439,7 +437,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (formState == STATES.SIGN_UP) {
       loginButtons.push({
         id: 'signUp',
-        label: this.context.intl.formatMessage({id: 'accounts.sign_up'}),
+        label: 'Sign up',
         type: hasPasswordService() ? 'submit' : 'link',
         className: 'active',
         disabled: waiting,
@@ -450,7 +448,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (this.showSignInLink()) {
       loginButtons.push({
         id: 'signIn',
-        label: this.context.intl.formatMessage({id: 'accounts.sign_in'}),
+        label: 'Sign in',
         type: hasPasswordService() ? 'submit' : 'link',
         className: 'active',
         disabled: waiting,
@@ -461,7 +459,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (formState == STATES.PASSWORD_RESET) {
       loginButtons.push({
         id: 'emailResetLink',
-        label: this.context.intl.formatMessage({id: 'accounts.reset_your_password'}),
+        label: 'Reset your password',
         type: 'submit',
         disabled: waiting,
         onClick: this.passwordReset.bind(this)
@@ -471,7 +469,9 @@ export class AccountsLoginFormInner extends TrackerComponent {
     if (this.showPasswordChangeForm() || this.showEnrollAccountForm()) {
       loginButtons.push({
         id: 'changePassword',
-        label: (this.showPasswordChangeForm() ? this.context.intl.formatMessage({id: 'accounts.change_password'}) : this.context.intl.formatMessage({id: 'accounts.set_password'})),
+        label: (this.showPasswordChangeForm()
+          ? 'Change password'
+          : 'Set password'),
         type: 'submit',
         disabled: waiting,
         onClick: this.passwordChange.bind(this)
@@ -480,7 +480,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       if (Accounts.user()) {
         loginButtons.push({
           id: 'switchToSignOut',
-          label: this.context.intl.formatMessage({id: 'accounts.cancel'}),
+          label: 'Cancel',
           type: 'link',
           href: profilePath,
           onClick: this.switchToSignOut.bind(this)
@@ -488,7 +488,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       } else {
         loginButtons.push({
           id: 'cancelResetPassword',
-          label: this.context.intl.formatMessage({id: 'accounts.cancel'}),
+          label: 'Cancel',
           type: 'link',
           onClick: this.cancelResetPassword.bind(this),
         });
@@ -534,21 +534,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   /**
-   * Helper to store field values while using the form.
-   */
-  setDefaultFieldValues(defaults) {
-    if (typeof defaults !== 'object') {
-      throw new Error('Argument to setDefaultFieldValues is not of type object');
-    } else if (typeof localStorage !== 'undefined' && localStorage) {
-      localStorage.setItem('accounts_ui', JSON.stringify({
-        passwordSignupFields: passwordSignupFields(),
-        ...this.getDefaultFieldValues(),
-        ...defaults,
-      }));
-    }
-  }
-
-  /**
    * Helper to get field values when switching states in the form.
    */
   getDefaultFieldValues() {
@@ -560,24 +545,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
         defaultFieldValues[customSignupFields[i].id] = customSignupFields[i].defaultValue;
       }
     }
-    if (typeof localStorage !== 'undefined' && localStorage) {
-      const savedDefaultFieldValues = JSON.parse(localStorage.getItem('accounts_ui') || "null");
-      if (savedDefaultFieldValues
-        && savedDefaultFieldValues.passwordSignupFields === passwordSignupFields()) {
-        defaultFieldValues = {...defaultFieldValues, ...savedDefaultFieldValues};
-      }
-    }
     
     return defaultFieldValues;
-  }
-
-  /**
-   * Helper to clear field values when signing in, up or out.
-   */
-  clearDefaultFieldValues() {
-    if (typeof localStorage !== 'undefined' && localStorage) {
-      localStorage.removeItem('accounts_ui');
-    }
   }
 
   switchToSignUp(event) {
@@ -641,7 +610,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   signOut() {
-    Meteor.logout(() => {
+    meteorLogout(() => {
       this.props.handlers.switchToSignIn();
       // this.setState({
       //   formState: STATES.SIGN_IN,
@@ -649,7 +618,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
       // });
       this.state.onSignedOutHook();
       this.clearMessages();
-      this.clearDefaultFieldValues();
     });
   }
 
@@ -702,7 +670,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     // }
 
     if (!error) {
-      Meteor.loginWithPassword(loginSelector, password, (error, result) => {
+      meteorLoginWithPassword(loginSelector, password, (error, result) => {
         onSubmitHook(error,formState);
         if (error) {
           // eslint-disable-next-line no-console
@@ -712,11 +680,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
             const {salt, username} = error.details;
             const toHash = (`${salt}${username} ${password}`)
             const lw1PW = salt + sha1(toHash).toString();
-            Meteor.loginWithPassword({username: error.details.username}, lw1PW, (error, result) => {
+            meteorLoginWithPassword({username: error.details.username}, lw1PW, (error, result) => {
               if (!error) {
                 loginResultCallback(() => this.state.onSignedInHook(this.props));
                 self.props.handlers.switchToProfile();
-                self.clearDefaultFieldValues();
               } else {
                 //eslint-disable-next-line no-console
                 console.error(error)
@@ -734,7 +701,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
           //   formState: STATES.PROFILE,
           //   password: null,
           // });
-          self.clearDefaultFieldValues();
         }
       });
     }
@@ -774,7 +740,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       serviceName = 'meteorDeveloperAccount';
     }
 
-    const loginWithService = Meteor['loginWith' + capitalService()];
+    const loginWithService = meteorLoginWithMethod(capitalService());
 
     let options: any = {}; // use default scope unless specified
     if (Accounts.ui._options.requestPermissions[serviceName])
@@ -798,9 +764,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
       } else {
         self.props.handlers.switchToProfile();
         // this.setState({ formState: STATES.PROFILE });
-        self.clearDefaultFieldValues();
         loginResultCallback(() => {
-          Meteor.setTimeout(() => this.state.onSignedInHook(this.props), 100);
+          runAfterDelay(() => this.state.onSignedInHook(this.props), 100);
         });
       }
     });
@@ -896,7 +861,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
           // self.setState({ formState: STATES.PROFILE, password: null });
           let currentUser = Accounts.user();
           loginResultCallback(self.state.onPostSignUpHook.bind(self, _options, currentUser));
-          self.clearDefaultFieldValues();
         }
 
         self.setState({ waiting: false });
@@ -908,7 +872,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
       let promise = this.state.onPreSignUpHook(options);
       // LESSWRONG: allow preSignUpHook to return value that replaces options
       if (promise instanceof Promise) {
-        promise.then((value) => {doSignUp(value || options)});
+        promise.then(
+          (value) => {doSignUp(value || options)},
+          (err) => {}
+        );
       }
       else {
         // eslint-disable-next-line babel/new-cap
@@ -942,7 +909,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
         }
         else {
           this.showMessage('accounts.info_email_sent', 'success', 5000);
-          this.clearDefaultFieldValues();
         }
         onSubmitHook(error, formState);
         this.setState({ waiting: false });
@@ -996,7 +962,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
           onSubmitHook(null, formState);
           this.props.handlers.switchToProfile();
           // this.setState({ formState: STATES.PROFILE });
-          this.clearDefaultFieldValues();
         }
       });
     }
@@ -1004,7 +969,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
   showMessage(messageId, type?: any, clearTimeout?: any, field?: any) {
     if (messageId) {
-      this.setState(({ messages = [] }) => {
+      this.setState(({messages = []}: {messages?: Array<any>}) => {
         messages.push({
           message: this.context.intl.formatMessage({id: messageId}) || messageId || "Unknown Error",
           type,

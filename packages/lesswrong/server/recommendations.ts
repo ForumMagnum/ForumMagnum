@@ -1,7 +1,6 @@
 import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts';
 import { ensureIndex } from '../lib/collectionUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
@@ -16,11 +15,10 @@ const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaul
 
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
-// LWEvents collection and filter out any posts which have a corresponding
-// post-view event for the current user. Returns as an array, so you can spread
-// this into a pipeline with ...pipelineFilterUnread(currentUser). If
-// currentUser is null, returns an empty array (no aggregation pipeline stages),
-// so all posts are included.
+// ReadStatuses collection and filter out any posts which have been read by the
+// current user. Returns as an array, so you can spread this into a pipeline
+// with ...pipelineFilterUnread(currentUser). If currentUser is null, returns
+// an empty array (no aggregation pipeline stages), so all posts are included.
 const pipelineFilterUnread = ({currentUser}) => {
   if (!currentUser)
     return [];
@@ -149,14 +147,18 @@ const allRecommendablePosts = async ({currentUser, algorithm}): Promise<Array<Db
 const topPosts = async ({count, currentUser, algorithm, scoreFn}) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
-  const unreadTopPosts = _.first(
-    _.sortBy(recommendablePostsMetadata, post => -scoreFn(post)),
-    count);
-  const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id);
+  const defaultRecommendations = algorithm.excludeDefaultRecommendations ? [] : recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation)
+
+  const sortedTopRecommendations = _.sortBy(recommendablePostsMetadata, post => -scoreFn(post))
+  const unreadTopPosts = _.first([
+    ...defaultRecommendations,
+    ...sortedTopRecommendations
+  ], count)
+  const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id)
 
   return await Posts.find(
     { _id: {$in: unreadTopPostIds} },
-    { sort: {baseScore: -1} }
+    { sort: {defaultRecommendation: -1, baseScore: -1} }
   ).fetch();
 }
 
@@ -193,7 +195,6 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
 const getModifierName = post => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
-  if (forumTypeSetting.get() === 'EAForum' && post.meta) return 'metaModifier'
   return 'personalBlogpostModifier'
 }
 
@@ -244,7 +245,7 @@ const getDefaultResumeSequence = () => {
   ]
 }
 
-const getResumeSequences = async (currentUser, context) => {
+const getResumeSequences = async (currentUser, context: ResolverContext) => {
   const sequences = currentUser ? currentUser.partiallyReadSequences : getDefaultResumeSequence()
 
   if (!sequences)
@@ -252,16 +253,15 @@ const getResumeSequences = async (currentUser, context) => {
 
   const results = await Promise.all(_.map(sequences,
     async (partiallyReadSequence: any) => {
-      const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
+      const { sequenceId, collectionId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
         sequence: sequenceId
-          ? await context["Sequences"].loader.load(sequenceId)
+          ? await context.loaders.Sequences.load(sequenceId)
           : null,
         collection: collectionId
-          ? await context["Collections"].loader.load(collectionId)
+          ? await context.loaders.Collections.load(collectionId)
           : null,
-        lastReadPost: lastReadPostId && await context["Posts"].loader.load(lastReadPostId),
-        nextPost: await context["Posts"].loader.load(nextPostId),
+        nextPost: await context.loaders.Posts.load(nextPostId),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,
@@ -272,22 +272,22 @@ const getResumeSequences = async (currentUser, context) => {
   // Filter out results where nextPost is null. (Specifically, this filters out
   // the default sequences on dev databases, which would otherwise cause a crash
   // down the line.)
-  return _.filter(results, result=>result.nextPost);
+  return _.filter(results, result=>!!result.nextPost);
 }
 
 
 addGraphQLResolvers({
   Query: {
-    async ContinueReading(root, args, context) {
+    async ContinueReading(root, args, context: ResolverContext) {
       const { currentUser } = context;
 
       return await getResumeSequences(currentUser, context);
     },
 
-    async Recommendations(root, {count,algorithm}, context) {
+    async Recommendations(root, {count,algorithm}, context: ResolverContext) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
-      const accessFilteredPosts = accessFilterMultiple(currentUser, Posts, recommendedPosts);
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
@@ -296,13 +296,14 @@ addGraphQLResolvers({
     }
   },
   Mutation: {
-    async dismissRecommendation(root, {postId}, context) {
+    async dismissRecommendation(root, {postId}, context: ResolverContext) {
       const { currentUser } = context;
+      if (!currentUser) return false;
 
       if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
           (s:any)=>s.nextPostId !== postId);
-        setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+        await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;
       }
       return false;
@@ -314,7 +315,6 @@ addGraphQLSchema(`
   type RecommendResumeSequence {
     sequence: Sequence
     collection: Collection
-    lastReadPost: Post
     nextPost: Post!
     numRead: Int
     numTotal: Int

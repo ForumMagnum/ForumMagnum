@@ -76,6 +76,8 @@ Users.addView("sunshineNewUsers", function (terms) {
     },
     options: {
       sort: {
+        reviewedByUserId: 1,
+        postCount: -1,
         signUpReCaptchaRating: -1,
         createdAt: -1
       }
@@ -270,3 +272,16 @@ ensureIndex(Users, {petrovCodesEnteredHashed: 1})
 
 
 
+Users.addView("walledGardenInvitees", function () {
+  return {
+    selector: {
+      walledGardenInvite: true
+    },
+    options: {
+      sort: {
+        displayName: 1
+      }
+    }
+  }
+})
+ensureIndex(Users, {walledGardenInvite: 1})

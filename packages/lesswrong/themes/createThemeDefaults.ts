@@ -18,17 +18,18 @@ const monoStack = [
 const titleDividerSpacing = 20
 
 export const zIndexes = {
-  continueReadingImage: -1,
   commentsMenu: 1,
   sequencesPageContent: 1,
   sequencesImageScrim: 1,
   postsVote: 1,
+  postItemAuthor: 1,
   singleLineCommentMeta: 2,
   postItemTitle: 2,
-  reviewVotingMenu: 3,
   sidebarHoverOver: 2,
+  reviewVotingMenu: 3,
   singleLineCommentHover: 3,
   questionPageWhitescreen: 3,
+  footerNav: 3,
   textbox: 4,
   styledMapPopup: 5,
   nextUnread: 999,
@@ -40,17 +41,18 @@ export const zIndexes = {
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
+  gatherTownIframe: 1501,
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,
   searchBar: 100000,
-  commentBoxPopup: 10000000001, // has to be higher than Intercom, 
+  commentBoxPopup: 10000000001, // has to be higher than Intercom,
   // ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)
-  // petrovDayButton: 6,
-  // petrovDayLoss: 1000000
+  petrovDayButton: 6,
+  petrovDayLoss: 1000000
 }
 
-const createLWTheme = (theme) => {
+const createLWTheme = (theme: ThemeType) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 
@@ -222,6 +224,11 @@ const createLWTheme = (theme) => {
         }
       }
     },
+    palette: {
+      commentBorderGrey: "rgba(72,94,144,0.16)",
+    },
+    boxShadow: "0 1px 5px rgba(0,0,0,.025)",
+    itemBorderBottom: "solid 2px rgba(0,0,0,.05)",
     zIndexes: {
       ...zIndexes
     },

@@ -9,6 +9,7 @@ import { PublicInstanceSetting } from '../lib/instanceSettings';
 // If set, this takes precedence over the robotsTxt setting.
 const disallowCrawlersSetting = new PublicInstanceSetting<boolean>('disallowCrawlers', false, "optional")
 
+
 // robotsTxt: Optional setting to entirely replace the contents of robots.txt,
 // to allow quickly banning a bad crawler or a slow endpoint without a redeploy,
 // if quick response is needed. If null (the default), robots.txt is generated
@@ -23,18 +24,20 @@ addStaticRoute('/robots.txt', ({query}, req, res, next) => {
   if (disallowCrawlersSetting.get()) {
     res.end("User-agent: *\nDisallow: /");
   } else if (robotsTxtSetting.get()) {
-    return robotsTxtSetting.get();
+    res.end(robotsTxtSetting.get());
   } else {
     // We block all request with query parameters to the allPosts page, since that results in a ton of Google requests
     // that don't really want to index or handle
     res.end(
 `User-agent: *
-Disallow: /allPosts?*:qall
+Disallow: /allPosts?*
 Disallow: /graphiql
 Disallow: /debug
 Disallow: /admin
 Disallow: /compare
 Disallow: /emailToken
+Disallow: /*?commentId=*
+Crawl-Delay: 2
 `);
   }
 });

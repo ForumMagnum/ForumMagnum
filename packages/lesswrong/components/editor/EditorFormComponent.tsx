@@ -13,9 +13,10 @@ import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { userHasCkEditor, userHasCkCollaboration } from '../../lib/betas';
+import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
+import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const postEditorHeight = 250;
@@ -24,14 +25,13 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     position: 'relative',
   },
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
-    maxWidth: 640,
     padding: 0,
     '& li .public-DraftStyleDefault-block': {
       margin: 0
@@ -107,6 +107,19 @@ const styles = theme => ({
   placeholderCollaborationSpacing: {
     top: 60
   },
+  changeDescriptionRow: {
+    display: "flex",
+    alignItems: "center",
+  },
+  changeDescriptionLabel: {
+    marginLeft: 8,
+    marginRight: 8,
+    ...theme.typography.commentStyle,
+    color: "rgba(0,0,0,.87)",
+  },
+  changeDescriptionInput: {
+    flexGrow: 1,
+  },
   markdownImgErrText: {
     margin: `${theme.spacing.unit * 3}px 0`
   }
@@ -143,6 +156,7 @@ interface EditorFormComponentState {
   ckEditorLoaded: any,
   updateType: string,
   version: string,
+  commitMessage: string,
   ckEditorReference: any,
   loading: boolean,
   draftJSValue: any,
@@ -168,6 +182,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       ckEditorLoaded: null,
       updateType: 'minor',
       version: '',
+      commitMessage: "",
       ckEditorReference: null,
       loading: true,
       ...this.getEditorStatesFromType(editorType),
@@ -181,7 +196,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   async componentDidMount() {
-    const { currentUser, form } = this.props
+    const { form } = this.props
 
     this.context.addToSubmitForm(this.submitData);
 
@@ -190,24 +205,23 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       return result;
     });
 
-    if (Meteor.isClient && window) {
-      this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
+    if (isClient && window) {
+      this.unloadEventListener = (ev) => {
         if (this.hasUnsavedData) {
           ev.preventDefault();
           ev.returnValue = 'Are you sure you want to close?';
           return ev.returnValue
         }
-      });
+      }
+      window.addEventListener("beforeunload", this.unloadEventListener );
     }
 
-    if (userHasCkEditor(currentUser)) {
-      let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
-      const Editor = EditorModule.default
-      this.ckEditor = Editor
-      this.setState({ckEditorLoaded: true})
-    }
-
-    if (Meteor.isClient) {
+    let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
+    const Editor = EditorModule.default
+    this.ckEditor = Editor
+    this.setState({ckEditorLoaded: true})
+    
+    if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
     }
@@ -309,7 +323,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   submitData = (submission) => {
     const { fieldName } = this.props
     let data: any = null
-    const { draftJSValue, markdownValue, htmlValue, updateType, ckEditorReference } = this.state
+    const { draftJSValue, markdownValue, htmlValue, updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(type) {
       case "draftJS":
@@ -337,7 +351,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         data = "";
         break;
     }
-    return {...submission, [fieldName]: data ? {originalContents: {type, data}, updateType} : undefined}
+    return {
+      ...submission,
+      [fieldName]: data ? {
+        originalContents: {type, data},
+        commitMessage, updateType,
+      } : undefined
+    }
   }
 
   resetEditor = () => {
@@ -505,9 +525,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getUserDefaultEditor = (user) => {
-    if (userHasCkEditor(user)) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
-    return "draftJS"
+    if (user?.reenableDraftJs) return "draftJS"
+    return "ckEditorMarkup"
   }
 
 
@@ -523,11 +543,32 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       onChange={this.handleUpdateTypeSelect}
       className={classes.select}
       disableUnderline
-      >
+    >
       <MenuItem value={'major'}>Major Update</MenuItem>
       <MenuItem value={'minor'}>Minor Update</MenuItem>
       <MenuItem value={'patch'}>Patch</MenuItem>
     </Select>
+  }
+  
+  renderCommitMessageInput = () => {
+    const { currentUser, formType, fieldName, form, classes } = this.props
+    const collectionName = form.collectionName;
+    if (!currentUser || (!userCanCreateCommitMessages(currentUser) && collectionName !== "Tags") || formType !== "edit") { return null }
+    
+    
+    const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
+    if (!fieldHasCommitMessages) return null;
+    
+    return <div className={classes.changeDescriptionRow}>
+      <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
+      <Input
+        className={classes.changeDescriptionInput}
+        value={this.state.commitMessage}
+        onChange={(ev) => {
+          this.setState({ commitMessage: ev.target.value });
+        }}
+      />
+    </div>
   }
 
   getCurrentRevision = () => {
@@ -551,8 +592,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   renderVersionSelect = () => {
     const { classes, document, currentUser } = this.props
 
-    if (!userHasCkEditor(currentUser)) return null
-
+    if (!currentUser?.isAdmin) return null
     if (!this.getCurrentRevision()) return null
     return <span className={classes.select}>
         <Components.SelectVersion
@@ -568,7 +608,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
     const { LWTooltip } = Components
-    if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
+    if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
       <LWTooltip title="Warning! Changing format will erase your content" placement="left">
@@ -706,7 +746,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     return <div>
         { this.renderPlaceholder(showPlaceholder, false) }
         {draftJSValue && <EditorForm
-          isClient={Meteor.isClient}
+          isClient={isClient}
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
@@ -747,14 +787,15 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       && this.renderEditorWarning()
 
     return <div>
-        { editorWarning }
-        <div className={classNames(classes.editor, this.getBodyStyles())}>
-          { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
-          { this.renderVersionSelect() }
-          { this.renderUpdateTypeSelect() }
-          { this.renderEditorTypeSelect() }
-        </div>
+      { editorWarning }
+      <div className={classNames(classes.editor, this.getBodyStyles())}>
+        { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
+        { this.renderVersionSelect() }
+        { this.renderUpdateTypeSelect() }
+        { this.renderEditorTypeSelect() }
       </div>
+      { this.renderCommitMessageInput() }
+    </div>
   }
 };
 

@@ -1,12 +1,12 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import React from 'react';
-import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { AnalyticsContext } from '../../lib/analyticsEvents'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   read: {
     opacity: ".8"
   },
@@ -15,9 +15,16 @@ const styles = theme => ({
     textAlign: "center",
     display: "inline-block",
   },
+  info: {
+    display: "inline",
+    color: theme.palette.grey[600],
+    marginRight: theme.spacing.unit,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle
+  }
 })
 
-const DateWithoutTime = ({date}) => {
+const DateWithoutTime = ({date}: {date: Date}) => {
   const { timezone } = useTimezone();
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }
@@ -27,14 +34,12 @@ const PostsItemMeta = ({post, read, classes}: {
   read?: boolean,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
-  const { wordCount = 0 } = post.contents || {}
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { MetaInfo, FormatDate, PostsStats, PostsUserAndCoauthors, LWTooltip } = Components;
+  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
-      {!post.shortform && <MetaInfo>
+      {!post.shortform && <span className={classes.info}>
         <LWTooltip title={<div>
           This post has { baseScore || 0 } karma<br/>
           ({ post.voteCount} votes)
@@ -43,9 +48,9 @@ const PostsItemMeta = ({post, read, classes}: {
             { baseScore || 0 }
           </span>
         </LWTooltip>
-      </MetaInfo>}
+      </span>}
 
-      { post.isEvent && <MetaInfo>
+      { post.isEvent && <span className={classes.info}>
         {post.startTime
           ? <LWTooltip title={<Components.EventTime post={post} />}>
               <DateWithoutTime date={post.startTime} />
@@ -53,37 +58,33 @@ const PostsItemMeta = ({post, read, classes}: {
           : <LWTooltip title={<span>To Be Determined</span>}>
               <span>TBD</span>
             </LWTooltip>}
-      </MetaInfo>}
+      </span>}
 
-      { post.isEvent && <MetaInfo>
+      { post.isEvent && <span className={classes.info}>
         <Components.EventVicinity post={post} />
-      </MetaInfo>}
+      </span>}
 
-      <MetaInfo>
+      <span className={classes.info}>
         <PostsUserAndCoauthors post={post}/>
-      </MetaInfo>
+      </span>
 
-      {post.postedAt && !post.isEvent && <MetaInfo>
-        <FormatDate date={post.postedAt}/>
-      </MetaInfo>}
-
-      {!!wordCount && !post.isEvent && <MetaInfo>
-        <LWTooltip title={`${wordCount} words`}>
-          <span>{Math.floor(wordCount/300) || 1 } min read</span>
-        </LWTooltip>
-      </MetaInfo>}
-
-      { currentUser && currentUser.isAdmin &&
-        <PostsStats post={post} />
-      }
-
-      { afBaseScore && <MetaInfo>
+      { afBaseScore && <span className={classes.info}>
         <LWTooltip title={<div>
           { afBaseScore } karma on alignmentforum.org
         </div>}>
           <span>Ω { afBaseScore }</span>
         </LWTooltip>
-      </MetaInfo>}
+      </span>}
+
+      <span className={classes.info}>
+        <AnalyticsContext pageElementContext="tagsList">
+          <FooterTagList post={post} hideScore hideAddTag hidePersonalOrFrontpage smallText/>
+        </AnalyticsContext>
+      </span>
+
+      {post.postedAt && !post.isEvent && <span className={classes.info}>
+        <FormatDate date={post.postedAt}/>
+      </span>}
     </span>
 };
 

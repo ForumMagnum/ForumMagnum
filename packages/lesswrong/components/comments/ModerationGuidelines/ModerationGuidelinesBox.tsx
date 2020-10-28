@@ -1,8 +1,8 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import withNewEvents from '../../../lib/events/withNewEvents';
+import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
-import truncatise from 'truncatise';
+import { truncatise } from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
 import Users from '../../../lib/collections/users/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
@@ -13,7 +13,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { commentBodyStyles } from '../../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
@@ -57,7 +57,7 @@ const styles = theme => ({
 })
 
 const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
-  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle)
+  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle || "")
   const truncatiseOptions = {
     TruncateLength: 300,
     TruncateBy: "characters",
@@ -84,11 +84,11 @@ const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
   return { combinedGuidelines, truncatedGuidelines }
 }
 
-const ModerationGuidelinesBox = ({classes, post, recordEvent}: {
+const ModerationGuidelinesBox = ({classes, post}: {
   classes: ClassesType,
   post: PostsMinimumInfo,
-  recordEvent?: any,
 }) => {
+  const {recordEvent} = useNewEvents();
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
@@ -106,7 +106,7 @@ const ModerationGuidelinesBox = ({classes, post, recordEvent}: {
   if (loading)
     return <Components.Loading/>
 
-  const handleClick = (e) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setExpanded(!expanded)
@@ -122,7 +122,7 @@ const ModerationGuidelinesBox = ({classes, post, recordEvent}: {
     }
   }
 
-  const openEditDialog = (e) => {
+  const openEditDialog = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     openDialog({
@@ -167,7 +167,7 @@ const moderationStyleLookup = {
 
 const ModerationGuidelinesBoxComponent = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   styles,
-  hocs: [withNewEvents, withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

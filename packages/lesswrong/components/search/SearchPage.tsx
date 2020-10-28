@@ -6,11 +6,14 @@ import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     maxWidth: 1200,
-    margin: "auto"
+    margin: "auto",
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 24,
+    }
   },
   header: {
     display: "flex",
@@ -178,7 +181,7 @@ const SearchPage = ({classes}:{
             <Index indexName={algoliaIndexNames.Tags}>
               <div className={classes.header}>
                 <Typography variant="body1">
-                  Tags
+                  Tags and Wiki
                 </Typography>
                 <SearchPagination />
               </div>

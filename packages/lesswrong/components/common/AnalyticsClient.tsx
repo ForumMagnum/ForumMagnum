@@ -16,10 +16,12 @@ export const AnalyticsClient = () => {
       analyticsEvent(events: $events, now: $now)
     }
   `;
-  const [mutate] = useMutation(query);
+  const [mutate] = useMutation(query, {
+    ignoreResults: true
+  });
   
   function flushEvents(events) {
-    mutate({
+    void mutate({
       variables: {
         events,
         now: new Date(),

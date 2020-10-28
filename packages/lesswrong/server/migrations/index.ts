@@ -3,6 +3,12 @@
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
 
+// to run a migration, enter in terminal:
+// meteor shell
+// 
+// and then run:
+// Vulcan.migrations.migrationName()
+
 import './2019-01-04-voteSchema';
 import './2019-01-21-denormalizeVoteCount';
 import './2019-01-24-karmaChangeSettings';
@@ -43,7 +49,18 @@ import './2020-03-11-updateFrontpageFilterSettings'
 import './2020-03-30-fixLostUnapprovedComments'
 import './2020-04-20-adminOnlyTags'
 import './2020-04-28-tagDefaultOrder'
+import './2020-05-05-addRevisionCollectionName'
 import './2020-05-06-forceSecureImageLinks'
 import './2020-05-13-noIndexLowKarma'
 import './2020-05-19-fillDefaultNoIndex'
 import './2020-05-22-deletedNotifications'
+import './2020-06-08-clearOldPartiallyReadSequences'
+import './2020-06-14-populateTagUser'
+import './2020-06-22-directChildrenCount.ts'
+import './2020-07-23-defaultWikiGrade.ts'
+import './2020-09-08-onlineEvent.ts'
+import './2020-09-03-createWikiImportUsers.ts'
+import './2020-09-03-defaultWikiOnly.ts'
+import './2020-09-15-tagLastCommentedAt.ts'
+import './2020-09-15-revisionChangeMetrics.ts'
+import './2020-10-26-postDefaultDraft.ts'

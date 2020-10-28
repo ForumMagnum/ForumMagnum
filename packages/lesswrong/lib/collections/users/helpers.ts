@@ -1,5 +1,5 @@
 import bowser from 'bowser';
-import { Meteor } from 'meteor/meteor';
+import { isClient, isServer } from '../../executionEnvironment';
 import { userHasCkEditor } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { Utils } from '../../vulcan-lib';
@@ -57,13 +57,6 @@ const postHasModerationGuidelines = post => {
   return post.moderationGuidelines?.originalContents || post.moderationStyle
 }
 
-const isPersonalBlogpost = (post: PostsBase|DbPost): boolean => {
-  if (forumTypeSetting.get() === 'EAForum') {
-    return !(post.frontpageDate || post.meta)
-  }
-  return !post.frontpageDate
-}
-
 Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null): boolean => {
   if (Users.canDo(user,"posts.moderate.all")) {
     return true
@@ -80,7 +73,7 @@ Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbP
     Users.canDo(user, "posts.moderate.own.personal") &&
     Users.owns(user, post) &&
     postHasModerationGuidelines(post) &&
-    isPersonalBlogpost(post)
+    !post.frontpageDate
   ) {
     return true
   }
@@ -95,6 +88,13 @@ Users.canModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbP
     Users.owns(user, post) &&
     postHasModerationGuidelines(post)
   )
+}
+
+Users.canModerateComment = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList|DbComment) => {
+  if (!user || !post || !comment) return false
+  if (Users.canModeratePost(user, post)) return true 
+  if (Users.owns(user, comment) && !comment.directChildrenCount) return true 
+  return false
 }
 
 Users.canCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
@@ -238,7 +238,7 @@ Users.getProfileUrlFromSlug = (userSlug: string, isAbsolute=false): string => {
 
 
 const clientRequiresMarkdown = (): boolean => {
-  if (Meteor.isClient &&
+  if (isClient &&
       window &&
       window.navigator &&
       window.navigator.userAgent) {
@@ -283,7 +283,7 @@ Users.getLocation = (currentUser: UsersCurrent|null): UserLocation => {
   if (currentUserLat && currentUserLng) {
     // First return a location from the user profile, if set
     return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true}
-  } else if (Meteor.isServer) {
+  } else if (isServer) {
     // If there's no location in the user profile, we may still be able to get
     // a location from the browser--but not in SSR.
     return {lat: placeholderLat, lng:placeholderLng, loading: true, known: false};

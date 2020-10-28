@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { ExpandedDate } from '../../common/FormatDate';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   date: {
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",

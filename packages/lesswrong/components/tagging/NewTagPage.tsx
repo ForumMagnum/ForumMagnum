@@ -9,12 +9,12 @@ const NewTagPage = () => {
   const currentUser = useCurrentUser();
   const { SingleColumnSection, SectionTitle, WrappedSmartForm } = Components;
   
-  if (!currentUser || !currentUser.isAdmin) {
+  if (!currentUser) {
     return (
       <SingleColumnSection>
         <SectionTitle title="New Tag"/>
         <div>
-          You must be logged in as an admin to define new tags.
+          You must be logged in to define new tags.
         </div>
       </SingleColumnSection>
     );
@@ -27,7 +27,7 @@ const NewTagPage = () => {
         collection={Tags}
         mutationFragment={getFragment('TagFragment')}
         successCallback={tag => {
-          history.push({pathname: `/tag/${tag.slug}`}); //TODO: Util function for tag URL
+          history.push({pathname: Tags.getUrl(tag)});
         }}
       />
     </SingleColumnSection>

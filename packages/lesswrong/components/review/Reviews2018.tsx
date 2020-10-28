@@ -6,7 +6,7 @@ import Users from '../../lib/collections/users/collection';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
@@ -24,7 +24,9 @@ const styles = theme => ({
   }
 })
 
-const Reviews2018 = ({classes}) => {
+const Reviews2018 = ({classes}: {
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
@@ -39,9 +41,9 @@ const Reviews2018 = ({classes}) => {
 
   const handleSetExpandUnread = () => {
     if (currentUser) {
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
-        data: { 
+        data: {
           noExpandUnreadCommentsReview: expandUnread,
         }
       });

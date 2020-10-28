@@ -21,41 +21,41 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
         type: "delayed",
         delayMinutes: 15,
       },
-      callback: ({ userId, notificationType }, notificationIds) => {
-        sendNotificationBatch({userId, notificationIds});
+      callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
+        void sendNotificationBatch({userId, notificationIds});
       }
     });
   }
 );
 
 // Precondition: All notifications in a batch share a notification type
-const sendNotificationBatch = async ({ userId, notificationIds }) => {
+const sendNotificationBatch = async ({userId, notificationIds}: {userId: string, notificationIds: Array<string>}) => {
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
   const user = Users.getUser(userId);
+  if (!user) throw new Error(`Missing user: ID ${userId}`);
   Notifications.update(
     { _id: {$in: notificationIds} },
     { $set: { waitingForBatch: false } },
     { multi: true }
   );
-  const notifications = await Notifications.find(
-    { _id: {$in: notificationIds} }
+  const notificationsToEmail = await Notifications.find(
+    { _id: {$in: notificationIds}, emailed: true }
   ).fetch();
   
-  if (!notifications.length)
-    throw new Error("Failed to find notifications");
-  
-  const emails: any = await notificationBatchToEmails({
-    user, notifications
-  });
-  
-  for (let email of emails) {
-    await wrapAndSendEmail(email);
+  if (notificationsToEmail.length) {
+    const emails: any = await notificationBatchToEmails({
+      user, notifications: notificationsToEmail
+    });
+    
+    for (let email of emails) {
+      await wrapAndSendEmail(email);
+    }
   }
 }
 
-const notificationBatchToEmails = async ({ user, notifications }) => {
+const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, notifications: Array<DbNotification>}) => {
   const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   
@@ -66,7 +66,7 @@ const notificationBatchToEmails = async ({ user, notifications }) => {
       body: await notificationTypeRenderer.emailBody({ user, notifications }),
     }];
   } else {
-    return await Promise.all(notifications.map(async notification => ({
+    return await Promise.all(notifications.map(async (notification: DbNotification) => ({
       user,
       subject: await notificationTypeRenderer.emailSubject({ user, notifications:[notification] }),
       body: await notificationTypeRenderer.emailBody({ user, notifications:[notification] }),
@@ -74,7 +74,7 @@ const notificationBatchToEmails = async ({ user, notifications }) => {
   }
 }
 
-export const wrapAndRenderEmail = async ({user, subject, body}) => {
+export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
   const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
   return await generateEmail({
     user,
@@ -87,7 +87,7 @@ export const wrapAndRenderEmail = async ({user, subject, body}) => {
   });
 }
 
-export const wrapAndSendEmail = async ({user, subject, body}) => {
+export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
   try {
     const email = await wrapAndRenderEmail({ user, subject, body });
     await sendEmail(email);
@@ -99,9 +99,9 @@ export const wrapAndSendEmail = async ({user, subject, body}) => {
 
 addGraphQLResolvers({
   Query: {
-    async EmailPreview(root, {notificationIds, postId}, context) {
+    async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
       const { currentUser } = context;
-      if (!Users.isAdmin(currentUser)) {
+      if (!currentUser || !Users.isAdmin(currentUser)) {
         throw new Error("This debug feature is only available to admin accounts");
       }
       if (!notificationIds?.length && !postId) {

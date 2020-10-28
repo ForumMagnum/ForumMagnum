@@ -41,6 +41,7 @@ import {
 import { debug, debugGroup, debugGroupEnd } from '../../lib/vulcan-lib/debug';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
+import { createAnonymousContext } from './query';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
@@ -66,13 +67,18 @@ export const createMutator = async <T extends DbObject>({
   data?: Partial<T>,
   currentUser?: DbUser|null,
   validate?: boolean,
-  context?: any,
+  context?: ResolverContext,
 }): Promise<{
   data: T
 }> => {
   // OpenCRUD backwards compatibility: accept either data or document
   // we don't want to modify the original document
   document = data || document;
+  
+  // If no context is provided, create a new one (so that callbacks will have
+  // access to loaders)
+  if (!context)
+    context = createAnonymousContext();
 
   const { collectionName, typeName } = collection.options;
   const schema = collection.simpleSchema()._schema;
@@ -161,7 +167,7 @@ export const createMutator = async <T extends DbObject>({
   }
 
   // TODO: find that info in GraphQL mutations
-  // if (Meteor.isServer && this.connection) {
+  // if (isServer && this.connection) {
   //   post.userIP = this.connection.clientAddress;
   //   post.userAgent = this.connection.httpHeaders['user-agent'];
   // }
@@ -263,13 +269,18 @@ export const updateMutator = async <T extends DbObject>({
   unset?: any,
   currentUser?: DbUser|null,
   validate?: boolean,
-  context?: any,
+  context?: ResolverContext,
   document?: T|null,
 }): Promise<{
   data: T
 }> => {
   const { collectionName, typeName } = collection.options;
   const schema = collection.simpleSchema()._schema;
+
+  // If no context is provided, create a new one (so that callbacks will have
+  // access to loaders)
+  if (!context)
+    context = createAnonymousContext();
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
@@ -352,7 +363,7 @@ export const updateMutator = async <T extends DbObject>({
     let autoValue;
     if (schema[fieldName].onUpdate) {
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onUpdate(properties);
+      autoValue = await schema[fieldName].onUpdate({...properties, fieldName});
     } else if (schema[fieldName].onEdit) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
@@ -428,8 +439,8 @@ export const updateMutator = async <T extends DbObject>({
     // TODO: add support for caching by other indexes to Dataloader
     // https://github.com/VulcanJS/Vulcan/issues/2000
     // clear cache if needed
-    if (selector.documentId && collection.loader) {
-      collection.loader.clear(selector.documentId);
+    if (selector.documentId && context) {
+      context.loaders[collectionName].clear(selector.documentId);
     }
   }
 
@@ -493,7 +504,7 @@ export const deleteMutator = async <T extends DbObject>({
   selector?: MongoSelector<T>,
   currentUser?: DbUser|null,
   validate?: boolean,
-  context?: any,
+  context?: ResolverContext,
   document?: T|null,
 }): Promise<{
   data: T|null|undefined
@@ -502,6 +513,11 @@ export const deleteMutator = async <T extends DbObject>({
   const schema = collection.simpleSchema()._schema;
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
+
+  // If no context is provided, create a new one (so that callbacks will have
+  // access to loaders)
+  if (!context)
+    context = createAnonymousContext();
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -592,8 +608,8 @@ export const deleteMutator = async <T extends DbObject>({
 
   // TODO: add support for caching by other indexes to Dataloader
   // clear cache if needed
-  if (selector.documentId && collection.loader) {
-    collection.loader.clear(selector.documentId);
+  if (selector.documentId && context) {
+    context.loaders[collectionName].clear(selector.documentId);
   }
 
   /*

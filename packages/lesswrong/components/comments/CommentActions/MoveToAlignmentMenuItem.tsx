@@ -11,7 +11,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -54,7 +54,7 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
       },
     })
     client.resetStore()
-    flash({id:"alignment.move_comment"})
+    flash("Comment and its parents moved to AI Alignment Forum")
   }
 
   handleRemoveFromAlignmentForum = async () => {
@@ -70,7 +70,7 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
     })
 
     client.resetStore()
-    flash({id:"alignment.remove_comment"})
+    flash("Comment and its children removed from AI Alignment Forum")
   }
 
   render() {

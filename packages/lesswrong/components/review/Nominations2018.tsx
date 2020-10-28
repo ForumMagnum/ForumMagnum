@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
   }
 })
 
-const Nominations2018 = ({classes}) => {
+const Nominations2018 = ({classes}: {
+  classes: ClassesType,
+}) => {
   const [sortByMost, setSortBy] = useState(false);
 
   const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList } = Components

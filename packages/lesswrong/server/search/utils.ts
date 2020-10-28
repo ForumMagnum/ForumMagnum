@@ -2,7 +2,7 @@ import algoliasearch from 'algoliasearch';
 import htmlToText from 'html-to-text';
 import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
-import { Meteor } from 'meteor/meteor';
+import { isAnyTest } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import { Comments } from '../../lib/collections/comments';
@@ -15,6 +15,7 @@ import { algoliaAppIdSetting } from '../../lib/publicSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
+import { asyncFilter } from '../../lib/utils/asyncUtils';
 
 type AlgoliaDocument = {
   _id: string,
@@ -22,13 +23,14 @@ type AlgoliaDocument = {
 }
 
 interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
-  toAlgolia: (document: T) => Array<AlgoliaDocument>|null
+  toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
+const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
-Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
+Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaDocument>|null> => {
   if (comment.deleted) return null;
   
   const algoliaComment: AlgoliaDocument = {
@@ -46,13 +48,13 @@ Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
     postedAt: comment.postedAt,
     af: comment.af
   };
-  const commentAuthor = Users.findOne({_id: comment.userId});
+  const commentAuthor = await Users.findOne({_id: comment.userId});
   if (commentAuthor && !commentAuthor.deleted) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
   }
-  const parentPost = Posts.findOne({_id: comment.postId});
+  const parentPost = await Posts.findOne({_id: comment.postId});
   if (parentPost) {
     algoliaComment.postId = comment.postId;
     algoliaComment.postTitle = parentPost.title;
@@ -69,18 +71,20 @@ Comments.toAlgolia = (comment: DbComment): Array<AlgoliaDocument>|null => {
   return [algoliaComment]
 }
 
-Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
+Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaDocument>|null> => {
+  if (sequence.isDeleted || sequence.draft || sequence.hidden)
+    return null;
+  
   const algoliaSequence: AlgoliaDocument = {
     objectID: sequence._id,
     _id: sequence._id,
     title: sequence.title,
     userId: sequence.userId,
     baseScore: sequence.baseScore,
-    isDeleted: sequence.isDeleted,
     createdAt: sequence.createdAt,
     af: sequence.af
   };
-  const sequenceAuthor = Users.findOne({_id: sequence.userId});
+  const sequenceAuthor = await Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
     algoliaSequence.authorDisplayName = sequenceAuthor.displayName;
     algoliaSequence.authorUserName = sequenceAuthor.username;
@@ -94,8 +98,9 @@ Sequences.toAlgolia = (sequence: DbSequence): Array<AlgoliaDocument>|null => {
   return [algoliaSequence]
 }
 
-Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
+Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaDocument>|null> => {
   if (user.deleted) return null;
+  if (user.deleteContent) return null;
   
   const algoliaUser = {
     _id: user._id,
@@ -104,7 +109,7 @@ Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
     displayName: user.displayName,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
-    bio: user.bio,
+    bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
     website: user.website,
@@ -115,10 +120,15 @@ Users.toAlgolia = (user: DbUser): Array<AlgoliaDocument>|null => {
 }
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
-Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
+Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => {
   if (post.status !== Posts.config.STATUS_APPROVED)
     return null;
+  if (post.authorIsUnreviewed)
+    return null;
   
+  const tags = post.tagRelevance ? 
+    Object.entries(post.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
+    : []
   const algoliaMetaInfo: AlgoliaDocument = {
     _id: post._id,
     userId: post.userId,
@@ -136,15 +146,16 @@ Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
-    af: post.af
+    af: post.af,
+    tags
   };
-  const postAuthor = Users.findOne({_id: post.userId});
+  const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
     algoliaMetaInfo.authorFullName = postAuthor.fullName;
   }
-  const postFeed = RSSFeeds.findOne({_id: post.feedId});
+  const postFeed = await RSSFeeds.findOne({_id: post.feedId});
   if (postFeed) {
     algoliaMetaInfo.feedName = postFeed.nickname;
     algoliaMetaInfo.feedLink = post.feedLink;
@@ -173,8 +184,9 @@ Posts.toAlgolia = (post: DbPost): Array<AlgoliaDocument>|null => {
   return postBatch;
 }
 
-Tags.toAlgolia = (tag: DbTag): Array<AlgoliaDocument>|null => {
+Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
   if (tag.deleted) return null;
+  if (tag.adminOnly) return null;
   
   let description = ""
   if (tag.description?.originalContents?.type) {
@@ -187,15 +199,17 @@ Tags.toAlgolia = (tag: DbTag): Array<AlgoliaDocument>|null => {
   
   return [{
     _id: tag._id,
+    objectID: tag._id,
     name: tag.name,
     slug: tag.slug,
     core: tag.core,
     defaultOrder: tag.defaultOrder,
     suggestedAsFilter: tag.suggestedAsFilter,
     postCount: tag.postCount,
+    wikiOnly: tag.wikiOnly,
     description,
   }];
-}
+} 
 
 
 // Do algoliaIndex.waitTask as an async function rather than a
@@ -227,7 +241,7 @@ async function algoliaAddObjects(algoliaIndex: algoliasearch.Index, objects) {
 // callback-accepting function. Returns a content object with a taskID
 // and a list objectIDs.
 // https://www.algolia.com/doc/api-reference/api-methods/delete-objects/
-export async function algoliaDeleteIds(algoliaIndex: algoliasearch.Index, ids)
+export async function algoliaDeleteIds(algoliaIndex: algoliasearch.Index, ids: Array<string>)
 {
   return new Promise((resolve,reject) => {
     algoliaIndex.deleteObjects(ids, (err, content) => {
@@ -270,6 +284,9 @@ export async function algoliaDoSearch(algoliaIndex: algoliasearch.Index, query) 
 // Because it does multiple queries for different pages, this may return
 // duplicate results or omit results, if the index is modified while it is
 // running.
+//
+// IMPORTANT CAVEAT: If this index uses 'distinct', only one entry from each
+// group will be returned.
 async function algoliaDoCompleteSearch(algoliaIndex: algoliasearch.Index, query) {
   let allResults: Array<any> = [];
   let pageSize = 1000; // Max permitted by API
@@ -348,7 +365,7 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   const ids = _.map(objects, o=>o._id);
   const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;
   // Workaround for getting filter to properly typecheck: https://github.com/microsoft/TypeScript/issues/16069#issuecomment-392022894
-  const isNotNull = <T extends object>(x:undefined | null | T) : x is T => !!x
+  const isNotNull = <T extends {}>(x:undefined | null | T) : x is T => !!x
   const algoliaObjectsNonnull: Array<AlgoliaDocument> = filter(algoliaObjects, isNotNull);
   const algoliaObjectsById = keyBy(algoliaObjectsNonnull, o=>o._id);
   
@@ -361,13 +378,70 @@ async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: A
   }
 }
 
+// Given an objectID from an Algolia record, figure out whether this record is
+// part of a group of records merged by `distinct`, and if so, return the set
+// of objectIDs of records in that group. Otherwise return the given ID.
+async function algoliaObjectIDtoIDgroup(algoliaIndex: algoliasearch.Index, id: string): Promise<Array<string>> {
+  // Does the ID have an underscore in it? If so, it's (_id)_(group index)
+  if (id.indexOf('_') >= 0) {
+    const [mongoId, groupIndexStr] = id.split('_');
+    const groupIndex = parseInt(groupIndexStr);
+    const largestIndex = await getHighestGroupIndexInGroup(algoliaIndex, mongoId, groupIndex);
+    
+    return _.map(_.range(largestIndex+1), index=>`${mongoId}_${index}`);
+  } else {
+    return [id];
+  }
+}
+
+// Find the largest ID in this group. Unfortunately the only way to do this is
+// to try retrieving different IDs, and see what does and doesn't come back.
+async function getHighestGroupIndexInGroup(algoliaIndex: algoliasearch.Index, mongoId: string, lowerBound: number): Promise<number> {
+  let largestIndex = lowerBound;
+  while (await algoliaIdExists(algoliaIndex, `${mongoId}_${largestIndex+1}`)) {
+    largestIndex++;
+  }
+  return largestIndex;
+}
+
+// Given a set of objectIDs, some of which are of the form (mongoId)_(groupIndex)
+// and some of which aren't, some of which share mongoIds but not groupIndexes,
+// return all objectIDs in the algolia index which share a mongoId with one of
+// the provided objectIDs, but have a higher groupIndex than any in the input.
+async function algoliaObjectIDsToHigherIDSet(algoliaIndex: algoliasearch.Index, ids: Array<string>): Promise<Array<string>> {
+  const highestGroupIndexes: Record<string,number> = {};
+  for (let id of ids) {
+    if (id.indexOf('_') >= 0) {
+      const [mongoId, groupIndexStr] = id.split('_');
+      const groupIndex = parseInt(groupIndexStr);
+      if (!(mongoId in highestGroupIndexes) || (groupIndex > highestGroupIndexes[mongoId]))
+        highestGroupIndexes[mongoId] = groupIndex;
+    }
+  }
+  
+  let result: Array<string> = [];
+  for (let mongoId of Object.keys(highestGroupIndexes)) {
+    const largestIndexInInput = highestGroupIndexes[mongoId];
+    const largestIndexInAlgolia = await getHighestGroupIndexInGroup(algoliaIndex, mongoId, largestIndexInInput);
+    for (let i=largestIndexInInput+1; i<=largestIndexInAlgolia; i++)
+      result.push(`${mongoId}_${i}`);
+  }
+  return result;
+}
+
+async function algoliaIdExists(algoliaIndex: algoliasearch.Index, id: string): Promise<boolean> {
+  const response = await algoliaGetObjects(algoliaIndex, [id]);
+  const nonnullResults = _.filter(response.results, r=>!!r);
+  return nonnullResults.length>0;
+}
+
 // Given a list of mongo IDs that should *not* be in the Algolia index, check
 // whether any are, and (if any are), delete them.
 //
 // We first do a series of queries, one per mongo ID, to collect the indexed
 // pieces of the deleted documents (since they're split into multiple index
 // entries by paragraph).
-async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids) {
+async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids: Array<string>) {
   let algoliaIdsToDelete: Array<any> = [];
   
   for (const mongoId of ids) {
@@ -376,8 +450,11 @@ async function deleteIfPresent(algoliaIndex: algoliasearch.Index, ids) {
       restrictSearchableAttributes: ["_id"],
       attributesToRetrieve: ['objectID','_id'],
     });
-    for (const hit of results)
-      algoliaIdsToDelete.push(hit.objectID);
+    for (const hit of results) {
+      const idGroup = await algoliaObjectIDtoIDgroup(algoliaIndex, hit.objectID)
+      for (const id of idGroup)
+        algoliaIdsToDelete.push(id);
+    }
   }
   
   if (algoliaIdsToDelete.length > 0) {
@@ -393,7 +470,7 @@ export function getAlgoliaAdminClient()
   const algoliaAdminKey = algoliaAdminKeySetting.get()
   
   if (!algoliaAppId || !algoliaAdminKey) {
-    if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+    if (!isAnyTest) {
       //eslint-disable-next-line no-console
       console.info("No Algolia credentials found. To activate search please provide 'algolia.appId' and 'algolia.adminKey' in the settings")
     }
@@ -415,7 +492,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
     // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
     return;
   }
-  // if (Meteor.isDevelopment) {  // Only run document export in production environment
+  // if (isDevelopment) {  // Only run document export in production environment
   //   return null
   // }
   let client = getAlgoliaAdminClient();
@@ -432,6 +509,13 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   if (totalErrors.length > 0) {
     //eslint-disable-next-line no-console
     console.error("Encountered the following errors while exporting to Algolia: ", totalErrors)
+  }
+}
+
+export async function algoliaExportById(collection, documentId: string) {
+  const document = await collection.findOne({_id: documentId});
+  if (document) {
+    await algoliaDocumentExport({ documents: [document], collection });
   }
 }
 
@@ -455,19 +539,28 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
     
-    let algoliaEntries: Array<AlgoliaDocument>|null = (collection.checkAccess && collection.checkAccess(null, item)) ? collection.toAlgolia(item) : null;
-    if (algoliaEntries) {
+    const canAccess = collection.checkAccess ? await collection.checkAccess(null, item, null) : true;
+    let algoliaEntries: Array<AlgoliaDocument>|null = canAccess ? await collection.toAlgolia(item) : null;
+    if (algoliaEntries && algoliaEntries.length>0) {
       importBatch.push.apply(importBatch, algoliaEntries); // Append all of algoliaEntries to importBatch
     } else {
       itemsToDelete.push(item._id);
     }
   }
-
+  
   if (importBatch.length > 0) {
     const subBatches = subBatchArray(importBatch, 1000)
     for (const subBatch of subBatches) {
+      const objectIdsAdded = _.map(subBatch, doc=>doc.objectID);
+      const excessIdsToDelete = await algoliaObjectIDsToHigherIDSet(algoliaIndex, objectIdsAdded);
+      
       let err
       try {
+        if (excessIdsToDelete.length > 0) {
+          const deleteResponse: any = await algoliaDeleteIds(algoliaIndex, excessIdsToDelete);
+          await algoliaWaitForTask(algoliaIndex, deleteResponse.taskID);
+        }
+        
         err = await addOrUpdateIfNeeded(algoliaIndex, _.map(subBatch, _.clone));
       } catch (uncaughtErr) {
         err = uncaughtErr
@@ -492,7 +585,7 @@ export async function subsetOfIdsAlgoliaShouldntIndex<T extends DbObject>(collec
   
   for (let page of pages) {
     let items: Array<T> = await collection.find({ _id: {$in: page} }).fetch();
-    let itemsToIndex = _.filter(items, (item: T) => !!collection.toAlgolia(item));
+    let itemsToIndex = await asyncFilter(items, async (item: T) => !!(await collection.toAlgolia(item)));
     for (let item of itemsToIndex) {
       itemsToIndexById[item._id] = true;
     }

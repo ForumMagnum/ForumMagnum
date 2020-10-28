@@ -22,10 +22,10 @@ const defaultOptions = { create: true, update: true, upsert: true, delete: true 
  * @param {*} mutationName
  */
 
-const getCreateMutationName = (typeName) => `create${typeName}`;
-const getUpdateMutationName = (typeName) => `update${typeName}`;
-const getDeleteMutationName = (typeName) => `delete${typeName}`;
-const getUpsertMutationName = (typeName) => `upsert${typeName}`;
+const getCreateMutationName = (typeName: string): string => `create${typeName}`;
+const getUpdateMutationName = (typeName: string): string => `update${typeName}`;
+const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
+const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 
 export function getDefaultMutations(options:any, moreOptions?:any) {
@@ -72,14 +72,16 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
         ]);
       },
 
-      async mutation(root, { data }, context) {
+      async mutation(root, { data }, context: ResolverContext) {
         const collection = context[collectionName];
 
         // check if current user can pass check function; else throw error
-        Utils.performCheck(
+        await Utils.performCheck(
           this.check,
           context.currentUser,
           data,
+          
+          context,
           '',
           `${typeName}.create`,
           collectionName
@@ -133,7 +135,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
           ]);
       },
 
-      async mutation(root, { selector, data }, context) {
+      async mutation(root, { selector, data }, context: ResolverContext) {
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {
@@ -150,10 +152,12 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
         }
 
         // check if user can perform operation; if not throw error
-        Utils.performCheck(
+        await Utils.performCheck(
           this.check,
           context.currentUser,
           document,
+          
+          context,
           document._id,
           `${typeName}.update`,
           collectionName
@@ -248,7 +252,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
           );
         }
 
-        Utils.performCheck(
+        await Utils.performCheck(
           this.check,
           context.currentUser,
           document,

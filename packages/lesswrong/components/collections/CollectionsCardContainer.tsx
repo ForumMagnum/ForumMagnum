@@ -1,14 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
-    marginTop: -5,
-    marginRight: "auto",
-    marginLeft: "auto",
-    width: 695,
     [theme.breakpoints.down('sm')]: {
       flexDirection: "column",
       alignItems: "center",
@@ -19,7 +15,10 @@ const styles = theme => ({
   }
 })
 
-const CollectionsCardContainer = ({ classes, children }) => {
+const CollectionsCardContainer = ({ classes, children }: {
+  classes: ClassesType,
+  children: any,
+}) => {
   return <div className={classes.root}>
       { children }
   </div>

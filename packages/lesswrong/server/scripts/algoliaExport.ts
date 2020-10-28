@@ -9,7 +9,7 @@ import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
-import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { algoliaIndexNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import * as _ from 'underscore';
 
 async function algoliaExport(collection, selector?: any, updateFunction?: any) {
@@ -46,7 +46,7 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   }
 }
 
-async function algoliaExportByCollectionName(collectionName) {
+async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
   switch (collectionName) {
     case 'Posts':
       await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
@@ -69,8 +69,13 @@ async function algoliaExportByCollectionName(collectionName) {
 }
 
 export async function algoliaExportAll() {
-  for (let collectionName in algoliaIndexNames)
-    await algoliaExportByCollectionName(collectionName);
+  for (let collectionName in algoliaIndexNames) {
+    // I found it quite surprising that I'd need to type cast this. If algoliaIndexNames
+    // is of type <Record<AlgoliaIndexCollectionName, string>>, why would collectionName
+    // be a string? (It's not because we have the in / of mixed up.)
+    // Answer: https://stackoverflow.com/questions/61829651/how-can-i-iterate-over-record-keys-in-a-proper-type-safe-way
+    await algoliaExportByCollectionName(collectionName as AlgoliaIndexCollectionName);
+  }
 }
 
 
@@ -83,14 +88,17 @@ Vulcan.algoliaExportAll = algoliaExportAll
 // don't exist in mongodb or which exist but shouldn't be indexed. This plus
 // algoliaExport together should result in a fully up to date Algolia index,
 // regardless of the starting state.
-async function algoliaCleanIndex(collection)
+async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
 {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
+  const collection = getCollection(collectionName);
+  if (!collection) throw new Error(`Invalid collection name '${collectionName}'`);
+  
   // eslint-disable-next-line no-console
-  console.log(`Deleting spurious documents from Algolia index ${algoliaIndexNames[collection.collectionName]} for ${collection.collectionName}`);
-  let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
+  console.log(`Deleting spurious documents from Algolia index ${algoliaIndexNames[collectionName]} for ${collectionName}`);
+  let algoliaIndex = client.initIndex(algoliaIndexNames[collectionName]);
   
   // eslint-disable-next-line no-console
   console.log("Downloading the full index...");
@@ -112,8 +120,9 @@ async function algoliaCleanIndex(collection)
 }
 
 export async function algoliaCleanAll() {
-  for (let collectionName in algoliaIndexNames)
-    await algoliaCleanIndex(getCollection(collectionName));
+  for (let collectionName in algoliaIndexNames) {
+    await algoliaCleanIndex(collectionName as AlgoliaIndexCollectionName);
+  }
 }
 
 Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);

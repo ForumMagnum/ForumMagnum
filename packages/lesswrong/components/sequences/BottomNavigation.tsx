@@ -1,9 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative"
   },
@@ -92,7 +93,10 @@ const BottomNavigation = ({post, classes}: {
 };
 
 
-const BottomNavigationComponent = registerComponent('BottomNavigation', BottomNavigation, {styles});
+const BottomNavigationComponent = registerComponent('BottomNavigation', BottomNavigation, {
+  styles,
+  hocs: [withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

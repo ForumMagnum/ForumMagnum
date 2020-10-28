@@ -7,7 +7,7 @@ import { useLocation } from '../../../lib/routeUtil';
 
 export const iconWidth = 30
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -49,7 +49,7 @@ const styles = theme => ({
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[800],
     textTransform: "none !important",
   },
   homeIcon: {

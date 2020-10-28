@@ -5,14 +5,15 @@ Default list, single, and total resolvers
 */
 
 import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
-import * as _ from 'underscore';
+import Users from '../collections/users/collection'
+import { asyncFilter } from '../utils/asyncUtils';
 
 const defaultOptions = {
   cacheMaxAge: 300,
 };
 
 // note: for some reason changing resolverOptions to "options" throws error
-export function getDefaultResolvers(options) {
+export function getDefaultResolvers<T extends DbObject>(options) {
   let typeName, collectionName, resolverOptions;
   if (typeof arguments[0] === 'object') {
     // new single-argument API
@@ -32,7 +33,7 @@ export function getDefaultResolvers(options) {
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root, { input = {} }, context, { cacheControl }) {
+      async resolver(root, { input = {} }, context: ResolverContext, { cacheControl }) {
         const { terms = {}, enableCache = false, enableTotal = false } = input as any; //LESSWRONG: enableTotal defaults false
 
         if (cacheControl && enableCache) {
@@ -41,33 +42,40 @@ export function getDefaultResolvers(options) {
         }
 
         // get currentUser and Users collection from context
-        const { currentUser, Users } = context;
+        const { currentUser }: {currentUser: DbUser|null} = context;
 
         // get collection based on collectionName argument
-        const collection = context[collectionName];
+        const collection: CollectionBase<T> = context[collectionName];
 
         // get selector and options from terms and perform Mongo query
         const parameters = await collection.getParameters(terms, {}, context);
         
-        const docs = await queryFromViewParameters(collection, terms, parameters);
+        const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
+        
+        // Were there enough results to reach the limit specified in the query?
+        const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
         
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
-        const viewableDocs = collection.checkAccess
-          ? _.filter(docs, doc => collection.checkAccess(currentUser, doc))
+        const viewableDocs: Array<T> = collection.checkAccess
+          ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
           : docs;
 
         // take the remaining documents and remove any fields that shouldn't be accessible
         const restrictedDocs = Users.restrictViewableFields(currentUser, collection, viewableDocs);
 
         // prime the cache
-        restrictedDocs.forEach(doc => collection.loader.prime(doc._id, doc));
+        restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
 
         const data: any = { results: restrictedDocs };
 
         if (enableTotal) {
           // get total count of documents matching the selector
           // TODO: Make this handle synthetic fields
-          data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
+          if (saturated) {
+            data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
+          } else {
+            data.totalCount = viewableDocs.length;
+          }
         }
 
         // return results
@@ -80,8 +88,13 @@ export function getDefaultResolvers(options) {
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root, { input = {} }, context, { cacheControl }) {
-        const { selector = {}, enableCache = false, allowNull = false } = input as any;
+      async resolver(root, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
+        const { enableCache = false, allowNull = false } = input;
+        // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
+        // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
+        // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
+        // So we copy it here to give it back those methoods
+        const selector = {...(input.selector || {})}
 
         debug('');
         debugGroup(
@@ -95,13 +108,13 @@ export function getDefaultResolvers(options) {
           cacheControl.setCacheHint({ maxAge });
         }
 
-        const { currentUser, Users } = context;
-        const collection = context[collectionName];
+        const { currentUser }: {currentUser: DbUser|null} = context;
+        const collection: CollectionBase<T> = context[collectionName];
 
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
         const doc = documentId
-          ? await collection.loader.load(documentId)
+          ? await context.loaders[collectionName].load(documentId)
           : await Utils.Connectors.get(collection, selector);
 
         if (!doc) {
@@ -118,11 +131,12 @@ export function getDefaultResolvers(options) {
         // if collection has a checkAccess function defined, use it to perform a check on the current document
         // (will throw an error if check doesn't pass)
         if (collection.checkAccess) {
-          Utils.performCheck(
+          await Utils.performCheck(
             collection.checkAccess,
             currentUser,
             doc,
-            collection,
+            
+            context,
             documentId,
             `${typeName}.read.single`,
             collectionName
@@ -142,7 +156,7 @@ export function getDefaultResolvers(options) {
   };
 }
 
-const queryFromViewParameters = async (collection, terms, parameters) => {
+const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: any, parameters: any): Promise<Array<T>> => {
   const selector = parameters.selector;
   const options = {
     ...parameters.options,

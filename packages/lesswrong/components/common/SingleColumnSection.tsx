@@ -4,12 +4,16 @@ import classNames from 'classnames';
 
 export const SECTION_WIDTH = 765
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
+    maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
-    maxWidth: SECTION_WIDTH,
+    [theme.breakpoints.up('md')]: {
+      width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
+      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    }
   }
 })
 

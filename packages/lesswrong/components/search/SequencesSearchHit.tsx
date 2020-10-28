@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     display: "inline",
     fontSize: "1.25rem",
@@ -23,7 +23,11 @@ const styles = theme => ({
   },
 });
 
-const SequencesSearchHit = ({hit, clickAction, classes}) => {
+const SequencesSearchHit = ({hit, clickAction, classes}: {
+  hit: any,
+  clickAction?: any,
+  classes: ClassesType,
+}) => {
   const linkProperties = clickAction ? {onClick: () => clickAction(hit._id)} : {to: "sequences/" + hit._id};
   return <div className="search-results-sequences-item sequences-item">
       <Link {...linkProperties} className="sequence-item-title-link">

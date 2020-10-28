@@ -3,15 +3,15 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    fontSize: ".9rem",
+    fontSize: "1rem",
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
     lineHeight: "1rem",
-    marginBottom: -4
+    marginBottom: 8
   }
 })
 

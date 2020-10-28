@@ -11,7 +11,7 @@ import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-export const sequencesImageScrim = theme => ({
+export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
   bottom: 0,
   height: 150,
@@ -20,12 +20,12 @@ export const sequencesImageScrim = theme => ({
   background: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)'
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: 380,
   },
   titleWrapper: {
-    paddingLeft: theme.spacing.unit
+    paddingLeft: theme.spacing.unit/2
   },
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
@@ -34,7 +34,7 @@ const styles = theme => ({
   },
   description: {
     marginTop: theme.spacing.unit * 2,
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing.unit/2,
     marginBottom: theme.spacing.unit * 2,
     ...postBodyStyles(theme),
   },
@@ -148,7 +148,7 @@ const SequencesPage = ({ documentId, classes }: {
         <SectionFooter>
           <div className={classes.meta}>
             <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.userId && <span className={classes.metaItem}> by <UsersName user={document.user}>
+            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user}>
               {document.user.displayName}
             </UsersName></span>}
           </div>

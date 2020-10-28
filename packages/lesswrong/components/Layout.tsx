@@ -9,7 +9,7 @@ import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
-import { Random } from 'meteor/random';
+import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -19,13 +19,15 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
-import { PostsReadContext } from './common/withRecordPostView';
+import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const logRocketSampleDensitySetting = new DatabasePublicSetting<number>('logRocket.sampleDensity', 5)
+const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
@@ -46,21 +48,54 @@ const hashCode = function(str: string): number {
 // like to include
 const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
+    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   main: {
-    margin: '50px auto 15px auto',
+    paddingTop: 50,
+    paddingBottom: 15,
+    marginLeft: "auto",
+    marginRight: "auto",
+    background: theme.palette.background.default,
+    minHeight: "100vh",
+    gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
-      marginTop: 0,
+      paddingTop: 0,
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
+  },
+  gridActivated: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main ... sunshine"
+      `,
+      gridTemplateColumns: `
+      minmax(0, min-content)
+      minmax(0, 1fr)
+      minmax(0, 765px)
+      minmax(0, 1.4fr)
+      minmax(0, min-content)
+    `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  navSidebar: {
+    gridArea: 'navSidebar'
+  },
+  sunshine: {
+    gridArea: 'sunshine'
+  },
+  whiteBackground: {
+    background: "white",
   },
   '@global': {
     p: pBodyStyle,
@@ -73,7 +108,11 @@ const styles = theme => ({
       fontFamily: "GreekFallback",
       src: "local('Arial')",
       unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-    }
+    },
+    // Hide the CKEditor table alignment menu
+    '.ck-table-properties-form__alignment-row': {
+      display: "none !important"
+    },
   },
   searchResultsArea: {
     position: "absolute",
@@ -90,12 +129,13 @@ interface ExternalProps {
 }
 interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateUserProps {
   cookies: any,
-  theme: any,
+  theme: ThemeType,
 }
 interface LayoutState {
   timezone: string,
   toc: any,
   postsRead: Record<string,boolean>,
+  tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
 }
 
@@ -111,6 +151,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       timezone: savedTimezone,
       toc: null,
       postsRead: {},
+      tagsRead: {},
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
 
@@ -157,7 +198,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const cookieId = cookies.get('clientId')
     if (cookieId) return cookieId
 
-    const newId = Random.id()
+    const newId = randomId()
     cookies.set('clientId', newId)
     return newId
   }
@@ -197,23 +238,24 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper } = Components
 
-    const showIntercom = currentUser => {
+    const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
         return <div id="intercome-outer-frame">
-          <Components.ErrorBoundary>
+          <ErrorBoundary>
             <Intercom
               appID={intercomAppIdSetting.get()}
               user_id={currentUser._id}
               email={currentUser.email}
               name={currentUser.displayName}/>
-          </Components.ErrorBoundary>
+          </ErrorBoundary>
         </div>
       } else if (!currentUser) {
         return <div id="intercome-outer-frame">
-            <Components.ErrorBoundary>
+            <ErrorBoundary>
               <Intercom appID={intercomAppIdSetting.get()}/>
-            </Components.ErrorBoundary>
+            </ErrorBoundary>
           </div>
       } else {
         return null
@@ -225,21 +267,41 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // then it should.
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
-    const standaloneNavigation = !location.currentRoute ||
+
+    const currentRoute = location.currentRoute
+    const standaloneNavigation = !currentRoute ||
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
-        .includes(location.currentRoute.name)
+        .includes(currentRoute?.name)
+        
+    const shouldUseGridLayout = standaloneNavigation
+
+    const currentTime = new Date()
+    const beforeTime = petrovBeforeTime.get()
+    const afterTime = petrovAfterTime.get()
+
+    const renderPetrovDay = 
+      currentRoute?.name == "home"
+      && forumTypeSetting.get() === "LessWrong"
+      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+
     
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
-      <PostsReadContext.Provider value={{
+      <ItemsReadContext.Provider value={{
         postsRead: this.state.postsRead,
         setPostRead: (postId: string, isRead: boolean): void => {
           this.setState({
             postsRead: {...this.state.postsRead, [postId]: isRead}
           })
-        }
+        },
+        tagsRead: this.state.tagsRead,
+        setTagRead: (tagId: string, isRead: boolean): void => {
+          this.setState({
+            tagsRead: {...this.state.tagsRead, [tagId]: isRead}
+          })
+        },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
@@ -252,46 +314,55 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
                 { theme.typography.fontDownloads &&
                     theme.typography.fontDownloads.map(
-                      (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                      (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
                     )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
                 <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
 
-              <Components.AnalyticsClient/>
-              <Components.AnalyticsPageInitializer/>
-              <Components.NavigationEventSender/>
+              <AnalyticsClient/>
+              <AnalyticsPageInitializer/>
+              <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
               {showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              <Components.Header
+              <Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              {standaloneNavigation && <Components.NavigationStandalone
-                sidebarHidden={hideNavigationSidebar}
-              />}
-              <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-              <div className={classes.main}>
-                <Components.ErrorBoundary>
-                  <Components.FlashMessages />
-                </Components.ErrorBoundary>
-                <Components.ErrorBoundary>
-                  {children}
-                </Components.ErrorBoundary>
+              {renderPetrovDay && <PetrovDayWrapper/>}
+              <div className={shouldUseGridLayout ? classes.gridActivated : null}>
+                {standaloneNavigation && <div className={classes.navSidebar}>
+                  <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
+                </div>}
+                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+                <div className={classNames(classes.main, {
+                  [classes.whiteBackground]: currentRoute?.background === "white"
+                })}>
+                  <ErrorBoundary>
+                    <FlashMessages />
+                  </ErrorBoundary>
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                  <Footer />
+                </div>
+                {currentRoute?.sunshineSidebar && <div className={classes.sunshine}>
+                    <SunshineSidebar/>
+                  </div>
+                  }
               </div>
-              <Components.Footer />
             </CommentBoxManager>
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
-      </PostsReadContext.Provider>
+      </ItemsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
       </AnalyticsContext>

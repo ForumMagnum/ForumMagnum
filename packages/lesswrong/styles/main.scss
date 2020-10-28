@@ -18,7 +18,6 @@
 @import "sequences";
 @import "localgroups";
 @import "admin";
-@import "alignment-forum";
 @import "datetime";
 
 // General CSS modifications
@@ -38,7 +37,7 @@ h3 {
 
 
 div#mocha {
-  background: white;
+  background:white;
   border-right: 2px solid black;
   height: 100%;
   left: 0;

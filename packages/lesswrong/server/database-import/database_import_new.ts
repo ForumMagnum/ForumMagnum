@@ -11,7 +11,7 @@ import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
-import { Random } from 'meteor/random';
+import { randomId } from '../../lib/random';
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -105,9 +105,9 @@ Vulcan.postgresImport = async () => {
   commentData = deepObjectExtend(commentData, commentMetaData);
   // Convert to LW2 comment format [Does not yet include parentCommentIds and topLevelCommentIds]
   // @ts-ignore
-  commentData = mapValues(commentData,
+  commentData = await Promise.all(mapValues(commentData,
     (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
-  );
+  ));
 
   let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
 
@@ -248,7 +248,7 @@ const insertUser = async (user) => {
     if (err.code == 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        newMutation({
+        await newMutation({
           collection: Users,
           document: newUser,
           validate: false
@@ -354,7 +354,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
   const body = htmlToText.fromString(post.article);
   const isPublished = post.sr_id === "2" || post.sr_id === "3" || post.sr_id === "3391" || post.sr_id === "4";
   return {
-    _id: Random.id(),
+    _id: randomId(),
     legacy: true,
     legacyId: legacyId,
     legacyData: post,
@@ -380,13 +380,13 @@ const legacyPostToNewPost = (post, legacyId, user) => {
   };
 }
 
-const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
+const legacyCommentToNewComment = async (comment, legacyId, author, parentPost) => {
   //eslint-disable-next-line no-console
   if (!author) {console.warn("Missing author for comment:", comment)}
   //eslint-disable-next-line no-console
   if (!parentPost) {console.warn("Missing parent post for comment: ", comment)}
   return {
-    _id: Random.id(),
+    _id: randomId(),
     legacy: true,
     legacyId: legacyId,
     legacyParentId: comment.parent_id,
@@ -404,7 +404,7 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
         type: "markdown",
         data: comment.body
       },
-      html: comment.body && sanitize(markdownToHtml(comment.body))
+      html: comment.body && sanitize(await markdownToHtml(comment.body))
     },
   };
 }

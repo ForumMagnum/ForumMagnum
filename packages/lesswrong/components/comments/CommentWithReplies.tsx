@@ -5,7 +5,7 @@ import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
@@ -75,8 +75,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
           comment={comment}
           markAsRead={this.markAsRead}
           highlightDate={lastVisitedAt}
-          //eslint-disable-next-line react/no-children-prop
-          children={nestedComments}
+          childComments={nestedComments}
           key={comment._id}
           post={post}
           condensed

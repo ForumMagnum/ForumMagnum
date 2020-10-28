@@ -12,9 +12,10 @@ import withTimezone from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
+import type { KarmaChangeSettingsType } from '../../lib/collections/users/custom_fields';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
@@ -62,12 +63,12 @@ export const karmaNotificationTimingChoices = {
 
 interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
   path: any,
-  value: any,
+  value: KarmaChangeSettingsType,
   timezone?: any,
 }
 
 class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSettingsProps,{}> {
-  modifyValue = (changes) => {
+  modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };
     this.context.updateCurrentValues({
@@ -75,7 +76,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     });
   }
   
-  setBatchingTimeOfDay = (timeOfDay, tz) => {
+  setBatchingTimeOfDay = (timeOfDay: number, tz) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
     const newTimeLocalTZ = {
       timeOfDay: timeOfDay,
@@ -89,7 +90,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     });
   }
   
-  setBatchingDayOfWeek = (dayOfWeek, tz) => {
+  setBatchingDayOfWeek = (dayOfWeek: string, tz) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
     const newTimeLocalTZ = {
       timeOfDay: oldTimeLocalTZ.timeOfDay,
@@ -125,7 +126,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
         <React.Fragment>
           {" at "}<Select
             value={timeOfDay}
-            onChange={(event) => this.setBatchingTimeOfDay(event.target.value, timezone)}
+            onChange={(event) => this.setBatchingTimeOfDay(parseInt(event.target.value), timezone)}
           >
             { _.range(24).map(hour =>
                 <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
@@ -166,7 +167,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
       </Typography>
       <RadioGroup className={classes.radioGroup}
         value={settings.updateFrequency}
-        onChange={(event, newValue) => this.modifyValue({updateFrequency: newValue})}
+        onChange={(event, newValue) => this.modifyValue({updateFrequency: newValue as any})}
       >
         {_.map(karmaNotificationTimingChoices, (timingChoice, key) =>
           <FormControlLabel

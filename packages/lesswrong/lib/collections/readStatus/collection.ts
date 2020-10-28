@@ -1,14 +1,24 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 
-const schema = {
+const schema: SchemaType<DbReadStatus> = {
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: true,
+    }),
+  },
+  tagId: {
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
     }),
   },
   userId: {
@@ -17,6 +27,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     }),
   },
   isRead: {
@@ -36,5 +47,6 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
 addUniversalFields({collection: ReadStatuses});
 
 ensureIndex(ReadStatuses, {userId:1, postId:1, isRead:1, lastUpdated:1})
+ensureIndex(ReadStatuses, {userId:1, tagId:1, isRead:1, lastUpdated:1})
 
 export default ReadStatuses;

@@ -15,7 +15,8 @@ const adminActions = [
 ];
 Users.groups.admins.can(adminActions);
 
-LWevents.checkAccess = (user, document) => {
+LWevents.checkAccess = async (user: DbUser|null, document: DbLWEvent, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;
+  if (document.name === "gatherTownUsersCheck") return true
   return Users.owns(user, document) ? Users.canDo(user, 'events.view.own') : Users.canDo(user, `events.view.all`)
 };

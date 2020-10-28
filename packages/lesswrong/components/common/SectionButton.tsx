@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
     color: theme.palette.lwTertiary.main,

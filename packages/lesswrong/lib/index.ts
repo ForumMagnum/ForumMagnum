@@ -10,9 +10,6 @@ import './utils/schemaUtils'
 // Permissions
 import './permissions';
 
-// Head tags
-import './headtags'
-
 // ## Accounts
 import './accounts/modify_accounts_ui';
 import './accounts/configuration';
@@ -25,6 +22,7 @@ import '../components/momentjs';
 
 import './collections/posts/fragments';
 import './collections/comments/fragments';
+import './collections/revisions/fragments';
 
 
 // Notifications
@@ -51,6 +49,10 @@ import './collections/reports/views'
 
 // LWEvents
 import { LWEvents } from './collections/lwevents/index';
+
+// TagFlags
+import { TagFlags } from './collections/tagFlags/collection';
+import './collections/tagFlags/views';
 
 // DatabaseMetadata
 import './collections/databaseMetadata/collection';
@@ -128,6 +130,7 @@ import './collections/posts/helpers';
 
 // Revisions
 import Revisions from './collections/revisions/collection'
+import './collections/revisions/views'
 //
 // Users
 import './collections/users/permissions';
@@ -139,6 +142,10 @@ import './collections/users/views';
 
 // Comments
 import { Comments } from './collections/comments'
+
+import { PetrovDayLaunchs } from './collections/petrovDayLaunchs'
+
+
 
 // Votes
 import './collections/votes';
@@ -176,11 +183,12 @@ import './alignment-forum/users/helpers';
 import './alignment-forum/users/views';
 
 import './analyticsEvents';
+import './abTests';
+import './abTestUtil';
 import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';
 
-//
 export {
   Conversations,
   Messages,
@@ -196,5 +204,7 @@ export {
   Localgroups,
   Comments,
   Revisions, 
-  ReviewVotes
+  ReviewVotes,
+  PetrovDayLaunchs,
+  TagFlags
 }

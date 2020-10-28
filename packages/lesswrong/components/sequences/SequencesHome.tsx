@@ -1,12 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
   },
   header: {
@@ -23,8 +22,6 @@ const styles = theme => ({
   listTitle: {
     fontWeight: "bold",
     textTransform: "uppercase",
-    borderTopStyle: "solid",
-    borderTopWidth: 3,
 
     "& h1": {
       marginTop: 7,
@@ -36,32 +33,19 @@ const styles = theme => ({
   }
 });
 
-const SequencesHome = ({classes}) => {
+const SequencesHome = ({classes}: {
+  classes: ClassesType,
+}) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
     <AnalyticsContext pageContext="sequencesHome">
-      {/* Title */}
-      <SingleColumnSection>
-        <div className={classes.header}>
-          <div className={classes.listTitle}>
-            <Typography variant="display3" className={classes.library}>The Library</Typography>
-          </div>
-          {/* Description */}
-          <Typography variant="body1" className={classes.listDescription}>
-            Sequences are collections of posts that are curated by the community and
-            are structured similarly to books. This is the place where you can find
-            the best posts in easy to read formats.
-          </Typography>
-        </div>
-      </SingleColumnSection>
 
       {forumTypeSetting.get() === 'LessWrong' && <SingleColumnSection>
         <SectionTitle title="Core Reading" />
         <Components.CoreReading />
-        <Divider />
       </SingleColumnSection>}
-
+      <Divider />
       <SingleColumnSection>
         <SectionTitle title="Curated Sequences" />
         <div className={classes.sequencesGridWrapperWrapper}>
@@ -71,9 +55,8 @@ const SequencesHome = ({classes}) => {
             showLoadMore={true}
           />
         </div>
-        <Divider />
       </SingleColumnSection>
-
+      <Divider />
       <SingleColumnSection>
         <SectionTitle  title="Community Sequences" >
           <SequencesNewButton />

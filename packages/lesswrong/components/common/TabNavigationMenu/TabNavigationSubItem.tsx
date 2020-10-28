@@ -4,14 +4,14 @@ import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     display: "block",
     paddingBottom: theme.spacing.unit,
     // padding reflects how large an icon+padding is
     paddingLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)),
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[700],
     width: 
       TAB_NAVIGATION_MENU_WIDTH - // base width
       ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,

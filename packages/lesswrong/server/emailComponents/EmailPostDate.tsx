@@ -4,7 +4,9 @@ import moment from '../../lib/moment-timezone';
 
 const eventTimeFormat = "Do MMMM YYYY h:mm A"
 
-const EmailPostDate = ({post}) => {
+const EmailPostDate = ({post}: {
+  post: PostsBase
+}) => {
   const { EmailFormatDate } = Components;
   
   if (post.isEvent) {

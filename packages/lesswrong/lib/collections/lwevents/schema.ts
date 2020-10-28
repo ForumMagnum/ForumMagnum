@@ -1,6 +1,6 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
 
-const schema = {
+const schema: SchemaType<DbLWEvent> = {
   createdAt: {
     type: Date,
     optional: true,
@@ -13,6 +13,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     viewableBy: ['members'],
     insertableBy: ['members'],

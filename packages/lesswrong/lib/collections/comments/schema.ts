@@ -1,10 +1,11 @@
 import Users from '../users/collection';
-import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
+import { Comments } from '../comments/collection';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
-const schema = {
+const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({
@@ -12,6 +13,7 @@ const schema = {
       resolverName: "parentComment",
       collectionName: "Comments",
       type: "Comment",
+      nullable: true,
     }),
     canRead: ['guests'],
     canCreate: ['members'],
@@ -25,6 +27,7 @@ const schema = {
       resolverName: "topLevelComment",
       collectionName: "Comments",
       type: "Comment",
+      nullable: true,
     }),
     denormalized: true,
     canRead: ['guests'],
@@ -65,18 +68,33 @@ const schema = {
       }
     }
   },
-  // The post's `_id`
+  // If this comment is on a post, the _id of that post.
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",
       collectionName: "Posts",
       type: "Post",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    hidden: true
+    hidden: true,
+  },
+  // If this comment is in a tag discussion section, the _id of the tag.
+  tagId: {
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
   },
   // The comment author's `_id`
   userId: {
@@ -85,6 +103,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -131,16 +150,16 @@ const schema = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context) => {
-      return context.Comments.getPageUrl(comment, true)
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
+      return Comments.getPageUrl(comment, true)
     },
   }),
 
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment, args, context) => {
-      return context.Comments.getPageUrl(comment, false)
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
+      return Comments.getPageUrl(comment, false)
     },
   }),
 
@@ -160,6 +179,7 @@ const schema = {
       resolverName: "parentAnswer",
       collectionName: "Comments",
       type: "Comment",
+      nullable: true,
     }),
     denormalized: true,
     canRead: ['guests'],
@@ -167,13 +187,26 @@ const schema = {
     optional: true,
     hidden: true,
   },
-  
+
+
+  directChildrenCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "directChildrenCount",
+      collectionName: "Comments",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "parentCommentId",
+      filterFn: (comment: DbComment) => !comment.deleted
+    }),
+    canRead: ['guests'],
+  },
   
   latestChildren: resolverOnlyField({
     type: Array,
     graphQLtype: '[Comment]',
     viewableBy: ['guests'],
-    resolver: async (comment, args, { Comments }) => {
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      const { Comments } = context;
       const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
       return await Comments.find(params.selector, params.options).fetch()
     }
@@ -192,7 +225,8 @@ const schema = {
     canUpdate: [Users.owns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
-      getValue: async (comment) => {
+      getValue: async (comment: DbComment): Promise<boolean> => {
+        if (!comment.postId) return false;
         const post = await Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
@@ -235,6 +269,7 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     onCreate: async ({newDocument}) => {
+      if (!newDocument.postId) return "1.0.0";
       const post = await Posts.findOne({_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
@@ -252,17 +287,25 @@ const schema = {
       idFieldName: "promotedByUserId",
       resolverName: "promotedByUser",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: true,
     }),
     optional: true,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onUpdate: async ({data, currentUser, document, oldDocument}) => {
-      if (data?.promoted && !oldDocument.promoted) {
+    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
+      data: Partial<DbComment>,
+      currentUser: DbUser,
+      document: DbComment,
+      oldDocument: DbComment,
+      context: ResolverContext,
+    }) => {
+      if (data?.promoted && !oldDocument.promoted && document.postId) {
         Utils.updateMutator({
           collection: Posts,
+          context,
           selector: {_id:document.postId},
           data: { lastCommentPromotedAt: new Date() },
           currentUser,
@@ -270,7 +313,7 @@ const schema = {
         })
         return currentUser._id
       }
-    }    
+    }
   },
 
   promotedAt: {
@@ -303,6 +346,7 @@ const schema = {
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async comment => {
+        if (!comment.postId) return false;
         const post = await Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
@@ -314,7 +358,7 @@ const schema = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
-    resolver: (comment, args, { Comments }) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -324,7 +368,7 @@ const schema = {
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (comment, args, { Comments }) => {
+    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;

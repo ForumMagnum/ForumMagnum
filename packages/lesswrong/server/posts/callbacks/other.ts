@@ -11,7 +11,6 @@ Callbacks to:
 */
 
 import { Posts } from '../../../lib/collections/posts';
-import { track } from '../../../lib/vulcanEvents';
 import { addCallback, Connectors, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
 
 //////////////////////////////////////////////////////
@@ -61,9 +60,8 @@ addCallback('users.remove.async', UsersRemoveDeletePosts);
 //  * @param {string} ip – the IP of the current user
 //  */
 
-function PostsClickTracking(post, ip) {
-  track('post.click', { title: post.title, postId: post._id });
-  Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
+async function PostsClickTracking(post, ip) {
+  await Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
 }
 
 // track links clicked, locally in Events collection

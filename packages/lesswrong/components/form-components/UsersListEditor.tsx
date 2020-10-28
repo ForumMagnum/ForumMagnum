@@ -7,7 +7,7 @@ import withUser from '../common/withUser';
 import * as _ from 'underscore';
 
 
-const sortableItemStyles = theme => ({
+const sortableItemStyles = (theme: ThemeType): JssStyles => ({
   root: {
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
@@ -18,12 +18,12 @@ const sortableItemStyles = theme => ({
 //eslint-disable-next-line babel/new-cap
 const SortableItem = withStyles(sortableItemStyles, {name: "SortableItem"})(SortableElement(({userId, currentUser, removeItem, classes}) =>
   <li className={classes.root}>
-    <Components.SingleUsersItemWrapper documentId={userId} currentUser={currentUser} removeItem={removeItem} />
+    <Components.SingleUsersItemWrapper documentId={userId} removeItem={removeItem} />
   </li>
 ))
 
 
-const sortableListStyles = createStyles(theme => ({
+const sortableListStyles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     flexWrap: "wrap"
@@ -41,22 +41,22 @@ const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(Sort
   );
 }));
 
-const usersListEditorStyles = theme => ({
+const usersListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex"
   }
 })
 
 class UsersListEditor extends Component<any> {
-  onSortEnd = ({oldIndex, newIndex}) => {
+  onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
     const newIds = arrayMove(this.props.value, oldIndex, newIndex);
     this.context.updateCurrentValues({[this.props.path]: newIds});
   };
-  addUserId = (userId) => {
+  addUserId = (userId: string) => {
     const newIds = [...this.props.value, userId];
     this.context.updateCurrentValues({[this.props.path]: newIds});
   }
-  removeUserId = (userId) => {
+  removeUserId = (userId: string) => {
     const newIds = _.without(this.props.value, userId);
     this.context.updateCurrentValues({[this.props.path]: newIds});
   }
@@ -73,6 +73,8 @@ class UsersListEditor extends Component<any> {
     ];
     if (disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
+    } else {
+      return false;
     }
   }
 

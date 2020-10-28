@@ -27,7 +27,7 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
     });
   }
 
-  handleUndoDelete = (event) => {
+  handleUndoDelete = (event: React.MouseEvent) => {
     const { moderateCommentMutation, comment, flash } = this.props;
     event.preventDefault();
     moderateCommentMutation({
@@ -39,7 +39,7 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
 
   render() {
     const { currentUser, comment, post } = this.props
-    if (Users.canModeratePost(currentUser, post)) {
+    if (Users.canModerateComment(currentUser, post, comment)) {
       if (!comment.deleted) {
         return (
           <MenuItem onClick={ this.showDeleteDialog}>

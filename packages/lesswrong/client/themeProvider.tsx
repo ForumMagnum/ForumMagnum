@@ -1,18 +1,22 @@
 import React from 'react';
-import { addCallback } from '../lib/vulcan-lib';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { MuiThemeProvider, createGenerateClassName, jssPreset } from '@material-ui/core/styles';
+import { create } from 'jss';
 import forumTheme from '../themes/forumTheme';
 import JssCleanup from '../components/themes/JssCleanup';
 
 
-function wrapWithMuiTheme (app) {
+export function wrapWithMuiTheme (app) {
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });
+  const jss = create({
+    ...jssPreset(),
+    insertionPoint: document.getElementById("jss-insertion-point") as HTMLElement,
+  });
   
   return (
-    <JssProvider generateClassName={generateClassName}>
+    <JssProvider jss={jss} generateClassName={generateClassName}>
       <MuiThemeProvider theme={forumTheme}>
         {app}
         <JssCleanup />
@@ -20,6 +24,3 @@ function wrapWithMuiTheme (app) {
     </JssProvider>
   );
 }
-
-
-addCallback('router.client.wrapper', wrapWithMuiTheme);

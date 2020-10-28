@@ -4,7 +4,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Info from '@material-ui/icons/Info';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     marginBottom: 10,
@@ -24,7 +24,12 @@ const styles = theme => ({
   },
 });
 
-const SignupSubscribeToCurated = ({ defaultValue, onChange, id, classes }) => {
+const SignupSubscribeToCurated = ({ defaultValue, onChange, id, classes }: {
+  defaultValue: boolean,
+  onChange: any,
+  id: string,
+  classes: ClassesType,
+}) => {
   const [checked, setChecked] = useState(defaultValue);
   return <div key={id} className={classes.root}>
     <Checkbox

@@ -12,7 +12,7 @@ addGraphQLSchema(siteAdminMetadataSchema );
 
 const siteAdminMetadataResolvers = {
   Query: {
-    async AdminMetadata(root, args, context) {
+    async AdminMetadata(root: void, args: void, context: ResolverContext) {
       if (!context.currentUser || !context.currentUser.isAdmin)
         throw new Error("AdminMetadata graphQL API requires being logged in as an admin");
       

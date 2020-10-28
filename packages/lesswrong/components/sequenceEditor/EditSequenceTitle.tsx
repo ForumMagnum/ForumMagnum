@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Input from '@material-ui/core/Input';
 import { sequencesImageScrim } from '../sequences/SequencesPage'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 65,
     backgroundColor: "rgba(0,0,0,0.25)",

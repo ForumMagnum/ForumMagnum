@@ -9,9 +9,8 @@ import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },
@@ -19,37 +18,35 @@ const styles = theme => ({
     whiteSpace: "pre",
     textOverflow: "ellipsis",
     ...theme.typography.postStyle,
-    fontWeight: 600
+    position: "sticky",
+    paddingTop: 4,
+    paddingBottom: 4,
+    zIndex: 1
   },
   loadMore: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: 6,
   },
   noPosts: {
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
+  posts: {
+    boxShadow: theme.boxShadow
+  },
   frontpageSubtitle: {
-    marginTop: theme.spacing.unit
+    marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: theme.spacing.unit*1.5
+    marginTop: 6,
+    marginBottom: 6
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
 })
 
-const defaultPostTypes = [
-  {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
-  {name: 'personal', postIsType: post => !post.frontpageDate, label: 'Personal Blogposts'}
+const postTypes = [
+  {name: 'frontpage', postIsType: (post: PostsBase) => !!post.frontpageDate, label: 'Frontpage Posts'},
+  {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
-const postTypes = {
-  LessWrong: defaultPostTypes,
-  AlignmentForum: defaultPostTypes,
-  EAForum: [
-    {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
-    {name: 'meta', postIsType: post => post.meta, label: 'Community Posts'},
-    {name: 'personal', postIsType: post => !(post.frontpageDate || post.meta), label: 'Personal Blogposts'}
-   ]
-}
 
 interface ExternalProps {
   terms: any,
@@ -124,7 +121,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
-    const { PostsItem2, LoadMore, ShortformTimeBlock, SubSection, Loading, ContentType, Divider } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -135,9 +132,9 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       return null
     }
 
-    const postGroups = postTypes[forumTypeSetting.get()].map(type => ({
+    const postGroups = postTypes.map(type => ({
       ...type,
-      posts: posts?.filter(type.postIsType)
+      posts: posts?.filter(type.postIsType) || []
     }))
 
     return (
@@ -182,11 +179,11 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
               >
                 <ContentType type={name} label={label} />
               </div>
-              <SubSection>
+              <div className={classes.posts}>
                 {posts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} index={i} dense />
+                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts!.length -1}/>
                 )}
-              </SubSection>
+              </div>
             </div>
           })}
 
@@ -209,9 +206,9 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
             }}
           />}
         </div>
-        <div className={classes.divider}>
+        {!loading && <div className={classes.divider}>
           <Divider wings={false} />
-        </div>
+        </div>}
       </div>
     );
   }

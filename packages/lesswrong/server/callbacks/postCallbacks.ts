@@ -86,7 +86,7 @@ addCallback("posts.new.sync", PostsNewDefaultTypes);
 // LESSWRONG – bigUpvote
 async function LWPostsNewUpvoteOwnPost(post) {
  var postAuthor = Users.findOne(post.userId);
- const votedPost = await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost};
 }
 
@@ -122,7 +122,7 @@ addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighl
 
 function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {
-    newMutation({
+    void newMutation({
       collection: PostRelations,
       document: {
         type: "subQuestion",
@@ -183,7 +183,7 @@ addCallback("posts.new.after", newDocumentMaybeTriggerReview);
 
 async function updatedPostMaybeTriggerReview (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    newDocumentMaybeTriggerReview(newPost)
+    await newDocumentMaybeTriggerReview(newPost)
   }
 }
 addCallback("posts.edit.async", updatedPostMaybeTriggerReview);

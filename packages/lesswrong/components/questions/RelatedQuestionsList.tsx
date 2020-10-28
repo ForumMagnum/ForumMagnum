@@ -3,7 +3,7 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: 650 + (theme.spacing.unit*4),
     marginBottom: 100,
@@ -67,18 +67,19 @@ const RelatedQuestionsList = ({ post, classes }: {
       {(totalRelatedQuestionCount > 0) && <SectionTitle title={`${totalRelatedQuestionCount} Related Questions`} />}
       
       {showParentLabel && <div className={classes.header}>Parent Question{(sourcePostRelations.length > 1) && "s"}</div>}
-      {sourcePostRelations.map((rel, i) =>
+      {sourcePostRelations.map((rel, i) => rel.sourcePost && 
         <PostsItem2
           key={rel._id}
           post={rel.sourcePost}
           index={i}
-      />)}
+        />
+      )}
       {showSubQuestionLabel && <div className={classes.header}>Sub-Questions</div>}
       {targetPostRelations.map((rel, i) => {
-        const parentQuestionId = rel.targetPostId
-        const subQuestionTargetPostRelations = _.filter(post.targetPostRelations, rel => rel.sourcePostId === parentQuestionId)
-
-        const showSubQuestions = subQuestionTargetPostRelations.length >= 1
+        const parentQuestionId = rel.targetPostId;
+        const subQuestionTargetPostRelations = _.filter(post.targetPostRelations, rel => rel.sourcePostId === parentQuestionId);
+        const showSubQuestions = subQuestionTargetPostRelations.length >= 1;
+        if (!rel.targetPost) return null
         return (
           <div key={rel._id} className={classes.subQuestion} >
             <PostsItem2 
@@ -91,7 +92,7 @@ const RelatedQuestionsList = ({ post, classes }: {
               defaultToShowComments={true}
             />
             {showSubQuestions && <div className={classes.subSubQuestions}>
-              {subQuestionTargetPostRelations.map((rel, i) => <PostsItem2 
+              {subQuestionTargetPostRelations.map((rel, i) => rel.targetPost && <PostsItem2 
                 key={rel._id}
                 post={rel.targetPost} 
                 showQuestionTag={false}

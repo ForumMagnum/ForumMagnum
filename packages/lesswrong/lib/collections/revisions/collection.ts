@@ -1,6 +1,5 @@
 import schema from './schema';
-import { createCollection } from '../../vulcan-lib';
-import { extractVersionsFromSemver } from '../../editor/utils'
+import { createCollection, getCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import Users from '../users/collection';
 
@@ -9,6 +8,8 @@ export const Revisions: RevisionsCollection = createCollection({
   typeName: 'Revision',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
+  // No mutations (revisions are insert-only immutable, and are created as a
+  // byproduct of creating/editing documents in other collections).
   // mutations: getDefaultMutations('Revisions'),
 });
 addUniversalFields({collection: Revisions})
@@ -18,12 +19,35 @@ addUniversalFields({collection: Revisions})
 // and the revision itself differ (e.g. because an admin has made the edit, or a coauthor), then
 // we will hide those revisions unless they are marked as post-1.0.0 releases. This is not ideal, but
 // seems acceptable
-Revisions.checkAccess = function (user, revision) {
+Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context: ResolverContext|null): Promise<boolean> => {
   if (!revision) return false
   if ((user && user._id) === revision.userId) return true
   if (Users.canDo(user, 'posts.view.all')) return true
-  const { major } = extractVersionsFromSemver(revision.version)
-  return major > 0
+  
+  // Get the document that this revision is a field of, and check for access to
+  // it. This is necessary for correctly handling things like posts' draft
+  // status and sharing settings.
+  //
+  // We might or might not have a ResolverContext (because some places, like
+  // email-sending, don't have one). If we do, use its loader; in the typical
+  // case, this will hit in the cache 100% of the time. If we don't have a
+  // ResolverContext, use a findOne query; this is slow, but doesn't come up
+  // in any contexts where speed matters.
+  const { collectionName, documentId } = revision;
+  const collection = getCollection(collectionName);
+  const document = context
+    ? await context.loaders[collectionName].load(documentId)
+    : await collection.findOne(documentId);
+  
+  if (!await collection.checkAccess(user, document, context))
+    return false;
+  
+  return true;
+}
+
+export interface ChangeMetrics {
+  added: number
+  removed: number
 }
 
 export default Revisions;

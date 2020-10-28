@@ -1,6 +1,6 @@
-import { foreignKeyField } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField, SchemaType } from '../../../lib/utils/schemaUtils';
 
-const schema = {
+const schema: SchemaType<DbEmailTokens> = {
   token: {
     type: String,
   },
@@ -13,6 +13,7 @@ const schema = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      nullable: false,
     })
   },
   usedAt: {

@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
-import { ServiceConfiguration } from 'meteor/service-configuration';
+import { isClient, runAfterDelay } from '../executionEnvironment';
+import { Accounts } from '../../lib/meteorAccounts';
+import { ServiceConfiguration } from '../meteorDdp';
 
 let browserHistory;
 try {
@@ -53,7 +53,7 @@ export function loginResultCallback(service, err?: any) {
     // loginButtonsSession.errorMessage(err.reason || "Unknown error");
   }
 
-  if (Meteor.isClient) {
+  if (isClient) {
     if (typeof redirect === 'string'){
       window.location.href = '/';
     }
@@ -68,7 +68,7 @@ export function passwordSignupFields() {
   return Accounts.ui._options.passwordSignupFields || 'USERNAME_AND_EMAIL';
 }
 
-export function validateEmail(email, showMessage, clearMessage) {
+export function validateEmail(email: string, showMessage, clearMessage): boolean {
   if (passwordSignupFields() === 'USERNAME_AND_OPTIONAL_EMAIL' && email === '') {
     return true;
   }
@@ -105,10 +105,10 @@ export function validateUsername(username, showMessage, clearMessage, formState)
 }
 
 export function redirect(redirect) {
-  if (Meteor.isClient) {
+  if (isClient) {
     if (window.history) {
       // Run after all app specific redirects, i.e. to the login screen.
-      Meteor.setTimeout(() => {
+      runAfterDelay(() => {
         if (browserHistory) {
           browserHistory.push(redirect);
         } else {
@@ -119,7 +119,7 @@ export function redirect(redirect) {
   }
 }
 
-export function capitalize(string) {
+export function capitalize(string: string): string {
   return string.replace(/-/, ' ').split(' ').map(word => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }).join(' ');

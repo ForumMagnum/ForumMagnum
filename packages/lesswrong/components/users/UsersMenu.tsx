@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
+import { meteorLogout } from '../../lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from '../../lib/collections/users/collection';
 import { withApollo } from 'react-apollo';
@@ -9,7 +9,7 @@ import { withApollo } from 'react-apollo';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import SettingsIcon from '@material-ui/icons/Settings';
+import SettingsButton from '@material-ui/icons/Settings';
 import EmailIcon from '@material-ui/icons/Email';
 import NotesIcon from '@material-ui/icons/Notes';
 import PersonIcon from '@material-ui/icons/Person';
@@ -24,7 +24,7 @@ import withHover from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',
@@ -75,20 +75,6 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
       open: false,
       anchorEl: null,
     }
-  }
-
-  handleClick = (event) => {
-    event.preventDefault();
-    this.setState({
-      open:true,
-      anchorEl: event.currentTarget,
-    });
-  };
-
-  handleRequestClose = () => {
-    this.setState({
-      open: false,
-    });
   }
 
   render() {
@@ -160,7 +146,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
-                  <SettingsIcon className={classes.icon}/>
+                  <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
                 Edit Settings
               </MenuItem>
@@ -194,7 +180,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
             <Divider/>
             <MenuItem onClick={() => {
               captureEvent("logOutClicked")
-              Meteor.logout(() => client.resetStore())
+              meteorLogout(() => client.resetStore())
             }}>
               Log Out
             </MenuItem>

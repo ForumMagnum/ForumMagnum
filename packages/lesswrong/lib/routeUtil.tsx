@@ -1,9 +1,9 @@
-import { Meteor } from 'meteor/meteor';
+import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useContext } from 'react';
 import { forumTypeSetting } from './instanceSettings';
 import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext } from './vulcan-core/appContext';
-import { RouterLocation } from './vulcan-lib/routes';
+import type { RouterLocation } from './vulcan-lib/routes';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -72,7 +72,7 @@ export const useNavigation = (): any => {
 
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
-export const withLocation = (WrappedComponent) => {
+export const withLocation = (WrappedComponent: any) => {
   return (props) => (
     <LocationContext.Consumer>
       {location =>
@@ -88,7 +88,7 @@ export const withLocation = (WrappedComponent) => {
 // HoC which adds a `history` property to an object, which is a history obejct
 // as doumented on https://github.com/ReactTraining/history .
 // This HoC will never trigger rerenders.
-export const withNavigation = (WrappedComponent) => {
+export const withNavigation = (WrappedComponent: any) => {
   return (props) => (
     <NavigationContext.Consumer>
       {navigation =>
@@ -102,7 +102,7 @@ export const withNavigation = (WrappedComponent) => {
 }
 
 export const getUrlClass = (): typeof URL => {
-  if (Meteor.isServer) {
+  if (isServer) {
     return require('url').URL
   } else {
     return URL
@@ -152,6 +152,6 @@ export const hostIsOnsite = (host: string): boolean => {
 // Used for disambiguating hashes, which in some URL formats could either point
 // to an anchor within a post, or a comment on that post.
 // A string could possibly be an ID if is in the range of meteor's `Random.id`.
-export const looksLikeDbIdString = (str) => {
+export const looksLikeDbIdString = (str: string): boolean => {
   return /^[a-zA-Z0-9]{17}$/.test(str);
 }

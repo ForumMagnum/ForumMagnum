@@ -4,7 +4,10 @@ import React from 'react';
 import Users from '../../lib/collections/users/collection';
 
 
-const SingleUsersItemWrapper = ({documentId, removeItem, ...props}) => {
+const SingleUsersItemWrapper = ({documentId, removeItem}: {
+  documentId: string,
+  removeItem: (id:string)=>void,
+}) => {
   const { document, loading } = useSingle({
     documentId,
     collection: Users,

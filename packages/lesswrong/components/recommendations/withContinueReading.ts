@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 import { getFragment } from '../../lib/vulcan-lib';
 
-export const withContinueReading = component => {
+export const useContinueReading = () => {
   // FIXME: For some unclear reason, using a ...fragment in the 'sequence' part
   // of this query doesn't work (leads to a 400 Bad Request), so this is expanded
   // out to a short list of individual fields.
@@ -21,9 +21,6 @@ export const withContinueReading = component => {
           slug
           gridImageId
         }
-        lastReadPost {
-          ...PostsList
-        }
         nextPost {
           ...PostsList
         }
@@ -34,19 +31,13 @@ export const withContinueReading = component => {
     }
     ${getFragment("PostsList")}
   `;
-
-  return graphql(continueReadingQuery,
-    {
-      alias: "withContinueReading",
-      options: (props) => ({
-        variables: {}
-      }),
-      props(props: any) {
-        return {
-          continueReadingLoading: props.data.loading,
-          continueReading: props.data.ContinueReading,
-        }
-      }
-    }
-  )(component);
+  
+  const { data, loading, error } = useQuery(continueReadingQuery, {
+    ssr: true,
+  });
+  
+  return {
+    continueReading: data?.ContinueReading,
+    loading, error
+  };
 }

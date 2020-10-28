@@ -3,11 +3,11 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
-import GroupIcon from '@material-ui/icons/Group';
+import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
@@ -27,12 +27,12 @@ const styles = theme => ({
   },
 })
 
-const contentTypes = {
+export const contentTypes = {
   LessWrong: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
       tooltipBody: <React.Fragment>
-        <div>Moderators promote posts to frontpage based on:</div>
+        <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
         <ul>
           <li>Usefulness, novelty, relevance</li>
           <li>Timeless content (minimizing reference to current events)</li>
@@ -42,8 +42,9 @@ const contentTypes = {
       Icon: HomeIcon
     },
     personal: {
-      tooltipTitle: 'Personal Blog Post',
+      tooltipTitle: 'Personal Blogpost',
       tooltipBody: <React.Fragment>
+        <div><b>Personal Blogpost</b></div><br/>
         <div>
           Members can write whatever they want on their personal blog. Personal
           blogposts are a good fit for:
@@ -56,6 +57,14 @@ const contentTypes = {
         </ul>
       </React.Fragment>,
       Icon: PersonIcon
+    },
+    curated: {
+      tooltiptitle: 'Curated Post',
+      tooltipBody: <div>
+        The best 2-3 posts each week, selected by the moderation team. Curated
+        posts are featured at the top of the front page and emailed to subscribers.
+      </div>,
+      Icon: StarIcon,
     },
     shortform: {
       tooltipTitle: 'Shortform',
@@ -95,6 +104,13 @@ const contentTypes = {
       </React.Fragment>,
       Icon: PersonIcon
     },
+    curated: {
+      tooltiptitle: 'Curated Post',
+      tooltipBody: <div>
+        The best posts, selected by the moderation team.
+      </div>,
+      Icon: StarIcon,
+    },
     shortform: {
       tooltipTitle: 'Shortform',
       tooltipBody: <div>
@@ -108,17 +124,9 @@ const contentTypes = {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
       tooltipBody: <div>
-        Material selected by moderators as especially interesting or useful to
-        people with interest in doing good effectively.
+        Posts that are relevant to doing good effectively.
       </div>,
       Icon: HomeIcon
-    },
-    meta: {
-      tooltipTitle: 'Community Post',
-      tooltipBody: <div>
-        Posts with topical content or relating to the EA community itself.
-      </div>,
-      Icon: GroupIcon
     },
     personal: {
       tooltipTitle: 'Personal Blog Post',
@@ -134,6 +142,15 @@ const contentTypes = {
         </ul>
       </React.Fragment>,
       Icon: PersonIcon
+    },
+    // ea-forum-look-here: customize curated tooltip body according to your local practices
+    curated: {
+      tooltiptitle: 'Curated Post',
+      tooltipBody: <div>
+        The best 2-3 posts each week, selected by the moderation team. Curated
+        posts are featured at the top of the front page and emailed to subscribers.
+      </div>,
+      Icon: StarIcon,
     },
     shortform: {
       tooltipTitle: 'Shortform',

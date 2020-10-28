@@ -9,7 +9,7 @@ import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useCurrentUser } from '../common/withUser';
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
     padding: "none",
     fontFamily: 'freight-sans-pro, sans-serif',
@@ -33,8 +33,12 @@ const styles = theme => ({
   },
 });
 
-const NotificationsMenuButton = ({
-  terms, classes, open, color, toggle
+const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
+  terms: any,
+  classes: ClassesType,
+  open: boolean,
+  color?: string,
+  toggle: any,
 }) => {
   const currentUser = useCurrentUser();
   const { results } = useMulti({

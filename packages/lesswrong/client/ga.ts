@@ -1,12 +1,12 @@
-import { addInitFunction, addIdentifyFunction } from '../lib/vulcanEvents';
 import LogRocket from 'logrocket'
 import { googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
+import { addCallback } from '../lib/vulcan-lib/callbacks';
 
 
 function googleTagManagerInit() {
   const googleTagManagerId = googleTagManagerIdSetting.get()
   if (googleTagManagerId) {
-    (function (w, d, s, l, i) {
+    (function (w: any, d: any, s: any, l: any, i: any) {
       w[l] = w[l] || [];
       if (w[l]?.[0]?.['gtm.start']) {
         //eslint-disable-next-line no-console
@@ -27,15 +27,15 @@ function googleTagManagerInit() {
   }
 }
 
-addInitFunction(googleTagManagerInit)
+googleTagManagerInit();
 
-const identifyLogRocketCallback = (currentUser) => {
+const identifyLogRocketCallback = (currentUser: UsersCurrent) => {
   const logRocketKey = logRocketApiKeySetting.get()
   if (!logRocketKey) return
 
   LogRocket.init(logRocketKey)
-  const { karma = 0, afKarma = 0, frontpagePostCount = 0, voteCount = 0, createdAt, username, displayName: lWDisplayName } = currentUser
-  const additionalData = { karma, afKarma, frontpagePostCount, voteCount, createdAt, username, lWDisplayName }
+  const { karma = 0, afKarma = 0, createdAt, username, displayName: lWDisplayName } = currentUser
+  const additionalData = { karma, afKarma, createdAt: createdAt.toString(), username, lWDisplayName }
   LogRocket.identify(currentUser._id, {
     // Don't show user display names by default
     displayName: currentUser._id,
@@ -45,4 +45,4 @@ const identifyLogRocketCallback = (currentUser) => {
   })
 }
 
-addIdentifyFunction(identifyLogRocketCallback)
+addCallback("events.identify", identifyLogRocketCallback);

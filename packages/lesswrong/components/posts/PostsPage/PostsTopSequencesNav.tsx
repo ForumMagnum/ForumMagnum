@@ -3,10 +3,11 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
+import withErrorBoundary from '../../common/withErrorBoundary'
 import { Sequences } from '../../../lib/collections/sequences/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft:-20,
     display: "flex",
@@ -45,7 +46,7 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
       // box. Apply the hotkey if the target is either document.body (nothing
       // selected) or is an <a> tag (a spurious selection because you opened
       // a link in a new tab, usually).
-      if (ev.target === document.body || (ev.target && ev.target.tagName === 'A')) {
+      if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
         if (ev.keyCode == 37) { // Left
           if (post.prevPost)
             history.push(Posts.getPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
@@ -84,7 +85,7 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
 const PostsTopSequencesNavComponent = registerComponent<ExternalProps>(
   'PostsTopSequencesNav', PostsTopSequencesNav, {
     styles,
-    hocs: [withNavigation, withGlobalKeydown]
+    hocs: [withNavigation, withGlobalKeydown, withErrorBoundary]
   }
 );
 

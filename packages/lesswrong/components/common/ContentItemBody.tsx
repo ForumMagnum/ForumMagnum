@@ -4,12 +4,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Sentry from '@sentry/core';
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../../lib/executionEnvironment';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",
@@ -170,7 +170,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   markScrollableLaTeX = () => {
     const { classes } = this.props;
     
-    if(!Meteor.isServer && this.bodyRef && this.bodyRef.current) {
+    if(!isServer && this.bodyRef && this.bodyRef.current) {
       let latexBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("mjx-chtml"));
       for(let i=0; i<latexBlocks.length; i++) {
         let latexBlock = latexBlocks[i];
@@ -256,7 +256,8 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
         const id = linkTag.getAttribute("id");
-        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id}/>
+        const rel = linkTag.getAttribute("rel")
+        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel}/>
         this.replaceElement(linkTag, replacementElement);
       }
       this.setState({updatedElements: true})

@@ -1,11 +1,14 @@
 import { Utils, addCallback, Connectors } from '../vulcan-lib';
 import { sanitize } from '../vulcan-lib/utils';
-import { Random } from 'meteor/random';
+import { randomId } from '../../lib/random';
 import { getDraftToHTML } from '../draftConvert';
-import Revisions from '../../lib/collections/revisions/collection'
+import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
+import Sentry from '@sentry/node';
+import { diff } from '../vendor/node-htmldiff/htmldiff';
+import * as _ from 'underscore';
 
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
@@ -20,24 +23,35 @@ mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
 
-const mjPageSettings = {
-  fragment: true, 
-  displayErrors: true,
-}
-
-function mjPagePromise(html, beforeSerializationCallback) {
+function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
+    let finished = false;
+    
+    setTimeout(() => {
+      if (!finished) {
+        const errorMessage = `Timed out in mjpage when processing html: ${html}`;
+        Sentry.captureException(new Error(errorMessage));
+        // eslint-disable-next-line no-console
+        console.error(errorMessage);
+      }
+    }, 10000);
+    
     const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
+    const callbackAndMarkFinished = (...args) => {
+      finished = true;
+      return beforeSerializationCallback(...args);
+    };
+    
     const { mjpage } = require("mathjax-node-page");
-    mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
-      .on('beforeSerialization', beforeSerializationCallback);
+    mjpage(html, { fragment: true, errorHandler, format: ["MathML", "TeX"] } , {html: true, css: true}, resolve)
+      .on('beforeSerialization', callbackAndMarkFinished);
   })
 }
 
@@ -99,14 +113,14 @@ function wrapSpoilerTags(html) {
   return $.html()
 }
 
-const trimLeadingAndTrailingWhiteSpace = (html) => {
+const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   const $ = cheerio.load(`<div id="root">${html}</div>`)
   const topLevelElements = $('#root').children().get()
   // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
   // Then iterate backwards to trim trailing empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements.reverse(), $)
-  return $("#root").html()
+  return $("#root").html() || ""
 }
 
 const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
@@ -157,15 +171,15 @@ export function ckEditorMarkupToMarkdown(markup) {
   return getTurndownService().turndown(sanitize(markup))
 }
 
-export function markdownToHtmlNoLaTeX(markdown) {
-  const randomId = Random.id()
-  const renderedMarkdown = mdi.render(markdown, {docId: randomId})
+export function markdownToHtmlNoLaTeX(markdown: string): string {
+  const id = randomId()
+  const renderedMarkdown = mdi.render(markdown, {docId: id})
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
-export async function markdownToHtml(markdown) {
+export async function markdownToHtml(markdown: string): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(html, Utils.trimLatexAndAddCSS)
 }
 
 export function removeCKEditorSuggestions(markup) {
@@ -189,7 +203,7 @@ export async function ckEditorMarkupToHtml(markup) {
   const html = sanitize(markupWithoutSuggestions)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(trimmedHtml, Utils.trimLatexAndAddCSS)
 }
 
 async function dataToHTML(data, type, sanitizeData = false) {
@@ -253,8 +267,21 @@ function getInitialVersion(document) {
   }
 }
 
+async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
+  return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
+}
+
+/// Given a revision, return the last revision of the same document/field prior
+/// to it (null if the revision is the first).
+export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null> {
+  return await Revisions.findOne(
+    {documentId: rev.documentId, fieldName: rev.fieldName, editedAt: {$lt: rev.editedAt}},
+    {sort: {editedAt: -1}}
+  );
+}
+
 async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
-  const lastRevision = await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
+  const lastRevision = await getLatestRev(documentId, fieldName);
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision?.version || "1.0.0")
   switch (updateType) {
     case "patch":
@@ -284,6 +311,26 @@ async function buildRevision({ originalContents, currentUser }) {
   };
 }
 
+// Given a revised document, check whether fieldName (a content-editor field) is
+// different from the previous revision (or there is no previous revision).
+const revisionIsChange = async (doc, fieldName): Promise<boolean> => {
+  const id = doc._id;
+  const previousVersion = await getLatestRev(id, fieldName);
+  
+  if (!previousVersion)
+    return true;
+  
+  if (!_.isEqual(doc[fieldName].originalContents, previousVersion.originalContents)) {
+    return true;
+  }
+  
+  if (doc[fieldName].commitMessage && doc[fieldName].commitMessage.length>0) {
+    return true;
+  }
+  
+  return false;
+}
+
 export function addEditableCallbacks({collection, options = {}}: {
   collection: any,
   options: any
@@ -298,17 +345,20 @@ export function addEditableCallbacks({collection, options = {}}: {
     deactivateNewCallback,
   } = options
 
+  const collectionName = collection.collectionName;
   const { typeName } = collection.options
 
   async function editorSerializationBeforeCreate (doc, { currentUser }) {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
+      const commitMessage = doc[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
+      const changeMetrics = htmlToChangeMetrics("", html);
       
       // FIXME: This doesn't define documentId, because it's filled in in the
       // after-create callback, passing through an intermediate state where it's
@@ -323,8 +373,11 @@ export function addEditableCallbacks({collection, options = {}}: {
           currentUser,
         }),
         fieldName,
+        collectionName,
         version,
-        updateType: 'initial'
+        updateType: 'initial',
+        commitMessage,
+        changeMetrics,
       });
       
       return {
@@ -350,7 +403,9 @@ export function addEditableCallbacks({collection, options = {}}: {
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
+      
       const { data, type } = docData[fieldName].originalContents
+      const commitMessage = docData[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
@@ -362,19 +417,31 @@ export function addEditableCallbacks({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       
-      // FIXME: See comment on the other Connectors.create call in this file.
-      // Missing _id and schemaVersion.
-      // @ts-ignore
-      const newRevision = await Connectors.create(Revisions, {
-        documentId: document._id,
-        ...await buildRevision({
-          originalContents: newDocument[fieldName].originalContents,
-          currentUser,
-        }),
-        fieldName,
-        version,
-        updateType
-      });
+      let newRevisionId;
+      if (await revisionIsChange(newDocument, fieldName)) {
+        const previousRev = await getLatestRev(newDocument._id, fieldName);
+        const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
+        
+        // FIXME: See comment on the other Connectors.create call in this file.
+        // Missing _id and schemaVersion.
+        // @ts-ignore
+        const newRevision = await Connectors.create(Revisions, {
+          documentId: document._id,
+          ...await buildRevision({
+            originalContents: newDocument[fieldName].originalContents,
+            currentUser,
+          }),
+          fieldName,
+          collectionName,
+          version,
+          updateType,
+          commitMessage,
+          changeMetrics,
+        });
+        newRevisionId = newRevision._id;
+      } else {
+        newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
+      }
       
       return {
         ...docData,
@@ -382,7 +449,7 @@ export function addEditableCallbacks({collection, options = {}}: {
           ...docData[fieldName],
           html, version, userId, editedAt, wordCount
         },
-        [`${fieldName}_latest`]: newRevision,
+        [`${fieldName}_latest`]: newRevisionId,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, [{
               collectionName: collection.collectionName,
@@ -411,3 +478,33 @@ export function addEditableCallbacks({collection, options = {}}: {
   addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationAfterCreate)
   //addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationAfterCreateOrUpdate)
 }
+
+/// Given an HTML diff, where added sections are marked with <ins> and <del>
+/// tags, count the number of chars added and removed. This is used for providing
+/// a quick distinguisher between small and large changes, on revision history
+/// lists.
+const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
+  const parsedHtml = cheerio.load(diffHtml);
+  
+  const insertedChars = countCharsInTag(parsedHtml, "ins");
+  const removedChars = countCharsInTag(parsedHtml, "del");
+  
+  return { added: insertedChars, removed: removedChars };
+}
+
+const countCharsInTag = (parsedHtml: CheerioStatic, tagName: string) => {
+  const instancesOfTag = parsedHtml(tagName);
+  let cumulative = 0;
+  for (let i=0; i<instancesOfTag.length; i++) {
+    const tag = instancesOfTag[i];
+    const text = cheerio(tag).text();
+    cumulative += text.length;
+  }
+  return cumulative;
+}
+
+export const htmlToChangeMetrics = (oldHtml: string, newHtml: string): ChangeMetrics => {
+  const htmlDiff = diff(oldHtml, newHtml);
+  return diffToChangeMetrics(htmlDiff);
+}
+

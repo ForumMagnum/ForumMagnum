@@ -15,7 +15,7 @@ import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
-import { computeContextFromUser, createClient, newMutation } from '../vulcan-lib';
+import { computeContextFromUser, createClient, EmailRenderContext, newMutation } from '../vulcan-lib';
 
 
 // How many characters to wrap the plain-text version of the email to
@@ -131,6 +131,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   const timezone = moment.tz.guess();
   
   const wrappedBodyComponent = (
+    <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
@@ -142,6 +143,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     </MuiThemeProvider>
     </JssProvider>
     </ApolloProvider>
+    </EmailRenderContext.Provider>
   );
   
   // Traverse the tree, running GraphQL queries and expanding the tree
@@ -230,7 +232,7 @@ export function logSentEmail(renderedEmail, user) {
     user: user._id,
   };
   // Log in LWEvents table
-  newMutation({
+  void newMutation({
     collection: LWEvents,
     currentUser: user,
     document: {

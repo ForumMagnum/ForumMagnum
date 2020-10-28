@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 import { addCallback } from '../lib/vulcan-lib';
+import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
@@ -27,7 +28,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 
 // Initializing sentry on the client browser
 
-function identifyUserToSentry(user) {
+function identifyUserToSentry(user: UsersCurrent) {
   // Set user in sentry scope
   Sentry.configureScope((scope) => {
     scope.setUser({id: user._id, email: user.email, username: user.username});
@@ -36,7 +37,7 @@ function identifyUserToSentry(user) {
 
 addCallback('events.identify', identifyUserToSentry)
 
-function addUserIdToGoogleAnalytics(user) {
+function addUserIdToGoogleAnalytics(user: UsersCurrent) {
   if (window && (window as any).ga) {
     (window as any).ga('set', 'userId', user._id); // Set the user ID using signed-in user_id.
   }
@@ -57,7 +58,7 @@ window.addEventListener('load', ev => {
   });
 });
 
-addCallback("router.onUpdate", ({oldLocation, newLocation}) => {
+addCallback("router.onUpdate", ({oldLocation, newLocation}: {oldLocation: RouterLocation, newLocation: RouterLocation}) => {
   captureEvent("navigate", {
     from: oldLocation.pathname,
     to: newLocation.pathname,

@@ -4,7 +4,7 @@ import { useCommentBox } from '../common/withCommentBox';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,

@@ -2,22 +2,25 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
-import { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/CoreReading';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width:"100%",
+    background: "white",
+    marginBottom: 12,
     [theme.breakpoints.down('sm')]: {
-      maxWidth: 347
+      maxWidth: 347,
+      marginRight: 12,
     },
     "&:hover": {
-      boxShadow: "0 0 5px rgba(0,0,0,.2)"
+      boxShadow: "0 0 3px rgba(0,0,0,.1)"
     },
   },
   card: {
     padding:theme.spacing.unit*2.5,
     display:"flex",
-    height:310,
+    height:318,
     flexWrap: "wrap",
     justifyContent: "space-between",
     [theme.breakpoints.down('sm')]: {
@@ -25,7 +28,7 @@ const styles = theme => ({
     },
   },
   content: {
-    marginLeft: 40,
+    marginLeft: 33,
     marginBottom:theme.spacing.unit*2,
     width: "100%",
     maxWidth: 307,
@@ -44,19 +47,19 @@ const styles = theme => ({
   },
   media: {
     height:271,
-    width:307,
+    width:326,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
-      maxWidth: 307,
+      maxWidth: 326,
       height: 90,
       order:2,
       overflow: "hidden"
     },
     '& img': {
-      width:307,
+      width:326,
       [theme.breakpoints.down('sm')]: {
         width: "100%",
-        maxWidth: 307,
+        maxWidth: 326,
       }
     }
   }

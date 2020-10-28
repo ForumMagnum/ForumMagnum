@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "../../lib/collections/users/collection";
@@ -14,8 +13,10 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { hasEventsSetting } from '../../lib/publicSettings';
+import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import Typography from '@material-ui/core/Typography';
+import { separatorBulletStyles } from '../common/SectionFooter';
+import { taglineSetting } from '../common/HeadTags';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -25,12 +26,25 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
       margin: 0,
     }
+  },
+  usernameTitle: {
+    fontSize: "3rem",
+    ...theme.typography.display3,
+    ...theme.typography.postStyle,
+    marginTop: 0
+  },
+  userInfo: {
+    display: "flex",
+    flexWrap: "wrap",
+    color: theme.palette.lwTertiary.main,
+    marginTop: 8,
+    ...separatorBulletStyles(theme)
   },
   meta: {
     ...sectionFooterLeftStyles,
@@ -51,7 +65,7 @@ const styles = theme => ({
   },
   bio: {
     marginTop: theme.spacing.unit*3,
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit,
     ...postBodyStyles(theme)
   },
@@ -69,7 +83,7 @@ const styles = theme => ({
   }
 })
 
-const sortings = {
+const sortings: Partial<Record<string,string>> = {
   magic: "Magic (New & Upvoted)",
   recentComments: "Recent Comments",
   new: "New",
@@ -99,7 +113,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     showSettings: false
   }
 
-  displaySequenceSection = (canEdit, user)  => {
+  displaySequenceSection = (canEdit: boolean, user: UsersProfile)  => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
@@ -162,7 +176,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const { slug, classes, currentUser, loading, results, location } = this.props;
     const { query } = location;
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody, Loading, Error404, PermanentRedirect } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -193,7 +207,8 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       }
     }
 
-    const draftTerms = {view: "drafts", userId: user._id, limit: 4}
+
+    const draftTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
@@ -203,22 +218,22 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     // maintain backward compatibility with bookmarks
     const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
-    const ownPage = currentUser && currentUser._id === user._id
+    const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     
     const username = Users.getDisplayName(user)
-
-    const userPostsTitle = username.slice(-1) === "s" ? `${username}' Posts` :`${username}'s Posts`
-    const userCommentsTitle = username.slice(-1) === "s" ? `${username}' Comments` :`${username}'s Comments`
+    const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
+        <HeadTags
+          description={metaDescription}
+        />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <SectionTitle title={username}/>
-
-            <SectionFooter>
+            <div className={classes.usernameTitle}>{username}</div>
+            <Typography variant="body2" className={classes.userInfo}>
               { this.renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
@@ -242,12 +257,11 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
-                <FormattedMessage id="users.edit_account"/>
+                Edit Account
               </Link>}
-            </SectionFooter>
+            </Typography>
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
-
           </SingleColumnSection>
 
           {/* Sequences Section */}
@@ -270,16 +284,16 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               </Link>
             </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.PostsList2 terms={draftTerms}/>
-              <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+              <Components.PostsList2 hideAuthor terms={draftTerms}/>
+              <Components.PostsList2 hideAuthor terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-              <SectionTitle title={userPostsTitle}>
-                <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
+              <SectionTitle title={"Posts"}>
+                <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
@@ -290,14 +304,14 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
               sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
-              <PostsList2 terms={terms} />
+              <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
 
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={userCommentsTitle} />
+              <SectionTitle title={"Comments"} />
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>

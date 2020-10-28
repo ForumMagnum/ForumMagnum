@@ -6,7 +6,7 @@ import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: "rgba(0,0,0, 0.87)",
     transition: "opacity .1s ease-in-out",
@@ -42,7 +42,7 @@ const styles = theme => ({
     overflow:"scroll",
     width: "100%",
     height: "calc(100vh - 48px)",
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: "white",
     paddingBottom: 100,
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,
@@ -109,7 +109,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Tags}>
               <div className={classes.header}>
-                <Typography variant="body1">Tags</Typography>
+                <Typography variant="body1">Tags and Wiki</Typography>
               </div>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />

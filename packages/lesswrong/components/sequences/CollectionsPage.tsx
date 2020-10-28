@@ -9,8 +9,16 @@ import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    background: "white",
+    padding: 32,
+    [theme.breakpoints.down('md')]: {
+      paddingTop: 70,
+      marginTop: -50,
+      marginLeft: -4,
+      marginRight: -4
+    }
   },
   header: {
     marginBottom: 50,
@@ -30,8 +38,9 @@ const styles = theme => ({
     textTransform: "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
-    lineHeight: 1,
     paddingTop: 10,
+    lineHeight: 1,
+    marginTop: 0,
   },
   description: {
     fontSize: 20,

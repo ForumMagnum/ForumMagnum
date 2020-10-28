@@ -21,7 +21,7 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const user = await getUserFromReq(req)
   const post = await Posts.findOne(documentId)
   const canEdit = post && Posts.canEdit(user, post)  
-  const canView = post && Posts.checkAccess(user, post)
+  const canView = post && await Posts.checkAccess(user, post, null)
 
   let permissions = {}
   if (formType === "new" && userId) {
@@ -40,10 +40,10 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   
   const payload = {
     iss: environmentId,
-    user: {
+    user: user ? {
       id: user._id,
       name: Users.getDisplayName(user)
-    },
+    } : null,
     services: {
       'ckeditor-collaboration': {
         permissions

@@ -115,11 +115,11 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   fetchPolicy?: WatchQueryFetchPolicy,
   propertyName?: string,
   extraQueries?: any,
-  documentId: string,
+  documentId: string|undefined,
   extraVariablesValues?: any,
   skip?: boolean,
 }): {
-  document: FragmentTypes[FragmentTypeName]
+  document: FragmentTypes[FragmentTypeName],
   loading: boolean,
   error?: any,
   refetch: any,

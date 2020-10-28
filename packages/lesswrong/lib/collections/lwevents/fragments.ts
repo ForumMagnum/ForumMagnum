@@ -24,3 +24,12 @@ registerFragment(`
     properties
   }
 `);
+
+registerFragment(`
+  fragment gatherTownEventFragment on LWEvent {
+    _id
+    createdAt
+    name
+    properties
+  }
+`);

@@ -7,7 +7,11 @@ import Sequences from '../../lib/collections/sequences/collection';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 
-const SequencesPageTitle = ({isSubtitle, siteName, classes}) => {
+const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
+  isSubtitle: boolean,
+  siteName: string,
+  classes: ClassesType,
+}) => {
   const { params: {_id} } = useLocation();
   
   const { document: sequence, loading } = useSingle({

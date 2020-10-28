@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   message: {
     backgroundColor: grey[200],
     paddingTop: theme.spacing.unit,
@@ -41,7 +41,10 @@ const styles = theme => ({
   }
 })
 
-const MessageItem = ({message, classes}) => {
+const MessageItem = ({message, classes}: {
+  message: messageListFragment,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { html = "" } = message?.contents || {}
   if (!message) return null;

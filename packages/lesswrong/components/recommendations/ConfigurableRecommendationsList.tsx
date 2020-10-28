@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const recommendedName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Recommended'
+export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
 
 interface ExternalProps {
   configName: string,
@@ -38,7 +38,7 @@ class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommen
   render() {
     const { currentUser, configName } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      RecommendationsList, SettingsIcon, LWTooltip } = Components;
+      RecommendationsList, SettingsButton, LWTooltip } = Components;
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
     return <SingleColumnSection>
@@ -47,11 +47,11 @@ class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommen
           title={`A weighted, randomized sample of the highest karma posts${settings.onlyUnread ? " that you haven't read yet" : ""}.`}
         >
           <Link to={'/recommendations'}>
-            {recommendedName}
+            {archiveRecommendationsName}
           </Link>
         </LWTooltip>}
       >
-        <SettingsIcon onClick={this.toggleSettings}/>
+        <SettingsButton onClick={this.toggleSettings}/>
       </SectionTitle>
       { this.state.settingsVisible &&
         <RecommendationsAlgorithmPicker
@@ -77,4 +77,3 @@ declare global {
     ConfigurableRecommendationsList: typeof ConfigurableRecommendationsListComponent
   }
 }
-

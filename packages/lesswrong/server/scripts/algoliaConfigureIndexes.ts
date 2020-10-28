@@ -23,6 +23,18 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
+    ranking: [
+      'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(baseScore)'
+    ],
+    attributesForFaceting: [
+      'filterOnly(af)',
+      'postedAt',
+    ],
+    attributesToHighlight: ['authorDisplayName'],
+    attributesToSnippet: ['body:20'],
+    unretrievableAttributes: ['authorUserName'],
+    advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(postsIndex, {
     searchableAttributes: [
@@ -31,6 +43,27 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
+    ranking: ['typo','geo','words','filters','exact','proximity','attribute','custom'],
+    customRanking: [
+      'desc(baseScore)',
+      'desc(score)'
+    ],
+    attributesForFaceting: [
+      'af',
+      'searchable(authorDisplayName)',
+      'authorSlug',
+      'postedAt',
+      'tags'
+    ],
+    attributesToHighlight: ['title'],
+    attributesToSnippet: ['body:20'],
+    unretrievableAttributes: [
+      'authorUserName',
+      'userIP',
+    ],
+    distinct: true,
+    attributeForDistinct: '_id',
+    advancedSyntax: true,
   });
   await algoliaSetIndexSettingsAndWait(usersIndex, {
     searchableAttributes: [
@@ -38,6 +71,15 @@ export const algoliaConfigureIndexes = async () => {
       'bio',
       'unordered(_id)',
     ],
+    ranking: [
+      'desc(karma)',
+      'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(createdAt)'
+    ],
+    attributesForFaceting: [
+      'filterOnly(af)',
+    ],
+    advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(sequencesIndex, {
     searchableAttributes: [
@@ -46,6 +88,10 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
+    attributesForFaceting: [
+      'filterOnly(af)',
+    ],
+    advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
     searchableAttributes: [
@@ -53,6 +99,14 @@ export const algoliaConfigureIndexes = async () => {
       'description',
       'unordered(_id)',
     ],
+    ranking: [
+      'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(core)',
+      'desc(postCount)',
+    ],
+    distinct: false,
+    attributesToSnippet: ['description:10'],
+    advancedSyntax: true
   });
   
   console.log("Done"); //eslint-disable-line no-console

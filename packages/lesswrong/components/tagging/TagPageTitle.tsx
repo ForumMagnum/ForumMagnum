@@ -6,24 +6,26 @@ import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
 
-const TagPageTitle = ({isSubtitle, classes}: {
+const TagPageTitle = ({isSubtitle, classes, siteName}: {
   isSubtitle: boolean,
   classes: ClassesType,
+  siteName: string
 }) => {
   const { params } = useLocation();
   const { slug } = params;
-  const { tag } = useTagBySlug(slug);
+  const { tag } = useTagBySlug(slug, "TagFragment");
+  const titleString = `${tag?.name} - ${siteName}`
   
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
-      <Link to="/tags">Tags</Link>
+      <Link to="/tags/all">Tags</Link>
     </span>);
   } else if (!tag) {
     return null;
   } else {
     return <Helmet>
-      <title>{`${tag.name} tag`}</title>
-      <meta property='og:title' content={`Posts tagged ${tag.name}`}/>
+      <title>{titleString}</title>
+      <meta property='og:title' content={titleString}/>
     </Helmet>
   }
 }
@@ -35,4 +37,3 @@ declare global {
     TagPageTitle: typeof TagPageTitleComponent
   }
 }
-

@@ -4,7 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import { Localgroups, makeEditableOptions } from '../../lib/collections/localgroups/collection'
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 
-function GroupsNewDefaultPost (group, { currentUser }) {
+function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser: DbUser}) {
   const newFields = {
     title: `Welcome to ${group.name} [Edit With Your Details]`,
     groupId: group._id,
@@ -14,7 +14,7 @@ function GroupsNewDefaultPost (group, { currentUser }) {
   const post = {...groupWelcomePostTemplate, ...newFields};
   //eslint-disable-next-line no-console
   console.info("Creating new post for new group", post);
-  newMutation({
+  void newMutation({
     collection: Posts,
     document: post,
     currentUser,

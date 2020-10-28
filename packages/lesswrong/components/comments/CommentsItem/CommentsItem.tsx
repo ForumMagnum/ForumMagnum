@@ -7,11 +7,13 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUt
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Posts } from "../../../lib/collections/posts";
+import { Posts } from "../../../lib/collections/posts/collection";
+import { Tags } from "../../../lib/collections/tags/collection";
+import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -39,9 +41,6 @@ export const styles = theme => ({
       marginTop: 7,
       display: 'block'
     }
-  },
-  blockedReplies: {
-    padding: "5px 0",
   },
   replyLink: {
     marginRight: 5,
@@ -118,11 +117,12 @@ export const styles = theme => ({
 
 interface ExternalProps {
   refetch?: any,
-  comment: CommentsList|CommentsListWithPostMetadata,
+  comment: CommentsList|CommentsListWithParentMetadata,
   postPage?: boolean,
   nestingLevel: number,
   showPostTitle?: boolean,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
+  tag?: TagBasicInfo,
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
@@ -150,7 +150,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: CommentsItemProps, nextState: CommentsItemState) {
     if(!shallowEqual(this.state, nextState))
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post"]))
@@ -160,7 +160,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
     return false;
   }
 
-  showReply = (event) => {
+  showReply = (event: React.MouseEvent) => {
     event.preventDefault();
     this.setState({showReply: true});
   }
@@ -202,11 +202,11 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   render() {
-    const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
+    const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView, tag } = this.props
 
-    const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components
+    const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
 
-    if (!comment || !post) {
+    if (!comment) {
       return null;
     }
     
@@ -224,7 +224,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
             { comment.parentCommentId && this.state.showParent && (
               <div className={classes.firstParentComment}>
                 <Components.ParentCommentSingle
-                  post={post}
+                  post={post} tag={tag}
                   documentId={comment.parentCommentId}
                   nestingLevel={nestingLevel - 1}
                   truncated={false}
@@ -233,14 +233,15 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               </div>
             )}
 
-            {showPostTitle && (comment as CommentsListWithPostMetadata).post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{post.title}</Link>}
+            {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{comment.post.title}</Link>}
+            {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={Tags.getUrl(comment.tag)}>{comment.tag.name}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
                 { !parentCommentId && !comment.parentCommentId && isParentComment &&
                   <div className={classes.usernameSpacing}>○</div>
                 }
-                <CommentShortformIcon comment={comment} post={post} />
+                {post && <CommentShortformIcon comment={comment} post={post} />}
                 { parentCommentId!=comment.parentCommentId &&
                   <ShowParentComment
                     comment={comment}
@@ -256,22 +257,23 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                   <CommentUserName comment={comment}/>
                 </span>
                 <CommentsItemDate
-                  comment={comment} post={post}
+                  comment={comment} post={post} tag={tag}
                   scrollIntoView={scrollIntoView}
                   scrollOnClick={postPage && !isParentComment}
                 />
                 {comment.moderatorHat && <span className={classes.moderatorHat}>
                   Moderator Comment
                 </span>}
-                <Components.CommentsVote
-                  comment={comment}
-                  hideKarma={post.hideCommentKarma}
+                <SmallSideVote
+                  document={comment}
+                  collection={Comments}
+                  hideKarma={post?.hideCommentKarma}
                 />
 
                 {!isParentComment && this.renderMenu()}
-                <span className={classes.outdatedWarning}>
+                {post && <span className={classes.outdatedWarning}>
                   <Components.CommentOutdatedWarning comment={comment} post={post} />
-                </span>
+                </span>}
                 {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
                   {`Nomination for ${comment.nominatedForReview}`}
                 </Link>}
@@ -279,7 +281,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 {`Review for ${comment.reviewingForReview}`}
               </Link>}
               </div>
-              { comment.promotedByUser && <div className={classes.metaNotice}>
+              { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
                 Promoted by {comment.promotedByUser.displayName}
               </div>}
               {this.renderBodyOrEditor()}
@@ -331,7 +333,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
 
   renderCommentBottom = () => {
     const { comment, currentUser, collapsed, classes, hideReply } = this.props;
-    const { MetaInfo } = Components
+    const { CommentBottomCaveats } = Components
 
     if (!collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
@@ -350,19 +352,12 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
 
       return (
         <div className={classes.bottom}>
-          { blockedReplies &&
-            <div className={classes.blockedReplies}>
-              A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
-            </div>
+          <CommentBottomCaveats comment={comment}/>
+          { showReplyButton &&
+            <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
+              Reply
+            </a>
           }
-          <div>
-            { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
-            { showReplyButton &&
-              <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
-                Reply
-              </a>
-            }
-          </div>
         </div>
       )
     }
@@ -395,6 +390,14 @@ const CommentsItemComponent = registerComponent<ExternalProps>(
     hocs: [ withMessages, withUser, withErrorBoundary ]
   }
 );
+
+function hasPostField(comment: CommentsList | CommentsListWithParentMetadata): comment is CommentsListWithParentMetadata {
+  return !!(comment as CommentsListWithParentMetadata).post
+}
+
+function hasTagField(comment: CommentsList | CommentsListWithParentMetadata): comment is CommentsListWithParentMetadata {
+  return !!(comment as CommentsListWithParentMetadata).tag
+}
 
 declare global {
   interface ComponentTypes {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components, Utils } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -20,7 +20,7 @@ const cellStyle = () => ({
   wordBreak: "break-word"
 })
 
-const headerStyle = theme => ({
+const headerStyle = (theme: ThemeType) => ({
   fontSize: "1.1rem",
   fontWeight: 600,
   backgroundColor: theme.palette.grey[800],
@@ -34,7 +34,7 @@ const headerStyle = theme => ({
   zIndex: 1,
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: -150, // adjusting for footer
     position: "relative",
@@ -494,7 +494,7 @@ const SpreadsheetPage = ({classes}:{
   const rows = currentTab?.rows || []
   return (
     <div className={classes.root}>
-      <HeadTags url={Utils.getSiteUrl() + "coronavirus-link-database"} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1585093292/Screen_Shot_2020-03-24_at_4.41.12_PM_qiwqwc.png"}/>
+      <HeadTags image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1585093292/Screen_Shot_2020-03-24_at_4.41.12_PM_qiwqwc.png"}/>
       {selectedTab == "Intro" && 
         <div className={classes.introWrapper}>
           <div className={classes.intro}>

@@ -77,6 +77,8 @@ import './server/recommendations';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 
+import './server/gatherTownCron';
+
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
@@ -96,7 +98,8 @@ import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
-import { hasEventsSetting } from './lib/publicSettings'
+import './server/callbacks/tagFlagCallbacks';
+import { hasEventsSetting } from './lib/instanceSettings'
 if (hasEventsSetting.get()) {
   import './server/callbacks/localgroupCallbacks';
 }
@@ -113,6 +116,9 @@ import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
+import './server/resolvers/tagHistoryFeed';
+import './server/resolvers/allTagsActivityFeed';
+import './server/resolvers/recentDiscussionFeed';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -120,6 +126,7 @@ import './server/connection_logs';
 
 import './server/codegen/generateTypes';
 
+import './server/styleGeneration';
 
 // Algolia Search Integration
 import './server/search/utils';

@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -26,7 +26,9 @@ const styles = theme => ({
 })
 
 // Editor that _only_ gives people access to the ckEditor, without any other post options
-const PostCollaborationEditor = ({ classes }) => {
+const PostCollaborationEditor = ({ classes }: {
+  classes: ClassesType,
+}) => {
   const { SingleColumnSection, Loading } = Components
   const currentUser = useCurrentUser();
   const editorRef = useRef<any>(null)
@@ -38,7 +40,7 @@ const PostCollaborationEditor = ({ classes }) => {
       editorRef.current = Editor
       setEditorLoaded(true)
     }
-    importEditor()
+    void importEditor();
   }, [])
 
   const { query: { postId } } = useLocation();

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
     ...commentBodyStyles(theme),
     maxWidth: "100%",

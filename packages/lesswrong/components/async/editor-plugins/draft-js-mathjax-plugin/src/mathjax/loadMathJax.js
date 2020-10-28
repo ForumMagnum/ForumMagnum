@@ -2,9 +2,10 @@
 import load from './load'
 
 // mathjax cdn shutdown the 30/04/2017!!! https://cdn.mathjax.org/mathjax/latest/MathJax.js
-const DEFAULT_SCRIPT = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+const DEFAULT_SCRIPT = 'https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js'
 
 const DEFAULT_OPTIONS = {
+  loader: {load: ['[tex]/colorV2']},
   options: {
     renderActions: {
       addMenu: [],
@@ -16,7 +17,7 @@ const DEFAULT_OPTIONS = {
       color: [],
       colorV2: [ 'color' ]
     },
-    packages: { '[+]': [ 'noerrors' ] }
+    packages: { '[+]': [ 'noerrors', 'color' ] }
   },
   startup: {
     typeset: false,

@@ -42,8 +42,8 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {authorIsUnreviewed: 1},
-    suffix: {deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
+    prefix: {},
+    suffix: {authorIsUnreviewed: 1, deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
   });
 }
 
@@ -138,7 +138,7 @@ Comments.addView("postCommentsBest", function (terms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {deleted: 1, baseScore: -1}, postedAt: -1}
+    options: {sort: {promoted: -1, deleted: 1, baseScore: -1}, postedAt: -1}
   };
 });
 // Same as postCommentsTop
@@ -151,7 +151,7 @@ Comments.addView("postLWComments", function (terms) {
       answer: false,
       parentAnswerId: viewFieldNullOrMissing
     },
-    options: {sort: {deleted: 1, baseScore: -1, postedAt: -1}}
+    options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
   };
 })
 
@@ -288,6 +288,7 @@ Comments.addView('topShortform', function (terms) {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
+      deleted: false,
       ...timeRange
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
@@ -364,4 +365,14 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
 ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
+);
+
+Comments.addView('commentsOnTag', terms => ({
+  selector: {
+    tagId: terms.tagId,
+  },
+}));
+ensureIndex(Comments,
+  augmentForDefaultView({tagId: 1}),
+  { name: "comments.tagId" }
 );

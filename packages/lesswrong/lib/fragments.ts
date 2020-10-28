@@ -11,7 +11,6 @@ registerFragment(`
     slug
     groups
     services
-    
     karma
   }
 `);
@@ -105,6 +104,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
+    bio
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -135,7 +135,6 @@ registerFragment(`
     karmaChangeLastOpened
     shortformFeedId
     viewUnreviewedComments
-    sunshineShowNewUserContent
     recommendationSettings
     
     auto_subscribe_to_my_posts
@@ -144,6 +143,17 @@ registerFragment(`
     bookmarkedPostsMetadata
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
+    hideTaggingProgressBar
+    
+    abTestKey
+    abTestOverrides
+
+    sortDrafts
+    
+    reenableDraftJs
+    petrovPressedButtonDate
+    petrovLaunchCodeDate
+    ...SharedUserBooleans
   }
 `);
 
@@ -177,6 +187,7 @@ registerFragment(`
         scoreChange
         description
         postId
+        tagSlug
       }
     }
   }
@@ -198,44 +209,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment CommentStats on Comment {
-    currentUserVotes{
-      ...VoteFragment
-    }
-    baseScore
-    score
-  }
-`);
-
-registerFragment(`
-  fragment DeletedCommentsMetaData on Comment {
-    _id
-    deleted
-    deletedDate
-    deletedByUser {
-      _id
-      displayName
-    }
-    deletedReason
-    deletedPublic
-  }
-`)
-
-registerFragment(`
-  fragment DeletedCommentsModerationLog on Comment {
-    ...DeletedCommentsMetaData
-    user {
-      ...UsersMinimumInfo
-    }
-    post {
-      title
-      slug
-      _id
-    }
-  }
-`)
-
-registerFragment(`
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -243,15 +216,6 @@ registerFragment(`
     bannedUserIds
   }
 `)
-
-registerFragment(`
-  fragment CommentsListWithPostMetadata on Comment {
-    ...CommentsList
-    post {
-      ...PostsMinimumInfo
-    }
-  }
-`);
 
 registerFragment(`
   fragment UsersList on User {
@@ -338,48 +302,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment commentWithContextFragment on Comment {
-    # example-forum
-    _id
-    parentCommentId
-    topLevelCommentId
-    contents {
-      ...RevisionDisplay
-    }
-    postedAt
-    # vulcan:users
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
-    # example-forum
-    # vulcan:voting
-    currentUserVotes{
-      ...VoteFragment
-    }
-    baseScore
-    score
-  }
-`);
-
-registerFragment(`
-  fragment commentInlineFragment on Comment {
-    # example-forum
-    _id
-    contents {
-      ...RevisionDisplay
-    }
-    # vulcan:users
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
-  }
-`);
-
-registerFragment(`
   fragment UsersMinimumInfo on User {
-    # vulcan:users
     _id
     slug
     oldSlugs
@@ -404,8 +327,14 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SharedUserBooleans on User {
+    walledGardenInvite
+    hideWalledGardenUI
+  }
+`)
+
+registerFragment(`
   fragment UsersProfile on User {
-    # vulcan:users
     ...UsersMinimumInfo
     createdAt
     isAdmin
@@ -413,11 +342,9 @@ registerFragment(`
     htmlBio
     website
     groups
-    # example-forum
     postCount
     afPostCount
     frontpagePostCount
-    # example-forum
     commentCount
     sequenceCount
     afCommentCount
@@ -442,18 +369,19 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
-    sunshineShowNewUserContent
+    petrovPressedButtonDate
+    sortDrafts
+    reenableDraftJs
+    ...SharedUserBooleans
   }
 `);
 
 registerFragment(`
   fragment UsersMapEntry on User {
-    # vulcan:users
     ...UsersMinimumInfo
     createdAt
     isAdmin
     groups
-    # example-forum
     location
     googleLocation
     mapLocation
@@ -482,7 +410,6 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
-    sunshineShowNewUserContent
 
     # Emails
     email
@@ -537,6 +464,7 @@ registerFragment(`
     notificationSharedWithMe
 
     hideFrontpageMap
+    hideTaggingProgressBar
 
     deleted
   }
@@ -614,26 +542,6 @@ registerFragment(`
     voteCount
   }
 `);
-
-registerFragment(`
-  fragment WithVoteComment on Comment {
-    __typename
-    _id
-    currentUserVotes{
-      _id
-      voteType
-      power
-    }
-    baseScore
-    score
-    afBaseScore
-    voteCount
-  }
-`);
-
-//
-// example-forum migrated fragments
-//
 
 registerFragment(`
   fragment RevisionDisplay on Revision {

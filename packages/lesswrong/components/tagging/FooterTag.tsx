@@ -1,81 +1,107 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+import classNames from 'classnames';
 
-export const tagStyle = theme => ({
-  display: "inline-block",
+const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
+
+export const tagStyle = (theme: ThemeType) => ({
+  marginRight: 3,
+  padding: 5,
+  paddingLeft: 6,
+  paddingRight: 6,
+  marginBottom: 8,
+  backgroundColor: theme.palette.grey[200],
+  border: `solid 1px ${theme.palette.grey[200]}`,
+  color: 'rgba(0,0,0,.9)',
+  borderRadius: 3,
+  ...theme.typography.commentStyle,
+  cursor: "pointer"
+})
+
+const newTagStyle = (theme: ThemeType) => ({
   marginRight: 4,
   padding: 5,
   paddingLeft: 8,
   paddingRight: 7,
   marginBottom: 8,
-  backgroundColor: 'rgba(0,0,0,0.05)',
-  borderRadius: 10,
-  cursor: "pointer",
-  ...theme.typography.commentStyle,
-  "&:hover": {
-    opacity: 1
-  }
+  borderRadius: 4,
+  boxShadow: '1px 2px 5px rgba(0,0,0,.2)',
+  color: theme.palette.primary.main,
+  fontSize: 15
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...tagStyle(theme)
+    display: "inline-block",
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    "&:hover": {
+      opacity: 1
+    },
+    ...(useExperimentalTagStyleSetting.get()
+      ? newTagStyle(theme)
+      : tagStyle(theme)
+    )
   },
-  score: {
+  core: {
+    backgroundColor: "white",
+    border: "solid 1px rgba(0,0,0,.12)",
+    color: theme.palette.grey[600]
+  },
+  score:  {
+    paddingLeft: 5,
     color: 'rgba(0,0,0,0.7)',
   },
   name: {
     display: 'inline-block',
-    paddingRight: 5
   },
   hovercard: {
   },
+  smallText: {
+    fontSize: 12,
+    paddingTop: 1,
+    paddingBottom: 2,
+    marginBottom: 0
+  }
 });
 
-interface ExternalProps {
-  tagRel: TagRelMinimumFragment,
-  tag: TagPreviewFragment,
-  hideScore?: boolean
-}
-interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
-}
-
-const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
-  tagRel: TagRelMinimumFragment,
-  tag: TagFragment,
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
+  tagRel?: TagRelMinimumFragment,
+  tag: TagBasicInfo,
   hideScore?: boolean,
-
-  hover: boolean,
-  anchorEl: any,
+  smallText?: boolean,
   classes: ClassesType,
 }) => {
-
+  const { hover, anchorEl, eventHandlers } = useHover({
+    pageElementContext: "tagItem",
+    tagId: tag._id,
+    tagName: tag.name,
+    tagSlug: tag.slug
+  });
   const { PopperCard, TagRelCard } = Components
 
   if (tag.adminOnly) { return null }
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span className={classes.root}>
+    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core, [classes.smallText]: smallText})}>
       <Link to={`/tag/${tag.slug}`}>
         <span className={classes.name}>{tag.name}</span>
-        {!hideScore && <span className={classes.score}>{tagRel.baseScore}</span>}
+        {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>
-      <PopperCard open={hover} anchorEl={anchorEl}>
+      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} modifiers={{flip:{enabled:false}}}>
         <div className={classes.hovercard}>
           <TagRelCard tagRel={tagRel} />
         </div>
-      </PopperCard>
+      </PopperCard>}
     </span>
   </AnalyticsContext>);
 }
 
-const FooterTagComponent = registerComponent<ExternalProps>("FooterTag", FooterTag, {
-  styles,
-  hocs: [withHover({pageElementContext: "tagItem"}, ({tag}:{tag: TagFragment})=>({tagId: tag._id, tagName: tag.name, tagSlug: tag.slug}))]
-});
+const FooterTagComponent = registerComponent("FooterTag", FooterTag, {styles});
 
 declare global {
   interface ComponentTypes {

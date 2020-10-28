@@ -5,7 +5,7 @@ import Menu from '@material-ui/core/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
     fontSize:"1.4rem"
@@ -22,7 +22,7 @@ const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
   classes: ClassesType,
   className?: string,
   comment: CommentsList,
-  post: PostsMinimumInfo,
+  post?: PostsMinimumInfo,
   showEdit: ()=>void,
   icon?: any,
 }) => {

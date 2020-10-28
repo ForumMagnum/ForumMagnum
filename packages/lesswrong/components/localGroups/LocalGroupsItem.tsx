@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
-export const postsItemLikeStyles = theme => ({
+export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
     position: "relative",
@@ -11,10 +11,11 @@ export const postsItemLikeStyles = theme => ({
     padding: theme.spacing.unit*1.5,
     alignItems: "center",
     flexWrap: "nowrap",
+    background: "white",
+    borderBottom: theme.itemBorderBottom,
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
     },
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
     [legacyBreakpoints.maxTiny]: {
       marginLeft: 0,
       paddingLeft: 0,
@@ -62,7 +63,7 @@ export const postsItemLikeStyles = theme => ({
   },
 })
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   ...postsItemLikeStyles(theme),
   location: {
     color: "rgba(0,0,0,.4)",
@@ -73,7 +74,10 @@ const styles = theme => ({
   }
 });
 
-const LocalGroupsItem = ({group, classes}) => {
+const LocalGroupsItem = ({group, classes}: {
+  group: localGroupsHomeFragment,
+  classes: ClassesType,
+}) => {
   const { PostsItemMetaInfo, GroupLinks } = Components
   
   if (!group) { return null }

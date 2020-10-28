@@ -8,6 +8,7 @@ import SimpleSchema from 'simpl-schema'
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
+  commitMessage: {type: String, optional: true},
   html: {type: String, optional: true, denormalized: true},
   updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
   version: {type: String, optional: true},
@@ -39,14 +40,15 @@ const defaultOptions = {
     </div>
   ),
   pingbacks: false,
+  revisionsHaveCommitMessages: false,
 }
 
 export const editableCollections = new Set<string>()
 export const editableCollectionsFields: Record<string,Array<string>> = {}
 export const editableCollectionsFieldOptions: Record<string,any> = {};
 
-export const makeEditable = ({collection, options = {}}: {
-  collection: any,
+export const makeEditable = <T extends DbObject>({collection, options = {}}: {
+  collection: CollectionBase<T>,
   options: any,
 }) => {
   options = {...defaultOptions, ...options}
@@ -60,15 +62,17 @@ export const makeEditable = ({collection, options = {}}: {
     hintText,
     order,
     pingbacks = false,
+    //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
 
-  editableCollections.add(collection.options.collectionName)
-  editableCollectionsFields[collection.options.collectionName] = [
-    ...(editableCollectionsFields[collection.options.collectionName] || []),
+  const collectionName = collection.options.collectionName;
+  editableCollections.add(collectionName)
+  editableCollectionsFields[collectionName] = [
+    ...(editableCollectionsFields[collectionName] || []),
     fieldName || "contents"
   ]
-  editableCollectionsFieldOptions[collection.options.collectionName] = {
-    ...editableCollectionsFieldOptions[collection.options.collectionName],
+  editableCollectionsFieldOptions[collectionName] = {
+    ...editableCollectionsFieldOptions[collectionName],
     [fieldName || "contents"]: options,
   };
 
@@ -84,28 +88,33 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc, { version }, { currentUser, Revisions }) => {
+        resolver: async (doc: T, args: {version: string}, context: ResolverContext): Promise<DbRevision|null> => {
+          const { version } = args;
+          const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
           if (version) {
             const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            return checkAccess(currentUser, revision) ? revision : null
+            if (!revision) return null;
+            return await checkAccess(currentUser, revision, context) ? revision : null
           }
           return {
             editedAt: (doc[field]?.editedAt) || new Date(),
             userId: doc[field]?.userId,
-            originalContentsType: (doc[field]?.originalContentsType) || "html",
+            commitMessage: doc[field]?.commitMessage,
             originalContents: (doc[field]?.originalContents) || {},
             html: doc[field]?.html,
             updateType: doc[field]?.updateType,
             version: doc[field]?.version,
             wordCount: doc[field]?.wordCount,
-          }
+          } as DbRevision;
+          //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
         }
       },
       form: {
         hintText: hintText,
         fieldName: fieldName || "contents",
+        collectionName,
         commentEditor,
         commentStyles,
         getLocalStorageId,
@@ -119,10 +128,12 @@ export const makeEditable = ({collection, options = {}}: {
       resolveAs: {
         type: '[Revision]',
         arguments: 'limit: Int = 5',
-        resolver: async (post, { limit }, { currentUser, Revisions }) => {
+        resolver: async (post: T, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
+          const { limit } = args;
+          const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
-          return accessFilterMultiple(currentUser, Revisions, resolvedDocs);
+          return await accessFilterMultiple(currentUser, Revisions, resolvedDocs, context);
         }
       }
     },
@@ -133,7 +144,7 @@ export const makeEditable = ({collection, options = {}}: {
       optional: true,
       resolveAs: {
         type: 'String',
-        resolver: (post) => {
+        resolver: (post: T): string => {
           return post[fieldName || "contents"]?.version
         }
       }

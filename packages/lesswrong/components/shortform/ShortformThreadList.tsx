@@ -3,16 +3,21 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
     marginTop: theme.spacing.unit*4
   }
 })
 
-const ShortformThreadList = ({ terms, classes }) => {
+const ShortformThreadList = ({ classes }: {
+  classes: ClassesType,
+}) => {
   const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
-  const { results, loading, loadMore, loadingMore, refetch } = useMulti({
-    terms,
+  const { results, loading, loadMoreProps, refetch } = useMulti({
+    terms: {
+      view: 'shortform',
+      limit:20
+    },
     collection: Comments,
     fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
@@ -24,16 +29,15 @@ const ShortformThreadList = ({ terms, classes }) => {
   return (
     <div>
       <ShortformSubmitForm successCallback={refetch} />
-      {loading || !results ? <Loading /> :
-      <div>
-        {results.map((comment, i) => {
-          return <div key={comment._id} className={classes.shortformItem}>
-            <CommentWithReplies comment={comment} post={comment.post} refetch={refetch}/>
-          </div>
-        })}
-        { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-        { loadingMore && <Loading />}
-      </div>}
+      
+      {results && results.map((comment, i) => {
+        if (!comment.post) return null
+        return <div key={comment._id} className={classes.shortformItem}>
+          <CommentWithReplies comment={comment} post={comment.post} refetch={refetch}/>
+        </div>
+      })}
+      <LoadMore {...loadMoreProps} />
+      {loading && <Loading/>}
     </div>
   )
 }

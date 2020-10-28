@@ -4,14 +4,17 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
-import { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/CoreReading';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     maxWidth: 347,
+    marginRight: 12,
+    background: "white",
+    marginBottom: 12,
     "&:hover": {
-      boxShadow: "0 0 5px rgba(0,0,0,.2)"
+      boxShadow: "0 0 3px rgba(0,0,0,.1)"
     },
   },
   card: {

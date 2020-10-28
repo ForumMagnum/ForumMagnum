@@ -1,33 +1,29 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { Component } from 'react';
-import { withLocation, getUrlClass } from '../../../lib/routeUtil';
+import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
-import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
-import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
-import { forumTitleSetting, forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting } from '../../../lib/instanceSettings';
+import { viewNames } from '../../comments/CommentsViews';
 
-const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
-const MAX_COLUMN_WIDTH = 720
-const SECONDARY_SPACING = 20
+export const MAX_COLUMN_WIDTH = 720
 
-const styles = theme => ({
+// Also used in PostsCompareRevisions
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
-      marginTop: 12
+      paddingTop: 12
     }
   },
   tocActivated: {
@@ -72,121 +68,13 @@ const styles = theme => ({
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
-  post: {
+  centralColumn: {
     maxWidth: 650 + (theme.spacing.unit*4),
     marginLeft: 'auto',
-    marginRight: 'auto'
-  },
-  recommendations: {
-    maxWidth: MAX_COLUMN_WIDTH,
-    marginLeft: 'auto',
     marginRight: 'auto',
-    // Hack to deal with the PostsItem action items being absolutely positioned
-    paddingRight: 18,
-    paddingLeft: 18,
-    [theme.breakpoints.down('sm')]: {
-      paddingRight: 0,
-      paddingLeft: 0
-    }
-  },
-  header: {
-    position: 'relative',
-    display:"flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: theme.spacing.unit*2
-  },
-  headerLeft: {
-    width:"100%"
-  },
-  headerVote: {
-    textAlign: 'center',
-    fontSize: 42,
-    position: "relative",
-  },
-  divider: {
-    marginTop: theme.spacing.unit*2,
-    marginLeft:0,
-    borderTop: "solid 1px rgba(0,0,0,.1)",
-    borderLeft: 'transparent'
-  },
-  eventHeader: {
-    marginBottom:0,
-  },
-  secondaryInfo: {
-    fontSize: '1.4rem',
-    fontFamily: theme.typography.uiSecondary.fontFamily,
-  },
-  commentsLink: {
-    marginRight: SECONDARY_SPACING,
-    color: theme.palette.grey[600],
-    whiteSpace: "no-wrap",
-    display: "inline-block",
-    fontSize: theme.typography.body2.fontSize,
-  },
-  wordCount: {
-    display: 'none',
-    marginRight: SECONDARY_SPACING,
-    color: theme.palette.grey[600],
-    whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline-block'
-    }
-  },
-  actions: {
-    display: 'inline-block',
-    cursor: "pointer",
-    color: theme.palette.grey[600],
-  },
-  postBody: {
-    marginBottom: 50,
+    marginBottom: theme.spacing.unit *3
   },
   postContent: postBodyStyles(theme),
-  subtitle: {
-    ...theme.typography.subtitle,
-  },
-  voteBottom: {
-    position: 'relative',
-    fontSize: 42,
-    textAlign: 'center',
-    display: 'inline-block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginBottom: 40
-  },
-  draft: {
-    color: theme.palette.secondary.light
-  },
-  bottomNavigation: {
-    width: 640,
-    margin: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      width:'100%',
-      maxWidth: MAX_COLUMN_WIDTH
-    }
-  },
-  authors: {
-    display: 'inline-block',
-    marginRight: SECONDARY_SPACING
-  },
-  contentNotice: {
-    ...theme.typography.contentNotice,
-    ...theme.typography.postStyle
-  },
-  feedName: {
-    fontSize: theme.typography.body2.fontSize,
-    marginRight: SECONDARY_SPACING,
-    display: 'inline-block',
-    color: theme.palette.grey[600],
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
-  date: {
-    marginRight: SECONDARY_SPACING,
-    display: 'inline-block',
-  },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -197,63 +85,7 @@ const styles = theme => ({
     background: "white",
     position: "relative"
   },
-  footerSection: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '1.4em'
-  },
-  bottomDate: {
-    color: theme.palette.grey[600]
-  },
-  postType: {
-    marginRight: SECONDARY_SPACING
-  },
-  reviewInfo: {
-    textAlign: "center",
-    marginBottom: 32
-  },
-  reviewLabel: {
-    ...theme.typography.postStyle,
-    ...theme.typography.contentNotice,
-    marginBottom: theme.spacing.unit,
-  }
 })
-
-const getContentType = (post) => {
-  if (forumTypeSetting.get() === 'EAForum') {
-    return (post.frontpageDate && 'frontpage') ||
-    (post.meta && 'meta') ||
-    'personal'
-  }
-  return post.frontpageDate ? 'frontpage' : 'personal'
-}
-
-// On the server, use the 'url' library for parsing hostname out of feed URLs.
-// On the client, we instead create an <a> tag, set its href, and extract
-// properties from that. (There is a URL class which theoretically would work,
-// but it doesn't have the hostname field on IE11 and it's missing entirely on
-// Opera Mini.)
-const URLClass = getUrlClass()
-
-function getProtocol(url) {
-  if (Meteor.isServer)
-    return new URLClass(url).protocol;
-
-  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-  var parser = document.createElement('a');
-  parser.href = url;
-  return parser.protocol;
-}
-
-function getHostname(url) {
-  if (Meteor.isServer)
-    return new URLClass(url).hostname;
-
-  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-  var parser = document.createElement('a');
-  parser.href = url;
-  return parser.hostname;
-}
 
 interface ExternalProps {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
@@ -283,95 +115,47 @@ class PostsPage extends Component<PostsPageProps> {
     return false;
   }
 
-  getDescription = post => {
+  getDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
     if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
-    if (post.shortform) return `A collection of shorter posts by ${forumTitleSetting.get()} user ${post.user.displayName}`
+    if (post.shortform) return `A collection of shorter posts ${post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ''}`
     return null
   }
 
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
-      LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
-      PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, AnalyticsInViewTracker, LWTooltip } = Components
+    const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+      PostsCommentsThread, ContentItemBody,
+      PostsPageQuestionContent, TableOfContents, CommentPermalink,
+      AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
-      const { html, wordCount = 0 } = post.contents || {}
-      const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
-      const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
+      const defaultView = Comments.getDefaultView(post, currentUser)
+      // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+      const commentTerms = Object.keys(viewNames).includes(query.view) ? {...query, limit:500} : {view: defaultView, limit: 500}
       const sequenceId = this.getSequenceId();
       const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
-      const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
-      const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
-      const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
-      const { major } = extractVersionsFromSemver(post.version)
-      const hasMajorRevision = major > 1
-      const contentType = getContentType(post)
+      const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
       const commentId = query.commentId || params.commentId
 
       const description = this.getDescription(post)
+      const ogUrl = Posts.getPageUrl(post, true) // open graph
+      const canonicalUrl = post.canonicalSource || ogUrl
 
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags
-                url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource}
+                ogUrl={ogUrl} canonicalUrl={canonicalUrl}
                 title={post.title} description={description} noIndex={post.noIndex || !!commentId}
               />
               {/* Header/Title */}
               <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-                <div className={classes.post}>
+                <div className={classes.centralColumn}>
                   {commentId && <CommentPermalink documentId={commentId} post={post}/>}
-                  {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                  <AnalyticsContext pageSectionContext="topSequenceNavigation">
-                    <PostsTopSequencesNav post={post} />
-                  </AnalyticsContext>
-                  <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
-                    <div className={classes.headerLeft}>
-                      <PostsPageTitle post={post} />
-                      <div className={classes.secondaryInfo}>
-                        <span className={classes.authors}>
-                          <PostsAuthors post={post}/>
-                        </span>
-                        <span className={classes.postType}>
-                          <ContentType type={contentType}/>
-                        </span>
-                        { post.feed && post.feed.user &&
-                          <LWTooltip title={`Crossposted from ${feedLinkDescription}`}>
-                            <a href={feedLink} className={classes.feedName}>
-                              {post.feed.nickname}
-                            </a>
-                          </LWTooltip>
-                        }
-                        {!!wordCount && !post.isEvent &&  <LWTooltip title={`${wordCount} words`}>
-                            <span className={classes.wordCount}>{Math.floor(wordCount/300) || 1 } min read</span>
-                        </LWTooltip>}
-                        {!post.isEvent && <span className={classes.date}>
-                          <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-                        </span>}
-                        {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
-                        <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
-                        <span className={classes.actions}>
-                          <AnalyticsContext pageElementContext="tripleDotMenu">
-                            <PostsPageActions post={post} />
-                          </AnalyticsContext>
-                        </span>
-                      </div>
-                    </div>
-                    {!post.shortform && <div className={classes.headerVote}>
-                      <PostsVote
-                        collection={Posts}
-                        post={post}
-                        />
-                    </div>}
-                  </div>
-                  {!post.shortform && <hr className={classes.divider}/>}
-                  {post.isEvent && <PostsPageEventData post={post}/>}
+                  <PostsPagePostHeader post={post}/>
                 </div>
               </div></AnalyticsContext>
               <div className={classes.toc}>
@@ -379,61 +163,23 @@ class PostsPage extends Component<PostsPageProps> {
               </div>
               <div className={classes.gap1}/>
               <div className={classes.content}>
-                <div className={classes.post}>
+                <div className={classes.centralColumn}>
                   {/* Body */}
-                  <div className={classes.postBody}>
-                    { post.isEvent && <Components.SmallMapPreview post={post} /> }
-                    <div className={classes.postContent}>
-                      {/* disabled except during Review */}
-                      {/* {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
-                        <div className={classes.reviewLabel}>
-                          This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
-                        </div>
-                        <ReviewPostButton post={post} reviewMessage="Write a Review"/>
-                      </div>} */}
-
-                      <AlignmentCrosspostMessage post={post} />
-                      { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
-                      <LinkPostMessage post={post} />
-                      {query.revision && <PostsRevisionMessage post={post} />}
-                      <AnalyticsContext pageSectionContext="postBody">
-                        { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
-                      </AnalyticsContext>
-                    </div>
-                    {!post.shortform && <AnalyticsContext pageSectionContext="tagFooter">
-                      <FooterTagList post={post}/>
-                    </AnalyticsContext>}
+                  { post.isEvent && <Components.SmallMapPreview post={post} /> }
+                  <div className={classes.postContent}>
+                    <PostBodyPrefix post={post} query={query}/>
+                    
+                    <AnalyticsContext pageSectionContext="postBody">
+                      { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+                    </AnalyticsContext>
                   </div>
+
+                  <PostsPagePostFooter post={post} sequenceId={sequenceId} />
                 </div>
-
-                {/* Footer */}
-
-                {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
-                  <div className={classes.footerSection}>
-                    <div className={classes.voteBottom}>
-                      <AnalyticsContext pageSectionContext="lowerVoteButton">
-                        <PostsVote
-                          collection={Posts}
-                          post={post}
-                          />
-                      </AnalyticsContext>
-                    </div>
-                  </div>}
-                {sequenceId && <div className={classes.bottomNavigation}>
-                  <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
-                    <BottomNavigation post={post}/>
-                  </AnalyticsContext>
-                </div>}
-
-                {userHasPingbacks(currentUser) && <div className={classes.post}>
-                  <AnalyticsContext pageSectionContext="pingbacks">
-                    <PingbacksList postId={post._id}/>
-                  </AnalyticsContext>
-                </div>}
 
                 <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
                   {/* Answers Section */}
-                  {post.question && <div className={classes.post}>
+                  {post.question && <div className={classes.centralColumn}>
                     <div id="answers"/>
                     <AnalyticsContext pageSectionContext="answersSection">
                       <PostsPageQuestionContent post={post} refetch={refetch}/>
@@ -463,7 +209,7 @@ class PostsPage extends Component<PostsPageProps> {
     });
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: PostsPageProps) {
     if (prevProps.post && this.props.post && prevProps.post._id !== this.props.post._id) {
       this.props.closeAllEvents();
       this.props.recordPostView({

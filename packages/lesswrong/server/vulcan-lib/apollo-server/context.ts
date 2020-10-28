@@ -12,24 +12,25 @@
 
 import Sentry from '@sentry/node';
 import DataLoader from 'dataloader';
-import { Accounts } from 'meteor/accounts-base';
-import { check } from 'meteor/check';
-import { Meteor } from 'meteor/meteor';
+import { Accounts } from '../../../lib/meteorAccounts';
 import Cookies from 'universal-cookie';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { Collections } from '../../../lib/vulcan-lib/collections';
-import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
+import { getSchemaContextBase } from './initGraphQL';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
+import Users from '../../../lib/collections/users/collection';
+import * as _ from 'underscore';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
-const getUser = async loginToken => {
+const getUser = async (loginToken: string): Promise<DbUser|null> => {
   if (loginToken) {
-    check(loginToken, String)
+    if (typeof loginToken !== 'string')
+      throw new Error("Login token is not a string");
 
     const hashedToken = Accounts._hashLoginToken(loginToken)
 
-    const user = await Meteor.users.rawCollection().findOne({
+    const user = Users.findOne({
       'services.resume.loginTokens.hashedToken': hashedToken
     })
 
@@ -49,6 +50,8 @@ const getUser = async loginToken => {
       }
     }
   }
+  
+  return null;
 }
 
 // initial request will get the login token from a cookie, subsequent requests from
@@ -57,7 +60,7 @@ const getAuthToken = req => {
   return req.headers.authorization || new Cookies(req.cookies).get('meteor_login_token');
 };
 // @see https://www.apollographql.com/docs/react/recipes/meteor#Server
-const setupAuthToken = (user, context) => {
+const setupAuthToken = (user: DbUser|null, context: ResolverContext) => {
   if (user) {
     context.userId = user._id;
     context.currentUser = user;
@@ -73,46 +76,56 @@ const setupAuthToken = (user, context) => {
     // identify user to any server-side analytics providers
     runCallbacks('events.identify', user);
   } else {
-    context.userId = undefined;
-    context.currentUser = undefined;
+    context.userId = null;
+    context.currentUser = null;
   }
 };
 
-// @see https://github.com/facebook/dataloader#caching-per-request
-const generateDataLoaders = (context) => {
-  // go over context and add Dataloader to each collection
-  Collections.forEach(collection => {
-    context[collection.options.collectionName].loader = new DataLoader(
-      (ids: Array<string>) => findByIds(collection, ids, context),
-      {
-        cache: true,
-      }
-    );
-    context[collection.options.collectionName].extraLoaders = {};
-  });
-  return context;
+// Generate a set of DataLoader objects, one per collection, to be added to a resolver context
+export const generateDataLoaders = (): {
+  loaders: Record<CollectionNameString, DataLoader<string,any>>
+  extraLoaders: Record<string,any>
+} => {
+  const loaders = _.mapObject(getCollectionsByName(), (collection,name) =>
+    new DataLoader(
+      (ids: Array<string>) => findByIds(collection, ids),
+      { cache: true, }
+    )
+  ) as Record<CollectionNameString, DataLoader<string,any>>;
+  
+  return {
+    loaders,
+    extraLoaders: {}
+  };
 };
 
 
-export const computeContextFromUser = async (user, headers) => {
-  let context = {...GraphQLSchema.context};
+export const computeContextFromUser = async (user: DbUser|null, headers): Promise<ResolverContext> => {
+  let context: ResolverContext = {
+    ...getSchemaContextBase(),
+    ...getCollectionsByName(),
+    ...generateDataLoaders()
+  };
 
-  generateDataLoaders(context);
-
-  // note: custom default resolver doesn't currently work
-  // see https://github.com/apollographql/apollo-server/issues/716
-  // @options.fieldResolver = (source, args, context, info) => {
-  //   return source[info.fieldName];
-  // }
+  if (user)
+    context.loaders.Users.prime(user._id, user);
 
   setupAuthToken(user, context);
 
   //add the headers to the context
   context.headers = headers;
 
-  context.locale = getHeaderLocale(headers, context.currentUser && context.currentUser.locale);
+  context.locale = getHeaderLocale(headers, null);
 
   return context;
+}
+
+export const getCollectionsByName = (): CollectionsByName => {
+  const result: any = {};
+  Collections.forEach((collection: CollectionBase<DbObject>) => {
+    result[collection.collectionName] = collection;
+  });
+  return result as CollectionsByName;
 }
 
 export const getUserFromReq = async (req) => {
@@ -120,7 +133,7 @@ export const getUserFromReq = async (req) => {
 }
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = async (req) => {
+export const computeContextFromReq = async (req): Promise<ResolverContext> => {
   const user = await getUserFromReq(req);
   return computeContextFromUser(user, req.headers);
 };

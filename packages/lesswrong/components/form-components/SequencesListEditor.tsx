@@ -33,7 +33,7 @@ class SequencesListEditor extends Component<any,any> {
   constructor(props, context) {
     super(props, context);
     const fieldName = props.name;
-    let sequenceIds = [];
+    let sequenceIds: Array<string> = [];
     if (props.document[fieldName]) {
       sequenceIds = _.compact(JSON.parse(JSON.stringify(props.document[fieldName])));
     }
@@ -46,7 +46,7 @@ class SequencesListEditor extends Component<any,any> {
     const addToSuccessForm = this.context.addToSuccessForm;
     addToSuccessForm((results) => this.resetSequenceIds(results));
   }
-  onSortEnd = ({oldIndex, newIndex}) => {
+  onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
     const fieldName = this.props.name;
     const addValues = this.context.updateCurrentValues;
     const newIds = arrayMove(this.state.sequenceIds, oldIndex, newIndex);
@@ -55,7 +55,7 @@ class SequencesListEditor extends Component<any,any> {
     });
     addValues({[fieldName]: newIds});
   };
-  addSequenceId = (sequenceId) => {
+  addSequenceId = (sequenceId: string) => {
     const newIds = _.compact([...this.state.sequenceIds, sequenceId]);
     this.setState({
       sequenceIds: newIds,
@@ -64,7 +64,7 @@ class SequencesListEditor extends Component<any,any> {
     const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
-  removeSequenceId = (sequenceId) => {
+  removeSequenceId = (sequenceId: string) => {
     const newIds = _.without(this.state.sequenceIds, sequenceId);
     this.setState({
       sequenceIds: newIds || [],
@@ -85,6 +85,8 @@ class SequencesListEditor extends Component<any,any> {
     const disabledElements = ['input', 'textarea', 'select', 'option', 'button', 'svg'];
     if (disabledElements.indexOf(e.target.tagName.toLowerCase()) !== -1) {
       return true; // Return true to cancel sorting
+    } else {
+      return false;
     }
   }
 

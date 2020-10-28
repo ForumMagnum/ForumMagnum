@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postBodyStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
   },
   description: {
@@ -71,7 +71,7 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        <SequencesGrid sequences={book.sequences} />
+        <SequencesGrid sequences={book.sequences} bookItemStyle/>
       </SingleColumnSection>
       <Divider />
     </div>

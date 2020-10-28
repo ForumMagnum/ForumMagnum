@@ -11,7 +11,7 @@ import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
@@ -55,9 +55,9 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
             af
           }}
           cancelCallback={onClose}
-          successCallback={post => {
+          successCallback={(post: PostsList) => {
             history.push({pathname: Posts.getPageUrl(post)});
-            flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+            flash({ messageString: "Post created.", type: 'success'});
             onClose()
           }}
           formComponents={{

@@ -1,6 +1,6 @@
 import { Utils } from '../../lib/vulcan-lib';
 
-Utils.trimEmptyLatexParagraphs = (dom) => {
+Utils.trimLatexAndAddCSS = (dom, css) => {
   // Remove empty paragraphs
   var paragraphs = dom.getElementsByClassName("MJXc-display");
   // We trim all display equations that don't have any textContent. This seems
@@ -15,6 +15,10 @@ Utils.trimEmptyLatexParagraphs = (dom) => {
           len--;
       }
   }
+  const [firstLatexElement] = dom.getElementsByClassName("mjx-chtml");
+  const styleNode = dom.createElement("style");
+  styleNode.textContent = css;
+  if (firstLatexElement) firstLatexElement.appendChild(styleNode);
   return dom
 }
 

@@ -5,11 +5,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
+import { useUpdateContinueReading } from './useUpdateContinueReading';
 import classnames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper';
 
 // Shared with SequencesNavigationLinkDisabled
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 0,
     margin: 12,
@@ -27,10 +28,12 @@ export const styles = theme => ({
 });
 
 const SequencesNavigationLink = ({ post, direction, classes }: {
-  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
+  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost|null,
   direction: "left"|"right",
   classes: ClassesType,
 }) => {
+  const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
+  
   const icon = (
     <IconButton classes={{root: classnames(classes.root, {
       [classes.disabled]: !post,
@@ -41,8 +44,9 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   );
   
   if (post) {
+    const url = Posts.getPageUrl(post, false, post?.sequence?._id);
     const button = (
-      <Link to={Posts.getPageUrl(post, false, post.sequence?._id)}>
+      <Link onClick={() => updateContinueReading()} to={url}>
         {icon}
       </Link>
     )

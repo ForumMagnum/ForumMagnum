@@ -1,4 +1,5 @@
 import Users from "../users/collection";
+import { addFieldsDict } from '../../utils/schemaUtils';
 import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 
 addGraphQLSchema(`
@@ -16,6 +17,7 @@ addGraphQLSchema(`
     scoreChange: Int
     description: String
     postId: String
+    tagSlug: String
   }
 `);
 
@@ -33,7 +35,8 @@ addGraphQLSchema(`
 
 addGraphQLResolvers({
   KarmaChanges: {
-    updateFrequency: async (karmaChangesJSON, args, {currentUser}) => {
+    updateFrequency: async (karmaChangesJSON, args, context: ResolverContext) => {
+      const { currentUser } = context;
       if (!currentUser) return null;
       const settings = currentUser.karmaChangeNotifierSettings
       return settings.updateFrequency;
@@ -41,13 +44,10 @@ addGraphQLResolvers({
   }
 })
 
-Users.addField([
-  {
-    fieldName: "karmaChanges",
-    fieldSchema: {
-      viewableBy: Users.owns,
-      type: "KarmaChanges",
-      optional: true,
-    },
+addFieldsDict(Users, {
+  "karmaChanges": {
+    viewableBy: Users.owns,
+    type: "KarmaChanges",
+    optional: true,
   }
-]);
+});

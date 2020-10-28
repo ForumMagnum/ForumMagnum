@@ -3,11 +3,10 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
     marginBottom: -22
   },
@@ -40,14 +39,11 @@ const styles = theme => ({
   },
 })
 
-const PostsVote = ({ post, classes, collection }: {
-  post: PostsBase,
-  classes: ClassesType,
-  collection: any,
+const PostsVote = ({ post, classes }: {
+  post: PostsWithVotes,
+  classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser();
-  const vote = useVote();
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const voteProps = useVote(post, "Posts");
 
   return (
       <div className={classes.voteBlock}>
@@ -61,20 +57,17 @@ const PostsVote = ({ post, classes, collection }: {
               orientation="up"
               color="secondary"
               voteType="Upvote"
-              document={post}
-              currentUser={currentUser}
-              collection={collection}
-              vote={vote}
+              {...voteProps}
             />
           </div>
         </Tooltip>
         <div className={classes.voteScores}>
           <Tooltip
-            title={`${post.voteCount} ${post.voteCount == 1 ? "Vote" : "Votes"}`}
+            title={`${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes"}`}
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
-            <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
+            <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
           </Tooltip>
 
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
@@ -101,10 +94,7 @@ const PostsVote = ({ post, classes, collection }: {
               orientation="down"
               color="error"
               voteType="Downvote"
-              document={post}
-              currentUser={currentUser}
-              collection={collection}
-              vote={vote}
+              {...voteProps}
             />
           </div>
         </Tooltip>

@@ -5,19 +5,20 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { performVoteServer } from '../voteServer';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
-const addOrUpvoteTag = async ({tagId, postId, currentUser}: {
+const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
   tagId: string,
   postId: string,
   currentUser: DbUser,
+  context: ResolverContext,
 }): Promise<any> => {
   // Validate that tagId and postId refer to valid non-deleted documents
   // and that this user can see both.
   const post = Posts.findOne({_id: postId});
   const tag = Tags.findOne({_id: tagId});
-  if (!accessFilterSingle(currentUser, Posts, post))
-    throw new Error("Invalid postId");
-  if (!accessFilterSingle(currentUser, Tags, tag))
-    throw new Error("Invalid tagId");
+  if (!await accessFilterSingle(currentUser, Posts, post, context))
+    throw new Error(`Invalid postId ${postId}, either this post does not exist, or you do not have access`);
+  if (!await accessFilterSingle(currentUser, Tags, tag, context))
+    throw new Error(`Invalid tagId ${tagId}, either this tag does not exist, or you do not have access`);
   
   // Check whether this document already has this tag applied
   const existingTagRel = TagRels.findOne({ tagId, postId });
@@ -45,21 +46,23 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser}: {
 
 addGraphQLResolvers({
   Mutation: {
-    addOrUpvoteTag: async (root, { tagId, postId }, { currentUser }) => {
+    addOrUpvoteTag: async (root: void, {tagId, postId}: {tagId: string, postId: string}, context: ResolverContext) => {
+      const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to tag");
       if (!postId) throw new Error("Missing argument: postId");
       if (!tagId) throw new Error("Missing argument: tagId");
       
-      return addOrUpvoteTag({tagId, postId, currentUser});
+      return addOrUpvoteTag({tagId, postId, currentUser, context});
     },
     
-    addTags: async (root, {postId, tagIds}: {postId: string, tagIds: Array<string>}, {currentUser}) => {
+    addTags: async (root: void, {postId, tagIds}: {postId: string, tagIds: Array<string>}, context: ResolverContext) => {
+      const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to tag");
       if (!postId) throw new Error("Missing argument: postId");
       if (!tagIds) throw new Error("Missing argument: tagIds");
       
       await Promise.all(tagIds.map(tagId =>
-        addOrUpvoteTag({ tagId, postId, currentUser })
+        addOrUpvoteTag({ tagId, postId, currentUser, context })
       ));
       
       return true;

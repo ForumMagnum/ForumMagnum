@@ -58,7 +58,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
         const oldPost = Posts.findOne({title: post.title, userId: userId});
 
         if (!oldPost){
-          newMutation({
+          void newMutation({
             collection: Posts,
             document: post,
             currentUser: lwUser,
@@ -66,7 +66,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
           })
         } else {
           if(overwrite) {
-            editMutation({
+            void editMutation({
               collection: Posts,
               documentId: oldPost._id,
               set: {...post},
@@ -91,7 +91,7 @@ let zviId = "N9zj5qpTfqmbn9dro"
 let zviImport = false;
 
 if (zviImport) {
-  rssImport(zviId, zviRSS, 10, true);
+  void rssImport(zviId, zviRSS, 10, true);
 }
 
 let katjaRSS = "https://meteuphoric.wordpress.com/feed/?paged="
@@ -99,7 +99,7 @@ let katjaId = "jRRYAy2mQAHy2Mq3f"
 let katjaImport = false;
 
 if (katjaImport) {
-  rssImport(katjaId, katjaRSS, 40, true);
+  void rssImport(katjaId, katjaRSS, 40, true);
 }
 
 let putanumonitRSS = "https://putanumonit.com/feed/?paged=";
@@ -107,5 +107,5 @@ let putanumonitId = "tzER8b2F9ofG5wq5p";
 let putanumonitImport = false;
 
 if (putanumonitImport) {
-  rssImport(putanumonitId, putanumonitRSS, 4, false, "putanumonit", "https://putanumonit.com/feed/");
+  void rssImport(putanumonitId, putanumonitRSS, 4, false, "putanumonit", "https://putanumonit.com/feed/");
 }

@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     ...theme.typography.body2,
@@ -87,7 +87,7 @@ const styles = theme => ({
   }
 });
 
-const levelToClassName = (level, classes) => {
+const levelToClassName = (level: number, classes: ClassesType) => {
   switch(level) {
     case 0: return classes.level0;
     case 1: return classes.level1;

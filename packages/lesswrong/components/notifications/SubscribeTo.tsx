@@ -14,7 +14,7 @@ import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -99,7 +99,7 @@ const SubscribeTo = ({
         collectionName,
         type: subscriptionType,
       }
-      createSubscription({data: newSubscription})
+      await createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed
       flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../../../lib/executionEnvironment';
 import { withNavigation } from '../../../lib/routeUtil';
 
 const topSection = "top";
@@ -99,8 +99,8 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
     }
   }
 
-  jumpToAnchor(anchor: string, ev) {
-    if (Meteor.isServer) return;
+  jumpToAnchor(anchor: string, ev: MouseEvent|null) {
+    if (isServer) return;
 
     const anchorY = this.getAnchorY(anchor);
     if (anchorY !== null) {
@@ -111,8 +111,8 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
     }
   }
 
-  jumpToY(y, ev) {
-    if (Meteor.isServer) return;
+  jumpToY(y: number, ev: MouseEvent|null) {
+    if (isServer) return;
 
     if (ev && (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey))
       return;
@@ -147,7 +147,7 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
     const { sectionData } = this.props;
     const sections = sectionData && sectionData.sections
 
-    if (Meteor.isServer)
+    if (isServer)
       return null;
     if (!sections)
       return null;

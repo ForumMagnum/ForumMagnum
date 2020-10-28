@@ -4,7 +4,7 @@ import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
 import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
-import { Random } from 'meteor/random';
+import { randomId } from '../lib/random';
 
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
@@ -57,7 +57,7 @@ export const catchGraphQLErrors = function(before?: any, after?: any) {
       this.errors = [];
       this.errorsRetrieved = false;
     }
-    addError(error) {
+    addError(error: any) {
       if (Array.isArray(error)) {
         for (let i=0; i<error.length; i++) {
           this.errors.push(error);
@@ -71,7 +71,7 @@ export const catchGraphQLErrors = function(before?: any, after?: any) {
   let errorCatcher = new ErrorCatcher();
 
   (before ? before : beforeEach)(() => {
-    setOnGraphQLError((errors) => {
+    setOnGraphQLError((errors: any) => {
       errorCatcher.addError(errors);
     });
   });
@@ -86,7 +86,7 @@ export const catchGraphQLErrors = function(before?: any, after?: any) {
 // Given an error thrown from GraphQL, assert that it is permissions-flavored
 // (as opposed to a type error, syntax error, or random unrecognized thing). If
 // given an array of errors, asserts that all of them are permissions flavored.
-export const assertIsPermissionsFlavoredError = (error) => {
+export const assertIsPermissionsFlavoredError = (error: any): void => {
   if (!isPermissionsFlavoredError(error)) {
     //eslint-disable-next-line no-console
     console.error(JSON.stringify(error));
@@ -94,7 +94,7 @@ export const assertIsPermissionsFlavoredError = (error) => {
   }
 }
 
-const isPermissionsFlavoredError = (error) => {
+const isPermissionsFlavoredError = (error: any): boolean => {
   if (Array.isArray(error)) {
     if (error.length === 0)
       return false;
@@ -159,7 +159,7 @@ export const createDummyPost = async (user?: any, data?: any) => {
   const defaultUser = await createDefaultUser();
   const defaultData = {
     userId: (user && user._id) ? user._id : defaultUser._id,
-    title: Random.id(),
+    title: randomId(),
   }
   const postData = {...defaultData, ...data};
   const newPostResponse = await newMutation({
@@ -167,13 +167,12 @@ export const createDummyPost = async (user?: any, data?: any) => {
     document: postData,
     currentUser: user || defaultUser,
     validate: false,
-    context: {},
   });
   return newPostResponse.data
 }
 
 export const createDummyUser = async (data?: any) => {
-  const testUsername = Random.id()
+  const testUsername = randomId()
   const defaultData = {
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
@@ -184,7 +183,6 @@ export const createDummyUser = async (data?: any) => {
     collection: Users,
     document: userData,
     validate: false,
-    context: {},
   })
   return newUserResponse.data;
 }
@@ -210,7 +208,6 @@ export const createDummyComment = async (user: any, data?: any) => {
     document: commentData,
     currentUser: user || defaultUser,
     validate: false,
-    context: {},
   });
   return newCommentResponse.data
 }
@@ -226,7 +223,6 @@ export const createDummyConversation = async (user: any, data?: any) => {
     document: conversationData,
     currentUser: user,
     validate: false,
-    context: {},
   });
   return newConversationResponse.data
 }
@@ -243,7 +239,6 @@ export const createDummyMessage = async (user: any, data?: any) => {
     document: messageData,
     currentUser: user,
     validate: false,
-    context: {},
   });
   return newMessageResponse.data
 }
@@ -281,7 +276,7 @@ function stringifyObject(obj_from_json){
 
 export const userUpdateFieldFails = async ({user, document, fieldName, newValue, collectionType, fragment}: any) => {
   if (newValue === undefined) {
-    newValue = Random.id()
+    newValue = randomId()
   }
 
   let newValueString = JSON.stringify(newValue)
@@ -307,7 +302,7 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   let comparedValue = newValue
 
   if (newValue === undefined) {
-    comparedValue = Random.id()
+    comparedValue = randomId()
     newValue = comparedValue;
   }
 
@@ -328,5 +323,4 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   const response = runQuery(query,{},{currentUser:user})
   const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
   return (response as any).should.eventually.deep.equal(expectedOutput);
-
 }

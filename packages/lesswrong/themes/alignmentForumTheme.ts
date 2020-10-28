@@ -27,13 +27,14 @@ const palette = {
   primary: indigo,
   secondary: indigo,
   lwTertiary: {
-    main: "#607e88"
+    main: "#607e88",
+    dark: "#607e88",
   },
   error: {
     main: deepOrange[900]
   },
   background: {
-    default: '#fff'
+    default: '#f8f8f8'
   },
   headerType: "primary"
 }

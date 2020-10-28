@@ -10,20 +10,65 @@ export const sanitizeAllowedTags = [
   'span', 'sub', 'sup', 'ins', 'del',
 ]
 
-export const sanitize = function(s) {
+export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
       img: [ 'src' , 'srcset'],
-      figure: ['style'],
-      td: ['rowspan', 'colspan'],
-      span: ['style']
+      figure: ['style', 'class'],
+      table: ['style'],
+      tbody: ['style'],
+      tr: ['style'],
+      td: ['rowspan', 'colspan', 'style'],
+      th: ['rowspan', 'colspan', 'style'],
+      span: ['style'],
+      div: ['class'],
+      a: ['href', 'name', 'target', 'rel']
+    },
+    allowedClasses: {
+      div: [ 'spoilers' ],
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,
-      'figure': {
-        'width': [/^(?:\d|\.)+(?:px|em|%)$/]
+      figure: {
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'padding': [/^.*$/],
+      },
+      table: {
+        'background-color': [/^.*$/],
+        'border-bottom': [/^.*$/],
+        'border-left': [/^.*$/],
+        'border-right': [/^.*$/],
+        'border-top': [/^.*$/],
+        'text-align': [/^.*$/],
+        'vertical-align': [/^.*$/],
+        'padding': [/^.*$/],
+      },
+      td: {
+        'background-color': [/^.*$/],
+        'border-bottom': [/^.*$/],
+        'border-left': [/^.*$/],
+        'border-right': [/^.*$/],
+        'border-top': [/^.*$/],
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'text-align': [/^.*$/],
+        'vertical-align': [/^.*$/],
+        'padding': [/^.*$/],
+      },
+      th: {
+        'background-color': [/^.*$/],
+        'border-bottom': [/^.*$/],
+        'border-left': [/^.*$/],
+        'border-right': [/^.*$/],
+        'border-top': [/^.*$/],
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'text-align': [/^.*$/],
+        'vertical-align': [/^.*$/],
+        'padding': [/^.*$/],
       },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
@@ -33,16 +78,23 @@ export const sanitize = function(s) {
   });
 };
 
-Utils.performCheck = (operation, user, checkedObject, context, documentId, operationName, collectionName) => {
-
+Utils.performCheck = async <T extends DbObject>(
+  operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>,
+  user: DbUser|null,
+  checkedObject: T,
+  
+  context: ResolverContext,
+  documentId: string,
+  operationName: string,
+  collectionName: CollectionNameString
+): Promise<void> => {
   if (!checkedObject) {
     throwError({ id: 'app.document_not_found', data: { documentId, operationName } });
   }
 
-  if (!operation(user, checkedObject, context)) {
+  if (!(await operation(user, checkedObject, context))) {
     throwError({ id: 'app.operation_not_allowed', data: { documentId, operationName } });
   }
-
 };
 
 export { Utils };

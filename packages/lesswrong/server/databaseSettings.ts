@@ -1,5 +1,5 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
-import { Meteor } from 'meteor/meteor';
+import { isDevelopment, runAtInterval } from '../lib/executionEnvironment';
 import { publicSettings, initializeSetting, registeredSettings } from '../lib/publicSettings'
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
@@ -30,7 +30,7 @@ function refreshSettingsCaches() {
   serverSettingsCache = serverSettingsObject?.value || {__initialized: true}
   // We modify the publicSettings object that is made available in lib to allow both the client and the server to access it
   Object.assign(publicSettings, publicSettingsObject?.value || {__initialized: true})
-  if (Meteor.isDevelopment && runValidateSettings) {
+  if (isDevelopment && runValidateSettings) {
     // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
     setTimeout(() => validateSettings(registeredSettings, publicSettings, serverSettingsCache), 30000)
   }
@@ -40,7 +40,7 @@ function refreshSettingsCaches() {
 
 refreshSettingsCaches()
 // We use Meteor.setInterval to make sure the code runs in a Fiber
-Meteor.setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+runAtInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
 
 /* 
   A setting which is stored in the database in the "databasemetadata" collection, with the key "serverSettings"

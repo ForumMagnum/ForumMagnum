@@ -1,8 +1,8 @@
 import { addGraphQLSchema, Vulcan } from './vulcan-lib';
 import { RateLimiter } from './rateLimiter';
-import React, { useContext, useEffect, useState, useRef } from 'react'
+import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
-import { Meteor } from 'meteor/meteor';
+import { isClient, isServer } from './executionEnvironment';
 import * as _ from 'underscore';
 
 addGraphQLSchema(`
@@ -34,7 +34,7 @@ export const AnalyticsUtil: any = {
 
 export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
   try {
-    if (Meteor.isServer) {
+    if (isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
       // queue.
       AnalyticsUtil.serverWriteEvent({
@@ -44,7 +44,7 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
           ...eventProps
         },
       });
-    } else if (Meteor.isClient) {
+    } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {
         type: eventType,
@@ -91,13 +91,13 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip])
 
-  const track: (type?: string|undefined, trackingData?: Record<string,any>)=>void = (type, trackingData) => {
+  const track = useCallback((type?: string|undefined, trackingData?: Record<string,any>) => {
     captureEvent(type || eventType, {
       ...trackingContext,
       ...eventProps,
       ...trackingData
     })
-  }
+  }, [trackingContext, eventProps, eventType])
   return {captureEvent: track}
 }
 
@@ -201,7 +201,7 @@ function flushClientEvents() {
     return;
 
   AnalyticsUtil.clientWriteEvents(pendingAnalyticsEvents.map(event => ({
-    ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
+    ...(isClient ? AnalyticsUtil.clientContextVars : null),
     ...event
   })));
   pendingAnalyticsEvents = [];

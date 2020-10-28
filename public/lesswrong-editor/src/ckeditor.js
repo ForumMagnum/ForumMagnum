@@ -49,12 +49,16 @@ import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import TableProperties from '@ckeditor/ckeditor5-table/src/tableproperties';
+import TableCellProperties from '@ckeditor/ckeditor5-table/src/tablecellproperties';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
+import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
+import Spoilers from './spoilers-plugin';
 //
 import { CleanStyleTags } from './clean-styles-plugin'
 
@@ -68,15 +72,13 @@ class PostEditorCollaboration extends BalloonBlockEditorBase {}
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
 //
-// alternately, if you're starting in the root directory and want to do it all in one go:
-//
-// cd ./public/lesswrong-editor; yarn install; yarn run build; cd ../..; yarn add ./public/lesswrong-editor;
+// alternately, you could run `yarn rebuild-reinstall-ckeditor` to do all of the above at once
 
 const headingOptions = {
 	options: [
 		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
 		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' }	
 	]
 };
 
@@ -114,10 +116,14 @@ const postEditorPlugins = [
 	Strikethrough,
 	Table,
 	TableToolbar,
+	TableProperties,
+	TableCellProperties,
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags
+	CleanStyleTags,
+	Spoilers,
+	AutoLink
 ];
 
 PostEditor.builtinPlugins = [
@@ -169,9 +175,8 @@ const postEditorConfig = {
 	heading: headingOptions,
 	table: {
 		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
+			'tableColumn', 'tableRow', 'mergeTableCells',
+			'tableProperties', 'tableCellProperties'
 		],
 		tableToolbar: [ 'comment' ]
 	},
@@ -214,15 +219,21 @@ CommentEditor.builtinPlugins = [
 	Link,
 	List,
 	Paragraph,
+	Code,
 	CodeBlock,
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
 	Table,
+	TableToolbar,
+	TableProperties,
+	TableCellProperties,
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags
+	CleanStyleTags,
+	Spoilers,
+	AutoLink
 ];
 
 CommentEditor.defaultConfig = {
@@ -255,9 +266,8 @@ CommentEditor.defaultConfig = {
 	heading: headingOptions,
 	table: {
 		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
+			'tableColumn', 'tableRow', 'mergeTableCells',
+			'tableProperties', 'tableCellProperties'
 		],
 		tableToolbar: [ 'comment' ]
 	},

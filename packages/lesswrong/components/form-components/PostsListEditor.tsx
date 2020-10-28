@@ -19,7 +19,7 @@ const SortableItem = SortableElement(({postId, currentUser, removeItem}) =>
 const SortableList = SortableContainer(({items, currentUser, removeItem}) => {
   return (
     <div>
-      {items.map((postId, index) => (
+      {items.map((postId: string, index: number) => (
         <SortableItem key={`item-${index}`} removeItem={removeItem} index={index} postId={postId} currentUser={currentUser}/>
       ))}
     </div>
@@ -43,7 +43,7 @@ class PostsListEditor extends Component<any,any> {
     const addToSuccessForm = this.context.addToSuccessForm;
     addToSuccessForm((results) => this.resetPostIds(results));
   }
-  onSortEnd = ({oldIndex, newIndex}) => {
+  onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
     const fieldName = this.props.name;
     const addValues = this.context.updateCurrentValues;
     const newIds = arrayMove(this.state.postIds, oldIndex, newIndex);
@@ -52,7 +52,7 @@ class PostsListEditor extends Component<any,any> {
     });
     addValues({[fieldName]: newIds});
   };
-  addPostId = (postId) => {
+  addPostId = (postId: string) => {
     const newIds = [...this.state.postIds, postId];
     this.setState({
       postIds: newIds,
@@ -61,7 +61,7 @@ class PostsListEditor extends Component<any,any> {
     const addValues = this.context.updateCurrentValues;
     addValues({[fieldName]: newIds});
   }
-  removePostId = (postId) => {
+  removePostId = (postId: string) => {
     const newIds = _.without(this.state.postIds, postId);
     this.setState({
       postIds: newIds,
@@ -82,6 +82,8 @@ class PostsListEditor extends Component<any,any> {
     const disabledElements = ['input', 'textarea', 'select', 'option', 'button', 'svg', 'path'];
     if (disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
+    } else {
+      return false;
     }
   }
 

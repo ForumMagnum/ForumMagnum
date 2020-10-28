@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const ContentType = new SimpleSchema({
@@ -14,16 +14,22 @@ export const ContentType = new SimpleSchema({
 
 SimpleSchema.extendOptions([ 'inputType' ]);
 
-const schema = {
+const schema: SchemaType<DbRevision> = {
   documentId: {
     type: String,
+    viewableBy: ['guests'],
+  },
+  collectionName: {
+    type: String,
+    viewableBy: ['guests'],
   },
   fieldName: {
     type: String,
+    viewableBy: ['guests'],
   },
   editedAt: {
     type: Date,
-    optional: true, 
+    optional: true,
     viewableBy: ['guests'],
   },
   updateType: {
@@ -38,12 +44,19 @@ const schema = {
     optional: true,
     viewableBy: ['guests']
   },
+  commitMessage: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members']
+  },
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
-      type: "User"
+      type: "User",
+      nullable: true
     }),
     viewableBy: ['guests'],
     optional: true,
@@ -92,7 +105,37 @@ const schema = {
     type: String,
     viewableBy: ['guests']
     // resolveAs defined in resolvers.js
-  }
+  },
+  changeMetrics: {
+    type: Object,
+    blackbox: true,
+    viewableBy: ['guests']
+  },
+  
+  tag: resolverOnlyField({
+    type: "Tag",
+    graphQLtype: "Tag",
+    viewableBy: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const {currentUser, Tags} = context;
+      if (revision.collectionName !== "Tags")
+        return null;
+      const tag = await context.loaders.Tags.load(revision.documentId);
+      return await accessFilterSingle(currentUser, Tags, tag, context);
+    }
+  }),
+  post: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+      const {currentUser, Posts} = context;
+      if (revision.collectionName !== "Posts")
+        return null;
+      const post = await context.loaders.Posts.load(revision.documentId);
+      return await accessFilterSingle(currentUser, Posts, post, context);
+    }
+  }),
 };
 
 export default schema;

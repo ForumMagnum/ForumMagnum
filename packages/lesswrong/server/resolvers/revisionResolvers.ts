@@ -123,5 +123,5 @@ addFieldsDict(Revisions, {
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }
-  }
+  },
 })

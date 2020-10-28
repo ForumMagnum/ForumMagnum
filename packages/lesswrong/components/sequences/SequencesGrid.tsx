@@ -3,14 +3,9 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
 // Shared with SequencesGridWrapper
-export const styles = theme => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   grid: {
   },
-
-  loadMore: {
-    marginTop: theme.spacing.unit,
-  },
-
   gridContent: {
     display: "flex",
     flexDirection: "row",
@@ -29,10 +24,11 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, classes }: {
+const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
   sequences: Array<SequencesPageFragment>,
   showAuthor?: boolean,
-  classes: ClassesType
+  classes: ClassesType,
+  bookItemStyle?: boolean
 }) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
@@ -42,6 +38,7 @@ const SequencesGrid = ({sequences, showAuthor, classes }: {
             sequence={sequence}
             key={sequence._id}
             showAuthor={showAuthor}
+            bookItemStyle={bookItemStyle}
           />
         );
       })}
