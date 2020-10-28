@@ -164,15 +164,27 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
 
   if (hasVotedClient({userVotes: document.currentUserVotes, voteType})) {
     returnedDocument = cancelVoteClient(voteOptions);
-    returnedDocument = runCallbacks(`votes.cancel.client`, returnedDocument, collection, user, voteType);
+    returnedDocument = runCallbacks({
+      name: `votes.cancel.client`,
+      iterator: returnedDocument,
+      properties: [collection, user, voteType]
+    });
   } else {
     if (voteTypes[voteType]?.exclusive) {
-      const tempDocument = runCallbacks(`votes.clear.client`, voteOptions.document, collection, user);
+      const tempDocument = runCallbacks({
+        name: `votes.clear.client`,
+        iterator: voteOptions.document,
+        properties: [collection, user]
+      });
       voteOptions.document = clearVotesClient({document:tempDocument})
 
     }
     returnedDocument = addVoteClient(voteOptions);
-    returnedDocument = runCallbacks(`votes.${voteType}.client`, returnedDocument, collection, user, voteType);
+    returnedDocument = runCallbacks({
+      name: `votes.${voteType}.client`,
+      iterator: returnedDocument,
+      properties: [collection, user, voteType]
+    });
   }
 
   return returnedDocument;

@@ -1,5 +1,5 @@
 import { registerMigration } from './migrationUtils';
-import { editMutation } from '../vulcan-lib';
+import { updateMutator } from '../vulcan-lib';
 
 
 import { Posts } from '../../lib/collections/posts/collection';
@@ -13,7 +13,7 @@ registerMigration({
     const afUsers = await Users.find({groups: "alignmentForum"}).fetch()
     const afUsersWithShortforms = afUsers.filter(user => !!user.shortformFeedId)
     for (const afUserWithShortforms of afUsersWithShortforms) {
-      await editMutation({
+      await updateMutator({
         collection: Posts,
         documentId: afUserWithShortforms.shortformFeedId,
         set: { af: true },

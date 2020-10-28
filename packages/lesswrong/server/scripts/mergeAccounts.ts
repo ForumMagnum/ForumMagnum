@@ -1,5 +1,5 @@
 import Users from '../../lib/collections/users/collection';
-import { Vulcan, editMutation, getCollection, Utils } from '../vulcan-lib';
+import { Vulcan, updateMutator, getCollection, Utils } from '../vulcan-lib';
 import { Revisions } from '../../lib/index';
 import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
@@ -11,7 +11,7 @@ import sumBy from 'lodash/sumBy';
 
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}) => {
-  await editMutation({
+  await updateMutator({
     collection,
     documentId,
     set: {[fieldName]: targetUserId},
@@ -47,7 +47,7 @@ const transferCollection = async ({sourceUserId, targetUserId, collectionName, f
 
 const transferEditableField = async ({documentId, targetUserId, collection, fieldName = "contents"}) => {
   // Update the denormalized revision on the document
-  await editMutation({
+  await updateMutator({
     collection,
     documentId,
     set: {[`${fieldName}.userId`]: targetUserId},
@@ -112,7 +112,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // eslint-disable-next-line no-console
   console.log("Transferring karma")
   const newKarma = await recomputeKarma(targetUserId)
-  await editMutation({
+  await updateMutator({
     collection: Users,
     documentId: targetUserId,
     set: {
@@ -148,7 +148,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // eslint-disable-next-line no-console
   console.log("Changing slugs of target account", sourceUser.slug, newOldSlugs)
   
-  await editMutation({
+  await updateMutator({
     collection: Users,
     documentId: targetUserId,
     set: {oldSlugs: newOldSlugs}, 
@@ -158,7 +158,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // Mark old acccount as deleted
   // eslint-disable-next-line no-console
   console.log("Marking old account as deleted")
-  await editMutation({
+  await updateMutator({
     collection: Users,
     documentId: sourceUserId,
     set: {deleted: true},

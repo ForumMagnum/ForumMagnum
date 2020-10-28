@@ -1,5 +1,5 @@
 import { addCronJob } from './cronUtil';
-import { newMutation } from './vulcan-lib';
+import { createMutator } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
@@ -17,7 +17,7 @@ if (isProduction) {
     },
     async job() {
       const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), gatherTownRoomId.get(), gatherTownRoomName.get());
-      void newMutation({
+      void createMutator({
         collection: LWEvents,
         document: {
           name: 'gatherTownUsersCheck',

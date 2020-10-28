@@ -1,27 +1,8 @@
 import Users from '../../lib/collections/users/collection';
-import { addCallback, Utils } from '../vulcan-lib';
+import { Utils } from '../vulcan-lib';
+import { getCollectionHooks } from '../mutationCallbacks';
 
-  //////////////////////////////////////////////////////
-  // Callbacks                                        //
-  //////////////////////////////////////////////////////
-
-  // remove this to get rid of dependency on vulcan:email
-
-  // function usersNewAdminUserCreationNotification (user) {
-  //   // send notifications to admins
-  //   const admins = Users.adminUsers();
-  //   admins.forEach(function(admin) {
-  //     if (Users.getSetting(admin, "notifications_users", false)) {
-  //       const emailProperties = Users.getNotificationProperties(user);
-  //       const html = VulcanEmail.getTemplate('newUser')(emailProperties);
-  //       VulcanEmail.send(Users.getEmail(admin), `New user account: ${emailProperties.displayName}`, VulcanEmail.buildTemplate(html));
-  //     }
-  //   });
-  //   return user;
-  // }
-  // addCallback("users.new.sync", usersNewAdminUserCreationNotification);
-
-  export function usersMakeAdmin (user: DbUser) {
+getCollectionHooks("Users").newSync.add(function usersMakeAdmin (user: DbUser) {
     // if this is not a dummy account, and is the first user ever, make them an admin
     // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later. 
     if (typeof user.isAdmin === 'undefined') {
@@ -29,18 +10,9 @@ import { addCallback, Utils } from '../vulcan-lib';
       user.isAdmin = (realUsersCount === 0);
     }
     return user;
-  }
-  addCallback('users.new.sync', usersMakeAdmin);
+});
 
-  //function usersEditGenerateHtmlBio (modifier) {
-  //  if (modifier.$set && modifier.$set.bio) {
-  //    modifier.$set.htmlBio = sanitize(marked(modifier.$set.bio));
-  //  }
-  //  return modifier;
-  //}
-  //addCallback('users.edit.sync', usersEditGenerateHtmlBio);
-
-  function usersEditCheckEmail (modifier, user: DbUser) {
+getCollectionHooks("Users").editSync.add(function usersEditCheckEmail (modifier, user: DbUser) {
     // if email is being modified, update user.emails too
     if (modifier.$set && modifier.$set.email) {
 
@@ -64,6 +36,5 @@ import { addCallback, Utils } from '../vulcan-lib';
       }
     }
     return modifier;
-  }
-  addCallback('users.edit.sync', usersEditCheckEmail);
+});
 
