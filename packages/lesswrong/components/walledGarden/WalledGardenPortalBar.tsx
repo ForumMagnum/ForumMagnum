@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { GardenCodes } from "../../lib/collections/gardencodes/collection";
-import {Button, TextField, Typography} from "@material-ui/core";
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { Button, Typography} from "@material-ui/core";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import {useTracking} from "../../lib/analyticsEvents";
-import { ExpandedDate } from "../common/FormatDate";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
+import { KeyboardArrowUp, KeyboardArrowDown } from '@material-ui/icons';
+import {CAL_ID} from "./gardenCalendar";
+
+const widgetStyling = {
+  width: "450px",
+  marginLeft: "30px",
+  marginTop: "25px"
+}
 
 const styles = (theme) => ({
   root: {
@@ -16,26 +21,36 @@ const styles = (theme) => ({
   },
   portalBarButton: {
     position: "absolute",
-    left: "50%",
+    left: "40%",
+    marginTop: "-20px"
   },
   gardenCodeWidget: {
-    width: "450px",
-    marginLeft: "30px",
-    marginTop: "20px"
-    // marginRight: "20px"
+    ...widgetStyling
   },
   eventWidget: {
+    ...widgetStyling
+  },
+  pomodoroTimerWidget: {
+    ...widgetStyling
+  },
+  pomodoroTimerIframe: {
     width: "450px",
-    marginLeft: "30px",
-    marginTop: "20px"
+    height: "250px",
+    marginTop: "5px"
   },
   body: {
-    display: 'flex',
+    display: "flex",
+    justifyContent: "space-evenly"
   },
+  calendarLinks: {
+    fontSize: ".8em",
+    // fontStyle: "italic",
+    marginTop: "3px"
+  }
 })
 
 export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
-  const { GardenCodeWidget, WalledGardenEvents } = Components
+  const { GardenCodeWidget, WalledGardenEvents, PomodoroWidget } = Components
 
   const currentUser =  useCurrentUser()
   const { mutate: updateUser } = useUpdate({
@@ -49,6 +64,8 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
 
 
   if (!currentUser) return null
+  const chevronStyle = {fontSize: 50}
+  const icon =  hideBar ? <KeyboardArrowUp style={chevronStyle}/> : <KeyboardArrowDown style={chevronStyle}/>
 
   return <div className={classes.root}>
     <Button className={classes.portalBarButton} onClick={ async () => {
@@ -60,7 +77,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
         },
       })
     }}>
-      <strong>{hideBar ? "Show" : "Hide"} Bar</strong>
+      { icon }
     </Button>
 
     {!hideBar && <div className={classes.body}>
@@ -69,11 +86,16 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
       </div>
       <div className={classes.eventWidget}>
         <Typography variant="title">Upcoming Events</Typography>
-        <WalledGardenEvents />
+        <WalledGardenEvents frontpage={false}/>
+        <div className={classes.calendarLinks}>
+          <div><a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank">View All Events (Gcal)</a></div>
+          <div><a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank">FB Group Events</a></div>
+          <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank">Create Event (FB)</a></div>
+        </div>
       </div>
-      
-      {/*//eventCalendar*/}
-      {/*<iframe src={"https://cuckoo.team/lesswrong"}></iframe>*/}
+      <div className={classes.pomodoroTimerWidget}>
+        <PomodoroWidget/>
+      </div>
     </div>
     }
   </div>

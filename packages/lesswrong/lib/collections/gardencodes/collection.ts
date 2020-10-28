@@ -6,6 +6,15 @@ import './permissions';
 import Users from '../../vulcan-users';
 import moment from 'moment'
 
+function generateCode(length) {
+  let result = '';
+  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < length; i++ ) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 
 const schema: SchemaType<DbGardenCode> = {
   createdAt: {
@@ -13,6 +22,14 @@ const schema: SchemaType<DbGardenCode> = {
     type: Date,
     canRead: ['guests'],
     onInsert: () => new Date(),
+  },
+  code: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: (gardenCode) => {
+      return generateCode(4)
+    },
   },
   title: {
     type: String,

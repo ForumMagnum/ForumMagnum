@@ -146,7 +146,7 @@ const GatherTown = ({classes}: {
     })
   }
 
-  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
+  const gatherTownURL = "/walledGardenPortal" //`https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
 
   const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
     <div>
@@ -181,7 +181,7 @@ const GatherTown = ({classes}: {
         <WalledGardenEvents />
         <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
         {/* <LWTooltip title={eventsList}>
-            
+
         </LWTooltip> */}
       </div>
     </div>

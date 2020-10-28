@@ -12,10 +12,10 @@ GardenCodes.addView('allGardenCodes', terms => {
   };
 });
 
-GardenCodes.addView('gardenCodeBySlug', terms => {
+GardenCodes.addView('gardenCodeByCode', terms => {
   return {
     selector: {
-      slug: terms.slug
+      code: terms.code
     },
   };
 });

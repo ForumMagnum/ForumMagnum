@@ -592,6 +592,7 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
 
 interface GardenCodeFragment { // fragment on GardenCodes
   readonly _id: string,
+  readonly code: string,
   readonly title: string,
   readonly userId: string,
   readonly deleted: boolean,
@@ -602,6 +603,7 @@ interface GardenCodeFragment { // fragment on GardenCodes
 
 interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly createdAt: Date,
+  readonly code: string,
   readonly title: string,
   readonly userId: string,
   readonly deleted: boolean,

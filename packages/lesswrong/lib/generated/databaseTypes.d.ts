@@ -261,6 +261,7 @@ interface GardenCodesCollection extends CollectionBase<DbGardenCode> {
 
 interface DbGardenCode extends DbObject {
   createdAt: Date
+  code: string
   title: string
   userId: string
   deleted: boolean

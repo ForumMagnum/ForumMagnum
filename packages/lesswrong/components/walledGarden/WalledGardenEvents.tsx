@@ -1,23 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import _uniqBy from 'lodash/uniqBy';
 import { getCalendarEvents } from './gardenCalendar';
-import moment from 'moment';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme) => ({
-  secondaryInfo: {
-    ...theme.typography.commentStyle,
-    fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)',
-    marginTop: 8
-  },
-  eventTime: {
-    fontSize: ".8em",
-    opacity: .75
-  },
-})
 
-const WalledGardenEvents = ({classes}) => {
+const WalledGardenEvents = ({frontpage=true}) => {
+  const { FrontpageGcalEventItem, PortalBarGcalEventItem } = Components
+
   const [ events, setEvents ] = useState<any>([])
   useEffect(() => {
     const eventsCallback = (events) => {
@@ -29,20 +18,20 @@ const WalledGardenEvents = ({classes}) => {
     }
   }, [])
 
-  if (!(events.length > 0)) return null 
-  
-  return <div className={classes.secondaryInfo}>
-    {events.slice(0,2).map((event,i)=><div key={`event-${i}`}>
-      <span>
-        {event.summary}{" "}
-        <span className={classes.eventTime}>{moment(new Date(event.start.dateTime)).calendar()}</span>
-      </span>
-    </div>)}
+
+  const limit = frontpage ? 2 : 10
+  if (!(events.length > 0)) return null
+
+  return <div>
+    { events.slice(0,limit).map((event,i)=> frontpage ?
+      <FrontpageGcalEventItem key={`event-${i}`} gcalEvent={event}/>
+      : <PortalBarGcalEventItem key={`event-${i}`} gcalEvent={event}/>
+    )}
   </div>
 }
 
 
-const WalledGardenEventsComponent = registerComponent('WalledGardenEvents', WalledGardenEvents, {styles});
+const WalledGardenEventsComponent = registerComponent('WalledGardenEvents', WalledGardenEvents);
 
 declare global {
   interface ComponentTypes {

@@ -10,6 +10,7 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
+import moment from 'moment';
 
 const styles = (theme) => ({
   messageStyling: {
@@ -37,7 +38,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
     event.target.select()
   }
 
-  const generatedLink = `localhost:3000/walledGardenPortal?inviteCode=${currentCode?._id}-${currentCode?.slug}`
+  const generatedLink = `localhost:3000/walledGardenPortal?code=${currentCode?.code}&event=${currentCode?.slug}`
 
   if (!currentUser) return null
 
@@ -45,32 +46,30 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
     <Typography variant="title">Generate Invite Links</Typography>
     {!!currentCode
       ? <div>
-          {/*Here is your code! It is valid between {moment(new Date(currentCode?.startTime))} and {moment(new Date(currentCode?.endTime))}.*/}
-          Here is your invite link! It is valid between <strong><ExpandedDate date={currentCode?.startTime}/></strong>
-          and <strong><ExpandedDate date={currentCode?.endTime}/></strong>
-          <TextField
-          className={classes.inviteCode}
-          // label={"Your code!"}
-          onClick={autoselectCode}
-          onSelect={autoselectCode}
-          value={generatedLink}
-          fullWidth
-          />
-          <CopyToClipboard
-          text={generatedLink}
-          onCopy={(text, result) => {
-          setCopiedCode(result);
-          captureEvent("gardenCodeLinkCopied", {generatedLink})
-          }}
-          >
-          <Button color="primary">{copiedCode ? "Copied!" : "Copy Link"}</Button>
-          </CopyToClipboard>
-          <Button onClick={() => {
-          setCurrentCode(null)
-          setCopiedCode(false)
-          }}>
-          Generate New Code
-          </Button>
+            Here is your code! It is valid from <strong>{moment(new Date(currentCode?.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode?.endTime)).format("h:mma")}</strong>.
+            <TextField
+              className={classes.inviteCode}
+              // label={"Your code!"}
+              onClick={autoselectCode}
+              onSelect={autoselectCode}
+              value={generatedLink}
+              fullWidth
+            />
+            <CopyToClipboard
+              text={generatedLink}
+              onCopy={(text, result) => {
+              setCopiedCode(result);
+              captureEvent("gardenCodeLinkCopied", {generatedLink})
+              }}
+              >
+              <Button color="primary">{copiedCode ? "Copied!" : "Copy Link"}</Button>
+            </CopyToClipboard>
+            <Button onClick={() => {
+              setCurrentCode(null)
+              setCopiedCode(false)
+            }}>
+              Generate New Code
+            </Button>
           </div>
       : <div>
           <div>

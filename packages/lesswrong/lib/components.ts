@@ -267,7 +267,11 @@ importComponent("GroupFormDialog", () => require('../components/localGroups/Grou
 importComponent("WalledGardenHome", () => require('../components/walledGarden/WalledGardenHome'));
 importComponent("WalledGardenPortal", () => require('../components/walledGarden/WalledGardenPortal'));
 importComponent("WalledGardenEvents", () => require('../components/walledGarden/WalledGardenEvents'));
+importComponent("FrontpageGcalEventItem", () => require('../components/walledGarden/FrontpageGcalEventItem'));
+importComponent("PortalBarGcalEventItem", () => require('../components/walledGarden/PortalBarGcalEventItem'));
 importComponent("GardenCodeWidget", () => require('../components/walledGarden/GardenCodeWidget'));
+importComponent("WalledGardenMessage", () => require('../components/walledGarden/WalledGardenMessage'));
+importComponent("PomodoroWidget", () => require('../components/walledGarden/PomodoroWidget'));
 importComponent("WalledGardenPortalBar", () => require('../components/walledGarden/WalledGardenPortalBar'));
 importComponent("GatherTown", () => require('../components/walledGarden/GatherTown'));
 
