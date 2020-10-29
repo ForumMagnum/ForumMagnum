@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
-import { gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
