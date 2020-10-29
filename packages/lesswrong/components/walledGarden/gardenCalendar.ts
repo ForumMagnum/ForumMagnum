@@ -1,3 +1,4 @@
+import moment from "moment"
 
 const API_KEY = 'AIzaSyCGszBQXwdm0Wrv9kl3P4yh_agzPPWYag4';
 export const CAL_ID = 'vovsdsnc1k83iufqpdalbd675k@group.calendar.google.com';
@@ -9,14 +10,14 @@ export const getCalendarEvents = async (callback) => {
   script.src = "https://apis.google.com/js/api.js";
   document.body.appendChild(script);
 
-  script.onload = () => { 
+  script.onload = () => {
     gapi.load('client:auth2', initClient);
     loadEvents(callback)
   }
 }
 const loadEvents = (callback) => {
-  const twoHoursAgo = (new Date(new Date().getTime()-(2*60*60*1000))).toISOString()
-  const oneWeekFromNow = (new Date(new Date().getTime()+(7*24*60*60*1000))).toISOString()
+  const twoHoursAgo = moment().subtract(2, 'hours').toISOString()
+  const oneMonthFromNow = moment().add(30, 'days').toISOString()
   function start() {
     gapi.client.init({
       'apiKey': API_KEY
@@ -25,10 +26,10 @@ const loadEvents = (callback) => {
         'path': `https://www.googleapis.com/calendar/v3/calendars/${CAL_ID}/events`,
         'params': {
           'timeMin': twoHoursAgo,
-          'timeMax': oneWeekFromNow,
+          'timeMax': oneMonthFromNow,
           'showDeleted': false,
           'singleEvents': true,
-          'maxResults': 10,
+          'maxResults': 50,
           'orderBy': 'startTime'
         }
       })

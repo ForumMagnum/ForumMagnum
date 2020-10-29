@@ -273,6 +273,7 @@ importComponent("GardenCodeWidget", () => require('../components/walledGarden/Ga
 importComponent("WalledGardenMessage", () => require('../components/walledGarden/WalledGardenMessage'));
 importComponent("PomodoroWidget", () => require('../components/walledGarden/PomodoroWidget'));
 importComponent("WalledGardenPortalBar", () => require('../components/walledGarden/WalledGardenPortalBar'));
+importComponent("GatherTownIframeWrapper", () => require('../components/walledGarden/GatherTownIframeWrapper'));
 importComponent("GatherTown", () => require('../components/walledGarden/GatherTown'));
 
 // comments

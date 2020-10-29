@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
@@ -42,7 +42,7 @@ const styles = (theme) => ({
 
 
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenPortalBar, WalledGardenMessage } = Components
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenPortalBar, WalledGardenMessage, GatherTownIframeWrapper } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collection: Users,
@@ -75,6 +75,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const [onboarded, setOnboarded] = useState(currentUser?.walledGardenPortalOnboarded||false);
   const [expiredGardenCode, setExpiredGardenCode] = useState(moreThanFourHoursAfterCodeExpiry(gardenCode));
+  const iframeRef = useRef(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -164,11 +165,10 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </SingleColumnSection>
   }
 
-  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
   return <div className={classes.innerPortalPositioning}>
-    <iframe className={classes.iframePositioning} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
+    <GatherTownIframeWrapper  iframeRef={iframeRef}/>
     <div className={classes.portalBarPositioning}>
-      <WalledGardenPortalBar/>
+      <WalledGardenPortalBar iframeRef={iframeRef}/>
     </div>
   </div>
 }

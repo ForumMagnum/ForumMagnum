@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Typography} from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Users from "../../lib/vulcan-users";
@@ -48,7 +48,7 @@ const styles = (theme) => ({
   }
 })
 
-export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
+export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, classes:ClassesType}) => {
   const { GardenCodeWidget, WalledGardenEvents, PomodoroWidget } = Components
 
   const currentUser =  useCurrentUser()
@@ -57,8 +57,8 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
     fragmentName: 'UsersCurrent',
   })
 
-  const barViewedMoreThan3DaysAgo =  moment(currentUser?.walledGardenPortalBarLastViewed).add(3, "days").isBefore(new Date())
-  const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar||barViewedMoreThan3DaysAgo)
+  const barViewedMoreThan2DaysAgo =  moment(currentUser?.walledGardenPortalBarLastViewed).add(2, "days").isBefore(new Date())
+  const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar||barViewedMoreThan2DaysAgo)
 
   const updatePortalBarLastShown = useCallback(async () => {
     if (currentUser) {
@@ -80,10 +80,12 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
 
   const chevronStyle = {fontSize: 50}
   const icon =  hideBar ? <KeyboardArrowUp style={chevronStyle}/> : <KeyboardArrowDown style={chevronStyle}/>
+  const refocusOnIframe = () => iframeRef.current.focus()
 
   return <div className={classes.root}>
     <span className={classes.portalBarButton} onClick={ async () => {
       setHideBar(!hideBar);
+      refocusOnIframe();
       void updateUser({
         selector: { _id: currentUser._id },
         data: {
@@ -98,7 +100,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
       {currentUser.walledGardenInvite && <div className={classes.gardenCodeWidget}>
         <GardenCodeWidget/>
       </div>}
-      {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
+      {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
         <Typography variant="title">Upcoming Events</Typography>
         <WalledGardenEvents frontpage={false}/>
         <div className={classes.calendarLinks}>
@@ -110,7 +112,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
             (FB)</a></div>
         </div>
       </div>}
-      <div className={classes.pomodoroTimerWidget}>
+      <div className={classes.pomodoroTimerWidget} onClick={() => refocusOnIframe()}>
         <PomodoroWidget />
       </div>
     </div>
