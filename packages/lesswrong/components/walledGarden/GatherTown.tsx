@@ -157,10 +157,6 @@ const GatherTown = ({classes}: {
       </Link>
   </LWTooltip> : null
 
-  // const eventsList = <div>
-  //   {events.map((event, i)=><div key={`event-full-${i}`}>{eventComponent(event)}</div>)}
-  // </div>
-
   return (
     <div className={classes.root}>
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />

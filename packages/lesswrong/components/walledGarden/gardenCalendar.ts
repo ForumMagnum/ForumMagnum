@@ -45,7 +45,7 @@ const loadEvents = (callback) => {
 }
 
 function initClient() {
-  gapi.client.init({
+  void gapi.client.init({
     apiKey: API_KEY,
     // clientId: CLIENT_ID,
     discoveryDocs: DISCOVERY_DOCS,
