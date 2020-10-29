@@ -105,7 +105,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </WalledGardenMessage>
 
     if (codeNotYetValid) return <WalledGardenMessage>
-      <p>Your invite code is for an event that has yet started! Please come back at <strong><ExpandedDate date={gardenCode?.startTime} /></strong></p>
+      <p>Your invite code is for an event that has yet started! Please come back at <strong>{moment(gardenCode?.startTime).format("dddd, MMMM Do, h:mma")}</strong></p>
     </WalledGardenMessage>
 
     if (codeExpiredBeforeSession) return <WalledGardenMessage>
@@ -156,7 +156,9 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
               walledGardenPortalOnboarded: true
             }
           })
-        }}}>
+        }
+        }
+        }>
           <b>Enter the Garden</b>
         </a>
       </AnalyticsTracker>
