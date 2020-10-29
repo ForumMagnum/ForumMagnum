@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { Button } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography';
 
 const styles = (theme) => ({

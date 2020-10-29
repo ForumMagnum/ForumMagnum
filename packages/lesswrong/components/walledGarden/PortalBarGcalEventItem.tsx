@@ -1,12 +1,9 @@
 import React from 'react'
 import moment from 'moment';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme) => ({
   secondaryInfo: {
-    // fontSize: '1rem',
-    // color: 'rgba(0,0,0,0.9)',
-    // color: theme.palette.secondary.main,
     marginTop: 5
   },
   eventTime: {
@@ -16,8 +13,6 @@ const styles = (theme) => ({
 })
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
-
-  const { LWTooltip } = Components
 
   return <div className={classes.secondaryInfo}>
       <span>

@@ -22,14 +22,9 @@ const styles = (theme) => ({
 })
 
 export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
-  const { SectionTitle, FormatDate } = Components
 
   const { captureEvent } = useTracking()
   const currentUser =  useCurrentUser()
-  const { mutate: updateUser } = useUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
 
   const [currentCode, setCurrentCode] = useState<GardenCodeFragment|null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
@@ -46,7 +41,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
     <Typography variant="title">Generate Invite Links</Typography>
     {!!currentCode
       ? <div>
-            Here is your code! It is valid from <strong>{moment(new Date(currentCode?.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode?.endTime)).format("h:mma")}</strong>.
+            Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode?.endTime)).format("h:mma")}</strong>.
             <TextField
               className={classes.inviteCode}
               // label={"Your code!"}

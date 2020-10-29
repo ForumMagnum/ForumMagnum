@@ -1,5 +1,5 @@
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React, { useEffect, useState } from 'react';
 
 import { gatherIcon } from '../icons/gatherIcon';
 import { LWEvents } from '../../lib/collections/lwevents';
@@ -12,10 +12,9 @@ import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
-import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
-import { getCalendarEvents, CAL_ID } from '../walledGarden/gardenCalendar';
-import moment from 'moment';
-import _uniqBy from 'lodash/uniqBy';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { CAL_ID } from '../walledGarden/gardenCalendar';
+
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
@@ -180,9 +179,6 @@ const GatherTown = ({classes}: {
         </div>}
         <WalledGardenEvents />
         <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
-        {/* <LWTooltip title={eventsList}>
-
-        </LWTooltip> */}
       </div>
     </div>
   )

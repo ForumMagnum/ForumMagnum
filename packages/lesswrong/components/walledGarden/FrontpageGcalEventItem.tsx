@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import _uniqBy from 'lodash/uniqBy';
-import { getCalendarEvents } from './gardenCalendar';
+import React from 'react'
 import moment from 'moment';
 import { registerComponent } from '../../lib/vulcan-lib';
 

@@ -1,13 +1,12 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { Button, Typography} from "@material-ui/core";
-import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import {useTracking} from "../../lib/analyticsEvents";
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Typography} from "@material-ui/core";
+import {commentBodyStyles } from "../../themes/stylePiping";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
 import { KeyboardArrowUp, KeyboardArrowDown } from '@material-ui/icons';
-import {CAL_ID} from "./gardenCalendar";
+import { CAL_ID } from "./gardenCalendar";
 import moment from "moment"
 
 const widgetStyling = {
@@ -58,8 +57,6 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
     fragmentName: 'UsersCurrent',
   })
 
-  const { captureEvent } = useTracking()
-
   const barViewedMoreThan3DaysAgo =  moment(currentUser?.walledGardenPortalBarLastViewed).add(3, "days").isBefore(new Date())
   const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar||barViewedMoreThan3DaysAgo)
 
@@ -75,7 +72,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
   },[])
 
   useEffect(() => {
-    if (!hideBar) updatePortalBarLastShown
+    if (!hideBar) updatePortalBarLastShown()
     }, [updatePortalBarLastShown, hideBar]
   )
 
@@ -98,10 +95,10 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
     </span>
 
     {!hideBar && <div className={classes.widgetsContainer}>
-      {currentUser?.walledGardenInvite && <div className={classes.gardenCodeWidget}>
+      {currentUser.walledGardenInvite && <div className={classes.gardenCodeWidget}>
         <GardenCodeWidget/>
       </div>}
-      {currentUser?.walledGardenInvite && <div className={classes.eventWidget}>
+      {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
         <Typography variant="title">Upcoming Events</Typography>
         <WalledGardenEvents frontpage={false}/>
         <div className={classes.calendarLinks}>

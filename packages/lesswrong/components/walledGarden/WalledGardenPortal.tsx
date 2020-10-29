@@ -5,7 +5,6 @@ import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
 import { gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
 import { GardenCodes } from "../../lib/collections/gardencodes/collection";
-import { ExpandedDate } from "../common/FormatDate";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
@@ -149,7 +148,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
       <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
         <a onClick={ async () => {
           setOnboarded(true)
-          if (currentUser && !currentUser?.walledGardenPortalOnboarded) {
+          if (currentUser && !currentUser.walledGardenPortalOnboarded) {
           void updateUser({
             selector: {_id: currentUser._id},
             data: {
