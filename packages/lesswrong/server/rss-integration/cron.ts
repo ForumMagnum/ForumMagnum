@@ -1,6 +1,6 @@
 import { addCronJob } from '../cronUtil';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
-import { newMutation, editMutation, Vulcan } from '../vulcan-lib';
+import { createMutator, updateMutator, Vulcan } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
@@ -27,7 +27,7 @@ const runRSSImport = async () => {
       var set: any = {};
       set.rawFeed = currentPosts;
 
-      await editMutation({
+      await updateMutator({
         collection: RSSFeeds,
         documentId: feed._id,
         set: set,
@@ -63,7 +63,7 @@ const runRSSImport = async () => {
 
         let lwUser = Users.findOne({_id: feed.userId});
 
-        await newMutation({
+        await createMutator({
           collection: Posts,
           document: post,
           currentUser: lwUser,

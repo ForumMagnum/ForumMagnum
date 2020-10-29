@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { shallowEqual } from '../../lib/utils/componentUtils';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 
 interface ListeningComponentState {
   eventListeners: Array<(event: KeyboardEvent)=>void>,
@@ -11,7 +11,7 @@ const withGlobalKeydown = (WrappedComponent) => {
     state: ListeningComponentState = { eventListeners: []}
     
     addKeydownListener = (callback: (event: KeyboardEvent)=>void) => {
-      if (Meteor.isClient) {
+      if (isClient) {
         document.addEventListener('keydown', callback)
         // Store event listener by modifying state in-place, rather than
         // changing the (shallow-comparison) state, so that this doesn't
@@ -21,7 +21,7 @@ const withGlobalKeydown = (WrappedComponent) => {
     }
 
     componentWillUnmount() {
-      if (Meteor.isClient) {
+      if (isClient) {
         this.state.eventListeners.forEach((callback) => {
           document.removeEventListener('keydown', callback);
         })
@@ -38,7 +38,7 @@ export default withGlobalKeydown
 
 export const useGlobalKeydown = (keyboardHandlerFn: (this: Document, ev: KeyboardEvent)=>any) => {
   React.useEffect(() => {
-    if (Meteor.isClient) {
+    if (isClient) {
       document.addEventListener('keydown', keyboardHandlerFn)
       
       return function cleanup() {

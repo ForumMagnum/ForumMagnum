@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
+import { meteorLogout } from '../../lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from '../../lib/collections/users/collection';
 import { withApollo } from 'react-apollo';
@@ -180,7 +180,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
             <Divider/>
             <MenuItem onClick={() => {
               captureEvent("logOutClicked")
-              Meteor.logout(() => client.resetStore())
+              meteorLogout(() => client.resetStore())
             }}>
               Log Out
             </MenuItem>

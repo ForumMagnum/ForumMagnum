@@ -8,6 +8,7 @@
 import Cookies from 'universal-cookie';
 
 import { Meteor } from 'meteor/meteor';
+import { onStartup, deferWithoutDelay } from '../../lib/executionEnvironment';
 
 const cookie = new Cookies();
 
@@ -43,7 +44,7 @@ function initToken() {
   }
 }
 
-Meteor.startup(() => {
+onStartup(() => {
   initToken();
 });
 
@@ -54,14 +55,14 @@ Meteor.startup(() => {
 const originalSetItem = Meteor._localStorage.setItem;
 Meteor._localStorage.setItem = function setItem(key: string, value: string) {
   if (key === 'Meteor.loginToken') {
-    Meteor.defer(initToken);
+    deferWithoutDelay(initToken);
   }
   originalSetItem.call(Meteor._localStorage, key, value);
 };
 const originalRemoveItem = Meteor._localStorage.removeItem;
 Meteor._localStorage.removeItem = function removeItem(key: string) {
   if (key === 'Meteor.loginToken') {
-    Meteor.defer(initToken);
+    deferWithoutDelay(initToken);
   }
   originalRemoveItem.call(Meteor._localStorage, key);
 };

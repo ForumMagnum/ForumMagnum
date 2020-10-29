@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
-import { newMutation } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 
 const hpmorImport = false;
 
@@ -41,7 +41,7 @@ if (hpmorImport) {
     const oldPost = Posts.findOne({title: post.title});
 
     if (!oldPost){
-      void newMutation({
+      void createMutator({
         collection: Posts,
         document: post,
         currentUser: lwUser,

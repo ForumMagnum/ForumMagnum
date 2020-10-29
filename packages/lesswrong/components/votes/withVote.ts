@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { performVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
-import { Random } from 'meteor/random';
+import { randomId } from '../../lib/random';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const getVoteMutationQuery = (collection) => {
@@ -38,7 +38,7 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
     }, []),
   });
   
-  const vote = useCallback(({document, voteType, collection, currentUser, voteId = Random.id()}) => {
+  const vote = useCallback(({document, voteType, collection, currentUser, voteId = randomId()}) => {
     const newDocument = performVoteClient({collection, document, user: currentUser, voteType, voteId});
 
     try {

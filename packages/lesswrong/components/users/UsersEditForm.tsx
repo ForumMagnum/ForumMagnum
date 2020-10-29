@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Users from '../../lib/collections/users/collection';
 import Button from '@material-ui/core/Button';
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { withApollo } from 'react-apollo'

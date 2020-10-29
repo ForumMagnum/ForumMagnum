@@ -5,12 +5,16 @@
  * was getting ignored by the type checker as an external library file, as
  * --skipLibCheck just ignores all .d.ts files.
  */
+import DataLoader from 'dataloader';
+
+/// This file is wrapped in 'declare global' because it's an ambient declaration
+/// file (meaning types in this file can be used without being imported).
+declare global {
 
 interface CollectionBase<T extends DbObject> {
   collectionName: CollectionNameString
   typeName: string,
-  options: any
-  
+  options: CollectionOptions
   addDefaultView: any
   addView: any
   defaultView: (terms: any) => any
@@ -19,12 +23,6 @@ interface CollectionBase<T extends DbObject> {
   simpleSchema: any
   addField: any
   helpers: any
-  
-  // TODO: Type-system plumbing should handle the fact that loaders are available
-  // if you get the collection via a resolver's context, but not available if you
-  // just import the collection.
-  loader: any
-  extraLoaders: Record<string,any>
   
   rawCollection: any
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
@@ -40,6 +38,17 @@ interface CollectionBase<T extends DbObject> {
   insert: any
   aggregate: any
   _ensureIndex: any
+}
+
+interface CollectionOptions {
+  typeName: string
+  collectionName: CollectionNameString
+  singleResolverName: string
+  multiResolverName: string
+  mutations: any
+  resolvers: any
+  interfaces: Array<string>
+  description: string
 }
 
 interface FindResult<T> {
@@ -93,6 +102,10 @@ interface HasCreatedAtType extends DbObject {
 
 interface ResolverContext extends CollectionsByName {
   headers: any,
+  userId: string|null,
   currentUser: DbUser|null,
   locale: string,
+  loaders: Record<CollectionNameString, DataLoader<string,any>>
+  extraLoaders: Record<string,any>
+}
 }

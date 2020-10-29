@@ -167,7 +167,7 @@ const GatherTown = ({classes}: {
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
         <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
-          <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
+          <div><a href={gatherTownURL}>Walled Garden Beta</a></div>
         </AnalyticsTracker>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}

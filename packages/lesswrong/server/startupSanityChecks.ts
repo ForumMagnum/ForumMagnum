@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../lib/executionEnvironment';
 import process from 'process';
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
@@ -6,7 +6,7 @@ import { PublicInstanceSetting } from '../lib/instanceSettings';
 // Database ID string that this config file should match with
 const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning")
 
-Meteor.startup(() => {
+onStartup(() => {
   const expectedDatabaseId = expectedDatabaseIdSetting.get();
   const databaseIdObject = DatabaseMetadata.findOne({ name: "databaseId" });
   

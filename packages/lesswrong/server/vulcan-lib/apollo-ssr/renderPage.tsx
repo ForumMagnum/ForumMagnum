@@ -19,7 +19,7 @@ import Head from './components/Head';
 import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
-import { Random } from 'meteor/random';
+import { randomId } from '../../../lib/random';
 import { publicSettings } from '../../../lib/publicSettings'
 import { getMergedStylesheet } from '../../styleGeneration';
 
@@ -53,7 +53,7 @@ const makePageRenderer = async sink => {
   // been handled by InjectData, but InjectData didn't surive the 1.12 version
   // upgrade (it injects into the page template in a way that requires a
   // response object, which the onPageLoad/sink API doesn't offer).
-  const tabId = Random.id();
+  const tabId = randomId();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   
   const clientId = req.cookies && req.cookies.clientId;
@@ -123,7 +123,7 @@ const makePageRenderer = async sink => {
 // cookies, they won't necessarily play nicely together.
 webAppConnectHandlersUse(function addClientId(req, res, next) {
   if (!req.cookies.clientId) {
-    const newClientId = Random.id();
+    const newClientId = randomId();
     req.cookies.clientId = newClientId;
     res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
   }

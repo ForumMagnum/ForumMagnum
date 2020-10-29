@@ -8,8 +8,8 @@ import {
   debugGroupEnd,
 } from '../vulcan-lib';
 import clone from 'lodash/clone';
-import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
+import { onStartup, wrapAsync } from '../../lib/executionEnvironment';
+import { Accounts } from '../../lib/meteorAccounts';
 import * as _ from 'underscore';
 
 // Takes a function that returns a promise and wraps it with Meteor.wrapAsync
@@ -25,7 +25,7 @@ function asyncWrapper(func) {
   }
   // Then we make sure to pass through the old arguments properly
   return (...args) => {
-    return Meteor.wrapAsync(functionWithCallback)(args)
+    return wrapAsync(functionWithCallback)(args)
   }
 }
 
@@ -43,7 +43,10 @@ function onCreateUserCallback(options, user) {
 
   options = runCallbacks({ name: 'user.create.validate.before', iterator: options });
   // OpenCRUD backwards compatibility
-  options = runCallbacks('users.new.validate.before', options);
+  options = runCallbacks({
+    name: 'users.new.validate.before',
+    iterator: options
+  });
 
   // validate options since they can't be trusted
   Users.simpleSchema().validate(options);
@@ -64,7 +67,10 @@ function onCreateUserCallback(options, user) {
   // run validation callbacks
   user = runCallbacks({ name: 'user.create.validate', iterator: user, properties: {} });
   // OpenCRUD backwards compatibility
-  user = runCallbacks('users.new.validate', user);
+  user = runCallbacks({
+    name: 'users.new.validate',
+    iterator: user
+  });
 
   // run onCreate step
   for (let fieldName of Object.keys(schema)) {
@@ -86,9 +92,12 @@ function onCreateUserCallback(options, user) {
   user = asyncWrapper(runCallbacks)({ name: 'user.create.before', iterator: user, properties: {} });
   user = asyncWrapper(runCallbacks)('users.new.sync', user);
 
-  runCallbacksAsync({ name: 'user.create.async', properties: { data: user } });
+  runCallbacksAsync({ name: 'user.create.async', properties: [{ data: user }] });
   // OpenCRUD backwards compatibility
-  runCallbacksAsync('users.new.async', user);
+  runCallbacksAsync({
+    name: 'users.new.async',
+    properties: [user]
+  });
 
   debug(`Modified User: ${JSON.stringify(user)}`);
   debugGroupEnd();
@@ -98,7 +107,7 @@ function onCreateUserCallback(options, user) {
   return user;
 }
 
-Meteor.startup(() => {
+onStartup(() => {
   if (typeof Accounts !== 'undefined') {
     Accounts.onCreateUser(onCreateUserCallback)
   }

@@ -1,6 +1,6 @@
-import { addGraphQLMutation, addGraphQLResolvers, editMutation, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers, updateMutator, Utils } from '../vulcan-lib';
 import { EmailTokens } from '../../lib/collections/emailTokens/collection';
-import { Random } from 'meteor/random';
+import { randomSecret } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
 
 let emailTokenTypesByName = {};
@@ -28,7 +28,7 @@ export class EmailTokenType
   generateToken = async (userId, params?: any) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
-    const token = Random.secret();
+    const token = randomSecret();
     await EmailTokens.insert({
       token: token,
       tokenType: this.name,
@@ -77,7 +77,7 @@ addGraphQLResolvers({
           throw new Error("This email link has already been used.");
         
         const resultProps = await tokenType.handleToken(tokenObj);
-        await editMutation({
+        await updateMutator({
           collection: EmailTokens,
           documentId: tokenObj._id,
           set: {
@@ -104,7 +104,7 @@ addGraphQLResolvers({
 export const UnsubscribeAllToken = new EmailTokenType({
   name: "unsubscribeAll",
   onUseAction: async (user) => {
-    await editMutation({ // FIXME: Doesn't actually do the thing
+    await updateMutator({ // FIXME: Doesn't actually do the thing
       collection: Users,
       documentId: user._id,
       set: {

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
@@ -9,8 +8,9 @@ import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { Utils } from './utils';
 export * from './getCollection';
+import { wrapAsync } from '../executionEnvironment';
+import { meteorUsersCollection } from '../meteorAccounts';
 
-const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;
 // import { debug } from './debug';
 
 // 'Maximum documents per request'
@@ -106,7 +106,16 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
-export const createCollection = (options: any): any => {
+export const createCollection = (options: {
+  typeName: string,
+  collectionName?: CollectionNameString,
+  schema: any,
+  generateGraphQLSchema?: boolean,
+  dbCollectionName?: string,
+  collection?: any,
+  resolvers?: any,
+  mutations?: any,
+}): any => {
   const {
     typeName,
     collectionName = getCollectionName(typeName),
@@ -117,8 +126,8 @@ export const createCollection = (options: any): any => {
 
   // initialize new Mongo collection
   const collection =
-    collectionName === 'Users' && Meteor.users
-      ? Meteor.users
+    collectionName === 'Users' && meteorUsersCollection
+      ? meteorUsersCollection
       : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
 
   // decorate collection with options
@@ -197,21 +206,25 @@ export const createCollection = (options: any): any => {
     }
 
     // iterate over posts.parameters callbacks
-    parameters = runCallbacks(
-      `${typeName.toLowerCase()}.parameters`,
-      parameters,
-      _.clone(terms),
-      apolloClient,
-      context
-    );
+    parameters = runCallbacks({
+      name: `${typeName.toLowerCase()}.parameters`,
+      iterator: parameters,
+      properties: [
+        _.clone(terms),
+        apolloClient,
+        context
+      ]
+    });
     // OpenCRUD backwards compatibility
-    parameters = runCallbacks(
-      `${collectionName.toLowerCase()}.parameters`,
-      parameters,
-      _.clone(terms),
-      apolloClient,
-      context
-    );
+    parameters = runCallbacks({
+      name: `${collectionName.toLowerCase()}.parameters`,
+      iterator: parameters,
+      properties: [
+        _.clone(terms),
+        apolloClient,
+        context
+      ]
+    });
 
     // sort using terms.orderBy (overwrite defaultView's sort)
     if (terms.orderBy && !_.isEmpty(terms.orderBy)) {
