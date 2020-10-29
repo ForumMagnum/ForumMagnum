@@ -7,6 +7,7 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
+const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
 
 if (Meteor.isProduction) {
   addCronJob({
@@ -109,7 +110,7 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
   });
 
   // Create WebSocket connection.
-  const socket = new WebSocket(`wss://premium-002.gather.town/?token=${token}`);
+  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}/?token=${token}`);
   function stringToArrayBuffer(string) {
     var binary_string = Buffer.from(string).toString(`binary`);
     var len = binary_string.length;
