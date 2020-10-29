@@ -8,11 +8,11 @@ import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
 import { KeyboardArrowUp, KeyboardArrowDown } from '@material-ui/icons';
 import {CAL_ID} from "./gardenCalendar";
+import moment from "moment"
 
 const widgetStyling = {
   width: "450px",
   marginLeft: "30px",
-  marginTop: "25px"
 }
 
 const styles = (theme) => ({
@@ -33,7 +33,8 @@ const styles = (theme) => ({
   pomodoroTimerWidget: {
     ...widgetStyling
   },
-  body: {
+  widgetsContainer: {
+    marginTop: "30px",
     display: "flex",
     justifyContent: "space-evenly"
   },
@@ -55,10 +56,21 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
 
   const { captureEvent } = useTracking()
 
-  const [hideBar, setHideBar] = useState(false) //currentUser?.hideWalledGardenPortalBar||false)
-
+  const barViewedMoreThan3DaysAgo =  moment(currentUser?.walledGardenPortalBarLastViewed).add(3, "days").isBefore(new Date())
+  const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar||barViewedMoreThan3DaysAgo)
 
   if (!currentUser) return null
+
+  if (!hideBar) {
+    void updateUser({
+      selector: {_id: currentUser._id},
+      data: {
+        walledGardenPortalBarLastViewed: new Date()
+      },
+    })
+  }
+
+
   const chevronStyle = {fontSize: 50}
   const icon =  hideBar ? <KeyboardArrowUp style={chevronStyle}/> : <KeyboardArrowDown style={chevronStyle}/>
 
@@ -75,19 +87,22 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
       { icon }
     </Button>
 
-    {!hideBar && <div className={classes.body}>
-      <div className={classes.gardenCodeWidget}>
+    {!hideBar && <div className={classes.widgetsContainer}>
+      {currentUser?.walledGardenInvite && <div className={classes.gardenCodeWidget}>
         <GardenCodeWidget/>
-      </div>
-      <div className={classes.eventWidget}>
+      </div>}
+      {currentUser?.walledGardenInvite && <div className={classes.eventWidget}>
         <Typography variant="title">Upcoming Events</Typography>
         <WalledGardenEvents frontpage={false}/>
         <div className={classes.calendarLinks}>
-          <div><a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank">View All Events (Gcal)</a></div>
-          <div><a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank">FB Group Events</a></div>
-          <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank">Create Event (FB)</a></div>
+          <div><a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer" >View All Events
+            (Gcal)</a></div>
+          <div><a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">FB Group Events</a>
+          </div>
+          <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank" rel="noopener noreferrer">Create Event
+            (FB)</a></div>
         </div>
-      </div>
+      </div>}
       <div className={classes.pomodoroTimerWidget}>
         <PomodoroWidget />
       </div>
@@ -103,4 +118,3 @@ declare global {
     WalledGardenPortalBar: typeof WalledGardenPortalBarComponent
   }
 }
-

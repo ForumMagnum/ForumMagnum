@@ -331,6 +331,8 @@ registerFragment(`
     walledGardenInvite
     hideWalledGardenUI
     hideWalledGardenPortalBar
+    walledGardenPortalBarLastViewed
+    walledGardenPortalOnboarded
   }
 `)
 

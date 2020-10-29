@@ -1418,7 +1418,19 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
-  }
+  },
+  walledGardenPortalBarLastViewed: {
+    type: Date,
+    optional:true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
+  walledGardenPortalOnboarded: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
 });
 
 export const makeEditableOptionsModeration = {

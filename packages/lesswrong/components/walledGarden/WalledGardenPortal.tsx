@@ -9,6 +9,8 @@ import { ExpandedDate } from "../common/FormatDate";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
+import {useUpdate} from "../../lib/crud/withUpdate";
+import Users from "../../lib/vulcan-users";
 
 const gatherTownLeftMenuWidth = 65 // We want to hide this menu, so we apply a negative margin on the iframe
 
@@ -42,6 +44,11 @@ const styles = (theme) => ({
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenPortalBar, WalledGardenMessage } = Components
   const currentUser = useCurrentUser();
+  console.log({currentUser})
+  const { mutate: updateUser } = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  })
   const isOpenToPublic = gardenOpenToPublic.get()
 
   const { query } = useLocation();
@@ -67,7 +74,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     moment(gardenCode?.endTime).add(4, 'hours').isBefore(new Date())
     , [])
 
-  const [onboarded, setOnboarded] = useState(false);
+  const [onboarded, setOnboarded] = useState(currentUser?.walledGardenPortalOnboarded||false);
   const [expiredGardenCode, setExpiredGardenCode] = useState(moreThanFourHoursAfterCodeExpiry(gardenCode));
 
   useEffect(() => {
@@ -135,7 +142,16 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
           email (team@lesswrong.com).</li>
       </ul>
       <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
-        <a onClick={() => setOnboarded(true)}>
+        <a onClick={ async () => {
+          setOnboarded(true)
+          if (currentUser && !currentUser?.walledGardenPortalOnboarded) {
+          void updateUser({
+            selector: {_id: currentUser._id},
+            data: {
+              walledGardenPortalOnboarded: true
+            }
+          })
+        }}}>
           <b>Enter the Garden</b>
         </a>
       </AnalyticsTracker>
@@ -146,7 +162,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   return <div className={classes.innerPortalPositioning}>
     <iframe className={classes.iframePositioning} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
     <div className={classes.portalBarPositioning}>
-      {!!currentUser && currentUser.walledGardenInvite && <WalledGardenPortalBar />}
+      <WalledGardenPortalBar />
     </div>
   </div>
 }

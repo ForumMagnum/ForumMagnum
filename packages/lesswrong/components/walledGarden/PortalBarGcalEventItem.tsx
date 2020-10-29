@@ -19,15 +19,13 @@ const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
 
   const { LWTooltip } = Components
 
-  console.log({gcalEvent})
-
   return <div className={classes.secondaryInfo}>
       <span>
         <span className={classes.eventTime}>
           {moment(new Date(gcalEvent.start.dateTime)).format("M/D, ddd h:mmA")}
           {"  –  "}
         </span>
-        <a href={gcalEvent.htmlLink} target="_blank">
+        <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
             {gcalEvent.summary}
         </a>
       </span>
