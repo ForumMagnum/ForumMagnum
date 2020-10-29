@@ -23,7 +23,7 @@ export const revisionsCache = new LRU<string,DbRevision>({
 // which is definitely a promise.
 function maybeAsyncToDefinitelyAsync<T>(maybePromise: T|Promise<T>): Promise<T>
 {
-  if ((maybePromise as Promise<T>).then) {
+  if ((maybePromise as any).then) {
     return (maybePromise as Promise<T>);
   } else {
     return Promise.resolve(maybePromise as T);

@@ -90,8 +90,8 @@ export const answerTocExcerptFromHTML = (html) => {
   });
 };
 
-export function commentExcerptFromHTML (comment, currentUser?: UsersCurrent|null, postPage?: boolean) {
-  const { html } = comment.contents
+export function commentExcerptFromHTML (comment: CommentsList, currentUser?: UsersCurrent|null, postPage?: boolean) {
+  const html = comment?.contents?.html;
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
@@ -111,8 +111,3 @@ export function commentExcerptFromHTML (comment, currentUser?: UsersCurrent|null
     return htmlRemovedStyles
   }
 };
-
-export const excerptFromMarkdown = (body, mdi) => {
-  const html = mdi.render(body);
-  return commentExcerptFromHTML(html);
-}
