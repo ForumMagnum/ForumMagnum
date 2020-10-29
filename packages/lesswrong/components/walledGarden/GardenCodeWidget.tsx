@@ -4,10 +4,7 @@ import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import {Button, TextField} from "@material-ui/core";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {commentBodyStyles} from "../../themes/stylePiping";
-import {useTracking} from "../../lib/analyticsEvents";
-import { ExpandedDate } from "../common/FormatDate";
-import { useUpdate } from '../../lib/crud/withUpdate';
-import Users from "../../lib/vulcan-users";
+import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
 import moment from 'moment';
@@ -41,7 +38,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
     <Typography variant="title">Generate Invite Links</Typography>
     {!!currentCode
       ? <div>
-            Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode?.endTime)).format("h:mma")}</strong>.
+            Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
             <TextField
               className={classes.inviteCode}
               // label={"Your code!"}
