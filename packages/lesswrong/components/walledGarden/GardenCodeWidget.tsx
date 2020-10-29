@@ -33,7 +33,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
     event.target.select()
   }
 
-  const generatedLink = `localhost:3000/walledGardenPortal?code=${currentCode?.code}&event=${currentCode?.slug}`
+  const generatedLink = `https://garden.lesswrong.com?code=${currentCode?.code}&event=${currentCode?.slug}`
 
   if (!currentUser) return null
 
