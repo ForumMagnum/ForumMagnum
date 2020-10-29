@@ -22,7 +22,7 @@ const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
   return <div className={classes.secondaryInfo}>
       <span>
         <span className={classes.eventTime}>
-          {moment(new Date(gcalEvent.start.dateTime)).format("M/D, ddd h:mmA")}
+          {moment(new Date(gcalEvent.start.dateTime)).format("M/D, dddd h:mmA")}
           {"  –  "}
         </span>
         <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">

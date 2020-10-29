@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { Button, Typography} from "@material-ui/core";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
@@ -15,14 +15,24 @@ const widgetStyling = {
   marginLeft: "30px",
 }
 
+const gatherTownRightSideBarWidth = 300
+
 const styles = (theme) => ({
   root: {
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
+    margin: "unset"
+  },
+  widgetsContainer: {
+    display: "flex",
+    justifyContent: "space-evenly"
   },
   portalBarButton: {
-    position: "absolute",
-    left: "40%",
-    marginTop: "-20px"
+    position: "relative",
+    left: `calc((100vw - ${gatherTownRightSideBarWidth}px)/2)`,
+    "&:hover": {
+      opacity: .5,
+      background: "none"
+    },
   },
   gardenCodeWidget: {
     ...widgetStyling
@@ -33,14 +43,8 @@ const styles = (theme) => ({
   pomodoroTimerWidget: {
     ...widgetStyling
   },
-  widgetsContainer: {
-    marginTop: "30px",
-    display: "flex",
-    justifyContent: "space-evenly"
-  },
   calendarLinks: {
     fontSize: ".8em",
-    // fontStyle: "italic",
     marginTop: "3px"
   }
 })
@@ -59,23 +63,29 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
   const barViewedMoreThan3DaysAgo =  moment(currentUser?.walledGardenPortalBarLastViewed).add(3, "days").isBefore(new Date())
   const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar||barViewedMoreThan3DaysAgo)
 
+  const updatePortalBarLastShown = useCallback(async () => {
+    if (currentUser) {
+      void updateUser({
+        selector: {_id: currentUser._id},
+        data: {
+          walledGardenPortalBarLastViewed: new Date()
+        },
+      })
+    }
+  },[])
+
+  useEffect(() => {
+    if (!hideBar) updatePortalBarLastShown
+    }, [updatePortalBarLastShown, hideBar]
+  )
+
   if (!currentUser) return null
-
-  if (!hideBar) {
-    void updateUser({
-      selector: {_id: currentUser._id},
-      data: {
-        walledGardenPortalBarLastViewed: new Date()
-      },
-    })
-  }
-
 
   const chevronStyle = {fontSize: 50}
   const icon =  hideBar ? <KeyboardArrowUp style={chevronStyle}/> : <KeyboardArrowDown style={chevronStyle}/>
 
   return <div className={classes.root}>
-    <Button className={classes.portalBarButton} onClick={ async () => {
+    <span className={classes.portalBarButton} onClick={ async () => {
       setHideBar(!hideBar);
       void updateUser({
         selector: { _id: currentUser._id },
@@ -85,7 +95,7 @@ export const WalledGardenPortalBar = ({classes}:{classes:ClassesType}) => {
       })
     }}>
       { icon }
-    </Button>
+    </span>
 
     {!hideBar && <div className={classes.widgetsContainer}>
       {currentUser?.walledGardenInvite && <div className={classes.gardenCodeWidget}>

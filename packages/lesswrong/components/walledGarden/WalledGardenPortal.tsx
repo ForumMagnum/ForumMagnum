@@ -11,6 +11,7 @@ import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
 import {useUpdate} from "../../lib/crud/withUpdate";
 import Users from "../../lib/vulcan-users";
+import { isMobile } from "../../lib/utils/isMobile";
 
 const gatherTownLeftMenuWidth = 65 // We want to hide this menu, so we apply a negative margin on the iframe
 
@@ -44,7 +45,6 @@ const styles = (theme) => ({
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenPortalBar, WalledGardenMessage } = Components
   const currentUser = useCurrentUser();
-  console.log({currentUser})
   const { mutate: updateUser } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
@@ -83,6 +83,11 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     }, 1000 * 10);
     return () => clearInterval(interval)
   }, [setExpiredGardenCode, moreThanFourHoursAfterCodeExpiry, gardenCode]);
+
+
+  if (isMobile()) return <WalledGardenMessage>
+    <p>You have reached the Walled Garden Portal. Unfortunately, this page does not work on mobile. Please re-visit from a desktop broswer.</p>
+  </WalledGardenMessage>
 
   const codeIsValid = validateGardenCode(gardenCode)
   const userIsAllowed = currentUser?.walledGardenInvite || isOpenToPublic || codeIsValid
@@ -162,7 +167,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   return <div className={classes.innerPortalPositioning}>
     <iframe className={classes.iframePositioning} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
     <div className={classes.portalBarPositioning}>
-      <WalledGardenPortalBar />
+      <WalledGardenPortalBar/>
     </div>
   </div>
 }
