@@ -23,7 +23,6 @@ const ShortformThreadList = ({ classes }: {
     fetchPolicy: 'cache-and-network',
     enableTotal: false,
     pollInterval: 0,
-    ssr: true,
   });
 
   return (

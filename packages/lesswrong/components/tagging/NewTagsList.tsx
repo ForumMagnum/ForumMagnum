@@ -38,7 +38,6 @@ const NewTagsList = ({classes}:{
     collection: Tags,
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
-    ssr: true,
     itemsPerPage: 20,
   });
 

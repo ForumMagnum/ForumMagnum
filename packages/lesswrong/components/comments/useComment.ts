@@ -16,7 +16,6 @@ export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
     fragmentName: 'CommentsList',
     limit: 1,
     enableTotal: false,
-    ssr: true,
   });
   
   if (results && results.length>0 && results[0]._id) {

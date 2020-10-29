@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
-import { withApollo } from 'react-apollo';
+import { withApollo } from '@apollo/client/react/hoc';
 import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil'

@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 
 const parseIds = (urlStr: string): Array<string> => {

@@ -26,7 +26,6 @@ const UserPageTitle = ({isSubtitle, siteName, classes}: {
     // if fetchPolicy is cache-only. When set to cache-then-network, it works,
     // without generating any network requests.
     fetchPolicy: 'cache-then-network' as any, //TODO
-    ssr: true,
   });
   
   if (!results || loading) return null;

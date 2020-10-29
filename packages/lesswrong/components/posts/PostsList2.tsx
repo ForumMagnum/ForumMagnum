@@ -108,7 +108,7 @@ const PostsList2 = ({
     fragmentName: !!tagId ? 'PostsListTag' : 'PostsList',
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
-    ssr: true,
+    nextFetchPolicy: "cache-first",
     itemsPerPage: itemsPerPage,
     ...tagVariables
   });

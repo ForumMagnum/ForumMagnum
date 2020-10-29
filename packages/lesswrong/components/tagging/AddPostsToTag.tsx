@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@material-ui/icons/AddBox';

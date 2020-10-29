@@ -1,7 +1,7 @@
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { withApollo } from 'react-apollo';
+import { withApollo } from '@apollo/client/react/hoc';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';

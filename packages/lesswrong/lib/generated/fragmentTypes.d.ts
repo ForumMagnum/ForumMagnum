@@ -147,10 +147,12 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsListBase_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
 interface PostsListBase_customHighlight { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
@@ -159,12 +161,14 @@ interface PostsList extends PostsListBase { // fragment on Posts
 }
 
 interface PostsList_contents { // fragment on Revisions
+  readonly _id: string,
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -193,18 +197,22 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
+  readonly _id: string,
   readonly title: string,
 }
 
 interface PostsDetails_canonicalBook { // fragment on Books
+  readonly _id: string,
   readonly title: string,
 }
 
 interface PostsDetails_canonicalCollection { // fragment on Collections
+  readonly _id: string,
   readonly title: string,
 }
 
 interface PostsDetails_customHighlight { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly html: string,
 }
@@ -323,6 +331,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
 }
 
 interface SunshinePostsList_contents { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
   readonly wordCount: number,
@@ -336,6 +345,7 @@ interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
@@ -450,6 +460,7 @@ interface WithVoteComment_currentUserVotes { // fragment on Votes
 }
 
 interface RevisionMetadata { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly editedAt: Date,
   readonly commitMessage: string,
@@ -551,6 +562,13 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
 interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
   readonly userId: string,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface gatherTownEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
@@ -1170,7 +1188,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly deleted: boolean,
-  readonly hideWalledGardenUI: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -1249,6 +1266,7 @@ interface WithVotePost_currentUserVotes { // fragment on Votes
 }
 
 interface RevisionDisplay { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly updateType: string,
   readonly editedAt: Date,
@@ -1260,6 +1278,7 @@ interface RevisionDisplay { // fragment on Revisions
 }
 
 interface RevisionEdit { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly updateType: string,
   readonly editedAt: Date,
@@ -1428,6 +1447,17 @@ interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly post: PostsList|null,
 }
 
+interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment|null,
+  readonly post: TagRelCreationFragment_post|null,
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
+interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
+}
+
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVotes: Array<VoteFragment>,
@@ -1502,6 +1532,7 @@ interface TagFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
@@ -1527,6 +1558,7 @@ interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagRevisionFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly html: string,
   readonly htmlHighlight: string,
@@ -1539,6 +1571,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly htmlHighlight: string,
   readonly version: string,
 }
@@ -1724,6 +1757,7 @@ interface FragmentTypes {
   LWEventsDefaultFragment: LWEventsDefaultFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  gatherTownEventFragment: gatherTownEventFragment
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
@@ -1785,6 +1819,7 @@ interface FragmentTypes {
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
   TagRelHistoryFragment: TagRelHistoryFragment
+  TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo
