@@ -69,7 +69,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
         },
       })
     }
-  },[])
+  },[currentUser, useCallback])
 
   useEffect(() => {
     if (!hideBar) updatePortalBarLastShown()
