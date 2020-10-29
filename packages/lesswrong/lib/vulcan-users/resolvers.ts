@@ -1,4 +1,5 @@
-import { addGraphQLResolvers, Utils } from '../vulcan-lib';
+import { addGraphQLResolvers } from '../vulcan-lib/graphql';
+import { Utils } from '../vulcan-lib/utils';
 import { asyncFilter } from '../utils/asyncUtils';
 import Users from '../collections/users/collection'
 

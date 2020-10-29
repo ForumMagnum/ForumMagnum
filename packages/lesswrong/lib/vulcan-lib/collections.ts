@@ -10,6 +10,7 @@ import { Utils } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
+import { editableCollectionsFields } from '../editor/editableFields';
 
 // import { debug } from './debug';
 
@@ -106,6 +107,28 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
+const excludeDenormalizedEditableProjection = <T extends DbObject>(collection: CollectionBase<T>, originalProjection: MongoProjection<T>|undefined): MongoProjection<T>|undefined => {
+  if (!editableCollectionsFields[collection.collectionName]) return originalProjection;
+  const projectOutEditableDenormalized: Partial<Record<string,number>> = {};
+  for (let fieldName of editableCollectionsFields[collection.collectionName])
+    projectOutEditableDenormalized[fieldName] = 0;
+  
+  return {
+    ...projectOutEditableDenormalized,
+    ...originalProjection
+  };
+}
+
+const wrappedFind = <T extends DbObject>(collection: CollectionBase<T>, originalFind) => (selector: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>): FindResult<T> => {
+  const modifiedProjection = excludeDenormalizedEditableProjection(collection, projection);
+  return originalFind.apply(collection, [selector, options, modifiedProjection]);
+}
+
+const wrappedFindOne = <T extends DbObject>(collection: CollectionBase<T>, originalFindOne) => (selector: string|MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>): T|null => {
+  const modifiedProjection = excludeDenormalizedEditableProjection(collection, projection);
+  return originalFindOne.apply(collection, [selector||{}, options||{}, modifiedProjection]);
+}
+
 export const createCollection = (options: {
   typeName: string,
   collectionName?: CollectionNameString,
@@ -130,6 +153,9 @@ export const createCollection = (options: {
       ? meteorUsersCollection
       : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
 
+  collection.find = wrappedFind(collection, collection.find);
+  collection.findOne = wrappedFindOne(collection, collection.findOne);
+  
   // decorate collection with options
   collection.options = options;
 

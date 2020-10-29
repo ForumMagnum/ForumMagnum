@@ -3,7 +3,9 @@ import Users from '../collections/users/collection'
 import { Utils } from '../vulcan-lib';
 import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
+import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions } from './editableFields';
 import SimpleSchema from 'simpl-schema'
+export { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions }
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -42,10 +44,6 @@ const defaultOptions = {
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }
-
-export const editableCollections = new Set<string>()
-export const editableCollectionsFields: Record<string,Array<string>> = {}
-export const editableCollectionsFieldOptions: Record<string,any> = {};
 
 export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
