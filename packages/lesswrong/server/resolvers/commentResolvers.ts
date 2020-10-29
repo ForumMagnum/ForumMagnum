@@ -62,10 +62,16 @@ addGraphQLResolvers({
           set.deletedByUserId = null;
         }
         let modifier = { $set: set };
-        modifier = runCallbacks('comments.moderate.sync', modifier);
+        modifier = runCallbacks({
+          name: 'comments.moderate.sync',
+          iterator: modifier
+        });
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = await context.Comments.findOne(commentId)
-        runCallbacksAsync('comments.moderate.async', updatedComment, comment, context);
+        runCallbacksAsync({
+          name: 'comments.moderate.async',
+          properties: [updatedComment, comment, context]
+        });
         return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
       } else {
         throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));

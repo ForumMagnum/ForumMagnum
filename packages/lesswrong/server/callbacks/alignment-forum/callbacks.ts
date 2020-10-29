@@ -2,6 +2,7 @@ import Users from "../../../lib/collections/users/collection";
 import { Votes } from '../../../lib/collections/votes';
 import { addCallback, getCollection } from '../../vulcan-lib';
 import { getVotePower } from '../../../lib/voting/new_vote_types'
+import { getCollectionHooks } from '../../mutationCallbacks';
 
 export const recalculateAFBaseScore = async (document) => {
   let votes = await Votes.find({
@@ -163,5 +164,5 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
 
 addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
 addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
-addCallback("posts.edit.async", MoveToAFUpdatesUserAFKarma);
+getCollectionHooks("Posts").editAsync.add(MoveToAFUpdatesUserAFKarma);
 addCallback("posts.alignment.async", MoveToAFUpdatesUserAFKarma);

@@ -291,15 +291,17 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onUpdate: async ({data, currentUser, document, oldDocument}: {
+    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
       data: Partial<DbComment>,
       currentUser: DbUser,
       document: DbComment,
       oldDocument: DbComment,
+      context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
         Utils.updateMutator({
           collection: Posts,
+          context,
           selector: {_id:document.postId},
           data: { lastCommentPromotedAt: new Date() },
           currentUser,

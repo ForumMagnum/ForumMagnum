@@ -366,12 +366,12 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
-    onCreate: ({newDocument}) => {
+    onCreate: ({newDocument}: { newDocument: DbPost }) => {
       if (newDocument.isEvent) return false
       if ('submitToFrontpage' in newDocument) return newDocument.submitToFrontpage
       return true
     },
-    onUpdate: ({data, document}) => {
+    onUpdate: ({data, document}: { data: Partial<DbPost>, document: DbPost }) => {
       const updatedDocIsEvent = ('isEvent' in document) ? document.isEvent : false
       if (updatedDocIsEvent) return false
       return ('submitToFrontpage' in document) ? document.submitToFrontpage : true
@@ -509,7 +509,7 @@ const schema: SchemaType<DbPost> = {
     resolver: async (post: DbPost, args: {tagId: string}, context: ResolverContext) => {
       const { tagId } = args;
       const { currentUser } = context;
-      const tagRels = await getWithLoader(TagRels,
+      const tagRels = await getWithLoader(context, TagRels,
         "tagRelByDocument",
         {
           tagId: tagId
@@ -531,7 +531,7 @@ const schema: SchemaType<DbPost> = {
       const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await Tags.loader.loadMany(tagIds)
+      const tags = await context.loaders.Tags.loadMany(tagIds)
       return await accessFilterMultiple(currentUser, Tags, tags, context)
     }
   }),

@@ -2,7 +2,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/make_editable_callbacks'
 import { Posts } from '../../lib/collections/posts'
-import { editMutation } from '../vulcan-lib';
+import { updateMutator } from '../vulcan-lib';
 
 registerMigration({
   name: "fixBigPosts",
@@ -28,7 +28,7 @@ registerMigration({
             newHtml = htmlBody
           }
           
-          await editMutation({
+          await updateMutator({
             collection: Posts,
             documentId: doc._id,
             set: {
