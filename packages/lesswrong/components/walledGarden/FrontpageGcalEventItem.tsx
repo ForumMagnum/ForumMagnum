@@ -6,8 +6,7 @@ const styles = (theme) => ({
   secondaryInfo: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)',
-    marginTop: 8
+    color: 'rgba(0,0,0,0.55)'
   },
   eventTime: {
     fontSize: ".8em",
