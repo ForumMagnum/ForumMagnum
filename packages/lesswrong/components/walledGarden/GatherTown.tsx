@@ -14,7 +14,7 @@ import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { CAL_ID } from '../walledGarden/gardenCalendar';
-
+import {gatherTownRoomId, gatherTownRoomName} from "../../lib/publicSettings";
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
