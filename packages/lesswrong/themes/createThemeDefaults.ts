@@ -41,11 +41,11 @@ export const zIndexes = {
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
-  gatherTownIframe: 1501,
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,
   searchBar: 100000,
+  gatherTownIframe: 1000001, // higher than everything except intercom
   commentBoxPopup: 10000000001, // has to be higher than Intercom,
   // ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)
   petrovDayButton: 6,
