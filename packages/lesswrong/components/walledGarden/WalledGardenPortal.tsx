@@ -26,7 +26,6 @@ const styles = (theme) => ({
     zIndex: theme.zIndexes.gatherTownIframe,
     display: 'flex',
     flexDirection: 'column',
-
   },
   iframePositioning: {
     width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,

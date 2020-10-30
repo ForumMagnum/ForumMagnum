@@ -47,9 +47,6 @@ const styles = (theme) => ({
     fontSize: ".8em",
     marginTop: "3px"
   },
-  events: {
-    width: 300
-  },
   fbEventButton: {
     width: 135
   },
@@ -61,7 +58,7 @@ const styles = (theme) => ({
   },
   row: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-around"
   }
 })
 
@@ -75,7 +72,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
-      {currentUser.walledGardenInvite && <div className={classes.events}>
+      {currentUser.walledGardenInvite && <div>
         <Typography variant="title">Garden Events</Typography>
         <div className={classes.calendarLinks}>
           <GardenCodeWidget/>
