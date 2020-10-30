@@ -41,24 +41,29 @@ const styles = (theme) => ({
     ...widgetStyling
   },
   pomodoroTimerWidget: {
-    ...widgetStyling
+    ...widgetStyling,
+    textAlign: "right",
+    position: "absolute",
+    right: 12,
+    top: 0,
   },
   calendarLinks: {
     fontSize: ".8em",
     marginTop: "3px"
   },
+  events: {
+    marginRight: 100
+  },
   fbEventButton: {
     width: 135
   },
   textButton: {
-    paddingTop: 6,
+    marginRight: 16,
     fontSize: "1rem",
-    opacity: .6,
     fontStyle: "italic"
   },
-  row: {
-    display: "flex",
-    justifyContent: "space-around"
+  calendars: {
+    marginLeft: 60
   }
 })
 
@@ -72,7 +77,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
-      {currentUser.walledGardenInvite && <div>
+      {currentUser.walledGardenInvite && <div className={classes.events}>
         <Typography variant="title">Garden Events</Typography>
         <div className={classes.calendarLinks}>
           <GardenCodeWidget/>
@@ -83,17 +88,17 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
       </div>}
       {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
         <WalledGardenEvents frontpage={false}/>
-        <div className={classes.row}>
-          <div className={classes.textButton}>
-            <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
-              Google Calendar
-            </a>
-          </div>
-          <div className={classes.textButton}>
-            <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
-              Facebook Group
-            </a>
-          </div>
+      </div>}
+      {currentUser.walledGardenInvite && <div className={classes.calendars}>
+        <div className={classes.textButton}>
+          <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
+            Google Calendar
+          </a>
+        </div>
+        <div className={classes.textButton}>
+          <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
+            Facebook Group
+          </a>
         </div>
       </div>}
       <div className={classes.pomodoroTimerWidget} onClick={() => refocusOnIframe()}>

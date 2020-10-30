@@ -21,6 +21,10 @@ const styles = (theme) => ({
     borderRadius: 3,
     padding: 12,
   },
+  row: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
   inviteCode: {
 
   }
@@ -46,7 +50,12 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
   if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>Invite Friends</Button>
 
   return <div className={classes.messageStyling}>
-    <Typography variant="title">Generate Invite Links</Typography>
+    <Typography variant="title" className={classes.row}>
+      Generate Invite Links
+      <div className={classes.hide} onClick={()=>setOpen(false)}>
+        X
+      </div>
+    </Typography>
     {!!currentCode
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
