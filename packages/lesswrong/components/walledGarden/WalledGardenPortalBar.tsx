@@ -5,7 +5,8 @@ import {commentBodyStyles } from "../../themes/stylePiping";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
-import { KeyboardArrowUp, KeyboardArrowDown } from '@material-ui/icons';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { CAL_ID } from "./gardenCalendar";
 import moment from "moment"
 
@@ -69,7 +70,8 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
         },
       })
     }
-  },[currentUser, updateUser])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[updateUser])
 
   useEffect(() => {
     if (!hideBar) void updatePortalBarLastShown()
@@ -79,7 +81,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
   if (!currentUser) return null
 
   const chevronStyle = {fontSize: 50}
-  const icon =  hideBar ? <KeyboardArrowUp style={chevronStyle}/> : <KeyboardArrowDown style={chevronStyle}/>
+  const icon =  hideBar ? <KeyboardArrowUpIcon style={chevronStyle}/> : <KeyboardArrowDownIcon style={chevronStyle}/>
   const refocusOnIframe = () => iframeRef.current.focus()
 
   return <div className={classes.root}>
