@@ -6,7 +6,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {commentBodyStyles} from "../../themes/stylePiping";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import Typography from '@material-ui/core/Typography';
 import moment from 'moment';
 
 const styles = (theme) => ({
@@ -15,11 +14,13 @@ const styles = (theme) => ({
     marginBottom: 8,
     width: 135
   },
-  messageStyling: {
+  root: {
     ...commentBodyStyles(theme),
     border: "solid 1px rgba(0,0,0,.2)",
     borderRadius: 3,
     padding: 12,
+    backgroundColor: "white",
+    maxWidth: 378
   },
   row: {
     display: "flex",
@@ -49,13 +50,11 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
 
   if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>Invite Friends</Button>
 
-  return <div className={classes.messageStyling}>
-    <Typography variant="title" className={classes.row}>
-      Generate Invite Links
-      <a className={classes.hide} onClick={()=>setOpen(false)}>
-        X
-      </a>
-    </Typography>
+  return <div className={classes.root}>
+    <div className={classes.row}>
+      <h3>Generate Invite Links</h3> 
+      <a className={classes.hide} onClick={()=>setOpen(false)}>X</a>
+    </div>
     {!!currentCode
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
