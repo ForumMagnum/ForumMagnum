@@ -54,8 +54,8 @@ const styles = (theme) => ({
     width: 135
   },
   textButton: {
-    marginLeft: 8,
-    marginTop: 4
+    paddingLeft: 8,
+    paddingTop: 4
   }
 })
 
@@ -82,7 +82,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
             </a>
           </div>
           <div>
-            <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer" >
+            <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer" className={classes.textButton}>
               Google Calendar
             </a>
           </div>
