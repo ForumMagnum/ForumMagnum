@@ -55,7 +55,7 @@ const styles = (theme) => ({
   },
   textButton: {
     paddingLeft: 8,
-    paddingTop: 4
+    paddingTop: 6
   }
 })
 
