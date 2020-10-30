@@ -65,10 +65,10 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
       {currentUser.walledGardenInvite && <div className={classes.events}>
         <Typography variant="title">Garden Events</Typography>
         <div className={classes.calendarLinks}>
+          <GardenCodeWidget/>
           <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank" rel="noopener noreferrer">
             <Button variant="outlined">Create FB Event</Button>
           </a></div>
-          <GardenCodeWidget/>
           <div>
             <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
               Facebook Group

@@ -77,12 +77,12 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const [expiredGardenCode, setExpiredGardenCode] = useState(moreThanFourHoursAfterCodeExpiry(gardenCode));
   const iframeRef = useRef(null)
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setExpiredGardenCode(moreThanFourHoursAfterCodeExpiry(gardenCode)) //kick someone out 4 hours after code-entry expiry
-  //   }, 1000 * 10);
-  //   return () => clearInterval(interval)
-  // }, [setExpiredGardenCode, moreThanFourHoursAfterCodeExpiry, gardenCode]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setExpiredGardenCode(moreThanFourHoursAfterCodeExpiry(gardenCode)) //kick someone out 4 hours after code-entry expiry
+    }, 1000 * 10);
+    return () => clearInterval(interval)
+  }, [setExpiredGardenCode, moreThanFourHoursAfterCodeExpiry, gardenCode]);
 
 
   if (isMobile()) return <WalledGardenMessage>
@@ -90,7 +90,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   </WalledGardenMessage>
 
   const codeIsValid = validateGardenCode(gardenCode)
-  const userIsAllowed = currentUser?.walledGardenInvite || isOpenToPublic || codeIsVali
+  const userIsAllowed = currentUser?.walledGardenInvite || isOpenToPublic || codeIsValid
 
 
   if (!userIsAllowed) {

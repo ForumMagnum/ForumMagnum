@@ -14,7 +14,10 @@ const styles = (theme) => ({
     marginTop: 8
   },
   messageStyling: {
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
+    border: "solid 1px rgba(0,0,0,.2)",
+    borderRadius: 3,
+    padding: 12,
   },
   inviteCode: {
 
