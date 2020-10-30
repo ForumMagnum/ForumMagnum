@@ -36,7 +36,8 @@ const schema: SchemaType<DbGardenCode> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Create a name for your event"
+    label: "Event Name",
+    defaultValue: "Guest Day Pass"
   },
   userId: {
     ...foreignKeyField({
@@ -81,6 +82,7 @@ const schema: SchemaType<DbGardenCode> = {
     control: 'datetime',
     label: "Start Time",
     optional: true,
+    defaultValue: new Date,
   },
   endTime: {
     type: Date,
