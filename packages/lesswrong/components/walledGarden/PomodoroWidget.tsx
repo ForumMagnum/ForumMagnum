@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme) => ({
   hideShowButton: {
@@ -39,10 +38,10 @@ export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {
         <i>Show Pomodoro Timer</i>
       </div>}
     { !hidePomodoroTimer && <div className={classes.timerWrapper}>
-      <iframe className={classes.pomodoroTimerIframe} src={"https://cuckoo.team/lesswrong"}/>
       <div className={classes.hideShowButton} onClick={()=> setHidePomodoroTimer(true)}>
         <i>Hide Pomodoro Timer</i>
       </div>
+      <iframe className={classes.pomodoroTimerIframe} src={"https://cuckoo.team/lesswrong"}/>
     </div>}
   </div>
 }
