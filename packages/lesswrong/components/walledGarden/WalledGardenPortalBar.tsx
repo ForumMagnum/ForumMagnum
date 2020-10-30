@@ -55,7 +55,8 @@ const styles = (theme) => ({
   },
   textButton: {
     paddingLeft: 8,
-    paddingTop: 6
+    paddingTop: 6,
+    textTransform: "capitalize"
   }
 })
 
@@ -76,13 +77,13 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
           <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank" rel="noopener noreferrer">
             <Button variant="outlined" className={classes.fbEventButton}>Create FB Event</Button>
           </a></div>
-          <div>
-            <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer" className={classes.textButton}>
+          <div className={classes.textButton}>
+            <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
               Facebook Group
             </a>
           </div>
-          <div>
-            <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer" className={classes.textButton}>
+          <div className={classes.textButton}>
+            <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
               Google Calendar
             </a>
           </div>
