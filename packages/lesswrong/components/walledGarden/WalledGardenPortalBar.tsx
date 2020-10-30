@@ -37,7 +37,7 @@ const styles = (theme) => ({
     ...widgetStyling
   },
   eventWidget: {
-    width: 450,
+    width: 400,
     ...widgetStyling
   },
   pomodoroTimerWidget: {
