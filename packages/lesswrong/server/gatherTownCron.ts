@@ -1,11 +1,12 @@
 import { addCronJob } from './cronUtil';
-import { createMutator } from './vulcan-lib';
+import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
 import { isProduction } from '../lib/executionEnvironment';
+import * as _ from 'underscore';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
@@ -128,7 +129,7 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
     socket.send(arrayBuffer)
   });
 
-  let players = {}
+  let playerNamesById = {}
 
   socket.on('message', function (data) {
     const parsedData = data.toString('utf8').substring(1)
@@ -137,7 +138,9 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
         // Have to cut the first character before parsing as JSON because that \u0 (same as above)
         const jsonResponse = JSON.parse(data.toString('utf8').substring(1));
         if (jsonResponse.message && jsonResponse.message.type === "player") {
-          players[jsonResponse.message.info.name] = jsonResponse.message.info
+          const playerId = jsonResponse.message.id;
+          const playerName = jsonResponse.message.info.name
+          playerNamesById[playerId] = playerName;
         }
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -151,7 +154,7 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
 
   socket.close();
 
-  return players
+  return _.values(playerNamesById);
 }
 
 function isJson(str) {
