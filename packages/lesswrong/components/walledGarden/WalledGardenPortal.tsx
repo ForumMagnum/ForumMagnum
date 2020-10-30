@@ -22,7 +22,7 @@ const styles = (theme) => ({
     position: "absolute",
     top: 0,
     width: "100vw",
-    height: "calc(100vh - 65px)",
+    height: "100vh",
     zIndex: theme.zIndexes.gatherTownIframe,
     display: 'flex',
     flexDirection: 'column',
