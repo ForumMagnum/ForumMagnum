@@ -13,6 +13,7 @@ const styles = (theme) => ({
   button: {
     marginTop: 8,
     marginBottom: 8,
+    width: 135
   },
   messageStyling: {
     ...commentBodyStyles(theme),
