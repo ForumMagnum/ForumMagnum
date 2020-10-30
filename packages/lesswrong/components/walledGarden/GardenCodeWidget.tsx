@@ -11,7 +11,8 @@ import moment from 'moment';
 
 const styles = (theme) => ({
   button: {
-    marginTop: 8
+    marginTop: 8,
+    marginBottom: 8,
   },
   messageStyling: {
     ...commentBodyStyles(theme),
