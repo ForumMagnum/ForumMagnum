@@ -50,6 +50,10 @@ import './collections/reports/views'
 // LWEvents
 import { LWEvents } from './collections/lwevents/index';
 
+// TagFlags
+import { TagFlags } from './collections/tagFlags/collection';
+import './collections/tagFlags/views';
+
 // DatabaseMetadata
 import './collections/databaseMetadata/collection';
 
@@ -139,6 +143,10 @@ import './collections/users/views';
 // Comments
 import { Comments } from './collections/comments'
 
+import { PetrovDayLaunchs } from './collections/petrovDayLaunchs'
+
+
+
 // Votes
 import './collections/votes';
 
@@ -196,5 +204,7 @@ export {
   Localgroups,
   Comments,
   Revisions, 
-  ReviewVotes
+  ReviewVotes,
+  PetrovDayLaunchs,
+  TagFlags
 }

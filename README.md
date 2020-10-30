@@ -6,29 +6,31 @@ The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescop
 
 ## Technologies
 
-Lesswrong2 is built on top of four major open-source libraries.
+Lesswrong2 is built on top of a number major open-source libraries.
 
-1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We use it to handle many facets of the LW2 functionality such as data-loading, authentication and search.
+1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably.
 
-2. [React](https://facebook.github.io/react/) is a user interface programming library developed by Facebook that lets us define interface elements declaratively in the form of components. We use it to define how to render and manage state for all parts of the site.
+2. [Typescript](https://www.typescriptlang.org/) is the programming language we're using. It's like Javascript, but with type annotations. We're gradually moving from un-annotated Javascript towards having annotations on everything, and any new code should have type annotations when it's added.
 
-3. [GraphQL](https://graphql.org/) is a query language that the browser uses to get data from our servers. Vulcan mostly deals with GraphQL for us, but occasionally we use it to define APIs for accessing and mutating our data.
+3. [React](https://facebook.github.io/react/) is a user interface programming library developed by Facebook that lets us define interface elements declaratively in the form of components. We use it to define how to render and manage state for all parts of the site.
 
-4. [Draft](https://draftjs.org/) is a framework developed by Facebook for creating text editors. The content and message editors on Lesswrong2 are implemented on top of Draft.
+4. [GraphQL](https://graphql.org/) is a query language that the browser uses to get data from our servers. Most usage of GraphQL is hidden behind utility functions, but occasionally we use it directly to define APIs for accessing and mutating our data.
+
+5. [Apollo](https://www.apollographql.com/docs/) is a client-side ORM which we use for managing data on the client. We interact with it primarily via the React hooks API.
+
+6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative text editor, which is no longer the default but which we still support.
 
 ## Running locally
 
 ### Requirements
 
   * MacOS or Linux
-    * Known to work on MacOS 10.13 and Ubuntu 16.04, should work on others
+    * Known to work on MacOS 10.14 and Ubuntu 18.04, should work on others
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
 
 ### Installation
-
-LessWrong is a fork of VulcanJS's example-forum. We've made significant changes to VulcanJS itself as well as their example-forum.
 
 Clone our repo:
 
@@ -41,17 +43,18 @@ Install dependencies:
 
 Start the development server:
 
-    npm start
+    yarn start
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
-If it is NOT working, there is most likely some issues with your `yarn install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself. You may find some help in the [README for Vulcan-Starter](https://github.com/VulcanJS/Vulcan-Starter)
+If it is NOT working, there is most likely some issues with your `yarn install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself.
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage, such as Eliezer’s Sequences or the Codex, will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins.
 
 ## Contributing
 
 ### What Contributions Are Helpful?
+
 The most *reliably* helpful thing would be to tackle outstanding issues that have been tagged on [github](https://github.com/LessWrong2/Lesswrong2/issues).
 
 In particular, you can filter them by the tag “[good first issue](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%2200.+Good+First+Issue%22).” (Some of these might require some explanation, but I expect I can explain them fairly easily to a new contributor)
@@ -82,57 +85,36 @@ If you’re creating a branch for an issue that *hasn’t* been created yet, fir
 
 ### Read the Docs
 
-The best way to get familiar with our stack is to read the Vulcan and GraphQL documentation pages.
-1. Read about [Vulcan's architecture](http://docs.vulcanjs.org/architecture.html)
-2. Learn how to [customize and extend Vulcan](http://docs.vulcanjs.org/example-customization.html)
-3. Understand [components and theming](http://docs.vulcanjs.org/theming.html)
-4. Understand [Vulcan's data layer](http://docs.vulcanjs.org/schemas.html)
-5. Complete the [GraphQL tutorial](https://graphql.org/learn/)
+Some relevant pieces of documentation that will help you understand aspects of the design:
+
+1. React hooks: [intro](https://reactjs.org/docs/hooks-intro.html) and [reference](https://reactjs.org/docs/hooks-reference.html)
+2. JSS styles: [intro](https://cssinjs.org/)
+3. GraphQL: [tutorial](https://graphql.org/learn/)
+4. Apollo: [introduction](https://www.apollographql.com/docs/react/) and [hooks API reference](https://www.apollographql.com/docs/react/api/react/hooks/)
+5. Underscore: [reference](https://underscorejs.org/)
+6. MongoDB: [manual](https://docs.mongodb.com/manual/introduction/)
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
 
 ### Understanding the codebase
 
-LessWrong 2 is built on VulcanJS, a generic framework for online forums. VulcanJS is in turn built on technologies including:
-
-  * **MeteorJS** - an underlying framework that you should rarely have to think about while coding for LW.
-  * **MongoDB** - a NoSQL database. There is no formal schema.
-  * **ReactJS** – for the front end.
-  * **GraphQL** – our backend API. The main difference between this and a REST API is that you can query multiple resources at once.
-
 Eventually, it’ll be helpful to have a good understanding of each of those technologies (both to develop new features and fix many kinds of bugs). But for now, the most useful things to know are:
 
-* **Collections** – Mongo databases are organized around *collections* of documents. For example, the Users collection is where the user objects live. Mongo databases do not technically have a rigid schema, but VulcanJS has a pattern for files that determine the intended schema (which is used by the API, forms and permissions systems to determine what database modifications are allowed)
+* **Collections** – Mongo databases are organized around *collections* of documents. For example, the Users collection is where the user objects live. Mongo databases do not technically have a rigid schema, but VulcanJS has a pattern for files that determine the intended schema (which is used by the API, forms and permissions systems to determine what database modifications are allowed). Each collection is a subdirectory in `packages/lesswrong/lib/collections`.
 
-* **Components** – Our React components are organized in a folder structure based loosely on our collections. (i.e. components related to the `User` collection go in the `packages/lesswrong/components/users` folder).
+* **Components** – Our React components are organized in a folder structure based loosely on our collections. (i.e. components related to the `User` collection go in the `packages/lesswrong/components/users` folder). Each component is (usually) defined in a separate `.tsx` file in `packages/lesswrong/components` and imported from `packages/lesswrong/lib/components.ts`.
 
   Some edge cases just go in a randomly picked folder (such as the RecentDiscussion components, which involve both comments and posts, but live in the comments folder)
 
-  There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
+  There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). New components should be functional components, using hooks and ideally minimizing usage of higher-order components. Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
 
-  We use Vulcan’s `registerComponent` function to add them as children to a central “Components” component. [(read more here)](http://docs.vulcanjs.org/theming.html)
+  We use Vulcan’s `registerComponent` function to add them as children to a central “Components” table.
 
-* **withComponents (Higher Order Components)** – VulcanJS makes a lot of use of React’s [higher order components](https://reactjs.org/docs/higher-order-components.html). Often you need a component to have access to particular attributes (the currentUser object, or a function that can edit a given document). Vulcan has a series of components that wrap around other components. They have a names like `withCurrentUser`, `withEditMutation`, `withDocument`. Wrapping a component in a `withX` typically passes extra information in as a prop.
+* **useFoo (React Hooks)** - We make heavy use of [React hooks](https://reactjs.org/docs/hooks-intro.html) for querying data, managing state, and accessing shared data like the current user.
+
+* **withFoo (Higher Order Components)** – Higher-order components exist as alternatives for most hooks, and are sometimes used because class-components cannot use hooks. However, these are deprecated and we are migrating towards only using hooks.
 
 * **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
-
-A Vulcan project is divided into packages. It comes with several base packages that provide core functionality (users, voting, routing, etc).
-
-The two packages you’ll most likely need to pay attention to are:
-
-* `packges/example-forum` – A sample forum that defines some key collections (posts, comments, and notifications, as well as “categories” [basically tags] which we aren’t currently using).
-
-  We avoid editing example-forum if we can, so we can more easily upgrade it when the main Vulcan branch updates. Instead, if a function in example-forum doesn’t suit our needs, we replace in our custom lesswrong package.
-
-  However, in some cases it’s impractical to avoid changing example-forum. When we do, we add a nearby comment:
-
-      // LESSWRONG – [text explaining the change]
-
-  So we can easily search for LESSWRONG and find all changes we’ve made.
-
-* `packages/lesswrong` – Our primary codebase.
-
-This includes new collections, components, and additional functions/attributes/extensions for objects in example-forum.
 
 ### Development Tips
 

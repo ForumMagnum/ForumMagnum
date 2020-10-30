@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 
 const UsersName = ({user, documentId, nofollow=false, simple=false}: {
-  user?: UsersMinimumInfo,
+  user?: UsersMinimumInfo|null|undefined,
   documentId?: string,
   nofollow?: boolean,
   simple?: boolean,

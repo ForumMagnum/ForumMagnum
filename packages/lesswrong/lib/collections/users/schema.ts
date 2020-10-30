@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from '../../vulcan-lib';
 import Users from "./collection";
-import { SchemaType } from '../../utils/schemaUtils';
+import type { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -36,6 +36,7 @@ const createDisplayName = (user: DbUser): string => {
 const adminGroup = {
   name: 'admin',
   order: 100,
+  label: "Admin",
 };
 
 const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
@@ -247,7 +248,6 @@ const schema: SchemaType<DbUser> = {
       },
     },
   },
-
   lwWikiImport: {
     type: Boolean,
     optional: true, 

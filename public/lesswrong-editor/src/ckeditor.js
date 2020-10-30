@@ -55,8 +55,10 @@ import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
+import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
+import Spoilers from './spoilers-plugin';
 //
 import { CleanStyleTags } from './clean-styles-plugin'
 
@@ -76,7 +78,7 @@ const headingOptions = {
 	options: [
 		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
 		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' }	
 	]
 };
 
@@ -119,7 +121,9 @@ const postEditorPlugins = [
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags
+	CleanStyleTags,
+	Spoilers,
+	AutoLink
 ];
 
 PostEditor.builtinPlugins = [
@@ -226,7 +230,9 @@ CommentEditor.builtinPlugins = [
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags
+	CleanStyleTags,
+	Spoilers,
+	AutoLink
 ];
 
 CommentEditor.defaultConfig = {

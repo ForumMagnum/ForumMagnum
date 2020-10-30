@@ -19,6 +19,7 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import MessageIcon from '@material-ui/icons/Message'
+import Button from '@material-ui/core/Button';
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -39,8 +40,38 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  hoverPostIcon: {
+    height: 16,
+    color: theme.palette.grey[700],
+    position: "relative",
+    top: 3
+  },
   reviewed: {
     backgroundColor: theme.palette.grey[100]
+  },
+  row: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  bigDownvotes: {
+    color: theme.palette.error.dark,
+  },
+  downvotes: {
+    color: theme.palette.error.dark,
+    opacity: .75
+  },
+  upvotes: {
+    color: theme.palette.primary.dark,
+    opacity: .75
+  },
+  bigUpvotes: {
+    color: theme.palette.primary.dark
+  },
+  hr: {
+    height: 0,
+    borderTop: "none",
+    borderBottom: "1px solid #ccc"
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
@@ -131,7 +162,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const commentKarmaPreviews = comments ? comments.sort((c1, c2) => c2.baseScore - c1.baseScore) : []
   const postKarmaPreviews = posts ? posts.sort((p1, p2) => p2.baseScore - p1.baseScore) : []
 
-  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton } = Components
 
   if (hidden) { return null }
 
@@ -146,19 +177,34 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             <MetaInfo>
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <hr />
-              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
-              <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
-              <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-              <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-              <hr />
+              <div className={classes.row}>
+                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+                {currentUser && <NewConversationButton user={user} currentUser={currentUser}>
+                  <Button variant="outlined">Message</Button>
+                </NewConversationButton>}
+              </div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
+              <hr className={classes.hr}/>
+              <div className={classes.row}>
+                <div className={classes.bigDownvotes}>
+                  Big Downvotes: { user.bigDownvoteCount || 0 }
+                </div>
+                <div className={classes.downvotes}>
+                  Downvotes: { user.smallDownvoteCount || 0 }
+                </div>
+                <div className={classes.upvotes}>
+                  Upvotes: { user.smallUpvoteCount || 0 }
+                </div>
+                <div className={classes.bigUpvotes}>
+                  Big Upvotes: { user.bigUpvoteCount || 0 } 
+                </div>
+              </div>
+              <hr className={classes.hr}/>
               <div>
                 <LWTooltip title="Post count">
                   <span>
                     { user.postCount || 0 }
-                    <DescriptionIcon className={classes.icon}/>
+                    <DescriptionIcon className={classes.hoverPostIcon}/>
                   </span> 
                 </LWTooltip>
                 {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}

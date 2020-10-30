@@ -18,16 +18,41 @@ registerFragment(`
     wikiGrade
     createdAt
     wikiOnly
+    lesswrongWikiImportSlug
+    lesswrongWikiImportRevision
   }
 `);
 
 registerFragment(`
   fragment TagFragment on Tag {
     ...TagBasicInfo
+    isRead
     description {
       html
       htmlHighlight
       plaintextDescription
+      version
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagHistoryFragment on Tag {
+    ...TagBasicInfo
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagCreationHistoryFragment on Tag {
+    ...TagFragment
+    user {
+      ...UsersMinimumInfo
+    }
+    description {
+      html
     }
   }
 `);
@@ -35,10 +60,16 @@ registerFragment(`
 registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagBasicInfo
+    isRead
     description(version: $version) {
+      version
       html
       htmlHighlight
       plaintextDescription
+      
+      user {
+        ...UsersMinimumInfo
+      }
     }
   }
 `);
@@ -48,15 +79,37 @@ registerFragment(`
     ...TagBasicInfo
     description {
       htmlHighlight
+      version
     }
+  }
+`);
+
+registerFragment(`
+  fragment TagWithFlagsFragment on Tag {
+    ...TagFragment
+    tagFlagsIds
+    tagFlags {
+      ...TagFlagFragment
+    } 
   }
 `);
 
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
+    tagFlagsIds
     description {
       ...RevisionEdit
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagRecentDiscussion on Tag {
+    ...TagFragment
+    lastVisitedAt
+    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
     }
   }
 `);

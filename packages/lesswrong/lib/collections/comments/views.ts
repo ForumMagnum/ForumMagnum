@@ -288,6 +288,7 @@ Comments.addView('topShortform', function (terms) {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
+      deleted: false,
       ...timeRange
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
@@ -371,3 +372,7 @@ Comments.addView('commentsOnTag', terms => ({
     tagId: terms.tagId,
   },
 }));
+ensureIndex(Comments,
+  augmentForDefaultView({tagId: 1}),
+  { name: "comments.tagId" }
+);

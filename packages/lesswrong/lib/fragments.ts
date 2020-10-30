@@ -147,6 +147,13 @@ registerFragment(`
     
     abTestKey
     abTestOverrides
+
+    sortDrafts
+    
+    reenableDraftJs
+    petrovPressedButtonDate
+    petrovLaunchCodeDate
+    ...SharedUserBooleans
   }
 `);
 
@@ -320,6 +327,13 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SharedUserBooleans on User {
+    walledGardenInvite
+    hideWalledGardenUI
+  }
+`)
+
+registerFragment(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
     createdAt
@@ -355,6 +369,10 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
+    petrovPressedButtonDate
+    sortDrafts
+    reenableDraftJs
+    ...SharedUserBooleans
   }
 `);
 
