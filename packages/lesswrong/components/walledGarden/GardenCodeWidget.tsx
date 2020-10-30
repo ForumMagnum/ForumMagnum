@@ -52,9 +52,9 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
   return <div className={classes.messageStyling}>
     <Typography variant="title" className={classes.row}>
       Generate Invite Links
-      <div className={classes.hide} onClick={()=>setOpen(false)}>
+      <a className={classes.hide} onClick={()=>setOpen(false)}>
         X
-      </div>
+      </a>
     </Typography>
     {!!currentCode
       ? <div>
