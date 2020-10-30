@@ -10,6 +10,9 @@ import Typography from '@material-ui/core/Typography';
 import moment from 'moment';
 
 const styles = (theme) => ({
+  button: {
+    marginTop: 8
+  },
   messageStyling: {
     ...commentBodyStyles(theme)
   },
@@ -25,6 +28,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
 
   const [currentCode, setCurrentCode] = useState<GardenCodeFragment|null>(null)
   const [copiedCode, setCopiedCode] = useState(false)
+  const [open, setOpen] = useState(false)
 
   const autoselectCode = (event) => {
     event.target.select()
@@ -33,6 +37,8 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
   const generatedLink = `https://garden.lesswrong.com?code=${currentCode?.code}&event=${currentCode?.slug}`
 
   if (!currentUser) return null
+
+  if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>Invite Friends</Button>
 
   return <div className={classes.messageStyling}>
     <Typography variant="title">Generate Invite Links</Typography>
