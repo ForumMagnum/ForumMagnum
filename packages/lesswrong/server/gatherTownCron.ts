@@ -1,5 +1,5 @@
 import { addCronJob } from './cronUtil';
-import { createMutator, Globals } from './vulcan-lib';
+import { createMutator } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
