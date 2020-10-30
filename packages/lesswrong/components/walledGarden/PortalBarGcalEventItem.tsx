@@ -1,30 +1,33 @@
 import React from 'react'
 import moment from 'moment';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme) => ({
-  secondaryInfo: {
-    marginTop: 5
+  root: {
+    ...theme.typography.commentStyle,
+    fontSize: '1.1rem',
+    color: 'rgba(0,0,0,0.55)',
+    display: "flex",
+    justifyContent: "space-between"
   },
   eventTime: {
     fontSize: ".9em",
-    opacity: 0.8
+    opacity: .75,
+    width: 120,
+    display: "inline-block"
   },
 })
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
-
-  return <div className={classes.secondaryInfo}>
-      <span>
-        <span className={classes.eventTime}>
-          {moment(new Date(gcalEvent.start.dateTime)).format("M/D, dddd h:mmA")}
-          {"  –  "}
-        </span>
-        <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
-            {gcalEvent.summary}
-        </a>
+  const { LWTooltip } = Components
+  return <div className={classes.root}>
+      <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
+          {gcalEvent.summary}
+      </a>{" "}
+      <span className={classes.eventTime}>
+        {moment(new Date(gcalEvent.start.dateTime)).format("ddd h:mma, M/D")}
       </span>
-  </div>
+    </div>
 }
 
 

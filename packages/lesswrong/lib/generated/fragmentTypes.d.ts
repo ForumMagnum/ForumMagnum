@@ -1100,8 +1100,6 @@ interface UsersMinimumInfo { // fragment on Users
 interface SharedUserBooleans { // fragment on Users
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
-  readonly hideWalledGardenPortalBar: boolean,
-  readonly walledGardenPortalBarLastViewed: Date,
   readonly walledGardenPortalOnboarded: boolean,
 }
 

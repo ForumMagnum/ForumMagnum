@@ -41,7 +41,8 @@ const styles = (theme) => ({
 
 
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenPortalBar, WalledGardenMessage, GatherTownIframeWrapper } = Components
+
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collection: Users,
@@ -90,6 +91,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const codeIsValid = validateGardenCode(gardenCode)
   const userIsAllowed = currentUser?.walledGardenInvite || isOpenToPublic || codeIsValid
+
 
   if (!userIsAllowed) {
     const codeExpiredDuringSession = onboarded && expiredGardenCode
