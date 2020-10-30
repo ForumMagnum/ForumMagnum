@@ -14,12 +14,12 @@ const styles = (theme) => ({
     fontSize: ".9em",
     opacity: .75,
     width: 120,
+    textAlign: "right",
     display: "inline-block"
   },
 })
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
-  const { LWTooltip } = Components
   return <div className={classes.root}>
       <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
           {gcalEvent.summary}
