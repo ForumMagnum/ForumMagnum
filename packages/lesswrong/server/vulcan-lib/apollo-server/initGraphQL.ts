@@ -409,7 +409,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
 
 
 export const initGraphQL = () => {
-  runCallbacks('graphql.init.before');
+  runCallbacks({name: 'graphql.init.before'});
   
   const { schemaText, addedResolvers } = getTypeDefs();
   

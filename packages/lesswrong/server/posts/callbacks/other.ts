@@ -12,43 +12,35 @@ Callbacks to:
 
 import { Posts } from '../../../lib/collections/posts';
 import { addCallback, Connectors, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
+import { getCollectionHooks } from '../../mutationCallbacks';
 
 //////////////////////////////////////////////////////
 // posts.edit.sync                                  //
 //////////////////////////////////////////////////////
 
-function PostsEditRunPostApprovedSyncCallbacks(modifier, post) {
+getCollectionHooks("Posts").editSync.add(function PostsEditRunPostApprovedSyncCallbacks(modifier, post) {
   if (modifier.$set && Posts.isApproved(modifier.$set) && !Posts.isApproved(post)) {
-    modifier = runCallbacks('posts.approve.sync', modifier, post);
+    modifier = runCallbacks({
+      name: 'posts.approve.sync',
+      iterator: modifier,
+      properties: [post]
+    });
   }
   return modifier;
-}
-addCallback('posts.edit.sync', PostsEditRunPostApprovedSyncCallbacks);
+});
 
 //////////////////////////////////////////////////////
 // posts.edit.async                                 //
 //////////////////////////////////////////////////////
 
-function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
+getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
   if (Posts.isApproved(post) && !Posts.isApproved(oldPost)) {
-    runCallbacksAsync('posts.approve.async', post);
+    runCallbacksAsync({
+      name: 'posts.approve.async',
+      properties: [post]
+    });
   }
-}
-addCallback('posts.edit.async', PostsEditRunPostApprovedAsyncCallbacks);
-
-//////////////////////////////////////////////////////
-// users.remove.async                               //
-//////////////////////////////////////////////////////
-
-function UsersRemoveDeletePosts(user, options) {
-  if (options.deletePosts) {
-    Posts.remove({ userId: user._id });
-  } else {
-    // not sure if anything should be done in that scenario yet
-    // Posts.update({userId: userId}, {$set: {author: '\[deleted\]'}}, {multi: true});
-  }
-}
-addCallback('users.remove.async', UsersRemoveDeletePosts);
+});
 
 //////////////////////////////////////////////////////
 // posts.click.async                                //

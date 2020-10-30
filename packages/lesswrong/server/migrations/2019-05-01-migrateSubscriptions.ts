@@ -1,4 +1,4 @@
-import { newMutation } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments/collection';
@@ -94,7 +94,7 @@ registerMigration({
           if (newSubscriptions.length > 0) {
             numTotalSubscriptions += newSubscriptions.length;
             await Promise.all(_.map(newSubscriptions, async sub => {
-              await newMutation({
+              await createMutator({
                 collection: Subscriptions,
                 document: sub,
                 currentUser: user,

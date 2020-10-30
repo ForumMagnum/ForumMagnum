@@ -1,5 +1,5 @@
 import { addCronJob } from './cronUtil';
-import { newMutation } from './vulcan-lib';
+import { createMutator } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
@@ -8,6 +8,7 @@ import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
 import { isProduction } from '../lib/executionEnvironment';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
+const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
 
 if (isProduction) {
   addCronJob({
@@ -17,7 +18,7 @@ if (isProduction) {
     },
     async job() {
       const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), gatherTownRoomId.get(), gatherTownRoomName.get());
-      void newMutation({
+      void createMutator({
         collection: LWEvents,
         document: {
           name: 'gatherTownUsersCheck',
@@ -110,7 +111,7 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
   });
 
   // Create WebSocket connection.
-  const socket = new WebSocket(`wss://premium-002.gather.town/?token=${token}`);
+  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}/?token=${token}`);
   function stringToArrayBuffer(string) {
     var binary_string = Buffer.from(string).toString(`binary`);
     var len = binary_string.length;

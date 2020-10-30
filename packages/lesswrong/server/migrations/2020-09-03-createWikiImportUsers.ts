@@ -1,6 +1,5 @@
-
 import { registerMigration } from './migrationUtils';
-import { newMutation } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 import Users from '../../lib/vulcan-users';
 
 registerMigration({
@@ -9,7 +8,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for (const username of newWikiUserNames) {
-      await newMutation({
+      await createMutator({
         collection: Users,
         document: {
           username,

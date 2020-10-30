@@ -1,7 +1,6 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-import { secondaryInfo } from '../tagging/TagProgressBar';
 import { gatherIcon } from '../icons/gatherIcon';
 import { LWEvents } from '../../lib/collections/lwevents';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -14,10 +13,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
+import { CAL_ID } from '../walledGarden/gardenCalendar';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
-
-const gatherMessage = new DatabasePublicSetting<string>('gatherTownMessage', 'Coworking on weekdays. Schelling Social hours at Tues 1pm PT, and Thurs 6pm PT.')
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,13 +34,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8
   },
   secondaryInfo: {
-    ...secondaryInfo(theme),
-    marginTop: 0,
-    display: "flex",
-    justifyContent: "space-between",
+    ...theme.typography.commentStyle,
+    fontSize: '1rem',
+    color: 'rgba(0,0,0,0.55)',
+    marginTop: 8
   },
   usersOnlineList: {
-    ...secondaryInfo(theme),
+    ...theme.typography.commentStyle,
+    fontSize: '1rem',
+    color: 'rgba(0,0,0,0.55)',
+    display: "flex",
     justifyContent: 'flex-start',
     flexWrap: "wrap",
     marginTop: 0
@@ -88,6 +89,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: ".8rem",
     color: theme.palette.grey[500],
     fontStyle: "italic"
+  },
+  allEvents: {
+    fontSize: ".8em",
+    fontStyle: "italic"
   }
 })
 
@@ -113,7 +118,7 @@ const GatherTown = ({classes}: {
     fragmentName: 'UsersCurrent',
   });
 
-  const { LWTooltip, AnalyticsTracker } = Components
+  const { LWTooltip, AnalyticsTracker, WalledGardenEvents } = Components
 
   if (!currentUser) return null
   if (!gardenOpenToPublic.get() && !currentUser.walledGardenInvite) return null
@@ -139,7 +144,7 @@ const GatherTown = ({classes}: {
     })
   }
 
-  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
+  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}` //"/walledGardenPortal"
 
   const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
     <div>
@@ -159,11 +164,6 @@ const GatherTown = ({classes}: {
         <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
           <div><a href={gatherTownURL}>Walled Garden Beta</a></div>
         </AnalyticsTracker>
-        <div className={classes.secondaryInfo}>
-          <div>
-            A private, permanent virtual world. {gatherMessage.get()}
-          </div>
-        </div>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
             {tooltip}
@@ -172,6 +172,8 @@ const GatherTown = ({classes}: {
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/> No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
+        <WalledGardenEvents />
+        <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
       </div>
     </div>
   )

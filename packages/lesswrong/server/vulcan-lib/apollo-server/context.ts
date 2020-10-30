@@ -74,7 +74,10 @@ const setupAuthToken = (user: DbUser|null, context: ResolverContext) => {
     });
     
     // identify user to any server-side analytics providers
-    runCallbacks('events.identify', user);
+    runCallbacks({
+      name: 'events.identify',
+      iterator: user
+    });
   } else {
     context.userId = null;
     context.currentUser = null;

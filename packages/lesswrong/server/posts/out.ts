@@ -11,7 +11,10 @@ addStaticRoute('/out', ({ query}, req, res, next) => {
       if (post) {
         const ip = (req.headers && req.headers['x-forwarded-for']) || req.connection.remoteAddress;
 
-        runCallbacksAsync('posts.click.async', post, ip);
+        runCallbacksAsync({
+          name: 'posts.click.async',
+          properties: [post, ip]
+        });
 
         res.writeHead(301, {'Location': query.url});
         res.end();

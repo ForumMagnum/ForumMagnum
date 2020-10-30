@@ -87,7 +87,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
           collectionName
         );
 
-        // pass document to boilerplate newMutator function
+        // pass document to boilerplate createMutator function
         return await Utils.createMutator({
           collection,
           data,
@@ -163,7 +163,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
           collectionName
         );
 
-        // call editMutator boilerplate function
+        // call updateMutator boilerplate function
         return await Utils.updateMutator({
           collection,
           selector,

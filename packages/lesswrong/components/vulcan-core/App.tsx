@@ -22,7 +22,10 @@ class App extends PureComponent<any,any> {
   constructor(props) {
     super(props);
     if (props.currentUser) {
-      runCallbacks('events.identify', props.currentUser);
+      runCallbacks({
+        name: 'events.identify',
+        iterator: props.currentUser
+      });
     }
     const locale = localeSetting.get();
     this.state = {
@@ -71,7 +74,10 @@ class App extends PureComponent<any,any> {
 
   UNSAFE_componentWillUpdate(nextProps) {
     if (!this.props.currentUser && nextProps.currentUser) {
-      runCallbacks('events.identify', nextProps.currentUser);
+      runCallbacks({
+        name: 'events.identify',
+        iterator: nextProps.currentUser
+      });
     }
   }
   

@@ -1,4 +1,5 @@
-import { Utils, addCallback, Connectors } from '../vulcan-lib';
+import { Utils, Connectors } from '../vulcan-lib';
+import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
@@ -324,8 +325,8 @@ const revisionIsChange = async (doc, fieldName): Promise<boolean> => {
   return false;
 }
 
-export function addEditableCallbacks({collection, options = {}}: {
-  collection: any,
+export function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
+  collection: CollectionBase<T>,
   options: any
 }) {
   const {
@@ -339,7 +340,6 @@ export function addEditableCallbacks({collection, options = {}}: {
   } = options
 
   const collectionName = collection.collectionName;
-  const { typeName } = collection.options
 
   async function editorSerializationBeforeCreate (doc, { currentUser }) {
     if (doc[fieldName]?.originalContents) {
@@ -390,7 +390,7 @@ export function addEditableCallbacks({collection, options = {}}: {
   }
   
   if (!deactivateNewCallback) {
-    addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationBeforeCreate);
+    getCollectionHooks(collectionName).createBefore.add(editorSerializationBeforeCreate);
   }
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
@@ -455,21 +455,20 @@ export function addEditableCallbacks({collection, options = {}}: {
     return docData
   }
   
-  addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
+  getCollectionHooks(collectionName).updateBefore.add(editorSerializationEdit);
 
-  async function editorSerializationAfterCreate(newDoc, { oldDocument }) {
+  async function editorSerializationAfterCreate(newDoc) {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
     await Revisions.update(
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
-    
-    return newDoc
+    return newDoc;
   }
   
-  addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationAfterCreate)
-  //addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationAfterCreateOrUpdate)
+  getCollectionHooks(collectionName).createAfter.add(editorSerializationAfterCreate)
+  //getCollectionHooks(collectionName).updateAfter.add(editorSerializationAfterCreateOrUpdate)
 }
 
 /// Given an HTML diff, where added sections are marked with <ins> and <del>
