@@ -6,7 +6,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {commentBodyStyles} from "../../themes/stylePiping";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import Typography from '@material-ui/core/Typography';
 import moment from 'moment';
 
 const styles = (theme) => ({
@@ -15,11 +14,17 @@ const styles = (theme) => ({
     marginBottom: 8,
     width: 135
   },
-  messageStyling: {
+  root: {
     ...commentBodyStyles(theme),
     border: "solid 1px rgba(0,0,0,.2)",
     borderRadius: 3,
     padding: 12,
+    backgroundColor: "white",
+    maxWidth: 378
+  },
+  row: {
+    display: "flex",
+    justifyContent: "space-between"
   },
   inviteCode: {
 
@@ -45,8 +50,11 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
 
   if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>Invite Friends</Button>
 
-  return <div className={classes.messageStyling}>
-    <Typography variant="title">Generate Invite Links</Typography>
+  return <div className={classes.root}>
+    <div className={classes.row}>
+      <h3>Generate Invite Links</h3> 
+      <a className={classes.hide} onClick={()=>setOpen(false)}>X</a>
+    </div>
     {!!currentCode
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
@@ -76,7 +84,8 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
           </div>
       : <div>
           <div>
-            <p>Use invite links to set up co-working, general hangouts, and other events.
+            <p>Use invite links to set up co-working, general hangouts, and other events.</p>
+            <p>
               Feel free to invite anyone who is considerate of those around them.
               Invite codes are valid for 4 hours from start time.
             </p>

@@ -14,6 +14,7 @@ const styles = (theme) => ({
     fontSize: ".9em",
     opacity: .75,
     width: 120,
+    textAlign: "right",
     display: "inline-block"
   },
 })
@@ -21,9 +22,11 @@ const styles = (theme) => ({
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
   const { LWTooltip } = Components
   return <div className={classes.root}>
-      <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
-          {gcalEvent.summary}
-      </a>{" "}
+      <LWTooltip title={gcalEvent.description}>
+        <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
+            {gcalEvent.summary}
+        </a>
+      </LWTooltip>
       <span className={classes.eventTime}>
         {moment(new Date(gcalEvent.start.dateTime)).format("ddd h:mma, M/D")}
       </span>
