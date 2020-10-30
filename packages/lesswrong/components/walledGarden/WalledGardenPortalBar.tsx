@@ -54,9 +54,8 @@ const styles = (theme) => ({
     width: 135
   },
   textButton: {
-    paddingLeft: 8,
+    paddingLeft: 22,
     paddingTop: 6,
-    textTransform: "capitalize"
   }
 })
 
