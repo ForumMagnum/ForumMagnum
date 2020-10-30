@@ -71,12 +71,12 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
           <GardenCodeWidget/>
           <div>
             <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
-              <Button>Facebook Group</Button>
+              Facebook Group
             </a>
           </div>
           <div>
             <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer" >
-              <Button>Google Calendar</Button>
+              Google Calendar
             </a>
           </div>
         </div>
