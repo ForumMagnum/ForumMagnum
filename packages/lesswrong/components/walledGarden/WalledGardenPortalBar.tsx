@@ -5,7 +5,6 @@ import {commentBodyStyles } from "../../themes/stylePiping";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
-import { KeyboardArrowUp, KeyboardArrowDown } from '@material-ui/icons';
 import { CAL_ID } from "./gardenCalendar";
 import moment from "moment"
 
@@ -57,29 +56,6 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
   const { GardenCodeWidget, WalledGardenEvents, PomodoroWidget } = Components
 
   const currentUser =  useCurrentUser()
-  const { mutate: updateUser } = useUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
-
-  // const barViewedMoreThan2DaysAgo =  moment(currentUser?.walledGardenPortalBarLastViewed).add(2, "days").isBefore(new Date())
-  const [hideBar, setHideBar] = useState(currentUser?.hideWalledGardenPortalBar)
-
-  // const updatePortalBarLastShown = useCallback(async () => {
-  //   if (currentUser) {
-  //     void updateUser({
-  //       selector: {_id: currentUser._id},
-  //       data: {
-  //         walledGardenPortalBarLastViewed: new Date()
-  //       },
-  //     })
-  //   }
-  // },[currentUser, updateUser])
-
-  // useEffect(() => {
-  //   if (!hideBar) void updatePortalBarLastShown()
-  //   }, [updatePortalBarLastShown, hideBar]
-  // )
 
   if (!currentUser) return null
   const refocusOnIframe = () => iframeRef.current.focus()
@@ -95,11 +71,13 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
           <GardenCodeWidget/>
           <div>
             <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
-              Facebook Group
+              <Button>Facebook Group</Button>
             </a>
           </div>
-          <div><a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer" >
-            Google Calendar</a>
+          <div>
+            <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer" >
+              <Button>Google Calendar</Button>
+            </a>
           </div>
         </div>
       </div>}

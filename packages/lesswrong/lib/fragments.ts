@@ -330,8 +330,6 @@ registerFragment(`
   fragment SharedUserBooleans on User {
     walledGardenInvite
     hideWalledGardenUI
-    hideWalledGardenPortalBar
-    walledGardenPortalBarLastViewed
     walledGardenPortalOnboarded
   }
 `)

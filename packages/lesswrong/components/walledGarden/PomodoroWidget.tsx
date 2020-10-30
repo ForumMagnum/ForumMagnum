@@ -8,6 +8,7 @@ const styles = (theme) => ({
     paddingRight: "5px",
     paddingTop: "2px",
     paddingBottom: "2px",
+    cursor: "pointer",
     "&:hover": {
       opacity: .5,
       background: "none"
@@ -17,9 +18,9 @@ const styles = (theme) => ({
     position: "absolute",
     right: 0,
     top: 0,
-    width: "300px",
-    height: "160px",
-    border: 'solid 1px rgba(0,0,0,.2)'
+    width: "450px",
+    height: "220px",
+    border: 'none'
   },
 })
 
@@ -33,9 +34,11 @@ export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {
         <i>Show Pomodoro Timer</i>
       </div>
     </div>}
-    { !hidePomodoroTimer && <iframe className={classes.pomodoroTimerIframe} src={"https://cuckoo.team/lesswrong"}></iframe> }
-    { !hidePomodoroTimer && <div className={classes.hideShowButton} onClick={()=> setHidePomodoroTimer(false)}>
-      <i>Hide Pomodoro Timer</i>
+    { !hidePomodoroTimer && <div>
+      <iframe className={classes.pomodoroTimerIframe} src={"https://cuckoo.team/lesswrong"}/>
+      <div className={classes.hideShowButton} onClick={()=> setHidePomodoroTimer(true)}>
+        <i>Hide Pomodoro Timer</i>
+      </div>
     </div>}
   </div>
 }
