@@ -7,6 +7,7 @@ import Comments from '../../lib/collections/comments/collection';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginRight: 8,
+    wordBreak: "break-word"
   },
   commentPreview: {
     maxWidth: 600
