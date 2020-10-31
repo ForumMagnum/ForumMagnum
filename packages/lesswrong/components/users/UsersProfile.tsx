@@ -3,7 +3,7 @@ import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from "../../lib/collections/users/collection";
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
@@ -199,7 +199,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     if (user.spamRiskScore < 0.4) {
       if (currentUser?._id === user._id) {
         // Logged-in spammer can see their own profile
-      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+      } else if (currentUser && userCanDo(currentUser, 'posts.moderate.all')) {
         // Admins and sunshines can see spammer's profile
       } else {
         // Anyone else gets a 404 here
@@ -329,7 +329,7 @@ const UsersProfileComponent = registerComponent<ExternalProps>(
     hocs: [
       withUser,
       withMulti({
-        collection: Users,
+        collectionName: "Users",
         fragmentName: 'UsersProfile',
         enableTotal: false,
         ssr: true

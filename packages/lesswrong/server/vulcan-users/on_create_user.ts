@@ -1,4 +1,5 @@
 import Users from '../../lib/collections/users/collection';
+import { userCanCreateField } from '../../lib/vulcan-users/permissions';
 import {
   runCallbacks,
   runCallbacksAsync,
@@ -54,7 +55,7 @@ function onCreateUserCallback(options, user) {
   // check that the current user has permission to insert each option field
   _.keys(options).forEach(fieldName => {
     var field = schema[fieldName];
-    if (!field || !Users.canCreateField(user, field)) {
+    if (!field || !userCanCreateField(user, field)) {
       throw new Error(
         Utils.encodeIntlError({ id: 'app.disallowed_property_detected', value: fieldName })
       );

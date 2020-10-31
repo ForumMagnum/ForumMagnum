@@ -1,4 +1,4 @@
-import Users from '../users/collection';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import Conversations from '../conversations/collection'
@@ -10,21 +10,21 @@ const options = {
     if (!user || !document) return false;
     const conversation = Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
-      Users.canDo(user, 'messages.new.own') : Users.canDo(user, `messages.new.all`)
+      userCanDo(user, 'messages.new.own') : userCanDo(user, `messages.new.all`)
   },
 
   editCheck: (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
-    Users.canDo(user, 'messages.edit.own') : Users.canDo(user, `messages.edit.all`)
+    userCanDo(user, 'messages.edit.own') : userCanDo(user, `messages.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
-    Users.canDo(user, 'messages.remove.own') : Users.canDo(user, `messages.remove.all`)
+    userCanDo(user, 'messages.remove.own') : userCanDo(user, `messages.remove.all`)
   },
 }
 
@@ -44,7 +44,7 @@ export const makeEditableOptions = {
   permissions: {
     viewableBy: ['members'],
     insertableBy: ['members'],
-    editableBy: Users.owns,
+    editableBy: userOwns,
   },
   order: 2,
 }

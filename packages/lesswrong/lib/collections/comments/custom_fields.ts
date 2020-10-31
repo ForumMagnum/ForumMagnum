@@ -1,5 +1,5 @@
 import { Comments } from "./collection";
-import Users from "../users/collection";
+import { userOwns } from '../../vulcan-users/permissions';
 import { makeEditable } from '../../editor/make_editable'
 import { foreignKeyField, addFieldsDict } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -19,7 +19,7 @@ addFieldsDict(Comments, {
     hidden: true,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -29,7 +29,7 @@ addFieldsDict(Comments, {
     hidden: true,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -40,7 +40,7 @@ addFieldsDict(Comments, {
     hidden: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -50,7 +50,7 @@ addFieldsDict(Comments, {
     hidden: true,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -60,8 +60,8 @@ addFieldsDict(Comments, {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canCreate: Users.owns,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: "checkbox",
     hidden: true,
     ...schemaDefaultValue(false),
@@ -74,7 +74,7 @@ addFieldsDict(Comments, {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: "checkbox",
     hidden: true,
     ...schemaDefaultValue(false),
@@ -85,7 +85,7 @@ addFieldsDict(Comments, {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true,
     ...schemaDefaultValue(false),
   },
@@ -95,7 +95,7 @@ addFieldsDict(Comments, {
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true,
   },
 

@@ -1,4 +1,4 @@
-import Users from '../users/collection';
+import { userOwns } from '../../vulcan-users/permissions';
 import { Utils, getCollection } from '../../vulcan-lib';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
@@ -74,7 +74,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'url',
     order: 10,
     query: `
@@ -91,7 +91,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'text',
     order: 20,
   },
@@ -370,7 +370,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
@@ -390,7 +390,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),

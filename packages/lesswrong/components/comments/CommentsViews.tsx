@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
@@ -74,7 +74,7 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
     const afViews = ["postLWComments"]
     const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
 
-    if (Users.canDo(currentUser, "comments.softRemove.all")) {
+    if (userCanDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
     }
 

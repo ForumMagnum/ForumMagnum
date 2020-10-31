@@ -28,6 +28,7 @@ import {
   deleteMutationTemplate,
 } from '../../../lib/vulcan-lib/graphql_templates';
 import { Utils } from '../../../lib/vulcan-lib/utils';
+import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
@@ -204,9 +205,8 @@ const getFields = (schema, typeName) => {
           [typeName]: {
             [resolverName]: (document, args, context: ResolverContext, info) => {
               const { currentUser } = context;
-              const Users = context.Users as any; // Cast to any because monkeypatched functions aren't in the ResolverContext type definition
               // check that current user has permission to access the original non-resolved field
-              const canReadField = Users.canReadField(currentUser, field, document);
+              const canReadField = userCanReadField(currentUser, field, document);
               return canReadField
                 ? field.resolveAs.resolver(document, args, context, info)
                 : null;

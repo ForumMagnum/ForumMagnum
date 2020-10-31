@@ -1,5 +1,5 @@
 import React from 'react';
-import Users from '../collections/users/collection'
+import { userOwns } from '../vulcan-users/permissions';
 import { Utils } from '../vulcan-lib';
 import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
@@ -27,7 +27,7 @@ const defaultOptions = {
   commentLocalStorage: false,
   permissions: {
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members']
   },
   fieldName: "",

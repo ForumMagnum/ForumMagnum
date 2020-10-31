@@ -5,9 +5,10 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { Utils } from '../../vulcan-lib';
 import { Comments } from '../comments';
 import { Posts } from '../posts';
-import Users, { UserLocation } from "../users/collection";
+import Users from "../users/collection";
 import { Votes } from '../votes';
 import { getUserName } from '../../vulcan-users/helpers';
+import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -22,7 +23,7 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
 
 export const userOwnsAndInGroup = (group: string) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
-    return Users.owns(user, document) && Users.isMemberOf(user, group)
+    return userOwns(user, document) && userIsMemberOf(user, group)
   }
 }
 
@@ -36,14 +37,14 @@ export const userCanCollaborate = (currentUser: UsersCurrent|null, document: Pos
 }
 
 export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUser: DbUser): boolean => {
-  if (Users.canDo(currentUser,"posts.moderate.all")) {
+  if (userCanDo(currentUser,"posts.moderate.all")) {
     return true
   }
   if (!currentUser || !targetUser) {
     return false
   }
   return !!(
-    Users.canDo(currentUser,"posts.moderate.own") &&
+    userCanDo(currentUser,"posts.moderate.own") &&
     targetUser.moderationStyle
   )
 }
@@ -56,7 +57,7 @@ const postHasModerationGuidelines = post => {
 }
 
 export const userCanModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null): boolean => {
-  if (Users.canDo(user,"posts.moderate.all")) {
+  if (userCanDo(user,"posts.moderate.all")) {
     return true
   }
   if (!user || !post) {
@@ -68,8 +69,8 @@ export const userCanModeratePost = (user: UsersMinimumInfo|DbUser|null, post: Po
   //  2) has moderation guidelins
   //  3) is not on the frontpage
   if (
-    Users.canDo(user, "posts.moderate.own.personal") &&
-    Users.owns(user, post) &&
+    userCanDo(user, "posts.moderate.own.personal") &&
+    userOwns(user, post) &&
     postHasModerationGuidelines(post) &&
     !post.frontpageDate
   ) {
@@ -82,8 +83,8 @@ export const userCanModeratePost = (user: UsersMinimumInfo|DbUser|null, post: Po
   // We have now checked all the possible conditions for posting, if they fail
   // this, check they cannot moderate this post
   return !!(
-    Users.canDo(user,"posts.moderate.own") &&
-    Users.owns(user, post) &&
+    userCanDo(user,"posts.moderate.own") &&
+    userOwns(user, post) &&
     postHasModerationGuidelines(post)
   )
 }
@@ -91,20 +92,20 @@ export const userCanModeratePost = (user: UsersMinimumInfo|DbUser|null, post: Po
 export const userCanModerateComment = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList|DbComment) => {
   if (!user || !post || !comment) return false
   if (userCanModeratePost(user, post)) return true 
-  if (Users.owns(user, comment) && !comment.directChildrenCount) return true 
+  if (userOwns(user, comment) && !comment.directChildrenCount) return true 
   return false
 }
 
 export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
-  if (Users.canDo(user,"posts.commentLock.all")) {
+  if (userCanDo(user,"posts.commentLock.all")) {
     return true
   }
   if (!user || !post) {
     return false
   }
   return !!(
-    Users.canDo(user,"posts.commentLock.own") &&
-    Users.owns(user, post)
+    userCanDo(user,"posts.commentLock.own") &&
+    userOwns(user, post)
   )
 }
 
@@ -118,7 +119,7 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsD
   const postAuthor = getUserFromPost(post);
   return !!(
     post.bannedUserIds?.includes(user._id) &&
-    Users.owns(postAuthor, post)
+    userOwns(postAuthor, post)
   )
 }
 
@@ -127,8 +128,8 @@ export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsB
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
-    Users.canDo(postAuthor, 'posts.moderate.own') &&
-    Users.owns(postAuthor, post)
+    userCanDo(postAuthor, 'posts.moderate.own') &&
+    userOwns(postAuthor, post)
   )
 }
 
@@ -137,8 +138,8 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedPersonalUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
-    Users.canDo(postAuthor, 'posts.moderate.own.personal') &&
-    Users.owns(postAuthor, post)
+    userCanDo(postAuthor, 'posts.moderate.own.personal') &&
+    userOwns(postAuthor, post)
   )
 }
 
@@ -168,8 +169,8 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   }
 
   if (forumTypeSetting.get() === 'AlignmentForum') {
-    if (!Users.canDo(user, 'comments.alignment.new')) {
-      return Users.owns(user, post) && Users.canDo(user, 'votes.alignment')
+    if (!userCanDo(user, 'comments.alignment.new')) {
+      return userOwns(user, post) && userCanDo(user, 'votes.alignment')
     }
   }
 
@@ -186,7 +187,7 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
   }
 
   if (forumTypeSetting.get() === 'AlignmentForum') {
-    if (!Users.canDo(user, 'comments.alignment.new')) {
+    if (!userCanDo(user, 'comments.alignment.new')) {
       return "You must be approved by an admin to comment on the AI Alignment Forum"
     }
   }
@@ -257,10 +258,17 @@ export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
 }
 
 export const userCanEdit = (currentUser, user) => {
-  return Users.owns(currentUser, user) || Users.canDo(currentUser, 'users.edit.all')
+  return userOwns(currentUser, user) || userCanDo(currentUser, 'users.edit.all')
 }
 
 
+
+interface UserLocation {
+  lat: number,
+  lng: number,
+  loading: boolean,
+  known: boolean,
+}
 
 // Return the current user's location, as a latitude-longitude pair, plus
 // boolean fields `loading` and `known`. If `known` is false, the lat/lng are

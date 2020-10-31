@@ -1,6 +1,7 @@
 import { addGraphQLResolvers, Utils } from '../vulcan-lib';
 import { asyncFilter } from '../utils/asyncUtils';
 import Users from '../collections/users/collection'
+import { restrictViewableFields } from './permissions';
 
 const specificResolvers = {
   Query: {
@@ -49,7 +50,7 @@ const resolvers = {
       : users;
 
       // restrict documents fields
-      const restrictedUsers = Users.restrictViewableFields(currentUser, Users, viewableUsers);
+      const restrictedUsers = restrictViewableFields(currentUser, Users, viewableUsers);
 
       // prime the cache
       restrictedUsers.forEach(user => context.loaders.Users.prime(user._id, user));
@@ -85,7 +86,7 @@ const resolvers = {
       if (Users.checkAccess) {
         if (!await Users.checkAccess(currentUser, user, context)) return null
       }
-      return { result: Users.restrictViewableFields(currentUser, Users, user) };
+      return { result: restrictViewableFields(currentUser, Users, user) };
     },
   },
 };

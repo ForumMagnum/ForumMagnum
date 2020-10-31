@@ -1,19 +1,19 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import Users from '../users/collection';
+import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 import { postCanEdit } from './helpers';
 
 const options = {
   newCheck: (user: DbUser|null) => {
     if (!user) return false;
-    return Users.canDo(user, 'posts.new')
+    return userCanDo(user, 'posts.new')
   },
 
   editCheck: (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
-    if (Users.canDo(user, 'posts.alignment.move.all') ||
-        Users.canDo(user, 'posts.alignment.suggest')) {
+    if (userCanDo(user, 'posts.alignment.move.all') ||
+        userCanDo(user, 'posts.alignment.suggest')) {
       return true
     }
     return postCanEdit(user, document)
@@ -21,7 +21,7 @@ const options = {
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
-    return Users.owns(user, document) ? Users.canDo(user, 'posts.edit.own') : Users.canDo(user, `posts.edit.all`)
+    return userOwns(user, document) ? userCanDo(user, 'posts.edit.own') : userCanDo(user, `posts.edit.all`)
   },
 }
 

@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -133,7 +133,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
     </div>
   };
 
-  if (currentUser && !Users.canDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps)) {
+  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 

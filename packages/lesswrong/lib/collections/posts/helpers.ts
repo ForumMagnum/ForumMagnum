@@ -1,6 +1,7 @@
 import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
+import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
 import { Posts, PostsMinimumForGetPageUrl } from './collection';
 
@@ -134,14 +135,14 @@ export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null =
 }
 
 export const postCanEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
-  return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
+  return userOwns(currentUser, post) || userCanDo(currentUser, 'posts.edit.all')
 }
 
 export const postCanDelete = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
-  if (Users.canDo(currentUser, "posts.remove.all")) {
+  if (userCanDo(currentUser, "posts.remove.all")) {
     return true
   }
-  return Users.owns(currentUser, post) && post.draft
+  return userOwns(currentUser, post) && post.draft
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {

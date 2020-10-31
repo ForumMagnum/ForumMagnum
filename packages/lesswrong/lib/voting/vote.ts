@@ -1,5 +1,5 @@
 import { runCallbacks } from '../vulcan-lib';
-import Users from '../collections/users/collection';
+import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import * as _ from 'underscore';
 
@@ -156,7 +156,7 @@ export const performVoteClient = ({ document, collection, voteType = 'upvote', u
   let returnedDocument;
 
   // make sure item and user are defined
-  if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
+  if (!document || !user || !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
     throw new Error(`Cannot perform operation '${collectionName.toLowerCase()}.${voteType}'`);
   }
 

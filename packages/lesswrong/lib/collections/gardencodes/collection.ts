@@ -3,7 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import {foreignKeyField, SchemaType} from '../../utils/schemaUtils'
 import './fragments';
 import './permissions';
-import Users from '../../vulcan-users';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 
 function generateCode(length) {
@@ -77,7 +77,7 @@ const schema: SchemaType<DbGardenCode> = {
   startTime: {
     type: Date,
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "Start Time",
@@ -111,12 +111,12 @@ const schema: SchemaType<DbGardenCode> = {
 // const options = {
 //   newCheck: (user: DbUser|null, document: DbGardenCode|null) => {
 //     if (!user || !document) return false;
-//     return Users.canDo(user, `gardenCodes.new`)
+//     return userCanDo(user, `gardenCodes.new`)
 //   },
 //
 //   editCheck: (user: DbUser|null, document: DbGardenCode|null) => {
 //     if (!user || !document) return false;
-//     return Users.canDo(user, `gardenCode.edit.all`)
+//     return userCanDo(user, `gardenCode.edit.all`)
 //   },
 //
 //   removeCheck: (user: DbUser|null, document: DbGardenCode|null) => {

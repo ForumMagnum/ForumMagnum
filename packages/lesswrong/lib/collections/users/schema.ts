@@ -1,8 +1,8 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from '../../vulcan-lib';
-import Users from './collection';
 import { userGetProfileUrl } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
+import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import type { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
@@ -42,7 +42,7 @@ const adminGroup = {
 };
 
 const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
-  return getCollection('Users').owns(user, document) || getCollection('Users').isAdmin(user);
+  return userOwns(user, document) || userIsAdmin(user);
 };
 
 /**

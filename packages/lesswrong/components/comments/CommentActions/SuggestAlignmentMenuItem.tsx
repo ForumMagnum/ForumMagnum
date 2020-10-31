@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
-import Users from '../../../lib/collections/users/collection';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
@@ -44,7 +44,7 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
   });
   const { OmegaIcon } = Components
 
-  if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
+  if (post.af && !comment.af && userCanDo(currentUser, 'comments.alignment.suggest')) {
 
     const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser!._id)
 

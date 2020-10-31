@@ -3,7 +3,7 @@ import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { meteorLogout } from '../../lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { withApollo } from 'react-apollo';
 
@@ -85,7 +85,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
 
     if (!currentUser) return null;
 
-    const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+    const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
     return (

@@ -1,7 +1,8 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
-import Users from '../../../lib/collections/users/collection';
+import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
 import withErrorBoundary from '../../common/withErrorBoundary';
@@ -341,13 +342,13 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
       const showReplyButton = (
         !hideReply &&
         !comment.deleted &&
-        (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
-        // FIXME Users.isAllowedToComment depends on some post metadatadata that we
+        (!blockedReplies || userCanDo(currentUser,'comments.replyOnBlocked.all')) &&
+        // FIXME userIsAllowedToComment depends on some post metadatadata that we
         // often don't want to include in fragments, producing a type-check error
         // here. We should do something more complicated to give client-side feedback
         // if you're banned.
         // @ts-ignore
-        (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
+        (!currentUser || userIsAllowedToComment(currentUser, this.props.post))
       )
 
       return (

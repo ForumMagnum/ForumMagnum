@@ -1,5 +1,5 @@
 import { Posts } from './collection'
-import Users from '../users/collection'
+import { userGroups, userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
 
@@ -8,7 +8,7 @@ import * as _ from 'underscore';
 const guestsActions = [
   'posts.view.approved'
 ];
-Users.groups.guests.can(guestsActions);
+userGroups.guests.can(guestsActions);
 
 const membersActions = [
   'posts.new',
@@ -17,7 +17,7 @@ const membersActions = [
   'posts.upvote',
   'posts.downvote',
 ];
-Users.groups.members.can(membersActions);
+userGroups.members.can(membersActions);
 
 const adminActions = [
   'posts.view.all',
@@ -29,21 +29,21 @@ const adminActions = [
   'posts.edit.all',
   'posts.remove.all'
 ];
-Users.groups.admins.can(adminActions);
+userGroups.admins.can(adminActions);
 
 // LessWrong Permissions
 
 Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null): Promise<boolean> => {
-  if (Users.canDo(currentUser, 'posts.view.all')) {
+  if (userCanDo(currentUser, 'posts.view.all')) {
     return true
-  } else if (Users.owns(currentUser, post) || userIsSharedOn(currentUser, post)) {
+  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post)) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;
   } else {
     const status = _.findWhere(Posts.statuses, {value: post.status});
     if (!status) return false;
-    return Users.canDo(currentUser, `posts.view.${status.label}`);
+    return userCanDo(currentUser, `posts.view.${status.label}`);
   }
 }
 
@@ -54,7 +54,7 @@ const votingActions = [
   'posts.bigUpvote',
 ]
 
-Users.groups.members.can(votingActions);
+userGroups.members.can(votingActions);
 
 const sunshineRegimentActions = [
   'posts.view.all',
@@ -65,9 +65,9 @@ const sunshineRegimentActions = [
   'posts.moderate.all',
   'posts.commentLock.all'
 ];
-Users.groups.sunshineRegiment.can(sunshineRegimentActions);
+userGroups.sunshineRegiment.can(sunshineRegimentActions);
 
 
-Users.groups.trustLevel1.can(['posts.moderate.own', 'posts.suggestCurate']);
-Users.groups.canModeratePersonal.can(['posts.moderate.own.personal']);
-Users.groups.canCommentLock.can(['posts.commentLock.own']);
+userGroups.trustLevel1.can(['posts.moderate.own', 'posts.suggestCurate']);
+userGroups.canModeratePersonal.can(['posts.moderate.own.personal']);
+userGroups.canCommentLock.can(['posts.commentLock.own']);

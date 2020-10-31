@@ -3,6 +3,7 @@ import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import { postGetPageUrl } from '../posts/helpers';
 import Users from "../users/collection";
+import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { Tags } from '../tags/collection';
 
@@ -60,9 +61,9 @@ export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false)
 export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
   if (forumTypeSetting.get() === 'AlignmentForum') { return true }
   if (comment) {
-    return !!(Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
+    return !!(userCanDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
-    return !!(Users.canDo(currentUser, "comments.alignment.new") && post?.af)
+    return !!(userCanDo(currentUser, "comments.alignment.new") && post?.af)
   }
 }
 

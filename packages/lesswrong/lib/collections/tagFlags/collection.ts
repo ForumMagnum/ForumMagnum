@@ -3,7 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import type { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
-import Users from '../../vulcan-users';
+import { userGroups, userCanDo } from '../../vulcan-users/permissions';
 
 
 const schema: SchemaType<DbTagFlag> = {
@@ -57,17 +57,17 @@ const adminActions = [
   'tagFlags.edit.all',
 ];
 
-Users.groups.admins.can(adminActions);
+userGroups.admins.can(adminActions);
 
 const options = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `tagFlags.new`)
+    return userCanDo(user, `tagFlags.new`)
   },
 
   editCheck: (user: DbUser|null, document: DbTagFlag|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `tagFlags.edit.all`)
+    return userCanDo(user, `tagFlags.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbTagFlag|null) => {

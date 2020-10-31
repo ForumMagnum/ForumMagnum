@@ -5,7 +5,7 @@ GraphQL config
 */
 
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../vulcan-lib';
-import Users from "../collections/users/collection";
+import { userCanDo } from '../vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from './users/helpers';
 import { accessFilterSingle } from '../utils/schemaUtils';
 
@@ -14,7 +14,7 @@ const alignmentCommentResolvers = {
     async alignmentComment(root: void, {commentId, af}: {commentId: string, af: boolean}, context: ResolverContext) {
       const comment = context.Comments.findOne(commentId)
 
-      if (Users.canDo(context.currentUser, "comments.alignment.move.all")) {
+      if (userCanDo(context.currentUser, "comments.alignment.move.all")) {
         let modifier = { $set: {af: af} };
         modifier = runCallbacks({
           name: 'comments.alignment.sync',
@@ -72,7 +72,7 @@ addGraphQLMutation('alignmentPost(postId: String, af: Boolean): Post');
 //     suggestAlignmentPost(root, { postId, suggestForAlignmentUserIds }, context: ResolverContext) {
 //       const post = context.Posts.findOne(postId)
 //
-//       if (Users.canDo(context.currentUser, "posts.alignment.new")) {
+//       if (userCanDo(context.currentUser, "posts.alignment.new")) {
 //         let modifier = { $set: {suggestForAlignmentUserIds: suggestForAlignmentUserIds} };
 //         modifier = runCallbacks('posts.suggestAlignment.sync', modifier);
 //         context.Posts.update({_id: postId}, modifier);
@@ -81,7 +81,7 @@ addGraphQLMutation('alignmentPost(postId: String, af: Boolean): Post');
 //           name: 'posts.suggestAlignment.async',
 //           properties: [updatedPost, post, context]
 //         });
-//         return context.Users.restrictViewableFields(context.currentUser, context.Posts, updatedPost);
+//         return restrictViewableFields(context.currentUser, context.Posts, updatedPost);
 //       } else {
 //         throw new Error({id: `app.user_cannot_sugest_post_alignment_forum_status`});
 //       }

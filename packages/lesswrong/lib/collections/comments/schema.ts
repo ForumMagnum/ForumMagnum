@@ -1,4 +1,4 @@
-import Users from '../users/collection';
+import { userOwns } from '../../vulcan-users/permissions';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { commentGetPageUrl } from './helpers';
@@ -170,7 +170,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
 
@@ -223,7 +223,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async (comment: DbComment): Promise<boolean> => {
@@ -244,7 +244,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
   },
   reviewingForReview: {
     type: String,
@@ -252,7 +252,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
   },
 
   lastSubthreadActivity: {

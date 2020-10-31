@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import Users from '../users/collection';
+import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
 import { Posts } from '../posts';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
@@ -9,29 +9,29 @@ export const commentMutationOptions = {
   newCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user) return false;
 
-    if (!document || !document.postId) return Users.canDo(user, 'comments.new')
+    if (!document || !document.postId) return userCanDo(user, 'comments.new')
     const post = Posts.findOne(document.postId)
     if (!post) return true
 
     if (!userIsAllowedToComment(user, post)) {
-      return Users.canDo(user, `posts.moderate.all`)
+      return userCanDo(user, `posts.moderate.all`)
     }
 
-    return Users.canDo(user, 'comments.new')
+    return userCanDo(user, 'comments.new')
   },
 
   editCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user || !document) return false;
-    if (Users.canDo(user, 'comments.alignment.move.all') ||
-        Users.canDo(user, 'comments.alignment.suggest')) {
+    if (userCanDo(user, 'comments.alignment.move.all') ||
+        userCanDo(user, 'comments.alignment.suggest')) {
       return true
     }
-    return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`)
+    return userOwns(user, document) ? userCanDo(user, 'comments.edit.own') : userCanDo(user, `comments.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user || !document) return false;
-    return Users.owns(user, document) ? Users.canDo(user, 'comments.edit.own') : Users.canDo(user, `comments.edit.all`)
+    return userOwns(user, document) ? userCanDo(user, 'comments.edit.own') : userCanDo(user, `comments.edit.all`)
   },
 }
 
@@ -49,7 +49,7 @@ export const Comments: ExtendedCommentsCollection = createCollection({
 });
 
 Comments.checkAccess = async (currentUser: DbUser|null, comment: DbComment, context: ResolverContext|null): Promise<boolean> => {
-  if (Users.isAdmin(currentUser) || Users.owns(currentUser, comment)) { // admins can always see everything, users can always see their own posts
+  if (userIsAdmin(currentUser) || userOwns(currentUser, comment)) { // admins can always see everything, users can always see their own posts
     return true;
   } else if (comment.isDeleted) {
     return false;

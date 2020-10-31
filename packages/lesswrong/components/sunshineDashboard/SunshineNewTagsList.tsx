@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import Tags from '../../lib/collections/tags/collection';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -22,7 +22,7 @@ const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
   const currentUser = useCurrentUser();
   
   const { SunshineListCount, SunshineListTitle, SunshineNewTagsItem } = Components
-  if (results && results.length && Users.canDo(currentUser, "posts.moderate.all")) {
+  if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div className={classes.root}>
         <SunshineListTitle>

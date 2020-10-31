@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
-import Users from '../../../lib/collections/users/collection'
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userCanCollaborate } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import withUser from '../../common/withUser'
@@ -236,7 +236,7 @@ class PostActions extends Component<PostActionsProps,{}> {
         <SuggestCurated post={post}/>
         <MoveToDraft post={post}/>
         <DeleteDraft post={post}/>
-        { Users.canDo(currentUser, "posts.edit.all") &&
+        { userCanDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
@@ -317,7 +317,7 @@ const PostActionsComponent = registerComponent<ExternalProps>('PostActions', Pos
       args: {postId: 'String', isRead: 'Boolean'},
     }),
     withUpdate({
-      collection: Users,
+      collectionName: "Users",
       fragmentName: 'UsersCurrent'
     }),
     withSetAlignmentPost({
