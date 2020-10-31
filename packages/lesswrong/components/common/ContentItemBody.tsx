@@ -122,6 +122,8 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     try {
       this.markScrollableLaTeX();
       this.markHoverableLinks();
+      this.markElicitBlocks();
+      this.setState({updatedElements: true})
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -260,7 +262,16 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
         const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel}/>
         this.replaceElement(linkTag, replacementElement);
       }
-      this.setState({updatedElements: true})
+    }
+  }
+
+  markElicitBlocks = () => {
+    if(this.bodyRef?.current) {
+      const elicitBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("elicit-block"));
+      for (const elicitBlock of elicitBlocks) {
+        const replacementElement = <Components.ElicitBlock />
+        this.replaceElement(elicitBlock, replacementElement)
+      }
     }
   }
   
