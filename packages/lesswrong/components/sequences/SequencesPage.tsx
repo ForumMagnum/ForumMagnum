@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import Sequences from '../../lib/collections/sequences/collection';
+import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import NoSSR from 'react-no-ssr';
 import Users from '../../lib/collections/users/collection';
 import Typography from '@material-ui/core/Typography';
@@ -95,7 +95,7 @@ const SequencesPage = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const { document, loading } = useSingle({
     documentId,
-    collection: Sequences,
+    collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
   });
 
@@ -123,7 +123,7 @@ const SequencesPage = ({ documentId, classes }: {
   const { html = "" } = document.contents || {}
 
   return <div className={classes.root}>
-    <HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
+    <HeadTags url={sequenceGetPageUrl(document, true)} title={document.title}/>
     <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>

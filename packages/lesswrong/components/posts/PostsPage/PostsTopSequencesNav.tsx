@@ -4,7 +4,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import { Sequences } from '../../../lib/collections/sequences/collection';
+import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -71,7 +71,7 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
           direction="left" />
 
         <div className={classes.title}>
-          <Link to={Sequences.getPageUrl(post.sequence)}>{ post.sequence.title }</Link>
+          <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
         </div>
 
         <Components.SequencesNavigationLink

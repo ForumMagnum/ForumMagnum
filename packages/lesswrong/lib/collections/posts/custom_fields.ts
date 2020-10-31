@@ -11,6 +11,7 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import Users from "../users/collection";
 import { Posts } from './collection';
 import { Sequences } from '../sequences/collection';
+import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
 import Sentry from '@sentry/core';
 
@@ -425,7 +426,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(sequenceId, post._id);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
           return await accessFilterSingle(currentUser, Posts, nextPost, context);
@@ -436,7 +437,7 @@ addFieldsDict(Posts, {
         return await accessFilterSingle(currentUser, Posts, nextPost, context);
       }
       if(post.canonicalSequenceId) {
-        const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
         if (!nextPostID) return null;
         const nextPost = await context.loaders.Posts.load(nextPostID);
         return await accessFilterSingle(currentUser, Posts, nextPost, context);
@@ -458,7 +459,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
           return await accessFilterSingle(currentUser, Posts, prevPost, context);
@@ -469,7 +470,7 @@ addFieldsDict(Posts, {
         return await accessFilterSingle(currentUser, Posts, prevPost, context);
       }
       if(post.canonicalSequenceId) {
-        const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
         if (!prevPostID) return null;
         const prevPost = await context.loaders.Posts.load(prevPostID);
         return await accessFilterSingle(currentUser, Posts, prevPost, context);
@@ -493,7 +494,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser } = context;
       let sequence: DbSequence|null = null;
-      if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
+      if (sequenceId && await sequenceContainsPost(sequenceId, post._id)) {
         sequence = await context.loaders.Sequences.load(sequenceId);
       } else if (post.canonicalSequenceId) {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
