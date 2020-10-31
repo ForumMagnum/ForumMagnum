@@ -5,7 +5,6 @@ Default list, single, and total resolvers
 */
 
 import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
-import Users from '../collections/users/collection'
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 

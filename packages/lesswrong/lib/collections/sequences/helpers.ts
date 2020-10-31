@@ -1,5 +1,4 @@
-import { Posts } from '../posts/index';
-import Chapters from '../chapters/collection';
+import { mongoFind } from '../../mongoQueries';
 import { Utils } from '../../vulcan-lib/utils';
 import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
@@ -13,7 +12,7 @@ export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
 };
 
 export const sequenceGetAllPostIDs = async (sequenceId: string): Promise<Array<string>> => {
-  const chapters = await Chapters.find({sequenceId: sequenceId}, {sort: {number: 1}}).fetch()
+  const chapters = await mongoFind("Chapters", {sequenceId: sequenceId}, {sort: {number: 1}});
   let allPostIds = _.flatten(_.pluck(chapters, 'postIds'))
   const validPostIds = _.filter(allPostIds, postId=>!!postId);
   return validPostIds;
@@ -25,7 +24,7 @@ export const sequenceGetAllPosts = async (sequenceId: string): Promise<Array<DbP
   const allPostIds = await sequenceGetAllPostIDs(sequenceId);
   
   // Retrieve those posts
-  const posts = await Posts.find({_id:{$in:allPostIds}}).fetch()
+  const posts = await mongoFind("Posts", {_id:{$in:allPostIds}});
   
   // Sort the posts retrieved back into reading order and return them
   const postsById = keyBy(posts, post=>post._id);

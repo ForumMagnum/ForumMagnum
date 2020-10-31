@@ -1,6 +1,5 @@
 import { addGraphQLResolvers, Utils } from '../vulcan-lib';
 import { asyncFilter } from '../utils/asyncUtils';
-import Users from '../collections/users/collection'
 import { restrictViewableFields } from './permissions';
 
 const specificResolvers = {
@@ -31,7 +30,7 @@ const defaultOptions = {
 const resolvers = {
   multi: {
     async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
-      const { currentUser } = context;
+      const { currentUser, Users } = context;
       const { terms = {}, enableCache = false, enableTotal = false } = input;
 
       if (cacheControl && enableCache) {
@@ -68,7 +67,7 @@ const resolvers = {
 
   single: {
     async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
-      const { currentUser } = context;
+      const { currentUser, Users } = context;
       const { selector = {}, enableCache = false } = input;
       const { documentId, slug } = selector;
 

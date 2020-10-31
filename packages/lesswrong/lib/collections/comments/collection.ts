@@ -2,7 +2,7 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
-import { Posts } from '../posts';
+import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 export const commentMutationOptions = {
@@ -10,7 +10,7 @@ export const commentMutationOptions = {
     if (!user) return false;
 
     if (!document || !document.postId) return userCanDo(user, 'comments.new')
-    const post = Posts.findOne(document.postId)
+    const post = mongoFindOne("Posts", document.postId)
     if (!post) return true
 
     if (!userIsAllowedToComment(user, post)) {

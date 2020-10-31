@@ -1,8 +1,7 @@
 import { forumTypeSetting } from '../../instanceSettings';
 import { Utils } from '../../vulcan-lib';
-import { Posts } from '../posts/collection';
+import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
-import Users from "../users/collection";
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { Tags } from '../tags/collection';
@@ -10,14 +9,14 @@ import { Tags } from '../tags/collection';
 
 // Get a comment author's name
 export function commentGetAuthorName(comment: DbComment): string {
-  var user = Users.findOne(comment.userId);
+  var user = mongoFindOne("Users", comment.userId);
   return user ? userGetDisplayName(user) : comment.author;
 };
 
 // Get URL of a comment page.
 export function commentGetPageUrl(comment: CommentsList|DbComment, isAbsolute = false): string {
   if (comment.postId) {
-    const post = Posts.findOne(comment.postId);
+    const post = mongoFindOne("Posts", comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {

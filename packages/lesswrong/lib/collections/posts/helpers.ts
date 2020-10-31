@@ -1,6 +1,6 @@
 import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { Utils } from '../../vulcan-lib';
-import Users from '../users/collection';
+import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
 import { Posts, PostsMinimumForGetPageUrl } from './collection';
@@ -29,7 +29,7 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 
 // Get a post author's name
 export const postGetAuthorName = function (post: DbPost) {
-  var user = Users.findOne(post.userId);
+  var user = mongoFindOne("Users", post.userId);
   if (user) {
     return userGetDisplayName(user);
   } else {

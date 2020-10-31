@@ -1,5 +1,5 @@
 import { Utils } from '../vulcan-lib';
-import Users from '../collections/users/collection';
+import { mongoFindOne } from '../mongoQueries';
 import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
 import { meteorCurrentUserFromFiberContext } from '../meteorAccounts';
@@ -13,7 +13,7 @@ export const getUser = function(userOrUserId: DbUser|string|undefined): DbUser|n
       return meteorCurrentUserFromFiberContext();
     }
   } else if (typeof userOrUserId === 'string') {
-    return Users.findOne(userOrUserId);
+    return mongoFindOne("Users", userOrUserId);
   } else {
     return userOrUserId;
   }
@@ -30,7 +30,7 @@ export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|
 };
 
 export const userGetDisplayNameById = function(userId: string): string {
-  return userGetDisplayName(Users.findOne(userId));
+  return userGetDisplayName(mongoFindOne("Users", userId));
 };
 
 // Get a user's account edit URL
@@ -85,5 +85,5 @@ export const userNumberOfItemsInPast24Hours = function<T extends DbObject>(user:
 };
 
 export const userFindByEmail = function(email: string): DbUser|null {
-  return Users.findOne({ email: email });
+  return mongoFindOne("Users", { email: email });
 };

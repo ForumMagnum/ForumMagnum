@@ -3,10 +3,7 @@ import { isClient, isServer } from '../../executionEnvironment';
 import { userHasCkEditor } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { Utils } from '../../vulcan-lib';
-import { Comments } from '../comments';
-import { Posts } from '../posts';
-import Users from "../users/collection";
-import { Votes } from '../votes';
+import { mongoFind, mongoFindOne, mongoAggregate } from '../../mongoQueries';
 import { getUserName } from '../../vulcan-users/helpers';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 
@@ -111,7 +108,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
 
 const getUserFromPost = (post: PostsBase|DbPost): UsersMinimumInfo|DbUser => {
   // @ts-ignore Hackily handling the dual cases of "a fragment with a post subfragment" and "a DbPost with a postId"
-  return post.user || Users.findOne(post.userId);
+  return post.user || mongoFindOne("Users", post.userId);
 }
 
 export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost): boolean => {
@@ -313,11 +310,11 @@ export const userGetLocation = (currentUser: UsersCurrent|null): UserLocation =>
 
 // utility function for checking how much karma a user is supposed to have
 export const userGetAggregateKarma = async (user: DbUser): Promise<number> => {
-  const posts = Posts.find({userId:user._id}).fetch().map(post=>post._id)
-  const comments = Comments.find({userId:user._id}).fetch().map(comment=>comment._id)
+  const posts = mongoFind("Posts", {userId:user._id}).map(post=>post._id)
+  const comments = mongoFind("Comments", {userId:user._id}).map(comment=>comment._id)
   const documentIds = [...posts, ...comments]
 
-  return await Votes.rawCollection().aggregate([
+  return await mongoAggregate("Votes", [
     {$match: {
       documentId: {$in:documentIds},
       userId: {$ne: user._id},

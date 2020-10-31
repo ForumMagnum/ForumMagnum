@@ -1,4 +1,4 @@
-import Users from '../users/collection'
+import { userGroups } from '../../vulcan-users/permissions';
 
 const votingActions = [
   'tagrels.smallDownvote',
@@ -7,4 +7,4 @@ const votingActions = [
   'tagrels.bigUpvote',
 ]
 
-Users.groups.members.can(votingActions);
+userGroups.members.can(votingActions);
