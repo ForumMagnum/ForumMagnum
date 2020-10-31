@@ -2,7 +2,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
@@ -224,7 +224,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             { user.karma || 0 }
           </MetaInfo>
           <MetaInfo className={classes.info}>
-            <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
+            <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={userGetProfileUrl(user)}>
                 {user.displayName}
             </Link>
           </MetaInfo>
@@ -260,7 +260,7 @@ const SunshineNewUsersItemComponent = registerComponent('SunshineNewUsersItem', 
   styles,
   hocs: [
     withUpdate({
-      collection: Users,
+      collectionName: "Users",
       fragmentName: 'SunshineUsersList',
     }),
     withErrorBoundary,

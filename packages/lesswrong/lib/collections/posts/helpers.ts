@@ -1,6 +1,7 @@
 import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
 import { Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
+import { userGetDisplayName } from '../users/helpers';
 import { Posts, PostsMinimumForGetPageUrl } from './collection';
 
 
@@ -29,7 +30,7 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 export const postGetAuthorName = function (post: DbPost) {
   var user = Users.findOne(post.userId);
   if (user) {
-    return Users.getDisplayName(user);
+    return userGetDisplayName(user);
   } else {
     return post.author;
   }

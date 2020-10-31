@@ -4,6 +4,7 @@ import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import Users from '../../../lib/collections/users/collection';
+import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 
@@ -34,7 +35,7 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPe
 
   render() {
     const { currentUser, post } = this.props
-    if (Users.canModeratePost(currentUser, post) && !post.frontpageDate && Users.owns(currentUser, post)) {
+    if (userCanModeratePost(currentUser, post) && !post.frontpageDate && Users.owns(currentUser, post)) {
         return <MenuItem onClick={ this.handleBanUserFromAllPosts }>
           Ban from all your personal blog posts
         </MenuItem>

@@ -4,6 +4,7 @@ import { commentGetPageUrl, commentGetRSSUrl } from '../../lib/collections/comme
 import { Posts } from '../../lib/collections/posts/collection';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
 import { addStaticRoute } from '../vulcan-lib';
@@ -118,7 +119,7 @@ addStaticRoute('/user/:slug/:category?/:filter?', (params, req, res, next) => {
     try {
       const user = Users.findOne({$or: [{slug: params.slug}, {username: params.slug}]});
       if (user) {
-        return makeRedirect(res, Users.getProfileUrl(user));
+        return makeRedirect(res, userGetProfileUrl(user));
       } else {
         //eslint-disable-next-line no-console
         console.log('// Missing legacy user', params);

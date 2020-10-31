@@ -1,5 +1,6 @@
 import { Utils } from '../vulcan-lib';
 import Users from '../collections/users/collection';
+import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
 import { meteorCurrentUserFromFiberContext } from '../meteorAccounts';
 
@@ -39,7 +40,7 @@ Users.getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
 };
 
 Users.getDisplayNameById = function(userId: string): string {
-  return Users.getDisplayName(Users.findOne(userId));
+  return userGetDisplayName(Users.findOne(userId));
 };
 
 /**
@@ -48,7 +49,7 @@ Users.getDisplayNameById = function(userId: string): string {
  * @param {Boolean} isAbsolute
  */
 Users.getEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string {
-  return `${Users.getProfileUrl(user, isAbsolute)}/edit`;
+  return `${userGetProfileUrl(user, isAbsolute)}/edit`;
 };
 
 /**

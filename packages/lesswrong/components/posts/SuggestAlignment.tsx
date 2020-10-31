@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
-import Users from '../../lib/collections/users/collection';
+import { userCanSuggestPostForAlignment } from '../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -17,7 +17,7 @@ const SuggestAlignment = ({ post }: {
   
   const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser!._id)
 
-  if (Users.canSuggestPostForAlignment({currentUser, post})) {
+  if (userCanSuggestPostForAlignment({currentUser, post})) {
     return <div>
       { userHasSuggested ?
         <div  onClick={() => postUnSuggestForAlignment({currentUser, post, updatePost})}>

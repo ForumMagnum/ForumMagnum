@@ -1,10 +1,10 @@
 import Users from "../../collections/users/collection";
 
-Users.canSuggestPostForAlignment = ({currentUser, post}) => {
+export const userCanSuggestPostForAlignment = ({currentUser, post}) => {
   return currentUser && post && !post.af && !post.reviewForAlignmentUserId && Users.canDo(currentUser, "posts.alignment.suggest")
 }
 
-Users.canMakeAlignmentPost = (user, post) => {
+export const userCanMakeAlignmentPost = (user, post) => {
   if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.move")) {
     return true
   }

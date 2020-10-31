@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection } from '../../vulcan-lib';
-import Users from "./collection";
+import Users from './collection';
+import { userGetProfileUrl } from "./helpers";
 import type { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
@@ -220,7 +221,7 @@ const schema: SchemaType<DbUser> = {
     resolveAs: {
       type: 'String',
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return Users.getProfileUrl(user, true);
+        return userGetProfileUrl(user, true);
       },
     },
   },
@@ -232,7 +233,7 @@ const schema: SchemaType<DbUser> = {
     resolveAs: {
       type: 'String',
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return Users.getProfileUrl(user, false);
+        return userGetProfileUrl(user, false);
       },
     },
   },

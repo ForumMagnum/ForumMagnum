@@ -1,5 +1,5 @@
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from '../../lib/vulcan-lib';
-import Users from "../../lib/collections/users/collection";
+import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 const specificResolvers = {
@@ -11,7 +11,7 @@ const specificResolvers = {
       const post = comment.postId && context.Posts.findOne(comment.postId)
       if (!post) throw new Error("Cannot find post");
       
-      if (currentUser && Users.canModerateComment(currentUser, post, comment)) {
+      if (currentUser && userCanModerateComment(currentUser, post, comment)) {
 
         let set: Record<string,any> = {deleted: deleted}
         if (deleted) {

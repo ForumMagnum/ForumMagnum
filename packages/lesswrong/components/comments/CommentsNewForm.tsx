@@ -9,6 +9,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import Users from '../../lib/collections/users/collection';
+import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -132,7 +133,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
     </div>
   };
 
-  if (currentUser && !Users.canDo(currentUser, `posts.moderate.all`) && !Users.isAllowedToComment(currentUser, prefilledProps)) {
+  if (currentUser && !Users.canDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 

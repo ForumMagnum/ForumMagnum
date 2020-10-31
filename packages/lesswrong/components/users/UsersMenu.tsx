@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { meteorLogout } from '../../lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from '../../lib/collections/users/collection';
+import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { withApollo } from 'react-apollo';
 
 import Paper from '@material-ui/core/Paper';
@@ -92,7 +93,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
         <Link to={`/users/${currentUser.slug}`}>
           <Button classes={{root: classes.userButtonRoot}}>
             <span className={classes.userButtonContents} style={{ color: color }}>
-              {Users.getDisplayName(currentUser)}
+              {userGetDisplayName(currentUser)}
               {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
                 <div>Your account has been deactivated:</div>
                 <ul>

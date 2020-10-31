@@ -118,34 +118,6 @@ export interface UserLocation {
 }
 
 interface ExtendedUsersCollection extends UsersCollection {
-  // Functions from lib/collections/users/helpers.ts
-  getDisplayName: (user: UsersMinimumInfo|DbUser|null) => string
-  ownsAndInGroup: (group: string) => (user: DbUser, document: HasUserIdType) => boolean
-  isSharedOn: (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase | DbPost) => boolean
-  canCollaborate: (currentUser: UsersCurrent|null, document: PostsBase) => boolean
-  canEditUsersBannedUserIds: (currentUser: DbUser|null, targetUser: DbUser) => boolean
-  canModeratePost: (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null) => boolean
-  canModerateComment: (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: DbComment|CommentsList) => boolean
-  canCommentLock: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
-  userIsBannedFromPost: (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost) => boolean
-  userIsBannedFromAllPosts: (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => boolean
-  userIsBannedFromAllPersonalPosts: (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => boolean
-  isAllowedToComment: (user: UsersMinimumInfo|DbUser|null, post: PostsDetails|DbPost) => boolean
-  blockedCommentingReason: (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost) => string
-  emailAddressIsVerified: (user: UsersCurrent|DbUser|null) => boolean
-  getProfileUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
-  getProfileUrlFromSlug: (userSlug: string, isAbsolute?: boolean) => string
-  useMarkdownPostEditor: (user: UsersCurrent|null) => boolean
-  canEdit: any
-  getLocation: (currentUser: UsersCurrent|null) => UserLocation
-  getAggregateKarma: (user: DbUser) => Promise<number>
-  getPostCount: (user: UsersMinimumInfo|DbUser|null) => number
-  getCommentCount: (user: UsersMinimumInfo|DbUser|null) => number
-  
-  // From lib/alignment-forum/users/helpers.ts
-  canSuggestPostForAlignment: any
-  canMakeAlignmentPost: any
-  
   // From lib/vulcan-users/permissions.ts
   groups: Record<string,any>
   createGroup: (groupName: string) => void

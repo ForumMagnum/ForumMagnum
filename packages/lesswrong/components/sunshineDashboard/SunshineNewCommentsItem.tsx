@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withHover from '../common/withHover'
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
@@ -31,7 +31,7 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
   handleDelete = () => {
     const { currentUser, comment, updateComment } = this.props
     if (confirm("Are you sure you want to immediately delete this comment?")) {
-      window.open(Users.getProfileUrl(comment.user), '_blank');
+      window.open(userGetProfileUrl(comment.user), '_blank');
       updateComment({
         selector: {_id: comment._id},
         data: {

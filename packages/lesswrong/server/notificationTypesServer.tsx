@@ -10,6 +10,7 @@ import { Conversations } from '../lib/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from '../lib/collections/users/collection';
+import { userGetDisplayName } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
@@ -151,7 +152,7 @@ export const NewReplyNotification = serverRegisterNotificationType({
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return `${Users.getDisplayName(author)} replied to a comment you're subscribed to`;
+      return `${userGetDisplayName(author)} replied to a comment you're subscribed to`;
     }
   },
   emailBody: async ({ user, notifications }) => {
@@ -174,7 +175,7 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return `${Users.getDisplayName(author)} replied to your comment`;
+      return `${userGetDisplayName(author)} replied to your comment`;
     }
   },
   emailBody: async ({ user, notifications }) => {
@@ -222,7 +223,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
   emailSubject: async function({ user, notifications }) {
     const { conversations, otherParticipants } = await this.loadData({ user, notifications });
     
-    const otherParticipantNames = otherParticipants.map(u=>Users.getDisplayName(u)).join(', ');
+    const otherParticipantNames = otherParticipants.map(u=>userGetDisplayName(u)).join(', ');
     
     return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
   },

@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "../../lib/collections/users/collection";
+import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -190,7 +191,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     }
 
     if (user.oldSlugs?.includes(slug)) {
-      return <PermanentRedirect url={Users.getProfileUrlFromSlug(user.slug)} />
+      return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
     // Does this profile page belong to a likely-spam account?
@@ -221,7 +222,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     
-    const username = Users.getDisplayName(user)
+    const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
     return (
@@ -256,7 +257,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              {userCanEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
                 Edit Account
               </Link>}
             </Typography>

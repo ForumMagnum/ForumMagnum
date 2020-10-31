@@ -9,6 +9,7 @@ import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeign
 import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import Users from "../users/collection";
+import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { Sequences } from '../sequences/collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
@@ -628,8 +629,8 @@ addFieldsDict(Posts, {
     type: Array,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    insertableBy: [Users.canModeratePost],
-    editableBy: [Users.canModeratePost],
+    insertableBy: [userCanModeratePost],
+    editableBy: [userCanModeratePost],
     hidden: true,
     optional: true,
     label: "Users banned from commenting on this post",
@@ -644,8 +645,8 @@ addFieldsDict(Posts, {
     type: Boolean,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    insertableBy: (currentUser: DbUser|null, document: DbPost) => Users.canCommentLock(currentUser, document),
-    editableBy: (currentUser: DbUser|null, document: DbPost) => Users.canCommentLock(currentUser, document),
+    insertableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
+    editableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
     optional: true,
     control: "checkbox",
   },

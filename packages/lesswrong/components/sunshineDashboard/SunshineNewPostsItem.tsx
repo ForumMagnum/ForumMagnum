@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMutation } from 'react-apollo';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
@@ -96,7 +96,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
-      window.open(Users.getProfileUrl(post.user), '_blank');
+      window.open(userGetProfileUrl(post.user), '_blank');
       void updatePost({
         selector: { _id: post._id},
         data: {
@@ -164,7 +164,7 @@ const SunshineNewPostsItem = ({post, classes}: {
             { post.baseScore }
           </SidebarInfo>
           <SidebarInfo>
-            <Link to={Users.getProfileUrl(post.user)}>
+            <Link to={userGetProfileUrl(post.user)}>
               {post.user && post.user.displayName}
             </Link>
           </SidebarInfo>

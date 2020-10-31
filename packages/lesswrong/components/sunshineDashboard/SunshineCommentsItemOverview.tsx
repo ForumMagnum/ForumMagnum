@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 
@@ -29,7 +29,7 @@ const SunshineCommentsItemOverview = ({ comment, classes }) => {
           { comment.baseScore }
         </Components.SidebarInfo>
         <Components.SidebarInfo>
-          <Link to={Users.getProfileUrl(comment.user)}>
+          <Link to={userGetProfileUrl(comment.user)}>
               {comment.user && comment.user.displayName}
           </Link>
         </Components.SidebarInfo>

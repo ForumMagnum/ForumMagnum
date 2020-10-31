@@ -8,6 +8,7 @@ import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormali
 import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
+import { userOwnsAndInGroup } from "./helpers";
 import GraphQLJSON from 'graphql-type-json';
 
 export const MAX_NOTIFICATION_RADIUS = 300
@@ -468,7 +469,7 @@ addFieldsDict(Users, {
     optional: true,
     label: "Enable option on posts to hide karma visibility",
     canRead: [Users.owns, 'admins'],
-    canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     hidden: forumTypeSetting.get() !== 'EAForum',
     control: 'checkbox',
@@ -481,8 +482,8 @@ addFieldsDict(Users, {
     type: Array,
     group: formGroups.moderationGroup,
     canRead: ['guests'],
-    canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-    canCreate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
     control: 'UsersListEditor'
@@ -498,8 +499,8 @@ addFieldsDict(Users, {
     type: Array,
     group: formGroups.moderationGroup,
     canRead: ['guests'],
-    canUpdate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
-    canCreate: [Users.ownsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwnsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+    canCreate: [userOwnsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
     control: 'UsersListEditor',

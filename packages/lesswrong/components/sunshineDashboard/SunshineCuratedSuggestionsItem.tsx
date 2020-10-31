@@ -3,7 +3,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -90,7 +90,7 @@ class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestion
             { post.baseScore }
           </Components.SidebarInfo>
           <Components.SidebarInfo>
-            <Link to={Users.getProfileUrl(post.user)}>
+            <Link to={userGetProfileUrl(post.user)}>
                 {post.user && post.user.displayName}
             </Link>
           </Components.SidebarInfo>

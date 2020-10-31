@@ -1,6 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import Users from '../users/collection';
+import { userIsAllowedToComment } from '../users/helpers';
 import { Posts } from '../posts';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
@@ -12,7 +13,7 @@ export const commentMutationOptions = {
     const post = Posts.findOne(document.postId)
     if (!post) return true
 
-    if (!Users.isAllowedToComment(user, post)) {
+    if (!userIsAllowedToComment(user, post)) {
       return Users.canDo(user, `posts.moderate.all`)
     }
 

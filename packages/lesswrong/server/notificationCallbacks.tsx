@@ -6,6 +6,7 @@ import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
+import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
@@ -216,7 +217,7 @@ const getLink = (notificationType: string, documentType: string|null, documentId
     case "comment":
       return commentGetPageUrl(document as DbComment);
     case "user":
-      return Users.getProfileUrl(document as DbUser);
+      return userGetProfileUrl(document as DbUser);
     case "message":
       return messageGetLink(document as DbMessage);
     case "tagRel":

@@ -1,5 +1,6 @@
 import { Posts } from './collection'
 import Users from '../users/collection'
+import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
 
 // Example Forum permissions
@@ -35,7 +36,7 @@ Users.groups.admins.can(adminActions);
 Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null): Promise<boolean> => {
   if (Users.canDo(currentUser, 'posts.view.all')) {
     return true
-  } else if (Users.owns(currentUser, post) || Users.isSharedOn(currentUser, post)) {
+  } else if (Users.owns(currentUser, post) || userIsSharedOn(currentUser, post)) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;

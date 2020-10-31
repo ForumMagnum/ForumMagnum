@@ -3,13 +3,14 @@ import { Utils } from '../../vulcan-lib';
 import { Posts } from '../posts/collection';
 import { postGetPageUrl } from '../posts/helpers';
 import Users from "../users/collection";
+import { userGetDisplayName } from "../users/helpers";
 import { Tags } from '../tags/collection';
 
 
 // Get a comment author's name
 export function commentGetAuthorName(comment: DbComment): string {
   var user = Users.findOne(comment.userId);
-  return user ? Users.getDisplayName(user) : comment.author;
+  return user ? userGetDisplayName(user) : comment.author;
 };
 
 // Get URL of a comment page.

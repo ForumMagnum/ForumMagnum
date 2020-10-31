@@ -6,6 +6,7 @@ GraphQL config
 
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../vulcan-lib';
 import Users from "../collections/users/collection";
+import { userCanMakeAlignmentPost } from './users/helpers';
 import { accessFilterSingle } from '../utils/schemaUtils';
 
 const alignmentCommentResolvers = {
@@ -42,7 +43,7 @@ const alignmentPostResolvers = {
     async alignmentPost(root: void, {postId, af}: {postId: string, af: boolean}, context: ResolverContext) {
       const post = context.Posts.findOne(postId)
 
-      if (Users.canMakeAlignmentPost(context.currentUser, post)) {
+      if (userCanMakeAlignmentPost(context.currentUser, post)) {
         let modifier = { $set: {af: af} };
         modifier = runCallbacks({
           name: 'posts.alignment.sync',

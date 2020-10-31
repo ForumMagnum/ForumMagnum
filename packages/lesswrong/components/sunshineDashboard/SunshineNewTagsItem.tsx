@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
@@ -108,7 +108,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
             {tag.postCount}
           </SidebarInfo>
           <SidebarInfo>
-            <Link to={Users.getProfileUrl(tag.user)}>
+            <Link to={userGetProfileUrl(tag.user)}>
               {tag.user && tag.user.displayName}
             </Link>
           </SidebarInfo>
