@@ -27,14 +27,9 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  iframePositioning: {
-    width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
-    height: "100%",
-    border: "none",
-    marginLeft: -gatherTownLeftMenuWidth
-  },
   portalBarPositioning: {
     width: "100%",
+    flex: 1
   },
 })
 

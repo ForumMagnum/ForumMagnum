@@ -10,7 +10,8 @@ const styles = (theme) => ({
     width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
     height: "100%",
     border: "none",
-    marginLeft: -gatherTownLeftMenuWidth
+    marginLeft: -gatherTownLeftMenuWidth,
+    flex: 4
   },
 })
 
@@ -21,7 +22,7 @@ const GatherTownIframeWrapper = ({iframeRef, classes}) => {
 
   useEffect(() => {
     iframeRef.current.focus()
-  }, [iframeRef])
+  }, [iframeRef, iframeRef.current])
 
   return <iframe className={classes.iframePositioning} ref={iframeRef} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
 }

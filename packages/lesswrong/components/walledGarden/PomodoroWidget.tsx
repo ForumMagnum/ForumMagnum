@@ -1,46 +1,28 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import React from 'react';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import TimerIcon from '@material-ui/icons/Timer';
 
 const styles = (theme) => ({
-  showButton: {
-    paddingTop: 12,
-    paddingBottom: 8,
-    textAlign: "right",
-    cursor: "pointer",
-    "&:hover": {
-      opacity: .5,
-      background: "none"
-    },
+  root: {
+    padding: 16,
+    display: "flex",
+    alignItems: "center"
   },
-  pomodoroTimerIframe: {
-    width: "450px",
-    height: "220px",
-    border: 'none'
-  },
-  hide: {
-    verticalAlign: "top",
-    opacity: .5,
-    padding: 10
+  icon: {
+    color: theme.palette.primary.main,
+    marginRight: 8  
   }
 })
 
 export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {
+  const { LWTooltip } = Components
 
-  const [hidePomodoroTimer, setHidePomodoroTimer] = useState(true)
-
-  return <div>
-    {hidePomodoroTimer && <div>
-      <div className={classes.showButton} onClick={()=> setHidePomodoroTimer(false)}>
-        <i>Show Pomodoro Timer</i>
+  return <LWTooltip title="Open the Garden pomodoro timer in a separate window">
+      <div className={classes.root}>
+        <TimerIcon className={classes.icon} />
+        <a target="_blank" href="https://cuckoo.team/lesswrong">Open Pomodoro Timer</a>
       </div>
-    </div>}
-    { !hidePomodoroTimer && <div>
-      <span className={classes.hide} onClick={()=> setHidePomodoroTimer(true)}>
-        <i>X</i>
-      </span>
-      <iframe className={classes.pomodoroTimerIframe} src={"https://cuckoo.team/lesswrong"}/>
-    </div>}
-  </div>
+    </LWTooltip>
 }
 
 const PomodoroWidgetComponent = registerComponent('PomodoroWidget', PomodoroWidget, {styles});

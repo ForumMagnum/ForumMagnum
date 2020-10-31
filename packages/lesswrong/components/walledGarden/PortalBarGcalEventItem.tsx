@@ -17,16 +17,23 @@ const styles = (theme) => ({
     textAlign: "right",
     display: "inline-block"
   },
+  tooltip: {
+    whiteSpace: "pre-wrap"
+  }
 })
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
   const { LWTooltip } = Components
+  const link = <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
+    {gcalEvent.summary}
+  </a>
+  
   return <div className={classes.root}>
-      <LWTooltip title={gcalEvent.description}>
-        <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
-            {gcalEvent.summary}
-        </a>
-      </LWTooltip>
+      {gcalEvent.description ? 
+        <LWTooltip title={<div className={classes.tooltip}>{gcalEvent.description}</div>}>
+          {link}
+        </LWTooltip>
+      : link}
       <span className={classes.eventTime}>
         {moment(new Date(gcalEvent.start.dateTime)).format("ddd h:mma, M/D")}
       </span>
