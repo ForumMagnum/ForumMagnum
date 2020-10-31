@@ -3,19 +3,13 @@ import Conversations from './collections/conversations/collection';
 import { Utils, getCollection } from './vulcan-lib';
 
 
-/**
-* @summary Get relative link to conversation (used only in session)
-* @param {Object} conversation
-**/
-Conversations.getLink = (conversation: HasIdType): string => {
+// Get relative link to conversation (used only in session)
+export const conversationGetLink = (conversation: HasIdType): string => {
   return `/inbox/${conversation._id}`;
 };
 
-/**
-* @summary Get relative link to conversation of message (conversations are only linked to relatively)
-* @param {Object} message
-**/
-Messages.getLink = (message: DbMessage): string => {
+// Get relative link to conversation of message (conversations are only linked to relatively)
+export const messageGetLink = (message: DbMessage): string => {
   return `/inbox/${message.conversationId}`;
 };
 

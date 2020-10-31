@@ -28,11 +28,7 @@ const options = {
   },
 }
 
-interface ExtendedMessagesCollection extends MessagesCollection {
-  getLink: (message: DbMessage) => string
-}
-
-export const Messages: ExtendedMessagesCollection = createCollection({
+export const Messages: MessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
   schema,

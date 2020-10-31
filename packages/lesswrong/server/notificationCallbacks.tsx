@@ -1,5 +1,6 @@
 import Notifications from '../lib/collections/notifications/collection';
 import Messages from '../lib/collections/messages/collection';
+import { messageGetLink } from '../lib/helpers';
 import Conversations from '../lib/collections/conversations/collection';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
@@ -217,7 +218,7 @@ const getLink = (notificationType: string, documentType: string|null, documentId
     case "user":
       return Users.getProfileUrl(document as DbUser);
     case "message":
-      return Messages.getLink(document as DbMessage);
+      return messageGetLink(document as DbMessage);
     case "tagRel":
       const post = Posts.findOne({_id: (document as DbTagRel).postId})
       return postGetPageUrl(post as DbPost);

@@ -23,16 +23,7 @@ const options = {
   },
 }
 
-interface ExtendedConversationsCollection extends ConversationsCollection {
-  // Functions in lib/collections/conversations/helpers.ts
-  getTitle: (conversation: conversationsListFragment, currentUser: UsersCurrent) => string
-  getPageUrl: (conversation: HasIdType, isAbsolute?: boolean) => string
-  
-  // Functions in lib/helpers.ts
-  getLink: (conversatoin: HasIdType) => string
-}
-
-export const Conversations: ExtendedConversationsCollection = createCollection({
+export const Conversations: ConversationsCollection = createCollection({
   collectionName: 'Conversations',
   typeName: 'Conversation',
   schema,

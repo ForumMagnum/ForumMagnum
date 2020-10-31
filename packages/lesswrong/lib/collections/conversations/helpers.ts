@@ -1,8 +1,7 @@
-import Conversations from "./collection";
 import { Utils } from '../../vulcan-lib';
 import * as _ from 'underscore';
 
-Conversations.getTitle = (conversation: conversationsListFragment, currentUser: UsersCurrent): string => {
+export const conversationGetTitle = (conversation: conversationsListFragment, currentUser: UsersCurrent): string => {
   if (!!conversation.title) {
     return conversation.title
   } else if (conversation.participants) {
@@ -14,7 +13,7 @@ Conversations.getTitle = (conversation: conversationsListFragment, currentUser: 
   }
 }
 
-Conversations.getPageUrl = (conversation: HasIdType, isAbsolute=false): string => {
+export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false): string => {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   return `${prefix}/inbox/${conversation._id}`;
