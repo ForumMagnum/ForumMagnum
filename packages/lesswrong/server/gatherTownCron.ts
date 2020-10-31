@@ -6,6 +6,8 @@ import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
 import { isProduction } from '../lib/executionEnvironment';
+import { toDictionary } from '../lib/utils/toDictionary';
+import * as _ from 'underscore';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
@@ -17,7 +19,10 @@ if (isProduction) {
       return parser.text(`every 3 minutes`);
     },
     async job() {
-      const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), gatherTownRoomId.get(), gatherTownRoomName.get());
+      const roomName = gatherTownRoomName.get();
+      const roomId = gatherTownRoomId.get();
+      if (!roomName || !roomId) return;
+      const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
       void createMutator({
         collection: LWEvents,
         document: {
@@ -34,7 +39,9 @@ if (isProduction) {
   });
 }
 
-const getGatherTownUsers = async (password, roomId, roomName) => {
+type GatherTownPlayerInfo = any;
+
+const getGatherTownUsers = async (password: string|null, roomId: string, roomName: string): Promise<Record<string,GatherTownPlayerInfo>> => {
   // Register new user to Firebase
   const authResponse = await fetch("https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCifrUkqu11lgjkz2jtp4Fx_GJh58HDlFQ", {
     "headers": {
@@ -128,7 +135,8 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
     socket.send(arrayBuffer)
   });
 
-  let players = {}
+  let playerNamesById: Record<string,string> = {}
+  let playerInfoByName: Record<string,GatherTownPlayerInfo> = {};
 
   socket.on('message', function (data) {
     const parsedData = data.toString('utf8').substring(1)
@@ -137,7 +145,10 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
         // Have to cut the first character before parsing as JSON because that \u0 (same as above)
         const jsonResponse = JSON.parse(data.toString('utf8').substring(1));
         if (jsonResponse.message && jsonResponse.message.type === "player") {
-          players[jsonResponse.message.info.name] = jsonResponse.message.info
+          const playerId = jsonResponse.message.id;
+          const playerName = jsonResponse.message.info.name
+          playerNamesById[playerId] = playerName;
+          playerInfoByName[playerName] = jsonResponse.message.info;
         }
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -151,10 +162,11 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
 
   socket.close();
 
-  return players
+  const playerNames = _.values(playerNamesById);
+  return toDictionary(playerNames, name=>name, name=>playerInfoByName[name]);
 }
 
-function isJson(str) {
+function isJson(str: string): boolean {
   try {
     JSON.parse(str);
   } catch (e) {
@@ -164,4 +176,4 @@ function isJson(str) {
 }
 
 // Wait utility function
-const wait = ms => new Promise((r, j) => setTimeout(r, ms))
+const wait = (ms: number) => new Promise((r, j) => setTimeout(r, ms))
