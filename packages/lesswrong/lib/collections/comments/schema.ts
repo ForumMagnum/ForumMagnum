@@ -2,6 +2,7 @@ import Users from '../users/collection';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { commentGetPageUrl } from './helpers';
+import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
@@ -58,13 +59,13 @@ const schema: SchemaType<DbComment> = {
     onInsert: (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
-        return Users.getDisplayNameById(document.userId)
+        return userGetDisplayNameById(document.userId)
       }
     },
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return Users.getDisplayNameById(modifier.$set.userId)
+        return userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },

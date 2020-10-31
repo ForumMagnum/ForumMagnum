@@ -4,7 +4,7 @@ import { Comments } from '../lib/collections/comments';
 import { commentGetPageUrl } from '../lib/collections/comments/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
-import Users from '../lib/collections/users/collection';
+import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl } from '../lib/rss_urls';
@@ -71,7 +71,7 @@ export const servePostRSS = async (terms, url?: string) => {
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: Users.getDisplayNameById(post.userId),
+      author: userGetDisplayNameById(post.userId),
       // LESSWRONG - this was added to handle karmaThresholds
       // date: post.postedAt
       date: date,

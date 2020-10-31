@@ -132,18 +132,6 @@ interface ExtendedUsersCollection extends UsersCollection {
   canCreateField: any
   canUpdateField: any
   
-  // From lib/vulcan-users/helpers.ts
-  getUser: (userOrUserId: DbUser|string|undefined) => DbUser|null
-  getUserName: (user: UsersMinimumInfo|DbUser|null) => string|null
-  getDisplayNameById: (userId: string) => string
-  getEditUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
-  getGitHubName: (user: DbUser) => string|null
-  getEmail: (user: DbUser) => string|null
-  findLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any) => T|null
-  timeSinceLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any) => number
-  numberOfItemsInPast24Hours: <T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter: Record<string,any>) => number
-  findByEmail: (email: string) => DbUser|null
-  
   // Fron search/utils.ts
   toAlgolia: (user: DbUser) => Promise<Array<Record<string,any>>|null>
 }

@@ -5,6 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "../../lib/collections/users/collection";
 import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -257,7 +258,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {userCanEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 Edit Account
               </Link>}
             </Typography>

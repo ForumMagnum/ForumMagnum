@@ -7,6 +7,7 @@ import { Comments } from '../comments';
 import { Posts } from '../posts';
 import Users, { UserLocation } from "../users/collection";
 import { Votes } from '../votes';
+import { getUserName } from '../../vulcan-users/helpers';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -15,7 +16,7 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
   } else {
     return forumTypeSetting.get() === 'AlignmentForum' ? 
       (user.fullName || user.displayName) :
-      (user.displayName || Users.getUserName(user)) || ""
+      (user.displayName || getUserName(user)) || ""
   }
 };
 

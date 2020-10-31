@@ -1,6 +1,7 @@
 import Users from '../../lib/collections/users/collection';
 import { Utils } from '../vulcan-lib';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 
 getCollectionHooks("Users").newSync.add(function usersMakeAdmin (user: DbUser) {
     // if this is not a dummy account, and is the first user ever, make them an admin
@@ -19,7 +20,7 @@ getCollectionHooks("Users").editSync.add(function usersEditCheckEmail (modifier,
       const newEmail = modifier.$set.email;
 
       // check for existing emails and throw error if necessary
-      const userWithSameEmail = Users.findByEmail(newEmail);
+      const userWithSameEmail = userFindByEmail(newEmail);
       if (userWithSameEmail && userWithSameEmail._id !== user._id) {
         throw new Error(Utils.encodeIntlError({id:'users.email_already_taken', value: newEmail}));
       }

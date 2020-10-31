@@ -6,6 +6,7 @@ import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
+import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
@@ -158,7 +159,7 @@ getCollectionHooks("Comments").createBefore.add(function AddReferrerToComment(co
 const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
 getCollectionHooks("Comments").newValidate.add(function CommentsNewRateLimit (comment: DbComment, user: DbUser) {
   if (!Users.isAdmin(user)) {
-    const timeSinceLastComment = Users.timeSinceLast(user, Comments);
+    const timeSinceLastComment = userTimeSinceLast(user, Comments);
     const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
     // check that user waits more than 15 seconds between comments

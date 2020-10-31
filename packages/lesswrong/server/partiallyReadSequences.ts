@@ -1,5 +1,6 @@
 import { updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
+import { getUser } from '../lib/vulcan-users/helpers';
 import { Sequences } from '../lib/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
 import Posts from '../lib/collections/posts/collection';
@@ -15,7 +16,7 @@ import { getCollectionHooks } from './mutationCallbacks';
 // a partially-read sequence, and update their user object to reflect this
 // status.
 const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string) => {
-  const user = Users.getUser(userId);
+  const user = getUser(userId);
   if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
   const postIDs = await sequenceGetAllPostIDs(sequenceId);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);

@@ -5,6 +5,7 @@ import { getNotificationTypeByNameServer } from './notificationTypesServer';
 import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import Users from '../lib/collections/users/collection';
+import { getUser } from '../lib/vulcan-users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from './vulcan-lib';
 import { UnsubscribeAllToken } from './emails/emailTokens';
@@ -33,7 +34,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
-  const user = Users.getUser(userId);
+  const user = getUser(userId);
   if (!user) throw new Error(`Missing user: ID ${userId}`);
   Notifications.update(
     { _id: {$in: notificationIds} },

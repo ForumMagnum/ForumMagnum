@@ -4,15 +4,8 @@ import { userGetDisplayName, userGetProfileUrl } from '../collections/users/help
 import moment from 'moment';
 import { meteorCurrentUserFromFiberContext } from '../meteorAccounts';
 
-////////////////////
-//  User Getters  //
-////////////////////
-
-/**
- * @summary Get a user
- * @param {String} userOrUserId
- */
-Users.getUser = function(userOrUserId: DbUser|string|undefined): DbUser|null {
+// Get a user
+export const getUser = function(userOrUserId: DbUser|string|undefined): DbUser|null {
   if (typeof userOrUserId === 'undefined') {
     if (!meteorCurrentUserFromFiberContext()) {
       throw new Error();
@@ -26,11 +19,8 @@ Users.getUser = function(userOrUserId: DbUser|string|undefined): DbUser|null {
   }
 };
 
-/**
- * @summary Get a user's username (unique, no special characters or spaces)
- * @param {Object} user
- */
-Users.getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
+// Get a user's username (unique, no special characters or spaces)
+export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -39,24 +29,19 @@ Users.getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
   return null;
 };
 
-Users.getDisplayNameById = function(userId: string): string {
+export const userGetDisplayNameById = function(userId: string): string {
   return userGetDisplayName(Users.findOne(userId));
 };
 
-/**
- * @summary Get a user's account edit URL
- * @param {Object} user (note: we only actually need either the _id or slug properties)
- * @param {Boolean} isAbsolute
- */
-Users.getEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string {
+// Get a user's account edit URL
+// @param {Object} user (note: we only actually need either the _id or slug properties)
+// @param {Boolean} isAbsolute
+export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string {
   return `${userGetProfileUrl(user, isAbsolute)}/edit`;
 };
 
-/**
- * @summary Get a user's GitHub name
- * @param {Object} user
- */
-Users.getGitHubName = function(user: DbUser): string|null {
+// Get a user's GitHub name
+export const userGetGitHubName = function(user: DbUser): string|null {
   // return twitter name provided by user, or else the one used for twitter login
   if (Utils.checkNested(user, 'profile', 'github')) {
     return user.profile.github;
@@ -66,11 +51,9 @@ Users.getGitHubName = function(user: DbUser): string|null {
   }
   return null;
 };
-/**
- * @summary Get a user's email
- * @param {Object} user
- */
-Users.getEmail = function(user: DbUser): string|null {
+
+// Get a user's email
+export const userGetEmail = function(user: DbUser): string|null {
   if (user.email) {
     return user.email;
   } else {
@@ -78,26 +61,18 @@ Users.getEmail = function(user: DbUser): string|null {
   }
 };
 
-////////////////////
-//  User Checks   //
-////////////////////
-
-///////////////////
-// Other Helpers //
-///////////////////
-
-Users.findLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): T|null {
+export const userFindLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): T|null {
   return collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
 };
 
-Users.timeSinceLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): number {
+export const userTimeSinceLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): number {
   var now = new Date().getTime();
-  var last = this.findLast(user, collection, filter);
+  var last = userFindLast(user, collection, filter);
   if (!last) return 999; // if this is the user's first post or comment ever, stop here
   return Math.abs(Math.floor((now - last.createdAt.getTime()) / 1000));
 };
 
-Users.numberOfItemsInPast24Hours = function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter?: Record<string,any>): number {
+export const userNumberOfItemsInPast24Hours = function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter?: Record<string,any>): number {
   var mNow = moment();
   var items = collection.find({
     userId: user._id,
@@ -109,12 +84,6 @@ Users.numberOfItemsInPast24Hours = function<T extends DbObject>(user: DbUser, co
   return items.count();
 };
 
-////////////////////
-// More Helpers   //
-////////////////////
-
-// helpers that don't take a user as argument
-
-Users.findByEmail = function(email: string): DbUser|null {
+export const userFindByEmail = function(email: string): DbUser|null {
   return Users.findOne({ email: email });
 };

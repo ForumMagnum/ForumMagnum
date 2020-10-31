@@ -5,6 +5,7 @@ import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCoun
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus } from './helpers';
+import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
@@ -243,7 +244,7 @@ const schema: SchemaType<DbPost> = {
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return Users.getDisplayNameById(modifier.$set.userId)
+        return userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },
