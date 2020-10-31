@@ -5,7 +5,7 @@ import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCoun
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { Posts } from "../posts/collection"
-import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl } from './helpers';
+import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus } from './helpers';
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
@@ -45,7 +45,7 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.adminOptions,
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
-      if (!post.postedAt && getCollection('Posts').getDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
+      if (!post.postedAt && postGetDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
         return new Date();
       }
     },
@@ -156,13 +156,13 @@ const schema: SchemaType<DbPost> = {
     control: 'select',
     onInsert: (document, currentUser) => {
       if (!document.status) {
-        return getCollection('Posts').getDefaultStatus(currentUser);
+        return postGetDefaultStatus(currentUser);
       }
     },
     onEdit: (modifier, document, currentUser) => {
       // if for some reason post status has been removed, give it default status
       if (modifier.$unset && modifier.$unset.status) {
-        return getCollection('Posts').getDefaultStatus(currentUser);
+        return postGetDefaultStatus(currentUser);
       }
     },
     options: () => getCollection('Posts').statuses,
