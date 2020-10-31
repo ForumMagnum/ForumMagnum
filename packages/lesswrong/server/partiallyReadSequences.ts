@@ -3,7 +3,8 @@ import Users from '../lib/collections/users/collection';
 import { Sequences } from '../lib/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
 import Posts from '../lib/collections/posts/collection';
-import Collections from '../lib/collections/collections/collection';
+import { Collections } from '../lib/collections/collections/collection';
+import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
 import { getCollectionHooks } from './mutationCallbacks';
@@ -56,7 +57,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   // the whole collection. If they've read everything in the collection, or
   // it isn't part of a collection, they're done.
   if (collection) {
-    const collectionPostIDs = await Collections.getAllPostIDs(collection._id);
+    const collectionPostIDs = await collectionGetAllPostIDs(collection._id);
     const collectionPostReadStatuses = await postsToReadStatuses(user, collectionPostIDs);
     const collectionAnyUnread = _.some(collectionPostIDs, (postID: string) => !collectionPostReadStatuses[postID]);
     

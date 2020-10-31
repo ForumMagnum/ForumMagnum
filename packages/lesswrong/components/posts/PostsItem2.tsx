@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
-import { Collections } from "../../lib/collections/collections/collection";
+import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
 import { useCurrentUser } from "../common/withUser";
@@ -462,7 +462,7 @@ const PostsItem2 = ({
                     {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                       resumeReading.sequence
                         ? sequenceGetPageUrl(resumeReading.sequence)
-                        : Collections.getPageUrl(resumeReading.collection)
+                        : collectionGetPageUrl(resumeReading.collection)
                     }>
                       {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
                     </Link>
