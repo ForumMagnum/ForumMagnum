@@ -1,12 +1,9 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Button, Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
-import { useUpdate } from '../../lib/crud/withUpdate';
-import Users from "../../lib/vulcan-users";
 import { useCurrentUser } from '../common/withUser';
 import { CAL_ID } from "./gardenCalendar";
-import moment from "moment"
 
 const widgetStyling = {
   marginLeft: "30px",

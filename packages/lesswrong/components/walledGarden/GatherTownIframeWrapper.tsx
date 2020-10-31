@@ -10,7 +10,8 @@ const styles = (theme) => ({
     width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
     height: "100%",
     border: "none",
-    marginLeft: -gatherTownLeftMenuWidth
+    marginLeft: -gatherTownLeftMenuWidth,
+    flex: 7
   },
 })
 

@@ -19,7 +19,7 @@ const WalledGardenEvents = ({frontpage=true}) => {
   }, [])
 
 
-  const limit = frontpage ? 2 : 6
+  const limit = frontpage ? 2 : 8
   if (!(events.length > 0)) return null
 
   return <div>

@@ -11,8 +11,6 @@ import {useUpdate} from "../../lib/crud/withUpdate";
 import Users from "../../lib/vulcan-users";
 import { isMobile } from "../../lib/utils/isMobile";
 
-const gatherTownLeftMenuWidth = 65 // We want to hide this menu, so we apply a negative margin on the iframe
-
 const styles = (theme) => ({
   messageStyling: {
     ...postBodyStyles(theme),
@@ -27,14 +25,9 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  iframePositioning: {
-    width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
-    height: "100%",
-    border: "none",
-    marginLeft: -gatherTownLeftMenuWidth
-  },
   portalBarPositioning: {
     width: "100%",
+    flex: 1
   },
 })
 
