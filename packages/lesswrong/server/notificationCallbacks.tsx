@@ -7,7 +7,8 @@ import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
-import { Comments } from '../lib/collections/comments'
+import { Comments } from '../lib/collections/comments/collection'
+import { commentGetPageUrl } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
@@ -212,7 +213,7 @@ const getLink = (notificationType: string, documentType: string|null, documentId
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return Comments.getPageUrl(document as DbComment);
+      return commentGetPageUrl(document as DbComment);
     case "user":
       return Users.getProfileUrl(document as DbUser);
     case "message":

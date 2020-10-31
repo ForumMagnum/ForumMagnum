@@ -1,5 +1,6 @@
 import { faviconUrlSetting } from '../../components/common/HeadTags';
 import { Comments } from '../../lib/collections/comments';
+import { commentGetPageUrl, commentGetRSSUrl } from '../../lib/collections/comments/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
@@ -90,7 +91,7 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
       const post = findPostByLegacyId(params.id);
       const comment = findCommentByLegacyId(params.commentId);
       if (post && comment) {
-        return makeRedirect(res, Comments.getPageUrl(comment));
+        return makeRedirect(res, commentGetPageUrl(comment));
       } else if (post) {
         return makeRedirect(res, postGetPageUrl(post));
       } else {
@@ -143,7 +144,7 @@ addStaticRoute('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
     try {
       const comment = Comments.findOne({_id: params.commentId});
       if (comment) {
-        return makeRedirect(res, Comments.getPageUrl(comment));
+        return makeRedirect(res, commentGetPageUrl(comment));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -192,7 +193,7 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
       const post = findPostByLegacyId(params.id);
       const comment = findCommentByLegacyId(params.commentId);
       if (post && comment) {
-        return makeRedirect(res, Comments.getRSSUrl(comment));
+        return makeRedirect(res, commentGetRSSUrl(comment));
       } else if (post) {
         return makeRedirect(res, postGetPageUrl(post));
       } else {
@@ -257,7 +258,7 @@ addStaticRoute('/item', (params, req, res, next) => {
       } else {
         const comment = findCommentByLegacyAFId(id);
         if (comment) {
-          return makeRedirect(res, Comments.getPageUrl(comment))
+          return makeRedirect(res, commentGetPageUrl(comment))
         } else {
           // don't redirect if we can't find a post for that link
           //eslint-disable-next-line no-console

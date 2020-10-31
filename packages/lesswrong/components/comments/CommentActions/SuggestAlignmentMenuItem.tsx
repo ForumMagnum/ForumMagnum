@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Comments } from '../../../lib/collections/comments'
+import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
 import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -39,7 +39,7 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'SuggestAlignmentComment',
   });
   const { OmegaIcon } = Components
@@ -50,7 +50,7 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
 
     if (!userHasSuggested) {
       return (
-        <MenuItem onClick={() => Comments.suggestForAlignment({ currentUser, comment, updateComment })}>
+        <MenuItem onClick={() => commentSuggestForAlignment({ currentUser, comment, updateComment })}>
           <ListItemIcon>
             <span className={classes.iconRoot}>
               <OmegaIcon className={classes.omegaIcon}/>
@@ -61,7 +61,7 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
         </MenuItem>
       )
     } else {
-      return <MenuItem onClick={() => Comments.unSuggestForAlignment({ currentUser, comment, updateComment })}>
+      return <MenuItem onClick={() => commentUnSuggestForAlignment({ currentUser, comment, updateComment })}>
         <ListItemIcon>
           <span className={classes.iconRoot}>
             <OmegaIcon className={classes.omegaIcon}/>

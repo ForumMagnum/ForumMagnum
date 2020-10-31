@@ -4,7 +4,7 @@ import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from '../../lib/collections/users/collection';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Comments } from '../../lib/collections/comments'
+import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import withUser from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
@@ -72,7 +72,7 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
     const afViews = ["postLWComments"]
-    const currentView: string = query?.view || Comments.getDefaultView(post||null, currentUser)
+    const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);

@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { Comments } from '../../../lib/collections/comments'
+import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -131,7 +131,7 @@ class PostsPage extends Component<PostsPageProps> {
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
-      const defaultView = Comments.getDefaultView(post, currentUser)
+      const defaultView = commentGetDefaultView(post, currentUser)
       // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
       const commentTerms = Object.keys(viewNames).includes(query.view) ? {...query, limit:500} : {view: defaultView, limit: 500}
       const sequenceId = this.getSequenceId();

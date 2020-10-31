@@ -2,7 +2,8 @@ import React from 'react';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
 import { postGetAuthorName } from './collections/posts/helpers';
-import { Comments } from './collections/comments';
+import { Comments } from './collections/comments/collection';
+import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
 import { Tags } from './collections/tags/collection';
 import Messages from './collections/messages/collection';
@@ -150,7 +151,7 @@ export const NewCommentNotification = registerNotificationType({
   userSettingField: "notificationCommentsOnSubscribedPost",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' left a new comment on "' + getCommentParentTitle(document) + '"';
+    return commentGetAuthorName(document) + ' left a new comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -199,7 +200,7 @@ export const NewReplyNotification = registerNotificationType({
   userSettingField: "notificationRepliesToSubscribedComments",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' replied to a comment on "' + getCommentParentTitle(document) + '"';
+    return commentGetAuthorName(document) + ' replied to a comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -212,7 +213,7 @@ export const NewReplyToYouNotification = registerNotificationType({
   userSettingField: "notificationRepliesToMyComments",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' replied to your comment on "' + getCommentParentTitle(document) + '"';
+    return commentGetAuthorName(document) + ' replied to your comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

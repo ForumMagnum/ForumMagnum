@@ -1,6 +1,7 @@
 import RSS from 'rss';
 import { taglineSetting } from '../components/common/HeadTags';
 import { Comments } from '../lib/collections/comments';
+import { commentGetPageUrl } from '../lib/collections/comments/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import Users from '../lib/collections/users/collection';
@@ -97,10 +98,10 @@ export const serveCommentRSS = async (terms, url?: string) => {
     const parentTitle = getCommentParentTitle(comment)
     feed.item({
      title: 'Comment on ' + parentTitle,
-     description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${comment.contents && comment.contents.html}</br></br><a href='${commentGetPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
-     url: Comments.getPageUrl(comment, true),
+     url: commentGetPageUrl(comment, true),
      guid: comment._id
     });
   });

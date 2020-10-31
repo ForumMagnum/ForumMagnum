@@ -3,6 +3,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments';
+import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../lib/alignment-forum/comments/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -64,11 +65,11 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
           { userHasVoted ?
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Comments.unSuggestForAlignment({currentUser, comment, updateComment})}>
+            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>commentUnSuggestForAlignment({currentUser, comment, updateComment})}>
               <UndoIcon/>
             </Components.SidebarAction>
             :
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Comments.suggestForAlignment({currentUser, comment, updateComment})}>
+            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>commentSuggestForAlignment({currentUser, comment, updateComment})}>
               <PlusOneIcon/>
             </Components.SidebarAction>
           }

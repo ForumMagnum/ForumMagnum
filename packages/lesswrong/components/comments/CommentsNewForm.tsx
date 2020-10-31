@@ -1,6 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { Comments } from '../../lib/collections/comments';
+import { Comments } from '../../lib/collections/comments/collection';
+import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -62,7 +63,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   const currentUser = useCurrentUser();
   prefilledProps = {
     ...prefilledProps,
-    af: Comments.defaultToAlignment(currentUser, post, parentComment),
+    af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
   const [showGuidelines, setShowGuidelines] = useState(false)

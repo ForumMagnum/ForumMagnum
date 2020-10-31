@@ -35,19 +35,6 @@ export const commentMutationOptions = {
 }
 
 interface ExtendedCommentsCollection extends CommentsCollection {
-  // Functions in lib/collections/comments/helpers.ts
-  getAuthorName: (comment: DbComment) => string
-  getPageUrl: (comment: CommentsList|DbComment, isAbsolute?: boolean) => string
-  getPageUrlFromIds: (args: { postId?: string, postSlug?: string, tagSlug?: string, commentId: string, permalink?: boolean, isAbsolute?: boolean }) => string
-  getRSSUrl: (comment: HasIdType, isAbsolute?: boolean) => string
-  defaultToAlignment: (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList) => boolean
-  getDefaultView: (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null) => string
-  getKarma: (comment: CommentsList|DbComment) => number
-  
-  // Functions in lib/alignment-forum/comments/helpers.ts
-  suggestForAlignment: any
-  unSuggestForAlignment: any
-  
   // Functions in server/search/utils.ts
   toAlgolia: (comment: DbComment) => Promise<Array<Record<string,any>>|null>
 }
