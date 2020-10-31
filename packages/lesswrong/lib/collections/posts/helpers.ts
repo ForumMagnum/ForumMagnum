@@ -10,20 +10,14 @@ import { Posts, PostsMinimumForGetPageUrl } from './collection';
 // Link Helpers //
 //////////////////
 
-/**
- * @summary Return a post's link if it has one, else return its post page URL
- * @param {Object} post
- */
-Posts.getLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
+// Return a post's link if it has one, else return its post page URL
+export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
   const url = isRedirected ? Utils.getOutgoingUrl(post.url) : post.url;
-  return !!post.url ? url : Posts.getPageUrl(post, isAbsolute);
+  return !!post.url ? url : postGetPageUrl(post, isAbsolute);
 };
 
-/**
- * @summary Whether a post's link should open in a new tab or not
- * @param {Object} post
- */
-Posts.getLinkTarget = function (post: PostsBase|DbPost): string {
+// Whether a post's link should open in a new tab or not
+export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
   return !!post.url ? '_blank' : '';
 };
 
@@ -31,11 +25,8 @@ Posts.getLinkTarget = function (post: PostsBase|DbPost): string {
 // Other Helpers //
 ///////////////////
 
-/**
- * @summary Get a post author's name
- * @param {Object} post
- */
-Posts.getAuthorName = function (post: DbPost) {
+// Get a post author's name
+export const postGetAuthorName = function (post: DbPost) {
   var user = Users.findOne(post.userId);
   if (user) {
     return Users.getDisplayName(user);
@@ -44,65 +35,44 @@ Posts.getAuthorName = function (post: DbPost) {
   }
 };
 
-/**
- * @summary Get default status for new posts.
- * @param {Object} user
- */
-Posts.getDefaultStatus = function (user: DbUser): number {
+// Get default status for new posts.
+export const postGetDefaultStatus = function (user: DbUser): number {
   return Posts.config.STATUS_APPROVED;
 };
 
-/**
- * @summary Get status name
- * @param {Object} user
- */
-Posts.getStatusName = function (post: DbPost): string {
+// Get status name
+export const postGetStatusName = function (post: DbPost): string {
   return Utils.findWhere(Posts.statuses, {value: post.status}).label;
 };
 
-/**
- * @summary Check if a post is approved
- * @param {Object} post
- */
-Posts.isApproved = function (post: DbPost): boolean {
+// Check if a post is approved
+export const postIsApproved = function (post: DbPost): boolean {
   return post.status === Posts.config.STATUS_APPROVED;
 };
 
-/**
- * @summary Check if a post is pending
- * @param {Object} post
- */
-Posts.isPending = function (post: DbPost): boolean {
+// Check if a post is pending
+export const postIsPending = function (post: DbPost): boolean {
   return post.status === Posts.config.STATUS_PENDING;
 };
 
 
-/**
- * @summary Get URL for sharing on Twitter.
- * @param {Object} post
- */
-Posts.getTwitterShareUrl = (post: DbPost): string => {
-  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(Posts.getLink(post, true)) }`;
+// Get URL for sharing on Twitter.
+export const postGetTwitterShareUrl = (post: DbPost): string => {
+  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetLink(post, true)) }`;
 };
 
-/**
- * @summary Get URL for sharing on Facebook.
- * @param {Object} post
- */
-Posts.getFacebookShareUrl = (post: DbPost): string => {
-  return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(Posts.getLink(post, true)) }`;
+// Get URL for sharing on Facebook.
+export const postGetFacebookShareUrl = (post: DbPost): string => {
+  return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(postGetLink(post, true)) }`;
 };
 
-/**
- * @summary Get URL for sharing by Email.
- * @param {Object} post
- */
-Posts.getEmailShareUrl = (post: DbPost): string => {
+// Get URL for sharing by Email.
+export const postGetEmailShareUrl = (post: DbPost): string => {
   const subject = `Interesting link: ${post.title}`;
   const body = `I thought you might find this interesting:
 
 ${post.title}
-${Posts.getLink(post, true, false)}
+${postGetLink(post, true, false)}
 
 (found via ${siteUrlSetting.get()})
   `;
@@ -110,8 +80,8 @@ ${Posts.getLink(post, true, false)}
 };
 
 
-// @summary Get URL of a post page.
-Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
+// Get URL of a post page.
+export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
@@ -125,7 +95,7 @@ Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, s
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-Posts.getCommentCount = (post: PostsBase|DbPost): number => {
+export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
@@ -133,10 +103,10 @@ Posts.getCommentCount = (post: PostsBase|DbPost): number => {
   }
 }
 
-Posts.getCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
+export const postGetCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
   // can be passed in a manual comment count, or retrieve the post's cached comment count
 
-  const count = commentCount != undefined ? commentCount :  Posts.getCommentCount(post)
+  const count = commentCount != undefined ? commentCount :  postGetCommentCount(post)
 
   if (!count) {
     return "No comments"
@@ -148,7 +118,7 @@ Posts.getCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefi
 }
 
 
-Posts.getLastCommentedAt = (post: PostsBase|DbPost): Date => {
+export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afLastCommentedAt;
   } else {
@@ -156,24 +126,24 @@ Posts.getLastCommentedAt = (post: PostsBase|DbPost): Date => {
   }
 }
 
-Posts.getLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null => {
+export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null => {
   if (forumTypeSetting.get() === 'AlignmentForum') return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt;
 }
 
-Posts.canEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const postCanEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
 }
 
-Posts.canDelete = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const postCanDelete = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   if (Users.canDo(currentUser, "posts.remove.all")) {
     return true
   }
   return Users.owns(currentUser, post) && post.draft
 }
 
-Posts.getKarma = (post: PostsBase|DbPost): number => {
+export const postGetKarma = (post: PostsBase|DbPost): number => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
@@ -184,6 +154,6 @@ Posts.getKarma = (post: PostsBase|DbPost): number => {
 //  2) The post does not exist yet
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
-Posts.canEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
-  return !!(user?.showHideKarmaOption && (!post || !Posts.getCommentCount(post)))
+export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+  return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }

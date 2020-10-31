@@ -2,6 +2,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
@@ -52,14 +54,14 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="title">
-            <Link to={Posts.getPageUrl(post)}>
+            <Link to={postGetPageUrl(post)}>
               { post.title }
             </Link>
           </Typography>
           <br/>
           <Components.PostsHighlight post={post}/>
         </Components.SidebarHoverOver>
-        <Link to={Posts.getPageUrl(post)}
+        <Link to={postGetPageUrl(post)}
           className="sunshine-sidebar-posts-title">
             {post.title}
         </Link>
@@ -81,11 +83,11 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
           { userHasVoted ?
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Posts.unSuggestForAlignment({currentUser, post, updatePost})}>
+            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>postUnSuggestForAlignment({currentUser, post, updatePost})}>
               <UndoIcon/>
             </Components.SidebarAction>
             :
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, updatePost})}>
+            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>postSuggestForAlignment({currentUser, post, updatePost})}>
               <PlusOneIcon/>
             </Components.SidebarAction>
           }

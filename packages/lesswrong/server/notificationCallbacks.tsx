@@ -6,6 +6,7 @@ import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts';
+import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments'
 import { reasonUserCantReceiveEmails } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
@@ -209,7 +210,7 @@ const getLink = (notificationType: string, documentType: string|null, documentId
   
   switch(documentType) {
     case "post":
-      return Posts.getPageUrl(document as DbPost);
+      return postGetPageUrl(document as DbPost);
     case "comment":
       return Comments.getPageUrl(document as DbComment);
     case "user":
@@ -218,7 +219,7 @@ const getLink = (notificationType: string, documentType: string|null, documentId
       return Messages.getLink(document as DbMessage);
     case "tagRel":
       const post = Posts.findOne({_id: (document as DbTagRel).postId})
-      return Posts.getPageUrl(post as DbPost);
+      return postGetPageUrl(post as DbPost);
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");

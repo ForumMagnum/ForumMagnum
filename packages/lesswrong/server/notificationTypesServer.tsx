@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts/collection';
+import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';
 import { Messages } from '../lib/collections/messages/collection';
@@ -260,7 +261,7 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }) => {
     const post = Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const link = Posts.getPageUrl(post, true);
+    const link = postGetPageUrl(post, true);
     return <p>
       You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
     </p>

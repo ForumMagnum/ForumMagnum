@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
@@ -18,7 +18,7 @@ const SunshineCommentsItemOverview = ({ comment, classes }) => {
   return (
     <div>
       <Typography variant="body2">
-        <Link to={comment.post && Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
+        <Link to={comment.post && postGetPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
           { comment.deleted ? <span>COMMENT DELETED</span>
             : <span>{ commentExcerpt }</span>
           }

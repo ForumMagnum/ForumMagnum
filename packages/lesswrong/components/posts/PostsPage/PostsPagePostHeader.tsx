@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Posts } from '../../../lib/collections/posts';
+import { postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
@@ -149,7 +149,7 @@ const PostsPagePostHeader = ({post, classes}: {
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </span>}
           {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
-          <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
+          <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
           <span className={classes.actions}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
               <PostsPageActions post={post} />

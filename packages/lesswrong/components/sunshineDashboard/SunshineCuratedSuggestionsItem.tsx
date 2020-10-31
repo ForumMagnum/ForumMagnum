@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
@@ -73,14 +74,14 @@ class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestion
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="title">
-            <Link to={Posts.getPageUrl(post)}>
+            <Link to={postGetPageUrl(post)}>
               { post.title }
             </Link>
           </Typography>
           <br/>
           <Components.PostsHighlight post={post}/>
         </Components.SidebarHoverOver>
-        <Link to={Posts.getPageUrl(post)}
+        <Link to={postGetPageUrl(post)}
           className="sunshine-sidebar-posts-title">
             {post.title}
         </Link>

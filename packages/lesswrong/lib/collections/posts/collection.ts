@@ -2,6 +2,7 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import Users from '../users/collection';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { postCanEdit } from './helpers';
 
 const options = {
   newCheck: (user: DbUser|null) => {
@@ -15,7 +16,7 @@ const options = {
         Users.canDo(user, 'posts.alignment.suggest')) {
       return true
     }
-    return Posts.canEdit(user, document)
+    return postCanEdit(user, document)
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
@@ -24,7 +25,7 @@ const options = {
   },
 }
 
-// The set of fields required for calling Posts.getPageUrl. Could be supplied by
+// The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.
 export interface PostsMinimumForGetPageUrl {
   _id: string
@@ -34,31 +35,6 @@ export interface PostsMinimumForGetPageUrl {
 }
 
 interface ExtendedPostsCollection extends PostsCollection {
-  // Functions in lib/collections/posts/helpers.ts
-  getLink: (post: PostsBase|DbPost, isAbsolute?: boolean, isRedirected?: boolean) => string
-  getLinkTarget: (post: PostsBase|DbPost) => string
-  getAuthorName: (post: DbPost) => string
-  getDefaultStatus: (user: DbUser) => number
-  getStatusName: (post: DbPost) => string
-  isApproved: (post: DbPost) => boolean
-  isPending: (post: DbPost) => boolean
-  getTwitterShareUrl: (post: DbPost) => string
-  getFacebookShareUrl: (post: DbPost) => string
-  getEmailShareUrl: (post: DbPost) => string
-  getPageUrl: (post: PostsMinimumForGetPageUrl, isAbsolute?: boolean, sequenceId?: string|null) => string
-  getCommentCount: (post: PostsBase|DbPost) => number
-  getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
-  getLastCommentedAt: (post: PostsBase|DbPost) => Date
-  getLastCommentPromotedAt: (post: PostsBase|DbPost) => Date | null
-  canEdit: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
-  canDelete: (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
-  getKarma: (post: PostsBase|DbPost) => number
-  canEditHideCommentKarma: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
-  
-  // In lib/alignment-forum/posts/helpers.ts
-  suggestForAlignment: any
-  unSuggestForAlignment: any
-  
   // In search/utils.ts
   toAlgolia: (post: DbPost) => Promise<Array<Record<string,any>>|null>
   

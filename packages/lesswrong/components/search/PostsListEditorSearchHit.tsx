@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover';
 
@@ -53,7 +53,7 @@ const PostsListEditorSearchHit = ({hit, classes}) => {
       {hit.postedAt && <MetaInfo>
         <FormatDate date={hit.postedAt}/>
       </MetaInfo>}
-      <Link to={Posts.getLink(hit)} target={Posts.getLinkTarget(hit)} className={classes.postLink}>
+      <Link to={postGetLink(hit)} target={postGetLinkTarget(hit)} className={classes.postLink}>
         (Link)
       </Link>
     </div>

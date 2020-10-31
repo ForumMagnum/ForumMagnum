@@ -5,6 +5,7 @@ import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCoun
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { Posts } from "../posts/collection"
+import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl } from './helpers';
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
@@ -281,20 +282,20 @@ const schema: SchemaType<DbPost> = {
   pageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getPageUrl(post, true),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getPageUrl(post, false),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, false),
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => {
-      return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
+      return post.url ? Utils.getOutgoingUrl(post.url) : postGetPageUrl(post, true);
     },
   }),
 
@@ -309,19 +310,19 @@ const schema: SchemaType<DbPost> = {
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getEmailShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetEmailShareUrl(post),
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getTwitterShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetTwitterShareUrl(post),
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getFacebookShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
   }),
 
   question: {

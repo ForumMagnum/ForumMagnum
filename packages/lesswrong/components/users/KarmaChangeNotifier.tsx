@@ -17,7 +17,7 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { getHeaderTextColor } from '../common/Header';
 import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 
@@ -132,7 +132,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.posts && karmaChanges.posts.map(postChange => (
               <MenuItemUntyped
                 className={classes.votedItemRow}
-                component={Link} to={Posts.getPageUrl(postChange)} key={postChange._id} >
+                component={Link} to={postGetPageUrl(postChange)} key={postChange._id} >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
                 </span>

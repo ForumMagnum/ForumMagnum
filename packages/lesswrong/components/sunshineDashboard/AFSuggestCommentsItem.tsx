@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
@@ -52,7 +52,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            {comment.post && <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+            {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>
             </Link>}
             <Components.CommentBody comment={comment}/>

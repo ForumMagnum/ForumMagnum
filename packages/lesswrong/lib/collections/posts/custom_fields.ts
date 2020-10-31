@@ -11,6 +11,7 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import Users from "../users/collection";
 import { Posts } from './collection';
 import { Sequences } from '../sequences/collection';
+import { postCanEditHideCommentKarma } from './helpers';
 import Sentry from '@sentry/core';
 
 export const formGroups = {
@@ -1031,8 +1032,8 @@ addFieldsDict(Posts, {
     optional: true,
     group: formGroups.moderationGroup,
     viewableBy: ['guests'],
-    insertableBy: ['admins', Posts.canEditHideCommentKarma],
-    editableBy: ['admins', Posts.canEditHideCommentKarma],
+    insertableBy: ['admins', postCanEditHideCommentKarma],
+    editableBy: ['admins', postCanEditHideCommentKarma],
     hidden: forumTypeSetting.get() !== 'EAForum',
     denormalized: true,
     ...schemaDefaultValue(false),

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet} from 'react-instantsearch-dom';
 import grey from '@material-ui/core/colors/grey';
@@ -30,8 +30,8 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
   return <div className={classes.root}>
     <Link
       onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
-      to={Posts.getPageUrl(hit)}
-      target={Posts.getLinkTarget(hit)}
+      to={postGetPageUrl(hit)}
+      target={postGetLinkTarget(hit)}
     >
         <Typography variant="title">
           {hit.title}

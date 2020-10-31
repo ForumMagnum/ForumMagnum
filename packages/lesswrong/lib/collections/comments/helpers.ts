@@ -1,6 +1,7 @@
 import { forumTypeSetting } from '../../instanceSettings';
 import { Utils } from '../../vulcan-lib';
-import { Posts } from '../posts';
+import { Posts } from '../posts/collection';
+import { postGetPageUrl } from '../posts/helpers';
 import Users from "../users/collection";
 import { Comments } from './collection';
 import { Tags } from '../tags/collection';
@@ -24,7 +25,7 @@ Comments.getPageUrl = function(comment: CommentsList|DbComment, isAbsolute = fal
   if (comment.postId) {
     const post = Posts.findOne(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment}`)
-    return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
+    return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
     const tag = Tags.findOne(comment.tagId);
     if (!tag) throw Error(`Unable to find tag for comment: ${comment}`)

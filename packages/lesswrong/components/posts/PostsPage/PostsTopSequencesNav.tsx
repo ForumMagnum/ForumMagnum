@@ -5,7 +5,7 @@ import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { Sequences } from '../../../lib/collections/sequences/collection';
-import { Posts } from '../../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -49,10 +49,10 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
       if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
         if (ev.keyCode == 37) { // Left
           if (post.prevPost)
-            history.push(Posts.getPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
+            history.push(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
         } else if (ev.keyCode == 39) { // Right
           if (post.nextPost)
-            history.push(Posts.getPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
+            history.push(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
         }
       }
     }

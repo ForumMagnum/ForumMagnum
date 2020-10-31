@@ -1,6 +1,7 @@
 import React from 'react';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
+import { postGetAuthorName } from './collections/posts/helpers';
 import { Comments } from './collections/comments';
 import { TagRels } from './collections/tagRels/collection';
 import { Tags } from './collections/tags/collection';
@@ -79,7 +80,7 @@ export const NewPostNotification = registerNotificationType({
   userSettingField: "notificationSubscribedUserPost",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document: DbPost = getDocument(documentType, documentId) as DbPost;
-    return Posts.getAuthorName(document) + ' has created a new post: ' + document.title;
+    return postGetAuthorName(document) + ' has created a new post: ' + document.title;
   },
   getIcon() {
     return <PostsIcon style={iconStyles}/>
@@ -112,9 +113,9 @@ export const NewEventNotification = registerNotificationType({
       }
     }
     if (group)
-      return Posts.getAuthorName(document as DbPost) + ' has created a new event in the group "' + group.name + '"';
+      return postGetAuthorName(document as DbPost) + ' has created a new event in the group "' + group.name + '"';
     else
-      return Posts.getAuthorName(document as DbPost) + ' has created a new event';
+      return postGetAuthorName(document as DbPost) + ' has created a new event';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -134,9 +135,9 @@ export const NewGroupPostNotification = registerNotificationType({
       }
     }
     if (group)
-      return Posts.getAuthorName(document as DbPost) + ' has created a new post in the group "' + group.name + '"';
+      return postGetAuthorName(document as DbPost) + ' has created a new post in the group "' + group.name + '"';
     else
-      return Posts.getAuthorName(document as DbPost) + ' has created a new post in a group';
+      return postGetAuthorName(document as DbPost) + ' has created a new post in a group';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />

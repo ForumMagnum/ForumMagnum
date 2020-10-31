@@ -2,6 +2,7 @@ import RSS from 'rss';
 import { taglineSetting } from '../components/common/HeadTags';
 import { Comments } from '../lib/collections/comments';
 import { Posts } from '../lib/collections/posts';
+import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import Users from '../lib/collections/users/collection';
 import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
@@ -61,7 +62,7 @@ export const servePostRSS = async (terms, url?: string) => {
 
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
-    const postLink = `<a href="${Posts.getPageUrl(post, true)}#comments">Discuss</a>`;
+    const postLink = `<a href="${postGetPageUrl(post, true)}#comments">Discuss</a>`;
     const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem: any = {
       title: post.title,
@@ -74,7 +75,7 @@ export const servePostRSS = async (terms, url?: string) => {
       // date: post.postedAt
       date: date,
       guid: post._id,
-      url: Posts.getPageUrl(post, true)
+      url: postGetPageUrl(post, true)
     };
 
     feed.item(feedItem);

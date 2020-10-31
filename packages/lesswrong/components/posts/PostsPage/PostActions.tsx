@@ -4,7 +4,8 @@ import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
 import Users from '../../../lib/collections/users/collection'
 import withUser from '../../common/withUser'
-import { Posts } from '../../../lib/collections/posts';
+import { Posts } from '../../../lib/collections/posts/collection';
+import { postCanEdit } from '../../../lib/collections/posts/helpers';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import { withItemsRead, ItemsReadContextType } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -161,7 +162,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
     return (
       <div className={classes.actions}>
-        { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
+        { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
               <EditIcon />

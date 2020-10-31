@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { postCanDelete } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -10,7 +10,7 @@ const DeleteDraft = ({ post }: {
 }) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
-    collection: Posts,
+    collection: "Posts",
     fragmentName: 'PostsList',
   });
   
@@ -23,7 +23,7 @@ const DeleteDraft = ({ post }: {
     }
   }, [post, updatePost])
 
-  if (currentUser && Posts.canDelete(currentUser, post)) {
+  if (currentUser && postCanDelete(currentUser, post)) {
     return <div onClick={handleDelete}>
       <MenuItem>
         Delete Post

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withLocation } from '../../../lib/routeUtil';
-import { Posts } from '../../../lib/collections/posts';
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { Comments } from '../../../lib/collections/comments'
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
@@ -141,7 +141,7 @@ class PostsPage extends Component<PostsPageProps> {
       const commentId = query.commentId || params.commentId
 
       const description = this.getDescription(post)
-      const ogUrl = Posts.getPageUrl(post, true) // open graph
+      const ogUrl = postGetPageUrl(post, true) // open graph
       const canonicalUrl = post.canonicalSource || ogUrl
 
       return (

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMutation } from 'react-apollo';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
@@ -46,7 +46,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   
   const {mutate: updatePost} = useUpdate({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
   });
   const [addTagsMutation] = useMutation(gql`
@@ -132,7 +132,7 @@ const SunshineNewPostsItem = ({post, classes}: {
               </Button>
             </div>
             <Typography variant="title" className={classes.title}>
-              <Link to={Posts.getPageUrl(post)}>
+              <Link to={postGetPageUrl(post)}>
                 { post.title }
               </Link>
             </Typography>
@@ -156,7 +156,7 @@ const SunshineNewPostsItem = ({post, classes}: {
               <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
             </div>
         </SidebarHoverOver>
-        <Link to={Posts.getPageUrl(post)}>
+        <Link to={postGetPageUrl(post)}>
           {post.title}
         </Link>
         <div>

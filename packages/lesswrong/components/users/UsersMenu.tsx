@@ -17,7 +17,7 @@ import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
@@ -168,7 +168,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
               </MenuItem>
             </Link>}
             {currentUser.shortformFeedId &&
-              <Link to={Posts.getPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
+              <Link to={postGetPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
                 <MenuItem>
                   <ListItemIcon>
                     <NotesIcon className={classes.icon} />

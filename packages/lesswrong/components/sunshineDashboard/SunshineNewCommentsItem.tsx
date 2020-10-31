@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withHover from '../common/withHover'
 import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser'
@@ -50,7 +50,7 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
         <Components.SunshineListItem hover={hover}>
           <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
             <Typography variant="body2">
-              <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+              <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
                 Commented on post: <strong>{ comment.post.title }</strong>
               </Link>
               <Components.CommentBody comment={comment}/>

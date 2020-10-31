@@ -1,6 +1,7 @@
 import { faviconUrlSetting } from '../../components/common/HeadTags';
 import { Comments } from '../../lib/collections/comments';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
@@ -61,7 +62,7 @@ function findCommentByLegacyAFId(legacyId) {
     try {
       const post = findPostByLegacyId(params.id);
       if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -91,7 +92,7 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
       if (post && comment) {
         return makeRedirect(res, Comments.getPageUrl(comment));
       } else if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         res.statusCode = 404
@@ -193,7 +194,7 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
       if (post && comment) {
         return makeRedirect(res, Comments.getRSSUrl(comment));
       } else if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         res.statusCode = 404
@@ -252,7 +253,7 @@ addStaticRoute('/item', (params, req, res, next) => {
       const post = findPostByLegacyAFId(id);
 
       if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         const comment = findCommentByLegacyAFId(id);
         if (comment) {

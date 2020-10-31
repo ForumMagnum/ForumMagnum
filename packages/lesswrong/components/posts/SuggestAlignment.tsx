@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -11,7 +11,7 @@ const SuggestAlignment = ({ post }: {
 }) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
   });
   
@@ -20,13 +20,13 @@ const SuggestAlignment = ({ post }: {
   if (Users.canSuggestPostForAlignment({currentUser, post})) {
     return <div>
       { userHasSuggested ?
-        <div  onClick={() => Posts.unSuggestForAlignment({currentUser, post, updatePost})}>
+        <div  onClick={() => postUnSuggestForAlignment({currentUser, post, updatePost})}>
           <MenuItem>
             Ω Unsuggest for Alignment
           </MenuItem>
         </div>
         :
-        <div  onClick={() => Posts.suggestForAlignment({currentUser, post, updatePost})}>
+        <div  onClick={() => postSuggestForAlignment({currentUser, post, updatePost})}>
           <MenuItem>
             Ω Suggest for Alignment
           </MenuItem>
