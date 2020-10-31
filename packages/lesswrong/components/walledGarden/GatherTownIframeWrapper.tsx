@@ -22,7 +22,7 @@ const GatherTownIframeWrapper = ({iframeRef, classes}) => {
 
   useEffect(() => {
     iframeRef.current.focus()
-  }, [iframeRef, iframeRef.current])
+  }, [iframeRef])
 
   return <iframe className={classes.iframePositioning} ref={iframeRef} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}`}></iframe>
 }
