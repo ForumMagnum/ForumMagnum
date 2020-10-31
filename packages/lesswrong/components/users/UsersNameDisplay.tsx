@@ -1,6 +1,5 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import Users from '../../lib/collections/users/collection';
 import { userGetCommentCount, userGetPostCount, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';

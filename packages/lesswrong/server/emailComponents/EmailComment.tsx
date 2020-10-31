@@ -1,5 +1,4 @@
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';

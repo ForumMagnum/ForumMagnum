@@ -4,7 +4,6 @@ import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { Posts } from "../posts/collection"
 import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus } from './helpers';
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";

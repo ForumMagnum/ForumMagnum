@@ -1,5 +1,3 @@
-import Messages from './collections/messages/collection';
-import Conversations from './collections/conversations/collection';
 import { Utils, getCollection } from './vulcan-lib';
 
 

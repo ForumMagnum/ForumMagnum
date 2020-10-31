@@ -1,7 +1,6 @@
 import Users from '../users/collection';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
-import { Comments } from '../comments/collection';
 import { commentGetPageUrl } from './helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
