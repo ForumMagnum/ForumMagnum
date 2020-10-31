@@ -12,10 +12,6 @@ type getUrlOptions = {
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Promise<Array<Record<string,any>>|null>
-  getUrl: (tag: DbTag|TagBasicInfo, options?: getUrlOptions) => string
-  getDiscussionUrl: (tag: DbTag|TagBasicInfo) => string
-  getCommentLink: (tag: DbTag|TagBasicInfo, commentId: string) => string
-  getRevisionLink: (tag: DbTag|TagBasicInfo, versionNumber: string) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({

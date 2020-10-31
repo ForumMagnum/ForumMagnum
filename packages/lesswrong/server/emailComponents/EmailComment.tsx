@@ -9,7 +9,7 @@ import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
-import Tags from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {
@@ -56,14 +56,14 @@ const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
 const EmailCommentsOnTagHeader = ({tagId}) => {
   const { document: tag } = useSingle({
     documentId: tagId,
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
   });
   if (!tag)
     return null;
   
   return <div>
-    New comments on <a href={Tags.getUrl(tag)}>{tag.name}</a>
+    New comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
   </div>;
 }
 

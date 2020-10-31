@@ -8,7 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import { Tags } from "../../../lib/collections/tags/collection";
+import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
@@ -234,7 +234,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
             )}
 
             {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
-            {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={Tags.getUrl(comment.tag)}>{comment.tag.name}</Link>}
+            {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
