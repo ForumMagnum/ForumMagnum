@@ -20,7 +20,9 @@ export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {
   return <LWTooltip title="Open the Garden pomodoro timer in a separate tab">
       <div className={classes.root}>
         <TimerIcon className={classes.icon} />
-        <a target="_blank" href="https://cuckoo.team/lesswrong">Open Pomodoro Timer</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://cuckoo.team/lesswrong">
+          Open Pomodoro Timer
+        </a>
       </div>
     </LWTooltip>
 }
