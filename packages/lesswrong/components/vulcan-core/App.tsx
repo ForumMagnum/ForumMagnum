@@ -127,7 +127,7 @@ class App extends PureComponent<any,any> {
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
-          <Components.Layout currentUser={currentUser} messages={messages}>
+          <Components.Layout currentUser={currentUser}>
             {this.props.currentUserLoading
               ? <Components.Loading />
               : <RouteComponent />

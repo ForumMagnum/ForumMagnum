@@ -1,18 +1,18 @@
+import React, { useCallback, useState, useRef, useMemo, useEffect } from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdate } from '../lib/crud/withUpdate';
-import React, { PureComponent } from 'react';
+import { useUpdate } from '../lib/crud/withUpdate';
 import Users from '../lib/collections/users/collection';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
-import { withCookies } from 'react-cookie'
+import { useCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
-import { withLocation } from '../lib/routeUtil';
+import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
@@ -123,88 +123,65 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  currentUser: UsersCurrent,
-  messages: any,
-  children?: React.ReactNode,
+  currentUser: UsersCurrent|null,
+  children: React.ReactNode,
 }
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateUserProps {
-  cookies: any,
+
+const Layout = ({currentUser, children, theme, classes}: {
+  currentUser: UsersCurrent|null,
+  children: React.ReactNode,
   theme: ThemeType,
-}
-interface LayoutState {
-  timezone: string,
-  toc: any,
-  postsRead: Record<string,boolean>,
-  tagsRead: Record<string,boolean>,
-  hideNavigationSidebar: boolean,
-}
+  classes: ClassesType
+}) => {
+  const [cookies,setCookie] = useCookies(['clientId', 'timezone']);
+  const savedTimezone = cookies.timezone;
+  const [timezone,setTimezone] = useState(savedTimezone);
+  const [toc,setToc] = useState<any>(null);
+  const [postsRead,setPostsRead] = useState<Record<string,boolean>>({});
+  const [tagsRead,setTagsRead] = useState<Record<string,boolean>>({});
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
+  const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
+  const location = useLocation();
+  const {mutate: updateUser} = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  });
 
-class Layout extends PureComponent<LayoutProps,LayoutState> {
-  searchResultsAreaRef: React.RefObject<HTMLDivElement>
-  
-  constructor (props: LayoutProps) {
-    super(props);
-    const { cookies, currentUser } = this.props;
-    const savedTimezone = cookies?.get('timezone');
-
-    this.state = {
-      timezone: savedTimezone,
-      toc: null,
-      postsRead: {},
-      tagsRead: {},
-      hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
-    };
-
-    this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
-  }
-
-  setToC = (document, sectionData) => {
+  const updateToC = (document, sectionData) => {
     if (document) {
-      this.setState({
-        toc: {
-          document: document,
-          sections: sectionData && sectionData.sections
-        }
+      setToc({
+        document: document,
+        sections: sectionData && sectionData.sections
       });
     } else {
-      this.setState({
-        toc: null,
-      });
+      setToc(null);
     }
   }
 
-  toggleStandaloneNavigation = () => {
-    const { updateUser, currentUser } = this.props
-    this.setState(prevState => {
-      if (currentUser) {
-        updateUser({
-          selector: { _id: currentUser._id},
-          data: {
-            hideNavigationSidebar: !prevState.hideNavigationSidebar
-          },
-        })
-      }
-      return {
-        hideNavigationSidebar: !prevState.hideNavigationSidebar
-      }
-    })
+  const toggleStandaloneNavigation = () => {
+    if (currentUser) {
+      void updateUser({
+        selector: { _id: currentUser._id},
+        data: {
+          hideNavigationSidebar: !hideNavigationSidebar
+        },
+      })
+    }
+    setHideNavigationSidebar(!hideNavigationSidebar);
   }
 
-  getUniqueClientId = () => {
-    const { currentUser, cookies } = this.props
-
+  const getUniqueClientId = useCallback(() => {
     if (currentUser) return currentUser._id
 
-    const cookieId = cookies.get('clientId')
+    const cookieId = cookies.clientId;
     if (cookieId) return cookieId
 
     const newId = randomId()
-    cookies.set('clientId', newId)
+    setCookie('clientId', newId)
     return newId
-  }
+  }, [currentUser, cookies.clientId, setCookie]);
 
-  initializeLogRocket = () => {
-    const { currentUser } = this.props
+  useEffect(function initializeLogRocket() {
     const logRocketKey = logRocketApiKeySetting.get()
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
@@ -214,30 +191,23 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       }
 
       // If the user is not logged in, only track 1/5 of the sessions
-      const clientId = this.getUniqueClientId()
+      const clientId = getUniqueClientId()
       const hash = hashCode(clientId)
       if (hash % logRocketSampleDensitySetting.get() === 0) {
         LogRocket.init(logRocketKey)
       }
     }
-  }
+  }, [currentUser, getUniqueClientId]);
 
-  componentDidMount() {
-    const { cookies } = this.props;
-    const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone) {
-      cookies.set('timezone', newTimezone);
-      this.setState({
-        timezone: newTimezone
-      });
+  const momentTimezone = useMemo(() => moment.tz.guess(), []);
+  useEffect(() => {
+    if(timezone !== momentTimezone) {
+      setCookie('timezome', momentTimezone);
+      setTimezone(momentTimezone);
     }
+  }, [momentTimezone, setCookie, timezone]);
 
-    this.initializeLogRocket()
-  }
-
-  render () {
-    const {currentUser, location, children, classes, theme} = this.props;
-    const {hideNavigationSidebar} = this.state
+  const render = () => {
     const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
@@ -284,26 +254,25 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       && forumTypeSetting.get() === "LessWrong"
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
 
-    
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
-      <TimezoneContext.Provider value={this.state.timezone}>
+      <TimezoneContext.Provider value={timezone}>
       <ItemsReadContext.Provider value={{
-        postsRead: this.state.postsRead,
+        postsRead: postsRead,
         setPostRead: (postId: string, isRead: boolean): void => {
-          this.setState({
-            postsRead: {...this.state.postsRead, [postId]: isRead}
-          })
+          setPostsRead(
+            {...postsRead, [postId]: isRead}
+          )
         },
-        tagsRead: this.state.tagsRead,
+        tagsRead: tagsRead,
         setTagRead: (tagId: string, isRead: boolean): void => {
-          this.setState({
-            tagsRead: {...this.state.tagsRead, [tagId]: isRead}
-          })
+          setTagsRead(
+            {...tagsRead, [tagId]: isRead}
+          )
         },
       }}>
-      <TableOfContentsContext.Provider value={this.setToC}>
+      <TableOfContentsContext.Provider value={updateToC}>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
@@ -331,17 +300,17 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
               <Header
-                toc={this.state.toc}
-                searchResultsArea={this.searchResultsAreaRef}
+                toc={toc}
+                searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
-                toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+                toggleStandaloneNavigation={toggleStandaloneNavigation}
               />
               {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
                 </div>}
-                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+                <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: currentRoute?.background === "white"
                 })}>
@@ -368,15 +337,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       </AnalyticsContext>
     )
   }
+  
+  return render();
 }
 
 const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
-    withLocation, withCookies,
-    withUpdate({
-      collection: Users,
-      fragmentName: 'UsersCurrent',
-    }),
     withTheme()
   ]}
 );
