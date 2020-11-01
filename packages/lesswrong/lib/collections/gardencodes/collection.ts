@@ -3,7 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import {foreignKeyField, SchemaType} from '../../utils/schemaUtils'
 import './fragments';
 import './permissions';
-import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 
 function generateCode(length) {

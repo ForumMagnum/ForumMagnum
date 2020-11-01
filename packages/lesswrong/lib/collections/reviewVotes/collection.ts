@@ -1,5 +1,4 @@
 import schema from './schema';
-import Users from '../users/collection';
 import { userGroups, userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
