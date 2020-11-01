@@ -1,17 +1,15 @@
-import { ApolloClient } from 'apollo-client';
-import { ApolloLink } from 'apollo-link';
-import { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
-import introspectionQueryResultData from '../../../lib/vulcan-lib/fragmentTypes.json'
-import { BatchHttpLink } from 'apollo-link-batch-http';
+import { ApolloClient, InMemoryCache, ApolloLink } from '@apollo/client';
+import { BatchHttpLink } from '@apollo/client/link/batch-http';
+import { apolloCacheVoteablePossibleTypes } from '../../../lib/make_voteable';
 import meteorAccountsLink from './links/meteor';
 import errorLink from './links/error';
 
 export const createApolloClient = () => {
-  const fragmentMatcher = new IntrospectionFragmentMatcher({
-    introspectionQueryResultData
+  const cache = new InMemoryCache({
+    possibleTypes: {
+      ...apolloCacheVoteablePossibleTypes()
+    }
   })
-  
-  const cache = new InMemoryCache({ fragmentMatcher })
     .restore((window as any).__APOLLO_STATE__); //ssr
   
   const httpLink = new BatchHttpLink({

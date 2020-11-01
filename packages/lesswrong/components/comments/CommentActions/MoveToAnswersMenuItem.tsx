@@ -6,7 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Users from '../../../lib/collections/users/collection';
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
-import { withApollo } from 'react-apollo'
+import { withApollo } from '@apollo/client/react/hoc';
 
 interface ExternalProps {
   comment: CommentsList,

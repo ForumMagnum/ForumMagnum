@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import { Accounts } from '../../lib/meteorAccounts';
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
-import { withApollo } from 'react-apollo'
+import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({

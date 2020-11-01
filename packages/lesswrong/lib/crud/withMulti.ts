@@ -34,11 +34,11 @@ Terms object can have the following properties:
 
 */
 
-import { WatchQueryFetchPolicy, ApolloError } from 'apollo-client';
+import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import gql from 'graphql-tag';
 import qs from 'qs';
 import { useContext, useState } from 'react';
-import { graphql, useQuery } from 'react-apollo';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
@@ -69,7 +69,6 @@ export function withMulti({
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
-  ssr = false, //LESSWRONG: SSR defaults false
   extraVariables,
   fetchPolicy,
   notifyOnNetworkStatusChange,
@@ -83,7 +82,6 @@ export function withMulti({
   enableTotal?: boolean,
   enableCache?: boolean,
   extraQueries?: any,
-  ssr?: boolean,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   notifyOnNetworkStatusChange?: boolean,
@@ -142,7 +140,7 @@ export function withMulti({
             },
             // note: pollInterval can be set to 0 to disable polling (20s by default)
             pollInterval,
-            ssr,
+            ssr: true,
           };
 
           if (fetchPolicy) {
@@ -221,9 +219,9 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraQueries,
-  ssr = false, //LESSWRONG: SSR defaults false
   extraVariables,
   fetchPolicy,
+  nextFetchPolicy,
   collectionName, collection,
   fragmentName, fragment,
   limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
@@ -237,9 +235,9 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   enableTotal?: boolean,
   enableCache?: boolean,
   extraQueries?: any,
-  ssr?: boolean,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
+  nextFetchPolicy?: WatchQueryFetchPolicy,
   collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: FragmentTypeName,
@@ -268,27 +266,34 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
 
   const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);
-  const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
   
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
   
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
   const resolverName = collection.options.multiResolverName;
-  
-  const {data, error, loading, refetch} = useQuery(query, {
-    variables: {
-      input: {
-        terms: { ...terms, limit: limit },
-        enableCache, enableTotal,
-      },
-      ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
+
+  const graphQLVariables = {
+    input: {
+      terms: { ...terms, limit: defaultLimit },
+      enableCache, enableTotal,
     },
-    pollInterval,
+    ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
+  }
+
+  // Due to https://github.com/apollographql/apollo-client/issues/6760 this is necessary to restore the Apollo 2.0 behavior for cache-and-network policies
+  const newNextFetchPolicy = nextFetchPolicy || (fetchPolicy === "cache-and-network" || fetchPolicy === "network-only") ? "cache-first" : undefined
+  
+  const useQueryArgument = {
+    variables: graphQLVariables,
+    pollInterval, 
     fetchPolicy,
-    ssr,
+    nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
+    ssr: true,
     skip,
-  });
+    notifyOnNetworkStatusChange: true
+  }
+  const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
   
   const count = (data && data[resolverName] && data[resolverName].results && data[resolverName].results.length) || 0;
   const totalCount = data && data[resolverName] && data[resolverName].totalCount;
@@ -303,14 +308,26 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   // if showLoadMore returned true.
   const showLoadMore = enableTotal ? (count < totalCount) : (count >= limit);
   
-  const loadMore = (limitOverride: number) => {
-    setHasRequestedMore(true);
+  const loadMore = async (limitOverride: number) => {
     const newLimit = limitOverride || (limit+itemsPerPage)
-    setLimit(newLimit);
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
       history.push({...location, search: `?${qs.stringify(newQuery)}`})
     }
+    void fetchMore({
+      variables: {
+        ...graphQLVariables,
+        input: {
+          ...graphQLVariables.input,
+          terms: {...graphQLVariables.input.terms, limit: newLimit}
+        }
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return fetchMoreResult
+      }
+    })
+    setLimit(newLimit)
   };
   
   // A bundle of props that you can pass to Components.LoadMore, to make
@@ -321,9 +338,9 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   };
   
   return {
-    loading,
-    loadingInitial: loading && !hasRequestedMore,
-    loadingMore: loading && hasRequestedMore,
+    loading: loading || networkStatus === NetworkStatus.fetchMore,
+    loadingInitial: networkStatus === NetworkStatus.loading,
+    loadingMore: networkStatus === NetworkStatus.fetchMore,
     results: data && data[resolverName] && data[resolverName].results,
     totalCount: totalCount,
     refetch,

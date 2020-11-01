@@ -151,7 +151,6 @@ const TagPage = ({classes}: {
     collection: Tags,
     fragmentName: 'TagWithFlagsFragment',
     limit: 500,
-    ssr: true,
     skip: !query.flagId
   })
 

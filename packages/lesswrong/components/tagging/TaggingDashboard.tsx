@@ -48,7 +48,6 @@ const TaggingDashboard = ({classes}: {
     fragmentName: "TagWithFlagsFragment",
     limit: 100,
     itemsPerPage: 100,
-    ssr: true
   });
 
   const { results: tagFlags } = useMulti({
@@ -58,7 +57,6 @@ const TaggingDashboard = ({classes}: {
     collection: TagFlags,
     fragmentName: "TagFlagFragment",
     limit: 100,
-    ssr: true
   });
   
   const { openDialog } = useDialog();

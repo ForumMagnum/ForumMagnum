@@ -65,7 +65,6 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
     collection: Posts,
     fragmentName: "PostsList",
     limit: postCount,
-    ssr: true,
   });
 
   if (!tag) return null

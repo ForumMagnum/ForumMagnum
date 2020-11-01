@@ -36,7 +36,6 @@ const TagDiscussionSection = ({classes, tag}: {
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
-    ssr: true
   });
   
   const nestedComments = !!results && unflattenComments(results);

@@ -37,7 +37,6 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
     fragmentName: "UsersCurrent",
     collectionName: "Users",
     enableTotal: true,
-    ssr: true
   })
 
   if (!currentUser || !currentUser.walledGardenInvite) { return <Error404/> }

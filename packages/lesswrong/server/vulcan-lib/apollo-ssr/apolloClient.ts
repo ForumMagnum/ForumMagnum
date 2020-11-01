@@ -1,13 +1,16 @@
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { SchemaLink } from 'apollo-link-schema';
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
+import { SchemaLink } from '@apollo/client/link/schema';
+import { apolloCacheVoteablePossibleTypes } from '../../../lib/make_voteable';
 import { getExecutableSchema } from '../apollo-server/initGraphQL';
-import { ApolloLink } from 'apollo-link';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
 export const createClient = async (context) => {
-  const cache = new InMemoryCache();
+  const cache = new InMemoryCache({
+    possibleTypes: {
+      ...apolloCacheVoteablePossibleTypes()
+    }
+  });
   const schema = getExecutableSchema();
   
   // schemaLink will fetch data directly based on the executable schema

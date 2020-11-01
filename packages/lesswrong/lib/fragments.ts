@@ -546,6 +546,7 @@ registerFragment(`
 
 registerFragment(`
   fragment RevisionDisplay on Revision {
+    _id
     version
     updateType
     editedAt
@@ -561,6 +562,7 @@ registerFragment(`
 
 registerFragment(`
   fragment RevisionEdit on Revision {
+    _id
     version
     updateType
     editedAt

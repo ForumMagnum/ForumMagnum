@@ -222,7 +222,6 @@ const PostsTimeBlockComponent = registerComponent<ExternalProps>('PostsTimeBlock
       collection: Posts,
       fragmentName: 'PostsList',
       enableTotal: true,
-      ssr: true,
     }),
     withTimezone,
   ]
