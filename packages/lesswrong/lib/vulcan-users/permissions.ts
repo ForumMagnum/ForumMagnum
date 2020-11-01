@@ -48,12 +48,12 @@ export const userGetGroups = (user: UsersMinimumInfo|DbUser|null): Array<string>
 
 // Get a list of all the actions a user can perform
 export const userGetActions = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
-  let userGroups = userGetGroups(user);
-  if (!userGroups.includes('guests')) {
+  let groups = userGetGroups(user);
+  if (!groups.includes('guests')) {
     // always give everybody permission for guests actions, too
-    userGroups.push('guests');
+    groups.push('guests');
   }
-  let groupActions = userGroups.map(groupName => {
+  let groupActions = groups.map(groupName => {
     // note: make sure groupName corresponds to an actual group
     const group = userGroups[groupName];
     return group && group.actions;
