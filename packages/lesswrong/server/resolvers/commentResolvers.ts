@@ -1,4 +1,5 @@
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from '../../lib/vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../../lib/vulcan-lib';
+import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
@@ -38,7 +39,7 @@ const specificResolvers = {
         });
         return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
       } else {
-        throw new Error(Utils.encodeIntlError({id: `app.user_cannot_moderate_post`}));
+        throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));
       }
     }
   }

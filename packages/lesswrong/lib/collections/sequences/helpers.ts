@@ -1,12 +1,12 @@
 import { mongoFind } from '../../mongoQueries';
-import { Utils } from '../../vulcan-lib/utils';
+import { getSiteUrl } from '../../vulcan-lib/utils';
 import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
 
 // TODO: Make these functions able to use loaders for caching.
 
 export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   return `${prefix}/s/${sequence._id}`;
 };

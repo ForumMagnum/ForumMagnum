@@ -1,4 +1,5 @@
-import { createCollection, Utils } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib';
+import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import type { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
@@ -34,11 +35,11 @@ const schema: SchemaType<DbTagFlag> = {
     optional: true,
     viewableBy: ['guests'],
     onInsert: (tagFlag) => {
-      return Utils.getUnusedSlugByCollectionName("TagFlags", Utils.slugify(tagFlag.name))
+      return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
     onEdit: (modifier, tagFlag) => {
       if (modifier.$set.name) {
-        return Utils.getUnusedSlugByCollectionName("TagFlags", Utils.slugify(modifier.$set.name), false, tagFlag._id)
+        return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
       }
     }
   },

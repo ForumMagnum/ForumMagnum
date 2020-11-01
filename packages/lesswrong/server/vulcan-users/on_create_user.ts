@@ -3,11 +3,11 @@ import { userCanCreateField } from '../../lib/vulcan-users/permissions';
 import {
   runCallbacks,
   runCallbacksAsync,
-  Utils,
   debug,
   debugGroup,
   debugGroupEnd,
 } from '../vulcan-lib';
+import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import clone from 'lodash/clone';
 import { onStartup, wrapAsync } from '../../lib/executionEnvironment';
 import { Accounts } from '../../lib/meteorAccounts';
@@ -57,7 +57,7 @@ function onCreateUserCallback(options, user) {
     var field = schema[fieldName];
     if (!field || !userCanCreateField(user, field)) {
       throw new Error(
-        Utils.encodeIntlError({ id: 'app.disallowed_property_detected', value: fieldName })
+        encodeIntlError({ id: 'app.disallowed_property_detected', value: fieldName })
       );
     }
   });

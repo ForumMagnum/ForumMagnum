@@ -1,4 +1,5 @@
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { slugify } from '../../lib/vulcan-lib/utils';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
@@ -6,7 +7,7 @@ import { userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 const UsersSingle = () => {
   const { params, pathname } = useLocation();
   
-  const slug = Utils.slugify(params.slug);
+  const slug = slugify(params.slug);
   const canonicalUrl = userGetProfileUrlFromSlug(slug);
   if (pathname !== canonicalUrl) {
     // A Javascript redirect, which replaces the history entry (so you don't

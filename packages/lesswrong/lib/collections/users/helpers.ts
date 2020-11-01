@@ -2,7 +2,7 @@ import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
 import { userHasCkEditor } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
-import { Utils } from '../../vulcan-lib';
+import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoFindOne, mongoAggregate } from '../../mongoQueries';
 import { getUserName } from '../../vulcan-users/helpers';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
@@ -227,7 +227,7 @@ export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|null, isAbsolute
 export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): string => {
   if (!userSlug) return "";
   
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   return `${prefix}/users/${userSlug}`;
 }
 

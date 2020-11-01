@@ -1,5 +1,5 @@
 import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
-import { Utils } from '../../vulcan-lib';
+import { getOutgoingUrl, findWhere, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
@@ -14,7 +14,7 @@ import { Posts, PostsMinimumForGetPageUrl } from './collection';
 
 // Return a post's link if it has one, else return its post page URL
 export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
-  const url = isRedirected ? Utils.getOutgoingUrl(post.url) : post.url;
+  const url = isRedirected ? getOutgoingUrl(post.url) : post.url;
   return !!post.url ? url : postGetPageUrl(post, isAbsolute);
 };
 
@@ -44,7 +44,7 @@ export const postGetDefaultStatus = function (user: DbUser): number {
 
 // Get status name
 export const postGetStatusName = function (post: DbPost): string {
-  return Utils.findWhere(Posts.statuses, {value: post.status}).label;
+  return findWhere(Posts.statuses, {value: post.status}).label;
 };
 
 // Check if a post is approved
@@ -84,7 +84,7 @@ ${postGetLink(post, true, false)}
 
 // Get URL of a post page.
 export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
   if (sequenceId) {

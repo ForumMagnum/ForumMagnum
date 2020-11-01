@@ -1,5 +1,5 @@
 import { forumTypeSetting } from '../../instanceSettings';
-import { Utils } from '../../vulcan-lib';
+import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
@@ -35,7 +35,7 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, 
   commentId: string,
   permalink?: boolean, isAbsolute?: boolean,
 }): string {
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   if (postId) {
     if (permalink) {
@@ -53,7 +53,7 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, 
 
 // URL for RSS feed of all direct replies
 export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false): string {
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
 };
 

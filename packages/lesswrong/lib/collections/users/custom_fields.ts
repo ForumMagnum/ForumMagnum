@@ -5,7 +5,7 @@ import { makeEditable } from '../../editor/make_editable';
 import { defaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
-import { Utils } from '../../vulcan-lib';
+import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { Posts } from '../posts/collection';
 import Users from "./collection";
 import { userOwnsAndInGroup } from "./helpers";
@@ -1279,7 +1279,7 @@ addFieldsDict(Users, {
     onInsert: user => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
-      const basicSlug = Utils.slugify(displayName);
+      const basicSlug = slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
@@ -1447,10 +1447,10 @@ addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
 const createDisplayName = (user: DbUser): string=> {
-  const profileName = Utils.getNestedProperty(user, 'profile.name');
-  const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
+  const profileName = getNestedProperty(user, 'profile.name');
+  const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
-  if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
+  if (linkedinFirstName) return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return "[missing username]";

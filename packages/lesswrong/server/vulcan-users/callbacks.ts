@@ -1,5 +1,5 @@
 import Users from '../../lib/collections/users/collection';
-import { Utils } from '../vulcan-lib';
+import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 
@@ -22,7 +22,7 @@ getCollectionHooks("Users").editSync.add(function usersEditCheckEmail (modifier,
       // check for existing emails and throw error if necessary
       const userWithSameEmail = userFindByEmail(newEmail);
       if (userWithSameEmail && userWithSameEmail._id !== user._id) {
-        throw new Error(Utils.encodeIntlError({id:'users.email_already_taken', value: newEmail}));
+        throw new Error(encodeIntlError({id:'users.email_already_taken', value: newEmail}));
       }
 
       // if user.emails exists, change it too

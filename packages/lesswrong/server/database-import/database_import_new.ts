@@ -1,7 +1,8 @@
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
-import { Vulcan, createMutator, Utils } from '../vulcan-lib';
+import { Vulcan, createMutator } from '../vulcan-lib';
+import { slugify } from '../../lib/vulcan-lib/utils';
 import { sanitize } from '../vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/make_editable_callbacks';
@@ -374,7 +375,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     url: absoluteURLRegex.test(post.url) ? post.url : null,
     createdAt: moment(post.date).toDate(),
     postedAt: moment(post.date).toDate(),
-    slug: Utils.slugify(post.title),
+    slug: slugify(post.title),
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };

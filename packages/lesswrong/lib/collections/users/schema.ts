@@ -1,5 +1,6 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection } from '../../vulcan-lib';
+import { getCollection } from '../../vulcan-lib';
+import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { userGetProfileUrl } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
@@ -23,13 +24,13 @@ import * as _ from 'underscore';
 ///////////////////////////////////////
 
 const createDisplayName = (user: DbUser): string => {
-  const profileName = Utils.getNestedProperty(user, 'profile.name');
-  const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
-  const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
+  const profileName = getNestedProperty(user, 'profile.name');
+  const twitterName = getNestedProperty(user, 'services.twitter.screenName');
+  const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
   if (twitterName) return twitterName;
   if (linkedinFirstName)
-    return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
+    return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return "[missing username]";
@@ -155,10 +156,10 @@ const schema: SchemaType<DbUser> = {
     order: 20,
     onCreate: ({ document: user }) => {
       // look in a few places for the user email
-      const facebookEmail: any = Utils.getNestedProperty(user, 'services.facebook.email');
-      const githubEmail: any = Utils.getNestedProperty(user, 'services.github.email');
-      const googleEmail: any = Utils.getNestedProperty(user, 'services.google.email');
-      const linkedinEmail: any = Utils.getNestedProperty(user, 'services.linkedin.emailAddress');
+      const facebookEmail: any = getNestedProperty(user, 'services.facebook.email');
+      const githubEmail: any = getNestedProperty(user, 'services.github.email');
+      const googleEmail: any = getNestedProperty(user, 'services.google.email');
+      const linkedinEmail: any = getNestedProperty(user, 'services.linkedin.emailAddress');
 
       if (facebookEmail) return facebookEmail;
       if (githubEmail) return githubEmail;
@@ -179,7 +180,7 @@ const schema: SchemaType<DbUser> = {
     onCreate: ({ document: user }) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
-      const basicSlug = Utils.slugify(displayName);
+      const basicSlug = slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug);
     },
   },

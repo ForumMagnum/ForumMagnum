@@ -1,6 +1,6 @@
 import React from 'react';
 import { userOwns } from '../vulcan-users/permissions';
-import { Utils } from '../vulcan-lib';
+import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
@@ -121,7 +121,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       },
     },
     
-    [Utils.camelCaseify(`${fieldName}Revisions`)]: {
+    [camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
       viewableBy: ['guests'],
       optional: true,
@@ -138,7 +138,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       }
     },
     
-    [Utils.camelCaseify(`${fieldName}Version`)]: {
+    [camelCaseify(`${fieldName}Version`)]: {
       type: String,
       viewableBy: ['guests'],
       optional: true,

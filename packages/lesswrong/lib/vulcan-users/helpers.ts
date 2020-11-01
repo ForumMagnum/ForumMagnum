@@ -1,4 +1,4 @@
-import { Utils } from '../vulcan-lib';
+import { checkNested } from '../vulcan-lib/utils';
 import { mongoFindOne } from '../mongoQueries';
 import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
@@ -43,9 +43,9 @@ export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbs
 // Get a user's GitHub name
 export const userGetGitHubName = function(user: DbUser): string|null {
   // return twitter name provided by user, or else the one used for twitter login
-  if (Utils.checkNested(user, 'profile', 'github')) {
+  if (checkNested(user, 'profile', 'github')) {
     return user.profile.github;
-  } else if (Utils.checkNested(user, 'services', 'github', 'screenName')) {
+  } else if (checkNested(user, 'services', 'github', 'screenName')) {
     // TODO: double-check this with GitHub login
     return user.services.github.screenName;
   }

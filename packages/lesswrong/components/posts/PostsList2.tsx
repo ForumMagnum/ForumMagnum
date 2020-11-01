@@ -1,4 +1,5 @@
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { postGetLastCommentedAt } from '../../lib/collections/posts/helpers';
@@ -165,7 +166,7 @@ const PostsList2 = ({
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
-      {error && <Error error={Utils.decodeIntlError(error)} />}
+      {error && <Error error={decodeIntlError(error)} />}
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 

@@ -1,5 +1,6 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { Utils, getCollection } from '../../vulcan-lib';
+import { getCollection } from '../../vulcan-lib';
+import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -101,11 +102,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     viewableBy: ['guests'],
     onInsert: (post) => {
-      return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(post.title))
+      return Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
     onEdit: (modifier, post) => {
       if (modifier.$set.title) {
-        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title), false, post._id)
+        return Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
     }
   },
@@ -276,7 +277,7 @@ const schema: SchemaType<DbPost> = {
   domain: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Utils.getDomain(post.url),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => getDomain(post.url),
   }),
 
   pageUrl: resolverOnlyField({
@@ -295,7 +296,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     viewableBy: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => {
-      return post.url ? Utils.getOutgoingUrl(post.url) : postGetPageUrl(post, true);
+      return post.url ? getOutgoingUrl(post.url) : postGetPageUrl(post, true);
     },
   }),
 

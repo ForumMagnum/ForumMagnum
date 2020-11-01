@@ -1,4 +1,4 @@
-import { Utils } from '../../vulcan-lib';
+import { getSiteUrl } from '../../vulcan-lib/utils';
 import * as _ from 'underscore';
 
 export const conversationGetTitle = (conversation: conversationsListFragment, currentUser: UsersCurrent): string => {
@@ -14,7 +14,7 @@ export const conversationGetTitle = (conversation: conversationsListFragment, cu
 }
 
 export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false): string => {
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   return `${prefix}/inbox/${conversation._id}`;
 }

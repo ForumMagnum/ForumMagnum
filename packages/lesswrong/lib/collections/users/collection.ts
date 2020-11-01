@@ -1,13 +1,14 @@
 import schema from './schema';
 import resolvers from '../../vulcan-users/resolvers';
-import { createCollection, addGraphQLQuery, Utils } from '../../vulcan-lib';
+import { createCollection, addGraphQLQuery } from '../../vulcan-lib';
+import { Utils, encodeIntlError } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { meteorUsersCollection } from '../../meteorAccounts';
 
 const performCheck = (mutation, user: DbUser|null, document: DbUser) => {
   if (!mutation.check(user, document))
     throw new Error(
-      Utils.encodeIntlError({ id: 'app.mutation_not_allowed', value: `"${mutation.name}" on _id "${document._id}"` })
+      encodeIntlError({ id: 'app.mutation_not_allowed', value: `"${mutation.name}" on _id "${document._id}"` })
     );
 };
 

@@ -1,4 +1,4 @@
-import { Utils } from '../../vulcan-lib';
+import { getSiteUrl } from '../../vulcan-lib/utils';
 import Books from '../books/collection';
 import { sequenceGetAllPostIDs } from '../sequences/helpers';
 import toDictionary from '../../utils/toDictionary';
@@ -26,6 +26,6 @@ export const collectionGetAllPostIDs = async (collectionID: string): Promise<Arr
 };
 
 export const collectionGetPageUrl = (collection: CollectionsPageFragment|DbCollection, isAbsolute?: boolean): string => {
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   return `${prefix}/${collection.slug}`;
 }

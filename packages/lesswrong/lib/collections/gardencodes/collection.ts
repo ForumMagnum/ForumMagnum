@@ -1,4 +1,5 @@
-import { createCollection, Utils } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib';
+import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import {foreignKeyField, SchemaType} from '../../utils/schemaUtils'
 import './fragments';
@@ -71,7 +72,7 @@ const schema: SchemaType<DbGardenCode> = {
     optional: true,
     viewableBy: ['guests'],
     onInsert: (gardenCode) => {
-      return Utils.getUnusedSlugByCollectionName("GardenCodes", Utils.slugify(gardenCode.title))
+      return Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
   },
   startTime: {
