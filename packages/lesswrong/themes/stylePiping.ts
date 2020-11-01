@@ -57,13 +57,28 @@ const spoilerStyles = (theme: ThemeType) => ({
   }
 })
 
-const metaculusPreviewStyles = (theme: ThemeType) => ({
+const metaculusPreviewStyles = () => ({
   '& div.metaculus-preview': {
     backgroundColor: metaculusBackground,
     '& iframe': {
       width: '100%',
       height: 250,
       border: 'none'
+    }
+  }
+})
+
+const youtubePreviewStyles = () => ({
+  '& figure.media div[data-oembed-url*="youtube.com"]': {
+    position: 'relative',
+    height: 0,
+    paddingBottom: '56.2493%',
+    '& iframe': {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      top: 0,
+      left: 0
     }
   }
 })
@@ -216,7 +231,8 @@ export const postBodyStyles = (theme: ThemeType) => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(theme),
+    ...metaculusPreviewStyles(),
+    ...youtubePreviewStyles(),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -254,7 +270,8 @@ export const commentBodyStyles = (theme: ThemeType) => {
     ...theme.typography.commentStyle,
 
     ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(theme),
+    ...metaculusPreviewStyles(),
+    ...youtubePreviewStyles(),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
