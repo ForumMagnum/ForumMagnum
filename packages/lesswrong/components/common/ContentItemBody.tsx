@@ -267,7 +267,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
 
   markElicitBlocks = () => {
     if(this.bodyRef?.current) {
-      const elicitBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("elicit-block"));
+      const elicitBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("elicit-binary-prediction"));
       for (const elicitBlock of elicitBlocks) {
         const replacementElement = <Components.ElicitBlock />
         this.replaceElement(elicitBlock, replacementElement)

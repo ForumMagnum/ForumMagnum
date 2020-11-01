@@ -1,5 +1,6 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
+import { metaculusBackground } from '../components/linkPreview/PostLinkPreview';
 
 const hideSpoilers = {
   backgroundColor: 'black',
@@ -53,6 +54,17 @@ const spoilerStyles = (theme: ThemeType) => ({
   },
   '& .spoilers > p:hover ~ p': {
     ...hideSpoilers
+  }
+})
+
+const metaculusPreviewStyles = (theme: ThemeType) => ({
+  '& div.metaculus-preview': {
+    backgroundColor: metaculusBackground,
+    '& iframe': {
+      width: '100%',
+      height: 250,
+      border: 'none'
+    }
   }
 })
 
@@ -204,6 +216,7 @@ export const postBodyStyles = (theme: ThemeType) => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
+    ...metaculusPreviewStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -241,6 +254,7 @@ export const commentBodyStyles = (theme: ThemeType) => {
     ...theme.typography.commentStyle,
 
     ...spoilerStyles(theme),
+    ...metaculusPreviewStyles(theme),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,

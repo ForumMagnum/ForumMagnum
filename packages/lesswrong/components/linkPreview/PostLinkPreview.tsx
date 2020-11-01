@@ -425,9 +425,11 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
+export const metaculusBackground = "#2c3947"
+
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {
-    backgroundColor: "#2c3947"
+    backgroundColor: metaculusBackground
   },
   iframeStyling: {
     width: 400,

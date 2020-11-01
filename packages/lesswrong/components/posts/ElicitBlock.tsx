@@ -16,7 +16,8 @@ const mockElicitData = times(20, (n) => ({
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme),
-    position: 'relative'
+    position: 'relative',
+    paddingTop: 12
   },
   histogramRoot: {
     height: 50,
@@ -113,8 +114,8 @@ const ElicitBlock = ({ classes }: {
           return <div 
             className={classes.histogramSlice}
             key={prob}
-            data-numLargeBucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
-            data-numSmallBucket={finelyGroupedData[`${prob}`]?.length || 0}
+            data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
+            data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
           >
             <div 
               className={classes.additionalVoteArea} 
