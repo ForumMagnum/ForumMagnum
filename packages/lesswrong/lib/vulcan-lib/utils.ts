@@ -32,10 +32,6 @@ interface UtilsType {
   // In lib/vulcan-lib/deep_extend.ts
   deepExtend: any
   
-  // In server/editor/utils.ts
-  trimLatexAndAddCSS: any
-  preProcessLatex: any
-  
   // In server/tableOfContents.ts
   getTableOfContentsData: any
   extractTableOfContents: any
