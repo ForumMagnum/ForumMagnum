@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useRef, useMemo, useEffect } from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
+import { HistoryPersistentState, HistoryPersistentStateContext } from './hooks/useHistoryPersistentState';
 import Users from '../lib/collections/users/collection';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -140,6 +141,7 @@ const Layout = ({currentUser, children, theme, classes}: {
   const [postsRead,setPostsRead] = useState<Record<string,boolean>>({});
   const [tagsRead,setTagsRead] = useState<Record<string,boolean>>({});
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
+  const historyPersistentState = useRef({});
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const location = useLocation();
   const {mutate: updateUser} = useUpdate({
@@ -273,6 +275,7 @@ const Layout = ({currentUser, children, theme, classes}: {
         },
       }}>
       <TableOfContentsContext.Provider value={updateToC}>
+      <HistoryPersistentStateContext.Provider value={historyPersistentState.current}>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
@@ -330,6 +333,7 @@ const Layout = ({currentUser, children, theme, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </HistoryPersistentStateContext.Provider>
       </TableOfContentsContext.Provider>
       </ItemsReadContext.Provider>
       </TimezoneContext.Provider>

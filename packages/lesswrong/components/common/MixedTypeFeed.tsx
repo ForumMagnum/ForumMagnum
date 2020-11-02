@@ -1,7 +1,7 @@
 import React, {useRef, useEffect, useCallback} from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
 import { useQuery } from '@apollo/client';
-import { useNavigation } from './../../lib/routeUtil';
+import { useNavigation } from '../../lib/routeUtil';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import gql from 'graphql-tag';
@@ -116,7 +116,6 @@ const MixedTypeFeed = (args: {
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
   const {history} = useNavigation();
   const lastNavigationWasBack = history.action==="POP";
-  console.log(`lastNavigationWasBack: ${lastNavigationWasBack}`);
   const {data, error, fetchMore, refetch} = useQuery(query, {
     variables: {
       ...resolverArgsValues,
