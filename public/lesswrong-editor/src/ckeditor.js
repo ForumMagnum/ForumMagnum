@@ -189,6 +189,7 @@ const postEditorConfig = {
 	mediaEmbed: {
 		toolbar: [ 'comment' ],
 		previewsInData: true,
+		removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook', 'spotify', 'vimeo', 'dailymotion'],
 		extraProviders: [
 			{
 				name: 'Elicit',
@@ -208,8 +209,7 @@ const postEditorConfig = {
 					</div>
 				`
 			}
-		],
-		removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook' ]
+		]
 	},
 };
 

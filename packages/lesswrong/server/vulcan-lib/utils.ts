@@ -25,13 +25,10 @@ export const sanitize = function(s: string): string {
       span: ['style'],
       div: ['class', 'data-oembed-url'],
       a: ['href', 'name', 'target', 'rel'],
-      iframe: ['src']
+      iframe: ['src', 'allowfullscreen', 'allow']
     },
     allowedIframeHostnames: [
       'www.youtube.com', 'youtube.com', 
-      'spotify.com', 'www.spotify.com', 
-      'dailymotion.com', 'www.dailymotion.com', 
-      'player.vimeo.com', 
       'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
       'metaculus.com'
     ],
