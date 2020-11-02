@@ -1,7 +1,7 @@
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import { singleClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
-import { camelCaseify, Utils } from '../vulcan-lib/utils';
+import { camelCaseify } from '../vulcan-lib/utils';
 import * as _ from 'underscore';
 import { WatchQueryFetchPolicy } from 'apollo-client';
 

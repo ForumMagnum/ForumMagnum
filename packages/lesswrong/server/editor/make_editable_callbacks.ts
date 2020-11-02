@@ -1,4 +1,4 @@
-import { Utils, Connectors } from '../vulcan-lib';
+import { Connectors } from '../vulcan-lib/connectors';
 import { trimLatexAndAddCSS, preProcessLatex } from './utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
