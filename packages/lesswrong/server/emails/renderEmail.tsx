@@ -17,7 +17,7 @@ import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
-import { computeContextFromUser, createClient, EmailRenderContext, newMutation } from '../vulcan-lib';
+import { computeContextFromUser, createClient, EmailRenderContext, createMutator } from '../vulcan-lib';
 
 
 // How many characters to wrap the plain-text version of the email to
@@ -233,7 +233,7 @@ export function logSentEmail(renderedEmail, user) {
     user: user._id,
   };
   // Log in LWEvents table
-  void newMutation({
+  void createMutator({
     collection: LWEvents,
     currentUser: user,
     document: {

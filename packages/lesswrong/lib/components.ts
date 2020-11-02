@@ -264,9 +264,17 @@ importComponent("TabNavigationEventsList", () => require('../components/localGro
 importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
 importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
 
-importComponent("WalledGardenHome", () => require('../components/localGroups/WalledGardenHome'));
-importComponent("WalledGardenPortal", () => require('../components/localGroups/WalledGardenPortal'));
-importComponent("GatherTown", () => require('../components/localGroups/GatherTown'));
+importComponent("WalledGardenHome", () => require('../components/walledGarden/WalledGardenHome'));
+importComponent("WalledGardenPortal", () => require('../components/walledGarden/WalledGardenPortal'));
+importComponent("WalledGardenEvents", () => require('../components/walledGarden/WalledGardenEvents'));
+importComponent("FrontpageGcalEventItem", () => require('../components/walledGarden/FrontpageGcalEventItem'));
+importComponent("PortalBarGcalEventItem", () => require('../components/walledGarden/PortalBarGcalEventItem'));
+importComponent("GardenCodeWidget", () => require('../components/walledGarden/GardenCodeWidget'));
+importComponent("WalledGardenMessage", () => require('../components/walledGarden/WalledGardenMessage'));
+importComponent("PomodoroWidget", () => require('../components/walledGarden/PomodoroWidget'));
+importComponent("WalledGardenPortalBar", () => require('../components/walledGarden/WalledGardenPortalBar'));
+importComponent("GatherTownIframeWrapper", () => require('../components/walledGarden/GatherTownIframeWrapper'));
+importComponent("GatherTown", () => require('../components/walledGarden/GatherTown'));
 
 // comments
 

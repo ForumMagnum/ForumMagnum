@@ -38,9 +38,15 @@ export const performSubscriptionAction = async (action, collection, itemId, user
   })
 
   if (action === 'subscribe') {
-    await runCallbacksAsync('users.subscribe.async', action, collection, itemId, user);
+    await runCallbacksAsync({
+      name: 'users.subscribe.async',
+      properties: [action, collection, itemId, user]
+    });
   } else {
-    await runCallbacksAsync('users.unsubscribe.async', action, collection, itemId, user);
+    await runCallbacksAsync({
+      name: 'users.unsubscribe.async',
+      properties: [action, collection, itemId, user]
+    });
   }
 };
 

@@ -1,10 +1,10 @@
-import { addCallback } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import { Tags } from '../../lib/collections/tags/collection'
 import Users from '../../lib/collections/users/collection';
 import Sequences from '../../lib/collections/sequences/collection';
 import { algoliaDocumentExport } from './utils';
+import { getCollectionHooks } from '../mutationCallbacks';
 
 
 async function commentAlgoliaIndex(comment) {
@@ -13,8 +13,8 @@ async function commentAlgoliaIndex(comment) {
     collection: Comments,
   })
 }
-addCallback("comments.new.async", commentAlgoliaIndex)
-addCallback("comments.edit.async", commentAlgoliaIndex)
+getCollectionHooks("Comments").newAsync.add(commentAlgoliaIndex);
+getCollectionHooks("Comments").editAsync.add(commentAlgoliaIndex);
 
 async function postAlgoliaIndex(post) {
   await algoliaDocumentExport({
@@ -22,8 +22,8 @@ async function postAlgoliaIndex(post) {
     collection: Posts,
   })
 }
-addCallback("posts.new.async", postAlgoliaIndex)
-addCallback("posts.edit.async", postAlgoliaIndex)
+getCollectionHooks("Posts").newAsync.add(postAlgoliaIndex);
+getCollectionHooks("Posts").editAsync.add(postAlgoliaIndex);
 
 async function userAlgoliaIndex(user) {
   await algoliaDocumentExport({
@@ -31,8 +31,8 @@ async function userAlgoliaIndex(user) {
     collection: Users,
   })
 }
-addCallback("users.new.async", userAlgoliaIndex)
-addCallback("users.edit.async", userAlgoliaIndex)
+getCollectionHooks("Users").newAsync.add(userAlgoliaIndex);
+getCollectionHooks("Users").editAsync.add(userAlgoliaIndex);
 
 async function sequenceAlgoliaIndex(sequence) {
   await algoliaDocumentExport({
@@ -40,8 +40,8 @@ async function sequenceAlgoliaIndex(sequence) {
     collection: Sequences,
   })
 }
-addCallback("sequences.new.async", sequenceAlgoliaIndex)
-addCallback("sequences.edit.async", sequenceAlgoliaIndex);
+getCollectionHooks("Sequences").newAsync.add(sequenceAlgoliaIndex);
+getCollectionHooks("Sequences").editAsync.add(sequenceAlgoliaIndex);;
 
 async function tagAlgoliaIndex(tag) {
   await algoliaDocumentExport({
@@ -49,5 +49,5 @@ async function tagAlgoliaIndex(tag) {
     collection: Tags,
   })
 }
-addCallback("tags.new.async", tagAlgoliaIndex)
-addCallback("tags.edit.async", tagAlgoliaIndex);
+getCollectionHooks("Tags").newAsync.add(tagAlgoliaIndex);
+getCollectionHooks("Tags").editAsync.add(tagAlgoliaIndex);;

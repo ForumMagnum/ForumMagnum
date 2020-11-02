@@ -1,7 +1,7 @@
 import feedparser from 'feedparser-promised';
 import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
-import { newMutation, editMutation } from '../vulcan-lib';
+import { createMutator, updateMutator } from '../vulcan-lib';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import * as _ from 'underscore';
 
@@ -10,7 +10,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
     let rssPageImports: Array<any> = [];
     let maybeRSSFeed = RSSFeeds.findOne({nickname: feedName});
     if (!maybeRSSFeed) {
-      maybeRSSFeed = (await newMutation({
+      maybeRSSFeed = (await createMutator({
         collection: RSSFeeds,
         document: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink}
       })).data;
@@ -58,7 +58,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
         const oldPost = Posts.findOne({title: post.title, userId: userId});
 
         if (!oldPost){
-          void newMutation({
+          void createMutator({
             collection: Posts,
             document: post,
             currentUser: lwUser,
@@ -66,7 +66,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
           })
         } else {
           if(overwrite) {
-            void editMutation({
+            void updateMutator({
               collection: Posts,
               documentId: oldPost._id,
               set: {...post},
