@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
@@ -85,12 +85,12 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
   const [ mapsLoaded, setMapsLoaded ] = useState((typeof window !== 'undefined') ? (window as any).google : null)
   const callbackName = `${identifier}_googleMapsLoaded`
   useEffect(() => {
-    if (Meteor.isClient) {
+    if (isClient) {
       window[callbackName] = () => setMapsLoaded(true)
     }
   })
   const tagId = `${identifier}_googleMapsScriptTag`
-  if (Meteor.isClient) {
+  if (isClient) {
     if (!document.getElementById(tagId)) {
       var tag = document.createElement('script');
       tag.async = false;

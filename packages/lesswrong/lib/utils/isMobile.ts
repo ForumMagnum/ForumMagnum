@@ -1,8 +1,8 @@
 import bowser from 'bowser'
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../executionEnvironment';
 
 export const isMobile = () => {
-  if (Meteor.isClient &&
+  if (isClient &&
       window &&
       window.navigator &&
       window.navigator.userAgent) {

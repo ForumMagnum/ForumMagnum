@@ -1,12 +1,10 @@
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Messages, { makeEditableOptions } from '../../lib/collections/messages/collection'
 import Conversations from '../../lib/collections/conversations/collection'
-import { addCallback } from '../../lib/vulcan-lib'
+import { getCollectionHooks } from '../mutationCallbacks';
 
 addEditableCallbacks({collection: Messages, options: makeEditableOptions})
 
-function unArchiveConversations({document}) {
+getCollectionHooks("Messages").createAsync.add(function unArchiveConversations({document}) {
   Conversations.update({_id:document.conversationId}, {$set: {archivedByIds: []}});
-}
-
-addCallback('message.create.async', unArchiveConversations)
+});

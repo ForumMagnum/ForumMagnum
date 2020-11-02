@@ -10,57 +10,61 @@ import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
-import { getCollection, addCallback, newMutation, editMutation, removeMutation, Utils, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, Utils, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 
-async function updateConversationActivity (message: DbMessage) {
+getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
   // Update latest Activity timestamp on conversation when new message is added
   const user = Users.findOne(message.userId);
   const conversation = Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
-  await editMutation({
+  await updateMutator({
     collection: Conversations,
     documentId: conversation._id,
     set: {latestActivity: message.createdAt},
     currentUser: user,
     validate: false,
   });
-}
-addCallback("messages.new.async", updateConversationActivity);
+});
 
-function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.voteBanned && !oldUser.voteBanned) {
-    runCallbacksAsync('users.voteBanned.async', user);
+    runCallbacksAsync({
+      name: 'users.voteBanned.async',
+      properties: [user]
+    });
   }
-  return user;
-}
-addCallback("users.edit.async", userEditVoteBannedCallbacksAsync);
+});
 
-async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    runCallbacksAsync('users.nullifyVotes.async', user);
+    runCallbacksAsync({
+      name: 'users.nullifyVotes.async',
+      properties: [user]
+    });
   }
-  return user;
-}
-addCallback("users.edit.async", userEditNullifyVotesCallbacksAsync);
+});
 
 
-function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.deleteContent && !oldUser.deleteContent) {
-    runCallbacksAsync('users.deleteContent.async', user);
+    runCallbacksAsync({
+      name: 'users.deleteContent.async',
+      properties: [user]
+    });
   }
-  return user;
-}
-addCallback("users.edit.async", userEditDeleteContentCallbacksAsync);
+});
 
-function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
+getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
-    runCallbacksAsync('users.ban.async', user);
+    runCallbacksAsync({
+      name: 'users.ban.async',
+      properties: [user]
+    });
   }
-  return user;
-}
-addCallback("users.edit.async", userEditBannedCallbacksAsync);
+});
 
 // document, voteType, collection, user, updateDocument
 
@@ -113,7 +117,7 @@ async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);
   for (let post of posts) {
-    await editMutation({
+    await updateMutator({
       collection: Posts,
       documentId: post._id,
       set: {status: 5},
@@ -126,7 +130,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for post ${post._id}: `, notifications);
     for (let notification of notifications) {
-      await removeMutation({
+      await deleteMutator({
         collection: Notifications,
         documentId: notification._id,
         validate: false,
@@ -137,7 +141,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for post ${post._id}: `, reports);
     for (let report of reports) {
-      await editMutation({
+      await updateMutator({
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
@@ -147,7 +151,10 @@ async function userDeleteContent(user: DbUser) {
       })
     }
     
-    runCallbacksAsync('posts.purge.async', post)
+    runCallbacksAsync({
+      name: 'posts.purge.async',
+      properties: [post]
+    })
   }
 
   const comments = Comments.find({userId: user._id}).fetch();
@@ -155,7 +162,7 @@ async function userDeleteContent(user: DbUser) {
   console.info("Deleting comments: ", comments);
   for (let comment of comments) {
     if (!comment.deleted) {
-      await editMutation({
+      await updateMutator({
         collection: Comments,
         documentId: comment._id,
         set: {deleted: true, deletedDate: new Date()},
@@ -169,7 +176,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for comment ${comment._id}: `, notifications);
     for (let notification of notifications) {
-      await removeMutation({
+      await deleteMutator({
         collection: Notifications,
         documentId: notification._id,
         validate: false,
@@ -180,7 +187,7 @@ async function userDeleteContent(user: DbUser) {
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for comment ${comment._id}: `, reports);
     for (let report of reports) {
-      await editMutation({
+      await updateMutator({
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
@@ -190,7 +197,10 @@ async function userDeleteContent(user: DbUser) {
       })
     }
 
-    runCallbacksAsync('comments.purge.async', comment)
+    runCallbacksAsync({
+      name: 'comments.purge.async',
+      properties: [comment]
+    })
   }
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
@@ -224,7 +234,7 @@ async function userIPBan(user: DbUser) {
         comment: "Automatic IP ban",
         ip: ip,
       }
-      await newMutation({
+      await createMutator({
         collection: Bans,
         document: ban,
         currentUser: user,
@@ -236,15 +246,14 @@ async function userIPBan(user: DbUser) {
 }
 addCallback("users.ban.async", userIPBan);
 
-function fixUsernameOnExternalLogin(user: DbUser) {
+getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user: DbUser) {
   if (!user.username) {
     user.username = user.slug;
   }
   return user;
-}
-addCallback("users.new.sync", fixUsernameOnExternalLogin);
+});
 
-function fixUsernameOnGithubLogin(user: DbUser) {
+getCollectionHooks("Users").newSync.add(function fixUsernameOnGithubLogin(user: DbUser) {
   if (user.services && user.services.github) {
     //eslint-disable-next-line no-console
     console.info("Github login detected, setting username and slug manually");
@@ -253,10 +262,9 @@ function fixUsernameOnGithubLogin(user: DbUser) {
     user.slug = Utils.getUnusedSlugByCollectionName('Users', basicSlug)
   }
   return user;
-}
-addCallback("users.new.sync", fixUsernameOnGithubLogin);
+});
 
-function updateReadStatus(event: DbLWEvent) {
+getCollectionHooks("LWEvents").newSync.add(function updateReadStatus(event: DbLWEvent) {
   if (event.userId && event.documentId) {
     ReadStatuses.update({
       postId: event.documentId,
@@ -270,5 +278,4 @@ function updateReadStatus(event: DbLWEvent) {
       upsert: true
     });
   }
-}
-addCallback('lwevents.new.sync', updateReadStatus);
+});

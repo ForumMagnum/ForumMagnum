@@ -64,7 +64,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         const restrictedDocs = Users.restrictViewableFields(currentUser, collection, viewableDocs);
 
         // prime the cache
-        restrictedDocs.forEach(doc => collection.loader.prime(doc._id, doc));
+        restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
 
         const data: any = { results: restrictedDocs };
 
@@ -114,7 +114,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
         const doc = documentId
-          ? await collection.loader.load(documentId)
+          ? await context.loaders[collectionName].load(documentId)
           : await Utils.Connectors.get(collection, selector);
 
         if (!doc) {

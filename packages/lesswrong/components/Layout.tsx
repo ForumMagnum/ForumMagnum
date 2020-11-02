@@ -9,7 +9,7 @@ import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
-import { Random } from 'meteor/random';
+import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     background: theme.palette.background.default,
-    minHeight: "100vh",
+    minHeight: `calc(100vh - 64px)`, //64px is approximately the height of the header
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -198,7 +198,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const cookieId = cookies.get('clientId')
     if (cookieId) return cookieId
 
-    const newId = Random.id()
+    const newId = randomId()
     cookies.set('clientId', newId)
     return newId
   }

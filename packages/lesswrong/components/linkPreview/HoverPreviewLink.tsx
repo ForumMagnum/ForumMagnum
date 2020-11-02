@@ -3,7 +3,7 @@ import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { parseRoute, parsePath } from '../../lib/vulcan-core/appContext';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
@@ -12,7 +12,7 @@ export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription
     onError: (pathname) => {
       // Don't capture broken links in Sentry (too spammy, but maybe we'll
       // put this back some day).
-      //if (Meteor.isClient) {
+      //if (isClient) {
       //  if (contentSourceDescription)
       //    Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
       //  else
@@ -64,7 +64,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
+    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || isServer)) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
       const destinationUrl = parsedUrl.url;
 

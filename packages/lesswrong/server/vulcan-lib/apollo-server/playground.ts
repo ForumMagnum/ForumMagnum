@@ -1,9 +1,9 @@
-import { Meteor } from 'meteor/meteor';
+import { isDevelopment } from '../../../lib/executionEnvironment';
 
 /** GraphQL Playground setup, through Apollo "gui" option */
 export const getPlaygroundConfig = currentConfig => {
   // NOTE: this is redundant, Apollo won't show the GUI if NODE_ENV="production"
-  if (!Meteor.isDevelopment) return undefined;
+  if (!isDevelopment) return undefined;
   return {
     endpoint: currentConfig.path,
     // allow override
