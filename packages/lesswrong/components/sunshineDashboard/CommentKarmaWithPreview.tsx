@@ -7,6 +7,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginRight: 8,
+    wordBreak: "break-word"
   },
   commentPreview: {
     maxWidth: 600

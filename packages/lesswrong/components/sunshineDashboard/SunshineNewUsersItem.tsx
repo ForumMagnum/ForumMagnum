@@ -148,6 +148,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
     collection: Posts,
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
+    limit: 50
   });
 
   const { results: comments, loading: commentsLoading } = useMulti({
@@ -155,7 +156,11 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
     collection: Comments,
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
+    limit: 50
   });
+
+  const commentKarmaPreviews = comments ? comments.sort((c1, c2) => c2.baseScore - c1.baseScore) : []
+  const postKarmaPreviews = posts ? posts.sort((p1, p2) => p2.baseScore - p1.baseScore) : []
 
   const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton } = Components
 
@@ -202,7 +207,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                     <DescriptionIcon className={classes.hoverPostIcon}/>
                   </span> 
                 </LWTooltip>
-                {posts?.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
+                {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post}/>)}
                 { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null} 
               </div>
               {(commentsLoading || postsLoading) && <Loading/>}
@@ -211,7 +216,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                   { user.commentCount || 0 }
                 </LWTooltip>
                 <MessageIcon className={classes.icon}/> 
-                {comments?.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
+                {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} comment={comment}/>)}
                 { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
               </div>
               <SunshineNewUserPostsList posts={posts} user={user}/>
