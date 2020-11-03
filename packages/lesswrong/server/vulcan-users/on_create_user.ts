@@ -1,4 +1,6 @@
 import Users from '../../lib/collections/users/collection';
+import { getCollectionHooks } from '../mutationCallbacks';
+import { createAnonymousContext } from '../vulcan-lib/query';
 import {
   runCallbacks,
   runCallbacksAsync,
@@ -36,6 +38,8 @@ function onCreateUserCallback(options, user) {
   debug(`Options: ${JSON.stringify(options)}`);
   debug(`User: ${JSON.stringify(user)}`);
 
+  const hooks = getCollectionHooks("Users");
+  const context = createAnonymousContext();
   const schema = Users.simpleSchema()._schema;
 
   delete options.password; // we don't need to store the password digest
@@ -65,12 +69,21 @@ function onCreateUserCallback(options, user) {
   user = Object.assign(user, options);
 
   // run validation callbacks
-  user = runCallbacks({ name: 'user.create.validate', iterator: user, properties: {} });
-  // OpenCRUD backwards compatibility
-  user = runCallbacks({
-    name: 'users.new.validate',
-    iterator: user
+  user = hooks.createValidate.runCallbacks({
+    iterator: user,
+    properties: [{
+      currentUser: null,
+      collection: Users,
+      context,
+    }] as any // TODO: Provide the arguments that are missing here, and remove this cast
   });
+  // OpenCRUD backwards compatibility
+  let validationErrors: Array<any> = [];
+  user = hooks.newValidate.runCallbacks({
+    iterator: user,
+    properties: [null, validationErrors],
+  });
+  // TODO: Handle validationErrors
 
   // run onCreate step
   for (let fieldName of Object.keys(schema)) {
@@ -89,13 +102,14 @@ function onCreateUserCallback(options, user) {
     }
   }
 
+  // TODO: Make these vaguely typesafe
   user = asyncWrapper(runCallbacks)({ name: 'user.create.before', iterator: user, properties: {} });
-  user = asyncWrapper(runCallbacks)('users.new.sync', user);
+  user = asyncWrapper(runCallbacks)({ name: 'users.new.sync', iterator: user });
 
   runCallbacksAsync({ name: 'user.create.async', properties: [{ data: user }] });
   // OpenCRUD backwards compatibility
   runCallbacksAsync({
-    name: 'users.new.async',
+    name: "users.new.async",
     properties: [user]
   });
 
