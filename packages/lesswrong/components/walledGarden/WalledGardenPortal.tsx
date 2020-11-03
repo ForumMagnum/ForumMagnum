@@ -10,6 +10,8 @@ import { useMulti } from "../../lib/crud/withMulti";
 import {useUpdate} from "../../lib/crud/withUpdate";
 import Users from "../../lib/vulcan-users";
 import { isMobile } from "../../lib/utils/isMobile";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
 const styles = (theme) => ({
   messageStyling: {
@@ -24,11 +26,24 @@ const styles = (theme) => ({
     zIndex: theme.zIndexes.gatherTownIframe,
     display: 'flex',
     flexDirection: 'column',
+    overflow: "hidden"
   },
   portalBarPositioning: {
     width: "100%",
     flex: 1
   },
+  closeIcon: {
+    height: 48,
+    width:48,
+    position: "absolute",
+    bottom: 0,
+    color: "white",
+    cursor: "pointer"
+  },
+  iframeWrapper: {
+    flex: 7,
+    position: "relative",
+  }
 })
 
 
@@ -44,6 +59,8 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const { query } = useLocation();
   const { code: inviteCodeQuery } = query;
+
+  const [ hideBar, setHideBar ] = useState(false);
 
   const { results } = useMulti({
     terms: {
@@ -158,11 +175,19 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </SingleColumnSection>
   }
 
+
   return <div className={classes.innerPortalPositioning}>
-    <GatherTownIframeWrapper  iframeRef={iframeRef}/>
-    <div className={classes.portalBarPositioning}>
-      <WalledGardenPortalBar iframeRef={iframeRef}/>
+    <div className={classes.iframeWrapper}>
+      {hideBar ? 
+        <ExpandLessIcon className={classes.closeIcon} onClick={() => setHideBar(!hideBar)}/>
+        :
+        <ExpandMoreIcon className={classes.closeIcon} onClick={() => setHideBar(!hideBar)}/>
+      }
+      <GatherTownIframeWrapper  iframeRef={iframeRef}/>
     </div>
+    {!hideBar && <div className={classes.portalBarPositioning}>
+      <WalledGardenPortalBar iframeRef={iframeRef}/>
+    </div>}
   </div>
 }
 
