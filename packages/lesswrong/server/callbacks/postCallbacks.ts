@@ -8,6 +8,8 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
+import { Revisions } from '../../lib';
+import cheerio from 'cheerio'
 const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
@@ -187,3 +189,25 @@ async function updatedPostMaybeTriggerReview (newPost, oldPost) {
   }
 }
 addCallback("posts.edit.async", updatedPostMaybeTriggerReview);
+
+async function extractSocialPreviewImage (post: DbPost) {
+  let socialPreviewImageUrl: null | string = null
+  if (post.contents?.html) {
+    console.log(`extractSocialPreviewImage`, 'found html')
+    const $ = cheerio.load(post.contents.html)
+    const firstImg = $('img').first()
+    if (firstImg) {
+      console.log(`extractSocialPreviewImage`, 'found firstImg')
+      socialPreviewImageUrl = firstImg.attr('src') || null
+    }
+  }
+  console.log(`extractSocialPreviewImage`, 'socialPreviewImageUrl', socialPreviewImageUrl)
+  
+  Posts.update({ _id: post._id }, {$set: { socialPreviewImageUrl }})
+  
+  return {...post, socialPreviewImageUrl}
+  
+}
+
+addCallback("post.create.after", extractSocialPreviewImage);
+addCallback("posts.edit.async", extractSocialPreviewImage);

@@ -325,11 +325,22 @@ addFieldsDict(Posts, {
   socialPreviewImageId: {
     type: String,
     optional: true,
+    label: "Social Preview Image",
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: "ImageUpload",
+    group: formGroups.advancedOptions,
+  },
+  
+  socialPreviewImageUrl: {
+    type: String,
+    optional: true,
+    hidden: true,
+    label: "Social Preview Image URL",
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
-    control: "ImageUpload",
-    group: formGroups.advancedOptions,
   },
 
   canonicalSequenceId: {
