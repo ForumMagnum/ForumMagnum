@@ -146,9 +146,9 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
         const jsonResponse = JSON.parse(data.toString('utf8').substring(1));
         if (jsonResponse.message && jsonResponse.message.type === "player") {
           const playerId = jsonResponse.message.id;
-          const playerName = jsonResponse.message.info.name
+          const playerName = (jsonResponse.message.info.name)?.replace('.', '')?.replace('$', '') // We remove '.' and '$' because MongoDB doesn't support having those character in object keys
           playerNamesById[playerId] = playerName;
-          playerInfoByName[playerName] = jsonResponse.message.info;
+          playerInfoByName[playerName] = {...jsonResponse.message.info, playerId};
         }
       } catch (err) {
         // eslint-disable-next-line no-console
