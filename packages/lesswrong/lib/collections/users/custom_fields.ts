@@ -1416,6 +1416,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional:true,
     canRead: ['guests'],
+    hidden: true,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
 });
