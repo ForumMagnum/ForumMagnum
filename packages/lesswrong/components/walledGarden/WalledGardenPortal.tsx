@@ -32,12 +32,17 @@ const styles = (theme) => ({
     width: "100%",
     flex: 1
   },
-  closeIcon: {
-    height: 48,
-    width:48,
+  toggleEvents: {
     position: "absolute",
     bottom: 0,
     color: "white",
+    ...theme.typography.commentStyle,
+    display: "flex",
+    alignItems: "center"
+  },
+  closeIcon: {
+    height: 48,
+    width:48,
     cursor: "pointer"
   },
   iframeWrapper: {
@@ -179,9 +184,15 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   return <div className={classes.innerPortalPositioning}>
     <div className={classes.iframeWrapper}>
       {hideBar ? 
-        <ExpandLessIcon className={classes.closeIcon} onClick={() => setHideBar(!hideBar)}/>
+        <div className={classes.toggleEvents} onClick={() => setHideBar(false)}>
+          <ExpandLessIcon className={classes.closeIcon}/>
+          Show Events
+        </div>
         :
-        <ExpandMoreIcon className={classes.closeIcon} onClick={() => setHideBar(!hideBar)}/>
+        <div className={classes.toggleEvents} onClick={() => setHideBar(true)}>
+          <ExpandMoreIcon className={classes.closeIcon}/>
+          Hide Events
+        </div>
       }
       <GatherTownIframeWrapper  iframeRef={iframeRef}/>
     </div>
