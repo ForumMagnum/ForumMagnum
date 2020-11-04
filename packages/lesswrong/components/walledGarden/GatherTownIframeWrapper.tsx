@@ -11,7 +11,6 @@ const styles = (theme) => ({
     height: "100%",
     border: "none",
     marginLeft: -gatherTownLeftMenuWidth,
-    flex: 7
   },
 })
 
