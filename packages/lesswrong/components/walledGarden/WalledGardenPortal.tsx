@@ -186,12 +186,12 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
       {hideBar ? 
         <div className={classes.toggleEvents} onClick={() => setHideBar(false)}>
           <ExpandLessIcon className={classes.closeIcon}/>
-          Show Garden Events
+          Show Footer
         </div>
         :
         <div className={classes.toggleEvents} onClick={() => setHideBar(true)}>
           <ExpandMoreIcon className={classes.closeIcon}/>
-          Hide Garden Events
+          Hide Footer
         </div>
       }
       <GatherTownIframeWrapper  iframeRef={iframeRef}/>
