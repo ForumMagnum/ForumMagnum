@@ -12,7 +12,7 @@ import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
-import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { CAL_ID } from '../walledGarden/gardenCalendar';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
@@ -144,7 +144,7 @@ const GatherTown = ({classes}: {
     })
   }
 
-  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}` //"/walledGardenPortal"
+  const gatherTownURL = "/walledGardenPortal"
 
   const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
     <div>
@@ -162,7 +162,7 @@ const GatherTown = ({classes}: {
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
         <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
-          <div><a href={gatherTownURL}>Walled Garden Beta</a></div>
+          <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
         </AnalyticsTracker>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
