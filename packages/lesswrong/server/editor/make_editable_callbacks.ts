@@ -11,22 +11,38 @@ import { htmlToPingbacks } from '../pingbacks';
 import Sentry from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
-const turndownService = new TurndownService()
+import turndownPluginGfm from 'joplin-turndown-plugin-gfm';
 import * as _ from 'underscore';
-turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
-
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
 import cheerio from 'cheerio';
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'
 import markdownItSub from 'markdown-it-sub'
+import markdownItSup from 'markdown-it-sup'
+
+const turndownService = new TurndownService()
+turndownService.use(turndownPluginGfm.gfm); // Add support for strikethrough and tables
+turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+turndownService.addRule('subscript', {
+  filter: ['sub'],
+  replacement: (content) => `~${content}~`
+})
+turndownService.addRule('supscript', {
+  filter: ['sup'],
+  replacement: (content) => `^${content}^`
+})
+turndownService.addRule('italic', {
+  filter: ['i'],
+  replacement: (content) => `*${content}*`
+})
 
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
+mdi.use(markdownItSup)
 
 import { mjpage }  from 'mathjax-node-page'
 
