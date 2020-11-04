@@ -12,7 +12,7 @@ import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
-import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { CAL_ID } from '../walledGarden/gardenCalendar';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
