@@ -144,7 +144,6 @@ const GatherTown = ({classes}: {
     })
   }
 
-  // const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}` 
   const gatherTownURL = "/walledGardenPortal"
 
   const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
