@@ -11,7 +11,7 @@ import { htmlToPingbacks } from '../pingbacks';
 import Sentry from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
-import turndownPluginGfm from 'joplin-turndown-plugin-gfm';
+import {gfm} from 'joplin-turndown-plugin-gfm';
 import * as _ from 'underscore';
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
@@ -22,7 +22,7 @@ import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
 
 const turndownService = new TurndownService()
-turndownService.use(turndownPluginGfm.gfm); // Add support for strikethrough and tables
+turndownService.use(gfm); // Add support for strikethrough and tables
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 turndownService.addRule('subscript', {
   filter: ['sub'],
