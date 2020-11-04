@@ -1,17 +1,31 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import times from 'lodash/times';
-import random from 'lodash/random';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { randomId } from '../../lib/random';
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 
-const mockElicitData = times(20, (n) => ({
-  id: n,
-  name: randomId(),
-  prediction: random(1, 99, false)
-}))
+const elicitQuery = gql`
+  query ElicitBlockData {
+    ElicitBlockData(predictionId: "9caNKRnBs") {
+      title
+      notes
+      resolvesBy
+      resolution
+      predictions {
+        prediction
+        createdAt
+        notes
+        user {
+          isQuestionCreator
+          displayName
+        }
+      } 
+    }
+  }
+`;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -102,8 +116,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ElicitBlock = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const roughlyGroupedData = groupBy(mockElicitData, ({prediction}) => Math.floor(prediction / 10) * 10)
-  const finelyGroupedData = groupBy(mockElicitData, ({prediction}) => prediction / 10)
+  const { data, loading } = useQuery(elicitQuery, { ssr: true })
+  const roughlyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => Math.floor(prediction / 10) * 10)
+  const finelyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction / 10)
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
   return <div className={classes.root}>
     <div className={classes.histogramRoot}>
@@ -130,8 +145,8 @@ const ElicitBlock = ({ classes }: {
           </div>
         })}
         {roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
-          {roughlyGroupedData[`${bucket*10}`]?.map(({name, prediction}, i) => <span key={name} className={classes.name}>
-            {name} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
+          {roughlyGroupedData[`${bucket*10}`]?.map(({user: {displayName}, prediction}, i) => <span key={displayName} className={classes.name}>
+            {displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
         </div>}
       </div>)}
@@ -139,7 +154,7 @@ const ElicitBlock = ({ classes }: {
     
     <div className={classes.titleSection}>
       <div className={classes.startPercentage}>1%</div>
-      <div className={classes.title}>Will the electoral college get more than 100 something something?</div>
+      <div className={classes.title}>{data?.ElicitBlockData?.title}</div>
       <div className={classes.endPercentage}>99%</div>
     </div>
   </div>
