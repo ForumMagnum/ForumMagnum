@@ -108,7 +108,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
         </div>
         <div className={classes.link}>
           <a href={gatherTownURL} rel="noopener noreferrer">
-            Emergency Gather Town Link
+            Backup GatherTown Link
           </a>
         </div>
       </div>}
