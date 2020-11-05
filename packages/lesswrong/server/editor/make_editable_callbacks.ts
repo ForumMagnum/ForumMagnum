@@ -11,7 +11,7 @@ import { htmlToPingbacks } from '../pingbacks';
 import Sentry from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
-import {gfm} from 'joplin-turndown-plugin-gfm';
+import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
