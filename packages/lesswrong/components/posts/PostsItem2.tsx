@@ -1,9 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Posts } from "../../lib/collections/posts";
-import { Sequences } from "../../lib/collections/sequences/collection";
-import { Collections } from "../../lib/collections/collections/collection";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt } from "../../lib/collections/posts/helpers";
+import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
+import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
 import { useCurrentUser } from "../common/withUser";
@@ -376,19 +376,19 @@ const PostsItem2 = ({
   }
 
   const hasUnreadComments = () => {
-    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const lastCommentedAt = postGetLastCommentedAt(post)
     const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
   }
 
   const hasNewPromotedComments = () => {
     const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
-    const lastCommentPromotedAt = Posts.getLastCommentPromotedAt(post)
+    const lastCommentPromotedAt = postGetLastCommentPromotedAt(post)
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
   }
 
   const hadUnreadComments = () => {
-    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const lastCommentedAt = postGetLastCommentedAt(post)
     return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
   }
 
@@ -396,7 +396,7 @@ const PostsItem2 = ({
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
-  const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
+  const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
   const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
@@ -461,8 +461,8 @@ const PostsItem2 = ({
                   <div className={classes.subtitle}>
                     {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                       resumeReading.sequence
-                        ? Sequences.getPageUrl(resumeReading.sequence)
-                        : Collections.getPageUrl(resumeReading.collection)
+                        ? sequenceGetPageUrl(resumeReading.sequence)
+                        : collectionGetPageUrl(resumeReading.collection)
                     }>
                       {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
                     </Link>
@@ -510,7 +510,7 @@ const PostsItem2 = ({
                   
                 </LWTooltip>}
 
-                {/* {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
+                {/* {(post.nominationCount2018 >= 2) && <Link to={postGetPageUrl(post)}>
                   <ReviewPostButton post={post}/>
                 </Link>} */}
 

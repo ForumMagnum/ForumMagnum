@@ -6,7 +6,7 @@ import { runCallbacks } from './callbacks';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
-import { Utils } from './utils';
+import { Utils, pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
@@ -28,7 +28,7 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
-export const getCollectionName = (typeName): CollectionNameString => Utils.pluralize(typeName) as CollectionNameString;
+export const getCollectionName = (typeName): CollectionNameString => pluralize(typeName) as CollectionNameString;
 
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
@@ -136,8 +136,8 @@ export const createCollection = (options: {
   // add typeName if missing
   collection.typeName = typeName;
   collection.options.typeName = typeName;
-  collection.options.singleResolverName = Utils.camelCaseify(typeName);
-  collection.options.multiResolverName = Utils.camelCaseify(Utils.pluralize(typeName));
+  collection.options.singleResolverName = camelCaseify(typeName);
+  collection.options.multiResolverName = camelCaseify(pluralize(typeName));
 
   // add collectionName if missing
   collection.collectionName = collectionName;

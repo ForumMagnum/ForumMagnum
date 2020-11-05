@@ -1,4 +1,5 @@
-import { addGraphQLMutation, addGraphQLResolvers, updateMutator, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from '../vulcan-lib';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailTokens } from '../../lib/collections/emailTokens/collection';
 import { randomSecret } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
@@ -43,7 +44,7 @@ export class EmailTokenType
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = await this.generateToken(userId, params);
-    const prefix = Utils.getSiteUrl().slice(0,-1);
+    const prefix = getSiteUrl().slice(0,-1);
     return `${prefix}/emailToken/${token}`;
   }
   

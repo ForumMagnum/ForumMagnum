@@ -1,4 +1,5 @@
-import { Utils, Connectors } from '../vulcan-lib';
+import { Connectors } from '../vulcan-lib/connectors';
+import { trimLatexAndAddCSS, preProcessLatex } from './utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
 import { randomId } from '../../lib/random';
@@ -151,7 +152,7 @@ const isEmptyParagraphOrBreak = (elem) => {
 
 
 export async function draftJSToHtmlWithLatex(draftJS) {
-  const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
+  const draftJSWithLatex = await preProcessLatex(draftJS)
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   return wrapSpoilerTags(trimmedHtml)
@@ -174,7 +175,7 @@ export function markdownToHtmlNoLaTeX(markdown: string): string {
 
 export async function markdownToHtml(markdown: string): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, Utils.trimLatexAndAddCSS)
+  return await mjPagePromise(html, trimLatexAndAddCSS)
 }
 
 export function removeCKEditorSuggestions(markup) {
@@ -198,7 +199,7 @@ export async function ckEditorMarkupToHtml(markup) {
   const html = sanitize(markupWithoutSuggestions)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, Utils.trimLatexAndAddCSS)
+  return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
 async function dataToHTML(data, type, sanitizeData = false) {

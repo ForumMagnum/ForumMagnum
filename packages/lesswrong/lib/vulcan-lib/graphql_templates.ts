@@ -1,4 +1,4 @@
-import { Utils } from './utils';
+import { camelCaseify, pluralize } from './utils';
 
 const convertToGraphQL = (fields, indentation) => {
   return fields.length > 0 ? fields.map(f => fieldTemplate(f, indentation)).join('\n') : '';
@@ -125,7 +125,7 @@ A query for a single document
 movie(input: SingleMovieInput) : SingleMovieOutput
 
 */
-export const singleQueryTemplate = ({ typeName }) => `${Utils.camelCaseify(typeName)}(input: Single${typeName}Input): Single${typeName}Output`;
+export const singleQueryTemplate = ({ typeName }) => `${camelCaseify(typeName)}(input: Single${typeName}Input): Single${typeName}Output`;
 
 
 /*
@@ -135,7 +135,7 @@ A query for multiple documents
 movies(input: MultiMovieInput) : MultiMovieOutput
 
 */
-export const multiQueryTemplate = ({ typeName }) => `${Utils.camelCaseify(Utils.pluralize(typeName))}(input: Multi${typeName}Input): Multi${typeName}Output`;
+export const multiQueryTemplate = ({ typeName }) => `${camelCaseify(pluralize(typeName))}(input: Multi${typeName}Input): Multi${typeName}Output`;
 
 /* ------------------------------------- Query Input Types ------------------------------------- */
 
@@ -250,7 +250,7 @@ query singleMovieQuery($input: SingleMovieInput) {
 // LESSWRONG: Add extraVariables String
 export const singleClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
 `query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
-  ${Utils.camelCaseify(typeName)}(input: $input) {
+  ${camelCaseify(typeName)}(input: $input) {
     result {
       ...${fragmentName}
     }
@@ -279,7 +279,7 @@ mutation multiMovieQuery($input: MultiMovieInput) {
 */
 export const multiClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
 `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
-  ${Utils.camelCaseify(Utils.pluralize(typeName))}(input: $input) {
+  ${camelCaseify(pluralize(typeName))}(input: $input) {
     results {
       ...${fragmentName}
     }

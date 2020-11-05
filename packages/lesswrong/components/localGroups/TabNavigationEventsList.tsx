@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles'
@@ -86,7 +86,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
   const { timezone } = useTimezone();
   const { results } = useMulti({
     terms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
@@ -139,7 +139,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
           <LWTooltip key={event._id} placement="right-start" title={tooltip}>
             <MenuItemUntyped
               onClick={onClick}
-              component={Link} to={Posts.getPageUrl(event)}
+              component={Link} to={postGetPageUrl(event)}
               classes={{root: classes.subItemOverride}}
             >
               <TabNavigationSubItem className={classes.event}>

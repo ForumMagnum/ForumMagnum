@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Components, getAdminColumns, registerComponent, addAdminColumn } from '../../lib/vulcan-lib';
 import { Bans } from '../../lib/collections/bans';
 import { LWEvents } from '../../lib/collections/lwevents';
-import Users from '../../lib/collections/users/collection';
+import { Users } from '../../lib/collections/users/collection';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useCurrentUser } from '../common/withUser';
@@ -141,7 +142,7 @@ const AdminHome = ({ classes }: {
   const currentUser = useCurrentUser();
   const [allUsersValue, setAllUsersValue] = useState<any>(0);
   
-  if (!Users.isAdmin(currentUser)) {
+  if (!userIsAdmin(currentUser)) {
     return (
       <div className="admin-home page">
         <p className="admin-home-message">Sorry, you do not have permission to do this at this time.</p>

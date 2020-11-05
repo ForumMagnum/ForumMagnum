@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import Users from '../../lib/collections/users/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@material-ui/core/TextField';
@@ -141,7 +141,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { currentUser, updateUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    if (!Users.emailAddressIsVerified(currentUser)) {
+    if (!userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
@@ -279,7 +279,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
                   Sorry, there's currently no email feed for {viewNames[view]}.
                 </DialogContentText>,
-                subscribedByEmail && !Users.emailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+                subscribedByEmail && !userEmailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
                   We need to confirm your email address. We sent a link to {currentUser.email}; click the link to activate your subscription.
                 </DialogContentText>
               ]
@@ -321,7 +321,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
 }
 
 const withUpdateOptions = {
-  collection: Users,
+  collectionName: "Users",
   fragmentName: 'UsersCurrent',
 };
 

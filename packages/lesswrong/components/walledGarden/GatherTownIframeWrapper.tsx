@@ -5,19 +5,21 @@ import { registerComponent} from '../../lib/vulcan-lib';
 
 const gatherTownLeftMenuWidth = 65 // We want to hide this menu, so we apply a negative margin on the iframe
 
+export const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
+
 const styles = (theme) => ({
   iframePositioning: {
     width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
     height: "100%",
     border: "none",
-    marginLeft: -gatherTownLeftMenuWidth
+    marginLeft: -gatherTownLeftMenuWidth,
   },
 })
 
 
 const GatherTownIframeWrapper = ({iframeRef, classes}) => {
 
-  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
+
 
   useEffect(() => {
     iframeRef.current.focus()

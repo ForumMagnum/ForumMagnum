@@ -3,7 +3,9 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import Users from "../../lib/collections/users/collection";
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -106,7 +108,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const currentUser = useCurrentUser();
   const {loading, results} = useMulti({
     terms,
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
@@ -187,14 +189,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
 
     if (user.oldSlugs?.includes(slug)) {
-      return <PermanentRedirect url={Users.getProfileUrlFromSlug(user.slug)} />
+      return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {
       if (currentUser?._id === user._id) {
         // Logged-in spammer can see their own profile
-      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+      } else if (currentUser && userCanDo(currentUser, 'posts.moderate.all')) {
         // Admins and sunshines can see spammer's profile
       } else {
         // Anyone else gets a 404 here
@@ -217,7 +219,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     
-    const username = Users.getDisplayName(user)
+    const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
     return (
@@ -252,7 +254,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 Edit Account
               </Link>}
             </Typography>

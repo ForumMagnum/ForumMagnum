@@ -9,7 +9,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
 import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
 import { truncate } from '../../lib/editor/ellipsize';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
 import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
@@ -148,7 +148,7 @@ const TagPage = ({classes}: {
       view: "tagsByTagFlag",
       tagFlagId: query.flagId,
     },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: 'TagWithFlagsFragment',
     limit: 500,
     skip: !query.flagId
@@ -181,7 +181,7 @@ const TagPage = ({classes}: {
     return <Error404/>
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
-    return <PermanentRedirect url={Tags.getUrl(tag)} />
+    return <PermanentRedirect url={tagGetUrl(tag)} />
   }
 
   const terms = {
@@ -215,7 +215,7 @@ const TagPage = ({classes}: {
               <Link to={`/tags/dashboard?focus=${query.flagId}`}> <TagFlagItem documentId={query.flagId}/> </Link>
                 {nextTag && <span onClick={() => setEditing(true)}><Link 
                   className={classes.nextLink} 
-                  to={Tags.getUrl(nextTag, {flagId: query.flagId, edit: true})}> 
+                  to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}> 
                     Next Tag ({nextTag.name}) 
                 </Link></span>}
               </span>}
@@ -227,7 +227,7 @@ const TagPage = ({classes}: {
               <SeparatorBullet/>
               {tag.lesswrongWikiImportRevision && 
                 <span>
-                  <a target="_blank" rel="noopener noreferrer" href={`${Tags.getUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
+                  <a target="_blank" rel="noopener noreferrer" href={`${tagGetUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
                     See latest import revision
                   </a>
                 </span>

@@ -75,7 +75,6 @@ import { Bans } from './collections/bans/index'
 // Chapters
 import Sequences from './collections/sequences/collection';
 import './collections/sequences/views';
-import './collections/sequences/utils';
 import './collections/sequences/helpers';
 
 import Chapters from './collections/chapters/collection';

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
 import { withApollo } from '@apollo/client/react/hoc';
-import Users from '../../lib/collections/users/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil'
 import { Accounts } from '../../lib/meteorAccounts';
@@ -49,7 +49,7 @@ const AccountsVerifyEmail = ({classes, client}: {
 
   
   if(error) {
-    if (Users.emailAddressIsVerified(currentUser)) {
+    if (userEmailAddressIsVerified(currentUser)) {
       return (
         <div className={classes.root}>
           Your email address is already verified.
