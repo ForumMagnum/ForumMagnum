@@ -4,8 +4,6 @@ import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
 import { Accounts } from '../../lib/meteorAccounts';

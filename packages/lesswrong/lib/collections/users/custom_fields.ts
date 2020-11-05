@@ -23,7 +23,7 @@ export const formGroups = {
     label: "Moderation & Moderation Guidelines",
   },
   siteCustomizations: {
-    order: 1, 
+    order: 1,
     label: "Site Customizations",
     name: "siteCustomizations"
   },
@@ -671,7 +671,7 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...schemaDefaultValue(true),
   },
-  
+
   notificationCommentsOnSubscribedPost: {
     label: "Comments on posts I'm subscribed to",
     ...notificationTypeSettingsField(),
@@ -877,7 +877,7 @@ addFieldsDict(Users, {
   },
 
   mapLocationSet: {
-    type: Boolean, 
+    type: Boolean,
     canRead: ['guests'],
     ...denormalizedField({
       needsUpdate: data => ('mapLocation' in data),
@@ -902,7 +902,7 @@ addFieldsDict(Users, {
   htmlMapMarkerText: {
     type: String,
     canRead: ['guests'],
-    optional: true, 
+    optional: true,
     denormalized: true
   },
 
@@ -961,11 +961,11 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageMap: {
-    type: Boolean, 
+    type: Boolean,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    optional: true, 
+    optional: true,
     order: 44,
     group: formGroups.default,
     hidden: true,
@@ -973,11 +973,11 @@ addFieldsDict(Users, {
   },
 
   hideTaggingProgressBar: {
-    type: Boolean, 
+    type: Boolean,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    optional: true, 
+    optional: true,
     hidden: false,
     label: "Hide the tagging progress bar",
     order: 45,
@@ -1411,7 +1411,14 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
-  }
+  },
+  walledGardenPortalOnboarded: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    hidden: true,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
 });
 
 export const makeEditableOptionsModeration = {

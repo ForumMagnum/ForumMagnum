@@ -77,7 +77,7 @@ registerFragment(`
 registerFragment(`
   fragment UsersCurrent on User {
     ...UsersMinimumInfo
-  
+
     _id
     username
     createdAt
@@ -136,7 +136,7 @@ registerFragment(`
     shortformFeedId
     viewUnreviewedComments
     recommendationSettings
-    
+
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -144,12 +144,12 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     hideTaggingProgressBar
-    
+
     abTestKey
     abTestOverrides
 
     sortDrafts
-    
+
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
@@ -171,7 +171,7 @@ registerFragment(`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
-      totalChange 
+      totalChange
       updateFrequency
       startDate
       endDate
@@ -330,6 +330,7 @@ registerFragment(`
   fragment SharedUserBooleans on User {
     walledGardenInvite
     hideWalledGardenUI
+    walledGardenPortalOnboarded
   }
 `)
 
@@ -406,7 +407,6 @@ registerFragment(`
     hideIntercom
     commentSorting
     currentFrontpageFilter
-    frontpageFilterSettings
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
@@ -452,7 +452,7 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-    
+
     notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
