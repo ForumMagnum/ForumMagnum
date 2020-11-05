@@ -244,7 +244,6 @@ export const schema: SchemaType<DbTag> = {
     }),
     control: 'TagFlagToggleList',
     label: "Flags: ",
-    optional: true,
     order: 30,
     optional: true,
     viewableBy: ['guests'],
