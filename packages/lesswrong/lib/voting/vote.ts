@@ -136,6 +136,7 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
     votedAt: new Date(),
     authorId: document.userId,
     cancelled: false,
+    documentIsAf: !!(document.af),
     __typename: 'Vote'
   }
 

@@ -81,6 +81,7 @@ interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
   voteCount: number
+  af?: boolean
 }
 
 interface VoteableTypeClient extends VoteableType {
