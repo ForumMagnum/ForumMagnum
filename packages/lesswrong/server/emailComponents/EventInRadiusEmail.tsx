@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import moment from '../../lib/moment-timezone';
 
 const eventTimeFormat = "Do MMMM YYYY h:mm A"
@@ -12,12 +12,12 @@ const EventInRadiusEmail = ({openingSentence, postId}: {
 }) => {
   const { document: post, loading } = useSingle({
     documentId: postId,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsRevision",
   });
   if (loading) return null;
   
-  const link = Posts.getPageUrl(post, true);
+  const link = postGetPageUrl(post, true);
   
   return <div>
     <p>

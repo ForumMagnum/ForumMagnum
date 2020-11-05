@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -47,7 +47,7 @@ const FormSubmit = ({
     {collectionName === "posts" && <span className="post-submit-buttons">
       { !document.isEvent &&
         !document.meta &&
-        Users.canDo(currentUser, 'posts.curate.all') && !document.question &&
+        userCanDo(currentUser, 'posts.curate.all') && !document.question &&
           <Button
             type="submit"
             className={classNames(classes.formButton, classes.secondaryButton)}
@@ -71,7 +71,7 @@ const FormSubmit = ({
         Save as draft
       </Button>
 
-      {Users.canDo(currentUser, 'posts.curate.all') && !document.meta && !document.question &&
+      {userCanDo(currentUser, 'posts.curate.all') && !document.meta && !document.question &&
         <Button
           type="submit"
           className={classNames(classes.formButton, classes.secondaryButton)}

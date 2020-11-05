@@ -3,7 +3,8 @@ import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { meteorLogout } from '../../lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { withApollo } from 'react-apollo';
 
 import Paper from '@material-ui/core/Paper';
@@ -17,7 +18,7 @@ import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
@@ -84,7 +85,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
 
     if (!currentUser) return null;
 
-    const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+    const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
     return (
@@ -92,7 +93,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
         <Link to={`/users/${currentUser.slug}`}>
           <Button classes={{root: classes.userButtonRoot}}>
             <span className={classes.userButtonContents} style={{ color: color }}>
-              {Users.getDisplayName(currentUser)}
+              {userGetDisplayName(currentUser)}
               {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
                 <div>Your account has been deactivated:</div>
                 <ul>
@@ -168,7 +169,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
               </MenuItem>
             </Link>}
             {currentUser.shortformFeedId &&
-              <Link to={Posts.getPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
+              <Link to={postGetPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
                 <MenuItem>
                   <ListItemIcon>
                     <NotesIcon className={classes.icon} />

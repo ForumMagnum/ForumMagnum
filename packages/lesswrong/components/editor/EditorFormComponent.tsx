@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -525,7 +525,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getUserDefaultEditor = (user) => {
-    if (Users.useMarkdownPostEditor(user)) return "markdown"
+    if (userUseMarkdownPostEditor(user)) return "markdown"
     if (user?.reenableDraftJs) return "draftJS"
     return "ckEditorMarkup"
   }

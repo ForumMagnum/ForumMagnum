@@ -1,6 +1,6 @@
 import { Connectors, runCallbacks, runCallbacksAsync, createMutator, updateMutator } from './vulcan-lib';
 import Votes from '../lib/collections/votes/collection';
-import Users from '../lib/collections/users/collection';
+import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
 import { voteTypes, createVote } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
@@ -222,7 +222,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   if (!document) throw new Error("Error casting vote: Document not found.");
   if (!user) throw new Error("Error casting vote: Not logged in.");
-  if (!Users.canDo(user, collectionVoteType)) {
+  if (!userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
   if (!voteTypes[voteType]) throw new Error("Invalid vote type");

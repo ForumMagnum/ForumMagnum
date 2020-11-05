@@ -1,14 +1,15 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
-import Users from '../../../lib/collections/users/collection';
+import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Posts } from "../../../lib/collections/posts/collection";
-import { Tags } from "../../../lib/collections/tags/collection";
+import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
+import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
@@ -233,8 +234,8 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               </div>
             )}
 
-            {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{comment.post.title}</Link>}
-            {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={Tags.getUrl(comment.tag)}>{comment.tag.name}</Link>}
+            {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
+            {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
@@ -341,13 +342,13 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
       const showReplyButton = (
         !hideReply &&
         !comment.deleted &&
-        (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
-        // FIXME Users.isAllowedToComment depends on some post metadatadata that we
+        (!blockedReplies || userCanDo(currentUser,'comments.replyOnBlocked.all')) &&
+        // FIXME userIsAllowedToComment depends on some post metadatadata that we
         // often don't want to include in fragments, producing a type-check error
         // here. We should do something more complicated to give client-side feedback
         // if you're banned.
         // @ts-ignore
-        (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
+        (!currentUser || userIsAllowedToComment(currentUser, this.props.post))
       )
 
       return (

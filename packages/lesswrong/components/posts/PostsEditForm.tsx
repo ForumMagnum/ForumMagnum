@@ -3,6 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 
@@ -49,7 +50,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           mutationFragment={getFragment('PostsEdit')}
           successCallback={post => {
             flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
-            history.push({pathname: Posts.getPageUrl(post)});
+            history.push({pathname: postGetPageUrl(post)});
           }}
           eventForm={eventForm}
           removeSuccessCallback={({ documentId, documentTitle }) => {

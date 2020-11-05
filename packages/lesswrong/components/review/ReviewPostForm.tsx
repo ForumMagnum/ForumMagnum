@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import { Link } from '../../lib/reactRouterWrapper';
-import Posts from '../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -87,7 +87,7 @@ const ReviewPostForm = ({classes, post, onClose}: {
   return <Paper className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>
-        Reviewing "<Link to={Posts.getPageUrl(post)}>{post.title}</Link>"
+        Reviewing "<Link to={postGetPageUrl(post)}>{post.title}</Link>"
       </div>
       <CloseIcon className={classes.close} onClick={onClose}/>
       <div className={classes.guidelines}>

@@ -1,5 +1,5 @@
 import { addCallback, getCollection } from '../vulcan-lib';
-import Users from '../collections/users/collection';
+import { restrictViewableFields } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
@@ -133,7 +133,7 @@ export const accessFilterSingle = async <T extends DbObject>(currentUser: DbUser
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
-  const restrictedDoc = Users.restrictViewableFields(currentUser, collection, document)
+  const restrictedDoc = restrictViewableFields(currentUser, collection, document)
   return restrictedDoc;
 }
 
@@ -152,7 +152,7 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess ? await asyncFilter(existingDocs, async (d: T) => await checkAccess(currentUser, d, context)) : existingDocs
   // Apply field-level permissions
-  const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
+  const restrictedDocs = restrictViewableFields(currentUser, collection, filteredDocs)
   
   return restrictedDocs;
 }

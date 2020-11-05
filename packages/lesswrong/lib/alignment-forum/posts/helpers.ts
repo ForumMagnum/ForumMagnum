@@ -1,7 +1,6 @@
-import { Posts } from '../../collections/posts';
 import * as _ from 'underscore';
 
-Posts.suggestForAlignment = ({ currentUser, post, updatePost }) => {
+export const postSuggestForAlignment = ({ currentUser, post, updatePost }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
   updatePost({
@@ -10,7 +9,7 @@ Posts.suggestForAlignment = ({ currentUser, post, updatePost }) => {
   })
 }
 
-Posts.unSuggestForAlignment = ({ currentUser, post, updatePost }) => {
+export const postUnSuggestForAlignment = ({ currentUser, post, updatePost }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
   updatePost({

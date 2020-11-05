@@ -2,7 +2,7 @@ import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { withMessages } from '../common/withMessages';
 import React, { Component } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from '../../lib/collections/users/collection';
+import { userGetLocation } from '../../lib/collections/users/helpers';
 import withUser from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';
@@ -30,15 +30,15 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
   constructor(props: CommunityHomeProps) {
     super(props);
     this.state = {
-      currentUserLocation: Users.getLocation(props.currentUser)
+      currentUserLocation: userGetLocation(props.currentUser)
     }
   }
 
   componentDidMount() {
     const { currentUser } = this.props
-    const newLocation = Users.getLocation(currentUser);
+    const newLocation = userGetLocation(currentUser);
     if (!_.isEqual(this.state.currentUserLocation, newLocation)) {
-      this.setState({ currentUserLocation: Users.getLocation(currentUser) });
+      this.setState({ currentUserLocation: userGetLocation(currentUser) });
     }
   }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   username: {
@@ -17,7 +17,7 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
   classes: ClassesType,
 }) => {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay } = Components
-  const revUrl = Tags.getRevisionLink(tag, revision.version);
+  const revUrl = tagGetRevisionLink(tag, revision.version);
   
   return <div>
     <span className={classes.username}>
