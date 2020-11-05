@@ -1,6 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
+import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -56,7 +57,7 @@ const NewAnswerForm = ({post, classes}: {
   const prefilledProps = {
     postId: post._id,
     answer: true,
-    af: Comments.defaultToAlignment(currentUser, post),
+    af: commentDefaultToAlignment(currentUser, post),
   }
   const { SmartForm } = Components
   

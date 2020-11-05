@@ -2,7 +2,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
-import Users from '../users/collection';
+import { userIsAdmin } from '../../vulcan-users/permissions';
 import { schema } from './schema';
 
 type getUrlOptions = {
@@ -12,7 +12,6 @@ type getUrlOptions = {
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
   toAlgolia: (tag: DbTag) => Promise<Array<Record<string,any>>|null>
-  getUrl: (tag: DbTag | TagBasicInfo, options?: getUrlOptions) => string
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({
@@ -34,7 +33,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 });
 
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
-  if (Users.isAdmin(currentUser))
+  if (userIsAdmin(currentUser))
     return true;
   else if (tag.deleted)
     return false;

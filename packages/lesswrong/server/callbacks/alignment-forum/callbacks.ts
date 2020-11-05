@@ -1,7 +1,9 @@
 import Users from "../../../lib/collections/users/collection";
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes';
 import { addCallback, getCollection } from '../../vulcan-lib';
 import { getVotePower } from '../../../lib/voting/new_vote_types'
+import { getCollectionHooks } from '../../mutationCallbacks';
 
 export const recalculateAFBaseScore = async (document) => {
   let votes = await Votes.find({
@@ -17,7 +19,7 @@ async function updateAlignmentKarmaServer (newDocument, vote) {
   const voter = Users.findOne(vote.userId)
   if (!voter) throw Error(`Can't find voter to update Alignment Karma for vote: ${vote}`)
 
-  if (Users.canDo(voter, "votes.alignment")) {
+  if (userCanDo(voter, "votes.alignment")) {
     const votePower = getVotePower(voter.afKarma, vote.voteType)
 
     Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
@@ -92,7 +94,7 @@ addCallback("votes.cancel.async", cancelAlignmentUserKarmaServer);
 function updateAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
 
-  if (document.af && Users.canDo(voter, "votes.alignment")) {
+  if (document.af && userCanDo(voter, "votes.alignment")) {
     return {
       ...document,
       afBaseScore: (document.afBaseScore || 0) + (votePower || 0),
@@ -116,7 +118,7 @@ addCallback("votes.cancel.sync", cancelAlignmentKarmaServerCallback);
 function cancelAlignmentKarmaClientCallback (document, collection, voter, voteType) {
   const votePower = getVotePower(voter.afKarma, voteType)
 
-  if (document.af && Users.canDo(voter, "votes.alignment")) {
+  if (document.af && userCanDo(voter, "votes.alignment")) {
     return {
       ...document,
       afBaseScore: (document.afBaseScore || 0) - (votePower || 0),
@@ -169,5 +171,5 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
 
 addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
 addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
-addCallback("posts.edit.async", MoveToAFUpdatesUserAFKarma);
+getCollectionHooks("Posts").editAsync.add(MoveToAFUpdatesUserAFKarma);
 addCallback("posts.alignment.async", MoveToAFUpdatesUserAFKarma);

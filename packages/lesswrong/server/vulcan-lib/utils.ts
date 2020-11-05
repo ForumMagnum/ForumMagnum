@@ -16,14 +16,15 @@ export const sanitize = function(s: string): string {
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
       img: [ 'src' , 'srcset'],
-      figure: ['style'],
+      figure: ['style', 'class'],
       table: ['style'],
       tbody: ['style'],
       tr: ['style'],
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       span: ['style'],
-      div: ['class']
+      div: ['class'],
+      a: ['href', 'name', 'target', 'rel']
     },
     allowedClasses: {
       div: [ 'spoilers' ],

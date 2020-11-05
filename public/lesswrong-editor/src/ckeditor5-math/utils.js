@@ -11,7 +11,7 @@ export const defaultConfig = {
 
 export function getSelectedMathModelWidget( selection ) {
 	const selectedElement = selection.getSelectedElement();
-	if ( selectedElement && ( selectedElement.name === 'mathtex' || selectedElement.name === 'mathtex-display' ) ) {
+	if ( selectedElement && ( selectedElement.is( 'element', 'mathtex' ) || selectedElement.is( 'element', 'mathtex-display' ) ) ) {
 		return selectedElement;
 	}
 	return null;
@@ -55,14 +55,14 @@ async function wait( seconds ) {
 	} );
 }
 
-const MAX_MATHJAX_WAITING_PERIODS = 3;
-const MATHJAX_WAITING_PERIOD_LENGTH = 100;
+const MAX_MATHJAX_WAITING_PERIODS = 10;
+const MATHJAX_WAITING_PERIOD_LENGTH = 300;
 export async function renderEquation( equation, element, engine = 'mathjax', display = false, preview = false, previewUid, pastAttempts = 0 ) {
 	if ( pastAttempts > MAX_MATHJAX_WAITING_PERIODS ) {
 		console.warn( `MathJax still not loaded, even after waiting ${ MATHJAX_WAITING_PERIOD_LENGTH }ms ${ MAX_MATHJAX_WAITING_PERIODS } times` );
 		return;
 	}
-	if ( typeof MathJax === 'undefined' || !isMathJaxVersion3( MathJax.version ) ) {
+	if ( typeof MathJax === 'undefined' || !isMathJaxVersion3( MathJax.version ) || MathJax.tex2chtmlPromise === undefined ) {
 		element.innerText = equation;
 		console.warn( `math-tex-typesetting-missing: Missing the mathematical typesetting engine (${ engine }) for tex. Waiting for ${ MATHJAX_WAITING_PERIOD_LENGTH } then trying again.` );
 		await wait( MATHJAX_WAITING_PERIOD_LENGTH );

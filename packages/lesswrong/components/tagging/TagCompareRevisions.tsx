@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './TagPage';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const TagCompareRevisions = ({classes}: {
@@ -21,7 +21,7 @@ const TagCompareRevisions = ({classes}: {
   if (loading || !tag) return <Loading/>
   
   return <SingleColumnSection>
-    <Link to={Tags.getUrl(tag)}>
+    <Link to={tagGetUrl(tag)}>
       <div className={classes.title}>
         {tag.name}
       </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link';
-import { Comments } from "../../../lib/collections/comments";
+import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -56,7 +56,7 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
   };
 
-  const url = Comments.getPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, permalink})
+  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, permalink})
 
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>

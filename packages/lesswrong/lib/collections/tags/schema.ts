@@ -1,7 +1,9 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { Utils } from '../../vulcan-lib';
+import { Utils, slugify } from '../../vulcan-lib/utils';
+import { getWithLoader } from '../../loaders';
+import moment from 'moment';
 
 const formGroups = {
   advancedOptions: {
@@ -11,7 +13,7 @@ const formGroups = {
     startCollapsed: true,
   },
 };
-  
+
 export const schema: SchemaType<DbTag> = {
   createdAt: {
     optional: true,
@@ -34,7 +36,7 @@ export const schema: SchemaType<DbTag> = {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     onInsert: tag => {
-      const basicSlug = Utils.slugify(tag.name);
+      const basicSlug = slugify(tag.name);
       return Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
@@ -44,7 +46,7 @@ export const schema: SchemaType<DbTag> = {
           throw Error(`Specified slug is already used: ${data.slug}`)
         }
       } else if (data.name && data.name !== oldDocument.name) {
-        return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(data.name), true, oldDocument._id)
+        return Utils.getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
       }
     }
   },
@@ -146,6 +148,12 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  lastCommentedAt: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
+  },
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -180,6 +188,33 @@ export const schema: SchemaType<DbTag> = {
       label: name
     })),
     group: formGroups.advancedOptions,
+  },
+  
+  recentComments: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    viewableBy: ['guests'],
+    graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false }, context: ResolverContext) => {
+      const { currentUser, Comments } = context;
+      const timeCutoff = moment(tag.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const comments = await Comments.find({
+        ...Comments.defaultView({}).selector,
+        tagId: tag._id,
+        score: {$gt:0},
+        deletedPublic: false,
+        postedAt: {$gt: timeCutoff},
+        ...(af ? {af:true} : {}),
+      }, {
+        limit: tagCommentsLimit,
+        sort: {postedAt:-1}
+      }).fetch();
+      return await accessFilterMultiple(currentUser, Comments, comments, context);
+    }
+  }),
+  'recentComments.$': {
+    type: Object,
+    foreignKey: 'Comments',
   },
 
   wikiOnly: {
@@ -227,7 +262,44 @@ export const schema: SchemaType<DbTag> = {
     type: Boolean,
     optional: true,
     viewableBy: ['guests']
-  }
+  },
+  
+  // lastVisitedAt: If the user is logged in and has viewed this tag, the date
+  // they last viewed it. Otherwise, null.
+  lastVisitedAt: resolverOnlyField({
+    type: Date,
+    viewableBy: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
+      if (!currentUser) return null;
+
+      const readStatus = await getWithLoader(context, ReadStatuses,
+        `tagReadStatuses`,
+        { userId: currentUser._id },
+        'tagId', tag._id
+      );
+      if (!readStatus.length) return null;
+      return readStatus[0].lastUpdated;
+    }
+  }),
+  
+  isRead: resolverOnlyField({
+    type: Boolean,
+    viewableBy: ['guests'],
+    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+      const { ReadStatuses, currentUser } = context;
+      if (!currentUser) return false;
+      
+      const readStatus = await getWithLoader(context, ReadStatuses,
+        `tagReadStatuses`,
+        { userId: currentUser._id },
+        'tagId', tag._id
+      );
+      if (!readStatus.length) return false;
+      return readStatus[0].isRead;
+    }
+  }),
+
 }
 
 export const wikiGradeDefinitions = {

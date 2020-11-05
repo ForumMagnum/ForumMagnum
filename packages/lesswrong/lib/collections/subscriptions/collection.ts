@@ -1,5 +1,5 @@
 import schema from './schema';
-import Users from '../users/collection'
+import { userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
@@ -7,7 +7,7 @@ const options = {
   create: true,
   createCheck: (user: DbUser|null, document: DbSubscription|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, 'subscriptions.new');
+    return userCanDo(user, 'subscriptions.new');
   },
   update: false,
   upsert: false, 

@@ -1,12 +1,16 @@
 import Notifications from '../lib/collections/notifications/collection';
 import Messages from '../lib/collections/messages/collection';
+import { messageGetLink } from '../lib/helpers';
 import Conversations from '../lib/collections/conversations/collection';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
+import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
-import { Comments } from '../lib/collections/comments'
+import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { Comments } from '../lib/collections/comments/collection'
+import { commentGetPageUrl } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
@@ -17,8 +21,9 @@ import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../lib/executionEnvironment';
 import { Components, addCallback, createMutator, updateMutator } from './vulcan-lib';
+import { getCollectionHooks } from './mutationCallbacks';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
@@ -208,16 +213,16 @@ const getLink = (notificationType: string, documentType: string|null, documentId
   
   switch(documentType) {
     case "post":
-      return Posts.getPageUrl(document as DbPost);
+      return postGetPageUrl(document as DbPost);
     case "comment":
-      return Comments.getPageUrl(document as DbComment);
+      return commentGetPageUrl(document as DbComment);
     case "user":
-      return Users.getProfileUrl(document as DbUser);
+      return userGetProfileUrl(document as DbUser);
     case "message":
-      return Messages.getLink(document as DbMessage);
+      return messageGetLink(document as DbMessage);
     case "tagRel":
       const post = Posts.findOne({_id: (document as DbTagRel).postId})
-      return Posts.getPageUrl(post as DbPost);
+      return postGetPageUrl(post as DbPost);
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
@@ -317,9 +322,9 @@ async function postsNewNotifications (post: DbPost) {
 
   }
 }
-addCallback("posts.new.async", postsNewNotifications);
+getCollectionHooks("Posts").newAsync.add(postsNewNotifications);
 
-async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
+getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
     console.info("Post redrafted, removing notifications");
@@ -334,8 +339,7 @@ async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
       tagRelNotifications.forEach(notification => removeNotification(notification._id))
     })
   }
-}
-addCallback("posts.edit.async", RemoveRedraftNotifications);
+});
 
 function findUsersToEmail(filter) {
   let usersMatchingFilter = Users.find(filter).fetch();
@@ -380,7 +384,7 @@ const curationEmailDelay = new EventDebouncer<string,null>({
   }
 });
 
-async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
+getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email.
@@ -394,10 +398,9 @@ async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
       af: false
     });
   }
-}
-addCallback("posts.edit.async", PostsCurateNotification);
+});
 
-async function TaggedPostNewNotifications(tagRel: DbTagRel) {
+getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotifications(tagRel: DbTagRel) {
   const subscribedUsers = await getSubscribedUsers({
     documentId: tagRel.tagId,
     collectionName: "Tags",
@@ -414,12 +417,11 @@ async function TaggedPostNewNotifications(tagRel: DbTagRel) {
     console.info("Post tagged, creating notifications");
     await createNotifications(tagSubscriberIdsToNotify, 'newTagPosts', 'tagRel', tagRel._id);
   }
-}
-addCallback("tagrels.new.async", TaggedPostNewNotifications);
+});
 
 // add new comment notification callback on comment submit
-async function CommentsNewNotifications(comment: DbComment) {
-  if(Meteor.isServer) {
+getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
+  if(isServer) {
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
     let notifiedUsers: Array<any> = [];
@@ -485,10 +487,9 @@ async function CommentsNewNotifications(comment: DbComment) {
       await createNotifications(postSubscriberIdsToNotify, 'newComment', 'comment', comment._id)
     }
   }
-}
-addCallback("comments.new.async", CommentsNewNotifications);
+});
 
-async function messageNewNotification(message: DbMessage) {
+getCollectionHooks("Messages").newAsync.add(async function messageNewNotification(message: DbMessage) {
   const conversationId = message.conversationId;
   const conversation = Conversations.findOne(conversationId);
   if (!conversation) throw Error(`Can't find conversation for message: ${message}`)
@@ -501,14 +502,13 @@ async function messageNewNotification(message: DbMessage) {
 
   // Create notification
   await createNotifications(recipientIds, 'newMessage', 'message', message._id);
-}
-addCallback("messages.new.async", messageNewNotification);
+});
 
 export async function bellNotifyEmailVerificationRequired (user: DbUser) {
   await createNotifications([user._id], 'emailVerificationRequired', null, null);
 }
 
-async function PostsEditNotifyUsersSharedOnPost (newPost: DbPost, oldPost: DbPost) {
+getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSharedOnPost (newPost: DbPost, oldPost: DbPost) {
   if (!_.isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
     // Right now this only creates notifications when users are shared (and not when they are "unshared")
     // because currently notifications are hidden from you if you don't have view-access to a post.
@@ -516,15 +516,13 @@ async function PostsEditNotifyUsersSharedOnPost (newPost: DbPost, oldPost: DbPos
     const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
     await createNotifications(sharedUsers, "postSharedWithUser", "post", newPost._id)
   }
-}
-addCallback("posts.edit.async", PostsEditNotifyUsersSharedOnPost);
+});
 
-async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
+getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
   if (post.shareWithUsers?.length) {
     await createNotifications(post.shareWithUsers, "postSharedWithUser", "post", post._id)
   }
-}
-addCallback("posts.new.async", PostsNewNotifyUsersSharedOnPost);
+});
 
 async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
   return await Users.rawCollection().aggregate([
@@ -549,18 +547,16 @@ async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Ar
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-async function PostsNewMeetupNotifications ({document: newPost}: {document: DbPost}) {
+getCollectionHooks("Posts").createAsync.add(async function PostsNewMeetupNotifications ({document: newPost}: {document: DbPost}) {
   if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
     const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
     await createNotifications(usersIdsWithoutAuthor, "newEventInRadius", "post", newPost._id)
   }
-}
+});
 
-addCallback("post.create.async", PostsNewMeetupNotifications)
-
-async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
   if (
     (
       (!newPost.draft && oldPost.draft) || 
@@ -577,6 +573,4 @@ async function PostsEditMeetupNotifications ({document: newPost, oldDocument: ol
     const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
     await createNotifications(usersIdsWithoutAuthor, "editedEventInRadius", "post", newPost._id)
   }
-}
-
-addCallback("post.update.async", PostsEditMeetupNotifications)
+});

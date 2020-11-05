@@ -1,4 +1,5 @@
 import { Revisions } from './collection';
+import { ensureIndex } from '../../collectionUtils';
 
 Revisions.addView('revisionsOnDocument', terms => {
   return {
@@ -13,3 +14,5 @@ Revisions.addView('revisionsOnDocument', terms => {
     }
   }
 });
+
+ensureIndex(Revisions, {collectionName:1, fieldName:1, editedAt:1, changeMetrics:1});

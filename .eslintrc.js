@@ -4,7 +4,14 @@ module.exports = {
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:meteor/recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+
+    // Uncomment to enable cycle-detection. Note that caching doesn't seem to
+    // work quite right with this plugin; after fixing some issues, you will
+    // have to delete .eslintcache to make it stop reporting the error.
+    // Commented out because there are immport cycles that haven't been resolved
+    // yet.
+    //"plugin:import/typescript"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -79,6 +86,8 @@ module.exports = {
     "import/no-mutable-exports": 1,
     "no-restricted-imports": ["error", {"paths": [
       { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
+      { name: "@material-ui", message: "Don't import all of material-ui/icons" },
+      { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
     ]}],
@@ -216,7 +225,6 @@ module.exports = {
       "sinon",
       "sinon-chai",
       "chai-enzyme",
-      "meteor/meteorhacks:inject-initial",
       "meteor/littledata:synced-cron",
       "meteor/meteorhacks:picker"
     ],

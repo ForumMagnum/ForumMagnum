@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { onPageLoad } from 'meteor/server-render';
 import AppGenerator from './AppGenerator';
-import { Meteor } from 'meteor/meteor';
+import { onStartup } from '../../lib/executionEnvironment';
 
 import { createApolloClient } from '../vulcan-lib/apollo-client/apolloClient';
 import { populateComponentsApp } from '../../lib/vulcan-lib';
 
-Meteor.startup(() => {
+onStartup(() => {
   // init the application components and routes, including components & routes from 3rd-party packages
   populateComponentsApp();
   const apolloClient = createApolloClient();

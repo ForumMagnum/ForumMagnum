@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -23,7 +23,7 @@ const LinkPostMessage = ({post, classes, noMargin}: {
 
   return (
     <div className={classNames(classes.root, {[classes.noMargin]:noMargin})}>
-      This is a linkpost for <a href={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</a>
+      This is a linkpost for <a href={postGetLink(post)} target={postGetLinkTarget(post)}>{post.url}</a>
     </div>
   );
 }

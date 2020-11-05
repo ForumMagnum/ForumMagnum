@@ -2,8 +2,9 @@ import Collections from "../../lib/collections/collections/collection";
 import Sequences from "../../lib/collections/sequences/collection";
 import { Books, makeEditableOptions } from '../../lib/collections/books/collection'
 import { Posts } from "../../lib/collections/posts";
-import { addCallback, runQuery } from '../vulcan-lib';
+import { runQuery } from '../vulcan-lib';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
+import { getCollectionHooks } from '../mutationCallbacks';
 import * as _ from 'underscore';
 
 async function getCompleteCollection(id: string) {
@@ -104,7 +105,7 @@ function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: string) {
   })
 }
 
-async function UpdateCollectionLinks (book: DbBook) {
+getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (book: DbBook) {
   const collectionId = book.collectionId
   const results = await getAllCollectionPosts(collectionId)
 
@@ -120,7 +121,6 @@ async function UpdateCollectionLinks (book: DbBook) {
 
   //eslint-disable-next-line no-console
   console.log(`...finished Updating Collection Links for ${collectionId}`)
-}
-addCallback("books.edit.async", UpdateCollectionLinks);
+});
 
 addEditableCallbacks({collection: Books, options: makeEditableOptions})

@@ -8,7 +8,6 @@ export * from './errors';
 // TODO: what to do with this?
 export * from './meteor_patch';
 //export * from './render_context';
-//export * from './inject_data';
 export * from './intl';
 export * from './accounts_helpers';
 export * from './staticRoutes';

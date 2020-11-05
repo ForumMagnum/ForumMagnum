@@ -2,11 +2,14 @@ import React, { Component } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
-import Users from '../../../lib/collections/users/collection'
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
+import { userGetDisplayName, userCanCollaborate } from '../../../lib/collections/users/helpers'
+import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import withUser from '../../common/withUser'
-import { Posts } from '../../../lib/collections/posts';
+import { Posts } from '../../../lib/collections/posts/collection';
+import { postCanEdit } from '../../../lib/collections/posts/helpers';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
-import { withPostsRead, PostsReadContextType } from '../../common/withRecordPostView';
+import { withItemsRead, ItemsReadContextType } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -44,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 interface ExternalProps {
   post: PostsList,
 }
-interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps, PostsReadContextType {
+interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps, ItemsReadContextType {
   markAsReadOrUnread: any,
   setAlignmentPostMutation: any,
 }
@@ -161,7 +164,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
     return (
       <div className={classes.actions}>
-        { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
+        { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
               <EditIcon />
@@ -169,7 +172,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             Edit
           </MenuItem>
         </Link>}
-        { Users.canCollaborate(currentUser, post) &&
+        { userCanCollaborate(currentUser, post) &&
           <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
               <ListItemIcon>
@@ -197,8 +200,8 @@ class PostActions extends Component<PostActionsProps,{}> {
 
         {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
           <SubscribeTo document={postAuthor} showIcon
-            subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
-            unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
+            subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
+            unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}/>
         </MenuItem>}
 
         {currentUser && <MenuItem>
@@ -233,7 +236,7 @@ class PostActions extends Component<PostActionsProps,{}> {
         <SuggestCurated post={post}/>
         <MoveToDraft post={post}/>
         <DeleteDraft post={post}/>
-        { Users.canDo(currentUser, "posts.edit.all") &&
+        { userCanDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
@@ -282,13 +285,13 @@ class PostActions extends Component<PostActionsProps,{}> {
           </span>
         }
         <SuggestAlignment post={post}/>
-        { Users.canMakeAlignmentPost(currentUser, post) &&
+        { userCanMakeAlignmentPost(currentUser, post) &&
           !post.af && <div onClick={this.handleMoveToAlignmentForum }>
             <MenuItem>
               Ω Move to Alignment
             </MenuItem>
           </div>}
-        { Users.canMakeAlignmentPost(currentUser, post) && post.af &&
+        { userCanMakeAlignmentPost(currentUser, post) && post.af &&
           <div onClick={this.handleRemoveFromAlignmentForum}>
             <MenuItem>
               Ω Remove Alignment
@@ -314,13 +317,13 @@ const PostActionsComponent = registerComponent<ExternalProps>('PostActions', Pos
       args: {postId: 'String', isRead: 'Boolean'},
     }),
     withUpdate({
-      collection: Users,
+      collectionName: "Users",
       fragmentName: 'UsersCurrent'
     }),
     withSetAlignmentPost({
       fragmentName: "PostsList"
     }),
-    withPostsRead,
+    withItemsRead,
   ]
 });
 

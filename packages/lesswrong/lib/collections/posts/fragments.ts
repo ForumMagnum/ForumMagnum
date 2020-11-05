@@ -175,6 +175,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
+    tagRelevance
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }

@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index';
 import { Posts } from '../../lib/collections/posts';
-import Users from '../../lib/collections/users/collection';
+import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { PersonSVG } from './Icons'
 import ReactMapGL, { Marker } from 'react-map-gl';
@@ -123,7 +123,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
   const { results: users = [] } = useMulti({
     terms: {view: "usersMapLocations"},
-    collection: Users,
+    collectionName: "Users",
     fragmentName: "UsersMapEntry",
     limit: 500,
     ssr: true
@@ -203,8 +203,8 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
           <StyledMapPopup
             lat={lat}
             lng={lng}
-            link={Users.getProfileUrl(user)}
-            title={` [User] ${Users.getDisplayName(user)} `}
+            link={userGetProfileUrl(user)}
+            title={` [User] ${userGetDisplayName(user)} `}
             onClose={() => handleClose(user._id)}
           >
             <div dangerouslySetInnerHTML={htmlBody} />

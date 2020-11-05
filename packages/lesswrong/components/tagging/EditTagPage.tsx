@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 
 export const EditTagForm = ({tag, successCallback, cancelCallback}: {
@@ -10,11 +11,11 @@ export const EditTagForm = ({tag, successCallback, cancelCallback}: {
     cancelCallback?: any
   }) => {
   return <Components.WrappedSmartForm
-    key={`${tag._id}_${tag?.description?.version}`}
+    key={`${tag?._id}_${tag?.description?.version}`}
     collection={Tags}
     documentId={tag._id}
     queryFragment={getFragment('TagEditFragment')}
-    mutationFragment={getFragment('TagFragment')}
+    mutationFragment={getFragment('TagWithFlagsFragment')}
     successCallback={successCallback}
     cancelCallback={cancelCallback}
   />
@@ -36,7 +37,7 @@ const EditTagPage = () => {
       <Components.SectionTitle title={`Edit Tag #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
-        successCallback={tag => history.push({pathname: Tags.getUrl(tag)})}
+        successCallback={tag => history.push({pathname: tagGetUrl(tag)})}
       />
     </Components.SingleColumnSection>
   );

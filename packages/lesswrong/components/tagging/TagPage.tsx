@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
@@ -9,7 +9,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
 import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
 import { truncate } from '../../lib/editor/ellipsize';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
 import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
@@ -148,15 +148,33 @@ const TagPage = ({classes}: {
       view: "tagsByTagFlag",
       tagFlagId: query.flagId,
     },
-    collection: Tags,
-    fragmentName: 'TagBasicInfo',
+    collectionName: "Tags",
+    fragmentName: 'TagWithFlagsFragment',
     limit: 500,
     ssr: true,
     skip: !query.flagId
   })
 
+  
   const tagPositionInList = otherTagsWithFlag?.findIndex(tagInList => tag?._id === tagInList._id);
-  const nextTag = otherTagsWithFlag && (tagPositionInList >= 0) && otherTagsWithFlag[tagPositionInList + 1]
+  // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
+  // 1. Initially the listPosition is -1 because we don't have a list at all yet
+  // 2. Then we have the real position
+  // 3. Then we remove the tagFlag, we still want it to have the right next button
+  const [nextTagPosition, setNextTagPosition] = useState<number | null>(null);
+  useEffect(() => {
+    // Initial list position setting
+    if (tagPositionInList >= 0) {
+      setNextTagPosition(tagPositionInList + 1)
+    }
+    if (nextTagPosition !== null && tagPositionInList < 0) {
+      // Here we want to decrement the list positions by one, because we removed the original tag and so 
+      // all the indices are moved to the next 
+      setNextTagPosition(nextTagPosition => (nextTagPosition || 1) - 1)
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tagPositionInList])
+  const nextTag = otherTagsWithFlag && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithFlag[nextTagPosition]
 
   if (loadingTag)
     return <Loading/>
@@ -164,7 +182,7 @@ const TagPage = ({classes}: {
     return <Error404/>
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
-    return <PermanentRedirect url={Tags.getUrl(tag)} />
+    return <PermanentRedirect url={tagGetUrl(tag)} />
   }
 
   const terms = {
@@ -196,11 +214,11 @@ const TagPage = ({classes}: {
           <div>
             {query.flagId && <span>
               <Link to={`/tags/dashboard?focus=${query.flagId}`}> <TagFlagItem documentId={query.flagId}/> </Link>
-                {nextTag && <Link 
+                {nextTag && <span onClick={() => setEditing(true)}><Link 
                   className={classes.nextLink} 
-                  to={Tags.getUrl(nextTag, {flagId: query.flagId, edit: true})}> 
+                  to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}> 
                     Next Tag ({nextTag.name}) 
-                </Link>}
+                </Link></span>}
               </span>}
             <Typography variant="display3" className={classes.title}>
               {tag.name}
@@ -210,7 +228,7 @@ const TagPage = ({classes}: {
               <SeparatorBullet/>
               {tag.lesswrongWikiImportRevision && 
                 <span>
-                  <a target="_blank" rel="noopener noreferrer" href={`${Tags.getUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
+                  <a target="_blank" rel="noopener noreferrer" href={`${tagGetUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
                     See latest import revision
                   </a>
                 </span>
@@ -271,6 +289,7 @@ const TagPage = ({classes}: {
         </AnalyticsContext>
       </div>
       {editing && <TagDiscussionSection
+        key={tag._id}
         tag={tag}
       />}
       {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">

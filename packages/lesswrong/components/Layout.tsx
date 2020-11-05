@@ -9,7 +9,7 @@ import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
-import { Random } from 'meteor/random';
+import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -19,13 +19,15 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
-import { PostsReadContext } from './common/withRecordPostView';
+import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const logRocketSampleDensitySetting = new DatabasePublicSetting<number>('logRocket.sampleDensity', 5)
+const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
@@ -60,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     background: theme.palette.background.default,
-    minHeight: "100vh",
+    minHeight: `calc(100vh - 64px)`, //64px is approximately the height of the header
     gridArea: 'main', 
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -133,6 +135,7 @@ interface LayoutState {
   timezone: string,
   toc: any,
   postsRead: Record<string,boolean>,
+  tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
 }
 
@@ -148,6 +151,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       timezone: savedTimezone,
       toc: null,
       postsRead: {},
+      tagsRead: {},
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
 
@@ -194,7 +198,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const cookieId = cookies.get('clientId')
     if (cookieId) return cookieId
 
-    const newId = Random.id()
+    const newId = randomId()
     cookies.set('clientId', newId)
     return newId
   }
@@ -234,7 +238,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -271,17 +275,33 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         
     const shouldUseGridLayout = standaloneNavigation
 
+    const currentTime = new Date()
+    const beforeTime = petrovBeforeTime.get()
+    const afterTime = petrovAfterTime.get()
+
+    const renderPetrovDay = 
+      currentRoute?.name == "home"
+      && forumTypeSetting.get() === "LessWrong"
+      && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+
+    
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
-      <PostsReadContext.Provider value={{
+      <ItemsReadContext.Provider value={{
         postsRead: this.state.postsRead,
         setPostRead: (postId: string, isRead: boolean): void => {
           this.setState({
             postsRead: {...this.state.postsRead, [postId]: isRead}
           })
-        }
+        },
+        tagsRead: this.state.tagsRead,
+        setTagRead: (tagId: string, isRead: boolean): void => {
+          this.setState({
+            tagsRead: {...this.state.tagsRead, [tagId]: isRead}
+          })
+        },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
@@ -316,6 +336,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
+              {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
@@ -341,7 +362,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
-      </PostsReadContext.Provider>
+      </ItemsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
       </AnalyticsContext>

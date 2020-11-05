@@ -1,11 +1,11 @@
-import Users from '../users/collection';
+import { userOwns, userGroups, userCanDo } from '../../vulcan-users/permissions';
 import LWevents from './collection';
 
 const membersActions = [
   'events.new.own',
   'events.view.own',
 ];
-Users.groups.members.can(membersActions);
+userGroups.members.can(membersActions);
 
 const adminActions = [
   'events.new',
@@ -13,9 +13,10 @@ const adminActions = [
   'events.remove.all',
   'events.view.all',
 ];
-Users.groups.admins.can(adminActions);
+userGroups.admins.can(adminActions);
 
 LWevents.checkAccess = async (user: DbUser|null, document: DbLWEvent, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;
-  return Users.owns(user, document) ? Users.canDo(user, 'events.view.own') : Users.canDo(user, `events.view.all`)
+  if (document.name === "gatherTownUsersCheck") return true
+  return userOwns(user, document) ? userCanDo(user, 'events.view.own') : userCanDo(user, `events.view.all`)
 };

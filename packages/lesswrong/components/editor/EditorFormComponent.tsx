@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -16,7 +16,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const postEditorHeight = 250;
@@ -205,7 +205,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       return result;
     });
 
-    if (Meteor.isClient && window) {
+    if (isClient && window) {
       this.unloadEventListener = (ev) => {
         if (this.hasUnsavedData) {
           ev.preventDefault();
@@ -221,7 +221,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     this.ckEditor = Editor
     this.setState({ckEditorLoaded: true})
     
-    if (Meteor.isClient) {
+    if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
     }
@@ -525,7 +525,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getUserDefaultEditor = (user) => {
-    if (Users.useMarkdownPostEditor(user)) return "markdown"
+    if (userUseMarkdownPostEditor(user)) return "markdown"
     if (user?.reenableDraftJs) return "draftJS"
     return "ckEditorMarkup"
   }
@@ -746,7 +746,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     return <div>
         { this.renderPlaceholder(showPlaceholder, false) }
         {draftJSValue && <EditorForm
-          isClient={Meteor.isClient}
+          isClient={isClient}
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}

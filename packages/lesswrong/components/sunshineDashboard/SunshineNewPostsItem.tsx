@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMutation } from 'react-apollo';
-import { Posts } from '../../lib/collections/posts';
-import Users from '../../lib/collections/users/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
@@ -46,7 +46,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   
   const {mutate: updatePost} = useUpdate({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
   });
   const [addTagsMutation] = useMutation(gql`
@@ -96,7 +96,7 @@ const SunshineNewPostsItem = ({post, classes}: {
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       applyTags();
-      window.open(Users.getProfileUrl(post.user), '_blank');
+      window.open(userGetProfileUrl(post.user), '_blank');
       void updatePost({
         selector: { _id: post._id},
         data: {
@@ -132,7 +132,7 @@ const SunshineNewPostsItem = ({post, classes}: {
               </Button>
             </div>
             <Typography variant="title" className={classes.title}>
-              <Link to={Posts.getPageUrl(post)}>
+              <Link to={postGetPageUrl(post)}>
                 { post.title }
               </Link>
             </Typography>
@@ -156,7 +156,7 @@ const SunshineNewPostsItem = ({post, classes}: {
               <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
             </div>
         </SidebarHoverOver>
-        <Link to={Posts.getPageUrl(post)}>
+        <Link to={postGetPageUrl(post)}>
           {post.title}
         </Link>
         <div>
@@ -164,7 +164,7 @@ const SunshineNewPostsItem = ({post, classes}: {
             { post.baseScore }
           </SidebarInfo>
           <SidebarInfo>
-            <Link to={Users.getProfileUrl(post.user)}>
+            <Link to={userGetProfileUrl(post.user)}>
               {post.user && post.user.displayName}
             </Link>
           </SidebarInfo>

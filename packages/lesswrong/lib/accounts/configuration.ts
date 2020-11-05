@@ -1,4 +1,4 @@
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../lib/meteorAccounts';
 
 Accounts.config({
   forbidClientAccountCreation: false,

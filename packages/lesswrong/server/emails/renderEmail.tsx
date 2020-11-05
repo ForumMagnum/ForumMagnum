@@ -10,13 +10,13 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
-import Users from '../../lib/collections/users/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
-import { computeContextFromUser, createClient, newMutation } from '../vulcan-lib';
+import { computeContextFromUser, createClient, EmailRenderContext, createMutator } from '../vulcan-lib';
 
 
 // How many characters to wrap the plain-text version of the email to
@@ -132,6 +132,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   const timezone = moment.tz.guess();
   
   const wrappedBodyComponent = (
+    <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
@@ -143,6 +144,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     </MuiThemeProvider>
     </JssProvider>
     </ApolloProvider>
+    </EmailRenderContext.Provider>
   );
   
   // Traverse the tree, running GraphQL queries and expanding the tree
@@ -230,7 +232,7 @@ export function logSentEmail(renderedEmail, user) {
     user: user._id,
   };
   // Log in LWEvents table
-  void newMutation({
+  void createMutator({
     collection: LWEvents,
     currentUser: user,
     document: {
@@ -249,7 +251,7 @@ export function reasonUserCantReceiveEmails(user)
 {
   if (!user.email)
     return "No email address";
-  if (!Users.emailAddressIsVerified(user))
+  if (!userEmailAddressIsVerified(user))
     return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";

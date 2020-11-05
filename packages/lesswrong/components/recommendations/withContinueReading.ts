@@ -37,7 +37,7 @@ export const useContinueReading = () => {
   });
   
   return {
-    continueReading: data.ContinueReading,
+    continueReading: data?.ContinueReading,
     loading, error
   };
 }

@@ -32,10 +32,7 @@ import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
 import './server/scripts/importOldPasswords';
-import './server/scripts/postsEditCallbacks';
 import './server/scripts/rerunAFvotes';
-import './server/scripts/messagesEditCallbacks';
-import './server/scripts/localgroupsEditCallbacks';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
 import './server/scripts/invites';
@@ -77,6 +74,8 @@ import './server/recommendations';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 
+import './server/gatherTownCron';
+
 import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
@@ -114,6 +113,9 @@ import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
+import './server/resolvers/tagHistoryFeed';
+import './server/resolvers/allTagsActivityFeed';
+import './server/resolvers/recentDiscussionFeed';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

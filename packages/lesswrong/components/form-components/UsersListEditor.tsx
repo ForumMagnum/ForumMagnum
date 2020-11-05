@@ -73,6 +73,8 @@ class UsersListEditor extends Component<any> {
     ];
     if (disabledElements.includes(e.target.tagName.toLowerCase())) {
       return true; // Return true to cancel sorting
+    } else {
+      return false;
     }
   }
 

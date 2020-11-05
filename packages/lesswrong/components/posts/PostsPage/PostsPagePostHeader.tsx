@@ -1,11 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Posts } from '../../../lib/collections/posts';
+import { postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../../../lib/executionEnvironment';
 
 const SECONDARY_SPACING = 20
 
@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const URLClass = getUrlClass()
 
 function getProtocol(url: string): string {
-  if (Meteor.isServer)
+  if (isServer)
     return new URLClass(url).protocol;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -97,7 +97,7 @@ function getProtocol(url: string): string {
 }
 
 function getHostname(url: string): string {
-  if (Meteor.isServer)
+  if (isServer)
     return new URLClass(url).hostname;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -149,7 +149,7 @@ const PostsPagePostHeader = ({post, classes}: {
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </span>}
           {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
-          <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
+          <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
           <span className={classes.actions}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
               <PostsPageActions post={post} />

@@ -3,7 +3,9 @@ import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from "../../lib/collections/users/collection";
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -190,14 +192,14 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     }
 
     if (user.oldSlugs?.includes(slug)) {
-      return <PermanentRedirect url={Users.getProfileUrlFromSlug(user.slug)} />
+      return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {
       if (currentUser?._id === user._id) {
         // Logged-in spammer can see their own profile
-      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+      } else if (currentUser && userCanDo(currentUser, 'posts.moderate.all')) {
         // Admins and sunshines can see spammer's profile
       } else {
         // Anyone else gets a 404 here
@@ -207,7 +209,8 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       }
     }
 
-    const draftTerms = {view: "drafts", userId: user._id, limit: 4}
+
+    const draftTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
@@ -220,7 +223,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     
-    const username = Users.getDisplayName(user)
+    const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
     return (
@@ -255,7 +258,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 Edit Account
               </Link>}
             </Typography>
@@ -326,7 +329,7 @@ const UsersProfileComponent = registerComponent<ExternalProps>(
     hocs: [
       withUser,
       withMulti({
-        collection: Users,
+        collectionName: "Users",
         fragmentName: 'UsersProfile',
         enableTotal: false,
         ssr: true

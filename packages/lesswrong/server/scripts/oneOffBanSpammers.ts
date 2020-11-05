@@ -17,8 +17,14 @@ const banUser = async (user: DbUser) => {
       },
     }
   }])
-  runCallbacksAsync('users.ban.async', user);
-  runCallbacksAsync('users.deleteContent.async', user);
+  runCallbacksAsync({
+    name: 'users.ban.async',
+    properties: [user]
+  });
+  runCallbacksAsync({
+    name: 'users.deleteContent.async',
+    properties: [user]
+  });
 }
 
 Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(

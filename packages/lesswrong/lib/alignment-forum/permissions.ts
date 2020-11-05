@@ -1,14 +1,14 @@
-import Users from '../collections/users/collection'
+import { userGroups, createGroup } from '../vulcan-users/permissions';
 
-Users.createGroup("alignmentVoters");
-Users.createGroup("alignmentForum");
-Users.createGroup("alignmentForumAdmins");
+createGroup("alignmentVoters");
+createGroup("alignmentForum");
+createGroup("alignmentForumAdmins");
 
 const alignmentVotersActions = [
   'votes.alignment',
 ]
 
-Users.groups.alignmentVoters.can(alignmentVotersActions);
+userGroups.alignmentVoters.can(alignmentVotersActions);
 
 const alignmentForumActions = [
   'votes.alignment',
@@ -20,11 +20,11 @@ const alignmentForumActions = [
   'comments.alignment.suggest',
 ]
 
-Users.groups.alignmentForum.can(alignmentForumActions);
+userGroups.alignmentForum.can(alignmentForumActions);
 
 const alignmentForumAdminsActions = [
   'posts.alignment.move.all',
   'alignment.sidebar',
 ]
 
-Users.groups.alignmentForumAdmins.can(alignmentForumAdminsActions);
+userGroups.alignmentForumAdmins.can(alignmentForumAdminsActions);

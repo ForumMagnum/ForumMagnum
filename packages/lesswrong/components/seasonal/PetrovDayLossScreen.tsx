@@ -9,7 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    position: "absolute",
+    position: "fixed",
     top: 0,
     left: 0,
     width: "100%",
@@ -38,7 +38,7 @@ const PetrovDayLossScreen = ({classes}) => {
       <Typography variant="display3" className={classes.title}>
         <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
       </Typography>
-      <Link className={classes.link} to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"}>What happened?</Link>
+      <Link className={classes.link} to={"/posts/XfHXQPPKNY8BXkn72/honoring-petrov-day-on-lesswrong-in-2020"}>What happened?</Link>
     </div>
   )
 }

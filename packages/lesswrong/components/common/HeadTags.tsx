@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
@@ -14,7 +15,7 @@ const HeadTags = (props) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     // The default url we want to use for our cannonical and og:url tags uses
     // the "base" path, site url and path without query or hash
-    const url = Utils.combineUrls(Utils.getSiteUrl(), Utils.getBasePath(pathname))
+    const url = combineUrls(getSiteUrl(), getBasePath(pathname))
     const ogUrl = props.ogUrl || url
     const canonicalUrl = props.canonicalUrl || url
     const description = props.description || taglineSetting.get()
@@ -23,7 +24,7 @@ const HeadTags = (props) => {
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
     
-    const rssUrl = `${Utils.getSiteUrl()}feed.xml`
+    const rssUrl = `${getSiteUrl()}feed.xml`
     
     return (
       <React.Fragment>

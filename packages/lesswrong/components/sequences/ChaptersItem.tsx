@@ -1,13 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { postBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
   description: {
+    ...postBodyStyles(theme),
     marginLeft: 10,
-    fontSize: 20,
-    lineHeight: 1.25,
-    marginBottom: 20,
+    marginBottom: 8,
+    marginTop: 16
   },
   subtitle: {
     fontSize: 20,

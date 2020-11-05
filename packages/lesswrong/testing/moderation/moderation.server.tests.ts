@@ -8,90 +8,91 @@ chai.should();
 chai.use(chaiAsPromised);
 
 import Users from '../../lib/collections/users/collection';
+import { userIsBannedFromPost, userIsBannedFromAllPosts, userIsAllowedToComment, userCanModeratePost, userCanEditUsersBannedUserIds } from '../../lib/collections/users/helpers';
 
-describe('Users.userIsBannedFromPost --', async () => {
+describe('userIsBannedFromPost --', async () => {
   it('returns false if post.bannedUserIds does not contain exist', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
-    expect(Users.userIsBannedFromPost(user, post)).to.equal(false)
+    expect(userIsBannedFromPost(user, post)).to.equal(false)
   })
   it('returns false if post.bannedUserIds does not contain user._id', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author, {bannedUserIds:['notUserId']})
-    expect(Users.userIsBannedFromPost(user, post)).to.equal(false)
+    expect(userIsBannedFromPost(user, post)).to.equal(false)
   })
   it('returns true if post.bannedUserIds contain user._id but post.user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(Users.userIsBannedFromPost(user, post)).to.equal(true)
+    expect(userIsBannedFromPost(user, post)).to.equal(true)
   })
   it('returns true if post.bannedUserIds contain user._id AND post.user is in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(Users.userIsBannedFromPost(user, post)).to.equal(true)
+    expect(userIsBannedFromPost(user, post)).to.equal(true)
   })
 })
-describe('Users.userIsBannedFromAllPosts --', async () => {
+describe('userIsBannedFromAllPosts --', async () => {
   it('returns false if post.user.bannedUserIds does not contain exist', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
-    expect(Users.userIsBannedFromAllPosts(user, post)).to.equal(false)
+    expect(userIsBannedFromAllPosts(user, post)).to.equal(false)
   })
   it('returns false if post.bannedUserIds does not contain user._id', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1'], bannedUserIds:['notUserId']})
     const post = await createDummyPost(author)
-    expect(Users.userIsBannedFromAllPosts(user, post)).to.equal(false)
+    expect(userIsBannedFromAllPosts(user, post)).to.equal(false)
   })
   it('returns false if post.bannedUserIds contain user._id but post.user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({bannedUserIds:[user._id]})
     const post = await createDummyPost(author)
-    expect(Users.userIsBannedFromAllPosts(user, post)).to.equal(false)
+    expect(userIsBannedFromAllPosts(user, post)).to.equal(false)
   })
   it('returns true if post.bannedUserIds contain user._id AND post.user is in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1'], bannedUserIds:[user._id]})
     const post = await createDummyPost(author)
-    expect(Users.userIsBannedFromAllPosts(user, post)).to.equal(true)
+    expect(userIsBannedFromAllPosts(user, post)).to.equal(true)
   })
 })
-describe('Users.isAllowedToComment --', async () => {
+describe('userIsAllowedToComment --', async () => {
   it('returns false if there is no user', async () => {
     const post = await createDummyPost()
-    expect(Users.isAllowedToComment(null, post)).to.equal(false)
+    expect(userIsAllowedToComment(null, post)).to.equal(false)
   })
   //it('returns true if passed a user but NOT post', async () => {
   //  //Unit test removed because post is now a required argument (enforced by type signature)
   //  const user = await createDummyUser()
-  //  expect(Users.isAllowedToComment(user, null)).to.equal(true)
+  //  expect(userIsAllowedToComment(user, null)).to.equal(true)
   //})
   it('returns true if passed a user AND post does NOT contain bannedUserIds OR user', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost({userId:undefined})
-    expect(Users.isAllowedToComment(user, post)).to.equal(true)
+    expect(userIsAllowedToComment(user, post)).to.equal(true)
   })
   it('returns true if passed a user AND post contains bannedUserIds but NOT user', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost({bannedUserIds:[user._id], userId: undefined})
-    expect(Users.isAllowedToComment(user, post)).to.equal(true)
+    expect(userIsAllowedToComment(user, post)).to.equal(true)
   })
   it('returns false if passed a user AND post contains bannedUserIds BUT post-user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(Users.isAllowedToComment(user, post)).to.equal(false)
+    expect(userIsAllowedToComment(user, post)).to.equal(false)
   })
   it('returns false if passed a user AND post contains bannedUserIds AND post-user is in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(Users.isAllowedToComment(user, post)).to.equal(false)
+    expect(userIsAllowedToComment(user, post)).to.equal(false)
   })
 })
 
@@ -412,66 +413,66 @@ describe('UsersEdit bannedUserIds permissions --', async ()=> {
   })
 })
 
-describe('Users.canModeratePost --', async ()=> {
+describe('userCanModeratePost --', async ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if user is undefined", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
-    expect(Users.canModeratePost(null, post)).to.be.false;
+    expect(userCanModeratePost(null, post)).to.be.false;
   })
   it("returns false if post is undefined", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
-    expect(Users.canModeratePost(author, null)).to.be.false;
+    expect(userCanModeratePost(author, null)).to.be.false;
   })
   it("returns false if user not in trustLevel1, sunshineRegiment or admins", async () => {
     const author = await createDummyUser()
     const post = await createDummyPost(author)
-    expect(Users.canModeratePost(author, post)).to.be.false;
+    expect(userCanModeratePost(author, post)).to.be.false;
   })
   it("returns false if user in trustLevel1 but does NOT own post", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost()
-    expect(Users.canModeratePost(author, post)).to.be.false;
+    expect(userCanModeratePost(author, post)).to.be.false;
   })
   it("returns false if user in trustLevel1 AND owns post but has NOT set user.moderationStyle", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
-    expect(Users.canModeratePost(author, post)).to.be.false;
+    expect(userCanModeratePost(author, post)).to.be.false;
   })
   it("returns true if user in trustLevel1 AND owns post AND has moderationGuidelines", async () => {
     const author = await createDummyUser({groups:['trustLevel1'], moderationStyle:"1"})
     const post = await createDummyPost(author, {moderationGuidelines: {originalContents: {type: "html", data: "beware"}}})
-    expect(Users.canModeratePost(author, post)).to.be.true;
+    expect(userCanModeratePost(author, post)).to.be.true;
   })
   it("returns true if user in sunshineRegiment", async () => {
     const moderator = await createDummyUser({groups:['sunshineRegiment']})
     const post = await createDummyPost()
-    expect(Users.canModeratePost(moderator, post)).to.be.true;
+    expect(userCanModeratePost(moderator, post)).to.be.true;
   })
 })
 
-describe('Users.canEditUsersBannedUserIds --', async ()=> {
+describe('userCanEditUsersBannedUserIds --', async ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
     const user = Users.findOne()
     if (!user) throw Error("Can't find any user")
-    expect(Users.canEditUsersBannedUserIds(null, user)).to.be.false;
+    expect(userCanEditUsersBannedUserIds(null, user)).to.be.false;
   })
   it("returns false if user not in trustLevel1", async () => {
     const user = await createDummyUser()
-    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.false;
+    expect(userCanEditUsersBannedUserIds(user, user)).to.be.false;
   })
   it("returns false if user in trustLevel1 but does has NOT set user.moderationStyle", async () => {
     const user = await createDummyUser({groups:['trustLevel1']})
-    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.false;
+    expect(userCanEditUsersBannedUserIds(user, user)).to.be.false;
   })
   it("returns true if user in trustLevel1 AND has set user.moderationStyle", async () => {
     const user = await createDummyUser({groups:['trustLevel1'], moderationStyle:"1"})
-    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.true;
+    expect(userCanEditUsersBannedUserIds(user, user)).to.be.true;
   })
   it("returns true if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:['sunshineRegiment']})
-    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.true;
+    expect(userCanEditUsersBannedUserIds(user, user)).to.be.true;
   })
 })
 

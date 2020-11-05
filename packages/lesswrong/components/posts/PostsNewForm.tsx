@@ -1,6 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -55,7 +56,7 @@ const PostsNewForm = ({classes}: {
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={post => {
-              history.push({pathname: Posts.getPageUrl(post)});
+              history.push({pathname: postGetPageUrl(post)});
               flash({ messageString: "Post created.", type: 'success'});
             }}
             eventForm={eventForm}

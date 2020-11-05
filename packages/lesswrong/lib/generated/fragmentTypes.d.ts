@@ -166,6 +166,7 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -458,7 +459,17 @@ interface RevisionMetadata { // fragment on Revisions
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
-  readonly changeMetrics: any,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
+  readonly documentId: string,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly user: UsersMinimumInfo|null,
+}
+
+interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
+  readonly tag: TagBasicInfo|null,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -546,6 +557,13 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface gatherTownEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface TagFlagFragment { // fragment on TagFlags
   readonly _id: string,
   readonly createdAt: Date,
@@ -571,6 +589,28 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly deleted: boolean,
   readonly slug: string,
   readonly order: number,
+}
+
+interface GardenCodeFragment { // fragment on GardenCodes
+  readonly _id: string,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+}
+
+interface GardenCodesDefaultFragment { // fragment on GardenCodes
+  readonly createdAt: Date,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -672,6 +712,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly charsAdded: number,
   readonly charsRemoved: number,
   readonly deleted: boolean,
+  readonly lastCommentedAt: Date,
   readonly needsReview: boolean,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
@@ -865,7 +906,7 @@ interface NotificationsList { // fragment on Notifications
   readonly viewed: boolean,
 }
 
-interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
+interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly _id: string,
   readonly username: string,
   readonly createdAt: Date,
@@ -931,7 +972,10 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly hideTaggingProgressBar: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
+  readonly petrovPressedButtonDate: Date,
+  readonly petrovLaunchCodeDate: Date,
 }
 
 interface UserBookmarks { // fragment on Users
@@ -1054,7 +1098,13 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
 }
 
-interface UsersProfile extends UsersMinimumInfo { // fragment on Users
+interface SharedUserBooleans { // fragment on Users
+  readonly walledGardenInvite: boolean,
+  readonly hideWalledGardenUI: boolean,
+  readonly walledGardenPortalOnboarded: boolean,
+}
+
+interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly createdAt: Date,
   readonly isAdmin: boolean,
   readonly bio: string,
@@ -1086,6 +1136,8 @@ interface UsersProfile extends UsersMinimumInfo { // fragment on Users
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
+  readonly petrovPressedButtonDate: Date,
+  readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
 }
 
@@ -1401,6 +1453,23 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
+interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly createdAt: Date,
+  readonly user: UsersMinimumInfo|null,
+  readonly post: PostsList|null,
+}
+
+interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment|null,
+  readonly post: TagRelCreationFragment_post|null,
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
+interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
+}
+
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVotes: Array<VoteFragment>,
@@ -1470,6 +1539,7 @@ interface TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean,
   readonly description: TagFragment_description|null,
 }
 
@@ -1480,7 +1550,21 @@ interface TagFragment_description { // fragment on Revisions
   readonly version: string,
 }
 
+interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
+  readonly user: UsersMinimumInfo|null,
+}
+
+interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
+  readonly user: UsersMinimumInfo|null,
+  readonly description: TagCreationHistoryFragment_description|null,
+}
+
+interface TagCreationHistoryFragment_description { // fragment on Revisions
+  readonly html: string,
+}
+
 interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
+  readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
 }
 
@@ -1501,7 +1585,7 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly version: string,
 }
 
-interface TagWithFlagsFragment extends TagPreviewFragment { // fragment on Tags
+interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly tagFlags: Array<TagFlagFragment>,
 }
@@ -1509,6 +1593,11 @@ interface TagWithFlagsFragment extends TagPreviewFragment { // fragment on Tags
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
+}
+
+interface TagRecentDiscussion extends TagFragment { // fragment on Tags
+  readonly lastVisitedAt: Date,
+  readonly recentComments: Array<CommentsList>,
 }
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
@@ -1554,7 +1643,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
-  readonly changeMetrics: any,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface VoteMinimumInfo { // fragment on Votes
@@ -1587,6 +1676,18 @@ interface VotedItem { // fragment on Votes
   readonly documentId: string,
   readonly power: number,
   readonly votedAt: Date,
+}
+
+interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
+  readonly createdAt: Date,
+  readonly launchCode: string,
+  readonly hashedLaunchCode: string,
+}
+
+interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly launchCode: string,
 }
 
 interface NewRelatedPostRel { // fragment on PostRelations
@@ -1655,6 +1756,8 @@ interface FragmentTypes {
   WithVoteComment: WithVoteComment
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
+  RevisionHistoryEntry: RevisionHistoryEntry
+  RevisionTagFragment: RevisionTagFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -1663,9 +1766,12 @@ interface FragmentTypes {
   LWEventsDefaultFragment: LWEventsDefaultFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  gatherTownEventFragment: gatherTownEventFragment
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
+  GardenCodeFragment: GardenCodeFragment
+  GardenCodesDefaultFragment: GardenCodesDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   SequencesDefaultFragment: SequencesDefaultFragment
@@ -1701,6 +1807,7 @@ interface FragmentTypes {
   newEventFragment: newEventFragment
   lastEventFragment: lastEventFragment
   UsersMinimumInfo: UsersMinimumInfo
+  SharedUserBooleans: SharedUserBooleans
   UsersProfile: UsersProfile
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
@@ -1722,14 +1829,19 @@ interface FragmentTypes {
   SuggestAlignmentUser: SuggestAlignmentUser
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
+  TagRelHistoryFragment: TagRelHistoryFragment
+  TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagHistoryFragment: TagHistoryFragment
+  TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagEditFragment: TagEditFragment
+  TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
@@ -1739,10 +1851,12 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   VotedItem: VotedItem
+  PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
+  PetrovDayLaunch: PetrovDayLaunch
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"GardenCodes"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
 
