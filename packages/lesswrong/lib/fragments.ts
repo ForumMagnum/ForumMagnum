@@ -407,7 +407,6 @@ registerFragment(`
     hideIntercom
     commentSorting
     currentFrontpageFilter
-    frontpageFilterSettings
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments

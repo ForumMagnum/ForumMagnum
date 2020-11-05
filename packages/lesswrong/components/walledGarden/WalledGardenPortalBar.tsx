@@ -4,6 +4,7 @@ import { Button, Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from '../common/withUser';
 import { CAL_ID } from "./gardenCalendar";
+import { gatherTownURL } from "./GatherTownIframeWrapper";
 
 const widgetStyling = {
   marginLeft: "30px",
@@ -61,6 +62,14 @@ const styles = (theme) => ({
   },
   calendars: {
     marginLeft: 60
+  },
+  link: {
+    marginRight: 16,
+    fontSize: "1rem",
+    fontStyle: "italic",
+    '& a': {
+      color: theme.palette.grey[500]
+    }
   }
 })
 
@@ -95,6 +104,11 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
             Facebook Group
+          </a>
+        </div>
+        <div className={classes.link}>
+          <a href={gatherTownURL} rel="noopener noreferrer">
+            Backup GatherTown Link
           </a>
         </div>
       </div>}
