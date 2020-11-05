@@ -207,7 +207,7 @@ export const runCallbacks = function (this: any, options: {
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
 export const runCallbacksAsync = function (options: {name: string, properties: Array<any>}) {
-  const hook = options.name;
+  const hook = formatHookName(options.name);
   const args = options.properties;
 
   const callbacks = Array.isArray(hook) ? hook : Callbacks[hook];
