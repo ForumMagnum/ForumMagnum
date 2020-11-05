@@ -33,7 +33,6 @@ const PostsRevisionSelect = ({ classes }: {
     fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
-    ssr: true,
   });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {

@@ -11,7 +11,7 @@ export default withMutation({
 
 */
 
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import gql from 'graphql-tag';
 import { getFragment } from '../vulcan-lib';
 import * as _ from 'underscore';

@@ -12,7 +12,7 @@ import { Helmet } from 'react-helmet'
 // import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)

@@ -90,7 +90,6 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
     fragmentName: 'PostsList',
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
-    ssr: true
   });
   const { TabNavigationSubItem, EventTime, LWTooltip } = Components
 

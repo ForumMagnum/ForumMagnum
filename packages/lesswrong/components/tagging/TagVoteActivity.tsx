@@ -96,7 +96,6 @@ const TagVoteActivity = ({classes}: {
     collection: Votes,
     fragmentName: 'TagVotingActivity',
     limit: 200,
-    ssr: true,
     itemsPerPage: 200,
   })
 

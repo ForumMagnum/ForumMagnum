@@ -110,7 +110,6 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     collection: Posts,
     fragmentName: "PostsList",
     limit: 500,
-    ssr: true
   });
 
   const { results: groups = [] } = useMulti({
@@ -118,7 +117,6 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     collection: Localgroups,
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
-    ssr: true
   })
 
   const { results: users = [] } = useMulti({
@@ -126,7 +124,6 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
     limit: 500,
-    ssr: true
   })
 
   const renderedMarkers = useMemo(() => {

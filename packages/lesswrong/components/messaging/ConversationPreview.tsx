@@ -44,7 +44,6 @@ const ConversationPreview = ({conversationId, currentUser, classes}: {
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 10,
-    ssr: true
   });
   
   // using a spread operator instead of naively "messages.reverse()" to avoid modifying the 

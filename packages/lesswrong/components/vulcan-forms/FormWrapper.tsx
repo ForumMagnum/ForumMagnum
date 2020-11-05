@@ -32,7 +32,7 @@ import { intlShape } from '../../lib/vulcan-i18n';
 // handling by string gluing, so it's hard to be sure this is safe.
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
-import { graphql, withApollo } from 'react-apollo';
+import { graphql, withApollo } from '@apollo/client/react/hoc';
 import compose from 'lodash/flowRight';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';

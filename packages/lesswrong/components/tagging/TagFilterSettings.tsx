@@ -85,7 +85,6 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     collection: Tags,
     fragmentName: "TagFragment",
     limit: 100,
-    ssr: true
   });
 
   const { captureEvent } = useTracking()

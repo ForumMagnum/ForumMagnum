@@ -75,7 +75,6 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     collection: GardenCodes,
     fragmentName: "GardenCodeFragment",
     limit: 1,
-    ssr: true,
   });
 
   const gardenCode = (results && results.length > 0 && (results[0] as HasIdType)._id) ? results[0] as FragmentTypes["GardenCodeFragment"] | null : null

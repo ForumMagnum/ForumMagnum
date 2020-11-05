@@ -49,7 +49,6 @@ const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
     limit: 20,
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
-    ssr: true,
   });
   
   let filteredResults: Array<NotificationsList> = [];
