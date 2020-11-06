@@ -333,11 +333,12 @@ addFieldsDict(Posts, {
     group: formGroups.advancedOptions,
   },
   
-  socialPreviewImageUrl: {
+  // Autoset OpenGraph image, derived from the first post image in a callback
+  socialPreviewImageAutoUrl: {
     type: String,
     optional: true,
     hidden: true,
-    label: "Social Preview Image URL",
+    label: "Social Preview Image Auto-generated URL",
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],

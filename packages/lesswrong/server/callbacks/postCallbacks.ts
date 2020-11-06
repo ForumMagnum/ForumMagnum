@@ -190,22 +190,26 @@ async function updatedPostMaybeTriggerReview (newPost, oldPost) {
 }
 addCallback("posts.edit.async", updatedPostMaybeTriggerReview);
 
+// Use the first image in the post as the social preview image
 async function extractSocialPreviewImage (post: DbPost) {
-  let socialPreviewImageUrl: null | string = null
+  // socialPreviewImageId is set manually, and will override this
+  if (post.socialPreviewImageId) return post
+
+  let socialPreviewImageAutoUrl: null | string = null
   if (post.contents?.html) {
     console.log(`extractSocialPreviewImage`, 'found html')
     const $ = cheerio.load(post.contents.html)
     const firstImg = $('img').first()
     if (firstImg) {
       console.log(`extractSocialPreviewImage`, 'found firstImg')
-      socialPreviewImageUrl = firstImg.attr('src') || null
+      socialPreviewImageAutoUrl = firstImg.attr('src') || null
     }
   }
-  console.log(`extractSocialPreviewImage`, 'socialPreviewImageUrl', socialPreviewImageUrl)
+  console.log(`extractSocialPreviewImage`, 'socialPreviewImageUrl', socialPreviewImageAutoUrl)
   
-  Posts.update({ _id: post._id }, {$set: { socialPreviewImageUrl }})
+  Posts.update({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
   
-  return {...post, socialPreviewImageUrl}
+  return {...post, socialPreviewImageAutoUrl}
   
 }
 

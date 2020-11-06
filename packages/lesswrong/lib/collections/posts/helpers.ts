@@ -109,6 +109,16 @@ ${Posts.getLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
+// TODO;
+Posts.getSocialPreviewImage = (post: DbPost): string => {
+  const manualId = post.socialPreviewImageId
+  console.log("manualId", manualId)
+  if (manualId) return manualId
+  const autoUrl = post.socialPreviewImageAutoUrl
+  console.log("autoUrl", autoUrl)
+  return autoUrl
+}
+
 
 // @summary Get URL of a post page.
 Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {

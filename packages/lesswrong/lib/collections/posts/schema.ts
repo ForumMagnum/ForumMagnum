@@ -323,6 +323,12 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getFacebookShareUrl(post),
   }),
+  
+  socialPreviewImageUrl: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getSocialPreviewImage(post)
+  }),
 
   question: {
     type: Boolean,

@@ -46,6 +46,7 @@ interface ExtendedPostsCollection extends PostsCollection {
   getFacebookShareUrl: (post: DbPost) => string
   getEmailShareUrl: (post: DbPost) => string
   getPageUrl: (post: PostsMinimumForGetPageUrl, isAbsolute?: boolean, sequenceId?: string|null) => string
+  getSocialPreviewImage: (post: DbPost) => string
   getCommentCount: (post: PostsBase|DbPost) => number
   getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
   getLastCommentedAt: (post: PostsBase|DbPost) => Date
