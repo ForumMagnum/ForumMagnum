@@ -166,19 +166,9 @@ const RecentDiscussionThread = ({
               <PostsItemMeta post={post}/>
             </div>
           </div>
-          { post.contents?.htmlHighlight && highlightVisible ?
-            <div className={highlightClasses}>
+          { <div className={highlightClasses}>
               <PostsHighlight post={post} />
             </div>
-            : <div className={highlightClasses} onClick={showHighlight}>
-                { showSnippet && <>
-                  <LinkPostMessage post={post} noMargin />
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents?.htmlHighlight||null)}}
-                    description={`post ${post._id}`}
-                  /></>
-                }
-              </div>
           }
         </div>
         {nestedComments.length ? <div className={classes.content}>
