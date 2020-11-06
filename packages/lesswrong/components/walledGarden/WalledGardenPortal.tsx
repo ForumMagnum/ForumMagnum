@@ -155,7 +155,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
       <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays from 12pm to 4pm PT. Otherwise, it is open by invite only.</p>
       <ul>
         <li>Please wear headphones, preferably with a microphone! Try to be in a low-background noise environment.</li>
-        <li>Ensure you grant access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click within your URL bar.</li>
+        <li>Ensure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
         <li>The Garden will not load from an incognito window or if 3rd-party cookies are blocked. (It is built on a 3rd-party platform.)</li>
         <li>Technical Problems once you're in the Garden? Refresh the tab.</li>
         <li>Lost or stuck? Respawn (<i>gear icon</i> &gt; <i>respawn</i>)</li>
