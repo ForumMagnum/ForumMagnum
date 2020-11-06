@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import {registerComponent, Components, Utils} from '../../lib/vulcan-lib';
+import { getUrlClass, withNavigation } from '../../lib/routeUtil';
 
 const styles = (theme) => ({
   root: {
@@ -24,8 +25,10 @@ const styles = (theme) => ({
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
   const { LWTooltip } = Components
+  const UrlClass = getUrlClass()
 
-  const urlParams = new URLSearchParams(gcalEvent.htmlLink.split('?')[1])
+  const url = new UrlClass(gcalEvent.htmlLink)
+  const urlParams = new URLSearchParams(url.search)
   const eid = urlParams.get("eid")
   const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${gcalEvent.organizer.email}`
   const link = <a href={addToCalendarLink} target="_blank" rel="noopener noreferrer">
