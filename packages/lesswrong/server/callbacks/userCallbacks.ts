@@ -1,4 +1,5 @@
 import Users from "../../lib/collections/users/collection";
+import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { addCallback, updateMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
@@ -18,7 +19,7 @@ import { DatabaseServerSetting } from "../databaseSettings";
 function updateTrustedStatus ({newDocument, vote}) {
 
   const user = Users.findOne(newDocument.userId)
-  if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!Users.getGroups(user).includes('trustLevel1'))) {
+  if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     Users.update(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
@@ -31,7 +32,7 @@ addCallback("votes.bigUpvote.async", updateTrustedStatus);
 function updateModerateOwnPersonal({newDocument, vote}) {
   const user = Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
-  if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!Users.getGroups(user).includes('canModeratePersonal'))) {
+  if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
     Users.update(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")

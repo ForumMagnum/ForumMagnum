@@ -15,7 +15,6 @@ const RepliesToCommentList = ({ terms, post, parentCommentId }: {
     terms,
     collection: Comments,
     fragmentName: "CommentsList",
-    ssr: true,
   });
   
   if (loading || !results)

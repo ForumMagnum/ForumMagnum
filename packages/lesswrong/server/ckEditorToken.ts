@@ -1,7 +1,8 @@
 import { addStaticRoute, getUserFromReq } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts'
+import { postCanEdit } from '../lib/collections/posts/helpers'
 import { getCKEditorDocumentId } from '../lib/ckEditorUtils'
-import Users from '../lib/collections/users/collection';
+import { userGetDisplayName } from '../lib/collections/users/helpers';
 import jwt from 'jsonwebtoken'
 import { DatabaseServerSetting } from './databaseSettings';
 
@@ -20,7 +21,7 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
 
   const user = await getUserFromReq(req)
   const post = await Posts.findOne(documentId)
-  const canEdit = post && Posts.canEdit(user, post)  
+  const canEdit = post && postCanEdit(user, post)  
   const canView = post && await Posts.checkAccess(user, post, null)
 
   let permissions = {}
@@ -42,7 +43,7 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
     iss: environmentId,
     user: user ? {
       id: user._id,
-      name: Users.getDisplayName(user)
+      name: userGetDisplayName(user)
     } : null,
     services: {
       'ckeditor-collaboration': {

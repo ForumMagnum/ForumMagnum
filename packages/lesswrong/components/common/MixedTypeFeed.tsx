@@ -1,6 +1,6 @@
 import React, {useRef, useEffect, useCallback} from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import gql from 'graphql-tag';

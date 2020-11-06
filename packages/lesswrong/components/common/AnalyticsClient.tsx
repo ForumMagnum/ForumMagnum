@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import { AnalyticsUtil } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import { useCookies } from 'react-cookie'

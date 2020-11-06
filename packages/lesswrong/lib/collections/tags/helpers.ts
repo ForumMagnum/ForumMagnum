@@ -1,6 +1,10 @@
-import Tags from './collection';
 
-Tags.getUrl = (tag: DbTag|TagBasicInfo, urlOptions) => {
+type GetUrlOptions = {
+  edit?: boolean,
+  flagId?: string
+}
+
+export const tagGetUrl = (tag: DbTag|TagBasicInfo, urlOptions?: GetUrlOptions) => {
   const { flagId, edit } = urlOptions || {};
   const url = `/tag/${tag.slug}`
   if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
@@ -9,14 +13,14 @@ Tags.getUrl = (tag: DbTag|TagBasicInfo, urlOptions) => {
   return url
 }
 
-Tags.getDiscussionUrl = (tag: DbTag|TagBasicInfo) => {
+export const tagGetDiscussionUrl = (tag: DbTag|TagBasicInfo) => {
   return `/tag/${tag.slug}/discussion`
 }
 
-Tags.getCommentLink = (tag: DbTag|TagBasicInfo, commentId: string): string => {
+export const tagGetCommentLink = (tag: DbTag|TagBasicInfo, commentId: string): string => {
   return `/tag/${tag.slug}/discussion#${commentId}`
 }
 
-Tags.getRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {
+export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {
   return `/tag/${tag.slug}?version=${versionNumber}`;
 }

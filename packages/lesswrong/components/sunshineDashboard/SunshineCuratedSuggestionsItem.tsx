@@ -2,7 +2,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
-import Users from '../../lib/collections/users/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -73,14 +74,14 @@ class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestion
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="title">
-            <Link to={Posts.getPageUrl(post)}>
+            <Link to={postGetPageUrl(post)}>
               { post.title }
             </Link>
           </Typography>
           <br/>
           <Components.PostsHighlight post={post}/>
         </Components.SidebarHoverOver>
-        <Link to={Posts.getPageUrl(post)}
+        <Link to={postGetPageUrl(post)}
           className="sunshine-sidebar-posts-title">
             {post.title}
         </Link>
@@ -89,7 +90,7 @@ class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestion
             { post.baseScore }
           </Components.SidebarInfo>
           <Components.SidebarInfo>
-            <Link to={Users.getProfileUrl(post.user)}>
+            <Link to={userGetProfileUrl(post.user)}>
                 {post.user && post.user.displayName}
             </Link>
           </Components.SidebarInfo>

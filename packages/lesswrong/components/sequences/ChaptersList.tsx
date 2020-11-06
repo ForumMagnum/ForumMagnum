@@ -12,7 +12,6 @@ const ChaptersList = ({terms, canEdit}: {
     collection: Chapters,
     fragmentName: 'ChaptersFragment',
     enableTotal: false,
-    ssr: true,
   });
   if (results && !loading) {
     return <div className="chapters-list">

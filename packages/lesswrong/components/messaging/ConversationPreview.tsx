@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import Messages from "../../lib/collections/messages/collection";
-import Conversations from '../../lib/collections/conversations/collection';
+import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import Card from '@material-ui/core/Card';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -29,7 +29,7 @@ const ConversationPreview = ({conversationId, currentUser, classes}: {
   const { Loading, MessageItem } = Components
 
   const { document: conversation, loading: conversationLoading } = useSingle({
-    collection: Conversations,
+    collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: conversationId
@@ -44,7 +44,6 @@ const ConversationPreview = ({conversationId, currentUser, classes}: {
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 10,
-    ssr: true
   });
   
   // using a spread operator instead of naively "messages.reverse()" to avoid modifying the 
@@ -52,7 +51,7 @@ const ConversationPreview = ({conversationId, currentUser, classes}: {
   const reversedMessages = [...messages].reverse()
 
   return <Card className={classes.root}>
-    { conversation && <div className={classes.title}>{ Conversations.getTitle(conversation, currentUser) }</div>}
+    { conversation && <div className={classes.title}>{ conversationGetTitle(conversation, currentUser) }</div>}
     { conversationLoading && <Loading />}
     
     { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} message={message} />))}

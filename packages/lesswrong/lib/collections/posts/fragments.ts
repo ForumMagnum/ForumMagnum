@@ -144,9 +144,11 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     moderationGuidelines {
+      _id
       html
     }
     customHighlight {
+      _id
       html
     }
     lastPromotedComment {
@@ -165,6 +167,7 @@ registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
     contents {
+      _id
       htmlHighlight
       wordCount
       version
@@ -197,12 +200,15 @@ registerFragment(`
     canonicalSequenceId
     canonicalBookId
     canonicalSequence {
+      _id
       title
     }
     canonicalBook {
+      _id
       title
     }
     canonicalCollection {
+      _id
       title
     }
 
@@ -212,6 +218,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     customHighlight {
+      _id
       version
       html
     }
@@ -403,6 +410,7 @@ registerFragment(`
     }
 
     contents {
+      _id
       html
       htmlHighlight
       wordCount
@@ -417,6 +425,7 @@ registerFragment(`
       moderatorAssistance
       
       moderationGuidelines {
+        _id
         html
       }
     }

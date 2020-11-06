@@ -1,7 +1,8 @@
 import { Posts } from '../../lib/collections/posts'
-import Users from '../../lib/collections/users/collection';
+import { userIsAdmin, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { userTimeSinceLast, userNumberOfItemsInPast24Hours } from '../../lib/vulcan-users/helpers';
 
 const countsTowardsRateLimitFilter = {
   draft: false,
@@ -33,11 +34,11 @@ getCollectionHooks("Posts").updateValidate.add(function PostsUndraftRateLimit (v
 // nothing; if they would exceed a rate limit, throws an exception.
 function enforcePostRateLimit (user) {
   // Admins and Sunshines aren't rate-limited
-  if (Users.isAdmin(user) || Users.isMemberOf(user, "sunshineRegiment") || Users.isMemberOf(user, "canBypassPostRateLimit"))
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit"))
     return;
   
-  const timeSinceLastPost = Users.timeSinceLast(user, Posts, countsTowardsRateLimitFilter);
-  const numberOfPostsInPast24Hours = Users.numberOfItemsInPast24Hours(user, Posts, countsTowardsRateLimitFilter);
+  const timeSinceLastPost = userTimeSinceLast(user, Posts, countsTowardsRateLimitFilter);
+  const numberOfPostsInPast24Hours = userNumberOfItemsInPast24Hours(user, Posts, countsTowardsRateLimitFilter);
   
   // check that the user doesn't post more than Y posts per day
   if(numberOfPostsInPast24Hours >= maxPostsPer24HoursSetting.get()) {

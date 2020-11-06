@@ -10,7 +10,7 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
-import { Posts } from "../../lib/collections/posts";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
@@ -51,7 +51,7 @@ const NominatePostMenuItem = ({ post }: {
 
   const handleClick = () => {
     if (nominated) {
-      history.push({pathname: Posts.getPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
+      history.push({pathname: postGetPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       openDialog({

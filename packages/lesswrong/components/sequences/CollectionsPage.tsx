@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Collections from '../../lib/collections/collections/collection';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -83,7 +83,7 @@ const CollectionsPage = ({ documentId, classes }: {
   } else {
     const startedReading = false; //TODO: Check whether user has started reading sequences
     const collection = document;
-    const canEdit = Users.canDo(currentUser, 'collections.edit.all') || (Users.canDo(currentUser, 'collections.edit.own') && Users.owns(currentUser, collection))
+    const canEdit = userCanDo(currentUser, 'collections.edit.all') || (userCanDo(currentUser, 'collections.edit.own') && userOwns(currentUser, collection))
     const { html = "" } = collection.contents || {}
     
     // Workaround: MUI Button takes a component option and passes extra props to

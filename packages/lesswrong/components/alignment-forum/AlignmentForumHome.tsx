@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from "../../lib/collections/users/collection";
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';
@@ -35,7 +35,7 @@ const AlignmentForumHome = ({classes}: {
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="AI Alignment Posts">
-          { currentUser && Users.canDo(currentUser, "posts.alignment.new") && 
+          { currentUser && userCanDo(currentUser, "posts.alignment.new") && 
             <Link to={{pathname:"/newPost", search: `?af=true`}}>
               <SectionButton>
                 <AddIcon />

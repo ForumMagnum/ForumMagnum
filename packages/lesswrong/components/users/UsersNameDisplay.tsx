@@ -1,6 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import Users from '../../lib/collections/users/collection';
+import { userGetCommentCount, userGetPostCount, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -54,8 +54,8 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   const { htmlBio } = user
 
   const truncatedBio = truncate(htmlBio, 500)
-  const postCount = Users.getPostCount(user)
-  const commentCount = Users.getCommentCount(user)
+  const postCount = userGetPostCount(user)
+  const commentCount = userGetCommentCount(user)
   const sequenceCount = user.sequenceCount; // TODO: Counts LW sequences on Alignment Forum
 
   const tooltip = <span>
@@ -69,15 +69,15 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   </span>
 
   if (simple) {
-    return <span className={classes.userName}>{Users.getDisplayName(user)}</span>
+    return <span className={classes.userName}>{userGetDisplayName(user)}</span>
   }
 
   return <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={tooltip} placement="left">
-      <Link to={Users.getProfileUrl(user)} className={classes.userName}
+      <Link to={userGetProfileUrl(user)} className={classes.userName}
           {...(nofollow ? {rel:"nofollow"} : {})}
         >
-        {Users.getDisplayName(user)}
+        {userGetDisplayName(user)}
       </Link>
     </LWTooltip>
   </AnalyticsContext>

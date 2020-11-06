@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
-import Users from '../../lib/collections/users/collection';
+import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const MAX_ANSWERS_QUERIED = 100
@@ -14,8 +14,8 @@ const PostsPageQuestionContent = ({post, refetch}: {
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   return (
     <div>
-      {(!currentUser || Users.isAllowedToComment(currentUser, post)) && !post.draft && <NewAnswerCommentQuestionForm post={post} refetch={refetch} />}
-      {currentUser && !Users.isAllowedToComment(currentUser, post) &&
+      {(!currentUser || userIsAllowedToComment(currentUser, post)) && !post.draft && <NewAnswerCommentQuestionForm post={post} refetch={refetch} />}
+      {currentUser && !userIsAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }
       <AnswersList terms={{view: "questionAnswers", postId: post._id, limit: MAX_ANSWERS_QUERIED}} post={post}/>

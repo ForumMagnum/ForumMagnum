@@ -1,8 +1,10 @@
 import RSS from 'rss';
 import { taglineSetting } from '../components/common/HeadTags';
 import { Comments } from '../lib/collections/comments';
+import { commentGetPageUrl } from '../lib/collections/comments/helpers';
 import { Posts } from '../lib/collections/posts';
-import Users from '../lib/collections/users/collection';
+import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl } from '../lib/rss_urls';
@@ -61,7 +63,7 @@ export const servePostRSS = async (terms, url?: string) => {
 
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
-    const postLink = `<a href="${Posts.getPageUrl(post, true)}#comments">Discuss</a>`;
+    const postLink = `<a href="${postGetPageUrl(post, true)}#comments">Discuss</a>`;
     const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem: any = {
       title: post.title,
@@ -69,12 +71,12 @@ export const servePostRSS = async (terms, url?: string) => {
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: Users.getDisplayNameById(post.userId),
+      author: userGetDisplayNameById(post.userId),
       // LESSWRONG - this was added to handle karmaThresholds
       // date: post.postedAt
       date: date,
       guid: post._id,
-      url: Posts.getPageUrl(post, true)
+      url: postGetPageUrl(post, true)
     };
 
     feed.item(feedItem);
@@ -96,10 +98,10 @@ export const serveCommentRSS = async (terms, url?: string) => {
     const parentTitle = getCommentParentTitle(comment)
     feed.item({
      title: 'Comment on ' + parentTitle,
-     description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${comment.contents && comment.contents.html}</br></br><a href='${commentGetPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
-     url: Comments.getPageUrl(comment, true),
+     url: commentGetPageUrl(comment, true),
      guid: comment._id
     });
   });
