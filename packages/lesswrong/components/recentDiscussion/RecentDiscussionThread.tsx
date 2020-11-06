@@ -137,7 +137,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
 
-  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, LinkPostMessage } = Components
+  const { ContentItemBody, PostsItemMeta, CommentsNode, PostsHighlight, LinkPostMessage } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -164,9 +164,6 @@ const RecentDiscussionThread = ({
             </Link>
             <div className={classes.threadMeta} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
-              <ShowOrHideHighlightButton
-                className={classes.showHighlight}
-                open={highlightVisible}/>
             </div>
           </div>
           { post.contents?.htmlHighlight && highlightVisible ?

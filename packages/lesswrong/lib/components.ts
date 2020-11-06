@@ -209,7 +209,6 @@ importComponent("PostCollaborationEditor", () => require('../components/posts/Po
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
-importComponent("ShowOrHideHighlightButton", () => require('../components/posts/ShowOrHideHighlightButton'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox'));
