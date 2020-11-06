@@ -88,7 +88,7 @@ export function withMulti({
   notifyOnNetworkStatusChange?: boolean,
   propertyName?: string,
   collectionName?: CollectionNameString,
-  collection?: any,
+  collection?: CollectionBase<any>,
   fragmentName?: string,
   fragment?: any,
   terms?: any,
@@ -100,8 +100,8 @@ export function withMulti({
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
-  const typeName = collection.options.typeName;
-  const resolverName = collection.options.multiResolverName;
+  const typeName = collection!.options.typeName;
+  const resolverName = collection!.options.multiResolverName;
   
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
 

@@ -109,7 +109,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   skip=false
 }: {
   collectionName?: CollectionNameString,
-  collection?: any,
+  collection?: CollectionBase<any>,
   fragmentName?: FragmentTypeName,
   fragment?: any,
   extraVariables?: Record<string,any>,

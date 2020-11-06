@@ -10,7 +10,7 @@ const DeleteDraft = ({ post }: {
 }) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
-    collection: "Posts",
+    collectionName: "Posts",
     fragmentName: 'PostsList',
   });
   

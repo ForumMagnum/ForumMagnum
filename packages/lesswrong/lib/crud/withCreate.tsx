@@ -80,7 +80,7 @@ export const useCreate = ({
   ignoreResults=false,
 }: {
   collectionName?: CollectionNameString,
-  collection?: any,
+  collection?: CollectionBase<any>,
   fragmentName?: string,
   fragment?: any,
   ignoreResults?: boolean,
@@ -88,7 +88,7 @@ export const useCreate = ({
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
-  const typeName = collection.options.typeName;
+  const typeName = collection!.options.typeName;
   
   const query = gql`
     ${createClientTemplate({ typeName, fragmentName })}
