@@ -5,7 +5,7 @@ import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 
 const elicitQuery = gql`
   query ElicitBlockData {
