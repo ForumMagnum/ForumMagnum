@@ -20,6 +20,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
+import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
