@@ -4,7 +4,7 @@ import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { truncatise } from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
-import Users from '../../../lib/collections/users/collection';
+import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { Posts } from '../../../lib/collections/posts/collection';
 import { useSingle } from '../../../lib/crud/withSingle';
 import Tooltip from '@material-ui/core/Tooltip';
