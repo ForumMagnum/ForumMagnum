@@ -31,9 +31,11 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document })
     const results = data[multiResolverName]
 
     const updatedResults = func({document, results, parameters, typeName})
-
-    data[multiResolverName] = updatedResults
-    store.writeQuery({query, data, variables})
+    const newData = {
+      ...data,
+      [multiResolverName]: updatedResults
+    }
+    store.writeQuery({query, data: newData, variables})
   })
 }
 
@@ -72,6 +74,9 @@ export const handleCreateMutation = ({ document, results, parameters: { selector
 // Theoretically works for upserts
 export const handleUpdateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
   if (!document) return results;
+  console.log(selector, document?.title)
+  console.log(selector, document?.title)
+  console.log(Utils.mingoBelongsToSet(document, selector))
   if (Utils.mingoBelongsToSet(document, selector)) {
     // edited document belongs to the list
     if (!Utils.mingoIsInSet(results, document)) {
@@ -84,6 +89,11 @@ export const handleUpdateMutation = ({ document, results, parameters: { selector
     results = Utils.mingoReorderSet(results, options.sort, selector);
   } else {
     // if edited doesn't belong to current list anymore (based on view selector), remove it
+    if (!!selector?.reviewedByUserId) {
+      console.log("Removing document from set:", results)
+      console.log("New set: ", Utils.mingoRemoveFromSet(results, document))
+    }
+    
     results = Utils.mingoRemoveFromSet(results, document);
   }
   return {
