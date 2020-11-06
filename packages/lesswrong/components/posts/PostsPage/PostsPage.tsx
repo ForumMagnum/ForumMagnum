@@ -143,6 +143,7 @@ class PostsPage extends Component<PostsPageProps> {
       const description = this.getDescription(post)
       const ogUrl = Posts.getPageUrl(post, true) // open graph
       const canonicalUrl = post.canonicalSource || ogUrl
+      // For imageless posts this will be an empty string
       const socialPreviewImageUrl = post.socialPreviewImageUrl
 
       return (

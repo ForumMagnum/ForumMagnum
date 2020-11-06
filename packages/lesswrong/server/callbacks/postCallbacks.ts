@@ -197,16 +197,17 @@ async function extractSocialPreviewImage (post: DbPost) {
 
   let socialPreviewImageAutoUrl: null | string = null
   if (post.contents?.html) {
-    console.log(`extractSocialPreviewImage`, 'found html')
     const $ = cheerio.load(post.contents.html)
     const firstImg = $('img').first()
     if (firstImg) {
-      console.log(`extractSocialPreviewImage`, 'found firstImg')
       socialPreviewImageAutoUrl = firstImg.attr('src') || null
     }
   }
-  console.log(`extractSocialPreviewImage`, 'socialPreviewImageUrl', socialPreviewImageAutoUrl)
   
+  // Side effect is necessary, as edit.async does not run a db update with the
+  // returned value
+  // It's important to run this regardless of whether or not we found an image,
+  // as removing an image should remove the social preview for that image
   Posts.update({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
   
   return {...post, socialPreviewImageAutoUrl}
