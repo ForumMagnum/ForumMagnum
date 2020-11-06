@@ -160,16 +160,15 @@ const RecentDiscussionThread = ({
         <div className={classes.post}>
           <div className={classes.postItem}>
             <Link to={postGetPageUrl(post)} className={classes.title}>
-                {post.title}
+              {post.title}
             </Link>
             <div className={classes.threadMeta} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
             </div>
           </div>
-          { <div className={highlightClasses}>
-              <PostsHighlight post={post} />
-            </div>
-          }
+          <div className={highlightClasses}>
+            <PostsHighlight post={post} maxLengthWords={200} />
+          </div>
         </div>
         {nestedComments.length ? <div className={classes.content}>
           <div className={classes.commentsList}>

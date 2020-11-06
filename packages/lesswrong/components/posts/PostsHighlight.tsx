@@ -3,6 +3,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
+import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,20 +15,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsHighlight = ({post, classes}: {
+const PostsHighlight = ({post, maxLengthWords, classes}: {
   post: PostsList,
+  maxLengthWords?: number,
   classes: ClassesType,
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {}
+  
+  const truncatedHighlight = maxLengthWords ? truncate(htmlHighlight, maxLengthWords, "words") : htmlHighlight;
+  
   return <div className={classes.root}>
       <Components.LinkPostMessage post={post} />
       <Components.ContentItemBody
-        dangerouslySetInnerHTML={{__html: htmlHighlight}}
+        dangerouslySetInnerHTML={{__html: truncatedHighlight}}
         description={`post ${post._id}`}
       />
       {wordCount > 280 && <div className={classes.highlightContinue}>
          <Link to={postGetPageUrl(post)}>
-          (Continue Reading{` – ${wordCount - 280} more words`})
+          (Continue Reading
+          {maxLengthWords && ` – ${wordCount - maxLengthWords} more words`})
         </Link>
       </div>}
     </div>
