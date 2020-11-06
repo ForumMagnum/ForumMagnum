@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { linkStyle } from './PostLinkPreview';
 import { useHover } from '../common/withHover';
-import { Posts } from '../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -40,7 +40,7 @@ const LinkToPost = ({post, classes}: {
       >
         <PostsPreviewTooltip post={post} />
       </LWPopper>
-      <Link className={classes.link} to={Posts.getPageUrl(post)}>
+      <Link className={classes.link} to={postGetPageUrl(post)}>
         {post.title}
       </Link>
     </span>

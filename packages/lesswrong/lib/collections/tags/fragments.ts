@@ -28,6 +28,7 @@ registerFragment(`
     ...TagBasicInfo
     isRead
     description {
+      _id
       html
       htmlHighlight
       plaintextDescription
@@ -62,6 +63,7 @@ registerFragment(`
     ...TagBasicInfo
     isRead
     description(version: $version) {
+      _id
       version
       html
       htmlHighlight
@@ -78,6 +80,7 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     description {
+      _id
       htmlHighlight
       version
     }

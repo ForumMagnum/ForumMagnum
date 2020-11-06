@@ -1,4 +1,4 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from '../vulcan-lib';
+import { addCallback, runCallbacks, runCallbacksAsync, createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -8,37 +8,41 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
-import { Revisions } from '../../lib';
 import cheerio from 'cheerio'
+import { getCollectionHooks } from '../mutationCallbacks';
+
 const MINIMUM_APPROVAL_KARMA = 5
 
-function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
+getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
-    data = runCallbacks("post.undraft.before", data, post);
+    data = runCallbacks({
+      name: "post.undraft.before",
+      iterator: data,
+      properties: [post]
+    });
   }
   return data;
-}
-addCallback("post.update.before", PostsEditRunPostUndraftedSyncCallbacks);
+});
 
-function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    runCallbacksAsync("posts.undraft.async", newPost, oldPost)
+    runCallbacksAsync({
+      name: "posts.undraft.async",
+      properties: [newPost, oldPost]
+    })
   }
-  return newPost
-}
-addCallback("posts.edit.async", PostsEditRunPostUndraftedAsyncCallbacks);
+});
 
-function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
   if (newPost.draft && !oldPost.draft) {
-    runCallbacksAsync("posts.draft.async", newPost, oldPost)
+    runCallbacksAsync({
+      name: "posts.draft.async",
+      properties: [newPost, oldPost]
+    })
   }
-  return newPost
-}
-addCallback("posts.edit.async", PostsEditRunPostDraftedAsyncCallbacks);
+});
 
-/**
- * @summary set postedAt when a post is moved out of drafts
- */
+// set postedAt when a post is moved out of drafts
 function PostsSetPostedAt (data, oldPost) {
   data.postedAt = new Date();
   return data;
@@ -67,13 +71,11 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
 addCallback("votes.smallUpvote.async", increaseMaxBaseScore);
 addCallback("votes.bigUpvote.async", increaseMaxBaseScore);
 
-function PostsNewDefaultLocation (post) {
+getCollectionHooks("Posts").newSync.add(function PostsNewDefaultLocation(post: DbPost): DbPost {
   return {...post, ...getDefaultPostLocationFields(post)}
-}
+});
 
-addCallback("posts.new.sync", PostsNewDefaultLocation);
-
-function PostsNewDefaultTypes (post) {
+getCollectionHooks("Posts").newSync.add(function PostsNewDefaultTypes(post: DbPost): DbPost {
   if (post.isEvent && post.groupId && !post.types) {
     const localgroup = Localgroups.findOne(post.groupId) 
     if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
@@ -81,29 +83,23 @@ function PostsNewDefaultTypes (post) {
     post = {...post, types}
   }
   return post
-}
-
-addCallback("posts.new.sync", PostsNewDefaultTypes);
+});
 
 // LESSWRONG – bigUpvote
-async function LWPostsNewUpvoteOwnPost(post) {
+getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost};
-}
+});
 
-addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
-
-function PostsNewUserApprovedStatus (post) {
+getCollectionHooks("Posts").newSync.add(function PostsNewUserApprovedStatus (post) {
   const postAuthor = Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...post, authorIsUnreviewed: true}
   }
-}
+});
 
-addCallback("posts.new.sync", PostsNewUserApprovedStatus);
-
-function AddReferrerToPost(post, properties)
+getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, properties)
 {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
@@ -115,16 +111,15 @@ function AddReferrerToPost(post, properties)
       userAgent: userAgent,
     };
   }
-}
-addCallback("post.create.before", AddReferrerToPost);
+});
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighlight})
 
-function PostsNewPostRelation (post) {
+getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {
-    void newMutation({
+    void createMutator({
       collection: PostRelations,
       document: {
         type: "subQuestion",
@@ -135,10 +130,9 @@ function PostsNewPostRelation (post) {
     })
   }
   return post
-}
-addCallback("posts.new.after", PostsNewPostRelation);
+});
 
-function UpdatePostShortform (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(function UpdatePostShortform (newPost, oldPost) {
   if (!!newPost.shortform !== !!oldPost.shortform) {
     const shortform = !!newPost.shortform;
     Comments.update(
@@ -149,15 +143,13 @@ function UpdatePostShortform (newPost, oldPost) {
       { multi: true }
     );
   }
-  return newPost;
-}
-addCallback("posts.edit.async", UpdatePostShortform );
+});
 
 // If an admin changes the "hideCommentKarma" setting of a post after it
 // already has comments, update those comments' hideKarma field to have the new
 // setting. This should almost never be used, as we really don't want to
 // surprise users by revealing their supposedly hidden karma.
-async function UpdateCommentHideKarma (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma (newPost, oldPost) {
   if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
 
   const comments = Comments.find({postId: newPost._id})
@@ -171,8 +163,7 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
     }
   }))
   await Comments.rawCollection().bulkWrite(updates)
-}
-addCallback("posts.edit.async", UpdateCommentHideKarma);
+});
 
 export async function newDocumentMaybeTriggerReview (document) {
   const author = await Users.findOne(document.userId);
@@ -181,26 +172,25 @@ export async function newDocumentMaybeTriggerReview (document) {
   }
   return document
 }
-addCallback("posts.new.after", newDocumentMaybeTriggerReview);
+getCollectionHooks("Posts").newAfter.add(newDocumentMaybeTriggerReview);
 
-async function updatedPostMaybeTriggerReview (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
     await newDocumentMaybeTriggerReview(newPost)
   }
-}
-addCallback("posts.edit.async", updatedPostMaybeTriggerReview);
+});
 
 // Use the first image in the post as the social preview image
 async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
-  let socialPreviewImageAutoUrl: null | string = null
+  let socialPreviewImageAutoUrl = ''
   if (post.contents?.html) {
     const $ = cheerio.load(post.contents.html)
     const firstImg = $('img').first()
     if (firstImg) {
-      socialPreviewImageAutoUrl = firstImg.attr('src') || null
+      socialPreviewImageAutoUrl = firstImg.attr('src') || ''
     }
   }
   
@@ -214,5 +204,5 @@ async function extractSocialPreviewImage (post: DbPost) {
   
 }
 
-addCallback("post.create.after", extractSocialPreviewImage);
-addCallback("posts.edit.async", extractSocialPreviewImage);
+getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
+getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)

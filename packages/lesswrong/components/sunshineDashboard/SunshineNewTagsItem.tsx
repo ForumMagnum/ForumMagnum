@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { Tags } from '../../lib/collections/tags/collection';
-import Users from '../../lib/collections/users/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
@@ -42,7 +42,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   
   const {mutate: updateTag} = useUpdate({
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: 'SunshineTagFragment',
   });
 
@@ -87,7 +87,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <div className={classes.tagInfo}>
-            <Link to={Tags.getUrl(tag)}>
+            <Link to={tagGetUrl(tag)}>
               <b>{tag.name}</b>
             </Link>
             <ContentItemBody dangerouslySetInnerHTML={{__html: tag.description?.html || ""}} description={`tag ${tag._id}`}/>
@@ -100,7 +100,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
           </div>)}
           {!results && loading && <Loading/>}
         </SidebarHoverOver>
-        <Link to={Tags.getUrl(tag)}>
+        <Link to={tagGetUrl(tag)}>
           {tag.name}
         </Link>
         <div>
@@ -108,7 +108,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
             {tag.postCount}
           </SidebarInfo>
           <SidebarInfo>
-            <Link to={Users.getProfileUrl(tag.user)}>
+            <Link to={userGetProfileUrl(tag.user)}>
               {tag.user && tag.user.displayName}
             </Link>
           </SidebarInfo>

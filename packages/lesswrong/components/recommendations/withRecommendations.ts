@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { getFragment } from '../../lib/vulcan-lib';
 import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 

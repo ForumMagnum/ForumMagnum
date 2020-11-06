@@ -34,7 +34,6 @@ const TagDiscussion = ({classes, tag}: {
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
-    ssr: true
   });
 
   if (!tag) return null

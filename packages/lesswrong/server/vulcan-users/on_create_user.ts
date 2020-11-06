@@ -1,12 +1,15 @@
 import Users from '../../lib/collections/users/collection';
+import { userCanCreateField } from '../../lib/vulcan-users/permissions';
+import { getCollectionHooks } from '../mutationCallbacks';
+import { createAnonymousContext } from '../vulcan-lib/query';
 import {
   runCallbacks,
   runCallbacksAsync,
-  Utils,
   debug,
   debugGroup,
   debugGroupEnd,
 } from '../vulcan-lib';
+import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import clone from 'lodash/clone';
 import { onStartup, wrapAsync } from '../../lib/executionEnvironment';
 import { Accounts } from '../../lib/meteorAccounts';
@@ -36,6 +39,8 @@ function onCreateUserCallback(options, user) {
   debug(`Options: ${JSON.stringify(options)}`);
   debug(`User: ${JSON.stringify(user)}`);
 
+  const hooks = getCollectionHooks("Users");
+  const context = createAnonymousContext();
   const schema = Users.simpleSchema()._schema;
 
   delete options.password; // we don't need to store the password digest
@@ -43,7 +48,10 @@ function onCreateUserCallback(options, user) {
 
   options = runCallbacks({ name: 'user.create.validate.before', iterator: options });
   // OpenCRUD backwards compatibility
-  options = runCallbacks('users.new.validate.before', options);
+  options = runCallbacks({
+    name: 'users.new.validate.before',
+    iterator: options
+  });
 
   // validate options since they can't be trusted
   Users.simpleSchema().validate(options);
@@ -51,9 +59,9 @@ function onCreateUserCallback(options, user) {
   // check that the current user has permission to insert each option field
   _.keys(options).forEach(fieldName => {
     var field = schema[fieldName];
-    if (!field || !Users.canCreateField(user, field)) {
+    if (!field || !userCanCreateField(user, field)) {
       throw new Error(
-        Utils.encodeIntlError({ id: 'app.disallowed_property_detected', value: fieldName })
+        encodeIntlError({ id: 'app.disallowed_property_detected', value: fieldName })
       );
     }
   });
@@ -62,9 +70,21 @@ function onCreateUserCallback(options, user) {
   user = Object.assign(user, options);
 
   // run validation callbacks
-  user = runCallbacks({ name: 'user.create.validate', iterator: user, properties: {} });
+  user = hooks.createValidate.runCallbacks({
+    iterator: user,
+    properties: [{
+      currentUser: null,
+      collection: Users,
+      context,
+    }] as any // TODO: Provide the arguments that are missing here, and remove this cast
+  });
   // OpenCRUD backwards compatibility
-  user = runCallbacks('users.new.validate', user);
+  let validationErrors: Array<any> = [];
+  user = hooks.newValidate.runCallbacks({
+    iterator: user,
+    properties: [null, validationErrors],
+  });
+  // TODO: Handle validationErrors
 
   // run onCreate step
   for (let fieldName of Object.keys(schema)) {
@@ -83,12 +103,16 @@ function onCreateUserCallback(options, user) {
     }
   }
 
+  // TODO: Make these vaguely typesafe
   user = asyncWrapper(runCallbacks)({ name: 'user.create.before', iterator: user, properties: {} });
-  user = asyncWrapper(runCallbacks)('users.new.sync', user);
+  user = asyncWrapper(runCallbacks)({ name: 'users.new.sync', iterator: user });
 
-  runCallbacksAsync({ name: 'user.create.async', properties: { data: user } });
+  runCallbacksAsync({ name: 'user.create.async', properties: [{ data: user }] });
   // OpenCRUD backwards compatibility
-  runCallbacksAsync('users.new.async', user);
+  runCallbacksAsync({
+    name: "users.new.async",
+    properties: [user]
+  });
 
   debug(`Modified User: ${JSON.stringify(user)}`);
   debugGroupEnd();

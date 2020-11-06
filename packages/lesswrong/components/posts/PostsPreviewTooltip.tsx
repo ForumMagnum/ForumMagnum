@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -173,11 +173,11 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
                   <PostsUserAndCoauthors post={post} simple/>
                 </LWTooltip>}
                 <div className={classes.metadata}>
-                  <LWTooltip title={`${Posts.getKarma(post)} karma`}>
-                    <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
+                  <LWTooltip title={`${postGetKarma(post)} karma`}>
+                    <span className={classes.smallText}>{postGetKarma(post)} karma</span>
                   </LWTooltip>
-                  <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
-                    <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
+                  <LWTooltip title={`${postGetCommentCountStr(post)}`}>
+                    <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
                   </LWTooltip>
                 </div>
               </>}
@@ -204,7 +204,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
                 dangerouslySetInnerHTML={{__html: truncatedHighlight }}
                 description={`post ${post._id}`}
               />
-              {expanded && <Link to={Posts.getPageUrl(post)}><div className={classes.continue} >
+              {expanded && <Link to={postGetPageUrl(post)}><div className={classes.continue} >
                 (Continue Reading)
               </div></Link>}
             </div>

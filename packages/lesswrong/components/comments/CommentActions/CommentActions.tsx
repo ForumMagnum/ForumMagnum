@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Divider from '@material-ui/core/Divider';
-import Users from '../../../lib/collections/users/collection';
+import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
 import Posts from '../../../lib/collections/posts/collection';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useSingle } from '../../../lib/crud/withSingle';
@@ -46,15 +46,15 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
     {comment.user?._id && (comment.user._id !== currentUser._id) &&
       <MenuItem>
         <SubscribeTo document={comment.user} showIcon
-          subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(comment.user)}
-          unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(comment.user)}
+          subscribeMessage={"Subscribe to posts by "+userGetDisplayName(comment.user)}
+          unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(comment.user)}
         />
       </MenuItem>
     }
     {post && <ReportCommentMenuItem comment={comment}/>}
     {post && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
     {post && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
-    { Users.canModeratePost(currentUser, postDetails) && postDetails?.user && Users.canModeratePost(postDetails.user, postDetails) && <Divider />}
+    { userCanModeratePost(currentUser, postDetails) && postDetails?.user && userCanModeratePost(postDetails.user, postDetails) && <Divider />}
     {post && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
     {post && <DeleteCommentMenuItem comment={comment} post={postDetails}/>}
     <RetractCommentMenuItem comment={comment}/>

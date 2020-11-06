@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments'
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -11,7 +12,7 @@ const DateDisplay = ({column, document}) => {
 
 const PostDisplay = ({column, document}) => {
   const post = document.post || document
-  return <Link rel="nofollow" to={Posts.getPageUrl(post) + "#" + document._id }>{ post.title }</Link>
+  return <Link rel="nofollow" to={postGetPageUrl(post) + "#" + document._id }>{ post.title }</Link>
 }
 
 const UserDisplay = ({column, document}) => {

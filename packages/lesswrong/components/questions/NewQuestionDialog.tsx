@@ -6,6 +6,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 
 import { Posts } from '../../lib/collections/posts/collection'
+import { postGetPageUrl } from '../../lib/collections/posts/helpers'
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
@@ -56,7 +57,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
           }}
           cancelCallback={onClose}
           successCallback={(post: PostsList) => {
-            history.push({pathname: Posts.getPageUrl(post)});
+            history.push({pathname: postGetPageUrl(post)});
             flash({ messageString: "Post created.", type: 'success'});
             onClose()
           }}

@@ -5,6 +5,7 @@ import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import withUser from '../common/withUser'
@@ -80,7 +81,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            <Link to={Posts.getPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
+            <Link to={postGetPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
               Post: <strong>{ post.title }</strong>
             </Link>
             {comment && <div>

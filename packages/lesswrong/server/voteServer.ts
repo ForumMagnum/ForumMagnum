@@ -1,6 +1,6 @@
-import { Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from './vulcan-lib';
+import { Connectors, runCallbacks, runCallbacksAsync, createMutator, updateMutator } from './vulcan-lib';
 import Votes from '../lib/collections/votes/collection';
-import Users from '../lib/collections/users/collection';
+import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
 import { voteTypes, createVote } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
@@ -37,7 +37,7 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId, upd
   // create vote and insert it
   const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
   delete vote.__typename;
-  await newMutation({
+  await createMutator({
     collection: Votes,
     document: vote,
     validate: false,
@@ -82,7 +82,7 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
   if (votes.length) {
     for (let vote of votes) {
       // Cancel the existing votes
-      await editMutation({
+      await updateMutator({
         collection: Votes,
         documentId: vote._id,
         set: { cancelled: true },
@@ -100,14 +100,21 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
         power: -vote.power,
         votedAt: new Date(),
       };
-      await newMutation({
+      await createMutator({
         collection: Votes,
         document: unvote,
         validate: false,
       });
 
-      runCallbacks(`votes.cancel.sync`, {newDocument, vote}, collection, user);
-      runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
+      runCallbacks({
+        name: `votes.cancel.sync`,
+        iterator: {newDocument, vote},
+        properties: [collection, user]
+      });
+      runCallbacksAsync({
+        name: `votes.cancel.async`,
+        properties: [{newDocument, vote}, collection, user]
+      });
     }
     if (updateDocument) {
       await Connectors.update(collection,
@@ -153,14 +160,14 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     power: -vote.power,
     votedAt: new Date(),
   };
-  await newMutation({
+  await createMutator({
     collection: Votes,
     document: unvote,
     validate: false,
   });
 
   // Set the cancelled field on the vote object to true
-  await editMutation({
+  await updateMutator({
     collection: Votes,
     documentId: vote._id,
     set: { cancelled: true },
@@ -215,7 +222,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   if (!document) throw new Error("Error casting vote: Document not found.");
   if (!user) throw new Error("Error casting vote: Not logged in.");
-  if (!Users.canDo(user, collectionVoteType)) {
+  if (!userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
   if (!voteTypes[voteType]) throw new Error("Invalid vote type");
@@ -225,9 +232,16 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   if (existingVote) {
     if (toggleIfAlreadyVoted) {
       let voteDocTuple = await cancelVoteServer(voteOptions);
-      voteDocTuple = await runCallbacks(`votes.cancel.sync`, voteDocTuple, collection, user);
+      voteDocTuple = await runCallbacks({
+        name: `votes.cancel.sync`,
+        iterator: voteDocTuple,
+        properties: [collection, user]
+      });
       document = voteDocTuple.newDocument;
-      runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
+      runCallbacksAsync({
+        name: `votes.cancel.async`,
+        properties: [voteDocTuple, collection, user]
+      });
     }
   } else {
     await checkRateLimit({ document, collection, voteType, user });
@@ -237,9 +251,16 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
     }
 
     let voteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
-    voteDocTuple = await runCallbacks(`votes.${voteType}.sync`, voteDocTuple, collection, user);
+    voteDocTuple = await runCallbacks({
+      name: `votes.${voteType}.sync`,
+      iterator: voteDocTuple,
+      properties: [collection, user]
+    });
     document = voteDocTuple.newDocument;
-    runCallbacksAsync(`votes.${voteType}.async`, voteDocTuple, collection, user);
+    runCallbacksAsync({
+      name: `votes.${voteType}.async`,
+      properties: [voteDocTuple, collection, user]
+    });
   }
 
   document.__typename = collection.options.typeName;

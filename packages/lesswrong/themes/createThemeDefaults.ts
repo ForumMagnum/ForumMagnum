@@ -41,7 +41,7 @@ export const zIndexes = {
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
-  gatherTownIframe: 1501,
+  gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,

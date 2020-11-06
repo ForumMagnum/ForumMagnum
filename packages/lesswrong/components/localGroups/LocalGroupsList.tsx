@@ -33,7 +33,6 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoad
     collection: Localgroups,
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
-    ssr: true
   });
   const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore } = Components
 

@@ -1,7 +1,6 @@
-import { Comments } from '../../collections/comments';
 import * as _ from 'underscore';
 
-Comments.suggestForAlignment = async ({ currentUser, comment, updateComment }) => {
+export const commentSuggestForAlignment = async ({ currentUser, comment, updateComment }) => {
   const suggestUserIds = comment.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
   updateComment({
@@ -10,7 +9,7 @@ Comments.suggestForAlignment = async ({ currentUser, comment, updateComment }) =
   })
 }
 
-Comments.unSuggestForAlignment = async ({ currentUser, comment, updateComment }) => {
+export const commentUnSuggestForAlignment = async ({ currentUser, comment, updateComment }) => {
   const suggestUserIds = comment.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
   await updateComment({

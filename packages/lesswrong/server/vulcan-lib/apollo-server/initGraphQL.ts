@@ -27,7 +27,8 @@ import {
   upsertMutationTemplate,
   deleteMutationTemplate,
 } from '../../../lib/vulcan-lib/graphql_templates';
-import { Utils } from '../../../lib/vulcan-lib/utils';
+import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib/utils';
+import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
@@ -204,9 +205,8 @@ const getFields = (schema, typeName) => {
           [typeName]: {
             [resolverName]: (document, args, context: ResolverContext, info) => {
               const { currentUser } = context;
-              const Users = context.Users as any; // Cast to any because monkeypatched functions aren't in the ResolverContext type definition
               // check that current user has permission to access the original non-resolved field
-              const canReadField = Users.canReadField(currentUser, field, document);
+              const canReadField = userCanReadField(currentUser, field, document);
               return canReadField
                 ? field.resolveAs.resolver(document, args, context, info)
                 : null;
@@ -268,7 +268,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
 
   const typeName = collection.typeName
     ? collection.typeName
-    : Utils.camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
+    : camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
 
   const schema = collection.simpleSchema()._schema;
 
@@ -320,7 +320,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
       // single
       if (resolvers.single) {
         addedQueries.push({query: singleQueryTemplate({ typeName }), description: resolvers.single.description});
-        queryResolvers[Utils.camelCaseify(typeName)] = resolvers.single.resolver.bind(
+        queryResolvers[camelCaseify(typeName)] = resolvers.single.resolver.bind(
           resolvers.single
         );
       }
@@ -329,7 +329,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
       if (resolvers.multi) {
         addedQueries.push({query: multiQueryTemplate({ typeName }), description: resolvers.multi.description});
         queryResolvers[
-          Utils.camelCaseify(Utils.pluralize(typeName))
+          camelCaseify(pluralize(typeName))
         ] = resolvers.multi.resolver.bind(resolvers.multi);
       }
       addedResolvers.push({ Query: { ...queryResolvers } });
@@ -409,7 +409,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
 
 
 export const initGraphQL = () => {
-  runCallbacks('graphql.init.before');
+  runCallbacks({name: 'graphql.init.before'});
   
   const { schemaText, addedResolvers } = getTypeDefs();
   

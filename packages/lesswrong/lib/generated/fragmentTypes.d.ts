@@ -148,10 +148,12 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
 }
 
 interface PostsListBase_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
 interface PostsListBase_customHighlight { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
@@ -160,6 +162,7 @@ interface PostsList extends PostsListBase { // fragment on Posts
 }
 
 interface PostsList_contents { // fragment on Revisions
+  readonly _id: string,
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
@@ -195,18 +198,22 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
+  readonly _id: string,
   readonly title: string,
 }
 
 interface PostsDetails_canonicalBook { // fragment on Books
+  readonly _id: string,
   readonly title: string,
 }
 
 interface PostsDetails_canonicalCollection { // fragment on Collections
+  readonly _id: string,
   readonly title: string,
 }
 
 interface PostsDetails_customHighlight { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly html: string,
 }
@@ -325,6 +332,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
 }
 
 interface SunshinePostsList_contents { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
   readonly wordCount: number,
@@ -338,6 +346,7 @@ interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
 }
 
@@ -452,6 +461,7 @@ interface WithVoteComment_currentUserVotes { // fragment on Votes
 }
 
 interface RevisionMetadata { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly editedAt: Date,
   readonly commitMessage: string,
@@ -589,6 +599,28 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly deleted: boolean,
   readonly slug: string,
   readonly order: number,
+}
+
+interface GardenCodeFragment { // fragment on GardenCodes
+  readonly _id: string,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+}
+
+interface GardenCodesDefaultFragment { // fragment on GardenCodes
+  readonly createdAt: Date,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -1079,6 +1111,7 @@ interface UsersMinimumInfo { // fragment on Users
 interface SharedUserBooleans { // fragment on Users
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
+  readonly walledGardenPortalOnboarded: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -1257,6 +1290,7 @@ interface WithVotePost_currentUserVotes { // fragment on Votes
 }
 
 interface RevisionDisplay { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly updateType: string,
   readonly editedAt: Date,
@@ -1268,6 +1302,7 @@ interface RevisionDisplay { // fragment on Revisions
 }
 
 interface RevisionEdit { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly updateType: string,
   readonly editedAt: Date,
@@ -1521,6 +1556,7 @@ interface TagFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
@@ -1546,6 +1582,7 @@ interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagRevisionFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly version: string,
   readonly html: string,
   readonly htmlHighlight: string,
@@ -1558,6 +1595,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
+  readonly _id: string,
   readonly htmlHighlight: string,
   readonly version: string,
 }
@@ -1747,6 +1785,8 @@ interface FragmentTypes {
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
+  GardenCodeFragment: GardenCodeFragment
+  GardenCodesDefaultFragment: GardenCodesDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   SequencesDefaultFragment: SequencesDefaultFragment
@@ -1833,5 +1873,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"DatabaseMetadata"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"TagFlags"|"GardenCodes"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Tags"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"Revisions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
 

@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
@@ -41,7 +41,7 @@ const SunshineSidebar = ({classes}) => {
 
   if (!currentUser) return null
 
-  const showInitialSidebar = Users.canDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
+  const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
 
   return (
     <div className={classes.root}>
@@ -60,7 +60,7 @@ const SunshineSidebar = ({classes}) => {
         </div>}
       </div>}
 
-      {Users.canDo(currentUser, 'posts.moderate.all') && <div>
+      {userCanDo(currentUser, 'posts.moderate.all') && <div>
         { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
           Hide Full Sidebar
             <KeyboardArrowDownIcon />
@@ -73,12 +73,12 @@ const SunshineSidebar = ({classes}) => {
       </div>}
 
 
-      { showSidebar && Users.canDo(currentUser, 'posts.moderate.all') && <div>
+      { showSidebar && userCanDo(currentUser, 'posts.moderate.all') && <div>
         {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}        
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
 
         {/* regular admins (but not sunshines) see AF content below the fold */}
-        { Users.isAdmin(currentUser) && <div>
+        { userIsAdmin(currentUser) && <div>
           <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
           <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
           <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>

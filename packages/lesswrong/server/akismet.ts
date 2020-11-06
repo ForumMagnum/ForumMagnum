@@ -1,11 +1,13 @@
 import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
+import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import { Comments } from '../lib/collections/comments/collection'
-import { editMutation, addCallback, runCallbacksAsync } from './vulcan-lib';
+import { updateMutator, addCallback, runCallbacksAsync } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
+import { getCollectionHooks } from './mutationCallbacks';
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
 
@@ -24,7 +26,7 @@ async function constructAkismetReport({document, type = "post"}) {
     if (type !== "post") {
       post = await Posts.findOne(document.postId)
     }
-    const link = (post && Posts.getPageUrl(post)) || ""  // Don't get link if we create a comment without a post
+    const link = (post && postGetPageUrl(post)) || ""  // Don't get link if we create a comment without a post
     const events = await LWEvents.find({userId: author._id, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
     const ip = events && events[0] && events[0].properties && events[0].properties.ip
     const userAgent = events && events[0] && events[0].properties && events[0].properties.userAgent
@@ -69,14 +71,16 @@ client.verifyKey()
     console.log('Akismet key check failed: ' + err.message);
   });
 
-async function checkPostForSpamWithAkismet(post, currentUser) {
+getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkismet(post, currentUser) {
+  if (!currentUser) throw new Error("Submitted post has no associated user");
+  
   if (akismetKeySetting.get()) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
       if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
-        await editMutation({
+        await updateMutator({
           collection: Posts,
           documentId: post._id,
           set: {status: 4},
@@ -89,18 +93,18 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
     }
   }
   return post
-}
+});
 
-addCallback('posts.new.after', checkPostForSpamWithAkismet);
-
-async function checkCommentForSpamWithAkismet(comment, currentUser) {
+getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment, currentUser) {
+    if (!currentUser) throw new Error("Submitted comment has no associated user");
+    
     if (akismetKeySetting.get()) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
       if (spam) {
         if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
           // eslint-disable-next-line no-console
           console.log("Deleting comment from user below spam threshold", comment)
-          await editMutation({
+          await updateMutator({
             collection: Comments,
             documentId: comment._id,
             set: {
@@ -117,16 +121,18 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
       }
     }
     return comment
-  }
-addCallback('comments.new.after', checkCommentForSpamWithAkismet);
+});
 
 function runReportCloseCallbacks(newReport, oldReport) {
   if (newReport.closedAt && !oldReport.closedAt) {
-    runCallbacksAsync('reports.close.async', newReport);
+    runCallbacksAsync({
+      name: 'reports.close.async',
+      properties: [newReport]
+    });
   }
 }
 
-addCallback('reports.edit.async', runReportCloseCallbacks)
+getCollectionHooks("Reports").editAsync.add(runReportCloseCallbacks)
 
 async function akismetReportSpamHam(report) {
   if (report.reportedAsSpam) {

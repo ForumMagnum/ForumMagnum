@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
+import { Comments } from '../../lib/collections/comments/collection';
+import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
@@ -42,7 +43,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   return (
     <div className={classes.root}>
       {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={comment._id}>
-        <Link to={Comments.getPageUrlFromIds({postId: comment.post?._id, postSlug: comment.post?.slug, tagSlug: comment.tag?.slug, commentId: comment._id})}>
+        <Link to={commentGetPageUrlFromIds({postId: comment.post?._id, postSlug: comment.post?.slug, tagSlug: comment.tag?.slug, commentId: comment._id})}>
           <MetaInfo>
             {comment.deleted && "[Deleted] "}Comment on '{comment.post?.title}'
           </MetaInfo>

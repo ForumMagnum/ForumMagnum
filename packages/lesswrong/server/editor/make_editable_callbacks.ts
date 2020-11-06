@@ -1,4 +1,6 @@
-import { Utils, addCallback, Connectors } from '../vulcan-lib';
+import { Connectors } from '../vulcan-lib/connectors';
+import { trimLatexAndAddCSS, preProcessLatex } from './utils';
+import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
@@ -10,22 +12,38 @@ import { htmlToPingbacks } from '../pingbacks';
 import Sentry from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
-const turndownService = new TurndownService()
+import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
-turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
-
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
 import cheerio from 'cheerio';
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'
 import markdownItSub from 'markdown-it-sub'
+import markdownItSup from 'markdown-it-sup'
+
+const turndownService = new TurndownService()
+turndownService.use(gfm); // Add support for strikethrough and tables
+turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+turndownService.addRule('subscript', {
+  filter: ['sub'],
+  replacement: (content) => `~${content}~`
+})
+turndownService.addRule('supscript', {
+  filter: ['sup'],
+  replacement: (content) => `^${content}^`
+})
+turndownService.addRule('italic', {
+  filter: ['i'],
+  replacement: (content) => `*${content}*`
+})
 
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
+mdi.use(markdownItSup)
 
 import { mjpage }  from 'mathjax-node-page'
 
@@ -150,7 +168,7 @@ const isEmptyParagraphOrBreak = (elem) => {
 
 
 export async function draftJSToHtmlWithLatex(draftJS) {
-  const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
+  const draftJSWithLatex = await preProcessLatex(draftJS)
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   return wrapSpoilerTags(trimmedHtml)
@@ -173,7 +191,7 @@ export function markdownToHtmlNoLaTeX(markdown: string): string {
 
 export async function markdownToHtml(markdown: string): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, Utils.trimLatexAndAddCSS)
+  return await mjPagePromise(html, trimLatexAndAddCSS)
 }
 
 export function removeCKEditorSuggestions(markup) {
@@ -197,7 +215,7 @@ export async function ckEditorMarkupToHtml(markup) {
   const html = sanitize(markupWithoutSuggestions)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, Utils.trimLatexAndAddCSS)
+  return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
 async function dataToHTML(data, type, sanitizeData = false) {
@@ -324,8 +342,8 @@ const revisionIsChange = async (doc, fieldName): Promise<boolean> => {
   return false;
 }
 
-export function addEditableCallbacks({collection, options = {}}: {
-  collection: any,
+export function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
+  collection: CollectionBase<T>,
   options: any
 }) {
   const {
@@ -339,7 +357,6 @@ export function addEditableCallbacks({collection, options = {}}: {
   } = options
 
   const collectionName = collection.collectionName;
-  const { typeName } = collection.options
 
   async function editorSerializationBeforeCreate (doc, { currentUser }) {
     if (doc[fieldName]?.originalContents) {
@@ -390,7 +407,7 @@ export function addEditableCallbacks({collection, options = {}}: {
   }
   
   if (!deactivateNewCallback) {
-    addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationBeforeCreate);
+    getCollectionHooks(collectionName).createBefore.add(editorSerializationBeforeCreate);
   }
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
@@ -455,21 +472,20 @@ export function addEditableCallbacks({collection, options = {}}: {
     return docData
   }
   
-  addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
+  getCollectionHooks(collectionName).updateBefore.add(editorSerializationEdit);
 
-  async function editorSerializationAfterCreate(newDoc, { oldDocument }) {
+  async function editorSerializationAfterCreate(newDoc) {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
     await Revisions.update(
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
-    
-    return newDoc
+    return newDoc;
   }
   
-  addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationAfterCreate)
-  //addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationAfterCreateOrUpdate)
+  getCollectionHooks(collectionName).createAfter.add(editorSerializationAfterCreate)
+  //getCollectionHooks(collectionName).updateAfter.add(editorSerializationAfterCreateOrUpdate)
 }
 
 /// Given an HTML diff, where added sections are marked with <ins> and <del>

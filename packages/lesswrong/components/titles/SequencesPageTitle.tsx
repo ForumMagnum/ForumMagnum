@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import Sequences from '../../lib/collections/sequences/collection';
+import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 
@@ -16,7 +16,7 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   
   const { document: sequence, loading } = useSingle({
     documentId: _id,
-    collection: Sequences,
+    collectionName: "Sequences",
     fragmentName: "SequencesPageTitleFragment",
     fetchPolicy: 'cache-only',
   });
@@ -25,7 +25,7 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   const titleString = `${sequence.title} - ${siteName}`
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
-      <Link to={Sequences.getPageUrl(sequence, false)}>
+      <Link to={sequenceGetPageUrl(sequence, false)}>
         {sequence.title}
       </Link>
     </span>);

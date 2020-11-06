@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import Users from '../../../lib/collections/users/collection';
+import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 import { rowStyles } from './MigrationsDashboardRow';
 
@@ -37,7 +37,7 @@ const MigrationsDashboard = ({classes}: {
   const { SingleColumnSection, Loading, SectionTitle } = Components;
   const { data, loading } = useQuery(migrationsQuery, { ssr: true });
   
-  if (!Users.isAdmin(currentUser)) {
+  if (!userIsAdmin(currentUser)) {
     return <SingleColumnSection>Sorry, you need to be logged in as an admin to use this page.</SingleColumnSection>;
   }
   

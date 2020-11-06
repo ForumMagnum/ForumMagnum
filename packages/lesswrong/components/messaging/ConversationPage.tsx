@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import Messages from "../../lib/collections/messages/collection";
 import Typography from '@material-ui/core/Typography';
-import Conversations from '../../lib/collections/conversations/collection';
+import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -44,7 +44,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   });
   const { document: conversation, loading: loadingConversation } = useSingle({
     documentId,
-    collection: Conversations,
+    collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
   });
   const loading = loadingMessages || loadingConversation;
@@ -68,7 +68,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
       <div className={classes.conversationSection}>
         <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
         <Typography variant="display2" className={classes.conversationTitle}>
-          { Conversations.getTitle(conversation, currentUser)}
+          { conversationGetTitle(conversation, currentUser)}
         </Typography>
         <ConversationDetails conversation={conversation}/>
         {renderMessages()}

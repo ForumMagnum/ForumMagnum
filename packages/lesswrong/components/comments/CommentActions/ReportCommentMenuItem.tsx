@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from '../../../lib/collections/users/collection';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import withUser from '../../common/withUser';
 import withDialog from '../../common/withDialog'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
@@ -34,7 +34,7 @@ class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}>
   render() {
     const { currentUser } = this.props;
 
-    if (!Users.canDo(currentUser, "reports.new")) return null
+    if (!userCanDo(currentUser, "reports.new")) return null
 
     return <MenuItem onClick={this.showReport}>
       <ListItemIcon>

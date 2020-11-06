@@ -3,10 +3,10 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withApollo } from 'react-apollo'
+import { withApollo } from '@apollo/client/react/hoc';
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
-import Users from '../../../lib/collections/users/collection';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
@@ -76,7 +76,7 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
   render() {
     const { comment, post, currentUser, classes } = this.props
     const { OmegaIcon } = Components
-    if (post.af && Users.canDo(currentUser, 'comments.alignment.move.all')) {
+    if (post.af && userCanDo(currentUser, 'comments.alignment.move.all')) {
       if (!comment.af) {
         return (
           <MenuItem onClick={ this.handleMoveToAlignmentForum}>

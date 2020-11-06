@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
@@ -26,7 +26,7 @@ const PostsHighlight = ({post, classes}: {
         description={`post ${post._id}`}
       />
       {wordCount > 280 && <div className={classes.highlightContinue}>
-         <Link to={Posts.getPageUrl(post)}>
+         <Link to={postGetPageUrl(post)}>
           (Continue Reading{` – ${wordCount - 280} more words`})
         </Link>
       </div>}

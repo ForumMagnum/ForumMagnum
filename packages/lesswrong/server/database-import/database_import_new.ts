@@ -1,7 +1,8 @@
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
-import { Vulcan, newMutation, Utils } from '../vulcan-lib';
+import { Vulcan, createMutator } from '../vulcan-lib';
+import { slugify } from '../../lib/vulcan-lib/utils';
 import { sanitize } from '../vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/make_editable_callbacks';
@@ -239,7 +240,7 @@ const bulkUpdateUsers = async (users, userMap) => {
 const insertUser = async (user) => {
   // console.log("insertUser", user);
   try {
-    await newMutation({
+    await createMutator({
       collection: Users,
       document: user,
       validate: false
@@ -248,7 +249,7 @@ const insertUser = async (user) => {
     if (err.code == 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        await newMutation({
+        await createMutator({
           collection: Users,
           document: newUser,
           validate: false
@@ -374,7 +375,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     url: absoluteURLRegex.test(post.url) ? post.url : null,
     createdAt: moment(post.date).toDate(),
     postedAt: moment(post.date).toDate(),
-    slug: Utils.slugify(post.title),
+    slug: slugify(post.title),
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
