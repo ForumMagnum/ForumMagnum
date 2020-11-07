@@ -23,9 +23,10 @@ const styles = (theme) => ({
   }
 })
 
+const UrlClass = getUrlClass()
+
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
   const { LWTooltip } = Components
-  const UrlClass = getUrlClass()
 
   const url = new UrlClass(gcalEvent.htmlLink)
   const eid = url.searchParams.get("eid")
