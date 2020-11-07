@@ -21,13 +21,13 @@ const getVoteMutationQuery = (collection) => {
   `
 }
 
-export const useVote = (document: any, collectionName: CollectionNameString): {
-  vote: any,
-  collection: any,
-  document: any,
+export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: CollectionNameString): {
+  vote: (props: {document: T, voteType: string, collectionName: CollectionNameString, currentUser: UsersCurrent, voteId?: string})=>void,
+  collectionName: CollectionNameString,
+  document: T,
   baseScore: number,
   voteCount: number,
-}=> {
+} => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const collection = getCollection(collectionName);
@@ -38,7 +38,7 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
     }, []),
   });
   
-  const vote = useCallback(({document, voteType, collection, currentUser, voteId = randomId()}) => {
+  const vote = useCallback(({document, voteType, collectionName, currentUser, voteId = randomId()}) => {
     const newDocument = performVoteClient({collection, document, user: currentUser, voteType, voteId});
 
     try {
@@ -55,12 +55,12 @@ export const useVote = (document: any, collectionName: CollectionNameString): {
       const errorMessage = _.map(e.graphQLErrors, (gqlErr: any)=>gqlErr.message).join("; ");
       messages.flash({ messageString: errorMessage });
     }
-  }, [messages, mutate]);
+  }, [messages, mutate, collection]);
   
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const result = optimisticResponseDocument || document;
   return {
-    vote, collection,
+    vote, collectionName,
     document: result,
     baseScore: (af ? result.afBaseScore : result.baseScore) || 0,
     voteCount: (result.voteCount) || 0,

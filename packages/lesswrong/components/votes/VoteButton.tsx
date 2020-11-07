@@ -64,24 +64,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const VoteButton = ({
-  vote, collection, document, voteType,
+const VoteButton = <T extends VoteableTypeClient>({
+  vote, collectionName, document, voteType,
   color = "secondary",
   orientation = "up",
   solidArrow,
   theme,
   classes,
 }: {
-  vote: any,
-  collection: any,
-  document: any,
+  vote: (props: {document: T, voteType: string, collectionName: CollectionNameString, currentUser: UsersCurrent, voteId?: string})=>void,
+  collectionName: CollectionNameString,
+  document: T,
   
   voteType: string,
-  color: any,
+  color: "error"|"primary"|"secondary",
   orientation: string,
   solidArrow?: boolean
   // From withTheme. TODO: Hookify this.
-  theme?: any
+  theme?: ThemeType
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -113,8 +113,8 @@ const VoteButton = ({
         componentProps: {}
       });
     } else {
-      vote({document, voteType: type, collection, currentUser});
-      captureEvent("vote", {collectionName: collection.collectionName});
+      vote({document, voteType: type, collectionName, currentUser});
+      captureEvent("vote", {collectionName});
     }
   }
 
