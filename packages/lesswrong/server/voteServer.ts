@@ -2,7 +2,8 @@ import { Connectors, runCallbacks, runCallbacksAsync, createMutator, updateMutat
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
-import { voteTypes, createVote } from '../lib/voting/vote';
+import { voteTypes } from '../lib/voting/voteTypes';
+import { createVote } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
 import moment from 'moment';
 import { randomId } from '../lib/random';

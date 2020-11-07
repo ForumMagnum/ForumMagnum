@@ -2,7 +2,7 @@ import Users from "../../../lib/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes';
 import { addCallback, getCollection } from '../../vulcan-lib';
-import { getVotePower } from '../../../lib/voting/new_vote_types'
+import { getVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 
 export const recalculateAFBaseScore = async (document) => {

@@ -1,23 +1,8 @@
 import { runCallbacks } from '../vulcan-lib';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
+import { voteTypes } from './voteTypes';
 import * as _ from 'underscore';
-
-interface VoteTypeOptions {
-  power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),
-  exclusive: boolean
-}
-
-// Define voting operations
-export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {}
-
-// Add new vote types
-export const addVoteType = (voteType: string, voteTypeOptions: VoteTypeOptions) => {
-  voteTypes[voteType] = voteTypeOptions;
-}
-
-addVoteType('upvote', {power: 1, exclusive: true});
-addVoteType('downvote', {power: -1, exclusive: true});
 
 // Test if a user has voted on the client
 export const hasVotedClient = ({userVotes, voteType}: {
@@ -144,7 +129,7 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
 };
 
 // Optimistic response for votes
-export const performVoteClient = ({ document, collection, voteType = 'upvote', user, voteId }: {
+export const performVoteClient = ({ document, collection, voteType = 'smallUpvote', user, voteId }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbObject>
   voteType?: string,
