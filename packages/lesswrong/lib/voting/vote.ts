@@ -1,8 +1,23 @@
-import { runCallbacks } from '../vulcan-lib';
+import { runCallbacks, CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { voteTypes } from './voteTypes';
 import * as _ from 'underscore';
+
+export interface VoteDocTuple {
+  newDocument: DbVoteableType
+  vote: DbVote
+}
+export const voteCallbacks = {
+  clientCancel: new CallbackChainHook<VoteableTypeClient,[CollectionBase<DbVoteableType>,UsersCurrent,string]>("votes.cancel.client"),
+  clientClear: new CallbackChainHook<VoteableTypeClient,[CollectionBase<DbVoteableType>,UsersCurrent]>("votes.clear.client"),
+  clientCastVote: new CallbackChainHook<VoteableTypeClient,[CollectionBase<DbVoteableType>,UsersCurrent,string]>("votes.castVote.client"),
+  
+  cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.sync"),
+  cancelAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.async"),
+  castVoteSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.sync"),
+  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.async"),
+};
 
 // Test if a user has voted on the client
 export const hasVotedClient = ({userVotes, voteType}: {
@@ -129,16 +144,16 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
 };
 
 // Optimistic response for votes
-export const performVoteClient = ({ document, collection, voteType = 'smallUpvote', user, voteId }: {
+export const performVoteClient = async ({ document, collection, voteType = 'smallUpvote', user, voteId }: {
   document: VoteableTypeClient,
-  collection: CollectionBase<DbObject>
+  collection: CollectionBase<DbVoteableType>
   voteType?: string,
   user: UsersCurrent,
   voteId?: string,
-}) => {
+}): Promise<VoteableTypeClient> => {
   if (!voteTypes[voteType]) throw new Error("Invalid vote type");
   const collectionName = collection.options.collectionName;
-  let returnedDocument;
+  let returnedDocument: VoteableTypeClient;
 
   // make sure item and user are defined
   if (!document || !user || !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
@@ -149,15 +164,13 @@ export const performVoteClient = ({ document, collection, voteType = 'smallUpvot
 
   if (hasVotedClient({userVotes: document.currentUserVotes, voteType})) {
     returnedDocument = cancelVoteClient(voteOptions);
-    returnedDocument = runCallbacks({
-      name: `votes.cancel.client`,
+    returnedDocument = await voteCallbacks.clientCancel.runCallbacks({
       iterator: returnedDocument,
       properties: [collection, user, voteType]
     });
   } else {
     if (voteTypes[voteType]?.exclusive) {
-      const tempDocument = runCallbacks({
-        name: `votes.clear.client`,
+      const tempDocument = await voteCallbacks.clientClear.runCallbacks({
         iterator: voteOptions.document,
         properties: [collection, user]
       });
@@ -165,8 +178,7 @@ export const performVoteClient = ({ document, collection, voteType = 'smallUpvot
 
     }
     returnedDocument = addVoteClient(voteOptions);
-    returnedDocument = runCallbacks({
-      name: `votes.${voteType}.client`,
+    returnedDocument = await voteCallbacks.clientCastVote.runCallbacks({
       iterator: returnedDocument,
       properties: [collection, user, voteType]
     });

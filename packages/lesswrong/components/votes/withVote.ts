@@ -8,7 +8,7 @@ import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const getVoteMutationQuery = (collection) => {
+const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   return gql`
     mutation vote($documentId: String, $voteType: String, $collectionName: String, $voteId: String) {
       vote(documentId: $documentId, voteType: $voteType, collectionName: $collectionName, voteId: $voteId) {
@@ -38,8 +38,8 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     }, []),
   });
   
-  const vote = useCallback(({document, voteType, collectionName, currentUser, voteId = randomId()}) => {
-    const newDocument = performVoteClient({collection, document, user: currentUser, voteType, voteId});
+  const vote = useCallback(async ({document, voteType, collectionName, currentUser, voteId = randomId()}) => {
+    const newDocument = await performVoteClient({collection, document, user: currentUser, voteType, voteId});
 
     try {
       void mutate({

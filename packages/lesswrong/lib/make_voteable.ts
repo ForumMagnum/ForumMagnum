@@ -8,6 +8,14 @@ interface DbVoteable extends DbObject {
 
 export const VoteableCollections: Array<CollectionBase<DbVoteable>> = [];
 
+export const collectionIsVoteable = (collectionName: CollectionNameString): boolean => {
+  for (let collection of VoteableCollections) {
+    if (collectionName === collection.collectionName)
+      return true;
+  }
+  return false;
+}
+
 export const apolloCacheVoteablePossibleTypes = () => {
   return {
     Voteable: VoteableCollections.map(collection => collection.typeName),
@@ -18,7 +26,9 @@ export const apolloCacheVoteablePossibleTypes = () => {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>, options?: any): void => {
+export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>, options?: {
+  customBaseScoreReadAccess?: (user: DbUser|null, object: T) => boolean
+}): void => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 

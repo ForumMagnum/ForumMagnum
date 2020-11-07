@@ -9,6 +9,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { Accounts } from '../../lib/meteorAccounts';
+import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -16,8 +17,7 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
 import { DatabaseServerSetting } from "../databaseSettings";
 
-function updateTrustedStatus ({newDocument, vote}) {
-
+voteCallbacks.castVoteAsync.add(function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = Users.findOne(newDocument.userId)
   if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     Users.update(user._id, {$push: {groups: 'trustLevel1'}});
@@ -25,11 +25,9 @@ function updateTrustedStatus ({newDocument, vote}) {
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
   }
-}
-addCallback("votes.smallUpvote.async", updateTrustedStatus);
-addCallback("votes.bigUpvote.async", updateTrustedStatus);
+});
 
-function updateModerateOwnPersonal({newDocument, vote}) {
+voteCallbacks.castVoteAsync.add(function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
   const user = Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
   if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
@@ -39,9 +37,7 @@ function updateModerateOwnPersonal({newDocument, vote}) {
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
-}
-addCallback("votes.smallUpvote.async", updateModerateOwnPersonal);
-addCallback("votes.bigUpvote.async", updateModerateOwnPersonal);
+});
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
 {

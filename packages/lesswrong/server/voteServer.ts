@@ -3,7 +3,7 @@ import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
 import { voteTypes } from '../lib/voting/voteTypes';
-import { createVote } from '../lib/voting/vote';
+import { createVote, voteCallbacks, VoteDocTuple } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
 import moment from 'moment';
 import { randomId } from '../lib/random';
@@ -12,7 +12,7 @@ import * as _ from 'underscore';
 
 // Test if a user has voted on the server
 const hasVotedServer = async ({ document, voteType, user }: {
-  document: any,
+  document: DbVoteableType,
   voteType: string,
   user: DbUser,
 }) => {
@@ -26,21 +26,21 @@ const hasVotedServer = async ({ document, voteType, user }: {
 
 // Add a vote of a specific type on the server
 const addVoteServer = async ({ document, collection, voteType, user, voteId, updateDocument }: {
-  document: any,
-  collection: any,
+  document: DbVoteableType,
+  collection: CollectionBase<DbVoteableType>,
   voteType: string,
   user: DbUser,
   voteId: string,
   updateDocument: boolean
-}) => {
+}): Promise<VoteDocTuple> => {
   const newDocument = _.clone(document);
 
   // create vote and insert it
-  const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
-  delete vote.__typename;
-  await createMutator({
+  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
+  delete partialVote.__typename;
+  const {data: vote} = await createMutator({
     collection: Votes,
-    document: vote,
+    document: partialVote,
     validate: false,
   });
 
@@ -69,9 +69,9 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId, upd
 
 // Clear all votes for a given document and user (server)
 const clearVotesServer = async ({ document, user, collection, updateDocument }: {
-  document: any,
+  document: DbVoteableType,
   user: DbUser,
-  collection: any,
+  collection: CollectionBase<DbVoteableType>,
   updateDocument: boolean,
 }) => {
   const newDocument = _.clone(document);
@@ -107,15 +107,13 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
         validate: false,
       });
 
-      runCallbacks({
-        name: `votes.cancel.sync`,
+      await voteCallbacks.cancelSync.runCallbacks({
         iterator: {newDocument, vote},
         properties: [collection, user]
       });
-      runCallbacksAsync({
-        name: `votes.cancel.async`,
-        properties: [{newDocument, vote}, collection, user]
-      });
+      await voteCallbacks.cancelAsync.runCallbacksAsync(
+        [{newDocument, vote}, collection, user]
+      );
     }
     if (updateDocument) {
       await Connectors.update(collection,
@@ -136,12 +134,12 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
 
 // Cancel votes of a specific type on a given document (server)
 export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }: {
-  document: any,
+  document: DbVoteableType,
   voteType: string,
-  collection: any,
+  collection: CollectionBase<DbVoteableType>,
   user: DbUser,
   updateDocument: boolean
-}) => {
+}): Promise<VoteDocTuple> => {
   const newDocument = _.clone(document);
   const vote = Votes.findOne({
     documentId: document._id,
@@ -206,9 +204,9 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
 // return an updated document without performing any database operations on it.
 export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = randomId(), user, updateDocument = true, toggleIfAlreadyVoted = true }: {
   documentId?: string,
-  document?: any,
+  document?: DbVoteableType|null,
   voteType: string,
-  collection: any,
+  collection: CollectionBase<DbVoteableType>,
   voteId?: string,
   user: DbUser,
   updateDocument?: boolean,
@@ -217,11 +215,12 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
 
+  if (!document) throw new Error("Error casting vote: Document not found.");
+  
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
-  if (!document) throw new Error("Error casting vote: Document not found.");
   if (!user) throw new Error("Error casting vote: Not logged in.");
   if (!userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
@@ -232,17 +231,15 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   if (existingVote) {
     if (toggleIfAlreadyVoted) {
-      let voteDocTuple = await cancelVoteServer(voteOptions);
-      voteDocTuple = await runCallbacks({
-        name: `votes.cancel.sync`,
+      let voteDocTuple: VoteDocTuple = await cancelVoteServer(voteOptions);
+      await voteCallbacks.cancelSync.runCallbacks({
         iterator: voteDocTuple,
         properties: [collection, user]
       });
       document = voteDocTuple.newDocument;
-      runCallbacksAsync({
-        name: `votes.cancel.async`,
-        properties: [voteDocTuple, collection, user]
-      });
+      await voteCallbacks.cancelAsync.runCallbacksAsync(
+        [voteDocTuple, collection, user]
+      );
     }
   } else {
     await checkRateLimit({ document, collection, voteType, user });
@@ -251,20 +248,18 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
       document = await clearVotesServer(voteOptions)
     }
 
-    let voteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
-    voteDocTuple = await runCallbacks({
-      name: `votes.${voteType}.sync`,
+    let voteDocTuple: VoteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
+    voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
       iterator: voteDocTuple,
       properties: [collection, user]
     });
     document = voteDocTuple.newDocument;
-    runCallbacksAsync({
-      name: `votes.${voteType}.async`,
-      properties: [voteDocTuple, collection, user]
-    });
+    void voteCallbacks.castVoteAsync.runCallbacksAsync(
+      [voteDocTuple, collection, user]
+    );
   }
 
-  document.__typename = collection.options.typeName;
+  (document as any).__typename = collection.options.typeName;
   return document;
 }
 
@@ -287,8 +282,8 @@ const getVotingRateLimits = async (user: DbUser|null) => {
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
 const checkRateLimit = async ({ document, collection, voteType, user }: {
-  document: any,
-  collection: any,
+  document: DbVoteableType,
+  collection: CollectionBase<DbVoteableType>,
   voteType: string,
   user: DbUser
 }): Promise<void> => {
