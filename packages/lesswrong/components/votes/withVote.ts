@@ -2,27 +2,28 @@ import { useState, useCallback } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
-import { performVoteClient } from '../../lib/voting/vote';
+import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
+  const typeName = collection.options.typeName;
+  const mutationName = `setVote${typeName}`;
+  
   return gql`
-    mutation vote($documentId: String, $voteType: String, $collectionName: String, $voteId: String) {
-      vote(documentId: $documentId, voteType: $voteType, collectionName: $collectionName, voteId: $voteId) {
-        ... on ${collection.typeName} {
-          ...WithVote${collection.typeName}
-        }
+    mutation ${mutationName}($documentId: String, $voteType: String) {
+      ${mutationName}(documentId: $documentId, voteType: $voteType) {
+        ...WithVote${typeName}
       }
     }
-    ${getFragmentText(`WithVote${collection.typeName}`)}
+    ${getFragmentText(`WithVote${typeName}`)}
   `
 }
 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: CollectionNameString): {
-  vote: (props: {document: T, voteType: string, collectionName: CollectionNameString, currentUser: UsersCurrent, voteId?: string})=>void,
+  vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
   collectionName: CollectionNameString,
   document: T,
   baseScore: number,
@@ -38,16 +39,16 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     }, []),
   });
   
-  const vote = useCallback(async ({document, voteType, collectionName, currentUser, voteId = randomId()}) => {
-    const newDocument = await performVoteClient({collection, document, user: currentUser, voteType, voteId});
+  const vote = useCallback(async ({document, voteType, collectionName, currentUser}: {
+    document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent
+  }) => {
+    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType });
 
     try {
       void mutate({
         variables: {
           documentId: document._id,
           voteType,
-          collectionName: collection.options.collectionName,
-          voteId,
         },
       })
       setOptimisticResponseDocument(newDocument);

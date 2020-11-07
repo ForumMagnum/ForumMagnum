@@ -25,13 +25,12 @@ const hasVotedServer = async ({ document, voteType, user }: {
 }
 
 // Add a vote of a specific type on the server
-const addVoteServer = async ({ document, collection, voteType, user, voteId, updateDocument }: {
+const addVoteServer = async ({ document, collection, voteType, user, voteId }: {
   document: DbVoteableType,
   collection: CollectionBase<DbVoteableType>,
   voteType: string,
   user: DbUser,
   voteId: string,
-  updateDocument: boolean
 }): Promise<VoteDocTuple> => {
   const newDocument = _.clone(document);
 
@@ -49,30 +48,27 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId, upd
   newDocument.score = recalculateScore(newDocument);
   newDocument.voteCount++;
 
-  if (updateDocument) {
-    // update document score & set item as active
-    await Connectors.update(collection,
-      {_id: document._id},
-      {
-        $set: {
-          inactive: false,
-          baseScore: newDocument.baseScore,
-          score: newDocument.score
-        },
+  // update document score & set item as active
+  await Connectors.update(collection,
+    {_id: document._id},
+    {
+      $set: {
+        inactive: false,
+        baseScore: newDocument.baseScore,
+        score: newDocument.score
       },
-      {}, true
-    );
-    void algoliaExportById(collection, newDocument._id);
-  }
+    },
+    {}, true
+  );
+  void algoliaExportById(collection, newDocument._id);
   return {newDocument, vote};
 }
 
 // Clear all votes for a given document and user (server)
-const clearVotesServer = async ({ document, user, collection, updateDocument }: {
+export const clearVotesServer = async ({ document, user, collection }: {
   document: DbVoteableType,
   user: DbUser,
-  collection: CollectionBase<DbVoteableType>,
-  updateDocument: boolean,
+  collection: CollectionBase<DbVoteableType>
 }) => {
   const newDocument = _.clone(document);
   const votes = await Connectors.find(Votes, {
@@ -115,15 +111,13 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
         [{newDocument, vote}, collection, user]
       );
     }
-    if (updateDocument) {
-      await Connectors.update(collection,
-        {_id: document._id},
-        {
-          $set: {baseScore: recalculateBaseScore(document) },
-        },
-        {}, true
-      );
-    }
+    await Connectors.update(collection,
+      {_id: document._id},
+      {
+        $set: {baseScore: recalculateBaseScore(document) },
+      },
+      {}, true
+    );
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
@@ -133,18 +127,13 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
 }
 
 // Server-side database operation
-//
-// ### updateDocument
-// if set to true, this will perform its own database updates. If false, will only
-// return an updated document without performing any database operations on it.
-export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = randomId(), user, updateDocument = true, toggleIfAlreadyVoted = true }: {
+export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = randomId(), user, toggleIfAlreadyVoted = true }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: string,
   collection: CollectionBase<DbVoteableType>,
   voteId?: string,
   user: DbUser,
-  updateDocument?: boolean,
   toggleIfAlreadyVoted?: boolean,
 }) => {
   const collectionName = collection.options.collectionName;
@@ -152,7 +141,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   if (!document) throw new Error("Error casting vote: Document not found.");
   
-  const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
+  const voteOptions = {document, collection, voteType, user, voteId };
 
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 

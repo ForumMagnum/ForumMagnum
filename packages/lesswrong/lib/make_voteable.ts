@@ -1,12 +1,7 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 
-interface DbVoteable extends DbObject {
-  score: number,
-  baseScore: number,
-}
-
-export const VoteableCollections: Array<CollectionBase<DbVoteable>> = [];
+export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
 
 export const collectionIsVoteable = (collectionName: CollectionNameString): boolean => {
   for (let collection of VoteableCollections) {
@@ -26,7 +21,7 @@ export const apolloCacheVoteablePossibleTypes = () => {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>, options?: {
+export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBase<T>, options?: {
   customBaseScoreReadAccess?: (user: DbUser|null, object: T) => boolean
 }): void => {
   options = options || {}
@@ -35,6 +30,32 @@ export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>
   VoteableCollections.push(collection);
 
   addFieldsDict(collection, {
+    currentUserVote: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: 'String',
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+          const { Votes, currentUser } = context;
+          if (!currentUser) return null;
+          const votes = await getWithLoader(context, Votes,
+            `votesByUser${currentUser._id}`,
+            {
+              userId: currentUser._id,
+              cancelled: false,
+            },
+            "documentId", document._id
+          );
+          
+          if (!votes.length) return null;
+          return votes[0].voteType;
+        }
+      }
+    },
+    
+    // DEPRECATED (but preserved for backwards compatibility): Returns an array
+    // of vote objects, if the user has voted (or an empty array otherwise).
     currentUserVotes: {
       type: Array,
       optional: true,
@@ -62,6 +83,7 @@ export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>
       type: Object,
       optional: true
     },
+    
     allVotes: {
       type: Array,
       optional: true,

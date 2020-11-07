@@ -143,22 +143,6 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean
 }
 
-interface VotesCollection extends CollectionBase<DbVote> {
-}
-
-interface DbVote extends DbObject {
-  documentId: string
-  collectionName: string
-  userId: string
-  authorId: string
-  voteType: string
-  power: number
-  afPower: number
-  cancelled: boolean
-  isUnvote: boolean
-  votedAt: Date
-}
-
 interface NotificationsCollection extends CollectionBase<DbNotification> {
 }
 
@@ -647,6 +631,22 @@ interface DbSubscription extends DbObject {
   type: string
 }
 
+interface VotesCollection extends CollectionBase<DbVote> {
+}
+
+interface DbVote extends DbObject {
+  documentId: string
+  collectionName: string
+  userId: string
+  authorId: string
+  voteType: string
+  power: number
+  afPower: number
+  cancelled: boolean
+  isUnvote: boolean
+  votedAt: Date
+}
+
 interface RevisionsCollection extends CollectionBase<DbRevision> {
 }
 
@@ -697,7 +697,6 @@ interface DbEmailTokens extends DbObject {
 interface CollectionsByName {
   DatabaseMetadata: DatabaseMetadataCollection
   Users: UsersCollection
-  Votes: VotesCollection
   Notifications: NotificationsCollection
   Conversations: ConversationsCollection
   Messages: MessagesCollection
@@ -722,6 +721,7 @@ interface CollectionsByName {
   Posts: PostsCollection
   Localgroups: LocalgroupsCollection
   Subscriptions: SubscriptionsCollection
+  Votes: VotesCollection
   Revisions: RevisionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   LegacyData: LegacyDataCollection
@@ -731,7 +731,6 @@ interface CollectionsByName {
 interface ObjectsByCollectionName {
   DatabaseMetadata: DbDatabaseMetadata
   Users: DbUser
-  Votes: DbVote
   Notifications: DbNotification
   Conversations: DbConversation
   Messages: DbMessage
@@ -756,6 +755,7 @@ interface ObjectsByCollectionName {
   Posts: DbPost
   Localgroups: DbLocalgroup
   Subscriptions: DbSubscription
+  Votes: DbVote
   Revisions: DbRevision
   PetrovDayLaunchs: DbPetrovDayLaunch
   LegacyData: DbLegacyData

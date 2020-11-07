@@ -87,7 +87,7 @@ interface VoteableType extends HasIdType, HasUserIdType {
 }
 
 interface VoteableTypeClient extends VoteableType {
-  currentUserVotes: Array<VoteFragment>
+  currentUserVote: string|null
 }
 
 interface DbVoteableType extends VoteableType, DbObject {

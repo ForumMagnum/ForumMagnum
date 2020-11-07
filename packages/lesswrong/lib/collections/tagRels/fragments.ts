@@ -23,9 +23,7 @@ registerFragment(`
     post {
       ...PostsList
     }
-    currentUserVotes {
-      ...VoteFragment
-    }
+    currentUserVote
   }
 `);
 
@@ -55,9 +53,7 @@ registerFragment(`
         ...WithVoteTagRel
       }
     }
-    currentUserVotes {
-      ...VoteFragment
-    }
+    currentUserVote
   }
 `);
 
@@ -67,9 +63,7 @@ registerFragment(`
     tag {
       ...TagPreviewFragment
     }
-    currentUserVotes {
-      ...VoteFragment
-    }
+    currentUserVote
   }
 `);
 
@@ -79,34 +73,11 @@ registerFragment(`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id
+    userId
     score
     baseScore
     afBaseScore
     voteCount
-    userId
-    tagId
-    postId
-    post {
-      _id
-      slug
-      title
-    }
-    tag {
-      _id
-      name
-      slug
-      core
-      postCount
-      deleted
-      adminOnly
-      description {
-        htmlHighlight
-      }
-    }
-    currentUserVotes {
-      _id
-      voteType
-      power
-    }
+    currentUserVote
   }
 `);
