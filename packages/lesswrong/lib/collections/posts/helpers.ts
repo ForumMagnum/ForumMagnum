@@ -4,6 +4,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
 import { Posts, PostsMinimumForGetPageUrl } from './collection';
+import { cloudinaryCloudNameSetting } from '../../publicSettings';
 
 
 // EXAMPLE-FORUM Helpers
@@ -86,7 +87,7 @@ ${postGetLink(post, true, false)}
 // neither of those are available, it will return null.
 export const getSocialPreviewImage = (post: DbPost): string => {
   const manualId = post.socialPreviewImageId
-  if (manualId) return `https://res.cloudinary.com/cea/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }
