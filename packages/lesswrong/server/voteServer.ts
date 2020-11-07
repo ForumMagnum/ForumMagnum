@@ -132,71 +132,6 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
   return newDocument;
 }
 
-// Cancel votes of a specific type on a given document (server)
-export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }: {
-  document: DbVoteableType,
-  voteType: string,
-  collection: CollectionBase<DbVoteableType>,
-  user: DbUser,
-  updateDocument: boolean
-}): Promise<VoteDocTuple> => {
-  const newDocument = _.clone(document);
-  const vote = Votes.findOne({
-    documentId: document._id,
-    userId: user._id,
-    voteType,
-    cancelled: false,
-  })
-
-  if (!vote) throw Error(`Can't find vote to cancel: ${document._id}, ${user._id}, ${voteType}`)
-
-  //eslint-disable-next-line no-unused-vars
-  const {_id, ...otherVoteFields} = vote;
-  const unvote = {
-    ...otherVoteFields,
-    cancelled: true,
-    isUnvote: true,
-    power: -vote.power,
-    votedAt: new Date(),
-  };
-  await createMutator({
-    collection: Votes,
-    document: unvote,
-    validate: false,
-  });
-
-  // Set the cancelled field on the vote object to true
-  await updateMutator({
-    collection: Votes,
-    documentId: vote._id,
-    set: { cancelled: true },
-    unset: {},
-    validate: false,
-  });
-  newDocument.baseScore = recalculateBaseScore(newDocument);
-  newDocument.score = recalculateScore(newDocument);
-  newDocument.voteCount--;
-
-  if (updateDocument) {
-    // update document score
-    await Connectors.update(
-      collection,
-      {_id: document._id},
-      {
-        $set: {
-          inactive: false,
-          score: newDocument.score,
-          baseScore: newDocument.baseScore
-        },
-      },
-      {},
-      true
-    );
-    void algoliaExportById(collection, newDocument._id);
-  }
-  return {newDocument, vote};
-}
-
 // Server-side database operation
 //
 // ### updateDocument
@@ -231,22 +166,12 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   if (existingVote) {
     if (toggleIfAlreadyVoted) {
-      let voteDocTuple: VoteDocTuple = await cancelVoteServer(voteOptions);
-      await voteCallbacks.cancelSync.runCallbacks({
-        iterator: voteDocTuple,
-        properties: [collection, user]
-      });
-      document = voteDocTuple.newDocument;
-      await voteCallbacks.cancelAsync.runCallbacksAsync(
-        [voteDocTuple, collection, user]
-      );
+      document = await clearVotesServer(voteOptions)
     }
   } else {
     await checkRateLimit({ document, collection, voteType, user });
 
-    if (voteTypes[voteType]?.exclusive) {
-      document = await clearVotesServer(voteOptions)
-    }
+    document = await clearVotesServer(voteOptions)
 
     let voteDocTuple: VoteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
     voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({

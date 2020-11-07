@@ -5,7 +5,7 @@ import Reports from '../lib/collections/reports/collection';
 import { Bans } from '../lib/collections/bans/collection';
 import Users from '../lib/collections/users/collection';
 import { Votes } from '../lib/collections/votes';
-import { cancelVoteServer } from './voteServer';
+import { clearVoteServer } from './voteServer';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
@@ -72,14 +72,13 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
 const reverseVote = async (vote: DbVote) => {
   const collection = getCollection(vote.collectionName);
   const document = collection.findOne({_id: vote.documentId});
-  const voteType = vote.voteType;
   const user = Users.findOne({_id: vote.userId});
   if (document && user) {
     // { document, voteType, collection, user, updateDocument }
-    await cancelVoteServer({document, voteType, collection, user, updateDocument: true})
+    await clearVotesServer({document, collection, user, updateDocument: true})
   } else {
     //eslint-disable-next-line no-console
-    console.info("No item or user found corresponding to vote: ", vote, document, user, voteType);
+    console.info("No item or user found corresponding to vote: ", vote, document, user);
   }
 }
 
