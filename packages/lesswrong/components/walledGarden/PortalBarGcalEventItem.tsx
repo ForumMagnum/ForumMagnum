@@ -28,8 +28,7 @@ const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
   const UrlClass = getUrlClass()
 
   const url = new UrlClass(gcalEvent.htmlLink)
-  const urlParams = new URLSearchParams(url.search)
-  const eid = urlParams.get("eid")
+  const eid = url.searchParams.get("eid")
   const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${gcalEvent.organizer.email}`
   const link = <a href={addToCalendarLink} target="_blank" rel="noopener noreferrer">
     {gcalEvent.summary}
