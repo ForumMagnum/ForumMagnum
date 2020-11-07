@@ -10,7 +10,6 @@ import { allPostsIcon } from '../../icons/allPostsIcon';
 
 
 import Home from '@material-ui/icons/Home'
-import Group from '@material-ui/icons/Group'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
