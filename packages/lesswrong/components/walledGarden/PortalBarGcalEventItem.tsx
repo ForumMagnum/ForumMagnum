@@ -1,7 +1,7 @@
 import React from 'react'
 import moment from 'moment';
-import {registerComponent, Components, Utils} from '../../lib/vulcan-lib';
-import { getUrlClass, withNavigation } from '../../lib/routeUtil';
+import {registerComponent, Components } from '../../lib/vulcan-lib';
+import { getUrlClass } from '../../lib/routeUtil';
 
 const styles = (theme) => ({
   root: {
