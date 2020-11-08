@@ -4,7 +4,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import moment from '../../lib/moment-timezone';
-import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';

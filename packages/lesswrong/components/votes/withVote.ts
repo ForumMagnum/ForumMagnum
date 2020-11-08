@@ -5,7 +5,6 @@ import gql from 'graphql-tag';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
-import { randomId } from '../../lib/random';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {

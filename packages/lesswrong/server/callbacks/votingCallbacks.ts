@@ -1,4 +1,3 @@
-import { addCallback } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 

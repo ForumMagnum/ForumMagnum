@@ -1,8 +1,7 @@
-import { runCallbacks, CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
+import { CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { voteTypes, calculateVotePower } from './voteTypes';
-import * as _ from 'underscore';
 
 export interface VoteDocTuple {
   newDocument: DbVoteableType

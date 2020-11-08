@@ -1,4 +1,3 @@
-import { addCallback } from '../../lib/vulcan-lib';
 import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';

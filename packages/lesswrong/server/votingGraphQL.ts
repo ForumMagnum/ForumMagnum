@@ -1,4 +1,4 @@
-import { addCallback, addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, getCollection } from './vulcan-lib';
+import { addCallback, addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from './vulcan-lib';
 import { performVoteServer, clearVotesServer } from './voteServer';
 import { VoteableCollections, collectionIsVoteable } from '../lib/make_voteable';
 
@@ -61,7 +61,6 @@ addGraphQLResolvers(voteResolver);
 
 function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
   const typeName = collection.options.typeName;
-  const collectionName = collection.options.collectionName;
   const mutationName = `setVote${typeName}`;
   
   addGraphQLMutation(`${mutationName}(documentId: String, voteType: String): ${typeName}`);
