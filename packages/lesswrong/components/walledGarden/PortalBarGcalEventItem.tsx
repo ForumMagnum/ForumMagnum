@@ -2,6 +2,7 @@ import React from 'react'
 import moment from 'moment';
 import {registerComponent, Components } from '../../lib/vulcan-lib';
 import { getUrlClass } from '../../lib/routeUtil';
+import { sanitize } from '../vulcan-lib/utils';
 
 const styles = (theme) => ({
   root: {
@@ -32,8 +33,10 @@ export const getAddToCalendarLink = (gcalEvent) => {
     {gcalEvent.summary}
   </a>
 
+  const sanitizedDescription = sanitize(gcalEvent.description)
+
   if (gcalEvent.description) {
-    return <LWTooltip title={<div dangerouslySetInnerHTML={{__html:gcalEvent.description}}/>}>
+    return <LWTooltip title={<div dangerouslySetInnerHTML={{__html: sanitizedDescription}}/>}>
       {link}
     </LWTooltip>
   } else {
