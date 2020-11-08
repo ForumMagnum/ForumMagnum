@@ -71,7 +71,7 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
 })
 
 async function deserializeUserPassport(id, done) {
-  const user = Users.findOne({_id: id})
+  const user = await Users.findOne({_id: id})
   if (!user) done()
   done(null, user)
 }
