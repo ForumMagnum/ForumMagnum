@@ -8,7 +8,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
-import Hidden from '@material-ui/core/Hidden';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -171,6 +170,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: theme.spacing.unit,
     display: "none",
     [theme.breakpoints.down('xs')]: {
+      display: "block"
+    }
+  },
+  nonMobileIcons: {
+    [theme.breakpoints.up('sm')]: {
       display: "block"
     }
   },
@@ -488,9 +492,9 @@ const PostsItem2 = ({
                   {!resumeReading && <PostsPageActions post={post} />}
                 </div>}
 
-                {showIcons && <Hidden smUp implementation="css">
+                {showIcons && <div className={classes.nonMobileIcons}>
                   <PostsItemIcons post={post}/>
-                </Hidden>}
+                </div>}
 
                 {!resumeReading && <div className={classes.commentsIcon}>
                   <PostsItemComments
