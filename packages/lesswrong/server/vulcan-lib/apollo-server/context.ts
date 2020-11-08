@@ -21,14 +21,15 @@ import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
+import { hashLoginToken, tokenExpiration } from './apollo_server';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
-const getUser = async (loginToken: string): Promise<DbUser|null> => {
+export const getUser = async (loginToken: string): Promise<DbUser|null> => {
   if (loginToken) {
     if (typeof loginToken !== 'string')
       throw new Error("Login token is not a string");
 
-    const hashedToken = Accounts._hashLoginToken(loginToken)
+    const hashedToken = hashLoginToken(loginToken)
 
     const user = Users.findOne({
       'services.resume.loginTokens.hashedToken': hashedToken
@@ -41,7 +42,7 @@ const getUser = async (loginToken: string): Promise<DbUser|null> => {
         tokenInfo => tokenInfo.hashedToken === hashedToken
       )
 
-      const expiresAt = Accounts._tokenExpiration(tokenInformation.when)
+      const expiresAt = tokenExpiration(tokenInformation.when)
 
       const isExpired = expiresAt < new Date()
 
@@ -132,7 +133,8 @@ export const getCollectionsByName = (): CollectionsByName => {
 }
 
 export const getUserFromReq = async (req) => {
-  return getUser(getAuthToken(req));
+  return req.user
+  // return getUser(getAuthToken(req));
 }
 
 // Returns a function called on every request to compute context
