@@ -7,7 +7,7 @@ export const commentSuggestForAlignment = async ({ currentUser, comment, updateC
 }) => {
   const suggestUserIds = comment.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
-  updateComment({
+  void updateComment({
     selector: { _id: comment._id},
     data: {suggestForAlignmentUserIds: newSuggestUserIds},
   })

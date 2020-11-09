@@ -47,7 +47,7 @@ const EventTime = ({post, dense=false}: {
   // less sense, but users can enter silly things.)
   else if (!start || !end) {
     const eventTime = start ? start : end;
-    return <>eventTime.calendar({}, calendarFormat)</>
+    return <>{eventTime.calendar({}, calendarFormat)}</>
   }
   // Both start end end time specified
   else {

@@ -3,7 +3,7 @@ import { Comments } from '../../lib/collections/comments'
 import { Tags } from '../../lib/collections/tags/collection'
 import Users from '../../lib/collections/users/collection';
 import Sequences from '../../lib/collections/sequences/collection';
-import { algoliaDocumentExport, AlgoliaIndexedDbObject } from './utils';
+import { algoliaDocumentExport } from './utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 
 

@@ -130,7 +130,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { updateUser, currentUser } = this.props;
     if (!currentUser) return;
     
-    updateUser({
+    void updateUser({
       selector: {_id: currentUser._id},
       data: { whenConfirmationEmailSent: new Date() }
     });
@@ -149,7 +149,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
       mutation.whenConfirmationEmailSent = new Date();
     }
 
-    updateUser({
+    void updateUser({
       selector: {_id: currentUser._id},
       data: mutation
     })

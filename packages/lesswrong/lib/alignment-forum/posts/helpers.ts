@@ -7,7 +7,7 @@ export const postSuggestForAlignment = ({ currentUser, post, updatePost }: {
 }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
-  updatePost({
+  void updatePost({
     selector: {_id: post._id},
     data: {suggestForAlignmentUserIds: newSuggestUserIds},
   })
@@ -20,7 +20,7 @@ export const postUnSuggestForAlignment = ({ currentUser, post, updatePost }: {
 }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
-  updatePost({
+  void updatePost({
     selector: {_id: post._id},
     data: {suggestForAlignmentUserIds:newSuggestUserIds},
   })

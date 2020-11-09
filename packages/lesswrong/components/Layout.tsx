@@ -177,7 +177,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const { updateUser, currentUser } = this.props
     this.setState(prevState => {
       if (currentUser) {
-        updateUser({
+        void updateUser({
           selector: { _id: currentUser._id},
           data: {
             hideNavigationSidebar: !prevState.hideNavigationSidebar
