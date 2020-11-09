@@ -289,7 +289,7 @@ export async function dropUnusedField(collection, fieldName) {
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection({collection, batchSize, filter=null, callback, loadFactor=1.0}: {
+export async function forEachDocumentBatchInCollection({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
   collection: any,
   batchSize?: number,
   filter?: MongoSelector<DbObject> | null,

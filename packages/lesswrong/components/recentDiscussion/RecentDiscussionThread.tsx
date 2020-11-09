@@ -48,7 +48,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postHighlight: {
     ...postHighlightStyles(theme),
-    maxWidth:600,
     maxHeight: 1000,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {

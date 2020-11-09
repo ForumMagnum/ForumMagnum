@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth:570,
     ...postHighlightStyles(theme),
   },
   highlightContinue: {
