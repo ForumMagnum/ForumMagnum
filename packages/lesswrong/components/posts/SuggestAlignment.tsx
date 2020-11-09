@@ -17,7 +17,7 @@ const SuggestAlignment = ({ post }: {
   
   const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser!._id)
 
-  if (userCanSuggestPostForAlignment({currentUser, post})) {
+  if (currentUser && userCanSuggestPostForAlignment({currentUser, post})) {
     return <div>
       { userHasSuggested ?
         <div  onClick={() => postUnSuggestForAlignment({currentUser, post, updatePost})}>

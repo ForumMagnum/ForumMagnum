@@ -8,7 +8,6 @@ import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
 import {useUpdate} from "../../lib/crud/withUpdate";
-import Users from "../../lib/vulcan-users";
 import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -57,7 +56,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   })
   const isOpenToPublic = gardenOpenToPublic.get()

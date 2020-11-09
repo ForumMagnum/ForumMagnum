@@ -30,9 +30,10 @@ Child Props:
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
+import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
-import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import { updateClientTemplate, getCollection, getFragment, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { cacheUpdateGenerator } from './cacheUpdates';
 
@@ -74,26 +75,31 @@ export const withUpdate = options => {
 
 export default withUpdate;
 
-export const useUpdate = <T extends DbObject>({
-  collectionName, collection,
-  fragmentName: fragmentNameArg, fragment: fragmentArg,
-}: {
-  collectionName?: CollectionNameString,
-  collection?: CollectionBase<T>,
-  fragmentName?: FragmentName,
-  fragment?: any,
-}) => {
-  ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
-  const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
+export const useUpdate = <CollectionName extends CollectionNameString>({ collectionName, fragmentName }: {
+  collectionName: CollectionName,
+  fragmentName: FragmentName,
+}): {
+  mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
+  loading: boolean,
+  error: ApolloError|undefined,
+  called: boolean,
+  data: ObjectsByCollectionName[CollectionName],
+}=> {
+  const collection = getCollection(collectionName);
+  const fragment = getFragment(fragmentName);
 
-  const typeName = collection!.options.typeName;
+  const typeName = collection.options.typeName;
   const query = gql`
     ${updateClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
 
   const [mutate, {loading, error, called, data}] = useMutation(query);
-  const wrappedMutate = ({selector, data, ...extraVariables}) => {
+  const wrappedMutate = ({selector, data, ...extraVariables}: {
+    selector: MongoSelector<ObjectsByCollectionName[CollectionName]>,
+    data: Partial<ObjectsByCollectionName[CollectionName]>,
+    extraVariables?: any,
+  }) => {
     return mutate({
       variables: { selector, data, ...extraVariables },
       update: cacheUpdateGenerator(typeName, 'update')
