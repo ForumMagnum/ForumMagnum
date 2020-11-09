@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useRef, useMemo, useEffect } from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
-import { HistoryPersistentState, HistoryPersistentStateContext } from './hooks/useHistoryPersistentState';
+import { HistoryPersistentStateContext } from './hooks/useHistoryPersistentState';
 import Users from '../lib/collections/users/collection';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -243,7 +243,7 @@ const Layout = ({currentUser, children, theme, classes}: {
     const currentRoute = location.currentRoute
     const standaloneNavigation = !currentRoute ||
       standaloneNavMenuRouteNames[forumTypeSetting.get()]
-        .includes(currentRoute?.name)
+        .includes(currentRoute.name)
         
     const shouldUseGridLayout = standaloneNavigation
 
