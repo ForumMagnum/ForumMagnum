@@ -76,7 +76,7 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 </svg>
 
 const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true, showLinkTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true}: {
-  post: PostsBase|AlgoliaPost,
+  post: PostsBase,
   postLink?: string,
   classes: ClassesType,
   sticky?: boolean,
