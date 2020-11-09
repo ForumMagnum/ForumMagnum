@@ -17,7 +17,7 @@ const getVoteMutationQuery = (collection) => {
         }
       }
     }
-    ${getFragmentText(`WithVote${collection.typeName}`)}
+    ${getFragmentText(`WithVote${collection.typeName}` as any)}
   `
 }
 

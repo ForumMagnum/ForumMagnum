@@ -13,7 +13,7 @@ import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   messageStyling: {
     ...postBodyStyles(theme),
     marginTop: "100px"
@@ -88,7 +88,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const [onboarded, setOnboarded] = useState(currentUser?.walledGardenPortalOnboarded||false);
   const [expiredGardenCode, setExpiredGardenCode] = useState(moreThanFourHoursAfterCodeExpiry(gardenCode));
-  const iframeRef = useRef(null)
+  const iframeRef = useRef<HTMLIFrameElement|null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {

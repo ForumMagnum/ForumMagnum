@@ -2,7 +2,7 @@ import React from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import {postBodyStyles} from "../../themes/stylePiping";
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   messageStyling: {
     ...postBodyStyles(theme),
     marginTop: "100px"

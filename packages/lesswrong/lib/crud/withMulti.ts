@@ -43,7 +43,7 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
-import { extractCollectionInfo, extractFragmentInfo, multiClientTemplate } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate } from '../vulcan-lib';
 import { pluralize } from '../vulcan-lib/utils';
 
 function getGraphQLQueryFromOptions({
@@ -89,7 +89,7 @@ export function withMulti({
   propertyName?: string,
   collectionName?: CollectionNameString,
   collection?: CollectionBase<any>,
-  fragmentName?: string,
+  fragmentName?: FragmentName,
   fragment?: any,
   terms?: any,
 }) {
@@ -224,7 +224,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   fetchPolicy,
   nextFetchPolicy,
   collectionName, collection,
-  fragmentName, fragment,
+  fragmentName, //fragment,
   limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
   itemsPerPage = 10,
   skip = false,
@@ -240,9 +240,8 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
   collectionName?: CollectionNameString,
-  collection?: any,
-  fragmentName?: FragmentTypeName,
-  fragment?: any,
+  collection?: CollectionBase<any>,
+  fragmentName: FragmentTypeName,
   limit?: number,
   itemsPerPage?: number,
   skip?: boolean,
@@ -269,7 +268,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   const [ limit, setLimit ] = useState(defaultLimit);
   
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
-  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
+  const fragment = getFragment(fragmentName);
   
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
   const resolverName = collection.options.multiResolverName;

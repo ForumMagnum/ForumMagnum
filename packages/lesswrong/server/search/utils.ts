@@ -17,7 +17,9 @@ import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
 
-type AlgoliaDocument = {
+export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
+
+export type AlgoliaDocument = {
   _id: string,
   [key: string]: any,
 }
@@ -214,7 +216,7 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
 
 // Do algoliaIndex.waitTask as an async function rather than a
 // callback-accepting function.
-async function algoliaWaitForTask(algoliaIndex: algoliasearch.Index, taskID) {
+async function algoliaWaitForTask(algoliaIndex: algoliasearch.Index, taskID: number) {
   return new Promise((resolve,reject) => {
     algoliaIndex.waitTask(taskID, (err) => {
       if (err) reject(err);
@@ -228,7 +230,7 @@ async function algoliaWaitForTask(algoliaIndex: algoliasearch.Index, taskID) {
 // and a list objectIDs.
 //
 // https://www.algolia.com/doc/api-reference/api-methods/add-objects/
-async function algoliaAddObjects(algoliaIndex: algoliasearch.Index, objects) {
+async function algoliaAddObjects(algoliaIndex: algoliasearch.Index, objects: Array<AlgoliaDocument>) {
   return new Promise((resolve,reject) => {
     algoliaIndex.addObjects(objects, (err, content) => {
       if (err) reject(err);
@@ -268,7 +270,7 @@ async function algoliaGetObjects(algoliaIndex: algoliasearch.Index, ids: Array<s
   });
 }
 
-export async function algoliaDoSearch(algoliaIndex: algoliasearch.Index, query) {
+export async function algoliaDoSearch(algoliaIndex: algoliasearch.Index, query: algoliasearch.QueryParameters) {
   return new Promise((resolve,reject) => {
     algoliaIndex.search(query, (err,content) => {
       if (err) reject(err);
@@ -287,7 +289,7 @@ export async function algoliaDoSearch(algoliaIndex: algoliasearch.Index, query) 
 //
 // IMPORTANT CAVEAT: If this index uses 'distinct', only one entry from each
 // group will be returned.
-async function algoliaDoCompleteSearch(algoliaIndex: algoliasearch.Index, query) {
+async function algoliaDoCompleteSearch(algoliaIndex: algoliasearch.Index, query: algoliasearch.QueryParameters) {
   let allResults: Array<any> = [];
   let pageSize = 1000; // Max permitted by API
   
@@ -313,7 +315,7 @@ async function algoliaDoCompleteSearch(algoliaIndex: algoliasearch.Index, query)
   return allResults;
 }
 
-export async function algoliaSetIndexSettings(algoliaIndex: algoliasearch.Index, settings) {
+export async function algoliaSetIndexSettings(algoliaIndex: algoliasearch.Index, settings: algoliasearch.IndexSettings) {
   return new Promise((resolve,reject) => {
     algoliaIndex.setSettings(settings,
       { forwardToReplicas: true },
@@ -325,7 +327,7 @@ export async function algoliaSetIndexSettings(algoliaIndex: algoliasearch.Index,
   });
 }
 
-export async function algoliaSetIndexSettingsAndWait(algoliaIndex: algoliasearch.Index, settings) {
+export async function algoliaSetIndexSettingsAndWait(algoliaIndex: algoliasearch.Index, settings: algoliasearch.IndexSettings) {
   let result: any = await algoliaSetIndexSettings(algoliaIndex, settings);
   await algoliaWaitForTask(algoliaIndex, result.taskID);
 }
@@ -481,9 +483,9 @@ export function getAlgoliaAdminClient()
   return client;
 }
 
-export async function algoliaDocumentExport({ documents, collection, updateFunction}: {
-  documents: any,
-  collection: any,
+export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ documents, collection, updateFunction}: {
+  documents: Array<AlgoliaIndexedDbObject>,
+  collection: AlgoliaIndexedCollection<T>,
   updateFunction?: any,
 }) {
   if (!(collection.collectionName in algoliaIndexNames)) {
@@ -512,7 +514,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   }
 }
 
-export async function algoliaExportById(collection, documentId: string) {
+export async function algoliaExportById<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, documentId: string) {
   const document = await collection.findOne({_id: documentId});
   if (document) {
     await algoliaDocumentExport({ documents: [document], collection });
@@ -531,7 +533,13 @@ export function subBatchArray<T>(arr: Array<T>, maxSize: number): Array<Array<T>
   return result
 }
 
-export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
+export async function algoliaIndexDocumentBatch<T extends AlgoliaIndexedDbObject>({ documents, collection, algoliaIndex, errors, updateFunction }: {
+  documents: Array<T>,
+  collection: AlgoliaIndexedCollection<T>,
+  algoliaIndex: algoliasearch.Index,
+  errors: Array<any>,
+  updateFunction: any,
+})
 {
   let importBatch: Array<AlgoliaDocument> = [];
   let itemsToDelete: Array<string> = [];

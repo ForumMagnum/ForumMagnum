@@ -2,7 +2,7 @@ import React from 'react'
 import moment from 'moment';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   secondaryInfo: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
@@ -14,7 +14,10 @@ const styles = (theme) => ({
   },
 })
 
-const FrontpageGcalEventItem = ({classes, gcalEvent}) => {
+const FrontpageGcalEventItem = ({classes, gcalEvent}: {
+  classes: ClassesType,
+  gcalEvent: any,
+}) => {
   return <div className={classes.secondaryInfo}>
     <span>
           {gcalEvent.summary}{" "}

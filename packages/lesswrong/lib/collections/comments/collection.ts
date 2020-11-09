@@ -4,6 +4,7 @@ import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions
 import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import type { AlgoliaDocument } from '../../../server/search/utils';
 
 export const commentMutationOptions = {
   newCheck: (user: DbUser|null, document: DbComment|null) => {
@@ -37,7 +38,7 @@ export const commentMutationOptions = {
 
 interface ExtendedCommentsCollection extends CommentsCollection {
   // Functions in server/search/utils.ts
-  toAlgolia: (comment: DbComment) => Promise<Array<Record<string,any>>|null>
+  toAlgolia: (comment: DbComment) => Promise<Array<AlgoliaDocument>|null>
 }
 
 export const Comments: ExtendedCommentsCollection = createCollection({

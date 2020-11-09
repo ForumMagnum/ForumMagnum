@@ -2,7 +2,7 @@ import React from 'react'
 import moment from 'moment';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     fontSize: '1.1rem',
@@ -22,7 +22,10 @@ const styles = (theme) => ({
   }
 })
 
-const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
+const PortalBarGcalEventItem = ({classes, gcalEvent}: {
+  classes: ClassesType,
+  gcalEvent: any,
+}) => {
   const { LWTooltip } = Components
 
   const urlParams = new URLSearchParams(gcalEvent.htmlLink.split('?')[1])

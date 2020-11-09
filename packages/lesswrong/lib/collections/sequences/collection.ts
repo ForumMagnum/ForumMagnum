@@ -3,6 +3,7 @@ import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import type { AlgoliaDocument } from '../../../server/search/utils';
 
 const options = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
@@ -23,7 +24,7 @@ const options = {
 
 interface ExtendedSequencesCollection extends SequencesCollection {
   // Functions in search/utils.ts
-  toAlgolia: (sequence: DbSequence) => Promise<Array<Record<string,any>>|null>
+  toAlgolia: (sequence: DbSequence) => Promise<Array<AlgoliaDocument>|null>
 }
 
 export const Sequences: ExtendedSequencesCollection = createCollection({

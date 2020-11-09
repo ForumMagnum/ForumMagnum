@@ -80,7 +80,7 @@ export const useUpdate = <T extends DbObject>({
 }: {
   collectionName?: CollectionNameString,
   collection?: CollectionBase<T>,
-  fragmentName?: string,
+  fragmentName?: FragmentName,
   fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
