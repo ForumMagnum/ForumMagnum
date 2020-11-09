@@ -45,6 +45,11 @@ import passport from 'passport'
 import { Strategy } from 'passport-local'
 import { Strategy as CustomStrategy } from 'passport-custom'
 import Users from '../../../lib/vulcan-users';
+import sha1 from 'crypto-js/sha1';
+import { ForwardedWhitelist } from '../../forwarded_whitelist';
+import { createMutator } from '../mutators';
+import { LWEvents } from '../../../lib/collections/lwevents';
+
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -58,7 +63,21 @@ const passwordAuthStrategy = new Strategy(async function getUserPassport(usernam
   const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
   if (!user) return done(null, false, { message: 'Incorrect username.' });
   const match = await comparePasswords(password, user.services.password.bcrypt);
-  if (!match) return done(null, false, { message: 'Incorrect password.' });
+
+  // If no immediate match, we check whether we have a match with their legacy password
+  if (!match) {
+    // @ts-ignore -- legacyData isn't really handled right in our schemas.
+    const legacyData = user.legacyData ? user.legacyData : LegacyData.findOne({ objectId: user._id }).legacyData;
+    if (legacyData && legacyData.password) {
+      const salt = legacyData.password.substring(0,3)
+      const toHash = (`${salt}${user.username} ${password}`)
+      const lw1PW = salt + sha1(toHash).toString();
+      const lw1PWMatch = comparePasswords(lw1PW, user.services.password.bcrypt);
+      if (lw1PWMatch) return done(null, user)
+    }
+    return done(null, false, { message: 'Incorrect password.' });
+  } 
+  
   return done(null, user)
 })
 
@@ -91,6 +110,26 @@ async function insertHashedLoginToken(userId, hashedToken) {
     }
   });
 };
+
+function registerLoginEvent(user, req) {
+  const document = {
+    name: 'login',
+    important: false,
+    userId: user._id,
+    properties: {
+      type: 'passport-login',
+      ip: ForwardedWhitelist.getClientIP(req),
+      userAgent: req.headers['user-agent'],
+      referrer: req.headers['referer']
+    }
+  }
+  void createMutator({
+    collection: LWEvents,
+    document: document,
+    currentUser: user,
+    validate: false,
+  })
+}
 
 export function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -149,19 +188,37 @@ onStartup(() => {
       passport.authenticate('local', function(err, user, info) {
         if (err) { return next(err); }
         if (!user) { return next()}
+        if (user && user.banned && new Date(user.banned) > new Date()) {
+          return next(`User is banned until ${user.banned}`)
+        }
+
         req.logIn(user, async function(err) {
           if (err) { return next(err); }
-
           // If the login attempt is successful, set the loginToken cookie
           const newToken = randomBytes(32).toString('hex');
           res.setHeader("Set-Cookie", `loginToken=${newToken}; Max-Age=315360000`);
 
           const hashedToken = hashLoginToken(newToken)
           await insertHashedLoginToken(user._id, hashedToken)
+
+          registerLoginEvent(user, req)
+
           next()
         });
       })(req, res, next)
     }
+  })
+
+  WebApp.connectHandlers.use('/logout', (req, res, next) => {
+    passport.authenticate('custom', (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logOut()
+      
+      res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()}`) // The accepted way to delete a cookie is to set an expiration date in the past.
+      res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()}`)
+      next()
+    })(req, res, next) 
   })
 
   passport.use(cookieAuthStrategy)

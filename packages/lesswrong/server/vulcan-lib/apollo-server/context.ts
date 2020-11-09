@@ -12,7 +12,6 @@
 
 import Sentry from '@sentry/node';
 import DataLoader from 'dataloader';
-import { Accounts } from '../../../lib/meteorAccounts';
 import Cookies from 'universal-cookie';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { Collections } from '../../../lib/vulcan-lib/collections';

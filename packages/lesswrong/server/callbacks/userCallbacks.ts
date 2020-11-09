@@ -8,7 +8,7 @@ import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { Accounts } from '../../lib/meteorAccounts';
+import { sendVerificationEmail } from '../../lib/meteorAccounts';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -49,7 +49,7 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
       && (!user.whenConfirmationEmailSent
           || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
-    Accounts.sendVerificationEmail(user._id);
+    sendVerificationEmail(user._id);
   }
 });
 
@@ -153,7 +153,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
   if (!isAnyTest) {
-    Accounts.sendVerificationEmail(user._id);
+    sendVerificationEmail(user._id);
     
     if (subscribeToCurated) {
       await bellNotifyEmailVerificationRequired(user);

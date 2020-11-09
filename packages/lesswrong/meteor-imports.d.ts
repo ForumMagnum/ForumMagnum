@@ -1,7 +1,6 @@
 
 declare module 'meteor/random';
 declare module 'meteor/meteor';
-declare module 'meteor/accounts-base';
 declare module 'meteor/practicalmeteor:chai';
 declare module 'meteor/webapp';
 declare module 'meteor/server-render';

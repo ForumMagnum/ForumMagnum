@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import Users from '../../lib/collections/users/collection';
 import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
-import { Accounts } from '../../lib/meteorAccounts';
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
@@ -60,15 +59,16 @@ const UsersEditForm = ({terms, client, classes}: {
   // user is an admin. This component does not have access to the user email at
   // all in admin mode unfortunately. In the fullness of time we could fix that,
   // currently we disable it below
-  const requestPasswordReset = () => Accounts.forgotPassword(
-    { email: currentUser?.email },
-    (error) => flash({
-      messageString: error ?
-      error.reason :
-      // TODO: This doesn't seem to display
-      "Sent password reset email to " + currentUser?.email
-    })
-  )
+  const requestPasswordReset = () => {
+    // TODO: Implement 
+    console.log("This should reset the password, but it's not yet implemented")
+    // flash({
+    //   messageString: error ?
+    //   error.reason :
+    //   // TODO: This doesn't seem to display
+    //   "Sent password reset email to " + currentUser?.email
+    // })
+  } 
 
   // Since there are two urls from which this component can be rendered, with different terms, we have to
   // check both slug and documentId

@@ -4,7 +4,6 @@ import './server/vulcan-lib/index';
 
 import './server/vulcan-users/main';
 import './server/vulcan-core/start';
-import './server/vulcan-accounts/index';
 
 export * from './lib/index';
 
@@ -31,11 +30,9 @@ import './server/scripts/fixFrontpageCount';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
-import './server/scripts/importOldPasswords';
 import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
-import './server/scripts/invites';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/exportPostDetails';
@@ -88,9 +85,7 @@ import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
 import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
-import './lib/collections/users/validate_login';
 import './server/callbacks/userCallbacks';
-import './server/callbacks/banCallbacks';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/rateLimits';

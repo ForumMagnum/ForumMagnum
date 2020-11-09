@@ -1,7 +1,6 @@
 import { ApolloClient, InMemoryCache, ApolloLink } from '@apollo/client';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { apolloCacheVoteablePossibleTypes } from '../../../lib/make_voteable';
-import meteorAccountsLink from './links/meteor';
 import errorLink from './links/error';
 
 export const createApolloClient = () => {
@@ -18,7 +17,7 @@ export const createApolloClient = () => {
   });
   
   return new ApolloClient({
-    link: ApolloLink.from([errorLink, meteorAccountsLink, httpLink]),
+    link: ApolloLink.from([errorLink, httpLink]),
     cache
   });
 };

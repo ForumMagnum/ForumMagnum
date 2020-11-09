@@ -16,7 +16,6 @@ Package.onUse( function(api) {
     
     // dependencies of vulcan-accounts
     'tracker',
-    'accounts-base',
     'check',
     'random',
     'email',
@@ -37,10 +36,7 @@ Package.onUse( function(api) {
     'meteorhacks:picker@1.0.3',
     'littledata:synced-cron@1.1.0',
   ]);
-  
-  // dependencies of vulcan-accounts
-  api.use('accounts-oauth', { weak: true });
-  api.use('accounts-password', { weak: true });
+
 
   api.mainModule('client.js', 'client');
   api.mainModule('server.js', 'server');
