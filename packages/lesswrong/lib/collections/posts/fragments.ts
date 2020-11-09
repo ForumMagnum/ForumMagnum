@@ -251,6 +251,16 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment PostsExpandedHighlight on Post {
+    _id
+    contents {
+      _id
+      html
+    }
+  }
+`);
+
 // Same as PostsPage, with added just optional arguments to the content field
 // and a list of revisions
 registerFragment(`

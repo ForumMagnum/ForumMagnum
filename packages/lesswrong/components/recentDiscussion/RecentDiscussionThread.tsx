@@ -9,7 +9,6 @@ import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useRecordPostView } from '../common/withRecordPostView';
 
-import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -49,7 +48,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   postHighlight: {
     ...postHighlightStyles(theme),
     maxWidth:600,
-    maxHeight: 1000,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
