@@ -34,7 +34,6 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
     <Link
       onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       to={postGetPageUrl(post)}
-      target={postGetLinkTarget(post)}
     >
         <Typography variant="title">
           {post.title}
