@@ -1,6 +1,7 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
+import type { Hit } from 'react-instantsearch';
 import React from 'react';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -20,22 +21,23 @@ const isLeftClick = (event: MouseEvent): boolean => {
 }
 
 const CommentsSearchHit = ({hit, clickAction, classes}: {
-  hit: any,
+  hit: Hit<AlgoliaComment>,
   clickAction?: any,
   classes: ClassesType,
 }) => {
-  const url = "/posts/" + hit.postId + "/" + hit.postSlug + "#" + hit._id
+  const comment: AlgoliaComment = hit;
+  const url = "/posts/" + comment.postId + "/" + comment.postSlug + "#" + comment._id
   return <div className={classes.root}>
     <Link to={url} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
-        <Components.MetaInfo>{hit.authorDisplayName}</Components.MetaInfo>
-        <Components.MetaInfo>{hit.baseScore} points </Components.MetaInfo>
+        <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
+        <Components.MetaInfo>{comment.baseScore} points </Components.MetaInfo>
         <Components.MetaInfo>
-          <Components.FormatDate date={hit.postedAt}/>
+          <Components.FormatDate date={comment.postedAt}/>
         </Components.MetaInfo>
       </div>
       <div className={classes.snippet}>
-        <Snippet className={classes.snippet} attribute="body" hit={hit} tagName="mark" />
+        <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
       </div>
     </Link>
   </div>

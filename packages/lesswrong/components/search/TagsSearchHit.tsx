@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
+import type { Hit } from 'react-instantsearch';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,17 +25,18 @@ const isLeftClick = (event: MouseEvent): boolean => {
 }
 
 const TagsSearchHit = ({hit, clickAction, classes}: {
-  hit: any,
+  hit: Hit<AlgoliaTag>,
   clickAction?: any,
   classes: ClassesType,
 }) => {
+  const tag: AlgoliaTag = hit;
   return <div className={classes.root}>
-    <Link to={tagGetUrl(hit)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
-        {hit.name}
+        {tag.name}
       </div>
       <div className={classes.snippet}>
-        <Snippet attribute="description" hit={hit} tagName="mark" />
+        <Snippet attribute="description" hit={tag} tagName="mark" />
       </div>
     </Link>
   </div>

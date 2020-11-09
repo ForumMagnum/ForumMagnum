@@ -32,10 +32,10 @@ const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
-Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaDocument>|null> => {
+Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|null> => {
   if (comment.deleted) return null;
   
-  const algoliaComment: AlgoliaDocument = {
+  const algoliaComment: AlgoliaComment = {
     objectID: comment._id,
     _id: comment._id,
     userId: comment.userId,
@@ -48,7 +48,8 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaDocument>|
     userIP: comment.userIP,
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
-    af: comment.af
+    af: comment.af,
+    body: "",
   };
   const commentAuthor = await Users.findOne({_id: comment.userId});
   if (commentAuthor && !commentAuthor.deleted) {
@@ -73,18 +74,19 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaDocument>|
   return [algoliaComment]
 }
 
-Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaDocument>|null> => {
+Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequence>|null> => {
   if (sequence.isDeleted || sequence.draft || sequence.hidden)
     return null;
   
-  const algoliaSequence: AlgoliaDocument = {
+  const algoliaSequence: AlgoliaSequence = {
     objectID: sequence._id,
     _id: sequence._id,
     title: sequence.title,
     userId: sequence.userId,
     baseScore: sequence.baseScore,
     createdAt: sequence.createdAt,
-    af: sequence.af
+    af: sequence.af,
+    plaintextDescription: "",
   };
   const sequenceAuthor = await Users.findOne({_id: sequence.userId});
   if (sequenceAuthor) {
@@ -100,11 +102,11 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaDocumen
   return [algoliaSequence]
 }
 
-Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaDocument>|null> => {
+Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
   if (user.deleted) return null;
   if (user.deleteContent) return null;
   
-  const algoliaUser = {
+  const algoliaUser: AlgoliaUser = {
     _id: user._id,
     objectID: user._id,
     username: user.username,
@@ -122,7 +124,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaDocument>|null> => 
 }
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
-Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => {
+Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
   if (post.status !== Posts.config.STATUS_APPROVED)
     return null;
   if (post.authorIsUnreviewed)
@@ -131,7 +133,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
   const tags = post.tagRelevance ? 
     Object.entries(post.tagRelevance).filter(([tagId, relevance]:[string, number]) => relevance > 0).map(([tagId]) => tagId)
     : []
-  const algoliaMetaInfo: AlgoliaDocument = {
+  const algoliaMetaInfo: AlgoliaPost = {
     _id: post._id,
     userId: post.userId,
     url: post.url,
@@ -149,7 +151,8 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
     af: post.af,
-    tags
+    tags,
+    body: "",
   };
   const postAuthor = await Users.findOne({_id: post.userId});
   if (postAuthor && !postAuthor.deleted) {
@@ -162,7 +165,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
     algoliaMetaInfo.feedName = postFeed.nickname;
     algoliaMetaInfo.feedLink = post.feedLink;
   }
-  let postBatch: Array<AlgoliaDocument> = [];
+  let postBatch: Array<AlgoliaPost> = [];
   let body = ""
   if (post.contents?.originalContents?.type) {
     const { data, type } = post.contents.originalContents
@@ -186,7 +189,7 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaDocument>|null> => 
   return postBatch;
 }
 
-Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaDocument>|null> => {
+Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
   if (tag.deleted) return null;
   if (tag.adminOnly) return null;
   
