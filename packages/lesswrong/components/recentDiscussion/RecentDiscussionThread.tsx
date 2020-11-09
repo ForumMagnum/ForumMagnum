@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useRecordPostView } from '../common/withRecordPostView';
+import { useHistoryPersistentState } from '../hooks/useHistoryPersistentState';
 
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
@@ -113,10 +114,11 @@ const RecentDiscussionThread = ({
   expandAllThreads?: boolean,
   classes: ClassesType,
 }) => {
-  const [highlightVisible, setHighlightVisible] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
-  const [expandAllThreads, setExpandAllThreads] = useState(false);
+  const persistenceKey = post._id;
+  const [highlightVisible, setHighlightVisible] = useHistoryPersistentState(false, `${persistenceKey}-highlightVisible`);
+  const [readStatus, setReadStatus] = useHistoryPersistentState(false, `${persistenceKey}-readStatus`);
+  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useHistoryPersistentState<Date|null>(null, `${persistenceKey}-markedAsVisitedAt`);
+  const [expandAllThreads, setExpandAllThreads] = useHistoryPersistentState(false, `${persistenceKey}-expandAllThreads`);
   const { isRead, recordPostView } = useRecordPostView(post);
   const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
 

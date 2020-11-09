@@ -1,6 +1,7 @@
 import React, {useRef, useEffect, useCallback} from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
 import { useQuery } from '@apollo/client';
+import { useNavigation } from '../../lib/routeUtil';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import gql from 'graphql-tag';
@@ -113,6 +114,8 @@ const MixedTypeFeed = (args: {
   const {Loading} = Components;
   
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
+  const {history} = useNavigation();
+  const lastNavigationWasBack = history.action==="POP";
   const {data, error, fetchMore, refetch} = useQuery(query, {
     variables: {
       ...resolverArgsValues,
@@ -120,7 +123,8 @@ const MixedTypeFeed = (args: {
       cutoff: null,
       limit: firstPageSize,
     },
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: lastNavigationWasBack ? "cache-first" : "cache-and-network",
+    nextFetchPolicy: lastNavigationWasBack ? "cache-first" : "cache-and-network",
     ssr: true,
   });
   
