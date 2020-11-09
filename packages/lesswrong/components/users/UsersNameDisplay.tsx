@@ -45,7 +45,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes}: {
   simple?: boolean,
   classes: ClassesType,
 }) => {
-  const {hover, anchorEl} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
+  const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
 
   if (!user) return <Components.UserNameDeleted/>
   const { FormatDate, LWTooltip } = Components
@@ -67,10 +67,11 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes}: {
   </span>
 
   if (simple) {
-    return <span className={classes.userName}>{userGetDisplayName(user)}</span>
+    return <span {...eventHandlers} className={classes.userName}>{userGetDisplayName(user)}</span>
   }
 
-  return <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+  return <span {...eventHandlers}>
+    <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={tooltip} placement="left">
       <Link to={userGetProfileUrl(user)} className={classes.userName}
           {...(nofollow ? {rel:"nofollow"} : {})}
@@ -78,7 +79,8 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes}: {
         {userGetDisplayName(user)}
       </Link>
     </LWTooltip>
-  </AnalyticsContext>
+    </AnalyticsContext>
+  </span>
 }
 
 const UsersNameDisplayComponent = registerComponent(
