@@ -72,6 +72,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
       highlightDate: lastVisitedAt,
       condensed: true,
       refetch,
+      post,
     };
     
     return <div>
@@ -84,7 +85,6 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
           comment={comment}
           childComments={nestedComments}
           key={comment._id}
-          post={post}
           shortform
           expandByDefault={expandByDefault}
           showExtraChildrenButton={showExtraChildrenButton}

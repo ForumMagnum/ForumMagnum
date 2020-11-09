@@ -112,7 +112,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 interface ExternalProps {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
-  post?: PostsMinimumInfo,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
@@ -120,10 +119,10 @@ interface ExternalProps {
 interface SingleLineCommentProps extends ExternalProps, WithStylesProps, WithHoverProps {
 }
 
-const SingleLineComment = ({treeOptions, comment, post, classes, nestingLevel, hover, parentCommentId, hideKarma }: SingleLineCommentProps) => {
+const SingleLineComment = ({treeOptions, comment, classes, nestingLevel, hover, parentCommentId, hideKarma }: SingleLineCommentProps) => {
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components

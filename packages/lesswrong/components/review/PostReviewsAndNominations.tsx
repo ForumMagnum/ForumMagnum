@@ -53,10 +53,10 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
             lastCommentId: lastCommentId,
             hideSingleLineMeta: singleLine,
             enableHoverPreview: false,
+            post: post,
           }}
           comments={nestedComments}
           startThreadTruncated={true}
-          post={post}
           forceSingleLine={singleLine}
           forceNotSingleLine={!singleLine}
         />

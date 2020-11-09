@@ -45,10 +45,10 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions,
           treeOptions={{
             ...treeOptions,
             lastCommentId: lastCommentId,
+            post: post,
           }}
           comments={nestedComments}
           startThreadTruncated={true}
-          post={post}
           forceSingleLine={forceSingleLine}
         />
         {loading && <Loading/>}

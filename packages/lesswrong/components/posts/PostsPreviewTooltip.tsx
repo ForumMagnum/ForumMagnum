@@ -193,10 +193,9 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
         {renderedComment
           ? <div className={classes.comment}>
               <CommentsNode
-                treeOptions={{}}
+                treeOptions={{post}}
                 truncated
                 comment={renderedComment}
-                post={post}
                 hoverPreview
                 forceNotSingleLine
                 hideReply

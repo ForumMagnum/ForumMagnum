@@ -32,18 +32,16 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
     return <Components.Loading />
   }
   
-  const treeOptions: CommentTreeOptions = {
-    condensed: false,
-  }
-  
   return (
     <div className={classes.root}>
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
-            treeOptions={treeOptions}
+            treeOptions={{
+              condensed: false,
+              post: comment.post || undefined,
+            }}
             comment={comment}
-            post={comment.post || undefined}
             showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine

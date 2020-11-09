@@ -23,10 +23,10 @@ const RepliesToCommentList = ({ terms, post, parentCommentId }: {
   const nestedComments = unflattenComments(results);
   return <CommentsList
     treeOptions={{
+      post,
     }}
     totalComments={results.length}
     comments={nestedComments}
-    post={post}
     startThreadTruncated={true}
     defaultNestingLevel={2}
     parentCommentId={parentCommentId}

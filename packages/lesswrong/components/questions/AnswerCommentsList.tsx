@@ -124,11 +124,11 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
         <CommentsList
           treeOptions={{
             postPage: true,
+            post: post,
             highlightDate: highlightDate,
           }}
           totalComments={totalCount}
           comments={nestedComments}
-          post={post}
           parentCommentId={parentAnswer._id}
           parentAnswerId={parentAnswer._id}
           defaultNestingLevel={2}

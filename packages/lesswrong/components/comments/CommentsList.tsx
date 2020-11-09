@@ -21,7 +21,6 @@ interface ExternalProps {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
-  post?: PostsBase,
   startThreadTruncated?: boolean,
   parentAnswerId?: string,
   defaultNestingLevel?: number,
@@ -48,28 +47,6 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   componentDidMount() {
     const { addKeydownListener } = this.props
     addKeydownListener(this.handleKeyDown);
-  }
-
-  shouldComponentUpdate(nextProps: CommentsListProps, nextState: CommentsListState) {
-    if(!shallowEqual(this.state, nextState))
-      return true;
-
-    if(!shallowEqualExcept(this.props, nextProps,
-      ["post","comments"]))
-    {
-      return true;
-    }
-
-    if ((this.props.post==null) != (nextProps.post==null))
-      return true;
-    if (this.props.post?._id != nextProps.post?._id)
-      return true;
-    if ((this.props.post as any)?.contents?.version != (nextProps.post as any)?.contents?.version)
-      return true;
-
-    if(this.commentTreesDiffer(this.props.comments, nextProps.comments))
-      return true;
-    return false;
   }
 
   commentTreesDiffer(oldComments: Array<CommentTreeNode<CommentsList>>, newComments: Array<CommentTreeNode<CommentsList>>) {
@@ -119,11 +96,9 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   }
 
   render() {
-    const { treeOptions, comments, post, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, parentCommentId, forceSingleLine, forceNotSingleLine } = this.props;
+    const { treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, parentCommentId, forceSingleLine, forceNotSingleLine } = this.props;
 
     const { expandAllThreads } = this.state
-    const lastVisitedAt = post?.lastVisitedAt;
-    const lastCommentedAt = post ? postGetLastCommentedAt(post) : null;
     
     if (comments) {
       return (
@@ -138,11 +113,10 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
                 comment={comment.item}
                 childComments={comment.children}
                 key={comment.item._id}
-                post={post}
                 parentAnswerId={parentAnswerId}
                 forceSingleLine={forceSingleLine}
                 forceNotSingleLine={forceNotSingleLine}
-                shortform={post?.shortform}
+                shortform={(treeOptions.post as PostsBase)?.shortform}
                 child={defaultNestingLevel > 1}
               />)
             }

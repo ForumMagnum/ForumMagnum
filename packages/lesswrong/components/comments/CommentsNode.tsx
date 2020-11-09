@@ -127,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-type ExternalProps = ({
+type ExternalProps = {
   treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
@@ -147,15 +147,8 @@ type ExternalProps = ({
   forceNotSingleLine?: boolean,
   childComments?: Array<CommentTreeNode<CommentsList>>,
   hideReply?: boolean,
-} & ({
-  // Type of "post" needs to have more metadata if the loadChildrenSeparately
-  // option is passed
-  post?: PostsMinimumInfo,
-  loadChildrenSeparately?: undefined|false,
-} | {
-  loadChildrenSeparately: true,
-  post?: PostsBase,
-}))
+  loadChildrenSeparately?: boolean,
+}
 
 type CommentsNodeProps = ExternalProps & WithUserProps & WithStylesProps & WithLocationProps;
 
@@ -217,8 +210,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   }
 
   componentDidMount() {
-    const { comment, post, location } = this.props
-    const { postPage } = this.props.treeOptions;
+    const { comment, location } = this.props
+    const { postPage, post } = this.props.treeOptions;
     let commentHash = location.hash;
     if (comment && commentHash === ("#" + comment._id) && post && postPage) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
@@ -314,12 +307,12 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
 
   render() {
     const {
-      treeOptions, comment, childComments, nestingLevel=1, post,
+      treeOptions, comment, childComments, nestingLevel=1,
       classes, child, showPostTitle,
       parentAnswerId, loadChildrenSeparately, shortform, parentCommentId,
       showExtraChildrenButton, noHash, hoverPreview, hideReply, expandByDefault,
     } = this.props;
-    const { postPage, highlightDate, condensed } = treeOptions;
+    const { postPage, highlightDate, condensed, post } = treeOptions;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
@@ -341,7 +334,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
         "comments-node-root" : updatedNestingLevel === 1,
         "comments-node-even" : updatedNestingLevel % 2 === 0,
         "comments-node-odd"  : updatedNestingLevel % 2 !== 0,
-        [classes.highlightAnimation] : highlighted,
+        [classes.highlightAnimation]: highlighted,
         "comments-node-its-getting-nested-here": updatedNestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": updatedNestingLevel > 12,
         "comments-node-im-getting-so-nested": updatedNestingLevel > 16,
@@ -368,7 +361,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       }
     )
 
-    const passedThroughItemProps = { post, comment, showPostTitle, collapsed, hideReply }
+    const passedThroughItemProps = { comment, showPostTitle, collapsed, hideReply }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -383,7 +376,6 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                       <SingleLineComment
                         treeOptions={treeOptions}
                         comment={comment}
-                        post={post}
                         nestingLevel={updatedNestingLevel}
                         parentCommentId={parentCommentId}
                         hideKarma={post?.hideCommentKarma}
@@ -417,7 +409,6 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                   truncated={this.isTruncated()}
                   childComments={child.children}
                   key={child.item._id}
-                  post={post}
                 />)}
             </div>}
 

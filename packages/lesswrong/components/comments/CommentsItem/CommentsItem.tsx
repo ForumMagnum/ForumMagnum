@@ -122,7 +122,6 @@ interface ExternalProps {
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
   showPostTitle?: boolean,
-  post?: PostsMinimumInfo,
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
@@ -148,16 +147,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
       showEdit: false,
       showParent: false
     };
-  }
-
-  shouldComponentUpdate(nextProps: CommentsItemProps, nextState: CommentsItemState) {
-    if(!shallowEqual(this.state, nextState))
-      return true;
-    if(!shallowEqualExcept(this.props, nextProps, ["post"]))
-      return true;
-    if (((nextProps.post as any)?.contents?.version) !== ((this.props.post as any)?.contents?.version))
-      return true;
-    return false;
   }
 
   showReply = (event: React.MouseEvent) => {
@@ -202,8 +191,8 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   render() {
-    const { treeOptions, comment, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
-    const { postPage, tag } = treeOptions;
+    const { treeOptions, comment, nestingLevel=1, showPostTitle, classes, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
+    const { postPage, tag, post } = treeOptions;
 
     const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
 
@@ -295,7 +284,8 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
   
   renderMenu = () => {
-    const { classes, comment, post } = this.props;
+    const { treeOptions, classes, comment } = this.props;
+    const { post } = treeOptions;
     const { CommentsMenu } = Components;
     return (
       <span className={classes.metaRight}>
@@ -334,7 +324,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser, collapsed, classes, hideReply } = this.props;
+    const { treeOptions, comment, currentUser, collapsed, classes, hideReply } = this.props;
     const { CommentBottomCaveats } = Components
 
     if (!collapsed) {
@@ -349,7 +339,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
         // here. We should do something more complicated to give client-side feedback
         // if you're banned.
         // @ts-ignore
-        (!currentUser || userIsAllowedToComment(currentUser, this.props.post))
+        (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
       )
 
       return (
@@ -366,13 +356,13 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   renderReply = () => {
-    const { post, comment, classes, parentAnswerId, nestingLevel=1 } = this.props
+    const { treeOptions, comment, classes, parentAnswerId, nestingLevel=1 } = this.props
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
       <div className={classNames(classes.replyForm, levelClass)}>
         <Components.CommentsNewForm
-          post={post}
+          post={treeOptions.post}
           parentComment={comment}
           successCallback={this.replySuccessCallback}
           cancelCallback={this.replyCancelCallback}

@@ -162,6 +162,7 @@ const RecentDiscussionThread = ({
     highlightDate: lastVisitedAt,
     refetch: refetch,
     condensed: true,
+    post: post,
   };
 
   return (
@@ -206,7 +207,6 @@ const RecentDiscussionThread = ({
                   comment={comment.item}
                   childComments={comment.children}
                   key={comment.item._id}
-                  post={post}
                 />
               </div>
             )}
