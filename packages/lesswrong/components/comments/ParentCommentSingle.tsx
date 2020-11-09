@@ -27,7 +27,7 @@ const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }:
           "comments-node-odd"  : nestingLevel % 2 != 0,
         }
       )}>
-        <Components.CommentsItem isParentComment comment={document} nestingLevel={nestingLevel} post={post} tag={tag} truncated={!!truncated}/>
+        <Components.CommentsItem treeOptions={{tag}} isParentComment comment={document} nestingLevel={nestingLevel} post={post} truncated={!!truncated}/>
       </div>
     )
   } else {

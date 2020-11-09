@@ -7,6 +7,7 @@ import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
+import type { CommentTreeOptions } from './commentTree';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
@@ -127,36 +128,25 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 type ExternalProps = ({
+  treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
-  condensed?: boolean,
   truncated?: boolean,
-  lastCommentId?: string,
   shortform?: any,
   nestingLevel?: number,
-  highlightDate?: Date,
   expandAllThreads?:boolean,
   expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
-  muiTheme?: any,
   child?: any,
   showPostTitle?: boolean,
-  unreadComments?: any,
   parentAnswerId?: string|null,
-  markAsRead?: any,
-  refetch?: any,
   parentCommentId?: string,
   showExtraChildrenButton?: any,
   noHash?: boolean,
-  scrollOnExpand?: boolean,
-  hideSingleLineMeta?: boolean,
   hoverPreview?: boolean,
-  enableHoverPreview?: boolean,
   forceSingleLine?: boolean,
   forceNotSingleLine?: boolean,
-  postPage?: boolean,
   childComments?: Array<CommentTreeNode<CommentsList>>,
   hideReply?: boolean,
-  tag?: TagBasicInfo,
 } & ({
   // Type of "post" needs to have more metadata if the loadChildrenSeparately
   // option is passed
@@ -206,7 +196,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   }
 
   beginSingleLine = (): boolean => {
-    const { comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage, forceNotSingleLine } = this.props
+    const { treeOptions, comment, forceSingleLine, shortform, nestingLevel, forceNotSingleLine } = this.props
+    const { lastCommentId, condensed, postPage } = treeOptions;
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
@@ -226,7 +217,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   }
 
   componentDidMount() {
-    const { comment, post, location, postPage } = this.props
+    const { comment, post, location } = this.props
+    const { postPage } = this.props.treeOptions;
     let commentHash = location.hash;
     if (comment && commentHash === ("#" + comment._id) && post && postPage) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
@@ -256,7 +248,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   }
 
   handleExpand = async (event: React.MouseEvent) => {
-    const { markAsRead, scrollOnExpand } = this.props
+    const { markAsRead, scrollOnExpand } = this.props.treeOptions
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
       markAsRead && await markAsRead()
@@ -304,7 +296,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   }
 
   isNewComment = (): boolean => {
-    const { comment, highlightDate } = this.props;
+    const { comment, treeOptions } = this.props;
+    const { highlightDate } = treeOptions;
     return !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
   }
 
@@ -321,12 +314,12 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
 
   render() {
     const {
-      comment, childComments, nestingLevel=1, highlightDate, post,
-      muiTheme, postPage=false, classes, child, showPostTitle, unreadComments,
-      parentAnswerId, condensed, markAsRead, lastCommentId,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply, expandByDefault,
-      tag
+      treeOptions, comment, childComments, nestingLevel=1, post,
+      classes, child, showPostTitle,
+      parentAnswerId, loadChildrenSeparately, shortform, parentCommentId,
+      showExtraChildrenButton, noHash, hoverPreview, hideReply, expandByDefault,
     } = this.props;
+    const { postPage, highlightDate, condensed } = treeOptions;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
@@ -375,8 +368,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, showPostTitle, collapsed, refetch, hideReply, tag }
-    const passedThroughNodeProps = { postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview, tag }
+    const passedThroughItemProps = { post, comment, showPostTitle, collapsed, hideReply }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -389,17 +381,17 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                 ? <AnalyticsContext singleLineComment commentId={comment._id}>
                     <AnalyticsTracker eventType="singeLineComment">
                       <SingleLineComment
+                        treeOptions={treeOptions}
                         comment={comment}
                         post={post}
                         nestingLevel={updatedNestingLevel}
                         parentCommentId={parentCommentId}
                         hideKarma={post?.hideCommentKarma}
-                        hideSingleLineMeta={hideSingleLineMeta}
-                        enableHoverPreview={enableHoverPreview}
                       />
                     </AnalyticsTracker>
                   </AnalyticsContext>
                 : <CommentsItem
+                    treeOptions={treeOptions}
                     truncated={this.isTruncated() && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
                     nestingLevel={updatedNestingLevel}
                     parentCommentId={parentCommentId}
@@ -417,6 +409,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
               { showExtraChildrenButton }
               {childComments.map(child =>
                 <Components.CommentsNode child
+                  treeOptions={treeOptions}
                   comment={child.item}
                   parentCommentId={comment._id}
                   parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
@@ -425,7 +418,6 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                   childComments={child.children}
                   key={child.item._id}
                   post={post}
-                  {...passedThroughNodeProps}
                 />)}
             </div>}
 

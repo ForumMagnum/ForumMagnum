@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import Typography from '@material-ui/core/Typography';
+import type { CommentTreeOptions } from './commentTree';
 
 const styles = (theme: ThemeType): JssStyles =>  ({
   root: {
@@ -31,17 +32,21 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
     return <Components.Loading />
   }
   
+  const treeOptions: CommentTreeOptions = {
+    condensed: false,
+  }
+  
   return (
     <div className={classes.root}>
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
+            treeOptions={treeOptions}
             comment={comment}
             post={comment.post || undefined}
             showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine
-            condensed={false}
           />
         </div>
       )}

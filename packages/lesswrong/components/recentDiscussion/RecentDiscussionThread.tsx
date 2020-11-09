@@ -14,6 +14,7 @@ import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import type { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -153,6 +154,15 @@ const RecentDiscussionThread = ({
   const highlightClasses = classNames(classes.highlight, classes.postHighlight, {
     [classes.noComments]: post.commentCount === null
   })
+  
+  const treeOptions: CommentTreeOptions = {
+    scrollOnExpand: true,
+    lastCommentId: lastCommentId,
+    markAsRead: markAsRead,
+    highlightDate: lastVisitedAt,
+    refetch: refetch,
+    condensed: true,
+  };
 
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
@@ -189,19 +199,14 @@ const RecentDiscussionThread = ({
             {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
                 <CommentsNode
+                  treeOptions={treeOptions}
                   startThreadTruncated={true}
                   expandAllThreads={initialExpandAllThreads || expandAllThreads}
-                  scrollOnExpand
                   nestingLevel={1}
-                  lastCommentId={lastCommentId}
                   comment={comment.item}
-                  markAsRead={markAsRead}
-                  highlightDate={lastVisitedAt}
                   childComments={comment.children}
                   key={comment.item._id}
                   post={post}
-                  refetch={refetch}
-                  condensed
                 />
               </div>
             )}

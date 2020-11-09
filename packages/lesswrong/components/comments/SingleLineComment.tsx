@@ -7,6 +7,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
+import { CommentTreeOptions } from './commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -109,19 +110,20 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
+  treeOptions: CommentTreeOptions,
   comment: CommentsList,
   post?: PostsMinimumInfo,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
-  enableHoverPreview?: boolean,
-  hideSingleLineMeta?: boolean,
 }
 interface SingleLineCommentProps extends ExternalProps, WithStylesProps, WithHoverProps {
 }
 
-const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}: SingleLineCommentProps) => {
+const SingleLineComment = ({treeOptions, comment, post, classes, nestingLevel, hover, parentCommentId, hideKarma }: SingleLineCommentProps) => {
   if (!comment) return null
+  
+  const { enableHoverPreview=true, hideSingleLineMeta } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components

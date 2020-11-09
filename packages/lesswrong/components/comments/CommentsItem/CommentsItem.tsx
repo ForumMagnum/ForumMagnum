@@ -12,6 +12,7 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import type { CommentTreeOptions } from '../commentTree';
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -117,13 +118,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  refetch?: any,
+  treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
-  postPage?: boolean,
   nestingLevel: number,
   showPostTitle?: boolean,
   post?: PostsMinimumInfo,
-  tag?: TagBasicInfo,
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
@@ -171,7 +170,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
 }
 
   replySuccessCallback = () => {
-    const { refetch } = this.props 
+    const { refetch } = this.props.treeOptions;
     if (refetch) {
       refetch()
     }
@@ -187,7 +186,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   editSuccessCallback = () => {
-    const { refetch } = this.props 
+    const { refetch } = this.props.treeOptions 
     if (refetch) {
       refetch()
     }
@@ -203,7 +202,8 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   render() {
-    const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView, tag } = this.props
+    const { treeOptions, comment, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
+    const { postPage, tag } = treeOptions;
 
     const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
 
@@ -313,7 +313,8 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
   
   renderBodyOrEditor = () => {
-    const { comment, truncated, collapsed, postPage } = this.props;
+    const { treeOptions, comment, truncated, collapsed } = this.props;
+    const { postPage } = treeOptions;
     const { showEdit } = this.state;
     
     if (showEdit) {

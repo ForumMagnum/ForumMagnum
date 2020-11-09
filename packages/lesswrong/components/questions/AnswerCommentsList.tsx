@@ -122,14 +122,16 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
       )}>
         { loadingMore && <Loading /> }
         <CommentsList
+          treeOptions={{
+            postPage: true,
+            highlightDate: highlightDate,
+          }}
           totalComments={totalCount}
           comments={nestedComments}
-          highlightDate={highlightDate}
           post={post}
           parentCommentId={parentAnswer._id}
           parentAnswerId={parentAnswer._id}
           defaultNestingLevel={2}
-          postPage
           startThreadTruncated
         />
       </div>

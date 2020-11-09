@@ -174,11 +174,14 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
           <Components.CantCommentExplanation post={post}/>
         }
         <Components.CommentsList
+          treeOptions={{
+            highlightDate: this.state.highlightDate,
+            postPage: true,
+            tag: tag,
+          }}
           totalComments={totalComments}
           comments={comments}
-          highlightDate={this.state.highlightDate}
-          post={post} tag={tag}
-          postPage
+          post={post}
           startThreadTruncated={startThreadTruncated}
           parentAnswerId={parentAnswerId}
         />

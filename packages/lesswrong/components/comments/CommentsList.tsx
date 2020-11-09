@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
+import type { CommentTreeOptions } from './commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -17,22 +18,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
 interface ExternalProps {
+  treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
-  highlightDate?: Date,
   post?: PostsBase,
-  tag?: TagBasicInfo,
-  postPage?: boolean,
-  condensed?: boolean,
   startThreadTruncated?: boolean,
   parentAnswerId?: string,
   defaultNestingLevel?: number,
-  lastCommentId?: string,
-  markAsRead?: any,
   parentCommentId?: string,
   forceSingleLine?: boolean,
-  hideSingleLineMeta?: boolean,
-  enableHoverPreview?: boolean,
   forceNotSingleLine?: boolean,
 }
 interface CommentsListProps extends ExternalProps, WithUserProps, WithGlobalKeydownProps, WithStylesProps {
@@ -125,13 +119,12 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   }
 
   render() {
-    const { comments, highlightDate, post, postPage, tag, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
+    const { treeOptions, comments, post, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, parentCommentId, forceSingleLine, forceNotSingleLine } = this.props;
 
     const { expandAllThreads } = this.state
     const lastVisitedAt = post?.lastVisitedAt;
     const lastCommentedAt = post ? postGetLastCommentedAt(post) : null;
-    const unreadComments = lastVisitedAt && lastCommentedAt && (lastVisitedAt < lastCommentedAt);
-
+    
     if (comments) {
       return (
         <Components.ErrorBoundary>
@@ -139,28 +132,18 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
           <div>
             {comments.map(comment =>
               <Components.CommentsNode
+                treeOptions={treeOptions}
                 startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
                 expandAllThreads={expandAllThreads}
-                unreadComments={unreadComments}
                 comment={comment.item}
-                parentCommentId={parentCommentId}
-                nestingLevel={defaultNestingLevel}
-                lastCommentId={lastCommentId}
                 childComments={comment.children}
                 key={comment.item._id}
-                highlightDate={highlightDate}
                 post={post}
-                tag={tag}
-                postPage={postPage}
                 parentAnswerId={parentAnswerId}
-                condensed={condensed}
                 forceSingleLine={forceSingleLine}
                 forceNotSingleLine={forceNotSingleLine}
-                hideSingleLineMeta={hideSingleLineMeta}
-                enableHoverPreview={enableHoverPreview}
                 shortform={post?.shortform}
                 child={defaultNestingLevel > 1}
-                markAsRead={markAsRead}
               />)
             }
           </div>

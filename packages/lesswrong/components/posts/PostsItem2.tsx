@@ -548,11 +548,13 @@ const PostsItem2 = ({
 
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
-              highlightDate={markedVisitedAt || post.lastVisitedAt}
               terms={commentTerms}
               post={post}
-              condensed={condensedAndHiddenComments}
-              markAsRead={markAsRead}
+              treeOptions={{
+                highlightDate: markedVisitedAt || post.lastVisitedAt,
+                condensed: condensedAndHiddenComments,
+                markAsRead: markAsRead,
+              }}
             />
           </div>}
         </div>

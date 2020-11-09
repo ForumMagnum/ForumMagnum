@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
+import type { CommentTreeOptions } from './commentTree';
 import withRecordPostView from '../common/withRecordPostView';
 import withErrorBoundary from '../common/withErrorBoundary';
 
@@ -65,22 +66,26 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
         Showing 3 of {comment.latestChildren.length } replies (Click to show all)
       </a> : null
 
+    const treeOptions: CommentTreeOptions = {
+      lastCommentId,
+      markAsRead: this.markAsRead,
+      highlightDate: lastVisitedAt,
+      condensed: true,
+      refetch,
+    };
+    
     return <div>
         <CommentsNode
+          treeOptions={treeOptions}
           noHash
           startThreadTruncated={true}
           showPostTitle={showTitle}
           nestingLevel={1}
-          lastCommentId={lastCommentId}
           comment={comment}
-          markAsRead={this.markAsRead}
-          highlightDate={lastVisitedAt}
           childComments={nestedComments}
           key={comment._id}
           post={post}
-          condensed
           shortform
-          refetch={refetch}
           expandByDefault={expandByDefault}
           showExtraChildrenButton={showExtraChildrenButton}
         />

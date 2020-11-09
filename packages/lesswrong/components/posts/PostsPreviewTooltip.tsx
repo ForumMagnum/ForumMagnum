@@ -193,6 +193,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
         {renderedComment
           ? <div className={classes.comment}>
               <CommentsNode
+                treeOptions={{}}
                 truncated
                 comment={renderedComment}
                 post={post}
