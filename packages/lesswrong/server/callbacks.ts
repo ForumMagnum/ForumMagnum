@@ -10,7 +10,8 @@ import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
-import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, Utils, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
@@ -83,7 +84,7 @@ const reverseVote = async (vote: DbVote) => {
 }
 
 const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
-  const collectionName = Utils.capitalize(collection._name);
+  const collectionName = capitalize(collection._name);
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -258,7 +259,7 @@ getCollectionHooks("Users").newSync.add(function fixUsernameOnGithubLogin(user: 
     //eslint-disable-next-line no-console
     console.info("Github login detected, setting username and slug manually");
     user.username = user.services.github.username
-    const basicSlug = Utils.slugify(user.services.github.username)
+    const basicSlug = slugify(user.services.github.username)
     user.slug = Utils.getUnusedSlugByCollectionName('Users', basicSlug)
   }
   return user;

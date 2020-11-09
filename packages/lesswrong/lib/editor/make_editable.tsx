@@ -1,6 +1,6 @@
 import React from 'react';
-import Users from '../collections/users/collection'
-import { Utils } from '../vulcan-lib';
+import { userOwns } from '../vulcan-users/permissions';
+import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
@@ -27,7 +27,7 @@ const defaultOptions = {
   commentLocalStorage: false,
   permissions: {
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members']
   },
   fieldName: "",
@@ -122,7 +122,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       },
     },
     
-    [Utils.camelCaseify(`${fieldName}Revisions`)]: {
+    [camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
       viewableBy: ['guests'],
       optional: true,
@@ -139,7 +139,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       }
     },
     
-    [Utils.camelCaseify(`${fieldName}Version`)]: {
+    [camelCaseify(`${fieldName}Version`)]: {
       type: String,
       viewableBy: ['guests'],
       optional: true,

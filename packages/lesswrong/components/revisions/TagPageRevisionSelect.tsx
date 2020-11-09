@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -39,9 +39,9 @@ const TagPageRevisionSelect = ({ classes }: {
 
   if (!tag) return null
 
-  const getRevisionUrl = (rev: RevisionMetadata) => `${Tags.getUrl(tag)}?revision=${rev.version}`
+  const getRevisionUrl = (rev: RevisionMetadata) => `${tagGetUrl(tag)}?revision=${rev.version}`
   return <SingleColumnSection>
-    <h1><Link to={Tags.getUrl(tag)}>{tag.name}</Link></h1>
+    <h1><Link to={tagGetUrl(tag)}>{tag.name}</Link></h1>
     
     {(loadingTag || loadingRevisions) && <Loading/>}
     {revisions && <div>

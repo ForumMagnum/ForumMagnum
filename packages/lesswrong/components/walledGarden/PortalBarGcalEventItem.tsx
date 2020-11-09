@@ -24,12 +24,16 @@ const styles = (theme) => ({
 
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
   const { LWTooltip } = Components
-  const link = <a href={gcalEvent.htmlLink} target="_blank" rel="noopener noreferrer">
+
+  const urlParams = new URLSearchParams(gcalEvent.htmlLink.split('?')[1])
+  const eid = urlParams.get("eid")
+  const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${gcalEvent.organizer.email}`
+  const link = <a href={addToCalendarLink} target="_blank" rel="noopener noreferrer">
     {gcalEvent.summary}
   </a>
-  
+
   return <div className={classes.root}>
-      {gcalEvent.description ? 
+      {gcalEvent.description ?
         <LWTooltip title={<div className={classes.tooltip}>{gcalEvent.description}</div>}>
           {link}
         </LWTooltip>

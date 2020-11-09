@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from '../../../lib/collections/users/collection';
+import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
@@ -43,7 +43,7 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
   render() {
     const { currentUser, comment, post } = this.props
     if (!comment.topLevelCommentId && post.question &&
-        (Users.canDo(currentUser, "comments.edit.all") || Users.owns(currentUser, comment))) {
+        (userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment))) {
 
         if (comment.answer) {
           return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import Tags from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 
@@ -29,7 +29,7 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
   classes: ClassesType,
 }) => {
   return <div className={classes.root}>
-    <Link to={Tags.getUrl(hit)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={tagGetUrl(hit)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
         {hit.name}
       </div>

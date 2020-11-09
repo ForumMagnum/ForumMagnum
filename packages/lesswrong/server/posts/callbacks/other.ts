@@ -11,6 +11,7 @@ Callbacks to:
 */
 
 import { Posts } from '../../../lib/collections/posts';
+import { postIsApproved } from '../../../lib/collections/posts/helpers';
 import { addCallback, Connectors, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
 import { getCollectionHooks } from '../../mutationCallbacks';
 
@@ -19,7 +20,7 @@ import { getCollectionHooks } from '../../mutationCallbacks';
 //////////////////////////////////////////////////////
 
 getCollectionHooks("Posts").editSync.add(function PostsEditRunPostApprovedSyncCallbacks(modifier, post) {
-  if (modifier.$set && Posts.isApproved(modifier.$set) && !Posts.isApproved(post)) {
+  if (modifier.$set && postIsApproved(modifier.$set) && !postIsApproved(post)) {
     modifier = runCallbacks({
       name: 'posts.approve.sync',
       iterator: modifier,
@@ -34,7 +35,7 @@ getCollectionHooks("Posts").editSync.add(function PostsEditRunPostApprovedSyncCa
 //////////////////////////////////////////////////////
 
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
-  if (Posts.isApproved(post) && !Posts.isApproved(oldPost)) {
+  if (postIsApproved(post) && !postIsApproved(oldPost)) {
     runCallbacksAsync({
       name: 'posts.approve.async',
       properties: [post]

@@ -74,19 +74,19 @@ export const withUpdate = options => {
 
 export default withUpdate;
 
-export const useUpdate = ({
+export const useUpdate = <T extends DbObject>({
   collectionName, collection,
   fragmentName: fragmentNameArg, fragment: fragmentArg,
 }: {
   collectionName?: CollectionNameString,
-  collection?: any,
+  collection?: CollectionBase<T>,
   fragmentName?: string,
   fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
-  const typeName = collection.options.typeName;
+  const typeName = collection!.options.typeName;
   const query = gql`
     ${updateClientTemplate({ typeName, fragmentName })}
     ${fragment}

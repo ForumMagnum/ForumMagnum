@@ -1,6 +1,7 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { registerComponent, Utils } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,7 +20,7 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}: {
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
-  const accountLink = `${Utils.getSiteUrl()}account`
+  const accountLink = `${getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()
   
   // Put props for some HTML elements in any-typed objects, because emails use

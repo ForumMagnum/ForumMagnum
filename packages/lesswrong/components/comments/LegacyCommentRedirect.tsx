@@ -3,8 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from './useComment';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Posts } from '../../lib/collections/posts/collection';
+import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 
 const LegacyCommentRedirect = () => {
@@ -15,13 +15,13 @@ const LegacyCommentRedirect = () => {
   const { comment, loading: loadingComment } = useCommentByLegacyId({ legacyId: legacyCommentId });
   
   if (post && comment) {
-    const canonicalUrl = Comments.getPageUrlFromIds({
+    const canonicalUrl = commentGetPageUrlFromIds({
       postId: post._id, postSlug: post.slug,
       commentId: comment._id, permalink: true
     });
     return <Components.PermanentRedirect url={canonicalUrl}/>
   } else if (post) {
-    const canonicalUrl = Posts.getPageUrl(post);
+    const canonicalUrl = postGetPageUrl(post);
     return <Components.PermanentRedirect url={canonicalUrl}/>
   } else {
     return (loadingPost || loadingComment) ? <Components.Loading/> : <Components.Error404/>;

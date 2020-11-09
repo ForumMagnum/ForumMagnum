@@ -1,12 +1,16 @@
 import Notifications from '../lib/collections/notifications/collection';
 import Messages from '../lib/collections/messages/collection';
+import { messageGetLink } from '../lib/helpers';
 import Conversations from '../lib/collections/conversations/collection';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
+import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
-import { Comments } from '../lib/collections/comments'
+import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { Comments } from '../lib/collections/comments/collection'
+import { commentGetPageUrl } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
@@ -209,16 +213,16 @@ const getLink = (notificationType: string, documentType: string|null, documentId
   
   switch(documentType) {
     case "post":
-      return Posts.getPageUrl(document as DbPost);
+      return postGetPageUrl(document as DbPost);
     case "comment":
-      return Comments.getPageUrl(document as DbComment);
+      return commentGetPageUrl(document as DbComment);
     case "user":
-      return Users.getProfileUrl(document as DbUser);
+      return userGetProfileUrl(document as DbUser);
     case "message":
-      return Messages.getLink(document as DbMessage);
+      return messageGetLink(document as DbMessage);
     case "tagRel":
       const post = Posts.findOne({_id: (document as DbTagRel).postId})
-      return Posts.getPageUrl(post as DbPost);
+      return postGetPageUrl(post as DbPost);
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");

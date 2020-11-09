@@ -43,7 +43,8 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
-import { extractCollectionInfo, extractFragmentInfo, multiClientTemplate, Utils } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo, multiClientTemplate } from '../vulcan-lib';
+import { pluralize } from '../vulcan-lib/utils';
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -87,7 +88,7 @@ export function withMulti({
   notifyOnNetworkStatusChange?: boolean,
   propertyName?: string,
   collectionName?: CollectionNameString,
-  collection?: any,
+  collection?: CollectionBase<any>,
   fragmentName?: string,
   fragment?: any,
   terms?: any,
@@ -99,8 +100,8 @@ export function withMulti({
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
-  const typeName = collection.options.typeName;
-  const resolverName = collection.options.multiResolverName;
+  const typeName = collection!.options.typeName;
+  const resolverName = collection!.options.multiResolverName;
   
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
 
@@ -122,7 +123,7 @@ export function withMulti({
       query,
 
       {
-        alias: `with${Utils.pluralize(typeName)}`,
+        alias: `with${pluralize(typeName)}`,
 
         // graphql query options
         options(props: any) {

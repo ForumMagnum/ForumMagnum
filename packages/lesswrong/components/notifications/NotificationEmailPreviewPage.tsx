@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useQuery } from '@apollo/client';
@@ -25,7 +25,7 @@ const NotificationEmailPreviewPage = () => {
     ssr: true
   });
   
-  if (!Users.isAdmin(currentUser))
+  if (!userIsAdmin(currentUser))
     return <div>You must be logged in as an admin to use this page.</div>;
 
   const emails = data?.EmailPreview;

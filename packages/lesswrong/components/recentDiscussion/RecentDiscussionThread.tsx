@@ -13,7 +13,7 @@ import { useHistoryPersistentState } from '../hooks/useHistoryPersistentState';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -161,7 +161,7 @@ const RecentDiscussionThread = ({
       <div className={classes.root}>
         <div className={classes.post}>
           <div className={classes.postItem}>
-            <Link to={Posts.getPageUrl(post)} className={classes.title}>
+            <Link to={postGetPageUrl(post)} className={classes.title}>
                 {post.title}
             </Link>
             <div className={classes.threadMeta} onClick={showHighlight}>

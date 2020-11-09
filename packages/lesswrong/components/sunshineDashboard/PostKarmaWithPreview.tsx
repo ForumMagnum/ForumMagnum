@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useHover } from '../common/withHover';
-import Posts from '../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -22,7 +22,7 @@ const PostKarmaWithPreview = ({ post, classes }: {
   if (!post) return null 
 
   return <span className={classes.root} {...eventHandlers}>
-    <Link to={Posts.getPageUrl(post)}>{post.baseScore}</Link>
+    <Link to={postGetPageUrl(post)}>{post.baseScore}</Link>
     <LWPopper
         open={hover}
         anchorEl={anchorEl}

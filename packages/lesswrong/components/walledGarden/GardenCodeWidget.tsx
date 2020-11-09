@@ -44,15 +44,15 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
     event.target.select()
   }
 
-  const generatedLink = `https://garden.lesswrong.com?code=${currentCode?.code}&event=${currentCode?.slug}`
+  const generatedLink = `http://garden.lesswrong.com?code=${currentCode?.code}&event=${currentCode?.slug}`
 
   if (!currentUser) return null
 
-  if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>Invite Friends</Button>
+  if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>MAKE INVITE LINKS</Button>
 
   return <div className={classes.root}>
     <div className={classes.row}>
-      <h3>Generate Invite Links</h3> 
+      <h3>Generate Invite Links</h3>
       <a className={classes.hide} onClick={()=>setOpen(false)}>X</a>
     </div>
     {!!currentCode

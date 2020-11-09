@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -79,7 +79,7 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
         {!hideMeta && <MetaInfo className={classes.karma}>
           <PostsItemKarma post={post} placement="right"/>
         </MetaInfo>}
-        <Link to={Posts.getPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
+        <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}
         </Link>
         {!hideMeta && post.user && <MetaInfo className={classes.author}>

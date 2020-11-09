@@ -46,7 +46,8 @@ import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { intlShape } from '../../lib/vulcan-i18n';
-import { getErrors, mergeWithComponents, registerComponent, runCallbacks, Utils } from '../../lib/vulcan-lib';
+import { getErrors, mergeWithComponents, registerComponent, runCallbacks } from '../../lib/vulcan-lib';
+import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
@@ -104,7 +105,7 @@ const getInitialStateFromProps = nextProps => {
   });
 
   // remove all instances of the `__typename` property from document
-  Utils.removeProperty(initialDocument, '__typename');
+  removeProperty(initialDocument, '__typename');
 
   return {
     disabled: false,
