@@ -3,7 +3,7 @@ import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
-import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
+import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
 import * as _ from 'underscore';
 
@@ -24,11 +24,9 @@ const loadMoreTimeframeMessages = {
   'yearly': 'Load More Years',
 }
 
-type TimeframeType = "daily"|"weekly"|"monthly"|"yearly";
-
 interface ExternalProps {
-  after: Date
-  before: Date
+  after: Date|string
+  before: Date|string
   timeframe: TimeframeType,
   numTimeBlocks?: number,
   postListParameters: any,
@@ -40,9 +38,9 @@ interface PostsTimeframeListProps extends ExternalProps, WithStylesProps, WithTi
 }
 interface PostsTimeframeListState {
   // after goes backwards in time when we load more time blocks
-  after: Date,
+  after: Date|string,
   // See below for reasoning behind inclusion
-  before: Date,
+  before: Date|string,
   // Must include timeframe in state if we include after. Although timeframe
   // as stored in state is the same as the timeframe passed down from props
   // 99.999% of the time...
