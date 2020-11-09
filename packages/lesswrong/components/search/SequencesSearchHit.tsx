@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { Hit } from 'react-instantsearch';
+import type { Hit } from 'react-instantsearch-core';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {

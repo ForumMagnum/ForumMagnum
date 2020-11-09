@@ -1,7 +1,7 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
-import type { Hit } from 'react-instantsearch';
+import type { Hit } from 'react-instantsearch-core';
 import React from 'react';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -21,11 +21,11 @@ const isLeftClick = (event: MouseEvent): boolean => {
 }
 
 const CommentsSearchHit = ({hit, clickAction, classes}: {
-  hit: Hit<AlgoliaComment>,
+  hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
 }) => {
-  const comment: AlgoliaComment = hit;
+  const comment = (hit as AlgoliaComment);
   const url = "/posts/" + comment.postId + "/" + comment.postSlug + "#" + comment._id
   return <div className={classes.root}>
     <Link to={url} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>

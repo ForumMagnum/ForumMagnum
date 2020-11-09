@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
-import type { Hit } from 'react-instantsearch';
+import type { Hit } from 'react-instantsearch-core';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,11 +17,11 @@ const isLeftClick = (event: MouseEvent): boolean => {
 }
 
 const UsersSearchHit = ({hit, clickAction, classes}: {
-  hit: Hit<AlgoliaUser>,
+  hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
 }) => {
-  const user: AlgoliaUser = hit;
+  const user = hit as AlgoliaUser;
   return <div className={classes.root}>
     <Link to={userGetProfileUrl(user)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <Components.MetaInfo>
