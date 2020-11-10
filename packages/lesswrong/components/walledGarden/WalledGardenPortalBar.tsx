@@ -74,7 +74,7 @@ const styles = (theme) => ({
 })
 
 export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, classes:ClassesType}) => {
-  const { GardenCodeWidget, WalledGardenEvents, PomodoroWidget } = Components
+  const { GardenCodeWidget, GardenCodesList, WalledGardenEvents, PomodoroWidget } = Components
 
   const currentUser =  useCurrentUser()
 
@@ -95,6 +95,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
       {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
         <WalledGardenEvents frontpage={false}/>
       </div>}
+      <GardenCodesList />
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
