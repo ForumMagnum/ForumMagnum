@@ -161,10 +161,10 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
+  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
-    const { lastCommentId, condensed, postPage } = treeOptions;
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
@@ -205,10 +205,8 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
     }, HIGHLIGHT_DURATION*1000);
   }, []);
 
-  const location = useLocation();
-  const commentHash = location.hash;
+  const {hash: commentHash} = useLocation();
   useEffect(() => {
-    const { postPage, post } = treeOptions;
     if (comment && commentHash === ("#" + comment._id) && post && postPage) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
         scrollIntoView()
@@ -218,32 +216,29 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-  }
+  const toggleCollapse = useCallback(
+    () => setCollapsed(!collapsed),
+    [collapsed]
+  );
 
   const isTruncated = (): boolean => {
     if (expandAllThreads) return false;
     if (truncatedState) return true;
-    if(truncatedStateSet) return false;
+    if (truncatedStateSet) return false;
     return truncated || !!startThreadTruncated
   }
 
-  const isNewComment = (): boolean => {
-    const { highlightDate } = treeOptions;
-    return !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
-  }
+  const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
 
   const isSingleLine = (): boolean => {
     if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    return isTruncated() && !isNewComment()
+    return isTruncated() && !isNewComment;
   }
 
   const handleExpand = async (event: React.MouseEvent) => {
-    const { markAsRead, scrollOnExpand } = treeOptions
     event.stopPropagation()
     if (isTruncated() || isSingleLine()) {
       markAsRead && await markAsRead()
@@ -256,13 +251,11 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
     }
   }
 
-  const { postPage, highlightDate, condensed, post } = treeOptions;
   const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
   if (!comment)
     return null;
 
-  const newComment = isNewComment()
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const nodeClass = classNames(
@@ -273,7 +266,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
       "af":comment.af,
       [classes.highlightAnimation]: highlighted,
       [classes.child]: isChild,
-      [classes.new]: newComment,
+      [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: parentAnswerId,
