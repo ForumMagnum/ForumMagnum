@@ -86,7 +86,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           forceSingleLine={forceSingleLine}
           forceNotSingleLine={forceNotSingleLine}
           shortform={(treeOptions.post as PostsBase)?.shortform}
-          child={defaultNestingLevel > 1}
+          isChild={defaultNestingLevel > 1}
         />)
       }
     </div>

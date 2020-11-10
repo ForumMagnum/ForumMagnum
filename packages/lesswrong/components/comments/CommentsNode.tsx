@@ -134,7 +134,7 @@ interface CommentsNodeState {
   highlighted: boolean,
 }
 
-const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, child, showPostTitle, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, hideReply, loadChildrenSeparately, classes }: {
+const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, showPostTitle, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, hideReply, loadChildrenSeparately, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
@@ -143,7 +143,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   nestingLevel?: number,
   expandAllThreads?:boolean,
   expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
-  child?: any,
+  isChild?: boolean,
   showPostTitle?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,
@@ -272,12 +272,12 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
     {
       "af":comment.af,
       [classes.highlightAnimation]: highlighted,
-      [classes.child]: child,
+      [classes.child]: isChild,
       [classes.new]: newComment,
       [classes.deleted]: comment.deleted,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: parentAnswerId,
-      [classes.childAnswerComment]: child && parentAnswerId,
+      [classes.childAnswerComment]: isChild && parentAnswerId,
       [classes.oddAnswerComment]: (updatedNestingLevel % 2 !== 0) && parentAnswerId,
       [classes.answerLeafComment]: !(childComments && childComments.length),
       [classes.isSingleLine]: isSingleLine(),
@@ -327,7 +327,8 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
         <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
-          <Components.CommentsNode child
+          <Components.CommentsNode
+            isChild={true}
             treeOptions={treeOptions}
             comment={child.item}
             parentCommentId={comment._id}
