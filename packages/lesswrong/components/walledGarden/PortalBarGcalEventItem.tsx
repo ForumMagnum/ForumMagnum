@@ -2,7 +2,6 @@ import React from 'react'
 import moment from 'moment';
 import {registerComponent, Components } from '../../lib/vulcan-lib';
 import { getUrlClass } from '../../lib/routeUtil';
-import { sanitize } from '../../lib/vulcan-lib/utils';
 
 const styles = (theme) => ({
   root: {
@@ -27,16 +26,16 @@ export const getAddToCalendarLink = (gcalEvent) => {
   
   const UrlClass = getUrlClass()
   const url = new UrlClass(gcalEvent.htmlLink)
-  const eid = sanitize(url.searchParams.get("eid"))
-  const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${sanitize(gcalEvent.organizer.email)}`
+  const eid = url.searchParams.get("eid")
+  const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${gcalEvent.organizer.email}`
   const link = <a href={addToCalendarLink} target="_blank" rel="noopener noreferrer">
     {gcalEvent.summary}
   </a>
 
-  const sanitizedDescription = sanitize(gcalEvent.description)
+  const noHtmlDescription = gcalEvent.description ? gcalEvent.description.replace(/<[^>]*>?/gm, '') : ""
 
   if (gcalEvent.description) {
-    return <LWTooltip title={<div dangerouslySetInnerHTML={{__html: sanitizedDescription}}/>}>
+    return <LWTooltip title={<div style={{whiteSpace: "pre-wrap"}}>{noHtmlDescription}</div>}>
       {link}
     </LWTooltip>
   } else {
