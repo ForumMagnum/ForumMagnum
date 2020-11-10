@@ -5,13 +5,6 @@
   padding: 5px;
 }
 
-.input-bannerImageId .image-upload-description {
-  display:none;
-}
-
-.input-gridImageId .image-upload-description {
-  display:none;
-}
 .input-bannerImageId .image-upload-button {
   position:absolute !important;
   left:15px;
@@ -97,14 +90,6 @@
     .editor.content-body {
       margin-bottom: 0em;
     }
-    .input-gridImageId {
-      margin-bottom:15px;
-
-      img {
-        display:block;
-        margin-bottom:15px;
-      }
-    }
     .form-input.input-bannerImageId {
       margin-top:65px;
       position: absolute !important;
@@ -114,9 +99,6 @@
       @include mui-breakpoint-down-sm {
         margin-top:40px;
         padding:0;
-      }
-      .image-upload-description {
-        display:none;
       }
       .form-input-errors {
         position:absolute;

@@ -12,7 +12,7 @@ import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
 import { Components, registerComponent, runCallbacks, Strings } from '../../lib/vulcan-lib';
 import { MessageContext } from '../common/withMessages';
 
-const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', null) // An image used to represent the site on social media
+const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
 
 class App extends PureComponent<any,any> {
   locationContext: any
