@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useMessages } from '../../common/withMessages';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
@@ -135,7 +134,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTit
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(false);
   
-  const {flash} = useMessages();
   const currentUser = useCurrentUser();
 
   const { postPage, tag, post, refetch } = treeOptions;
@@ -169,10 +167,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTit
       refetch()
     }
     setShowEditState(false);
-  }
-
-  const removeSuccessCallback = () => {
-    flash({messageString: "Successfully deleted comment", type: "success"});
   }
 
   const toggleShowParent = () => {
