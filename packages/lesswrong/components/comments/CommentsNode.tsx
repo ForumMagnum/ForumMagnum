@@ -1,10 +1,9 @@
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withLocation } from '../../lib/routeUtil';
-import React, { Component } from 'react';
+import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
-import withUser from '../common/withUser';
-import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
+import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
@@ -127,7 +126,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-type ExternalProps = {
+interface CommentsNodeState {
+  collapsed: boolean,
+  truncatedState: boolean,
+  singleLine: boolean,
+  truncatedStateSet: boolean,
+  highlighted: boolean,
+}
+
+const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, child, showPostTitle, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, hideReply, loadChildrenSeparately, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
@@ -148,48 +155,15 @@ type ExternalProps = {
   childComments?: Array<CommentTreeNode<CommentsList>>,
   hideReply?: boolean,
   loadChildrenSeparately?: boolean,
-}
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
+  const scrollTargetRef = useRef<HTMLDivElement|null>(null);
+  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
+  const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
 
-type CommentsNodeProps = ExternalProps & WithUserProps & WithStylesProps & WithLocationProps;
-
-interface CommentsNodeState {
-  collapsed: boolean,
-  truncated: boolean,
-  singleLine: boolean,
-  truncatedStateSet: boolean,
-  highlighted: boolean,
-}
-
-class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
-  scrollTargetRef: any
-  
-  constructor(props: CommentsNodeProps) {
-    super(props);
-
-    this.state = {
-      collapsed: this.beginCollapsed(),
-      truncated: this.beginTruncated(),
-      singleLine: this.beginSingleLine(),
-      truncatedStateSet: false,
-      highlighted: false,
-    };
-    this.scrollTargetRef = React.createRef();
-  }
-
-  beginCollapsed = (): boolean => {
-    const { comment } = this.props
-    return (
-      comment.deleted ||
-      comment.baseScore < KARMA_COLLAPSE_THRESHOLD
-    )
-  }
-
-  beginTruncated = (): boolean => {
-    return !!this.props.startThreadTruncated
-  }
-
-  beginSingleLine = (): boolean => {
-    const { treeOptions, comment, forceSingleLine, shortform, nestingLevel, forceNotSingleLine } = this.props
+  const beginSingleLine = (): boolean => {
+    // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
     const { lastCommentId, condensed, postPage } = treeOptions;
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
@@ -200,7 +174,8 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       return true;
 
     return (
-      this.isTruncated() &&
+      !expandAllThreads &&
+      !!(truncated || startThreadTruncated) &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
       !shortformAndTop &&
@@ -208,216 +183,178 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       !forceNotSingleLine
     )
   }
+  
+  const [singleLine, setSingleLine] = useState(beginSingleLine());
+  const [truncatedStateSet, setTruncatedStateSet] = useState(false);
+  const [highlighted, setHighlighted] = useState(false);
 
-  componentDidMount() {
-    const { comment, location } = this.props
-    const { postPage, post } = this.props.treeOptions;
-    let commentHash = location.hash;
-    if (comment && commentHash === ("#" + comment._id) && post && postPage) {
-      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
-        this.scrollIntoView()
-      }, 0);
-    }
-  }
-
-  isInViewport(): boolean {
-    if (!this.scrollTargetRef) return false;
-    const top = this.scrollTargetRef.current?.getBoundingClientRect().top;
+  const isInViewport = (): boolean => {
+    if (!scrollTargetRef) return false;
+    const top = scrollTargetRef.current?.getBoundingClientRect().top;
+    if (top === undefined) return false;
     return (top >= 0) && (top <= window.innerHeight);
   }
 
-  scrollIntoView = (behavior="smooth") => {
-    if (!this.isInViewport()) {
-      this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+  const scrollIntoView = useCallback((behavior:"auto"|"smooth"="smooth") => {
+    if (!isInViewport()) {
+      scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
     }
-    this.setState({highlighted: true})
+    setHighlighted(true);
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
-      this.setState({highlighted: false})
+      setHighlighted(false);
     }, HIGHLIGHT_DURATION*1000);
-  }
+  }, []);
 
-  toggleCollapse = () => {
-    this.setState({collapsed: !this.state.collapsed});
-  }
-
-  handleExpand = async (event: React.MouseEvent) => {
-    const { markAsRead, scrollOnExpand } = this.props.treeOptions
-    event.stopPropagation()
-    if (this.isTruncated() || this.isSingleLine()) {
-      markAsRead && await markAsRead()
-      this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
-      if (scrollOnExpand) {
-        this.scrollIntoView("auto") // should scroll instantly
-      }
+  const location = useLocation();
+  const commentHash = location.hash;
+  useEffect(() => {
+    const { postPage, post } = treeOptions;
+    if (comment && commentHash === ("#" + comment._id) && post && postPage) {
+      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        scrollIntoView()
+      }, 0);
     }
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
   }
 
-  shouldComponentUpdate(nextProps: CommentsNodeProps, nextState: CommentsNodeState) {
-    if (!shallowEqual(this.state, nextState))
-      return true;
-    if (!shallowEqualExcept(this.props, nextProps, ["post", "childComments"]))
-      return true;
-    if (this.commentTreesDiffer(this.props.childComments, nextProps.childComments))
-      return true;
-
-    return false;
+  const isTruncated = (): boolean => {
+    if (expandAllThreads) return false;
+    if (truncatedState) return true;
+    if(truncatedStateSet) return false;
+    return truncated || !!startThreadTruncated
   }
 
-  commentTreesDiffer(oldComments: CommentTreeNode<CommentsList>[]|null|undefined, newComments: CommentTreeNode<CommentsList>[]|null|undefined) {
-    if(!oldComments && newComments) return true;
-    if(oldComments && !newComments) return true;
-    if(!newComments || !oldComments) return false;
-
-    if(oldComments.length != newComments.length)
-      return true;
-    for(let i=0; i<oldComments.length; i++) {
-      if(oldComments[i].item != newComments[i].item)
-        return true;
-      if(this.commentTreesDiffer(oldComments[i].children, newComments[i].children))
-        return true;
-    }
-    return false;
-  }
-
-  isTruncated = (): boolean => {
-    const { expandAllThreads, startThreadTruncated, truncated } = this.props;
-    // const { truncatedStateSet } = this.state
-
-    const truncatedStateUnset = !this.state || !this.state.truncatedStateSet
-
-    return !expandAllThreads && (this.state?.truncated || ((!!truncated && truncatedStateUnset) || (!!startThreadTruncated && truncatedStateUnset)))
-  }
-
-  isNewComment = (): boolean => {
-    const { comment, treeOptions } = this.props;
+  const isNewComment = (): boolean => {
     const { highlightDate } = treeOptions;
     return !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
   }
 
-  isSingleLine = (): boolean => {
-    const { forceSingleLine, forceNotSingleLine, currentUser } = this.props
-    const { singleLine } = this.state
-
+  const isSingleLine = (): boolean => {
     if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    return this.isTruncated() && !this.isNewComment()
+    return isTruncated() && !isNewComment()
   }
 
-  render() {
-    const {
-      treeOptions, comment, childComments, nestingLevel=1,
-      classes, child, showPostTitle,
-      parentAnswerId, loadChildrenSeparately, shortform, parentCommentId,
-      showExtraChildrenButton, noHash, hoverPreview, hideReply, expandByDefault,
-    } = this.props;
-    const { postPage, highlightDate, condensed, post } = treeOptions;
-
-    const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
-
-    if (!comment)
-      return null;
-
-    const { collapsed, highlighted } = this.state
-
-    const newComment = this.isNewComment()
-
-    const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
-
-    const nodeClass = classNames(
-      "comments-node",
-      nestingLevelToClass(updatedNestingLevel, classes),
-      classes.node,
-      {
-        "af":comment.af,
-        [classes.highlightAnimation]: highlighted,
-        [classes.child]: child,
-        [classes.new]: newComment,
-        [classes.deleted]: comment.deleted,
-        [classes.isAnswer]: comment.answer,
-        [classes.answerChildComment]: parentAnswerId,
-        [classes.childAnswerComment]: child && parentAnswerId,
-        [classes.oddAnswerComment]: (updatedNestingLevel % 2 !== 0) && parentAnswerId,
-        [classes.answerLeafComment]: !(childComments && childComments.length),
-        [classes.isSingleLine]: this.isSingleLine(),
-        [classes.condensed]: condensed,
-        [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
-        [classes.hoverPreview]: hoverPreview,
-        [classes.moderatorHat]: comment.moderatorHat,
-        [classes.promoted]: comment.promoted
+  const handleExpand = async (event: React.MouseEvent) => {
+    const { markAsRead, scrollOnExpand } = treeOptions
+    event.stopPropagation()
+    if (isTruncated() || isSingleLine()) {
+      markAsRead && await markAsRead()
+      setTruncated(false);
+      setSingleLine(false);
+      setTruncatedStateSet(true);
+      if (scrollOnExpand) {
+        scrollIntoView("auto") // should scroll instantly
       }
-    )
-
-    const passedThroughItemProps = { comment, showPostTitle, collapsed, hideReply }
-
-    return (
-        <div className={comment.gapIndicator && classes.gapIndicator}>
-          <div className={nodeClass}
-            onClick={(event) => this.handleExpand(event)}
-            id={!noHash ? comment._id : undefined}
-          >
-            {comment._id && <div ref={this.scrollTargetRef}>
-              {this.isSingleLine()
-                ? <AnalyticsContext singleLineComment commentId={comment._id}>
-                    <AnalyticsTracker eventType="singeLineComment">
-                      <SingleLineComment
-                        treeOptions={treeOptions}
-                        comment={comment}
-                        nestingLevel={updatedNestingLevel}
-                        parentCommentId={parentCommentId}
-                        hideKarma={post?.hideCommentKarma}
-                      />
-                    </AnalyticsTracker>
-                  </AnalyticsContext>
-                : <CommentsItem
-                    treeOptions={treeOptions}
-                    truncated={this.isTruncated() && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
-                    nestingLevel={updatedNestingLevel}
-                    parentCommentId={parentCommentId}
-                    parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
-                    toggleCollapse={this.toggleCollapse}
-                    key={comment._id}
-                    scrollIntoView={this.scrollIntoView}
-                    { ...passedThroughItemProps}
-                  />
-              }
-            </div>}
-
-            {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-              <div className={classes.parentScroll} onClick={() => this.scrollIntoView}/>
-              { showExtraChildrenButton }
-              {childComments.map(child =>
-                <Components.CommentsNode child
-                  treeOptions={treeOptions}
-                  comment={child.item}
-                  parentCommentId={comment._id}
-                  parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
-                  nestingLevel={updatedNestingLevel+1}
-                  truncated={this.isTruncated()}
-                  childComments={child.children}
-                  key={child.item._id}
-                />)}
-            </div>}
-
-            {!this.isSingleLine() && loadChildrenSeparately &&
-              <div className="comments-children">
-                <div className={classes.parentScroll} onClick={() => this.scrollIntoView}/>
-                <RepliesToCommentList
-                  terms={{
-                    view: "repliesToCommentThread",
-                    topLevelCommentId: comment._id,
-                    limit: 500
-                  }}
-                  parentCommentId={comment._id}
-                  post={post as PostsBase}
-                />
-              </div>
-            }
-          </div>
-        </div>
-    )
+    }
   }
+
+  const { postPage, highlightDate, condensed, post } = treeOptions;
+  const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
+
+  if (!comment)
+    return null;
+
+  const newComment = isNewComment()
+  const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
+
+  const nodeClass = classNames(
+    "comments-node",
+    nestingLevelToClass(updatedNestingLevel, classes),
+    classes.node,
+    {
+      "af":comment.af,
+      [classes.highlightAnimation]: highlighted,
+      [classes.child]: child,
+      [classes.new]: newComment,
+      [classes.deleted]: comment.deleted,
+      [classes.isAnswer]: comment.answer,
+      [classes.answerChildComment]: parentAnswerId,
+      [classes.childAnswerComment]: child && parentAnswerId,
+      [classes.oddAnswerComment]: (updatedNestingLevel % 2 !== 0) && parentAnswerId,
+      [classes.answerLeafComment]: !(childComments && childComments.length),
+      [classes.isSingleLine]: isSingleLine(),
+      [classes.condensed]: condensed,
+      [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
+      [classes.hoverPreview]: hoverPreview,
+      [classes.moderatorHat]: comment.moderatorHat,
+      [classes.promoted]: comment.promoted
+    }
+  )
+
+  const passedThroughItemProps = { comment, showPostTitle, collapsed, hideReply }
+
+  return <div className={comment.gapIndicator && classes.gapIndicator}>
+    <div className={nodeClass}
+      onClick={(event) => handleExpand(event)}
+      id={!noHash ? comment._id : undefined}
+    >
+      {comment._id && <div ref={scrollTargetRef}>
+        {isSingleLine()
+          ? <AnalyticsContext singleLineComment commentId={comment._id}>
+              <AnalyticsTracker eventType="singeLineComment">
+                <SingleLineComment
+                  treeOptions={treeOptions}
+                  comment={comment}
+                  nestingLevel={updatedNestingLevel}
+                  parentCommentId={parentCommentId}
+                  hideKarma={post?.hideCommentKarma}
+                />
+              </AnalyticsTracker>
+            </AnalyticsContext>
+          : <CommentsItem
+              treeOptions={treeOptions}
+              truncated={isTruncated() && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
+              nestingLevel={updatedNestingLevel}
+              parentCommentId={parentCommentId}
+              parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
+              toggleCollapse={toggleCollapse}
+              key={comment._id}
+              scrollIntoView={scrollIntoView}
+              { ...passedThroughItemProps}
+            />
+        }
+      </div>}
+
+      {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
+        <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+        { showExtraChildrenButton }
+        {childComments.map(child =>
+          <Components.CommentsNode child
+            treeOptions={treeOptions}
+            comment={child.item}
+            parentCommentId={comment._id}
+            parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
+            nestingLevel={updatedNestingLevel+1}
+            truncated={isTruncated()}
+            childComments={child.children}
+            key={child.item._id}
+          />)}
+      </div>}
+
+      {!isSingleLine() && loadChildrenSeparately &&
+        <div className="comments-children">
+          <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+          <RepliesToCommentList
+            terms={{
+              view: "repliesToCommentThread",
+              topLevelCommentId: comment._id,
+              limit: 500
+            }}
+            parentCommentId={comment._id}
+            post={post as PostsBase}
+          />
+        </div>
+      }
+    </div>
+  </div>
 }
 
 const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string => {
@@ -438,9 +375,8 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string
   });
 }
 
-const CommentsNodeComponent = registerComponent<ExternalProps>('CommentsNode', CommentsNode, {
-  styles,
-  hocs: [withUser, withLocation, withErrorBoundary]
+const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
+  styles, hocs: [withErrorBoundary]
 });
 
 declare global {
