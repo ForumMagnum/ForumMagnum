@@ -17,17 +17,14 @@ const styles = (theme) => ({
     width: 120,
     textAlign: "right",
     display: "inline-block"
-  },
-  tooltip: {
-    whiteSpace: "pre-wrap"
   }
 })
 
-const UrlClass = getUrlClass()
 
-const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
+export const getAddToCalendarLink = (gcalEvent) => {
   const { LWTooltip } = Components
-
+  
+  const UrlClass = getUrlClass()
   const url = new UrlClass(gcalEvent.htmlLink)
   const eid = url.searchParams.get("eid")
   const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${gcalEvent.organizer.email}`
@@ -35,12 +32,21 @@ const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
     {gcalEvent.summary}
   </a>
 
+  const noHtmlDescription = gcalEvent.description ? gcalEvent.description.replace(/<[^>]*>?/gm, '') : ""
+
+  if (gcalEvent.description) {
+    return <LWTooltip title={<div style={{whiteSpace: "pre-wrap"}}>{noHtmlDescription}</div>}>
+      {link}
+    </LWTooltip>
+  } else {
+    return link
+  }
+}
+
+const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
+
   return <div className={classes.root}>
-      {gcalEvent.description ?
-        <LWTooltip title={<div className={classes.tooltip}>{gcalEvent.description}</div>}>
-          {link}
-        </LWTooltip>
-      : link}
+      {getAddToCalendarLink(gcalEvent)}
       <span className={classes.eventTime}>
         {moment(new Date(gcalEvent.start.dateTime)).format("ddd h:mma, M/D")}
       </span>
