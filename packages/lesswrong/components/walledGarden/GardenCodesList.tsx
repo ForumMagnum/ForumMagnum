@@ -6,20 +6,18 @@ import { useCurrentUser } from '../common/withUser';
 import { eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
 
 const styles = theme => ({
-  root: {
+  event: {
+    ...eventName(theme)
 
   },
-  eventName: {
-    ...eventName
-  },
   eventTime: {
-    ...eventTime
+    ...eventTime(theme)
   }
 })
 
 export const GardenCodesList = ({classes}:{classes:ClassesType}) => {
   const currentUser = useCurrentUser()
-  const { results, loading } = useMulti({
+  const { results } = useMulti({
     terms: {
       view: "userGardenCodes",
       userId: currentUser?._id,
@@ -30,11 +28,9 @@ export const GardenCodesList = ({classes}:{classes:ClassesType}) => {
     fragmentName: 'GardenCodeFragment'
   });
   console.log("AAAAAAAAAAAAAAAA", results)
-  return <div className={classes.root}>
-    {results?.map(code=><div key={code._id}>
-        <div className={classes.eventName}>
-          {code.title}
-          </div>
+  return <div>
+    {results?.map(code=><div key={code._id} className={classes.event}>
+        {code.title}
         <div className={classes.eventTime}>
           {eventFormat(code.startTime)}
         </div>

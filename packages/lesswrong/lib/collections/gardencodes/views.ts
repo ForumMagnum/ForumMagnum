@@ -1,6 +1,5 @@
 import { GardenCodes } from './collection';
 import { ensureIndex } from '../../collectionUtils';
-import moment from 'moment';
 
 GardenCodes.addDefaultView(terms => {
   if (terms?.userId) return {
@@ -26,10 +25,10 @@ ensureIndex(GardenCodes, {code:1, deleted: 1});
 ensureIndex(GardenCodes, {userId:1, deleted: 1});
 
 GardenCodes.addView("userGardenCodes", function (terms) {
-  const twoHoursAgo = moment().subtract(2, 'hours').toISOString()
+  const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
     selector: { 
-      startDate: {$gt: twoHoursAgo}
+      startTime: {$gt: twoHoursAgo }
     }
   }
 })

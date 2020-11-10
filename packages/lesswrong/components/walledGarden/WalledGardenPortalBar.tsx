@@ -7,7 +7,7 @@ import { CAL_ID } from "./gardenCalendar";
 import { gatherTownURL } from "./GatherTownIframeWrapper";
 
 const widgetStyling = {
-  marginLeft: "30px",
+  marginLeft: 30,
 }
 
 const gatherTownRightSideBarWidth = 300
@@ -45,12 +45,15 @@ const styles = (theme) => ({
     right: 12,
     top: 0,
   },
+  codesList: {
+    marginLeft: 60
+  },
   calendarLinks: {
     fontSize: ".8em",
     marginTop: "3px"
   },
   events: {
-    marginRight: 100
+    marginRight: 60
   },
   fbEventButton: {
     width: 135
@@ -95,7 +98,9 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
       {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
         <WalledGardenEvents frontpage={false}/>
       </div>}
-      <GardenCodesList />
+      <div className={classes.codesList}>
+        <GardenCodesList />
+      </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">

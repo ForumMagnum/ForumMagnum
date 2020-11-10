@@ -21,7 +21,7 @@ export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {
       <div className={classes.root}>
         <TimerIcon className={classes.icon} />
         <a target="_blank" rel="noopener noreferrer" href="https://cuckoo.team/lesswrong">
-          Open Pomodoro Timer
+          Pomodoro Timer
         </a>
       </div>
     </LWTooltip>
