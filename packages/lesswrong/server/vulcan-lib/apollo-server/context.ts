@@ -103,11 +103,13 @@ export const generateDataLoaders = (): {
 };
 
 
-export const computeContextFromUser = async (user: DbUser|null, headers): Promise<ResolverContext> => {
+export const computeContextFromUser = async (user: DbUser|null, req, res): Promise<ResolverContext> => {
   let context: ResolverContext = {
     ...getSchemaContextBase(),
     ...getCollectionsByName(),
-    ...generateDataLoaders()
+    ...generateDataLoaders(),
+    req,
+    res
   };
 
   if (user)
@@ -116,9 +118,9 @@ export const computeContextFromUser = async (user: DbUser|null, headers): Promis
   setupAuthToken(user, context);
 
   //add the headers to the context
-  context.headers = headers;
+  context.headers = req.headers;
 
-  context.locale = getHeaderLocale(headers, null);
+  context.locale = getHeaderLocale(req.headers, null);
 
   return context;
 }
@@ -137,7 +139,7 @@ export const getUserFromReq = async (req) => {
 }
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = async (req): Promise<ResolverContext> => {
+export const computeContextFromReq = async (req, res): Promise<ResolverContext> => {
   const user = await getUserFromReq(req);
-  return computeContextFromUser(user, req.headers);
+  return computeContextFromUser(user, req, res);
 };

@@ -5,6 +5,7 @@ import { restrictViewableFields } from './permissions';
 const specificResolvers = {
   Query: {
     async currentUser(root, args, context: ResolverContext) {
+      console.log("context: ", context)
       let user: any = null;
       const userId: string|null = (context as any)?.userId;
       if (userId) {

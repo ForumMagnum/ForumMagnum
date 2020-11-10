@@ -179,10 +179,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
               </Link>
             }
             <Divider/>
-            <MenuItem onClick={() => {
-              captureEvent("logOutClicked")
-              meteorLogout(() => client.resetStore())
-            }}>
+            <MenuItem component="a" href="/logout">
               Log Out
             </MenuItem>
           </Paper>

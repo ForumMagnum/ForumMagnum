@@ -206,19 +206,9 @@ onStartup(() => {
           next()
         });
       })(req, res, next)
-    }
-  })
-
-  WebApp.connectHandlers.use('/logout', (req, res, next) => {
-    passport.authenticate('custom', (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logOut()
-      
-      res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()}`) // The accepted way to delete a cookie is to set an expiration date in the past.
-      res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()}`)
+    } else {
       next()
-    })(req, res, next) 
+    }
   })
 
   passport.use(cookieAuthStrategy)
@@ -230,6 +220,20 @@ onStartup(() => {
         if (err) return next(err)
         next()
       })
+    })(req, res, next) 
+  })
+
+
+  WebApp.connectHandlers.use('/logout', (req, res, next) => {
+    passport.authenticate('custom', (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      console.log("Logging out")
+      req.logOut()
+      res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()}; meteor_login_token= ; expires=${new Date(0).toUTCString()};`) // The accepted way to delete a cookie is to set an expiration date in the past.
+      res.statusCode=302;
+      res.setHeader('Location','/');
+      return res.end();
     })(req, res, next) 
   })
 
@@ -258,7 +262,7 @@ onStartup(() => {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: ({ req }) => computeContextFromReq(req),
+    context: ({ req, res }) => computeContextFromReq(req, res),
   });
   
   WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
