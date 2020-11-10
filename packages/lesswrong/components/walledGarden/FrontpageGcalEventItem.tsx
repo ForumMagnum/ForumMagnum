@@ -1,9 +1,10 @@
 import React from 'react'
 import moment from 'moment';
 import { registerComponent } from '../../lib/vulcan-lib';
+import { getAddToCalendarLink } from './PortalBarGcalEventItem'
 
 const styles = (theme) => ({
-  secondaryInfo: {
+  root: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
     color: 'rgba(0,0,0,0.55)'
@@ -14,11 +15,10 @@ const styles = (theme) => ({
   },
 })
 
-const FrontpageGcalEventItem = ({classes, gcalEvent}) => {
-  return <div className={classes.secondaryInfo}>
-    <span>
-          {gcalEvent.summary}{" "}
-          <span className={classes.eventTime}>{moment(new Date(gcalEvent.start.dateTime)).calendar()}</span>
+const FrontpageGcalEventItem = ({classes, gcalEvent}) => {  
+  return <div className={classes.root}>
+    {getAddToCalendarLink(gcalEvent)} <span className={classes.eventTime}>
+      {moment(new Date(gcalEvent.start.dateTime)).calendar()}
     </span>
   </div>
 }
