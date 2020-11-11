@@ -5,11 +5,11 @@ import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 
 const elicitQuery = gql`
-  query ElicitBlockData {
-    ElicitBlockData(predictionId: "9caNKRnBs") {
+  query ElicitBlockData($questionId: String) {
+    ElicitBlockData(questionId: $questionId) {
       title
       notes
       resolvesBy
@@ -113,13 +113,35 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4
   }
 })
-const ElicitBlock = ({ classes }: {
+const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType,
+  questionId: String
 }) => {
   const { data, loading } = useQuery(elicitQuery, { ssr: true })
+  const [makeElicitPrediction] = useMutation(gql`
+    mutation ElicitPrediction($questionId:String, $prediction: Int) {
+      MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
+        title
+        notes
+        resolvesBy
+        resolution
+        predictions {
+          prediction
+          createdAt
+          notes
+          user {
+            isQuestionCreator
+            displayName
+          }
+        }
+      }
+    }  
+  `);
+  
   const roughlyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction / 10)
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
+
   return <div className={classes.root}>
     <div className={classes.histogramRoot}>
       {times(10, (bucket) => <div className={classes.histogramBucket}>
@@ -131,6 +153,7 @@ const ElicitBlock = ({ classes }: {
             key={prob}
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
+            onClick={() => makeElicitPrediction({variables: { questionId, prediction: prob }})}
           >
             <div 
               className={classes.additionalVoteArea} 
