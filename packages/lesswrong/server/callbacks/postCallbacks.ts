@@ -8,6 +8,8 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
+import { Revisions } from '../../lib';
+import cheerio from 'cheerio'
 const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
@@ -187,3 +189,30 @@ async function updatedPostMaybeTriggerReview (newPost, oldPost) {
   }
 }
 addCallback("posts.edit.async", updatedPostMaybeTriggerReview);
+
+// Use the first image in the post as the social preview image
+async function extractSocialPreviewImage (post: DbPost) {
+  // socialPreviewImageId is set manually, and will override this
+  if (post.socialPreviewImageId) return post
+
+  let socialPreviewImageAutoUrl: null | string = null
+  if (post.contents?.html) {
+    const $ = cheerio.load(post.contents.html)
+    const firstImg = $('img').first()
+    if (firstImg) {
+      socialPreviewImageAutoUrl = firstImg.attr('src') || null
+    }
+  }
+  
+  // Side effect is necessary, as edit.async does not run a db update with the
+  // returned value
+  // It's important to run this regardless of whether or not we found an image,
+  // as removing an image should remove the social preview for that image
+  Posts.update({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
+  
+  return {...post, socialPreviewImageAutoUrl}
+  
+}
+
+addCallback("post.create.after", extractSocialPreviewImage);
+addCallback("posts.edit.async", extractSocialPreviewImage);

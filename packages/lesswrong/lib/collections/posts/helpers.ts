@@ -109,6 +109,16 @@ ${Posts.getLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
+// Select the social preview image for the post, using the manually-set
+// cloudinary image if available, or the auto-set from the post contents. If
+// neither of those are available, it will return null.
+Posts.getSocialPreviewImage = (post: DbPost): string => {
+  const manualId = post.socialPreviewImageId
+  if (manualId) return `https://res.cloudinary.com/cea/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  const autoUrl = post.socialPreviewImageAutoUrl
+  return autoUrl || ''
+}
+
 
 // @summary Get URL of a post page.
 Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {

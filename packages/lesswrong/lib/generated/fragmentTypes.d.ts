@@ -70,6 +70,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly canonicalCollectionSlug: string,
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
+  readonly socialPreviewImageUrl: string,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -165,6 +166,7 @@ interface PostsList_contents { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -541,6 +543,13 @@ interface lwEventsAdminPageFragment { // fragment on LWEvents
 interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
   readonly userId: string,
+  readonly name: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface gatherTownEventFragment { // fragment on LWEvents
+  readonly _id: string,
+  readonly createdAt: Date,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
@@ -1159,7 +1168,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly deleted: boolean,
-  readonly hideWalledGardenUI: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -1409,6 +1417,17 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly post: PostsList|null,
   readonly currentUserVotes: Array<VoteFragment>,
+}
+
+interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment|null,
+  readonly post: TagRelCreationFragment_post|null,
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
+interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
 }
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1685,6 +1704,7 @@ interface FragmentTypes {
   LWEventsDefaultFragment: LWEventsDefaultFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
+  gatherTownEventFragment: gatherTownEventFragment
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
@@ -1745,6 +1765,7 @@ interface FragmentTypes {
   SuggestAlignmentUser: SuggestAlignmentUser
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
+  TagRelCreationFragment: TagRelCreationFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo

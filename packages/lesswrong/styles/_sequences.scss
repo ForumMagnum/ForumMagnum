@@ -5,13 +5,6 @@
   padding: 5px;
 }
 
-.input-bannerImageId .image-upload-description {
-  display:none;
-}
-
-.input-gridImageId .image-upload-description {
-  display:none;
-}
 .input-bannerImageId .image-upload-button {
   position:absolute !important;
   left:15px;
@@ -97,30 +90,19 @@
     .editor.content-body {
       margin-bottom: 0em;
     }
-    .input-gridImageId {
-      margin-bottom:15px;
-
-      img {
-        display:block;
-        margin-bottom:15px;
-      }
-    }
     .form-input.input-bannerImageId {
-      margin-top:65px;
+      margin-top:90px;  // Match Forum header
       position: absolute !important;
       left:0;
       max-width:100%;
 
       @include mui-breakpoint-down-sm {
-        margin-top:40px;
+        margin-top:79px;  // Match Forum header
         padding:0;
-      }
-      .image-upload-description {
-        display:none;
       }
       .form-input-errors {
         position:absolute;
-        top:45px;
+        top:84px;
         left:7px;
         text-align: left;
       }

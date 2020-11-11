@@ -61,7 +61,6 @@ export const formGroups = {
     name: "advancedOptions",
     label: "Options",
     startCollapsed: true,
-    flexStyle: true
   },
   highlight: {
     order: 21,
@@ -320,6 +319,29 @@ addFieldsDict(Posts, {
     type: String,
     foreignKey: 'Users',
     optional: true
+  },
+  
+  // Cloudinary image id for an image that will be used as the OpenGraph image
+  socialPreviewImageId: {
+    type: String,
+    optional: true,
+    label: "Social Preview Image",
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: "ImageUpload",
+    group: formGroups.advancedOptions,
+  },
+  
+  // Autoset OpenGraph image, derived from the first post image in a callback
+  socialPreviewImageAutoUrl: {
+    type: String,
+    optional: true,
+    hidden: true,
+    label: "Social Preview Image Auto-generated URL",
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
   },
 
   canonicalSequenceId: {
