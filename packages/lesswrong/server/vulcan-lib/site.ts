@@ -1,6 +1,6 @@
 import { forumTitleSetting, siteUrlSetting } from '../../lib/instanceSettings';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
-import { Utils } from '../../lib/vulcan-lib/utils';
+import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 
 const siteSchema = `type Site {
   title: String
@@ -15,7 +15,7 @@ const siteResolvers = {
       return {
         title: forumTitleSetting.get(),
         url: siteUrlSetting.get(),
-        logoUrl: Utils.getLogoUrl(),
+        logoUrl: getLogoUrl(),
       };
     },
   },

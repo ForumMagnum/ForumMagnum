@@ -531,11 +531,7 @@ registerFragment(`
   fragment WithVotePost on Post {
     __typename
     _id
-    currentUserVotes{
-      _id
-      voteType
-      power
-    }
+    currentUserVote
     baseScore
     score
     afBaseScore
@@ -545,6 +541,7 @@ registerFragment(`
 
 registerFragment(`
   fragment RevisionDisplay on Revision {
+    _id
     version
     updateType
     editedAt
@@ -560,6 +557,7 @@ registerFragment(`
 
 registerFragment(`
   fragment RevisionEdit on Revision {
+    _id
     version
     updateType
     editedAt

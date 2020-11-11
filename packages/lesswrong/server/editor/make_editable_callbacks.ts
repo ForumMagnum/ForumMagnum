@@ -1,4 +1,5 @@
-import { Utils, Connectors } from '../vulcan-lib';
+import { Connectors } from '../vulcan-lib/connectors';
+import { trimLatexAndAddCSS, preProcessLatex } from './utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
 import { randomId } from '../../lib/random';
@@ -11,22 +12,38 @@ import { htmlToPingbacks } from '../pingbacks';
 import Sentry from '@sentry/node';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
-const turndownService = new TurndownService()
+import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
-turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
-
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
 import cheerio from 'cheerio';
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'
 import markdownItSub from 'markdown-it-sub'
+import markdownItSup from 'markdown-it-sup'
+
+const turndownService = new TurndownService()
+turndownService.use(gfm); // Add support for strikethrough and tables
+turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+turndownService.addRule('subscript', {
+  filter: ['sub'],
+  replacement: (content) => `~${content}~`
+})
+turndownService.addRule('supscript', {
+  filter: ['sup'],
+  replacement: (content) => `^${content}^`
+})
+turndownService.addRule('italic', {
+  filter: ['i'],
+  replacement: (content) => `*${content}*`
+})
 
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
+mdi.use(markdownItSup)
 
 import { mjpage }  from 'mathjax-node-page'
 
@@ -89,7 +106,7 @@ const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-t
 /// (ie, hidden until mouseover), parse the HTML, and wrap consecutive elements
 /// that all have a spoiler tag in a shared spoiler element (so that the
 /// mouse-hover will reveal all of them together).
-function wrapSpoilerTags(html) {
+function wrapSpoilerTags(html: string): string {
   const $ = cheerio.load(html)
   
   // Iterate through spoiler elements, collecting them into groups. We do this
@@ -151,17 +168,17 @@ const isEmptyParagraphOrBreak = (elem) => {
 
 
 export async function draftJSToHtmlWithLatex(draftJS) {
-  const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
+  const draftJSWithLatex = await preProcessLatex(draftJS)
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   return wrapSpoilerTags(trimmedHtml)
 }
 
-export function htmlToMarkdown(html) {
+export function htmlToMarkdown(html: string): string {
   return turndownService.turndown(html)
 }
 
-export function ckEditorMarkupToMarkdown(markup) {
+export function ckEditorMarkupToMarkdown(markup: string): string {
   // Sanitized CKEditor markup is just html
   return turndownService.turndown(sanitize(markup))
 }
@@ -174,10 +191,10 @@ export function markdownToHtmlNoLaTeX(markdown: string): string {
 
 export async function markdownToHtml(markdown: string): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, Utils.trimLatexAndAddCSS)
+  return await mjPagePromise(html, trimLatexAndAddCSS)
 }
 
-export function removeCKEditorSuggestions(markup) {
+export function removeCKEditorSuggestions(markup: string): string {
   // First we remove all suggested deletion and modify formatting tags
   const markupWithoutDeletionsAndModifications = markup.replace(
     /<suggestion\s*id="[a-zA-Z0-9:]+"\s*suggestion-type="(deletion|formatInline:[a-zA-Z0-9]+|formatBlock:[a-zA-Z0-9]+)" type="(start|end)"><\/suggestion>/g,
@@ -191,14 +208,14 @@ export function removeCKEditorSuggestions(markup) {
   return markupWithoutInsertions
 }
 
-export async function ckEditorMarkupToHtml(markup) {
+export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
   // First we remove any unaccepted suggestions from the markup
   const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
   const html = sanitize(markupWithoutSuggestions)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, Utils.trimLatexAndAddCSS)
+  return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
 async function dataToHTML(data, type, sanitizeData = false) {
@@ -253,8 +270,8 @@ export async function dataToWordCount(data, type) {
   }
 }
 
-function getInitialVersion(document) {
-  if (document.draft) {
+function getInitialVersion(document: DbPost|DbObject) {
+  if ((document as DbPost).draft) {
     return '0.1.0'
   } else {
     return '1.0.0'
@@ -274,7 +291,7 @@ export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null>
   );
 }
 
-async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
+async function getNextVersion(documentId: string, updateType = 'minor', fieldName: string, isDraft: boolean) {
   const lastRevision = await getLatestRev(documentId, fieldName);
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision?.version || "1.0.0")
   switch (updateType) {
@@ -307,7 +324,7 @@ async function buildRevision({ originalContents, currentUser }) {
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-const revisionIsChange = async (doc, fieldName): Promise<boolean> => {
+const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
   

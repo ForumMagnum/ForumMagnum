@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 
 const parseIds = (urlStr: string): Array<string> => {
@@ -25,7 +25,7 @@ const NotificationEmailPreviewPage = () => {
     ssr: true
   });
   
-  if (!Users.isAdmin(currentUser))
+  if (!userIsAdmin(currentUser))
     return <div>You must be logged in as an admin to use this page.</div>;
 
   const emails = data?.EmailPreview;

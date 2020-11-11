@@ -4,7 +4,7 @@ import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { Comments } from '../../lib/collections/comments'
+import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 
@@ -142,7 +142,7 @@ const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentC
           <ShowParentComment comment={comment} />
         }
         {!hideKarma && <span className={classes.karma}>
-          {Comments.getKarma(comment)}
+          {commentGetKarma(comment)}
         </span>}
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>

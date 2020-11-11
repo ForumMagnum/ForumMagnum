@@ -2,7 +2,7 @@ import { isServer, runAfterDelay, deferWithoutDelay } from '../executionEnvironm
 import * as _ from 'underscore';
 
 import { debug } from './debug';
-import { Utils } from './utils';
+import { isPromise } from './utils';
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -173,7 +173,7 @@ export const runCallbacks = function (this: any, options: {
     };
 
     return callbacks.reduce(function (accumulator, callback, index) {
-      if (Utils.isPromise(accumulator)) {
+      if (isPromise(accumulator)) {
         if (!asyncContext) {
           debug(`\x1b[32m>> Started async context in hook [${formattedHook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
           asyncContext = true;
@@ -207,7 +207,7 @@ export const runCallbacks = function (this: any, options: {
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
 export const runCallbacksAsync = function (options: {name: string, properties: Array<any>}) {
-  const hook = options.name;
+  const hook = formatHookName(options.name);
   const args = options.properties;
 
   const callbacks = Array.isArray(hook) ? hook : Callbacks[hook];
@@ -224,7 +224,7 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
         let pendingAsyncCallback = markCallbackStarted(hook);
         try {
           let callbackResult = callback.apply(this, args);
-          if (Utils.isPromise(callbackResult)) {
+          if (isPromise(callbackResult)) {
             callbackResult
               .then(
                 result => markCallbackFinished(pendingAsyncCallback),

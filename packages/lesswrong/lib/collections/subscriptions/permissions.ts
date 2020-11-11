@@ -1,7 +1,7 @@
-import Users from '../users/collection';
+import { userGroups } from '../../vulcan-users/permissions';
 
 const membersActions = [
   "subscriptions.new"
 ];
 
-Users.groups.members.can(membersActions);
+userGroups.members.can(membersActions);

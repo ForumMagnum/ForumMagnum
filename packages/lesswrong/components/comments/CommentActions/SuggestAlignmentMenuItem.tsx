@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Comments } from '../../../lib/collections/comments'
-import Users from '../../../lib/collections/users/collection';
+import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
@@ -39,18 +39,18 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'SuggestAlignmentComment',
   });
   const { OmegaIcon } = Components
 
-  if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
+  if (post.af && !comment.af && currentUser && userCanDo(currentUser, 'comments.alignment.suggest')) {
 
     const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser!._id)
 
     if (!userHasSuggested) {
       return (
-        <MenuItem onClick={() => Comments.suggestForAlignment({ currentUser, comment, updateComment })}>
+        <MenuItem onClick={() => commentSuggestForAlignment({ currentUser, comment, updateComment })}>
           <ListItemIcon>
             <span className={classes.iconRoot}>
               <OmegaIcon className={classes.omegaIcon}/>
@@ -61,7 +61,7 @@ const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
         </MenuItem>
       )
     } else {
-      return <MenuItem onClick={() => Comments.unSuggestForAlignment({ currentUser, comment, updateComment })}>
+      return <MenuItem onClick={() => commentUnSuggestForAlignment({ currentUser, comment, updateComment })}>
         <ListItemIcon>
           <span className={classes.iconRoot}>
             <OmegaIcon className={classes.omegaIcon}/>

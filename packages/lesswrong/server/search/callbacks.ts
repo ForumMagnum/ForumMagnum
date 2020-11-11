@@ -7,7 +7,7 @@ import { algoliaDocumentExport } from './utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 
 
-async function commentAlgoliaIndex(comment) {
+async function commentAlgoliaIndex(comment: DbComment) {
   await algoliaDocumentExport({
     documents: [comment],
     collection: Comments,
@@ -16,7 +16,7 @@ async function commentAlgoliaIndex(comment) {
 getCollectionHooks("Comments").newAsync.add(commentAlgoliaIndex);
 getCollectionHooks("Comments").editAsync.add(commentAlgoliaIndex);
 
-async function postAlgoliaIndex(post) {
+async function postAlgoliaIndex(post: DbPost) {
   await algoliaDocumentExport({
     documents: [post],
     collection: Posts,
@@ -25,7 +25,7 @@ async function postAlgoliaIndex(post) {
 getCollectionHooks("Posts").newAsync.add(postAlgoliaIndex);
 getCollectionHooks("Posts").editAsync.add(postAlgoliaIndex);
 
-async function userAlgoliaIndex(user) {
+async function userAlgoliaIndex(user: DbUser) {
   await algoliaDocumentExport({
     documents: [user],
     collection: Users,
@@ -34,7 +34,7 @@ async function userAlgoliaIndex(user) {
 getCollectionHooks("Users").newAsync.add(userAlgoliaIndex);
 getCollectionHooks("Users").editAsync.add(userAlgoliaIndex);
 
-async function sequenceAlgoliaIndex(sequence) {
+async function sequenceAlgoliaIndex(sequence: DbSequence) {
   await algoliaDocumentExport({
     documents: [sequence],
     collection: Sequences,
@@ -43,7 +43,7 @@ async function sequenceAlgoliaIndex(sequence) {
 getCollectionHooks("Sequences").newAsync.add(sequenceAlgoliaIndex);
 getCollectionHooks("Sequences").editAsync.add(sequenceAlgoliaIndex);;
 
-async function tagAlgoliaIndex(tag) {
+async function tagAlgoliaIndex(tag: DbTag) {
   await algoliaDocumentExport({
     documents: [tag],
     collection: Tags,

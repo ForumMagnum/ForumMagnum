@@ -4,7 +4,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentBodyStyles } from '../../themes/stylePiping';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
@@ -36,7 +36,6 @@ const TagDiscussionSection = ({classes, tag}: {
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
-    ssr: true
   });
   
   const nestedComments = !!results && unflattenComments(results);

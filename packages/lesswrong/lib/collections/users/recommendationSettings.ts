@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
+import { userOwns } from '../../vulcan-users/permissions';
 
 export interface RecommendationsAlgorithm {
   method: "top"|"sample"
@@ -58,8 +59,8 @@ addFieldsDict(Users, {
     type: recommendationSettingsSchema,
     blackbox: true,
     hidden: true,
-    canRead: [Users.owns],
-    canUpdate: [Users.owns],
+    canRead: [userOwns],
+    canUpdate: [userOwns],
     optional: true,
   },
 });

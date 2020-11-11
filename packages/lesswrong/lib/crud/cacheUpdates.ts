@@ -31,9 +31,11 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document })
     const results = data[multiResolverName]
 
     const updatedResults = func({document, results, parameters, typeName})
-
-    data[multiResolverName] = updatedResults
-    store.writeQuery({query, data, variables})
+    const newData = {
+      ...data,
+      [multiResolverName]: updatedResults
+    }
+    store.writeQuery({query, data: newData, variables})
   })
 }
 

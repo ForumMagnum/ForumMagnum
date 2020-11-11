@@ -32,12 +32,10 @@ import { intlShape } from '../../lib/vulcan-i18n';
 // handling by string gluing, so it's hard to be sure this is safe.
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
-import { graphql, withApollo } from 'react-apollo';
+import { graphql, withApollo } from '@apollo/client/react/hoc';
 import compose from 'lodash/flowRight';
-import {
-  Components, registerComponent, Utils,
-  getFragment
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { capitalize } from '../../lib/vulcan-lib/utils';
 import { withCreate } from '../../lib/crud/withCreate';
 import { withSingle } from '../../lib/crud/withSingle';
 import { withDelete } from '../../lib/crud/withDelete';
@@ -80,7 +78,7 @@ class FormWrapper extends PureComponent<any> {
   // get fragment used to decide what data to load from the server to populate the form,
   // as well as what data to ask for as return value for the mutation
   getFragments() {
-    const prefix = `${this.props.collectionName}${Utils.capitalize(
+    const prefix = `${this.props.collectionName}${capitalize(
       this.getFormType()
     )}`;
     const fragmentName = `${prefix}FormFragment`;
@@ -183,7 +181,7 @@ class FormWrapper extends PureComponent<any> {
   getComponent() {
     let WrappedComponent;
 
-    const prefix = `${this.props.collectionName}${Utils.capitalize(
+    const prefix = `${this.props.collectionName}${capitalize(
       this.getFormType()
     )}`;
 

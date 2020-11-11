@@ -3,14 +3,15 @@ import htmlToText from 'html-to-text';
 import Juice from 'juice';
 import { Email } from 'meteor/email';
 import React from 'react';
-import { ApolloProvider, getDataFromTree } from 'react-apollo';
+import { ApolloProvider } from '@apollo/client';
+import { getDataFromTree } from '@apollo/client/react/ssr';
 import { renderToString } from 'react-dom/server';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
-import Users from '../../lib/collections/users/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
@@ -251,7 +252,7 @@ export function reasonUserCantReceiveEmails(user)
 {
   if (!user.email)
     return "No email address";
-  if (!Users.emailAddressIsVerified(user))
+  if (!userEmailAddressIsVerified(user))
     return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";

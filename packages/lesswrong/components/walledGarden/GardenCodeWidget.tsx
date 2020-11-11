@@ -8,7 +8,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import moment from 'moment';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     marginTop: 8,
     marginBottom: 8,

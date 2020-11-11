@@ -176,7 +176,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     const { updateUser, currentUser } = this.props;
     if (!currentUser) return;
     if (isOpen) {
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: {lastNotificationsCheck: new Date()}
       })

@@ -1,9 +1,10 @@
-import { createCollection, Utils } from '../../vulcan-lib';
+import { createCollection } from '../../vulcan-lib';
+import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import type { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
-import Users from '../../vulcan-users';
+import { userGroups, userCanDo } from '../../vulcan-users/permissions';
 
 
 const schema: SchemaType<DbTagFlag> = {
@@ -34,11 +35,11 @@ const schema: SchemaType<DbTagFlag> = {
     optional: true,
     viewableBy: ['guests'],
     onInsert: (tagFlag) => {
-      return Utils.getUnusedSlugByCollectionName("TagFlags", Utils.slugify(tagFlag.name))
+      return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
     onEdit: (modifier, tagFlag) => {
       if (modifier.$set.name) {
-        return Utils.getUnusedSlugByCollectionName("TagFlags", Utils.slugify(modifier.$set.name), false, tagFlag._id)
+        return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
       }
     }
   },
@@ -57,17 +58,17 @@ const adminActions = [
   'tagFlags.edit.all',
 ];
 
-Users.groups.admins.can(adminActions);
+userGroups.admins.can(adminActions);
 
 const options = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `tagFlags.new`)
+    return userCanDo(user, `tagFlags.new`)
   },
 
   editCheck: (user: DbUser|null, document: DbTagFlag|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `tagFlags.edit.all`)
+    return userCanDo(user, `tagFlags.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbTagFlag|null) => {
