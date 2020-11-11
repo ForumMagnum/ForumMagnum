@@ -4,7 +4,6 @@ import TimerIcon from '@material-ui/icons/Timer';
 
 const styles = (theme) => ({
   root: {
-    padding: 16,
     display: "flex",
     alignItems: "center"
   },

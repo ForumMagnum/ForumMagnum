@@ -39,11 +39,7 @@ const styles = (theme) => ({
     ...widgetStyling
   },
   pomodoroTimerWidget: {
-    ...widgetStyling,
-    textAlign: "right",
-    position: "absolute",
-    right: 12,
-    top: 0,
+    ...widgetStyling
   },
   codesList: {
     marginLeft: 60

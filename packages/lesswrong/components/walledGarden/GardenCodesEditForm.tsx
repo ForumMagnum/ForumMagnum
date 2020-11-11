@@ -1,13 +1,11 @@
 import React from 'react';
 import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
+import { gardenForm } from './GardenCodeWidget';
 
 const styles = theme => ({
   root: {
-    width: 350,
-    border: "solid 1px rgba(0,0,0,.5)",
-    padding: 16,
-    borderRadius: 5,
+    ...gardenForm(theme)
   }
 })
 
