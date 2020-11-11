@@ -23,7 +23,7 @@ export const sanitize = function(s: string): string {
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       span: ['style'],
-      div: ['class', 'data-oembed-url'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
       a: ['href', 'name', 'target', 'rel'],
       iframe: ['src', 'allowfullscreen', 'allow']
     },

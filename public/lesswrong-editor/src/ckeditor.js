@@ -193,9 +193,9 @@ const postEditorConfig = {
 		extraProviders: [
 			{
 				name: 'Elicit',
-				url: /^elicit\.org\/builder\/(\w+)/,
-				html: match => `
-					<div style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
+				url: /^ought-elicit-alpha.herokuapp.com\/binary\/questions\/(\w+)/,
+				html: ([match, questionId]) => `
+					<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
 						<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
 					</div>
 				`
@@ -204,7 +204,7 @@ const postEditorConfig = {
 				name: 'Metaculus',
 				url: /^metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/,
 				html: ([match, questionNumber]) => `
-					<div style="background-color: #2c3947;" class="metaculus-preview">
+					<div data-metaculus-id="${questionNumber}" style="background-color: #2c3947;" class="metaculus-preview">
 						<iframe style="height: 250px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
 					</div>
 				`

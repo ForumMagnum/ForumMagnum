@@ -6,10 +6,12 @@ import maxBy from 'lodash/maxBy';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import gql from 'graphql-tag';
 import { useMutation, useQuery } from '@apollo/client';
+import { useCurrentUser } from '../common/withUser';
 
 const elicitQuery = gql`
   query ElicitBlockData($questionId: String) {
     ElicitBlockData(questionId: $questionId) {
+      _id
       title
       notes
       resolvesBy
@@ -117,10 +119,12 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType,
   questionId: String
 }) => {
-  const { data, loading } = useQuery(elicitQuery, { ssr: true })
+  const currentUser = useCurrentUser();
+  const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
+        _id
         title
         notes
         resolvesBy
@@ -153,7 +157,29 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             key={prob}
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
-            onClick={() => makeElicitPrediction({variables: { questionId, prediction: prob }})}
+            onClick={() => {
+              if (currentUser) {
+                makeElicitPrediction({
+                  variables: { questionId, prediction: prob },
+                  optimisticResponse: {
+                    __typename: "Mutation",
+                    ElicitBlockData: {
+                      __typename: "Mutation",
+                      predictions: data?.ElicitBlockData?.predictions?.map(prediction => {
+                        if (prediction?.user?.displayName === currentUser?.displayName) {
+                          return {
+                            ...prediction,
+                            prediction: prob
+                          }
+                        } else {
+                          return prediction
+                        }
+                      })
+                    }
+                  }
+                })
+              }
+            }}
           >
             <div 
               className={classes.additionalVoteArea} 

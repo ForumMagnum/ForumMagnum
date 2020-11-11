@@ -21,6 +21,7 @@ const ElicitPredictionType = `type ElicitPrediction {
 addGraphQLSchema(ElicitPredictionType);
 
 const ElicitBlockDataType = `type ElicitBlockData {
+  _id: String
   title: String
   notes: String
   resolvesBy: Date
@@ -87,6 +88,7 @@ async function getElicitQuestionWithPredictions(questionId: string) {
     user
   }))
   return {
+    _id: questionId,
     title,
     notes,
     resolution,
