@@ -3,12 +3,20 @@ import moment from 'moment';
 import {registerComponent, Components } from '../../lib/vulcan-lib';
 import { getUrlClass } from '../../lib/routeUtil';
 
-export const eventName = theme => ({
+export const eventRoot = theme => ({
   ...theme.typography.commentStyle,
   fontSize: '1.1rem',
   color: 'rgba(0,0,0,0.55)',
   display: "flex",
-  justifyContent: "space-between"
+  width: 350,
+})
+
+export const eventName = theme => ({
+  width: 230,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "inline-block",
+  whiteSpace: "nowrap"
 })
 
 export const eventTime = theme => ({
@@ -20,11 +28,14 @@ export const eventTime = theme => ({
 })
 
 export const eventFormat = (startTime) => {
-  return moment(new Date(startTime)).format("ddd h:mma, M/D")
+  return moment(new Date(startTime)).format("ddd h:mma, MMM D")
 }
 
 const styles = (theme) => ({
   root: {
+    ...eventRoot(theme)
+  },
+  eventName: {
     ...eventName(theme)
   },
   eventTime: {
@@ -58,7 +69,9 @@ export const getAddToCalendarLink = (gcalEvent) => {
 const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
 
   return <div className={classes.root}>
-      {getAddToCalendarLink(gcalEvent)}
+      <span className={classes.eventName}>
+        {getAddToCalendarLink(gcalEvent)}
+      </span>
       <span className={classes.eventTime}>
         {eventFormat(gcalEvent.start.dateTime)}
       </span>
