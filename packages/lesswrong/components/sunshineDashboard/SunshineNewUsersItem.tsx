@@ -20,6 +20,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
+import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -159,8 +160,8 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
     limit: 50
   });
 
-  const commentKarmaPreviews = comments ? comments.sort((c1, c2) => c2.baseScore - c1.baseScore) : []
-  const postKarmaPreviews = posts ? posts.sort((p1, p2) => p2.baseScore - p1.baseScore) : []
+  const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
+  const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
 
   const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton } = Components
 
