@@ -14,16 +14,16 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 interface ExternalProps {
   report: any,
-  updateReport: any,
+  updateReport: WithUpdateFunction<ReportsCollection>,
 }
 interface SunshineReportedItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updateComment: any,
-  updatePost: any,
+  updateComment: WithUpdateFunction<CommentsCollection>,
+  updatePost: WithUpdateFunction<PostsCollection>,
 }
 class SunshineReportedItem extends Component<SunshineReportedItemProps> {
   handleReview = () => {
     const { currentUser, report, updateReport } = this.props
-    updateReport({
+    void updateReport({
       selector: {_id: report._id},
       data: {
         closedAt: new Date(),
@@ -43,7 +43,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     } = this.props
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
-        updateComment({
+        void updateComment({
           selector: {_id: report.comment._id},
           data: {
             deleted: true,
@@ -53,12 +53,12 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
           }
         })
       } else if (report.post) {
-        updatePost({
+        void updatePost({
           selector: {_id: report.post._id},
           data: { status: report.reportedAsSpam ? 4 : 5 }
         })
       }
-      updateReport({
+      void updateReport({
         selector: {_id: report._id},
         data: {
           closedAt: new Date(),

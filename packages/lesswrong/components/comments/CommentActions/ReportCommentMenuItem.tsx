@@ -10,8 +10,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 interface ExternalProps {
   comment: CommentsList,
 }
-interface ReportCommentMenuItemProps extends ExternalProps, WithUserProps {
-  openDialog?: any,
+interface ReportCommentMenuItemProps extends ExternalProps, WithUserProps, WithDialogProps {
 }
 
 class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}> {

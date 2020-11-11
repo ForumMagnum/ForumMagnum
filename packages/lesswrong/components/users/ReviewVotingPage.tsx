@@ -8,7 +8,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from '@apollo/client';
-import Users from '../../lib/collections/users/collection';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
@@ -189,7 +188,7 @@ const ReviewVotingPage = ({classes}: {
   })
 
   const {mutate: updateUser} = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
 

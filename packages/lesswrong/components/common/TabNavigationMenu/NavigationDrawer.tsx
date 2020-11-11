@@ -51,7 +51,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}) => {
+const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
+  open: boolean,
+  handleOpen: ()=>void,
+  handleClose: ()=>void,
+  toc: any,
+  classes: ClassesType,
+}) => {
   const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
   const showToc = toc && toc.sections
 

@@ -37,7 +37,7 @@ export function withSingle({
 }: {
   collectionName?: CollectionNameString,
   collection?: any,
-  fragmentName?: string,
+  fragmentName?: FragmentName,
   fragment?: any,
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,

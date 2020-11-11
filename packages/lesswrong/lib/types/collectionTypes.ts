@@ -114,4 +114,7 @@ interface ResolverContext extends CollectionsByName {
   loaders: Record<CollectionNameString, DataLoader<string,any>>
   extraLoaders: Record<string,any>
 }
+
+type FragmentName = keyof FragmentTypes;
+
 }

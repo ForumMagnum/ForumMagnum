@@ -17,7 +17,7 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
         ...WithVote${typeName}
       }
     }
-    ${getFragmentText(`WithVote${typeName}`)}
+    ${getFragmentText(`WithVote${typeName}` as any)}
   `
 }
 

@@ -1,3 +1,6 @@
+import type { FetchResult } from '@apollo/client';
+
+declare global {
 
 type ClassesType = Record<string,any>
 type ThemeType = any
@@ -5,7 +8,7 @@ type JssStyles = any
 
 interface WithStylesProps {
   classes: ClassesType,
-};
+}
 
 type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string, type?: string, action?: any};
 
@@ -59,7 +62,13 @@ interface WithApolloProps {
 // https://stackoverflow.com/questions/63631364/infer-nested-generic-types-in-typescript/63631544#63631544
 type DbObjectForCollectionBase<C> = C extends CollectionBase<infer T> ? T : never
 
-type WithUpdateFunction<T extends CollectionBase<U>, U extends DbObject = DbObjectForCollectionBase<T>> = any;
+type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
+
+type WithUpdateFunction<T extends CollectionBase<U>, U extends DbObject = DbObjectForCollectionBase<T>> = (args: {
+  selector: MongoSelector<U>,
+  data: NullablePartial<U>,
+  extraVariables?: any,
+}) => Promise<FetchResult>;
 
 interface WithUpdateUserProps {
   updateUser: WithUpdateFunction<UsersCollection>
@@ -69,4 +78,6 @@ interface WithUpdateCommentProps {
 }
 interface WithUpdatePostProps {
   updatePost: WithUpdateFunction<PostsCollection>
+}
+
 }

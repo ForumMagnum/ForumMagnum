@@ -11,7 +11,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewPostsList = ({ terms, classes }) => {
+const SunshineNewPostsList = ({ terms, classes }: {
+  terms: any,
+  classes: ClassesType,
+}) => {
   const { results, totalCount } = useMulti({
     terms,
     collection: Posts,

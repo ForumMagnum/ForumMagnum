@@ -12,7 +12,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineCommentsItemOverview = ({ comment, classes }) => {
+const SunshineCommentsItemOverview = ({ comment, classes }: {
+  comment: any,
+  classes: ClassesType,
+}) => {
   const { markdown = "" } = comment.contents || {}
   const commentExcerpt = markdown && markdown.substring(0,38);
   return (

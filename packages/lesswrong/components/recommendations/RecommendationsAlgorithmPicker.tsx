@@ -6,7 +6,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
-import Users from '../../lib/collections/users/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { archiveRecommendationsName } from './ConfigurableRecommendationsList';
 
@@ -70,7 +69,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
   const {mutate: updateUser} = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: "UsersCurrent",
   });
   function applyChange(newSettings) {

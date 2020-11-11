@@ -26,7 +26,7 @@ class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuI
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }
-      updateUser({
+      void updateUser({
         selector: { _id: currentUser._id },
         data: {bannedUserIds:bannedUserIds}
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your posts`}))
