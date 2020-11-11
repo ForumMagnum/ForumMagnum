@@ -1,6 +1,7 @@
 import React from 'react'
 import moment from 'moment';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import {registerComponent, Components } from '../../lib/vulcan-lib';
+import { getUrlClass } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,31 +17,38 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 120,
     textAlign: "right",
     display: "inline-block"
-  },
-  tooltip: {
-    whiteSpace: "pre-wrap"
   }
 })
 
-const PortalBarGcalEventItem = ({classes, gcalEvent}: {
-  classes: ClassesType,
-  gcalEvent: any,
-}) => {
-  const { LWTooltip } = Components
 
-  const urlParams = new URLSearchParams(gcalEvent.htmlLink.split('?')[1])
-  const eid = urlParams.get("eid")
+export const getAddToCalendarLink = (gcalEvent) => {
+  const { LWTooltip } = Components
+  
+  const UrlClass = getUrlClass()
+  const url = new UrlClass(gcalEvent.htmlLink)
+  const eid = url.searchParams.get("eid")
   const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${gcalEvent.organizer.email}`
   const link = <a href={addToCalendarLink} target="_blank" rel="noopener noreferrer">
     {gcalEvent.summary}
   </a>
 
+  const noHtmlDescription = gcalEvent.description ? gcalEvent.description.replace(/<[^>]*>?/gm, '') : ""
+
+  if (gcalEvent.description) {
+    return <LWTooltip title={<div style={{whiteSpace: "pre-wrap"}}>{noHtmlDescription}</div>}>
+      {link}
+    </LWTooltip>
+  } else {
+    return link
+  }
+}
+
+const PortalBarGcalEventItem = ({classes, gcalEvent}: {
+  classes: ClassesType,
+  gcalEvent: any,
+}) => {
   return <div className={classes.root}>
-      {gcalEvent.description ?
-        <LWTooltip title={<div className={classes.tooltip}>{gcalEvent.description}</div>}>
-          {link}
-        </LWTooltip>
-      : link}
+      {getAddToCalendarLink(gcalEvent)}
       <span className={classes.eventTime}>
         {moment(new Date(gcalEvent.start.dateTime)).format("ddd h:mma, M/D")}
       </span>

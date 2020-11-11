@@ -81,10 +81,16 @@ interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
   voteCount: number
+  af?: boolean
+  afBaseScore?: number
+  afVoteCount?: number
 }
 
 interface VoteableTypeClient extends VoteableType {
-  currentUserVotes: Array<VoteFragment>
+  currentUserVote: string|null
+}
+
+interface DbVoteableType extends VoteableType, DbObject {
 }
 
 // Common base type for results of database lookups.

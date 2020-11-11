@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { getDataFromTree } from '@apollo/client/react/ssr';
+import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
 import { webAppConnectHandlersUse } from '../meteor_patch';
 
@@ -164,7 +164,7 @@ const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
 
   let htmlContent = '';
   try {
-    htmlContent = await getDataFromTree(WrappedApp);
+    htmlContent = await renderToStringWithData(WrappedApp);
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console

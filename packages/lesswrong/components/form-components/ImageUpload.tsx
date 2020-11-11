@@ -10,16 +10,65 @@ import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/pub
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
+const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    marginTop: theme.spacing.unit,
+    "& img": {
+      display: "block",
+      marginBottom: 8,
+    },
+  },
   button: {
     background: "rgba(0,0,0, 0.5)",
     "&:hover": {
       background: "rgba(0,0,0,.35)"
     },
     color: "white",
-  }
+  },
+  imageIcon: {
+    marginRight: theme.spacing.unit
+  },
 });
+
+const cloudinaryArgsByImageType = {
+  gridImageId: {
+    min_image_height: 80,
+    min_image_width: 203,
+    cropping_aspect_ratio: 2.5375,
+    upload_preset: cloudinaryUploadPresetGridImageSetting.get(),
+  },
+  bannerImageId: {
+    min_image_height: 380,
+    min_image_width: 1600,
+    cropping_aspect_ratio: 2.5375,
+    cropping_default_selection_ratio: 3,
+    upload_preset: cloudinaryUploadPresetBannerSetting.get(),
+  },
+  socialPreviewImageId: {
+    min_image_height: 400,
+    min_image_width: 700,
+    cropping_aspect_ratio: 1.91,
+    cropping_default_selection_ratio: 3,
+    upload_preset: cloudinaryUploadPresetSocialPreviewSetting.get(),
+  },
+}
+
+const formPreviewSizeByImageType = {
+  gridImageId: {
+    width: 203,
+    height: 80
+  },
+  bannerImageId: {
+    width: "auto",
+    height: 380
+  },
+  socialPreviewImageId: {
+    width: 153,
+    height: 80
+  },
+}
 
 class ImageUpload extends Component<any,any> {
   constructor(props, context) {
@@ -51,55 +100,40 @@ class ImageUpload extends Component<any,any> {
   }
 
   uploadWidget = () => {
-    let min_image_height, min_image_width, cropping_aspect_ratio, cropping_default_selection_ratio, upload_preset;
-    if (this.props.name == "gridImageId") {
-      min_image_height = 80;
-      min_image_width = 203;
-      cropping_aspect_ratio = 2.5375;
-      upload_preset = cloudinaryUploadPresetGridImageSetting.get();
-    } else if (this.props.name == "bannerImageId") {
-      min_image_height = 380;
-      min_image_width = 1600;
-      cropping_aspect_ratio = 2.5375;
-      cropping_default_selection_ratio = 3;
-      upload_preset = cloudinaryUploadPresetBannerSetting.get()
-    }
+    const cloudinaryArgs = cloudinaryArgsByImageType[this.props.name]
+    if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
     // @ts-ignore
-    cloudinary.openUploadWidget(
-      {cropping: "server",
+    cloudinary.openUploadWidget({
+      cropping: "server",
       cloud_name: cloudinaryCloudNameSetting.get(),
-      upload_preset,
       theme: 'minimal',
-      min_image_height,
-      min_image_width,
       cropping_validate_dimension: true,
       cropping_show_dimensions: true,
-      cropping_default_selection_ratio,
-      cropping_aspect_ratio
+      ...cloudinaryArgs
     }, this.setImageInfo);
   }
   render(){
-    const { classes } = this.props;
+    const { classes, name, label } = this.props;
+    const formPreviewSize = formPreviewSizeByImageType[name]
+    if (!formPreviewSize) throw new Error("Unsupported image upload type")
     
     return (
-      <div className="upload">
+      <div className={classes.root}>
         <Helmet>
           <script src="https://widget.cloudinary.com/global/all.js" type="text/javascript"/>
           <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'/>
         </Helmet>
-        <div className="image-upload-description">{this.props.label}</div>
         {this.state.imageId &&
           <Components.CloudinaryImage
             publicId={this.state.imageId}
-            width={this.props.name == "gridImageId" ? "203" : "auto"}
-            height={this.props.name == "bannerImageId" ? "380" : "80"}
+            {...formPreviewSize}
           /> }
         <Button
           onClick={this.uploadWidget}
           className={classNames("image-upload-button", classes.button)}
         >
-          <ImageIcon/>
-          {this.state.imageId ? `Replace ${this.props.label}` : `Upload ${this.props.label}`}
+          <ImageIcon className={classes.imageIcon}/>
+          {this.state.imageId ? `Replace ${label}` : `Upload ${label}`}
         </Button>
       </div>
     );

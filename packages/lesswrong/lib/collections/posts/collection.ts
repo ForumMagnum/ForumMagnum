@@ -36,6 +36,7 @@ export interface PostsMinimumForGetPageUrl {
 }
 
 interface ExtendedPostsCollection extends PostsCollection {
+  getSocialPreviewImage: (post: DbPost) => string
   // In search/utils.ts
   toAlgolia: (post: DbPost) => Promise<Array<AlgoliaDocument>|null>
   

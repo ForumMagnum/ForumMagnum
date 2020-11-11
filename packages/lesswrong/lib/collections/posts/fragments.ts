@@ -46,6 +46,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+    socialPreviewImageUrl
 
     # questions
     question
@@ -116,9 +117,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
   }
 `);
 
@@ -228,9 +227,7 @@ registerFragment(`
     
     # Voting
     voteCount
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
     feed {
       ...RSSFeedMinimumInfo
     }
@@ -405,9 +402,7 @@ registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsListBase
 
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
 
     contents {
       _id

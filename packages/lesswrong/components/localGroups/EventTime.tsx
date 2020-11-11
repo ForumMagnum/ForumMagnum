@@ -20,8 +20,8 @@ const EventTime = ({post, dense=false}: {
   dense?: boolean,
 }) => {
   const { timezone } = useTimezone();
-  const start = post.startTime ? moment(post.startTime).tz(timezone) : null;
-  const end = post.endTime ? moment(post.endTime).tz(timezone) : null;
+  const start = post.startTime ? moment(post.startTime).tz(timezone) : undefined;
+  const end = post.endTime ? moment(post.endTime).tz(timezone) : undefined;
 
   const isThisYear = moment(new Date()).format("YYYY") === moment(start).format("YYYY");
 
