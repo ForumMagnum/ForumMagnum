@@ -3,6 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
+import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
@@ -49,27 +50,27 @@ function PostsSetPostedAt (data, oldPost) {
 }
 addCallback("post.undraft.before", PostsSetPostedAt);
 
-function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
-  if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
-    let thresholdTimestamp: any = {};
-    if (!newDocument.scoreExceeded2Date && newDocument.baseScore >= 2) {
-      thresholdTimestamp.scoreExceeded2Date = new Date();
+voteCallbacks.castVoteAsync.add(function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+  if (vote.collectionName === "Posts") {
+    const post = newDocument as DbPost;
+    if (post.baseScore > (post.maxBaseScore || 0)) {
+      let thresholdTimestamp: any = {};
+      if (!post.scoreExceeded2Date && post.baseScore >= 2) {
+        thresholdTimestamp.scoreExceeded2Date = new Date();
+      }
+      if (!post.scoreExceeded30Date && post.baseScore >= 30) {
+        thresholdTimestamp.scoreExceeded30Date = new Date();
+      }
+      if (!post.scoreExceeded45Date && post.baseScore >= 45) {
+        thresholdTimestamp.scoreExceeded45Date = new Date();
+      }
+      if (!post.scoreExceeded75Date && post.baseScore >= 75) {
+        thresholdTimestamp.scoreExceeded75Date = new Date();
+      }
+      Posts.update({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
-    if (!newDocument.scoreExceeded30Date && newDocument.baseScore >= 30) {
-      thresholdTimestamp.scoreExceeded30Date = new Date();
-    }
-    if (!newDocument.scoreExceeded45Date && newDocument.baseScore >= 45) {
-      thresholdTimestamp.scoreExceeded45Date = new Date();
-    }
-    if (!newDocument.scoreExceeded75Date && newDocument.baseScore >= 75) {
-      thresholdTimestamp.scoreExceeded75Date = new Date();
-    }
-    Posts.update({_id: newDocument._id}, {$set: {maxBaseScore: newDocument.baseScore, ...thresholdTimestamp}})
   }
-}
-
-addCallback("votes.smallUpvote.async", increaseMaxBaseScore);
-addCallback("votes.bigUpvote.async", increaseMaxBaseScore);
+});
 
 getCollectionHooks("Posts").newSync.add(function PostsNewDefaultLocation(post: DbPost): DbPost {
   return {...post, ...getDefaultPostLocationFields(post)}
