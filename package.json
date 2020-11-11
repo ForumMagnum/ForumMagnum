@@ -48,6 +48,7 @@
     "@types/crypto-js": "^3.1.44",
     "@types/draft-js": "^0.10.40",
     "@types/enzyme": "^3.10.5",
+    "@types/express": "^4.17.8",
     "@types/gapi": "0.0.39",
     "@types/html-to-text": "^5.1.0",
     "@types/htmlparser2": "^3.10.1",

@@ -7,8 +7,8 @@ import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
-import { getCollectionHooks } from '../mutationCallbacks';
 import { Accounts } from '../../lib/meteorAccounts';
+import { getCollectionHooks } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
