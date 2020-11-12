@@ -32,7 +32,7 @@ export const Users: ExtendedUsersCollection = createCollection({
   typeName: 'User',
   schema,
   resolvers: getDefaultResolvers('Users'),
-  mutations: getDefaultMutations(options),
+  mutations: getDefaultMutations('Users', options),
 });
 
 addGraphQLQuery('currentUser: User');

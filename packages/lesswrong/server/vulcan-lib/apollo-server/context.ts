@@ -103,7 +103,7 @@ export const generateDataLoaders = (): {
 };
 
 
-export const computeContextFromUser = async (user: DbUser|null, req, res): Promise<ResolverContext> => {
+export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
   let context: ResolverContext = {
     ...getSchemaContextBase(),
     ...getCollectionsByName(),
@@ -118,9 +118,10 @@ export const computeContextFromUser = async (user: DbUser|null, req, res): Promi
   setupAuthToken(user, context);
 
   //add the headers to the context
-  context.headers = req.headers;
-
-  context.locale = getHeaderLocale(req.headers, null);
+  if (req) {
+    context.headers = req.headers;
+    context.locale = getHeaderLocale(req.headers, null);
+  }  
 
   return context;
 }

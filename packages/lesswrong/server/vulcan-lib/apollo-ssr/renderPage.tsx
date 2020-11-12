@@ -43,6 +43,7 @@ export type RenderResult = {
 const makePageRenderer = async sink => {
   const startTime = new Date();
   const req = sink.request;
+  const res = sink.response;
   const user = await getUserFromReq(req);
   
   const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
@@ -72,7 +73,7 @@ const makePageRenderer = async sink => {
     recordCacheBypass();
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
-      req, user, startTime
+      req, user, startTime, res
     });
     sendToSink(sink, {
       ...rendered,
@@ -90,7 +91,7 @@ const makePageRenderer = async sink => {
   } else {
     const abTestGroups = getAllUserABTestGroups(user, clientId);
     const rendered = await cachedPageRender(req, abTestGroups, (req) => renderRequest({
-      req, user: null, startTime
+      req, user: null, startTime, res
     }));
     sendToSink(sink, {
       ...rendered,
@@ -131,8 +132,8 @@ webAppConnectHandlersUse(function addClientId(req, res, next) {
   next();
 }, {order: 100});
 
-const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
-  const requestContext = await computeContextFromUser(user, req.headers);
+const renderRequest = async ({req, user, startTime, res}): Promise<RenderResult> => {
+  const requestContext = await computeContextFromUser(user, req, res);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);
