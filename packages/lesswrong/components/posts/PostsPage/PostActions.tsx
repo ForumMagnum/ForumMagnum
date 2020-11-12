@@ -73,7 +73,8 @@ class PostActions extends Component<PostActionsProps,{}> {
   }
 
   handleMoveToMeta = () => {
-    const { post, updatePost } = this.props
+    const { post, updatePost, currentUser } = this.props
+    if (!currentUser) throw new Error("Cannot move to meta anonymously")
     void updatePost({
       selector: { _id: post._id},
       data: {
@@ -81,31 +82,36 @@ class PostActions extends Component<PostActionsProps,{}> {
         draft: false,
         metaDate: new Date(),
         frontpageDate: null,
-        curatedDate: null
+        curatedDate: null,
+        reviewedByUserId: currentUser._id,
       },
     })
   }
 
   handleMoveToFrontpage = () => {
-    const { post, updatePost } = this.props
+    const { post, updatePost, currentUser } = this.props
+    if (!currentUser) throw new Error("Cannot move to frontpage anonymously")
     void updatePost({
       selector: { _id: post._id},
       data: {
         frontpageDate: new Date(),
         meta: false,
-        draft: false
+        draft: false,
+        reviewedByUserId: currentUser._id,
       },
     })
   }
 
   handleMoveToPersonalBlog = () => {
-    const { post, updatePost } = this.props
+    const { post, updatePost, currentUser } = this.props
+    if (!currentUser) throw new Error("Cannot move to personal blog anonymously")
     void updatePost({
       selector: { _id: post._id},
       data: {
         draft: false,
         meta: false,
-        frontpageDate: null
+        frontpageDate: null,
+        reviewedByUserId: currentUser._id,
       },
     })
   }
