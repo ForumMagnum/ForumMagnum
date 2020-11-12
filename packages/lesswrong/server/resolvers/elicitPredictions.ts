@@ -1,21 +1,25 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
 import fetch from 'node-fetch'
 import { DatabaseServerSetting } from '../databaseSettings';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const ElicitUserType = `type ElicitUser {
-    isQuestionCreator: Boolean
-    displayName: String
+  isQuestionCreator: Boolean
+  displayName: String
+  _id: String
+  sourceUserId: String
 }`
 
 addGraphQLSchema(ElicitUserType);
 
 const ElicitPredictionType = `type ElicitPrediction {
-    prediction: Int
-    createdAt: Date
-    notes: String
-    user: ElicitUser
+  _id: String
+  prediction: Int
+  createdAt: Date
+  notes: String
+  creator: ElicitUser
+  sourceUrl: String
+  sourceId: String
+  binaryQuestionId: String
 }`
 
 addGraphQLSchema(ElicitPredictionType);
@@ -32,12 +36,12 @@ const ElicitBlockDataType = `type ElicitBlockData {
 addGraphQLSchema(ElicitBlockDataType);
 
 const elicitAPIUrl = "https://ought-elicit-alpha.herokuapp.com/api/v1"
-const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', "3BG7J8Y-AZQMRH8-HQ2DFZS-QB0KVB1")
-const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
+const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
+// const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 const elicitSourceURL = new DatabaseServerSetting('elicitSourceURL', 'https://LessWrong.com')
 
 async function getPredictionsFromElicit(questionId: string = "9caNKRnBs") {
-  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?user_most_recent=true&expand=user&prediction.fields=createdAt,notes`, {
+  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?user_most_recent=true&expand=creator&prediction.fields=createdAt,notes,id,sourceUrl,sourceId,binaryQuestionId&creator.fields=sourceUserId`, {
     method: 'GET',
     redirect: 'follow'
   })
@@ -49,7 +53,10 @@ async function getPredictionsFromElicit(questionId: string = "9caNKRnBs") {
 async function getPredictionDataFromElicit(questionId: string = "9caNKRnBs") {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?binaryQuestion.fields=notes,resolvesBy,resolution,title`, {
     method: 'GET',
-    redirect: 'follow'
+    redirect: 'follow',
+    headers: {
+      'Authorization': `API_KEY ${elicitAPIKey.get()}`
+    }
   })
   const responseText = await response.text()
   if (!responseText) return null
@@ -78,14 +85,29 @@ async function sendElicitPrediction(questionId: string, prediction: number, user
 async function getElicitQuestionWithPredictions(questionId: string) {
   const elicitData: any = await getPredictionDataFromElicit(questionId)
   const predictions: any = await getPredictionsFromElicit(questionId)
-  console.log(elicitData)
   
   const { title, notes, resolvesBy, resolution } = elicitData
-  const processedPredictions = predictions.map(({prediction, createdAt, notes, user}) => ({
+  const processedPredictions = predictions.map(({
+    id,
+    prediction,
+    createdAt,
+    notes,
+    creator,
+    sourceUrl,
+    sourceId,
+    binaryQuestionId
+  }) => ({
+    _id: id || creator.id,
     prediction,
     createdAt: new Date(createdAt),
     notes,
-    user
+    creator: {
+      ...creator,
+      _id: creator.id
+    },
+    sourceUrl,
+    sourceId,
+    binaryQuestionId
   }))
   return {
     _id: questionId,

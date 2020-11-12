@@ -7,24 +7,35 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import gql from 'graphql-tag';
 import { useMutation, useQuery } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
+import classNames from 'classnames';
+
+const elicitDataFragment = `
+  _id
+  title
+  notes
+  resolvesBy
+  resolution
+  predictions {
+    _id,
+    prediction,
+    createdAt,
+    notes,
+    sourceUrl,
+    sourceId,
+    binaryQuestionId
+    creator {
+      _id,
+      isQuestionCreator,
+      displayName,
+      sourceUserId
+    }
+  }
+`
 
 const elicitQuery = gql`
   query ElicitBlockData($questionId: String) {
     ElicitBlockData(questionId: $questionId) {
-      _id
-      title
-      notes
-      resolvesBy
-      resolution
-      predictions {
-        prediction
-        createdAt
-        notes
-        user {
-          isQuestionCreator
-          displayName
-        }
-      } 
+     ${elicitDataFragment}
     }
   }
 `;
@@ -42,6 +53,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   histogramBucket: {
     display: 'flex',
     flexGrow: 1,
+    '&:hover $sliceColoredArea': {
+      backgroundColor: "rgba(0,0,0,0.15)"
+    },
     '&:hover $usersInBucket': {
       display: 'block'
     }
@@ -64,6 +78,37 @@ const styles = (theme: ThemeType): JssStyles => ({
       },
       '& $sliceNumber': {
         opacity: 1,
+      }
+    }
+  },
+  histogramBucketCurrentUser: {
+    '& $sliceColoredArea': {
+      backgroundColor: theme.palette.primary.main
+    },
+    '&:hover $sliceColoredArea': {
+      backgroundColor: theme.palette.primary.main
+    },
+    '&:hover $histogramSliceCurrentUser $sliceColoredArea': {
+      backgroundColor: theme.palette.primary.dark
+    },
+    '& $sliceColoredArea:hover': {
+      backgroundColor: theme.palette.primary.dark
+    },
+    '&:hover $additionalVoteArea': {
+      backgroundColor: 'transparent',
+      height: '0% !important'
+    }
+  },
+  histogramSliceCurrentUser: {
+    '& $sliceColoredArea': {
+      backgroundColor: theme.palette.primary.dark
+    },
+    '&:hover': {
+      '& $additionalVoteArea': {
+        backgroundColor: 'transparent'
+      },
+      '& $sliceColoredArea': {
+        backgroundColor: theme.palette.primary.dark
       }
     }
   },
@@ -124,36 +169,27 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
-        _id
-        title
-        notes
-        resolvesBy
-        resolution
-        predictions {
-          prediction
-          createdAt
-          notes
-          user {
-            isQuestionCreator
-            displayName
-          }
-        }
+        ${elicitDataFragment}
       }
     }  
   `);
   
   const roughlyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => Math.floor(prediction / 10) * 10)
-  const finelyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction / 10)
+  const finelyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
 
   return <div className={classes.root}>
     <div className={classes.histogramRoot}>
-      {times(10, (bucket) => <div className={classes.histogramBucket}>
+      {times(10, (bucket) => <div key={bucket} className={classNames(classes.histogramBucket, {
+        [classes.histogramBucketCurrentUser]: roughlyGroupedData[`${bucket*10}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
+      })}>
         {times(10, offset => {
           const prob = (bucket*10) + offset;
           if (prob === 0) return null
           return <div 
-            className={classes.histogramSlice}
+            className={classNames(classes.histogramSlice, {
+              [classes.histogramSliceCurrentUser]: finelyGroupedData[`${prob}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
+            })}
             key={prob}
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
@@ -163,10 +199,11 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
                   variables: { questionId, prediction: prob },
                   optimisticResponse: {
                     __typename: "Mutation",
-                    ElicitBlockData: {
+                    MakeElicitPrediction: {
+                      ...data?.ElicitBlockData,
                       __typename: "Mutation",
                       predictions: data?.ElicitBlockData?.predictions?.map(prediction => {
-                        if (prediction?.user?.displayName === currentUser?.displayName) {
+                        if (prediction?.creator?.displayName === currentUser?.displayName) {
                           return {
                             ...prediction,
                             prediction: prob
@@ -194,8 +231,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
           </div>
         })}
         {roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
-          {roughlyGroupedData[`${bucket*10}`]?.map(({user: {displayName}, prediction}, i) => <span key={displayName} className={classes.name}>
-            {displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
+          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction}, i) => <span key={creator?._id} className={classes.name}>
+            {creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
         </div>}
       </div>)}
@@ -203,7 +240,9 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     
     <div className={classes.titleSection}>
       <div className={classes.startPercentage}>1%</div>
-      <div className={classes.title}>{data?.ElicitBlockData?.title}</div>
+      <div className={classes.title}>
+        {data?.ElicitBlockData?.title}
+      </div>
       <div className={classes.endPercentage}>99%</div>
     </div>
   </div>
