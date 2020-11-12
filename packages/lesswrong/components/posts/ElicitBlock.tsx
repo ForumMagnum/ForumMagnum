@@ -165,7 +165,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   questionId: String
 }) => {
   const currentUser = useCurrentUser();
-  const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
+  const { data } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
