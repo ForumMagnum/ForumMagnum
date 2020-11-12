@@ -18,14 +18,14 @@ interface ExternalProps {
   post: SuggestAlignmentPost,
 }
 interface AFSuggestPostsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updatePost: any,
+  updatePost: WithUpdateFunction<PostsCollection>,
 }
 
 class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 
   handleMoveToAlignment = () => {
     const { currentUser, post, updatePost } = this.props
-    updatePost({
+    void updatePost({
       selector: {_id: post._id},
       data: {
         reviewForAlignmentUserId: currentUser!._id,
@@ -37,7 +37,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 
   handleDisregardForAlignment = () => {
     const { currentUser, post, updatePost } = this.props
-    updatePost({
+    void updatePost({
       selector: {_id: post._id},
       data: {
         reviewForAlignmentUserId: currentUser!._id,
@@ -47,8 +47,10 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 
   render () {
     const { post, currentUser, hover, anchorEl, updatePost } = this.props
+    
+    if (!currentUser) return null;
 
-    const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser!._id)
+    const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
 
     return (
       <Components.SunshineListItem hover={hover}>

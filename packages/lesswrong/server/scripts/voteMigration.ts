@@ -22,7 +22,7 @@ async function runVoteMigration(collectionName) {
          documentId: "$upvoted"+collectionName+".itemId",
          collectionName: {$literal: collectionName},
          userId: "$_id",
-         voteType: {$literal: "upvote"},
+         voteType: {$literal: "smallUpvote"},
          power: "$upvoted" + collectionName + ".power",
          votedAt: "$upvoted" + collectionName + ".votedAt"
       }},
@@ -38,7 +38,7 @@ async function runVoteMigration(collectionName) {
          documentId: "$downvoted"+collectionName+".itemId",
          collectionName: {$literal: collectionName},
          userId: "$_id",
-         voteType: {$literal: "downvote"},
+         voteType: {$literal: "smallDownvote"},
          power: "$downvoted" + collectionName + ".power",
          votedAt: "$downvoted" + collectionName + ".votedAt"
       }},

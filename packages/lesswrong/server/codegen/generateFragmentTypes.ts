@@ -8,7 +8,7 @@ const fragmentFileHeader = generatedFileHeader+`//
 `
 
 export function generateFragmentTypes(): string {
-  const fragmentNames: Array<string> = getAllFragmentNames();
+  const fragmentNames: Array<FragmentName> = getAllFragmentNames();
   const sb: Array<string> = [];
   
   for (let fragmentName of fragmentNames) {
@@ -21,7 +21,7 @@ export function generateFragmentTypes(): string {
   return fragmentFileHeader + sb.join('');
 }
 
-function generateFragmentTypeDefinition(fragmentName: string): string {
+function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
   const fragmentDefinitions = getFragment(fragmentName);
   
   // `getFragment` returns the parsed definition of a fragment plus all of its

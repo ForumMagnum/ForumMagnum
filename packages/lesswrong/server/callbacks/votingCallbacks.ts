@@ -1,5 +1,5 @@
-import { addCallback } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
+import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 
 /**
  * @summary Update the karma of the item's owner
@@ -8,60 +8,41 @@ import Users from '../../lib/collections/users/collection';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-function updateKarma({newDocument, vote}, collection, user, context) {
+voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
   }
-}
+});
 
-addCallback("votes.smallUpvote.async", updateKarma);
-addCallback("votes.bigUpvote.async", updateKarma);
-addCallback("votes.smallDownvote.async", updateKarma);
-addCallback("votes.bigDownvote.async", updateKarma);
-
-function cancelVoteKarma({newDocument, vote}, collection, user, context) {
+voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
   }
-}
-
-addCallback("votes.cancel.async", cancelVoteKarma);
+});
 
 
-async function incVoteCount ({newDocument, vote},) {
+voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
     Users.update({_id: vote.userId}, {$inc: {[field]: 1, voteCount: 1}});
   }
-}
+});
 
-addCallback("votes.bigDownvote.async", incVoteCount);
-addCallback("votes.bigUpvote.async", incVoteCount);
-addCallback("votes.smallDownvote.async", incVoteCount);
-addCallback("votes.smallUpvote.async", incVoteCount);
-
-async function cancelVoteCount ({newDocument, vote}) {
+voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
     Users.update({_id: vote.userId}, {$inc: {[field]: -1, voteCount: -1}});
   }
-}
+});
 
-addCallback("votes.cancel.async", cancelVoteCount);
-
-async function updateNeedsReview (document) {
+voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
   const voter = await Users.findOne(document.vote.userId);
   // voting should only be triggered once (after getting snoozed, they will not re-trigger for sunshine review)
   if (voter && voter.voteCount >= 10 && !voter.reviewedByUserId) {
     Users.update({_id:voter._id}, {$set:{needsReview: true}})
   }
-}
-
-addCallback("votes.bigDownvote.async", updateNeedsReview);
-addCallback("votes.bigUpvote.async", updateNeedsReview);
-addCallback("votes.smallDownvote.async", updateNeedsReview);
-addCallback("votes.smallUpvote.async", updateNeedsReview);
+});

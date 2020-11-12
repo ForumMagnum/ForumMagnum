@@ -3,7 +3,7 @@ import moment from 'moment';
 import {registerComponent, Components } from '../../lib/vulcan-lib';
 import { getUrlClass } from '../../lib/routeUtil';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     fontSize: '1.1rem',
@@ -43,8 +43,10 @@ export const getAddToCalendarLink = (gcalEvent) => {
   }
 }
 
-const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
-
+const PortalBarGcalEventItem = ({classes, gcalEvent}: {
+  classes: ClassesType,
+  gcalEvent: any,
+}) => {
   return <div className={classes.root}>
       {getAddToCalendarLink(gcalEvent)}
       <span className={classes.eventTime}>

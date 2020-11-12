@@ -75,7 +75,7 @@ class PostActions extends Component<PostActionsProps,{}> {
   handleMoveToMeta = () => {
     const { post, updatePost, currentUser } = this.props
     if (!currentUser) throw new Error("Cannot move to meta anonymously")
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         meta: true,
@@ -91,7 +91,7 @@ class PostActions extends Component<PostActionsProps,{}> {
   handleMoveToFrontpage = () => {
     const { post, updatePost, currentUser } = this.props
     if (!currentUser) throw new Error("Cannot move to frontpage anonymously")
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         frontpageDate: new Date(),
@@ -105,7 +105,7 @@ class PostActions extends Component<PostActionsProps,{}> {
   handleMoveToPersonalBlog = () => {
     const { post, updatePost, currentUser } = this.props
     if (!currentUser) throw new Error("Cannot move to personal blog anonymously")
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         draft: false,
@@ -118,7 +118,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
   handleMakeShortform = () => {
     const { post, updateUser } = this.props;
-    updateUser({
+    void updateUser({
       selector: { _id: post.userId },
       data: {
         shortformFeedId: post._id

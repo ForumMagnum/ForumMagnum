@@ -3,7 +3,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from '../../lib/collections/users/collection';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
@@ -81,7 +80,7 @@ const TagProgressBar = ({ classes }: {
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
   const { openDialog } = useDialog();

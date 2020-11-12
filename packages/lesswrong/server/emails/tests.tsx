@@ -70,15 +70,13 @@ describe('renderEmail', async () => {
     const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
     
-    const queryOptions = {
+    const PostTitleComponent: any = withSingle({
       collection: Posts,
       fragmentName: 'PostsRevision',
-      ssr: true,
       extraVariables: {
         version: 'String'
       }
-    };
-    const PostTitleComponent: any = withSingle(queryOptions)(
+    })(
       ({document}) => <div>{document?.title}</div>
     );
     
