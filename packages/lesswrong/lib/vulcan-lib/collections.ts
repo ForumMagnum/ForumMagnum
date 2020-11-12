@@ -10,6 +10,7 @@ import { Utils, pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
+import { loggerConstructor } from '../utils/logging'
 
 // import { debug } from './debug';
 
@@ -146,6 +147,7 @@ export const createCollection = (options: {
   // add views
   collection.views = [];
 
+
   if (schema) {
     // attach schema to collection
     collection.attachSchema(new SimpleSchema(schema));
@@ -169,7 +171,8 @@ export const createCollection = (options: {
   // ------------------------------------- Parameters -------------------------------- //
 
   collection.getParameters = (terms:any = {}, apolloClient, context) => {
-    // console.log(terms);
+    const logger = loggerConstructor('views', collection.typeName)
+    // logger(terms);
 
     let parameters: any = {
       selector: {},
@@ -266,7 +269,7 @@ export const createCollection = (options: {
     const limit = terms.limit || parameters.options.limit;
     parameters.options.limit = !limit || limit < 1 || limit > maxDocuments ? maxDocuments : limit;
 
-    // console.log(parameters);
+    // logger(parameters);
 
     return parameters;
   };

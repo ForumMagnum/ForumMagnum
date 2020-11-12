@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 
 import { debug } from './debug';
 import { isPromise } from './utils';
+import { loggerConstructor } from '../utils/logging'
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -122,7 +123,7 @@ export const runCallbacks = function (this: any, options: {
   properties?: any,
   ignoreExceptions?: boolean,
   callbacks?: any,
-}) {
+}) { 
   const hook = options.name;
   const formattedHook = formatHookName(hook);
   const item = options.iterator;
