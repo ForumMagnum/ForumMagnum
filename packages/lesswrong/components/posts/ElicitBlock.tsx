@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
@@ -17,6 +17,7 @@ const elicitDataFragment = `
   resolution
   predictions {
     _id,
+    predictionId,
     prediction,
     createdAt,
     notes,
@@ -28,6 +29,9 @@ const elicitDataFragment = `
       isQuestionCreator,
       displayName,
       sourceUserId
+      lwUser {
+        ...UsersMinimumInfo
+      }
     }
   }
 `
@@ -38,6 +42,7 @@ const elicitQuery = gql`
      ${elicitDataFragment}
     }
   }
+  ${getFragment("UsersMinimumInfo")}
 `;
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -165,13 +170,15 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   questionId: String
 }) => {
   const currentUser = useCurrentUser();
+  const { UsersName } = Components;
   const { data } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
         ${elicitDataFragment}
       }
-    }  
+    }
+    ${getFragment("UsersMinimumInfo")}  
   `);
   
   const roughlyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => Math.floor(prediction / 10) * 10)
@@ -185,10 +192,11 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
       })}>
         {times(10, offset => {
           const prob = (bucket*10) + offset;
+          const isCurrentUserSlice = finelyGroupedData[`${prob}`]?.some(({creator}) => currentUser && creator?.sourceUserId === currentUser._id)
           if (prob === 0) return null
           return <div 
             className={classNames(classes.histogramSlice, {
-              [classes.histogramSliceCurrentUser]: finelyGroupedData[`${prob}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
+              [classes.histogramSliceCurrentUser]: isCurrentUserSlice
             })}
             key={prob}
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
@@ -196,21 +204,20 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             onClick={() => {
               if (currentUser) {
                 makeElicitPrediction({
-                  variables: { questionId, prediction: prob },
+                  variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },
                   optimisticResponse: {
                     __typename: "Mutation",
                     MakeElicitPrediction: {
                       ...data?.ElicitBlockData,
                       __typename: "Mutation",
-                      predictions: data?.ElicitBlockData?.predictions?.map(prediction => {
-                        if (prediction?.creator?.displayName === currentUser?.displayName) {
-                          return {
+                      predictions: data?.ElicitBlockData?.predictions?.flatMap(prediction => {
+                        if (prediction?.creator?.sourceUserId === currentUser._id) {
+                          return !isCurrentUserSlice ? [{
                             ...prediction,
                             prediction: prob
-                          }
-                        } else {
-                          return prediction
+                          }] : []
                         }
+                        return [prediction]
                       })
                     }
                   }
@@ -231,8 +238,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
           </div>
         })}
         {roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
-          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction}, i) => <span key={creator?._id} className={classes.name}>
-            {creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
+          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction, sourceId}, i) => <span key={creator?._id} className={classes.name}>
+            {creator?.lwUser ? <UsersName user={creator?.lwUser} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
         </div>}
       </div>)}
