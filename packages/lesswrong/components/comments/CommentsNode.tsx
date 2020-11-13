@@ -278,17 +278,17 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     return false;
   }
 
-  commentTreesDiffer(oldComments, newComments) {
+  commentTreesDiffer(oldComments: CommentTreeNode<CommentsList>[]|null|undefined, newComments: CommentTreeNode<CommentsList>[]|null|undefined) {
     if(!oldComments && newComments) return true;
     if(oldComments && !newComments) return true;
-    if(!newComments) return false;
+    if(!newComments || !oldComments) return false;
 
     if(oldComments.length != newComments.length)
       return true;
     for(let i=0; i<oldComments.length; i++) {
       if(oldComments[i].item != newComments[i].item)
         return true;
-      if(this.commentTreesDiffer(oldComments[i].childComments, newComments[i].childComments))
+      if(this.commentTreesDiffer(oldComments[i].children, newComments[i].children))
         return true;
     }
     return false;
