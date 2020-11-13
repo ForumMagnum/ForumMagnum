@@ -278,7 +278,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     return false;
   }
 
-  commentTreesDiffer(oldComments: CommentTreeNode<CommentsList>[], newComments: CommentTreeNode<CommentsList>[]) {
+  commentTreesDiffer(oldComments: CommentTreeNode<CommentsList>[]|null|undefined, newComments: CommentTreeNode<CommentsList>[]|null|undefined) {
     if(!oldComments && newComments) return true;
     if(oldComments && !newComments) return true;
     if(!newComments) return false;
