@@ -106,7 +106,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
         const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
-        const displayTime = startTime ? startTime.calendar(null, {
+        const displayTime = startTime ? startTime.calendar(undefined, {
           sameDay: `[${TODAY_STRING}]`,
           nextDay: `[${TOMORROW_STRING}]`,
           nextWeek: ' ',

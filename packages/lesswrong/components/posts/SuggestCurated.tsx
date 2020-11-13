@@ -22,7 +22,7 @@ class SuggestCurated extends Component<SuggestCuratedProps> {
     if (!suggestUserIds.includes(currentUser._id)) {
       suggestUserIds.push(currentUser._id)
     }
-    updatePost({
+    void updatePost({
       selector: { _id: post._id },
       data: {suggestForCuratedUserIds:suggestUserIds}
     })
@@ -35,7 +35,7 @@ class SuggestCurated extends Component<SuggestCuratedProps> {
     if (suggestUserIds.includes(currentUser._id)) {
       suggestUserIds = _.without(suggestUserIds, currentUser._id);
     }
-    updatePost({
+    void updatePost({
       selector: { _id: post._id },
       data: {suggestForCuratedUserIds:suggestUserIds}
     })

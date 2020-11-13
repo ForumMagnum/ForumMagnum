@@ -5,7 +5,7 @@ import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus } from './helpers';
+import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
@@ -324,6 +324,12 @@ const schema: SchemaType<DbPost> = {
     type: String,
     viewableBy: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
+  }),
+  
+  socialPreviewImageUrl: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post: DbPost, args: void, context: ResolverContext) => getSocialPreviewImage(post)
   }),
 
   question: {

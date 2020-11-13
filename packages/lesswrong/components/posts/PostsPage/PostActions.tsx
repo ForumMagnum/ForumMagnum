@@ -74,7 +74,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
   handleMoveToMeta = () => {
     const { post, updatePost } = this.props
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         meta: true,
@@ -88,7 +88,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
   handleMoveToFrontpage = () => {
     const { post, updatePost } = this.props
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         frontpageDate: new Date(),
@@ -100,7 +100,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
   handleMoveToPersonalBlog = () => {
     const { post, updatePost } = this.props
-    updatePost({
+    void updatePost({
       selector: { _id: post._id},
       data: {
         draft: false,
@@ -112,7 +112,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
   handleMakeShortform = () => {
     const { post, updateUser } = this.props;
-    updateUser({
+    void updateUser({
       selector: { _id: post.userId },
       data: {
         shortformFeedId: post._id

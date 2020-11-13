@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
-import Users from "../../lib/collections/users/collection";
 import Dialog from '@material-ui/core/Dialog';
 import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -122,7 +121,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   const [ notifyPeopleCheckboxState, setNotifyPeopleCheckboxState ] = useState(!!nearbyPeopleNotificationThreshold)
   
   const { mutate } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   })
 

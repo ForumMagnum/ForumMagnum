@@ -17,7 +17,7 @@ interface ExternalProps {
   comment: SuggestAlignmentComment,
 }
 interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updateComment: any,
+  updateComment: WithUpdateFunction<CommentsCollection>,
 }
 
 class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
@@ -46,8 +46,9 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 
   render () {
     const { comment, currentUser, hover, anchorEl, updateComment } = this.props
+    if (!currentUser) return null;
 
-    const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser!._id)
+    const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
 
     return (
       <Components.SunshineListItem hover={hover}>

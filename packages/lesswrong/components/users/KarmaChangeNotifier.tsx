@@ -217,7 +217,7 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     });
     if (!currentUser) return;
     if (document?.karmaChanges) {
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: {
           karmaChangeLastOpened: document.karmaChanges.endDate,

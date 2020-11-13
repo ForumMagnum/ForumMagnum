@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   body: {
     ...theme.typography.body1,
     ...postBodyStyles(theme)

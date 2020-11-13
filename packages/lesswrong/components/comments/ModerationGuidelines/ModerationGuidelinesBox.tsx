@@ -159,7 +159,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
   )
 }
 
-const moderationStyleLookup = {
+const moderationStyleLookup: Partial<Record<string,string>> = {
   'norm-enforcing': "Norm Enforcing - I try to enforce particular rules",
   'reign-of-terror': "Reign of Terror - I delete anything I judge to be counterproductive",
   'easy-going': "Easy Going - I just delete obvious spam and trolling."

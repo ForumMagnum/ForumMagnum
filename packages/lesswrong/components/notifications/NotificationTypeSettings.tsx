@@ -81,4 +81,3 @@ declare global {
     NotificationTypeSettings: typeof NotificationTypeSettingsComponent
   }
 }
-

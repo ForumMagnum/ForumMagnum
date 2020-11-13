@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
-import { hasVotedClient } from '../../lib/voting/vote';
 
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -54,7 +53,7 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
     wrappedVote(voteType)
   }
 
-  const voted = hasVotedClient({userVotes: document.currentUserVotes, voteType})
+  const voted = (document.currentUserVote === voteType)
 
   return <a className={classNames(classes.root, {[classes.voted]: cancelVote ? !voted : voted})} onClick={handleClick}>
     {label}

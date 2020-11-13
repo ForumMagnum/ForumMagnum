@@ -1,9 +1,9 @@
-import { addCallback } from '../../lib/vulcan-lib';
 import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Users from '../../lib/collections/users/collection';
+import { voteCallbacks } from '../../lib/voting/vote';
 import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 
@@ -92,11 +92,8 @@ function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
   void updatePostDenormalizedTags(tagRel.postId);
 }
 
-addCallback("votes.cancel.sync", voteUpdatePostDenormalizedTags);
-addCallback("votes.smallUpvote.async", voteUpdatePostDenormalizedTags);
-addCallback("votes.bigUpvote.async", voteUpdatePostDenormalizedTags);
-addCallback("votes.smallDownvote.async", voteUpdatePostDenormalizedTags);
-addCallback("votes.bigDownvote.async", voteUpdatePostDenormalizedTags);
+voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);
+voteCallbacks.castVoteAsync.add(voteUpdatePostDenormalizedTags);
 
 addEditableCallbacks({
   collection: Tags,

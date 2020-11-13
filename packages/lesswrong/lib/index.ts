@@ -15,7 +15,7 @@ import './accounts/modify_accounts_ui';
 import './accounts/configuration';
 
 // ## Voting
-import './voting/new_vote_types';
+import './voting/voteTypes';
 
 //MomentJS configuration
 import '../components/momentjs';

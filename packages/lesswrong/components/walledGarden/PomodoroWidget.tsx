@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import TimerIcon from '@material-ui/icons/Timer';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 16,
     display: "flex",
