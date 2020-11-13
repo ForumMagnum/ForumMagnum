@@ -301,11 +301,6 @@ const theme = createLWTheme({
         color: grey[800]
       }
     },
-    CommentPermalink: {
-      root: {
-        marginBottom: 24
-      }
-    },
     MuiSnackbarContent: {
       root: {
         backgroundColor: palette.lwTertiary.main
