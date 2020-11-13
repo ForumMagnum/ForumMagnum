@@ -37,7 +37,8 @@ const schema: SchemaType<DbGardenCode> = {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Event Name",
-    defaultValue: "Guest Day Pass"
+    defaultValue: "Guest Day Pass",
+    order: 10
   },
   userId: {
     ...foreignKeyField({
@@ -65,6 +66,7 @@ const schema: SchemaType<DbGardenCode> = {
     editableBy: ['admins', 'sunshineRegiment'],
     optional: true,
     ...schemaDefaultValue(false),
+    order: 30
   },
   slug: {
     type: String,
@@ -83,6 +85,7 @@ const schema: SchemaType<DbGardenCode> = {
     label: "Start Time",
     optional: true,
     defaultValue: new Date,
+    order: 20
   },
   endTime: {
     type: Date,
@@ -92,6 +95,7 @@ const schema: SchemaType<DbGardenCode> = {
     control: 'datetime',
     label: "End Time",
     optional: true,
+    order: 25,
     onInsert: (gardenCode) => {
       return moment(gardenCode.startTime).add(4, 'hours').toDate()
     }

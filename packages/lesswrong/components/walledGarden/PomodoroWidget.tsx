@@ -4,7 +4,6 @@ import TimerIcon from '@material-ui/icons/Timer';
 
 const styles = (theme) => ({
   root: {
-    padding: 16,
     display: "flex",
     alignItems: "center"
   },
@@ -21,7 +20,7 @@ export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {
       <div className={classes.root}>
         <TimerIcon className={classes.icon} />
         <a target="_blank" rel="noopener noreferrer" href="https://cuckoo.team/lesswrong">
-          Open Pomodoro Timer
+          Pomodoro Timer
         </a>
       </div>
     </LWTooltip>
