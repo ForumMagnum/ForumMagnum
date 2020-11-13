@@ -6,9 +6,6 @@ import { forumTypeSetting } from '../../instanceSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
-import { loggerConstructor } from '../../utils/logging'
-
-const logger = loggerConstructor('views', 'Post')
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -90,7 +87,6 @@ export const sortings = {
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
-  logger('defaultView terms', terms)
   const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
@@ -390,12 +386,9 @@ Posts.addView("old", terms => ({
 }))
 // Covered by the same index as `new`
 
-Posts.addView("timeframe", terms => {  
-  logger('timeframe terms', terms)
-  return ({
+Posts.addView("timeframe", terms => ({
   options: {limit: terms.limit}
-  })
-})
+}))
 ensureIndex(Posts,
   augmentForDefaultView({ postedAt:1, baseScore:1}),
   {

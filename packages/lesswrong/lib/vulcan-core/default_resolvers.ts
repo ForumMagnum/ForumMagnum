@@ -4,9 +4,10 @@ Default list, single, and total resolvers
 
 */
 
-import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
+import { Utils, getTypeName, getCollectionName, } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
+import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 
 const defaultOptions = {
   cacheMaxAge: 300,
@@ -96,12 +97,14 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         // So we copy it here to give it back those methoods
         const selector = {...(input.selector || {})}
 
-        debug('');
-        debugGroup(
+        const logger = loggerConstructor(`resolvers-${collectionName.toLowerCase()}`)
+        const {logGroupStart, logGroupEnd} = logGroupConstructor(`resolvers-${collectionName.toLowerCase()}`)
+        logger('');
+        logGroupStart(
           `--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`
         );
-        debug(`Options: ${JSON.stringify(resolverOptions)}`);
-        debug(`Selector: ${JSON.stringify(selector)}`);
+        logger(`Options: ${JSON.stringify(resolverOptions)}`);
+        logger(`Selector: ${JSON.stringify(selector)}`);
 
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
@@ -145,9 +148,9 @@ export function getDefaultResolvers<T extends DbObject>(options) {
 
         const restrictedDoc = restrictViewableFields(currentUser, collection, doc);
 
-        debugGroupEnd();
-        debug(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
-        debug('');
+        logGroupEnd();
+        logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
+        logger('');
 
         // filter out disallowed properties and return resulting document
         return { result: restrictedDoc };

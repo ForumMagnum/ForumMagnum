@@ -7,6 +7,10 @@ const getNestedProperty = function (obj, desc) {
   return obj;
 };
 
+const anyIsObject = (...args: any[]): boolean => {
+  return args.some(a => typeof a === 'object' && !Array.isArray(a) && a !== null)
+}
+
 export const Settings: Record<string,any> = {};
 
 const getSetting = <T>(settingName: string, settingDefault?: T): T => {
@@ -24,8 +28,9 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
     const privateSetting = instanceSettings.private && getNestedProperty(instanceSettings.private, settingName);
     const publicSetting = instanceSettings.public && getNestedProperty(instanceSettings.public, settingName);
     
+    // console.log('publicSetting', publicSetting)
     // if setting is an object, "collect" properties from all three places
-    if (typeof rootSetting === 'object' || typeof privateSetting === 'object' || typeof publicSetting === 'object') {
+    if (anyIsObject(rootSetting, privateSetting, publicSetting)) {
       setting = {
         ...settingDefault,
         ...rootSetting,

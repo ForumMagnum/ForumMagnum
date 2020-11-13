@@ -171,8 +171,8 @@ export const createCollection = (options: {
   // ------------------------------------- Parameters -------------------------------- //
 
   collection.getParameters = (terms:any = {}, apolloClient, context) => {
-    const logger = loggerConstructor('views', collection.typeName)
-    // logger(terms);
+    const logger = loggerConstructor(`views-${collectionName.toLowerCase()}`)
+    logger('getParameters(), terms:', terms);
 
     let parameters: any = {
       selector: {},
@@ -185,6 +185,7 @@ export const createCollection = (options: {
         parameters,
         collection.defaultView(terms, apolloClient, context)
       );
+      logger('getParameters(), parameters after defaultView:', parameters)
     }
 
     // handle view option
@@ -206,6 +207,7 @@ export const createCollection = (options: {
         mergedParameters.options.sort = view.options.sort;
       }
       parameters = mergedParameters;
+      logger('getParameters(), parameters after defaultView and view:', parameters)
     }
 
     // iterate over posts.parameters callbacks
@@ -269,8 +271,7 @@ export const createCollection = (options: {
     const limit = terms.limit || parameters.options.limit;
     parameters.options.limit = !limit || limit < 1 || limit > maxDocuments ? maxDocuments : limit;
 
-    // logger(parameters);
-
+    logger('getParameters(), final parameters:', parameters);
     return parameters;
   };
 

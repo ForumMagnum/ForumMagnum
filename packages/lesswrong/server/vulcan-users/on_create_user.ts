@@ -5,15 +5,16 @@ import { createAnonymousContext } from '../vulcan-lib/query';
 import {
   runCallbacks,
   runCallbacksAsync,
-  debug,
-  debugGroup,
-  debugGroupEnd,
 } from '../vulcan-lib';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import clone from 'lodash/clone';
 import { onStartup, wrapAsync } from '../../lib/executionEnvironment';
 import { Accounts } from '../../lib/meteorAccounts';
 import * as _ from 'underscore';
+import { loggerConstructor, logGroupConstructor } from '../../lib/utils/logging';
+
+const logger = loggerConstructor(`callbacks`)
+const {logGroupStart, logGroupEnd} = logGroupConstructor(`callbacks`)
 
 // Takes a function that returns a promise and wraps it with Meteor.wrapAsync
 // Definitely gets rid of the `this` context, so only use with contextless functions
@@ -34,10 +35,10 @@ function asyncWrapper(func) {
 
 // TODO: the following should use async/await, but async/await doesn't seem to work with Accounts.onCreateUser
 function onCreateUserCallback(options, user) {
-  debug('');
-  debugGroup('--------------- start \x1b[35m onCreateUser ---------------');
-  debug(`Options: ${JSON.stringify(options)}`);
-  debug(`User: ${JSON.stringify(user)}`);
+  logger('');
+  logGroupStart('--------------- start \x1b[35m onCreateUser ---------------');
+  logger(`Options: ${JSON.stringify(options)}`);
+  logger(`User: ${JSON.stringify(user)}`);
 
   const hooks = getCollectionHooks("Users");
   const context = createAnonymousContext();
@@ -114,10 +115,10 @@ function onCreateUserCallback(options, user) {
     properties: [user]
   });
 
-  debug(`Modified User: ${JSON.stringify(user)}`);
-  debugGroupEnd();
-  debug('--------------- end \x1b[35m onCreateUser ---------------');
-  debug('');
+  logger(`Modified User: ${JSON.stringify(user)}`);
+  logGroupEnd();
+  logger('--------------- end \x1b[35m onCreateUser ---------------');
+  logger('');
 
   return user;
 }

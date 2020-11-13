@@ -21,6 +21,7 @@ export const recalculateBaseScore = (document: VoteableType) => {
   return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
 }
 
+// TODO; this is duplicated logic with timeDecayExpr
 export const recalculateScore = (item: VoteableType) => {
   // Age Check
   if ((item as any).postedAt) {
@@ -64,4 +65,3 @@ export const defaultScoreModifiers = () => {
     {$cond: {if: "$curatedDate", then: CURATED_BONUS, else: 0}}
   ];
 };
-
