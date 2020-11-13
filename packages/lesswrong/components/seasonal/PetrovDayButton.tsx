@@ -6,13 +6,12 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import Users from '../../lib/collections/users/collection';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 // import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
@@ -126,7 +125,7 @@ const PetrovDayButton = ({classes, refetch}: {
   const { LWTooltip, LoginPopupButton } = Components
 
   const {mutate: updateUser} = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
   

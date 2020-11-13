@@ -1,5 +1,6 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
+import { userCanCreateField, userCanUpdateField } from '../vulcan-users/permissions';
 import * as _ from 'underscore';
 
 export const dataToModifier = data => ({ 
@@ -20,8 +21,8 @@ export const modifierToData = modifier => ({
   2. Run SimpleSchema validation step
 
 */
-export const validateDocument = (document, collection, context) => {
-  const { Users, currentUser } = context;
+export const validateDocument = (document, collection, context: ResolverContext) => {
+  const { currentUser } = context;
   const schema = collection.simpleSchema()._schema;
 
   let validationErrors: Array<any> = [];
@@ -31,7 +32,7 @@ export const validateDocument = (document, collection, context) => {
     const fieldSchema = schema[fieldName];
 
     // 1. check that the current user has permission to insert each field
-    if (!fieldSchema || !Users.canCreateField(currentUser, fieldSchema)) {
+    if (!fieldSchema || !userCanCreateField(currentUser, fieldSchema)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },
@@ -76,9 +77,9 @@ export const validateDocument = (document, collection, context) => {
   2. Run SimpleSchema validation step
   
 */
-export const validateModifier = (modifier, document, collection, context) => {
+export const validateModifier = (modifier, document, collection, context: ResolverContext) => {
   
-  const { Users, currentUser } = context;
+  const { currentUser } = context;
   const schema = collection.simpleSchema()._schema;
   const set = modifier.$set;
   const unset = modifier.$unset;
@@ -89,7 +90,7 @@ export const validateModifier = (modifier, document, collection, context) => {
   const modifiedProperties = _.keys(set).concat(_.keys(unset));
   modifiedProperties.forEach(function(fieldName) {
     var field = schema[fieldName];
-    if (!field || !Users.canUpdateField(currentUser, field, document)) {
+    if (!field || !userCanUpdateField(currentUser, field, document)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },

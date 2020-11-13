@@ -1,7 +1,8 @@
-import Users from '../users/collection';
+import { userOwns } from '../../vulcan-users/permissions';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
-import { Comments } from '../comments/collection';
+import { commentGetPageUrl } from './helpers';
+import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 
@@ -58,13 +59,13 @@ const schema: SchemaType<DbComment> = {
     onInsert: (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
-        return Users.getDisplayNameById(document.userId)
+        return userGetDisplayNameById(document.userId)
       }
     },
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return Users.getDisplayNameById(modifier.$set.userId)
+        return userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },
@@ -151,7 +152,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      return Comments.getPageUrl(comment, true)
+      return commentGetPageUrl(comment, true)
     },
   }),
 
@@ -159,7 +160,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      return Comments.getPageUrl(comment, false)
+      return commentGetPageUrl(comment, false)
     },
   }),
 
@@ -169,7 +170,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
 
@@ -222,7 +223,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async (comment: DbComment): Promise<boolean> => {
@@ -243,7 +244,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
   },
   reviewingForReview: {
     type: String,
@@ -251,7 +252,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
   },
 
   lastSubthreadActivity: {

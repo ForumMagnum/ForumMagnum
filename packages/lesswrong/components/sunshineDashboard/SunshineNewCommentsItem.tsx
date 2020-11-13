@@ -4,16 +4,16 @@ import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
-import { Posts } from '../../lib/collections/posts';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import withHover from '../common/withHover'
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 
 interface ExternalProps {
-  comment: any,
+  comment: CommentsListWithParentMetadata,
 }
 interface SunshineNewCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
   updateComment: any,
@@ -31,7 +31,7 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
   handleDelete = () => {
     const { currentUser, comment, updateComment } = this.props
     if (confirm("Are you sure you want to immediately delete this comment?")) {
-      window.open(Users.getProfileUrl(comment.user), '_blank');
+      window.open(userGetProfileUrl(comment.user), '_blank');
       updateComment({
         selector: {_id: comment._id},
         data: {
@@ -50,8 +50,8 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
         <Components.SunshineListItem hover={hover}>
           <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
             <Typography variant="body2">
-              <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-                Commented on post: <strong>{ comment.post.title }</strong>
+              <Link to={commentGetPageUrl(comment)}>
+                Commented on post: <strong>{ comment.post?.title }</strong>
               </Link>
               <Components.CommentBody comment={comment}/>
             </Typography>

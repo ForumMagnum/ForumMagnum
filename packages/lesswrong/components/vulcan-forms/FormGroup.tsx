@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, Utils, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
+import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
+import { slugify } from '../../lib/vulcan-lib/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 
-const headerStyles = theme => ({
+const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
     cursor: "pointer",
     display:"flex",
@@ -38,7 +39,7 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-const groupLayoutStyles = theme => ({
+const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: `solid 1px ${theme.palette.grey[400]}`,
@@ -69,7 +70,7 @@ const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors, group
   return <div className={classNames(
     { [classes.formSectionPadding]: paddingStyling,
       [classes.formSection]: groupStyling},
-    `form-section-${Utils.slugify(label)}`)}
+    `form-section-${slugify(label)}`)}
   >
     {heading}
     <div

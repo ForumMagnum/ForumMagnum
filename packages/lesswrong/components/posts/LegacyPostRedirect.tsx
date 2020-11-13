@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from './usePost';
-import { Posts } from '../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const LegacyPostRedirect = () => {
   const { params } = useLocation();
@@ -10,7 +10,7 @@ const LegacyPostRedirect = () => {
   const { post, loading } = usePostByLegacyId({ legacyId });
   
   if (post) {
-    const canonicalUrl = Posts.getPageUrl(post);
+    const canonicalUrl = postGetPageUrl(post);
     return <Components.PermanentRedirect url={canonicalUrl}/>
   } else {
     return loading ? <Components.Loading/> : <Components.Error404 />

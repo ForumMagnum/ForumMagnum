@@ -4,7 +4,8 @@
  * Could easily be adapted for other Forums
  */
 import React from 'react';
-import { registerComponent, Utils } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -14,10 +15,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SiteLogo = ({classes}) => {
-  if (!Utils.getLogoUrl()) return null
+  if (!getLogoUrl()) return null
   return <img
     className={classes.root}
-    src={Utils.getLogoUrl()}
+    src={getLogoUrl()}
     title={forumTitleSetting.get()}
     alt={`${forumTitleSetting.get()} Logo`}
   />

@@ -10,6 +10,6 @@ export const convertTimeOfWeekTimezone = (timeOfDay: number, dayOfWeek: string|n
     .tz(toTimezone);
   return {
     timeOfDay: time.hour(),
-    dayOfWeek: time.format("dddd")
+    dayOfWeek: time.format("dddd") as "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
   };
 }

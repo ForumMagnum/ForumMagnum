@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import Users from '../../lib/collections/users/collection';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
@@ -60,7 +60,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
     moveToAlignnmentUserId = comment.moveToAlignmentUserId
   }
 
-  const moveToAfInfo = Users.isAdmin(currentUser) && !!moveToAlignnmentUserId && (
+  const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
       {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { document.afDate && moment(new Date(document.afDate)).format('YYYY-MM-DD') }</span>}
     </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPage';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -39,7 +39,7 @@ const NewTagItem = ({tag, classes}: {
   tag: TagCreationHistoryFragment,
   classes: ClassesType,
 }) => {
-  const tagUrl = Tags.getUrl(tag);
+  const tagUrl = tagGetUrl(tag);
   const {UsersName, FormatDate, PostsList2, ContentItemBody} = Components;
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()

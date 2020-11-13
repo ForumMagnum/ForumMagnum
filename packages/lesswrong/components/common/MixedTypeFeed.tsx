@@ -1,6 +1,6 @@
 import React, {useRef, useEffect, useCallback} from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import gql from 'graphql-tag';
@@ -135,28 +135,30 @@ const MixedTypeFeed = (args: {
   // request is already pending (that's checked in maybeStartLoadingMore), and
   // overlapping requests would be bad.
   const requestMore = useCallback(async () => {
-    await fetchMore({
-      variables: {
-        ...resolverArgsValues,
-        ...fragmentArgsValues,
-        cutoff: data[resolverName].cutoff,
-        limit: pageSize,
-      },
-      updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-        queryIsPending.current = false;
-        if (!fetchMoreResult) {
-          return prev;
-        }
-        
-        return {
-          [resolverName]: {
-            __typename: fetchMoreResult[resolverName].__typename,
-            cutoff: fetchMoreResult[resolverName].cutoff,
-            results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+    if (data) {
+      await fetchMore({
+        variables: {
+          ...resolverArgsValues,
+          ...fragmentArgsValues,
+          cutoff: data[resolverName].cutoff,
+          limit: pageSize,
+        },
+        updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
+          queryIsPending.current = false;
+          if (!fetchMoreResult) {
+            return prev;
           }
-        };
-      }
-    });
+          
+          return {
+            [resolverName]: {
+              __typename: fetchMoreResult[resolverName].__typename,
+              cutoff: fetchMoreResult[resolverName].cutoff,
+              results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+            }
+          };
+        }
+      });
+    }
   }, [fetchMore, pageSize, data, resolverName, resolverArgsValues, fragmentArgsValues, queryIsPending])
   
   // maybeStartLoadingMore: Test whether the scroll position is close enough to

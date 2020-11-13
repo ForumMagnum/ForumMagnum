@@ -31,7 +31,7 @@ export const eventFormat = (startTime) => {
   return moment(new Date(startTime)).format("ddd h:mma, MMM D")
 }
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...eventRoot(theme)
   },
@@ -66,8 +66,10 @@ export const getAddToCalendarLink = (gcalEvent) => {
   }
 }
 
-const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
-
+const PortalBarGcalEventItem = ({classes, gcalEvent}: {
+  classes: ClassesType,
+  gcalEvent: any,
+}) => {
   return <div className={classes.root}>
       <span className={classes.eventName}>
         {getAddToCalendarLink(gcalEvent)}

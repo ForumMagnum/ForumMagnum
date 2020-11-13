@@ -1,5 +1,6 @@
 import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
+import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import { Comments } from '../lib/collections/comments/collection'
 import { updateMutator, addCallback, runCallbacksAsync } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
@@ -25,7 +26,7 @@ async function constructAkismetReport({document, type = "post"}) {
     if (type !== "post") {
       post = await Posts.findOne(document.postId)
     }
-    const link = (post && Posts.getPageUrl(post)) || ""  // Don't get link if we create a comment without a post
+    const link = (post && postGetPageUrl(post)) || ""  // Don't get link if we create a comment without a post
     const events = await LWEvents.find({userId: author._id, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
     const ip = events && events[0] && events[0].properties && events[0].properties.ip
     const userAgent = events && events[0] && events[0].properties && events[0].properties.userAgent
