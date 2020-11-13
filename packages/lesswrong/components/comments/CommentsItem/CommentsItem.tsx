@@ -343,7 +343,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
 const CommentsItemComponent = registerComponent(
   'CommentsItem', CommentsItem, {
-    styles, hocs: [withErrorBoundary]
+    styles, hocs: [withErrorBoundary],
+    areEqual: {
+      treeOptions: "shallow",
+    },
   }
 );
 
