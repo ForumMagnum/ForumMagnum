@@ -8,6 +8,20 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import moment from 'moment';
 
+export const gardenForm = theme => ({
+  ...commentBodyStyles(theme),
+  border: "solid 1px rgba(0,0,0,.2)",
+  borderRadius: 3,
+  padding: 12,
+  paddingTop: 8,
+  paddingBottom: 8,
+  backgroundColor: "white",
+  maxWidth: 350,
+  '& .MuiInput-input': {
+    maxWidth: 300
+  }
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
     marginTop: 8,
@@ -15,12 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 135
   },
   root: {
-    ...commentBodyStyles(theme),
-    border: "solid 1px rgba(0,0,0,.2)",
-    borderRadius: 3,
-    padding: 12,
-    backgroundColor: "white",
-    maxWidth: 378
+    ...gardenForm(theme)
   },
   row: {
     display: "flex",
