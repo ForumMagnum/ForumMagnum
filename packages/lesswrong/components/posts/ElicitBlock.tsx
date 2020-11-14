@@ -46,14 +46,17 @@ const elicitQuery = gql`
   ${getFragment("UsersMinimumInfo")}
 `;
 
+const rootHeight = 50
+const rootPaddingTop = 12
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme),
     position: 'relative',
-    paddingTop: 12
+    paddingTop: rootPaddingTop
   },
   histogramRoot: {
-    height: 50,
+    height: rootHeight,
     display: 'flex'
   },
   histogramBucket: {
@@ -159,8 +162,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '100%',
     backgroundColor: 'white',
     color: 'rgba(0,0,0,0.6)',
-    height: 23,
-    paddingTop: 4
+    height: `calc(100% - ${rootHeight + rootPaddingTop}px)`,
+    paddingTop: 5
   },
   name: {
     marginRight: 4
@@ -208,7 +211,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
                 const predictions = data?.ElicitBlockData?.predictions || []
                 const filteredPredictions = predictions.filter(prediction => prediction?.creator?.sourceUserId !== currentUser._id)
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
-                const newPredictions = isCurrentUserSlice ? filteredPredictions : [...filteredPredictions, createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser)]
+                const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
 
                 makeElicitPrediction({
                   variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },

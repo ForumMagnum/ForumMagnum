@@ -39,7 +39,7 @@ const ElicitBlockDataType = `type ElicitBlockData {
 
 addGraphQLSchema(ElicitBlockDataType);
 
-const elicitAPIUrl = "https://ought-elicit-alpha.herokuapp.com/api/v1"
+const elicitAPIUrl = "https://elicit.org/api/v1"
 const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 // const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 
@@ -113,7 +113,7 @@ async function getElicitQuestionWithPredictions(questionId: string) {
     sourceId,
     binaryQuestionId
   }) => ({
-    _id: creator.id, // Setting the unique ID to be equivalent to the creator id means optimistic UI can easily predict the correct ID, saving me a bunch of work in cache-reconsolidation
+    _id: id,
     predictionId: id,
     prediction,
     createdAt: new Date(createdAt),
