@@ -39,47 +39,14 @@ import { formatError } from 'apollo-errors';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
-import bcrypt from 'bcrypt'
-import { createHash, randomBytes } from 'crypto'
+import { createHash } from 'crypto'
 import passport from 'passport'
-import { Strategy } from 'passport-local'
 import { Strategy as CustomStrategy } from 'passport-custom'
 import Users from '../../../lib/vulcan-users';
-import sha1 from 'crypto-js/sha1';
-import { ForwardedWhitelist } from '../../forwarded_whitelist';
-import { createMutator } from '../mutators';
-import { LWEvents } from '../../../lib/collections/lwevents';
-
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
 const sentryRelease = sentryReleaseSetting.get()
-
-async function comparePasswords(password, hash) {
-  return await bcrypt.compare(createHash('sha256').update(password).digest('hex'), hash)
-}
-
-const passwordAuthStrategy = new Strategy(async function getUserPassport(username, password, done) {
-  const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
-  if (!user) return done(null, false, { message: 'Incorrect username.' });
-  const match = await comparePasswords(password, user.services.password.bcrypt);
-
-  // If no immediate match, we check whether we have a match with their legacy password
-  if (!match) {
-    // @ts-ignore -- legacyData isn't really handled right in our schemas.
-    const legacyData = user.legacyData ? user.legacyData : LegacyData.findOne({ objectId: user._id }).legacyData;
-    if (legacyData && legacyData.password) {
-      const salt = legacyData.password.substring(0,3)
-      const toHash = (`${salt}${user.username} ${password}`)
-      const lw1PW = salt + sha1(toHash).toString();
-      const lw1PWMatch = comparePasswords(lw1PW, user.services.password.bcrypt);
-      if (lw1PWMatch) return done(null, user)
-    }
-    return done(null, false, { message: 'Incorrect password.' });
-  } 
-  
-  return done(null, user)
-})
 
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req, done) {
   const loginToken = req.cookies['loginToken'] || req.cookies['meteor_login_token'] // Backwards compatibility with meteor_login_token here
@@ -97,39 +64,6 @@ async function deserializeUserPassport(id, done) {
 
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
-
-async function insertHashedLoginToken(userId, hashedToken) {
-  const tokenWithMetadata = {
-    when: new Date(),
-    hashedToken
-  }
-
-  Users.update({_id: userId}, {
-    $addToSet: {
-      "services.resume.loginTokens": tokenWithMetadata
-    }
-  });
-};
-
-function registerLoginEvent(user, req) {
-  const document = {
-    name: 'login',
-    important: false,
-    userId: user._id,
-    properties: {
-      type: 'passport-login',
-      ip: ForwardedWhitelist.getClientIP(req),
-      userAgent: req.headers['user-agent'],
-      referrer: req.headers['referer']
-    }
-  }
-  void createMutator({
-    collection: LWEvents,
-    document: document,
-    currentUser: user,
-    validate: false,
-  })
-}
 
 export function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -176,40 +110,10 @@ onStartup(() => {
     path: config.path,
     app: WebApp.connectHandlers,
   };
-
-  // Setup passport.js authentication
-  passport.use(passwordAuthStrategy)
   
   WebApp.connectHandlers.use(universalCookiesMiddleware());
   WebApp.connectHandlers.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
   WebApp.connectHandlers.use(passport.initialize())
-  WebApp.connectHandlers.use('/login', (req, res, next) => {
-    if (req.method === "POST") {
-      passport.authenticate('local', function(err, user, info) {
-        if (err) { return next(err); }
-        if (!user) { return next()}
-        if (user && user.banned && new Date(user.banned) > new Date()) {
-          return next(`User is banned until ${user.banned}`)
-        }
-
-        req.logIn(user, async function(err) {
-          if (err) { return next(err); }
-          // If the login attempt is successful, set the loginToken cookie
-          const newToken = randomBytes(32).toString('hex');
-          res.setHeader("Set-Cookie", `loginToken=${newToken}; Max-Age=315360000`);
-
-          const hashedToken = hashLoginToken(newToken)
-          await insertHashedLoginToken(user._id, hashedToken)
-
-          registerLoginEvent(user, req)
-
-          next()
-        });
-      })(req, res, next)
-    } else {
-      next()
-    }
-  })
 
   passport.use(cookieAuthStrategy)
   WebApp.connectHandlers.use('/', (req, res, next) => {
@@ -228,9 +132,17 @@ onStartup(() => {
     passport.authenticate('custom', (err, user, info) => {
       if (err) return next(err)
       if (!user) return next()
-      console.log("Logging out")
       req.logOut()
-      res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()}; meteor_login_token= ; expires=${new Date(0).toUTCString()};`) // The accepted way to delete a cookie is to set an expiration date in the past.
+
+      // The accepted way to delete a cookie is to set an expiration date in the past.
+      if (req.cookies['meteor_login_token']) {
+        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
+      }
+      if (req.cookies.loginToken) {
+        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
+      }
+      
+      
       res.statusCode=302;
       res.setHeader('Location','/');
       return res.end();

@@ -106,6 +106,8 @@ interface ResolverContext extends CollectionsByName {
   currentUser: DbUser|null,
   locale: string,
   loaders: Record<CollectionNameString, DataLoader<string,any>>
-  extraLoaders: Record<string,any>
+  extraLoaders: Record<string,any>,
+  req: Request & {logIn: any, logOut: any, cookies: any},
+  res: Response & {setHeader: any}
 }
 }

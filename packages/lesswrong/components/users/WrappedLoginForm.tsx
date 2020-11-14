@@ -1,9 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-// import { useClientId } from '../../lib/abTestUtil';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { commentBodyStyles } from '../../themes/stylePiping';
-// import { forumTypeSetting } from '../../lib/instanceSettings';
+import { gql, useMutation } from '@apollo/client';
+
 
 const styles = theme => ({
   root: {
@@ -16,7 +16,7 @@ const styles = theme => ({
     font: 'inherit',
     color: 'inherit',
     display: 'block',
-    fontSize: '1.4rem',
+    fontSize: '1.2rem',
     marginBottom: 8,
     padding: 8,
     backgroundColor: 'rgba(0,0,0,0.03)',
@@ -29,9 +29,29 @@ const styles = theme => ({
     width: '100%',
     height: 32,
     marginTop: 16,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    fontSize: '1rem'
+  }, 
+  error: {
+    padding: 8,
+    color: theme.palette.error.main 
+  },
+  options: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '1rem',
+    marginTop: 4,
+    padding: 4
   }
 })
+
+const loginMutation = gql`
+  mutation login($username: String, $password: String) {
+    login(username: $username, password: $password) {
+      token
+    }
+  }
+`
 
 
 const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState, classes }: {
@@ -41,6 +61,20 @@ const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState, classes
   classes: ClassesType
 }) => {
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
+  const [username, setUsername] = useState<string | undefined>(undefined)
+  const [password, setPassword] = useState<string | undefined>(undefined)
+  const [email, setEmail] = useState<string | undefined>(undefined)
+  const [signup, setSignup] = useState<boolean>(false)
+  const [ mutate, { error } ] = useMutation(loginMutation, { errorPolicy: 'all' })
+  const submitFunction = signup ? 
+    () => console.log("Placeholder") :
+    async () => {
+      const { data } = await mutate({ variables: { username, password }})
+      if (data?.login?.token) {
+        // If login is successful, just refresh the page
+        location.reload()
+      }
+    }
   // const clientId = useClientId();
 
   // const customSignupFields = ['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get())
@@ -57,11 +91,19 @@ const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState, classes
   return <React.Fragment>
     {reCaptchaSiteKeySetting.get()
       && <Components.ReCaptcha verifyCallback={(token) => setReCaptchaToken(token)} action="login/signup"/>}
-    <form action="/login" method="post" className={classes.root}>
-      <input type="text" name="username" placeholder="username or email" className={classes.input}/>
-      <input type="password" name="password" placeholder="password" className={classes.input}/>
-      <input type="submit" value="Sign In" className={classes.submit}/>
-    </form>
+    <div className={classes.root}>
+      {signup && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
+      <input value={username} type="text" name="username" placeholder={signup ? "username" : "username or email"} className={classes.input} onChange={event => setUsername(event.target.value)}/>
+      <input value={password} type="password" name="password" placeholder="password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
+      <button className={classes.submit} onClick={submitFunction}>
+        {signup ? "Sign Up" : "Log In"}
+      </button>
+      <div className={classes.options}>
+        <span className={classes.toggleState} onClick={() => setSignup(true )}> {signup ? "Log In" : "Sign Up"} </span>
+        <span> Reset Password </span>
+      </div>
+      <div className={classes.error}>{error?.message}</div>
+    </div>
   </React.Fragment>;
 }
 
