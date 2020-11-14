@@ -8,6 +8,8 @@ import gql from 'graphql-tag';
 import { useMutation, useQuery } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
+import { randomId } from '../../lib/random';
+import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
 
 const elicitDataFragment = `
   _id
@@ -26,7 +28,6 @@ const elicitDataFragment = `
     binaryQuestionId
     creator {
       _id,
-      isQuestionCreator,
       displayName,
       sourceUserId
       lwUser {
@@ -165,13 +166,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4
   }
 })
+
 const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType,
   questionId: String
 }) => {
   const currentUser = useCurrentUser();
   const { UsersName } = Components;
-  const { data } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
+  const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
@@ -203,22 +205,19 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
             onClick={() => {
               if (currentUser) {
+                const predictions = data?.ElicitBlockData?.predictions || []
+                const filteredPredictions = predictions.filter(prediction => prediction?.creator?.sourceUserId !== currentUser._id)
+                // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
+                const newPredictions = isCurrentUserSlice ? filteredPredictions : [...filteredPredictions, createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser)]
+
                 makeElicitPrediction({
                   variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },
                   optimisticResponse: {
                     __typename: "Mutation",
                     MakeElicitPrediction: {
                       ...data?.ElicitBlockData,
-                      __typename: "Mutation",
-                      predictions: data?.ElicitBlockData?.predictions?.flatMap(prediction => {
-                        if (prediction?.creator?.sourceUserId === currentUser._id) {
-                          return !isCurrentUserSlice ? [{
-                            ...prediction,
-                            prediction: prob
-                          }] : []
-                        }
-                        return [prediction]
-                      })
+                      __typename: "ElicitBlockData",
+                      predictions: newPredictions
                     }
                   }
                 })
@@ -248,7 +247,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     <div className={classes.titleSection}>
       <div className={classes.startPercentage}>1%</div>
       <div className={classes.title}>
-        {data?.ElicitBlockData?.title}
+        {data?.ElicitBlockData?.title || (loading ? null : "Can't find Question Title on Elicit")}
       </div>
       <div className={classes.endPercentage}>99%</div>
     </div>
@@ -264,3 +263,23 @@ declare global {
   }
 }
 
+function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
+  return {
+    __typename: "ElicitPrediction",
+    _id: randomId(),
+    predictionId: randomId(),
+    prediction: prediction,
+    createdAt: new Date(),
+    notes: "",
+    sourceUrl: elicitSourceURL.get(),
+    sourceId: elicitSourceId.get(),
+    binaryQuestionId: questionId,
+    creator: {
+      __typename: "ElicitUser",
+      _id: randomId(),
+      displayName: currentUser.displayName,
+      sourceUserId: currentUser._id, 
+      lwUser: currentUser
+    }
+  }
+}

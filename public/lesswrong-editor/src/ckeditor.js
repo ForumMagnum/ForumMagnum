@@ -193,7 +193,7 @@ const postEditorConfig = {
 		extraProviders: [
 			{
 				name: 'Elicit',
-				url: /^ought-elicit-alpha.herokuapp.com\/binary\/questions\/(\w+)/,
+				url: /^elicit.org\/binary\/questions\/(\w+)/,
 				html: ([match, questionId]) => `
 					<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
 						<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
