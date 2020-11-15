@@ -282,7 +282,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   }
 
   // Due to https://github.com/apollographql/apollo-client/issues/6760 this is necessary to restore the Apollo 2.0 behavior for cache-and-network policies
-  const newNextFetchPolicy = nextFetchPolicy || (fetchPolicy === "cache-and-network" || fetchPolicy === "network-only") ? "cache-first" : undefined
+  const newNextFetchPolicy = nextFetchPolicy || (fetchPolicy === "cache-and-network" || fetchPolicy === "network-only") ? "cache-only" : undefined
   
   const useQueryArgument = {
     variables: graphQLVariables,
