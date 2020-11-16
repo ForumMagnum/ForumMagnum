@@ -38,6 +38,7 @@ export type Route = {
   noIndex?: boolean,
   background?: string,
   sunshineSidebar?: boolean
+  disableAutoRefresh?: boolean,
 };
 
 // populated by calls to addRoute

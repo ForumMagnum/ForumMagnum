@@ -15,3 +15,4 @@ declare module 'meteor/email';
 declare module 'meteor/tracker';
 declare module 'meteor/session';
 declare module 'meteor/http';
+declare module 'meteor/reload';
