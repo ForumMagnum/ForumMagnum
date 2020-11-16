@@ -103,8 +103,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
             collection={GardenCodes}
             mutationFragment={getFragment("GardenCodeFragment")}
             queryFragment={getFragment("GardenCodeFragment")}
-            successCallback={code => setCurrentCode(code)}
-          />
+            successCallback={code => setCurrentCode(code)}/>
       </div>
     }
   </div>
