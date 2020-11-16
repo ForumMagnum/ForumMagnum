@@ -8,17 +8,22 @@ import FormControl from '@material-ui/core/FormControl';
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
     borderBottom: `solid 1px #999`,
-    padding: '6px 0 7px 0'
+    padding: '6px 0 7px 0',
   },
   label: {
     position:"relative",
     transform:"none",
     fontSize: 10,
   },
+  wrapper: {
+    '& .rdtPicker': {
+      bottom: 30,
+    }
+  }
 })
 
 
-const FormComponentDateTime = ({ path, value, name, label, classes }, context) => {
+const FormComponentDateTime = ({ path, value, name, label, classes, position }, context) => {
   const updateDate = (date) => {
     context.updateCurrentValues({[path]: date});
   }
@@ -28,6 +33,7 @@ const FormComponentDateTime = ({ path, value, name, label, classes }, context) =
   return <FormControl>
     <InputLabel className={classes.label}>{ label }</InputLabel>
     <DateTimePicker
+      className={classes.wrapper}
       value={date}
       inputProps={{
         name:name,
