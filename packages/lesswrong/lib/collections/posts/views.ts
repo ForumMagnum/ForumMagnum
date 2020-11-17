@@ -90,6 +90,7 @@ Posts.addDefaultView(terms => {
   const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
+
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {

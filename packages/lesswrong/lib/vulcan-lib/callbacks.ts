@@ -125,7 +125,7 @@ export const runCallbacks = function (this: any, options: {
   properties?: any,
   ignoreExceptions?: boolean,
   callbacks?: any,
-}) { 
+}) {
   const hook = options.name;
   const formattedHook = formatHookName(hook);
   const item = options.iterator;

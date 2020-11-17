@@ -12,8 +12,6 @@ import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
 import { loggerConstructor } from '../utils/logging'
 
-// import { debug } from './debug';
-
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
 
@@ -146,7 +144,6 @@ export const createCollection = (options: {
 
   // add views
   collection.views = [];
-
 
   if (schema) {
     // attach schema to collection
