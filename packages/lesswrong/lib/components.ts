@@ -404,6 +404,7 @@ importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGra
 importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
 importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
 importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
+importComponent("TagFlagAllPagesItem", () => require('../components/tagging/TagFlagAllPagesItem'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 
 

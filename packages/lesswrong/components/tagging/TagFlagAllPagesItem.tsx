@@ -1,8 +1,6 @@
 import React from "react"
-import { TagFlags } from "../../lib";
 import { Tags } from "../../lib/collections/tags/collection";
 import { useMulti } from "../../lib/crud/withMulti";
-import { useSingle } from "../../lib/crud/withSingle";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
@@ -35,58 +33,49 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: {
-  documentId: string,
+const TagFlagAllPagesItem = ({ showNumber = true, style = "grey", classes }: {
   showNumber?: boolean,
   style?: "white"|"grey"|"black",
   classes: ClassesType,
 }) => {
   const { LWPopper, ContentItemBody } = Components;
   const {eventHandlers, hover, anchorEl, stopHover } = useHover();
-  const { document: tagFlag } = useSingle({
-    documentId,
-    collection: TagFlags,
-    fetchPolicy: "cache-first",
-    fragmentName: "TagFlagFragment",
-  })
   const { totalCount } = useMulti({
     terms: {
-      view: "tagsByTagFlag",
-      tagFlagId: tagFlag?._id
+      view: "allPagesByNewest",
     },
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
-    skip: !tagFlag || !showNumber,
     enableTotal: true
   });
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
 
   return <span {...eventHandlers} className={rootStyles}>
     <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        onMouseEnter={stopHover}
-        placement="bottom-start"
-      >
-        {tagFlag && <AnalyticsContext pageElementContext="hoverPreview">
-          <Card className={classes.hoverCard}>
-            <ContentItemBody
-              className={classes.highlight}
-              dangerouslySetInnerHTML={{__html: tagFlag.contents?.html || "" }}
-              description={`tagFlag ${tagFlag._id}`}
-            />
-          </Card>
-        </AnalyticsContext>}
+      open={hover}
+      anchorEl={anchorEl}
+      onMouseEnter={stopHover}
+      placement="bottom-start"
+    >
+      <AnalyticsContext pageElementContext="hoverPreview">
+        <Card className={classes.hoverCard}>
+          <ContentItemBody
+            className={classes.highlight}
+            dangerouslySetInnerHTML={{__html: "All Tag and Wiki pages sorted by most recent, regardless of tag flag status" }}
+            description={"All Pages"}
+          />
+        </Card>
+      </AnalyticsContext>
     </LWPopper>
-    {tagFlag?.name}{(showNumber && totalCount)? `: ${totalCount}` : ``}
+    All Tags & Wikis {showNumber ? `: ${totalCount}` : ``}
   </span>
 }
 
-const TagFlagItemComponent = registerComponent('TagFlagItem', TagFlagItem, { styles } );
+const TagFlagAllPagesItemComponent = registerComponent('TagFlagAllPagesItem', TagFlagAllPagesItem, { styles } );
 
 declare global {
   interface ComponentTypes {
-    TagFlagItem: typeof TagFlagItemComponent
+    TagFlagAllPagesItem: typeof TagFlagAllPagesItemComponent
   }
 }

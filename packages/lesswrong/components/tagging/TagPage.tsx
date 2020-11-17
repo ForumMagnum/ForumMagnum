@@ -128,7 +128,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagFlagAllPagesItem, TagDiscussionSection, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -140,22 +140,21 @@ const TagPage = ({classes}: {
   const [editing, setEditing] = useState(!!query.edit)
   const { captureEvent } =  useTracking()
   const { openDialog } = useDialog();
-  
+
   const { hover, anchorEl, eventHandlers} = useHover()
 
-  const { results: otherTagsWithFlag } = useMulti({
-    terms: {
-      view: "tagsByTagFlag",
-      tagFlagId: query.flagId,
-    },
+  const multiTerms = query.flagId === "allPages" ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: query.flagId}
+
+  const { results: otherTagsWithNavigation } = useMulti({
+    terms: multiTerms,
     collectionName: "Tags",
     fragmentName: 'TagWithFlagsFragment',
-    limit: 500,
+    limit: 1500, //TODO: hmmm??
     skip: !query.flagId
   })
 
-  
-  const tagPositionInList = otherTagsWithFlag?.findIndex(tagInList => tag?._id === tagInList._id);
+
+  const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
   // 2. Then we have the real position
@@ -167,13 +166,13 @@ const TagPage = ({classes}: {
       setNextTagPosition(tagPositionInList + 1)
     }
     if (nextTagPosition !== null && tagPositionInList < 0) {
-      // Here we want to decrement the list positions by one, because we removed the original tag and so 
-      // all the indices are moved to the next 
+      // Here we want to decrement the list positions by one, because we removed the original tag and so
+      // all the indices are moved to the next
       setNextTagPosition(nextTagPosition => (nextTagPosition || 1) - 1)
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagPositionInList])
-  const nextTag = otherTagsWithFlag && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithFlag[nextTagPosition]
+  const nextTag = otherTagsWithNavigation && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithNavigation[nextTagPosition]
 
   if (loadingTag)
     return <Loading/>
@@ -212,11 +211,11 @@ const TagPage = ({classes}: {
         <AnalyticsContext pageSectionContext="wikiSection">
           <div>
             {query.flagId && <span>
-              <Link to={`/tags/dashboard?focus=${query.flagId}`}> <TagFlagItem documentId={query.flagId}/> </Link>
-                {nextTag && <span onClick={() => setEditing(true)}><Link 
-                  className={classes.nextLink} 
-                  to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}> 
-                    Next Tag ({nextTag.name}) 
+              <Link to={`/tags/dashboard?focus=${query.flagId}`}>{query.flagId === "allPages" ? <TagFlagAllPagesItem/> : <TagFlagItem documentId={query.flagId}/>}</Link>
+                {nextTag && <span onClick={() => setEditing(true)}><Link
+                  className={classes.nextLink}
+                  to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+                    Next Tag ({nextTag.name})
                 </Link></span>}
               </span>}
             <Typography variant="display3" className={classes.title}>
@@ -225,7 +224,7 @@ const TagPage = ({classes}: {
             {editing && tag.lesswrongWikiImportSlug && <div className={classes.importNotice}>
               <a target="_blank" rel="noopener noreferrer" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
               <SeparatorBullet/>
-              {tag.lesswrongWikiImportRevision && 
+              {tag.lesswrongWikiImportRevision &&
                 <span>
                   <a target="_blank" rel="noopener noreferrer" href={`${tagGetUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
                     See latest import revision
@@ -235,10 +234,10 @@ const TagPage = ({classes}: {
             </div>}
           </div>
           <div className={classes.buttonsRow}>
-            {currentUser ? 
+            {currentUser ?
               <a className={classes.button} onClick={() => setEditing(true)}>
                 <EditOutlinedIcon /> Edit Wiki
-              </a> : 
+              </a> :
               <a className={classes.button} onClick={(ev) => {
                 openDialog({
                   componentName: "LoginPopup",
@@ -253,10 +252,10 @@ const TagPage = ({classes}: {
               <HistoryIcon /> History
             </Link>}
             <LWTooltip title="Get notifications when posts are added to this tag" className={classes.subscribeToWrapper}>
-              <SubscribeTo 
-                document={tag} 
+              <SubscribeTo
+                document={tag}
                 className={classes.subscribeTo}
-                showIcon 
+                showIcon
                 subscribeMessage="Subscribe"
                 unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
@@ -267,17 +266,17 @@ const TagPage = ({classes}: {
               <CommentOutlinedIcon/> Discussion
               <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
                 <TagDiscussion tag={tag}/>
-              </PopperCard>    
-            </Link>   
+              </PopperCard>
+            </Link>
           </div>
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
-          {editing ? <EditTagForm 
-            tag={tag} 
+          {editing ? <EditTagForm
+            tag={tag}
             successCallback={() => setEditing(false)}
             cancelCallback={() => setEditing(false)}
-          /> : 
+          /> :
           <div onClick={clickReadMore}>
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: description||""}}
