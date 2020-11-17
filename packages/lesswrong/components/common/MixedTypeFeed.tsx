@@ -135,30 +135,28 @@ const MixedTypeFeed = (args: {
   // request is already pending (that's checked in maybeStartLoadingMore), and
   // overlapping requests would be bad.
   const requestMore = useCallback(async () => {
-    if (data) {
-      await fetchMore({
-        variables: {
-          ...resolverArgsValues,
-          ...fragmentArgsValues,
-          cutoff: data[resolverName].cutoff,
-          limit: pageSize,
-        },
-        updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-          queryIsPending.current = false;
-          if (!fetchMoreResult) {
-            return prev;
-          }
-          
-          return {
-            [resolverName]: {
-              __typename: fetchMoreResult[resolverName].__typename,
-              cutoff: fetchMoreResult[resolverName].cutoff,
-              results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
-            }
-          };
+    await fetchMore({
+      variables: {
+        ...resolverArgsValues,
+        ...fragmentArgsValues,
+        cutoff: data[resolverName].cutoff,
+        limit: pageSize,
+      },
+      updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
+        queryIsPending.current = false;
+        if (!fetchMoreResult) {
+          return prev;
         }
-      });
-    }
+        
+        return {
+          [resolverName]: {
+            __typename: fetchMoreResult[resolverName].__typename,
+            cutoff: fetchMoreResult[resolverName].cutoff,
+            results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+          }
+        };
+      }
+    });
   }, [fetchMore, pageSize, data, resolverName, resolverArgsValues, fragmentArgsValues, queryIsPending])
   
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
@@ -169,14 +167,15 @@ const MixedTypeFeed = (args: {
     if (isClient
       && bottomRef?.current
       && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
-      && !reachedEnd)
+      && !reachedEnd
+      && data)
     {
       if (!queryIsPending.current) {
         queryIsPending.current = true;
         void requestMore();
       }
     }
-  }, [requestMore, queryIsPending, reachedEnd]);
+  }, [data, requestMore, queryIsPending, reachedEnd]);
   
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
