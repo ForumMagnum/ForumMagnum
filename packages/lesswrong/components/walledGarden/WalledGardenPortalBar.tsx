@@ -22,6 +22,7 @@ const styles = (theme) => ({
   },
   widgetsContainer: {
     display: "flex",
+    flexWrap: "wrap"
   },
   portalBarButton: {
     position: "relative",
