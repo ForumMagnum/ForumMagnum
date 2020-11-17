@@ -13,8 +13,8 @@ import { Accounts } from '../../lib/meteorAccounts';
 import * as _ from 'underscore';
 import { loggerConstructor, logGroupConstructor } from '../../lib/utils/logging';
 
-const logger = loggerConstructor(`callbacks`)
-const {logGroupStart, logGroupEnd} = logGroupConstructor(`callbacks`)
+const logger = loggerConstructor('callbacks')
+const {logGroupStart, logGroupEnd} = logGroupConstructor('callbacks')
 
 // Takes a function that returns a promise and wraps it with Meteor.wrapAsync
 // Definitely gets rid of the `this` context, so only use with contextless functions

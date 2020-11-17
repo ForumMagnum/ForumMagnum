@@ -9,7 +9,6 @@ export * from './routes';
 export * from './utils';
 export * from './fragments';
 export * from './admin';
-export * from './debug';
 export * from './errors';
 export * from './intl';
 export * from './graphql_templates';

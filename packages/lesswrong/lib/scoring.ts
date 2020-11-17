@@ -21,7 +21,8 @@ export const recalculateBaseScore = (document: VoteableType) => {
   return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
 }
 
-// TODO; this is duplicated logic with timeDecayExpr
+// NB: If you want to change this algorithm, make sure to also change the
+// timeDecayExpr function below
 export const recalculateScore = (item: VoteableType) => {
   // Age Check
   if ((item as any).postedAt) {
