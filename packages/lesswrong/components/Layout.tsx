@@ -8,7 +8,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-import LogRocket from 'logrocket'
 import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
@@ -21,26 +20,12 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
+import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const logRocketSampleDensitySetting = new DatabasePublicSetting<number>('logRocket.sampleDensity', 5)
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
-
-// From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
-// Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
-const hashCode = function(str: string): number {
-  var hash = 0, i, chr;
-  if (str.length === 0) return hash;
-  for (i = 0; i < str.length; i++) {
-    chr   = str.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-};
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -203,25 +188,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     return newId
   }
 
-  initializeLogRocket = () => {
-    const { currentUser } = this.props
-    const logRocketKey = logRocketApiKeySetting.get()
-    if (logRocketKey) {
-      // If the user is logged in, always log their sessions
-      if (currentUser) {
-        LogRocket.init(logRocketKey)
-        return
-      }
-
-      // If the user is not logged in, only track 1/5 of the sessions
-      const clientId = this.getUniqueClientId()
-      const hash = hashCode(clientId)
-      if (hash % logRocketSampleDensitySetting.get() === 0) {
-        LogRocket.init(logRocketKey)
-      }
-    }
-  }
-
   componentDidMount() {
     const { cookies } = this.props;
     const newTimezone = moment.tz.guess();
@@ -231,8 +197,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         timezone: newTimezone
       });
     }
-
-    this.initializeLogRocket()
   }
 
   render () {
