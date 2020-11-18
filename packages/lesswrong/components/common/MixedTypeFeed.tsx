@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useCallback} from 'react';
+import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
 import { useQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
@@ -130,14 +130,6 @@ const MixedTypeFeed = (args: {
   // Whether we've reached the end. The end-marker is when a query returns null
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
-  const newCutoff = data && data[resolverName]?.cutoff
-  console.log("rerendering: ", newCutoff)
-  // startLoadingMore: Ask for another page of results. Does NOT check whether a
-  // request is already pending (that's checked in maybeStartLoadingMore), and
-  // overlapping requests would be bad.
-  // const requestMore = async () => {
-    
-  // }
   
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start
@@ -152,7 +144,6 @@ const MixedTypeFeed = (args: {
       if (!queryIsPending.current) {
         queryIsPending.current = true;
         if (data) {
-          console.log("requesting more: ", data[resolverName].cutoff, newCutoff)
           void fetchMore({
             variables: {
               ...resolverArgsValues,
@@ -180,19 +171,12 @@ const MixedTypeFeed = (args: {
     }
   }
 
-  const wrappedMaybeStartLoadingMore = () => {
-    console.log("useEffect")
-    maybeStartLoadingMore()
-  }
   
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
-  useEffect(wrappedMaybeStartLoadingMore);
-  useOnPageScroll(() => {
-    console.log("newCutoff: ", newCutoff)
-    maybeStartLoadingMore()
-  });
+  useEffect(maybeStartLoadingMore);
+  useOnPageScroll(maybeStartLoadingMore);
   
   return <div>
     {data && data[resolverName]?.results && data[resolverName].results.map((result,i) =>
