@@ -139,34 +139,33 @@ const MixedTypeFeed = (args: {
     if (isClient
       && bottomRef?.current
       && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
-      && !reachedEnd)
+      && !reachedEnd
+      && data)
     {
       if (!queryIsPending.current) {
         queryIsPending.current = true;
-        if (data) {
-          void fetchMore({
-            variables: {
-              ...resolverArgsValues,
-              ...fragmentArgsValues,
-              cutoff: data[resolverName].cutoff,
-              limit: pageSize,
-            },
-            updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-              queryIsPending.current = false;
-              if (!fetchMoreResult) {
-                return prev;
-              }
-              
-              return {
-                [resolverName]: {
-                  __typename: fetchMoreResult[resolverName].__typename,
-                  cutoff: fetchMoreResult[resolverName].cutoff,
-                  results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
-                }
-              };
+        void fetchMore({
+          variables: {
+            ...resolverArgsValues,
+            ...fragmentArgsValues,
+            cutoff: data[resolverName].cutoff,
+            limit: pageSize,
+          },
+          updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
+            queryIsPending.current = false;
+            if (!fetchMoreResult) {
+              return prev;
             }
-          });
-        }
+            
+            return {
+              [resolverName]: {
+                __typename: fetchMoreResult[resolverName].__typename,
+                cutoff: fetchMoreResult[resolverName].cutoff,
+                results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+              }
+            };
+          }
+        });
       }
     }
   }
