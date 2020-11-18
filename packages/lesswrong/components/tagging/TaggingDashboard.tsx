@@ -42,13 +42,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TaggingDashboard = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, TagFlagAllPagesItem, NewTagsList, LoadMore, Loading } = Components
+  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, Loading } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const [collapsed, setCollapsed] = useState(false)
   const multiTerms = query.focus === "allPages" ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: query.focus}
   const { results: tags, loading, loadMoreProps } = useMulti({
-    terms: multiTerms, // { view: "tagsByTagFlag", tagFlagId: query.focus},
+    terms: multiTerms,
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 100,
@@ -88,7 +88,7 @@ const TaggingDashboard = ({classes}: {
     </SectionTitle>
     <div className={classes.flagList}>
       <QueryLink query={query.focus === "allPages" ? {} : {focus: "allPages"}}>
-        <TagFlagAllPagesItem style={query.focus === "allPages" ? "black" : "grey"}/>
+        <TagFlagItem allPages style={query.focus === "allPages" ? "black" : "grey"}/>
       </QueryLink>
       {tagFlags?.map(tagFlag => <QueryLink key={tagFlag._id} query={query.focus === tagFlag._id ? {} : {focus: tagFlag._id}}>
         <TagFlagItem documentId={tagFlag._id} style={query.focus === tagFlag._id ? "black" : "grey"} />

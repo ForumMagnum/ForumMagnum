@@ -128,7 +128,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagFlagAllPagesItem, TagDiscussionSection, SeparatorBullet } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -211,7 +211,12 @@ const TagPage = ({classes}: {
         <AnalyticsContext pageSectionContext="wikiSection">
           <div>
             {query.flagId && <span>
-              <Link to={`/tags/dashboard?focus=${query.flagId}`}>{query.flagId === "allPages" ? <TagFlagAllPagesItem/> : <TagFlagItem documentId={query.flagId}/>}</Link>
+              <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+                {query.flagId === "allPages"
+                  ? <TagFlagItem allPages/>
+                  : <TagFlagItem documentId={query.flagId}/>
+                }
+              </Link>
                 {nextTag && <span onClick={() => setEditing(true)}><Link
                   className={classes.nextLink}
                   to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>

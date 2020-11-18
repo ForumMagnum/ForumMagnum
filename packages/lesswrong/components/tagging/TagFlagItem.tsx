@@ -35,9 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: {
-  documentId: string,
+const TagFlagItem = ({documentId, showNumber = true, allPages = false, style = "grey", classes }: {
+  documentId?: string,
   showNumber?: boolean,
+  allPages?: boolean, 
   style?: "white"|"grey"|"black",
   classes: ClassesType,
 }) => {
@@ -49,19 +50,20 @@ const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: 
     fetchPolicy: "cache-first",
     fragmentName: "TagFlagFragment",
   })
+  const multiTerms = allPages ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
   const { totalCount } = useMulti({
-    terms: {
-      view: "tagsByTagFlag",
-      tagFlagId: tagFlag?._id
-    },
+    terms: multiTerms,
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
-    skip: !tagFlag || !showNumber,
+    skip: !showNumber,
     enableTotal: true
   });
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
-
+  const innerHTML = {__html: allPages ? "All Tag and Wiki Pages sorted by most recent" : tagFlag?.contents?.html || "" }
+  const tagFlagDescription = allPages ? "All Pages" : `tagFlag ${tagFlag?._id}`
+  const tagFlagText = allPages ? "All Tags & Wikis" : tagFlag?.name
+    
   return <span {...eventHandlers} className={rootStyles}>
     <LWPopper
         open={hover}
@@ -69,17 +71,17 @@ const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: 
         onMouseEnter={stopHover}
         placement="bottom-start"
       >
-        {tagFlag && <AnalyticsContext pageElementContext="hoverPreview">
+        {(allPages || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">
           <Card className={classes.hoverCard}>
             <ContentItemBody
               className={classes.highlight}
-              dangerouslySetInnerHTML={{__html: tagFlag.contents?.html || "" }}
-              description={`tagFlag ${tagFlag._id}`}
+              dangerouslySetInnerHTML={innerHTML}
+              description={tagFlagDescription}
             />
           </Card>
         </AnalyticsContext>}
     </LWPopper>
-    {tagFlag?.name}{(showNumber && totalCount)? `: ${totalCount}` : ``}
+    {tagFlagText}{(showNumber && totalCount)? `: ${totalCount}` : ``}
   </span>
 }
 

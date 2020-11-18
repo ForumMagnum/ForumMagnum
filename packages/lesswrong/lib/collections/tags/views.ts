@@ -30,7 +30,7 @@ Tags.addView('allPagesByNewest', terms => {
   }
 });
 
-ensureIndex(Tags, {deleted:1, adminOnly:1, createdAt: -1});
+ensureIndex(Tags, {deleted:1, adminOnly:1, wikiOnly: 1, createdAt: 1});
 
 Tags.addView('allTagsHierarchical', terms => {
   const selector = parseInt(terms?.wikiGrade) ? {wikiGrade: parseInt(terms?.wikiGrade)} : {}
