@@ -2,12 +2,16 @@ import React from 'react';
 import { isClient } from '../../lib/executionEnvironment';
 
 export const useOnPageScroll = (onScrollFn: ()=>void) => {
+  console.log("useOnPageScroll", onScrollFn)
+  console.log(onScrollFn)
   React.useEffect(() => {
     if (isClient) {
-      document.addEventListener('scroll', onScrollFn)
+      const newFunction = () => setTimeout(onScrollFn, 0)
+      document.addEventListener('scroll', newFunction)
       
       return function cleanup() {
-        document.removeEventListener('scroll', onScrollFn);
+        console.log("Cleaning up useOnPageScroll")
+        document.removeEventListener('scroll', newFunction);
       };
     }
   }, [onScrollFn]);

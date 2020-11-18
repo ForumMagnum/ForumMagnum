@@ -130,41 +130,19 @@ const MixedTypeFeed = (args: {
   // Whether we've reached the end. The end-marker is when a query returns null
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
-  
+  const newCutoff = data && data[resolverName]?.cutoff
+  console.log("rerendering: ", newCutoff)
   // startLoadingMore: Ask for another page of results. Does NOT check whether a
   // request is already pending (that's checked in maybeStartLoadingMore), and
   // overlapping requests would be bad.
-  const requestMore = useCallback(async () => {
-    if (data) {
-      await fetchMore({
-        variables: {
-          ...resolverArgsValues,
-          ...fragmentArgsValues,
-          cutoff: data[resolverName].cutoff,
-          limit: pageSize,
-        },
-        updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-          queryIsPending.current = false;
-          if (!fetchMoreResult) {
-            return prev;
-          }
-          
-          return {
-            [resolverName]: {
-              __typename: fetchMoreResult[resolverName].__typename,
-              cutoff: fetchMoreResult[resolverName].cutoff,
-              results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
-            }
-          };
-        }
-      });
-    }
-  }, [fetchMore, pageSize, data, resolverName, resolverArgsValues, fragmentArgsValues, queryIsPending])
+  // const requestMore = async () => {
+    
+  // }
   
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start
   // loading it.
-  const maybeStartLoadingMore = useCallback(() => {
+  const maybeStartLoadingMore = () => {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
       && bottomRef?.current
@@ -173,16 +151,48 @@ const MixedTypeFeed = (args: {
     {
       if (!queryIsPending.current) {
         queryIsPending.current = true;
-        void requestMore();
+        if (data) {
+          console.log("requesting more: ", data[resolverName].cutoff, newCutoff)
+          void fetchMore({
+            variables: {
+              ...resolverArgsValues,
+              ...fragmentArgsValues,
+              cutoff: data[resolverName].cutoff,
+              limit: pageSize,
+            },
+            updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
+              queryIsPending.current = false;
+              if (!fetchMoreResult) {
+                return prev;
+              }
+              
+              return {
+                [resolverName]: {
+                  __typename: fetchMoreResult[resolverName].__typename,
+                  cutoff: fetchMoreResult[resolverName].cutoff,
+                  results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+                }
+              };
+            }
+          });
+        }
       }
     }
-  }, [requestMore, queryIsPending, reachedEnd]);
+  }
+
+  const wrappedMaybeStartLoadingMore = () => {
+    console.log("useEffect")
+    maybeStartLoadingMore()
+  }
   
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
-  useEffect(maybeStartLoadingMore);
-  useOnPageScroll(maybeStartLoadingMore);
+  useEffect(wrappedMaybeStartLoadingMore);
+  useOnPageScroll(() => {
+    console.log("newCutoff: ", newCutoff)
+    maybeStartLoadingMore()
+  });
   
   return <div>
     {data && data[resolverName]?.results && data[resolverName].results.map((result,i) =>
