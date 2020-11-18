@@ -367,7 +367,8 @@ if (forumTypeSetting.get() === 'LessWrong') {
       path: '/walledGardenPortal',
       componentName: 'WalledGardenPortal',
       title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle
+      ...walledGardenPortalSubtitle,
+      disableAutoRefresh: true,
     },
     {
       name: 'HPMOR.posts.single',
