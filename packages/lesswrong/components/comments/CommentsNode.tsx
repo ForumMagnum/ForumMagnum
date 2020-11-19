@@ -1,46 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
-import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
+import { HIGHLIGHT_DURATION } from './CommentFrame';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
-const HIGHLIGHT_DURATION = 3
 
 const styles = (theme: ThemeType): JssStyles => ({
-  node: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
-    cursor: "default",
-    // Higher specificity to override child class (variant syntax)
-    '&$deleted': {
-      opacity: 0.6
-    }
-  },
-  commentsNodeRoot: {
-    borderRadius: 3,
-  },
-  child: {
-    marginLeft: theme.spacing.unit,
-    marginBottom: 6,
-    borderLeft: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderRight: "none",
-    borderRadius: "2px 0 0 2px"
-  },
-  new: {
-    '&&': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
-      '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}`
-      },
-    }
-  },
-  deleted: {},
   parentScroll: {
     position: "absolute",
     top:0,
@@ -52,68 +22,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: "rgba(0,0,0,.075)"
     }
   },
-  isAnswer: {
-    border: `solid 2px ${theme.palette.commentBorderGrey}`,
-  },
-  answerChildComment: {
-    marginBottom: theme.spacing.unit,
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
-  },
-  childAnswerComment: {
-    borderRight: "none"
-  },
-  oddAnswerComment: {
-    backgroundColor: 'white'
-  },
-  answerLeafComment: {
-    paddingBottom: 0
-  },
-  isSingleLine: {
-    marginBottom: 0,
-    borderBottom: "none",
-    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
-    '&.comments-node-root':{
-      marginBottom: 4,
-      borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
-    }
-  },
-  condensed: {
-    '&.comments-node-root':{
-      marginBottom: 4,
-    }
-  },
-  shortformTop: {
-    '&&': {
-      marginTop: theme.spacing.unit*4,
-      marginBottom: 0
-    }
-  },
-  hoverPreview: {
-    marginBottom: 0
-  },
-  moderatorHat: {
-    "&.comments-node-even": {
-      background: "#5f9b651c",
-    },
-    "&.comments-node-odd": {
-      background: "#5f9b651c",
-    },
-  },
   children: {
     position: "relative"
-  },
-  '@keyframes higlight-animation': {
-    from: {
-      backgroundColor: theme.palette.grey[300],
-      borderColor: "black"
-    },
-    to: {
-      backgroundColor: "none",
-      borderColor: "rgba(0,0,0,.15)"
-    }
-  },
-  highlightAnimation: {
-    animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
     border: `solid 1px ${theme.palette.commentBorderGrey}`,
@@ -121,9 +31,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
   },
-  promoted: {
-    border: `solid 1px ${theme.palette.lwTertiary.main}`,
-  }
 })
 
 const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, loadChildrenSeparately, classes }: {
@@ -241,43 +148,31 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
     }
   }
 
-  const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
+  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
   if (!comment)
     return null;
 
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
-  const nodeClass = classNames(
-    "comments-node",
-    nestingLevelToClass(updatedNestingLevel, classes),
-    classes.node,
-    {
-      "af":comment.af,
-      [classes.highlightAnimation]: highlighted,
-      [classes.child]: isChild,
-      [classes.new]: isNewComment,
-      [classes.deleted]: comment.deleted,
-      [classes.isAnswer]: comment.answer,
-      [classes.answerChildComment]: parentAnswerId,
-      [classes.childAnswerComment]: isChild && parentAnswerId,
-      [classes.oddAnswerComment]: (updatedNestingLevel % 2 !== 0) && parentAnswerId,
-      [classes.answerLeafComment]: !(childComments && childComments.length),
-      [classes.isSingleLine]: isSingleLine(),
-      [classes.condensed]: condensed,
-      [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
-      [classes.hoverPreview]: hoverPreview,
-      [classes.moderatorHat]: comment.moderatorHat,
-      [classes.promoted]: comment.promoted
-    }
-  )
-
   const passedThroughItemProps = { comment, collapsed }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
-    <div className={nodeClass}
+    <CommentFrame
+      comment={comment}
+      treeOptions={treeOptions}
       onClick={(event) => handleExpand(event)}
       id={!noHash ? comment._id : undefined}
+      
+      nestingLevel={updatedNestingLevel}
+      hasChildren={childComments && childComments.length>0}
+      highlighted={highlighted}
+      isSingleLine={isSingleLine()}
+      isChild={isChild}
+      isNewComment={isNewComment}
+      isReplyToAnswer={!!parentAnswerId}
+      hoverPreview={hoverPreview}
+      shortform={shortform}
     >
       {comment._id && <div ref={scrollTargetRef}>
         {isSingleLine()
@@ -337,26 +232,8 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
           />
         </div>
       }
-    </div>
+    </CommentFrame>
   </div>
-}
-
-const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string => {
-  return classNames({
-    [classes.commentsNodeRoot] : nestingLevel === 1,
-    "comments-node-root" : nestingLevel === 1,
-    "comments-node-even" : nestingLevel % 2 === 0,
-    "comments-node-odd"  : nestingLevel % 2 !== 0,
-    "comments-node-its-getting-nested-here": nestingLevel > 8,
-    "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
-    "comments-node-im-getting-so-nested": nestingLevel > 16,
-    "comments-node-im-gonna-drop-my-margins": nestingLevel > 20,
-    "comments-node-what-are-you-even-arguing-about": nestingLevel > 24,
-    "comments-node-are-you-sure-this-is-a-good-idea": nestingLevel > 28,
-    "comments-node-seriously-what-the-fuck": nestingLevel > 32,
-    "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
-    "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
-  });
 }
 
 const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {

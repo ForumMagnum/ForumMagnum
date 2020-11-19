@@ -319,6 +319,7 @@ importComponent("CommentsListSection", () => require('../components/comments/Com
 importComponent("CommentsList", () => require('../components/comments/CommentsList'));
 importComponent("CommentsListMeta", () => require('../components/comments/CommentsListMeta'));
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode'));
+importComponent("CommentsFrame", () => require('../components/comments/CommentFrame'));
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews'));
 importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
