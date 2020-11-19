@@ -1,10 +1,13 @@
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 
-export const userCanSuggestPostForAlignment = ({currentUser, post}) => {
+export const userCanSuggestPostForAlignment = ({currentUser, post}: {
+  currentUser: UsersCurrent|DbUser|null,
+  post: PostsBase|DbPost
+}) => {
   return currentUser && post && !post.af && !post.reviewForAlignmentUserId && userCanDo(currentUser, "posts.alignment.suggest")
 }
 
-export const userCanMakeAlignmentPost = (user, post) => {
+export const userCanMakeAlignmentPost = (user: DbUser|UsersCurrent|null, post: PostsBase|DbPost) => {
   if (userCanDo(user,"posts.moderate.all") && userCanDo(user, "posts.alignment.move")) {
     return true
   }

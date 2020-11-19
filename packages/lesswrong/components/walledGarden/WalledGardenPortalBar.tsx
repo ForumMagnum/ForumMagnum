@@ -7,12 +7,12 @@ import { CAL_ID } from "./gardenCalendar";
 import { gatherTownURL } from "./GatherTownIframeWrapper";
 
 const widgetStyling = {
-  marginLeft: "30px",
+  marginLeft: 30,
 }
 
 const gatherTownRightSideBarWidth = 300
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme),
     padding: 16,
@@ -22,6 +22,7 @@ const styles = (theme) => ({
   },
   widgetsContainer: {
     display: "flex",
+    flexWrap: "wrap"
   },
   portalBarButton: {
     position: "relative",
@@ -39,18 +40,17 @@ const styles = (theme) => ({
     ...widgetStyling
   },
   pomodoroTimerWidget: {
-    ...widgetStyling,
-    textAlign: "right",
-    position: "absolute",
-    right: 12,
-    top: 0,
+    ...widgetStyling
+  },
+  codesList: {
+    marginLeft: 60
   },
   calendarLinks: {
     fontSize: ".8em",
     marginTop: "3px"
   },
   events: {
-    marginRight: 100
+    marginRight: 60
   },
   fbEventButton: {
     width: 135
@@ -73,13 +73,13 @@ const styles = (theme) => ({
   }
 })
 
-export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, classes:ClassesType}) => {
-  const { GardenCodeWidget, WalledGardenEvents, PomodoroWidget } = Components
+export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
+  const { GardenCodeWidget, GardenCodesList, WalledGardenEvents, PomodoroWidget } = Components
 
   const currentUser =  useCurrentUser()
 
   if (!currentUser) return null
-  const refocusOnIframe = () => iframeRef.current.focus()
+  const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
@@ -95,6 +95,9 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
       {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
         <WalledGardenEvents frontpage={false}/>
       </div>}
+      <div className={classes.codesList}>
+        <GardenCodesList />
+      </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">

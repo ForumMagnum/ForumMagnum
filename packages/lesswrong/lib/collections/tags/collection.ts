@@ -4,6 +4,7 @@ import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import { schema } from './schema';
+import type { AlgoliaDocument } from '../../../server/search/utils';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -11,7 +12,7 @@ type getUrlOptions = {
 }
 interface ExtendedTagsCollection extends TagsCollection {
   // From search/utils.ts
-  toAlgolia: (tag: DbTag) => Promise<Array<Record<string,any>>|null>
+  toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
 }
 
 export const Tags: ExtendedTagsCollection = createCollection({

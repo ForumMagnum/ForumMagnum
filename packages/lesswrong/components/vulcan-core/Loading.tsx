@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
-const Loading = props => {
+const Loading = (props: {className?: string}) => {
   return (
     <div className={`spinner ${props.className}`}>
       <div className="bounce1"></div>

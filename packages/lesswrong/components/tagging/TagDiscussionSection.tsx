@@ -4,7 +4,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 import { commentBodyStyles } from '../../themes/stylePiping';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,

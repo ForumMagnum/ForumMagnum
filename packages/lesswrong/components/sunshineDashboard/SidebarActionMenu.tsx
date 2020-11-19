@@ -14,7 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const SidebarActionMenu = ({children, classes}) => {
+const SidebarActionMenu = ({children, classes}: {
+  children: React.ReactNode,
+  classes: ClassesType,
+}) => {
   return <div className={classes.root}>
     {children}
   </div>

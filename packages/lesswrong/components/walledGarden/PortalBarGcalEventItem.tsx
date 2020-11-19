@@ -3,21 +3,44 @@ import moment from 'moment';
 import {registerComponent, Components } from '../../lib/vulcan-lib';
 import { getUrlClass } from '../../lib/routeUtil';
 
-const styles = (theme) => ({
+export const eventRoot = theme => ({
+  ...theme.typography.commentStyle,
+  fontSize: '1.1rem',
+  color: 'rgba(0,0,0,0.55)',
+  display: "flex",
+  width: 350,
+})
+
+export const eventName = theme => ({
+  width: 230,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "inline-block",
+  whiteSpace: "nowrap"
+})
+
+export const eventTime = theme => ({
+  fontSize: ".9em",
+  opacity: .75,
+  width: 120,
+  textAlign: "right",
+  display: "inline-block"
+})
+
+export const eventFormat = (startTime) => {
+  return moment(new Date(startTime)).format("ddd h:mma, MMM D")
+}
+
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...theme.typography.commentStyle,
-    fontSize: '1.1rem',
-    color: 'rgba(0,0,0,0.55)',
-    display: "flex",
-    justifyContent: "space-between"
+    ...eventRoot(theme)
+  },
+  eventName: {
+    ...eventName(theme)
   },
   eventTime: {
-    fontSize: ".9em",
-    opacity: .75,
-    width: 120,
-    textAlign: "right",
-    display: "inline-block"
-  }
+    ...eventTime(theme)
+  },
 })
 
 
@@ -43,12 +66,16 @@ export const getAddToCalendarLink = (gcalEvent) => {
   }
 }
 
-const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
-
+const PortalBarGcalEventItem = ({classes, gcalEvent}: {
+  classes: ClassesType,
+  gcalEvent: any,
+}) => {
   return <div className={classes.root}>
-      {getAddToCalendarLink(gcalEvent)}
+      <span className={classes.eventName}>
+        {getAddToCalendarLink(gcalEvent)}
+      </span>
       <span className={classes.eventTime}>
-        {moment(new Date(gcalEvent.start.dateTime)).format("ddd h:mma, M/D")}
+        {eventFormat(gcalEvent.start.dateTime)}
       </span>
     </div>
 }

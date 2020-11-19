@@ -16,6 +16,8 @@ import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } fr
 import { postCanEditHideCommentKarma } from './helpers';
 import Sentry from '@sentry/core';
 
+const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
+
 export const formGroups = {
   default: {
     name: "default",
@@ -273,6 +275,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    onInsert: frontpageDefault,
     optional: true,
     hidden: true,
   },

@@ -6,7 +6,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,

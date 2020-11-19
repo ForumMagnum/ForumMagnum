@@ -30,7 +30,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
   handleSubmission = (event) => {
     const { currentUser, updateUser, flash, onClose } = this.props
     event.preventDefault();
-    updateUser({
+    void updateUser({
       selector: { _id: currentUser?._id },
       data: {
         afSubmittedApplication: true,

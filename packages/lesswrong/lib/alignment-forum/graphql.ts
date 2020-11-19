@@ -42,6 +42,7 @@ const alignmentPostResolvers = {
   Mutation: {
     async alignmentPost(root: void, {postId, af}: {postId: string, af: boolean}, context: ResolverContext) {
       const post = context.Posts.findOne(postId)
+      if (!post) throw new Error("Invalid post ID");
 
       if (userCanMakeAlignmentPost(context.currentUser, post)) {
         let modifier = { $set: {af: af} };

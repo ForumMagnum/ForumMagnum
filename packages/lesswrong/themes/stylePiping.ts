@@ -5,7 +5,7 @@ import { metaculusBackground } from '../components/linkPreview/PostLinkPreview';
 const hideSpoilers = {
   backgroundColor: 'black',
   color: 'black',
-  '& a, & a:hover, & a:focus': {
+  '& a, & a:hover, & a:focus, & a::after': {
     color: 'black'
   },
   '& code': {

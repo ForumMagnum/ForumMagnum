@@ -214,7 +214,7 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
 };
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {

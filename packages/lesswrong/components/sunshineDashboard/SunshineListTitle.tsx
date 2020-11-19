@@ -14,7 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineListTitle = ({children, classes}) => {
+const SunshineListTitle = ({children, classes}: {
+  children: React.ReactNode,
+  classes: ClassesType,
+}) => {
   return <Typography variant="body2" className={classes.root}>
     { children }
   </Typography>
