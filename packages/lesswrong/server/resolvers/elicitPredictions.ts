@@ -2,7 +2,7 @@ import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery, addGraphQLMutat
 import fetch from 'node-fetch'
 import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
-import { DatabasePublicSetting, elicitSourceURL } from '../../lib/publicSettings';
+import { elicitSourceURL } from '../../lib/publicSettings';
 
 const ElicitUserType = `type ElicitUser {
   isQuestionCreator: Boolean
@@ -43,7 +43,7 @@ const elicitAPIUrl = "https://elicit.org/api/v1"
 const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 // const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 
-async function getPredictionsFromElicit(questionId: string = "9caNKRnBs") {
+async function getPredictionsFromElicit(questionId: string) {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?user_most_recent=true&expand=creator&prediction.fields=createdAt,notes,id,sourceUrl,sourceId,binaryQuestionId&creator.fields=sourceUserId`, {
     method: 'GET',
     redirect: 'follow',
@@ -56,7 +56,7 @@ async function getPredictionsFromElicit(questionId: string = "9caNKRnBs") {
   return JSON.parse(responseText)
 }
 
-async function getPredictionDataFromElicit(questionId: string = "9caNKRnBs") {
+async function getPredictionDataFromElicit(questionId:string) {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?binaryQuestion.fields=notes,resolvesBy,resolution,title`, {
     method: 'GET',
     redirect: 'follow',

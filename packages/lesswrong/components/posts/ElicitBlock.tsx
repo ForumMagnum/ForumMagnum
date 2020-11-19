@@ -213,7 +213,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
                 const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
 
-                makeElicitPrediction({
+                void makeElicitPrediction({
                   variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },
                   optimisticResponse: {
                     __typename: "Mutation",
