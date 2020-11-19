@@ -60,9 +60,13 @@ const TagFlagItem = ({documentId, showNumber = true, allPages = false, style = "
     enableTotal: true
   });
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
-  const innerHTML = {__html: allPages ? "All Tag and Wiki Pages sorted by most recent" : tagFlag?.contents?.html || "" }
   const tagFlagDescription = allPages ? "All Pages" : `tagFlag ${tagFlag?._id}`
   const tagFlagText = allPages ? "All Tags & Wikis" : tagFlag?.name
+  const innerHTML = {
+    __html: allPages
+      ? "All Tag and Wiki Pages sorted by most recent"
+      : tagFlag?.contents?.html || "" 
+  }
     
   return <span {...eventHandlers} className={rootStyles}>
     <LWPopper

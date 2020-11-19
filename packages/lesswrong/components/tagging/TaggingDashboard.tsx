@@ -7,8 +7,9 @@ import { useLocation } from '../../lib/routeUtil';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import {useUpdate} from "../../lib/crud/withUpdate";
 
-const SECTION_WIDTH = 960
+const SECTION_WIDTH = 765
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,25 +35,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
-    lineHeight: "1rem",
-    marginBottom: -4
+    lineHeight: "1.5rem",
+    flexGrow: 1,
+    textAlign: "left",
+    fontWeight: 400
   },
 })
 
 const TaggingDashboard = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, Loading } = Components
+  const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
-  const [collapsed, setCollapsed] = useState(false)
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'UsersCurrent',
+  })
+  const [collapsed, setCollapsed] = useState(currentUser?.taggingDashboardCollapsed || false);
   const multiTerms = query.focus === "allPages" ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: query.focus}
   const { results: tags, loading, loadMoreProps } = useMulti({
     terms: multiTerms,
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
-    limit: 100,
-    itemsPerPage: 100,
+    limit: 10,
+    itemsPerPage: 50,
   });
 
   const { results: tagFlags } = useMulti({
@@ -68,7 +75,7 @@ const TaggingDashboard = ({classes}: {
 
   return <div className={classes.root}>
     <SectionTitle title="Twiki Dashboard"/>
-    <NewTagsList />
+    {/*<NewTagsList />*/}
     <SectionTitle title="Pages in Need of Work">
       <SectionButton>
         {query.focus && <QueryLink query={{}}> Reset Filter </QueryLink>}
@@ -82,7 +89,18 @@ const TaggingDashboard = ({classes}: {
         }
         <a
           className={classes.collapseButton}
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={async () => {
+            setCollapsed(!collapsed)
+            if (currentUser) {
+              void updateUser({
+                selector: {_id: currentUser._id},
+                data: {
+                  taggingDashboardCollapsed: !collapsed
+                }
+              })
+            }
+          }
+          }
         > {collapsed ? "Uncollapse" : "Collapse"} Tags </a>
       </SectionButton>
     </SectionTitle>
@@ -101,7 +119,9 @@ const TaggingDashboard = ({classes}: {
       flagId={query.focus}
       collapse={collapsed}
     />)}
-    {loading ? <Loading /> : <LoadMore className={classes.loadMore} {...loadMoreProps}/>}
+    <LoadMore className={classes.loadMore} {...loadMoreProps}/>
+    <TagVoteActivity limit={10} itemsPerPage={100}/>
+    <TagActivityFeed pageSize={20}/>
   </div>
 }
 

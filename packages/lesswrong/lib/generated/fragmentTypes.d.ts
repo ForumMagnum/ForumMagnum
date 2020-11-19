@@ -1093,6 +1093,7 @@ interface SharedUserBooleans { // fragment on Users
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
   readonly walledGardenPortalOnboarded: boolean,
+  readonly taggingDashboardCollapsed: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users

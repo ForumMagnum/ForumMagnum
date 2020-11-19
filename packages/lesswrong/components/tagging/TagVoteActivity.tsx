@@ -87,16 +87,18 @@ const TagVoteActivityRow = ({vote, classes}: {
   );
 }
 
-const TagVoteActivity = ({classes}: {
+const TagVoteActivity = ({classes, limit = 200, itemsPerPage = 200}: {
   classes: ClassesType,
+  limit: number,
+  itemsPerPage: number
 }) => {
   const { SingleColumnSection, LoadMore, NewTagsList } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
     collection: Votes,
     fragmentName: 'TagVotingActivity',
-    limit: 200,
-    itemsPerPage: 200,
+    limit: limit,
+    itemsPerPage: itemsPerPage,
   })
 
   return <SingleColumnSection>

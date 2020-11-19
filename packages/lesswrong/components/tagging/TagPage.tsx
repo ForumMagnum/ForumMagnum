@@ -149,7 +149,7 @@ const TagPage = ({classes}: {
     terms: multiTerms,
     collectionName: "Tags",
     fragmentName: 'TagWithFlagsFragment',
-    limit: 1500, //TODO: hmmm??
+    limit: 1500,
     skip: !query.flagId
   })
 
@@ -217,12 +217,12 @@ const TagPage = ({classes}: {
                   : <TagFlagItem documentId={query.flagId}/>
                 }
               </Link>
-                {nextTag && <span onClick={() => setEditing(true)}><Link
-                  className={classes.nextLink}
-                  to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
-                    Next Tag ({nextTag.name})
-                </Link></span>}
-              </span>}
+              {nextTag && <span onClick={() => setEditing(true)}><Link
+                className={classes.nextLink}
+                to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+                  Next Tag ({nextTag.name})
+              </Link></span>}
+            </span>}
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
