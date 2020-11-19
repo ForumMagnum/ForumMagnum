@@ -3,6 +3,7 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 import { postCanEdit } from './helpers';
+import type { AlgoliaDocument } from '../../../server/search/utils';
 
 const options = {
   newCheck: (user: DbUser|null) => {
@@ -35,8 +36,9 @@ export interface PostsMinimumForGetPageUrl {
 }
 
 interface ExtendedPostsCollection extends PostsCollection {
+  getSocialPreviewImage: (post: DbPost) => string
   // In search/utils.ts
-  toAlgolia: (post: DbPost) => Promise<Array<Record<string,any>>|null>
+  toAlgolia: (post: DbPost) => Promise<Array<AlgoliaDocument>|null>
   
   // Things in lib/collections/posts/collection.ts
   config: Record<string,number>

@@ -8,12 +8,11 @@ import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
 import {useUpdate} from "../../lib/crud/withUpdate";
-import Users from "../../lib/vulcan-users";
 import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   messageStyling: {
     ...postBodyStyles(theme),
     marginTop: "100px"
@@ -57,7 +56,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   })
   const isOpenToPublic = gardenOpenToPublic.get()
@@ -88,7 +87,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const [onboarded, setOnboarded] = useState(currentUser?.walledGardenPortalOnboarded||false);
   const [expiredGardenCode, setExpiredGardenCode] = useState(moreThanFourHoursAfterCodeExpiry(gardenCode));
-  const iframeRef = useRef(null)
+  const iframeRef = useRef<HTMLIFrameElement|null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -154,7 +153,9 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
       <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays from 12pm to 4pm PT. Otherwise, it is open by invite only.</p>
       <ul>
         <li>Please wear headphones, preferably with a microphone! Try to be in a low-background noise environment.</li>
-        <li>Technical Problems? Refresh the tab.</li>
+        <li>Ensure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
+        <li>The Garden will not load from an incognito window or if 3rd-party cookies are blocked. (It is built on a 3rd-party platform.)</li>
+        <li>Technical Problems once you're in the Garden? Refresh the tab.</li>
         <li>Lost or stuck? Respawn (<i>gear icon</i> &gt; <i>respawn</i>)</li>
         <li>Interactions are voluntary. It's okay to leave conversations.</li>
         <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right) or
@@ -182,7 +183,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   return <div className={classes.innerPortalPositioning}>
     <div className={classes.iframeWrapper}>
-      {hideBar ? 
+      {hideBar ?
         <div className={classes.toggleEvents} onClick={() => setHideBar(false)}>
           <ExpandLessIcon className={classes.closeIcon}/>
           Show Footer

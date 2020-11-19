@@ -81,7 +81,7 @@ export const useCreate = ({
 }: {
   collectionName?: CollectionNameString,
   collection?: CollectionBase<any>,
-  fragmentName?: string,
+  fragmentName?: FragmentName,
   fragment?: any,
   ignoreResults?: boolean,
 }) => {

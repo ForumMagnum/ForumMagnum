@@ -1,103 +1,77 @@
-import { runCallbacks } from '../vulcan-lib';
+import { CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
-import * as _ from 'underscore';
+import { voteTypes, calculateVotePower } from './voteTypes';
 
-interface VoteTypeOptions {
-  power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),
-  exclusive: boolean
+export interface VoteDocTuple {
+  newDocument: DbVoteableType
+  vote: DbVote
 }
-
-// Define voting operations
-export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {}
-
-// Add new vote types
-export const addVoteType = (voteType: string, voteTypeOptions: VoteTypeOptions) => {
-  voteTypes[voteType] = voteTypeOptions;
-}
-
-addVoteType('upvote', {power: 1, exclusive: true});
-addVoteType('downvote', {power: -1, exclusive: true});
-
-// Test if a user has voted on the client
-export const hasVotedClient = ({userVotes, voteType}: {
-  userVotes: Array<VoteMinimumInfo>,
-  voteType: string,
-}) => {
-  if (voteType) {
-    return _.where(userVotes, { voteType }).length
-  } else {
-    return userVotes && userVotes.length
-  }
-}
-
-// Calculate total power of all a user's votes on a document
-const calculateTotalPower = (votes: Array<VoteFragment>) => _.pluck(votes, 'power').reduce((a: number, b: number) => a + b, 0);
+export const voteCallbacks = {
+  cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.sync"),
+  cancelAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.async"),
+  castVoteSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.sync"),
+  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.async"),
+};
 
 
-// Add a vote of a specific type on the client
-const addVoteClient = ({ document, collection, voteType, user, voteId }: {
+// Given a client-side view of a document, return a modified version in which
+// the user has voted and the scores are updated appropriately.
+const addVoteClient = ({ document, collection, voteType, user }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbObject>,
   voteType: string,
   user: UsersCurrent,
-  voteId?: string,
 }) => {
+  const power = getVotePower({user, voteType, document});
+  const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
 
   const newDocument = {
     ...document,
-    baseScore: document.baseScore || 0,
+    currentUserVote: voteType,
+    baseScore: (document.baseScore||0) + power,
+    voteCount: (document.voteCount||0) + 1,
+    afBaseScore: (document.afBaseScore||0) + afPower,
+    afVoteCount: (document.afVoteCount||0) + (isAfVote?1:0),
     __typename: collection.options.typeName,
-    currentUserVotes: document.currentUserVotes || [],
   };
 
-  // create new vote and add it to currentUserVotes array
-  const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
-  // cast to VoteFragment needed because of missing _id
-  newDocument.currentUserVotes = [...newDocument.currentUserVotes, vote as VoteFragment];
-  newDocument.voteCount = (newDocument.voteCount||0) + 1;
-
-  // increment baseScore
-  newDocument.baseScore += vote.power;
   newDocument.score = recalculateScore(newDocument);
-
   return newDocument;
 }
 
 
-// Cancel votes of a specific type on a given document (client)
-const cancelVoteClient = ({ document, voteType }: {
+// Given a client-side view of a document, return a modified version in which
+// the current user's vote is removed and the score is adjusted accordingly.
+const cancelVoteClient = ({document, collection, user}: {
   document: VoteableTypeClient,
-  voteType: string,
-}) => {
-  const vote: any = _.findWhere(document.currentUserVotes, { voteType });
-  const newDocument = _.clone(document);
-  if (vote) {
-    // subtract vote scores
-    newDocument.baseScore -= vote.power;
-    newDocument.score = recalculateScore(newDocument);
-
-    newDocument.voteCount--;
-    
-    const newVotes = _.reject(document.currentUserVotes, (vote: any) => vote.voteType === voteType);
-
-    // clear out vote of this type
-    newDocument.currentUserVotes = newVotes;
-
-  }
-  return newDocument;
-}
-
-// Clear *all* votes for a given document and user (client)
-const clearVotesClient = ({ document }: {
-  document: VoteableTypeClient,
-}) => {
-  const newDocument = _.clone(document);
-  newDocument.baseScore -= calculateTotalPower(document.currentUserVotes);
+  collection: CollectionBase<DbObject>,
+  user: UsersCurrent,
+}): VoteableTypeClient => {
+  if (!document.currentUserVote)
+    return document;
+  
+  // Compute power for the vote being removed. Note that this is not quite
+  // right if the user's vote weight has changed; the eager update will remove
+  // points based on the user's new vote weight, which will then be corrected
+  // when the server responds.
+  const voteType = document.currentUserVote;
+  const power = getVotePower({user, voteType, document});
+  const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  
+  const newDocument = {
+    ...document,
+    currentUserVote: null,
+    baseScore: (document.baseScore||0) - power,
+    afBaseScore: (document.afBaseScore||0) - afPower,
+    voteCount: (document.voteCount||0)-1,
+    afVoteCount: (document.afVoteCount||0) - (isAfVote?1:0),
+  };
   newDocument.score = recalculateScore(newDocument);
-  newDocument.voteCount -= newDocument.currentUserVotes.length
-  newDocument.currentUserVotes = [];
-  return newDocument
+  
+  return newDocument;
 }
 
 
@@ -144,49 +118,25 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
 };
 
 // Optimistic response for votes
-export const performVoteClient = ({ document, collection, voteType = 'upvote', user, voteId }: {
+export const setVoteClient = async ({ document, collection, voteType, user }: {
   document: VoteableTypeClient,
-  collection: CollectionBase<DbObject>
-  voteType?: string,
+  collection: CollectionBase<DbVoteableType>
+  voteType: string|null,
   user: UsersCurrent,
-  voteId?: string,
-}) => {
-  if (!voteTypes[voteType]) throw new Error("Invalid vote type");
+}): Promise<VoteableTypeClient> => {
+  if (voteType && !voteTypes[voteType]) throw new Error("Invalid vote type");
   const collectionName = collection.options.collectionName;
-  let returnedDocument;
 
   // make sure item and user are defined
-  if (!document || !user || !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
-    throw new Error(`Cannot perform operation '${collectionName.toLowerCase()}.${voteType}'`);
+  if (!document || !user || (voteType && !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`))) {
+    throw new Error(`Cannot vote on '${collectionName.toLowerCase()}`);
   }
 
-  let voteOptions = {document, collection, voteType, user, voteId};
-
-  if (hasVotedClient({userVotes: document.currentUserVotes, voteType})) {
-    returnedDocument = cancelVoteClient(voteOptions);
-    returnedDocument = runCallbacks({
-      name: `votes.cancel.client`,
-      iterator: returnedDocument,
-      properties: [collection, user, voteType]
-    });
+  if (!voteType) {
+    return cancelVoteClient({document, collection, user});
   } else {
-    if (voteTypes[voteType]?.exclusive) {
-      const tempDocument = runCallbacks({
-        name: `votes.clear.client`,
-        iterator: voteOptions.document,
-        properties: [collection, user]
-      });
-      voteOptions.document = clearVotesClient({document:tempDocument})
-
-    }
-    returnedDocument = addVoteClient(voteOptions);
-    returnedDocument = runCallbacks({
-      name: `votes.${voteType}.client`,
-      iterator: returnedDocument,
-      properties: [collection, user, voteType]
-    });
+    document = cancelVoteClient({document, collection, user})
+    return addVoteClient({document, collection, voteType, user});
   }
-
-  return returnedDocument;
 }
 

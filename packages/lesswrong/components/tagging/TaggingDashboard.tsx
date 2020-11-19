@@ -10,7 +10,7 @@ import { useCurrentUser } from '../common/withUser';
 
 const SECTION_WIDTH = 960
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     maxWidth: SECTION_WIDTH,

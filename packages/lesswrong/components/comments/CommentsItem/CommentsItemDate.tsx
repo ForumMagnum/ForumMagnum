@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollIntoView, permalink=true }: {
   comment: CommentsList,
-  post?: PostsMinimumInfo,
+  post?: PostsMinimumInfo|null,
   tag?: TagBasicInfo,
   classes: ClassesType,
   scrollOnClick?: boolean,

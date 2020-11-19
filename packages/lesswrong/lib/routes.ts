@@ -367,7 +367,8 @@ if (forumTypeSetting.get() === 'LessWrong') {
       path: '/walledGardenPortal',
       componentName: 'WalledGardenPortal',
       title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle
+      ...walledGardenPortalSubtitle,
+      disableAutoRefresh: true,
     },
     {
       name: 'HPMOR.posts.single',
@@ -469,6 +470,7 @@ if (hasEventsSetting.get()) {
       path: '/g/:groupId/p/:_id',
       componentName: 'PostsSingle',
       previewComponentName: 'PostLinkPreview',
+      background: postBackground,
       ...communitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
