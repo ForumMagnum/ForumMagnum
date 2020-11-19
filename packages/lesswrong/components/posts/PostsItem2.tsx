@@ -175,7 +175,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   nonMobileIcons: {
     [theme.breakpoints.up('sm')]: {
-      display: "block"
+      display: "none"
     }
   },
   mobileDismissButton: {
