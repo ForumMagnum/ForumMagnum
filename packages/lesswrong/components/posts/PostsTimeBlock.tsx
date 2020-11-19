@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import moment from '../../lib/moment-timezone';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
@@ -20,6 +19,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 4,
     paddingBottom: 4,
     zIndex: 1
+  },
+  smallScreenTitle: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
+  largeScreenTitle: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none",
+    },
   },
   loadMore: {
     marginTop: 6,
@@ -113,12 +122,12 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               {getTitle(startDate, timeframe, null)}
             </div>}
             {['weekly', 'daily'].includes(timeframe) && <div>
-              <Hidden xsDown implementation="css">
+              <div className={classes.smallScreenTitle}>
                 {getTitle(startDate, timeframe, 'xsDown')}
-              </Hidden>
-              <Hidden smUp implementation="css">
+              </div>
+              <div className={classes.largeScreenTitle}>
                 {getTitle(startDate, timeframe, 'smUp')}
-              </Hidden>
+              </div>
             </div>}
           </Typography>
         </QueryLink>
