@@ -10,6 +10,7 @@ import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
+import { useDialog } from '../common/withDialog';
 
 const elicitDataFragment = `
   _id
@@ -175,6 +176,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   questionId: String
 }) => {
   const currentUser = useCurrentUser();
+  const {openDialog} = useDialog();
   const { UsersName } = Components;
   const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
@@ -224,6 +226,11 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
                     }
                   }
                 })
+              } else {
+                openDialog({
+                  componentName: "LoginPopup",
+                  componentProps: {}
+                });
               }
             }}
           >

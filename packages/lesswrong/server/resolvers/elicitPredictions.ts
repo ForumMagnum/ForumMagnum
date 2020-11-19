@@ -3,6 +3,7 @@ import fetch from 'node-fetch'
 import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
+import { encode } from 'querystring'
 
 const ElicitUserType = `type ElicitUser {
   isQuestionCreator: Boolean
@@ -44,7 +45,12 @@ const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 // const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 
 async function getPredictionsFromElicit(questionId: string) {
-  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?user_most_recent=true&expand=creator&prediction.fields=createdAt,notes,id,sourceUrl,sourceId,binaryQuestionId&creator.fields=sourceUserId`, {
+  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?${encode({
+    user_most_recent: "true",
+    expand: "creator",
+    "prediction.fields": "createdAt,notes,id,sourceUrl,sourceId,binaryQuestionId",
+    "creator.fields": "sourceUserId"
+  })}`, {
     method: 'GET',
     redirect: 'follow',
     headers: {
@@ -57,7 +63,9 @@ async function getPredictionsFromElicit(questionId: string) {
 }
 
 async function getPredictionDataFromElicit(questionId:string) {
-  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?binaryQuestion.fields=notes,resolvesBy,resolution,title`, {
+  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?${encode({
+    "binaryQuestion.fields":"notes,resolvesBy,resolution,title"
+  })}`, {
     method: 'GET',
     redirect: 'follow',
     headers: {
