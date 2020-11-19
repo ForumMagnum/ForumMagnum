@@ -138,7 +138,7 @@ async function getElicitQuestionWithPredictions(questionId: string) {
     _id: questionId,
     title,
     notes,
-    resolution,
+    resolution: resolution === "YES",
     resolvesBy: new Date(resolvesBy),
     predictions: processedPredictions
   }
