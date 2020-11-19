@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -17,7 +17,7 @@ const ResendVerificationEmailPage = ({classes}: {
     return <div className={classes.root}>
       Log in to resend an email-address verification email.
     </div>;
-  } else if (Users.emailAddressIsVerified(currentUser)) {
+  } else if (userEmailAddressIsVerified(currentUser)) {
     return <div className={classes.root}>
       Your email address is already verified.
     </div>;

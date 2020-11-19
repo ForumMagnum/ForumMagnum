@@ -23,7 +23,7 @@ const SunshineReportedContentList = ({ terms, classes }: {
     enableTotal: true,
   });
   const { mutate: updateReport } = useUpdate({
-    collection: Reports,
+    collectionName: "Reports",
     fragmentName: 'unclaimedReportsList',
   });
   

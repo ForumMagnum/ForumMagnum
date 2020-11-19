@@ -3,6 +3,7 @@ import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib
 import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
 import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const NewTagPage = () => {
   const { history } = useNavigation();
@@ -27,7 +28,7 @@ const NewTagPage = () => {
         collection={Tags}
         mutationFragment={getFragment('TagFragment')}
         successCallback={tag => {
-          history.push({pathname: Tags.getUrl(tag)});
+          history.push({pathname: tagGetUrl(tag)});
         }}
       />
     </SingleColumnSection>

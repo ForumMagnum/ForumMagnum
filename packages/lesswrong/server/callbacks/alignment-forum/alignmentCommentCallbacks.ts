@@ -1,6 +1,7 @@
 import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
-import { addCallback, editMutation } from '../../vulcan-lib';
+import { addCallback, updateMutator } from '../../vulcan-lib';
+import { getCollectionHooks } from '../../mutationCallbacks';
 import * as _ from 'underscore';
 
 function recalculateAFCommentMetadata(postId: string|null) {
@@ -16,7 +17,7 @@ function recalculateAFCommentMetadata(postId: string|null) {
   const lastComment:DbComment = _.max(afComments, function(c){return c.postedAt;})
   const lastCommentedAt = (lastComment && lastComment.postedAt) || Posts.findOne({_id:postId})?.postedAt || new Date()
 
-  void editMutation({
+  void updateMutator({
     collection:Posts,
     documentId: postId,
     set: {
@@ -34,12 +35,11 @@ addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 addCallback("comments.alignment.async", ModerateCommentsPostUpdate);
 
 
-function AlignmentCommentsNewOperations (comment: DbComment) {
+getCollectionHooks("Comments").newAsync.add(function AlignmentCommentsNewOperations (comment: DbComment) {
   if (comment.af) {
     recalculateAFCommentMetadata(comment.postId)
   }
-}
-addCallback('comments.new.async', AlignmentCommentsNewOperations);
+});
 
 //TODO: Probably change these to take a boolean argument?
 const updateParentsSetAFtrue = (comment: DbComment) => {
@@ -68,14 +68,13 @@ function CommentsAlignmentEdit (comment: DbComment, oldComment: DbComment) {
     recalculateAFCommentMetadata(comment.postId)
   }
 }
-addCallback("comments.edit.async", CommentsAlignmentEdit);
+getCollectionHooks("Comments").editAsync.add(CommentsAlignmentEdit);
 addCallback("comments.alignment.async", CommentsAlignmentEdit);
 
 
-function CommentsAlignmentNew (comment: DbComment) {
+getCollectionHooks("Comments").newAsync.add(function CommentsAlignmentNew (comment: DbComment) {
   if (comment.af) {
     updateParentsSetAFtrue(comment);
     recalculateAFCommentMetadata(comment.postId)
   }
-}
-addCallback("comments.new.async", CommentsAlignmentNew);
+});

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { withApollo } from 'react-apollo';
+import { withApollo } from '@apollo/client/react/hoc';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';
@@ -12,7 +12,7 @@ import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
 import { Components, registerComponent, runCallbacks, Strings } from '../../lib/vulcan-lib';
 import { MessageContext } from '../common/withMessages';
 
-const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', null) // An image used to represent the site on social media
+const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
 
 class App extends PureComponent<any,any> {
   locationContext: any
@@ -22,7 +22,10 @@ class App extends PureComponent<any,any> {
   constructor(props) {
     super(props);
     if (props.currentUser) {
-      runCallbacks('events.identify', props.currentUser);
+      runCallbacks({
+        name: 'events.identify',
+        iterator: props.currentUser
+      });
     }
     const locale = localeSetting.get();
     this.state = {
@@ -71,7 +74,10 @@ class App extends PureComponent<any,any> {
 
   UNSAFE_componentWillUpdate(nextProps) {
     if (!this.props.currentUser && nextProps.currentUser) {
-      runCallbacks('events.identify', nextProps.currentUser);
+      runCallbacks({
+        name: 'events.identify',
+        iterator: nextProps.currentUser
+      });
     }
   }
   

@@ -27,7 +27,8 @@ Child Props:
 */
 
 import React from 'react';
-import { Mutation, useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
+import { Mutation } from '@apollo/client/react/components';
 import gql from 'graphql-tag';
 import { createClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
@@ -79,15 +80,15 @@ export const useCreate = ({
   ignoreResults=false,
 }: {
   collectionName?: CollectionNameString,
-  collection?: any,
-  fragmentName?: string,
+  collection?: CollectionBase<any>,
+  fragmentName?: FragmentName,
   fragment?: any,
   ignoreResults?: boolean,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
-  const typeName = collection.options.typeName;
+  const typeName = collection!.options.typeName;
   
   const query = gql`
     ${createClientTemplate({ typeName, fragmentName })}

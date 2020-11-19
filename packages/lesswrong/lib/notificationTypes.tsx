@@ -1,7 +1,9 @@
 import React from 'react';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { Comments } from './collections/comments';
+import { postGetAuthorName } from './collections/posts/helpers';
+import { Comments } from './collections/comments/collection';
+import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
 import { Tags } from './collections/tags/collection';
 import Messages from './collections/messages/collection';
@@ -79,7 +81,7 @@ export const NewPostNotification = registerNotificationType({
   userSettingField: "notificationSubscribedUserPost",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document: DbPost = getDocument(documentType, documentId) as DbPost;
-    return Posts.getAuthorName(document) + ' has created a new post: ' + document.title;
+    return postGetAuthorName(document) + ' has created a new post: ' + document.title;
   },
   getIcon() {
     return <PostsIcon style={iconStyles}/>
@@ -112,9 +114,9 @@ export const NewEventNotification = registerNotificationType({
       }
     }
     if (group)
-      return Posts.getAuthorName(document as DbPost) + ' has created a new event in the group "' + group.name + '"';
+      return postGetAuthorName(document as DbPost) + ' has created a new event in the group "' + group.name + '"';
     else
-      return Posts.getAuthorName(document as DbPost) + ' has created a new event';
+      return postGetAuthorName(document as DbPost) + ' has created a new event';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -134,9 +136,9 @@ export const NewGroupPostNotification = registerNotificationType({
       }
     }
     if (group)
-      return Posts.getAuthorName(document as DbPost) + ' has created a new post in the group "' + group.name + '"';
+      return postGetAuthorName(document as DbPost) + ' has created a new post in the group "' + group.name + '"';
     else
-      return Posts.getAuthorName(document as DbPost) + ' has created a new post in a group';
+      return postGetAuthorName(document as DbPost) + ' has created a new post in a group';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -149,7 +151,7 @@ export const NewCommentNotification = registerNotificationType({
   userSettingField: "notificationCommentsOnSubscribedPost",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' left a new comment on "' + getCommentParentTitle(document) + '"';
+    return commentGetAuthorName(document) + ' left a new comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -198,7 +200,7 @@ export const NewReplyNotification = registerNotificationType({
   userSettingField: "notificationRepliesToSubscribedComments",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' replied to a comment on "' + getCommentParentTitle(document) + '"';
+    return commentGetAuthorName(document) + ' replied to a comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -211,7 +213,7 @@ export const NewReplyToYouNotification = registerNotificationType({
   userSettingField: "notificationRepliesToMyComments",
   getMessage({documentType, documentId}: {documentType: string, documentId: string}) {
     let document = getDocument(documentType, documentId) as DbComment;
-    return Comments.getAuthorName(document) + ' replied to your comment on "' + getCommentParentTitle(document) + '"';
+    return commentGetAuthorName(document) + ' replied to your comment on "' + getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

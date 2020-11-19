@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Conversations from '../../lib/collections/conversations/collection';
+import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
 import ArchiveIcon from '@material-ui/icons/Archive';
@@ -45,7 +45,7 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
 
   return (
     <div className={classNames(classes.root, {[classes.archivedItem]: isArchived})}>
-      <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.commentFont)}>{Conversations.getTitle(conversation, currentUser)}</Link>
+      <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.commentFont)}>{conversationGetTitle(conversation, currentUser)}</Link>
       { conversation.participants
         .filter(user => user._id !== currentUser._id)
         .map(user => <span key={user._id} className={classes.leftMargin}>

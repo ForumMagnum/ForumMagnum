@@ -256,7 +256,7 @@ Comments.addView("sunshineNewUsersComments", function (terms) {
       // Don't hide unreviewed comments
       authorIsUnreviewed: null
     },
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: {postedAt: -1}},
   };
 });
 ensureIndex(Comments, augmentForDefaultView({userId:1, postedAt:1}));
@@ -372,3 +372,7 @@ Comments.addView('commentsOnTag', terms => ({
     tagId: terms.tagId,
   },
 }));
+ensureIndex(Comments,
+  augmentForDefaultView({tagId: 1}),
+  { name: "comments.tagId" }
+);

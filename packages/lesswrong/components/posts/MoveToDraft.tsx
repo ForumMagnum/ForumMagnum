@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { postCanEdit } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -10,7 +10,7 @@ const MoveToDraft = ({ post }: {
 }) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
   });
   
@@ -21,7 +21,7 @@ const MoveToDraft = ({ post }: {
     })
   }, [updatePost, post])
 
-  if (!post.draft && currentUser && Posts.canEdit(currentUser, post)) {
+  if (!post.draft && currentUser && postCanEdit(currentUser, post)) {
     return <div onClick={handleMoveToDraft}>
       <MenuItem>
         Move to Draft

@@ -5,8 +5,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Tags } from '../../lib/collections/tags/collection';
+import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   subscribedItem: {
@@ -147,7 +147,7 @@ const ViewSubscriptionsPage = ({classes}: {
       collectionName="Comments"
       subscriptionType="newReplies"
       fragmentName="ShortformComments"
-      renderDocument={(comment: ShortformComments) => <Link to={Comments.getPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, commentId: comment?._id, permalink: true})}>
+      renderDocument={(comment: ShortformComments) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, commentId: comment?._id, permalink: true})}>
         author: {comment?.user?.displayName} post: {comment?.post?.title}
       </Link>}
       noSubscriptionsMessage="You are not subscribed to any comment replies."
@@ -167,7 +167,7 @@ const ViewSubscriptionsPage = ({classes}: {
       collectionName="Tags"
       subscriptionType="newTagPosts"
       fragmentName="TagPreviewFragment"
-      renderDocument={(tag: TagPreviewFragment) => <Link to={Tags.getUrl(tag)}>{tag.name}</Link>}
+      renderDocument={(tag: TagPreviewFragment) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
       noSubscriptionsMessage="You are not subscribed to any tags."
     />
     

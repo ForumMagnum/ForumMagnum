@@ -4,13 +4,13 @@ import {
   registerComponent
 } from '../../lib/vulcan-lib';
 import moment from 'moment';
-import Users from '../../lib/collections/users/collection';
+import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
-import { CommentTreeNode } from '../../lib/utils/unflatten';
+import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
@@ -159,7 +159,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
 
-        {newForm && (!currentUser || !post || Users.isAllowedToComment(currentUser, post)) && !post?.draft &&
+        {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post)) && !post?.draft &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}>New Comment</div>
             <Components.CommentsNewForm
@@ -170,7 +170,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
             />
           </div>
         }
-        {currentUser && post && !Users.isAllowedToComment(currentUser, post) &&
+        {currentUser && post && !userIsAllowedToComment(currentUser, post) &&
           <Components.CantCommentExplanation post={post}/>
         }
         <Components.CommentsList

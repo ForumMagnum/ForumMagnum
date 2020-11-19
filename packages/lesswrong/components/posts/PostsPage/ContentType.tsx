@@ -179,7 +179,7 @@ const ContentType = ({classes, type, label}: {
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
       {contentData.tooltipBody}
     </React.Fragment>}>
-      <span><contentData.Icon className={classes.icon} /> {label}</span>
+      <span><contentData.Icon className={classes.icon} />{label ? " "+label : ""}</span>
     </LWTooltip>
   </Typography>
 }

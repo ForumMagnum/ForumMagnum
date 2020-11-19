@@ -1,7 +1,7 @@
 /*
  * Schema converter/getters
  */
-import Users from '../collections/users/collection';
+import { userCanCreateField, userCanUpdateField } from '../vulcan-users/permissions';
 import _keys from 'lodash/keys';
 import _filter from 'lodash/filter';
 import * as _ from 'underscore';
@@ -37,7 +37,7 @@ export const getUpdateableFields = schema => {
 export const getInsertableFields = function(schema, user): Array<string> {
   const fields: Array<string> = _filter(_keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
-    return Users.canCreateField(user, field);
+    return userCanCreateField(user, field);
   });
   return fields;
 };
@@ -50,7 +50,7 @@ export const getInsertableFields = function(schema, user): Array<string> {
 export const getEditableFields = function(schema, user, document): Array<string> {
   const fields = _.filter(_.keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
-    return Users.canUpdateField(user, field, document);
+    return userCanUpdateField(user, field, document);
   });
   return fields;
 };

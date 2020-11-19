@@ -1,8 +1,8 @@
 import { addCallback, getCollection } from '../vulcan-lib';
-import Users from '../collections/users/collection';
+import { restrictViewableFields } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import * as _ from 'underscore';
 
@@ -22,8 +22,8 @@ export interface CollectionFieldSpecification<T extends DbObject> {
   denormalized?: boolean,
   canAutoDenormalize?: boolean,
   canAutofillDefault?: boolean,
-  needsUpdate?: any,
-  getValue?: any,
+  needsUpdate?: (doc: Partial<T>) => boolean,
+  getValue?: (doc: T, context: ResolverContext) => any,
   foreignKey?: any,
   
   min?: number,
@@ -58,9 +58,9 @@ export interface CollectionFieldSpecification<T extends DbObject> {
   //    they return undefined the field value is left unchanged.
   //    
   onInsert?: (doc: T, currentUser: DbUser) => any,
-  onCreate?: (args: {data: T, currentUser: DbUser, collection: CollectionBase<T>, context?: any, document: T, newDocument: T, schema: any, fieldName: string}) => any,
+  onCreate?: (args: {data: T, currentUser: DbUser, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: any, fieldName: string}) => any,
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser, newDocument: T) => any,
-  onUpdate?: (args: {data: any, oldDocument: T, newDocument: T, document: T, currentUser: DbUser, collection: CollectionBase<T>, context: any, schema: any, fieldName: string}) => any,
+  onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser, collection: CollectionBase<T>, context: ResolverContext, schema: any, fieldName: string}) => any,
   onRemove?: any,
   onDelete?: any,
   
@@ -89,7 +89,7 @@ const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DataType>
 
-    const resolvedDoc = await collection.loader.load(doc[fieldName])
+    const resolvedDoc = await context.loaders[collectionName].load(doc[fieldName])
     if (!resolvedDoc) {
       if (!nullable) {
         // eslint-disable-next-line no-console
@@ -119,7 +119,7 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DbType>
 
-    const resolvedDocs: Array<DbType> = await collection.loader.loadMany(keys)
+    const resolvedDocs: Array<DbType> = await context.loaders[collectionName].loadMany(keys)
 
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
@@ -133,7 +133,7 @@ export const accessFilterSingle = async <T extends DbObject>(currentUser: DbUser
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
-  const restrictedDoc = Users.restrictViewableFields(currentUser, collection, document)
+  const restrictedDoc = restrictViewableFields(currentUser, collection, document)
   return restrictedDoc;
 }
 
@@ -152,7 +152,7 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess ? await asyncFilter(existingDocs, async (d: T) => await checkAccess(currentUser, d, context)) : existingDocs
   // Apply field-level permissions
-  const restrictedDocs = Users.restrictViewableFields(currentUser, collection, filteredDocs)
+  const restrictedDocs = restrictViewableFields(currentUser, collection, filteredDocs)
   
   return restrictedDocs;
 }
@@ -273,18 +273,18 @@ SimpleSchema.extendOptions(['canAutoDenormalize'])
 // of other collections, because it doesn't set up callbacks for changes in
 // those collections)
 export function denormalizedField<T extends DbObject>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: T) => boolean,
-  getValue: (doc: T) => any,
+  needsUpdate?: (doc: Partial<T>) => boolean,
+  getValue: (doc: T, context: ResolverContext) => any,
 }): CollectionFieldSpecification<T> {
   return {
-    onUpdate: async ({data, document}) => {
+    onUpdate: async ({data, document, context}) => {
       if (!needsUpdate || needsUpdate(data)) {
-        return await getValue(document)
+        return await getValue(document, context)
       }
     },
-    onCreate: async ({newDocument}) => {
+    onCreate: async ({newDocument, context}) => {
       if (!needsUpdate || needsUpdate(newDocument)) {
-        return await getValue(newDocument)
+        return await getValue(newDocument, context)
       }
     },
     denormalized: true,
@@ -311,7 +311,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
   
-  if (Meteor.isServer)
+  if (isServer)
   {
     // When inserting a new document which potentially needs to be counted, follow
     // its reference and update with $inc.
@@ -377,10 +377,10 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     denormalized: true,
     canAutoDenormalize: true,
     
-    getValue: async (document: SourceType): Promise<any> => {
+    getValue: async (document: SourceType, context: ResolverContext): Promise<number> => {
       const foreignCollection: CollectionBase<TargetType> = getCollection(foreignCollectionName);
       const docsThatMayCount = await getWithLoader(
-        foreignCollection,
+        context, foreignCollection,
         `denormalizedCount_${collectionName}.${fieldName}`,
         { },
         foreignFieldName,

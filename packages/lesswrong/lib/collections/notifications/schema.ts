@@ -1,55 +1,55 @@
-import Users from '../users/collection';
+import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { SchemaType } from '../../utils/schemaUtils';
+import type { SchemaType } from '../../utils/schemaUtils';
 
 const schema: SchemaType<DbNotification> = {
   userId: {
     type: String,
     foreignKey: "Users",
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   createdAt: {
     optional: true,
     type: Date,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
     onInsert: (document, currentUser) => new Date(),
   },
   documentId: {
     type: String,
     // No explicit foreign-key relation because which collection this is depends on notification type
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   documentType: {
     type: String,
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   link: {
     type: String,
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   title: {
     type: String,
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   message: {
     type: String,
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   type: {
     type: String,
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   deleted: {
     type: Boolean,
     optional: true,
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
     ...schemaDefaultValue(false),
   },
   viewed: {
@@ -64,12 +64,12 @@ const schema: SchemaType<DbNotification> = {
   emailed: {
     type: Boolean,
     ...schemaDefaultValue(false),
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
   waitingForBatch: {
     type: Boolean,
     ...schemaDefaultValue(false),
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
   },
 };
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {
-  const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -16,14 +16,19 @@ const Home2 = () => {
               <HomeLatestPosts />
           </AnalyticsInViewTracker>
           <AnalyticsContext pageSectionContext="recentDiscussion">
-              <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
-                  <RecentDiscussionThreadsList
-                    terms={{view: 'recentDiscussionThreadsList', limit:20}}
-                    commentsLimit={4}
-                    maxAgeHours={18}
-                    af={false}
-                  />
-              </AnalyticsInViewTracker>
+            <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
+              <RecentDiscussionFeed
+                af={false}
+                commentsLimit={4}
+                maxAgeHours={18}
+              />
+              { /*<RecentDiscussionThreadsList
+                terms={{view: 'recentDiscussionThreadsList', limit:20}}
+                commentsLimit={4}
+                maxAgeHours={18}
+                af={false}
+              />*/ }
+            </AnalyticsInViewTracker>
           </AnalyticsContext>
         </React.Fragment>
       </AnalyticsContext>

@@ -1,24 +1,61 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 
-interface DbVoteable extends DbObject {
-  score: number,
-  baseScore: number,
+export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
+
+export const collectionIsVoteable = (collectionName: CollectionNameString): boolean => {
+  for (let collection of VoteableCollections) {
+    if (collectionName === collection.collectionName)
+      return true;
+  }
+  return false;
 }
 
-export const VoteableCollections: Array<CollectionBase<DbVoteable>> = [];
+export const apolloCacheVoteablePossibleTypes = () => {
+  return {
+    Voteable: VoteableCollections.map(collection => collection.typeName),
+  }
+}
 
 // options: {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>, options?: any): void => {
+export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBase<T>, options?: {
+  customBaseScoreReadAccess?: (user: DbUser|null, object: T) => boolean
+}): void => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 
   VoteableCollections.push(collection);
 
   addFieldsDict(collection, {
+    currentUserVote: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: 'String',
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+          const { Votes, currentUser } = context;
+          if (!currentUser) return null;
+          const votes = await getWithLoader(context, Votes,
+            `votesByUser${currentUser._id}`,
+            {
+              userId: currentUser._id,
+              cancelled: false,
+            },
+            "documentId", document._id
+          );
+          
+          if (!votes.length) return null;
+          return votes[0].voteType;
+        }
+      }
+    },
+    
+    // DEPRECATED (but preserved for backwards compatibility): Returns an array
+    // of vote objects, if the user has voted (or an empty array otherwise).
     currentUserVotes: {
       type: Array,
       optional: true,
@@ -28,7 +65,7 @@ export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return [];
-          const votes = await getWithLoader(Votes,
+          const votes = await getWithLoader(context, Votes,
             `votesByUser${currentUser._id}`,
             {
               userId: currentUser._id,
@@ -46,6 +83,7 @@ export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>
       type: Object,
       optional: true
     },
+    
     allVotes: {
       type: Array,
       optional: true,
@@ -54,7 +92,7 @@ export const makeVoteable = <T extends DbVoteable>(collection: CollectionBase<T>
         type: '[Vote]',
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
-          const votes = await getWithLoader(Votes,
+          const votes = await getWithLoader(context, Votes,
             "votesByDocument",
             {
               cancelled: false,

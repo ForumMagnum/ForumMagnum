@@ -10,7 +10,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
 import { commentBodyStyles } from "../../themes/stylePiping";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 4,
@@ -57,7 +57,6 @@ const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: 
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
-    ssr: true,
     skip: !tagFlag || !showNumber,
     enableTotal: true
   });

@@ -6,8 +6,7 @@
 /* super handle that.
 /****************************************************************/
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Tracker } from 'meteor/tracker';
+import { subscribeDDP, Tracker } from '../../lib/meteorDdp';
 
 class TrackerComponent extends React.Component<any,any> {
   __subs: any
@@ -18,7 +17,7 @@ class TrackerComponent extends React.Component<any,any> {
   constructor(props) {
     super(props);
     this.__subs = {}, this.__comps = []; this.__live = false;
-    this.__subscribe = (props && props.subscribe) || Meteor.subscribe;
+    this.__subscribe = (props && props.subscribe) || subscribeDDP;
   }
 
   subscribe(name, ...options) {

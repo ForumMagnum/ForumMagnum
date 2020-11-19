@@ -2,7 +2,7 @@ import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Posts } from '../../../lib/collections/posts';
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -40,7 +40,7 @@ const PostsPageTitle = ({classes, post}: {
         </Link>
       </Typography>}
       {post.question && parentPost && <Typography variant="title">
-        <Link to={Posts.getPageUrl(parentPost)} className={classes.question}>
+        <Link to={postGetPageUrl(parentPost)} className={classes.question}>
           [ Parent Question — {parentPost.title} ]
         </Link>
       </Typography>}

@@ -1,5 +1,5 @@
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
+import { isDevelopment } from '../lib/executionEnvironment';
+import { randomId } from '../lib/random';
 import { Pool } from 'pg';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
@@ -10,7 +10,7 @@ const connectionStringSetting = new DatabaseServerSetting<string | null>("analyt
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
-const serverId = Random.id();
+const serverId = randomId();
 
 const isValidEventAge = (age) => age>=0 && age<=60*60*1000;
 
@@ -72,7 +72,7 @@ const getAnalyticsConnection = (): Pool|null => {
 // TODO: Defer/batch so that this doesn't affect SSR speed?
 function writeEventToAnalyticsDB({type, timestamp, props}) {
   const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
-  const environmentDescription = Meteor.isDevelopment ? "development" : environmentDescriptionSetting.get()
+  const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
   const queryValues = [environmentDescription, type, timestamp, props];
   
   const connection = getAnalyticsConnection();

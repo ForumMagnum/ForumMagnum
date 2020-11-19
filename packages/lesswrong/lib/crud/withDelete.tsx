@@ -32,7 +32,7 @@ import { deleteClientTemplate, extractCollectionInfo, extractFragmentInfo } from
 import { compose, withHandlers } from 'recompose';
 import { cacheUpdateGenerator } from './cacheUpdates';
 import { getExtraVariables } from './utils'
-import { Mutation } from 'react-apollo';
+import { Mutation } from '@apollo/client/react/components';
 
 export const withDelete = options => {
   const { collectionName, collection } = extractCollectionInfo(options);

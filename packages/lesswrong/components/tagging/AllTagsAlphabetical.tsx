@@ -33,7 +33,6 @@ const AllTagsAlphabetical = ({classes}: {
     collection: Tags,
     fragmentName: "TagPreviewFragment",
     limit: 750,
-    ssr: true,
   });
   const { TagsListItem, SectionTitle, SectionButton, Loading } = Components;
   const currentUser = useCurrentUser()

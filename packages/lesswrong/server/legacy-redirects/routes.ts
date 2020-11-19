@@ -1,7 +1,10 @@
 import { faviconUrlSetting } from '../../components/common/HeadTags';
 import { Comments } from '../../lib/collections/comments';
-import { Posts } from '../../lib/collections/posts';
+import { commentGetPageUrl, commentGetRSSUrl } from '../../lib/collections/comments/helpers';
+import { Posts } from '../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
 import { addStaticRoute } from '../vulcan-lib';
@@ -61,7 +64,7 @@ function findCommentByLegacyAFId(legacyId) {
     try {
       const post = findPostByLegacyId(params.id);
       if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -89,9 +92,9 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
       const post = findPostByLegacyId(params.id);
       const comment = findCommentByLegacyId(params.commentId);
       if (post && comment) {
-        return makeRedirect(res, Comments.getPageUrl(comment));
+        return makeRedirect(res, commentGetPageUrl(comment));
       } else if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         res.statusCode = 404
@@ -116,7 +119,7 @@ addStaticRoute('/user/:slug/:category?/:filter?', (params, req, res, next) => {
     try {
       const user = Users.findOne({$or: [{slug: params.slug}, {username: params.slug}]});
       if (user) {
-        return makeRedirect(res, Users.getProfileUrl(user));
+        return makeRedirect(res, userGetProfileUrl(user));
       } else {
         //eslint-disable-next-line no-console
         console.log('// Missing legacy user', params);
@@ -142,7 +145,7 @@ addStaticRoute('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
     try {
       const comment = Comments.findOne({_id: params.commentId});
       if (comment) {
-        return makeRedirect(res, Comments.getPageUrl(comment));
+        return makeRedirect(res, commentGetPageUrl(comment));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -191,9 +194,9 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
       const post = findPostByLegacyId(params.id);
       const comment = findCommentByLegacyId(params.commentId);
       if (post && comment) {
-        return makeRedirect(res, Comments.getRSSUrl(comment));
+        return makeRedirect(res, commentGetRSSUrl(comment));
       } else if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         // don't redirect if we can't find a post for that link
         res.statusCode = 404
@@ -252,11 +255,11 @@ addStaticRoute('/item', (params, req, res, next) => {
       const post = findPostByLegacyAFId(id);
 
       if (post) {
-        return makeRedirect(res, Posts.getPageUrl(post));
+        return makeRedirect(res, postGetPageUrl(post));
       } else {
         const comment = findCommentByLegacyAFId(id);
         if (comment) {
-          return makeRedirect(res, Comments.getPageUrl(comment))
+          return makeRedirect(res, commentGetPageUrl(comment))
         } else {
           // don't redirect if we can't find a post for that link
           //eslint-disable-next-line no-console

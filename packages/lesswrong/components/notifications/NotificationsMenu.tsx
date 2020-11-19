@@ -89,7 +89,6 @@ const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
     pollInterval: 0,
     limit: 20,
     enableTotal: false,
-    ssr: true,
   });
 
   const newMessages = results && _.filter(results, (x) => x.createdAt > lastNotificationsCheck);

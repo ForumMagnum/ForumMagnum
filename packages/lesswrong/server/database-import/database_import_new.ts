@@ -1,7 +1,8 @@
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
-import { Vulcan, newMutation, Utils } from '../vulcan-lib';
+import { Vulcan, createMutator } from '../vulcan-lib';
+import { slugify } from '../../lib/vulcan-lib/utils';
 import { sanitize } from '../vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/make_editable_callbacks';
@@ -11,7 +12,7 @@ import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
-import { Random } from 'meteor/random';
+import { randomId } from '../../lib/random';
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -239,7 +240,7 @@ const bulkUpdateUsers = async (users, userMap) => {
 const insertUser = async (user) => {
   // console.log("insertUser", user);
   try {
-    await newMutation({
+    await createMutator({
       collection: Users,
       document: user,
       validate: false
@@ -248,7 +249,7 @@ const insertUser = async (user) => {
     if (err.code == 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        await newMutation({
+        await createMutator({
           collection: Users,
           document: newUser,
           validate: false
@@ -354,7 +355,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
   const body = htmlToText.fromString(post.article);
   const isPublished = post.sr_id === "2" || post.sr_id === "3" || post.sr_id === "3391" || post.sr_id === "4";
   return {
-    _id: Random.id(),
+    _id: randomId(),
     legacy: true,
     legacyId: legacyId,
     legacyData: post,
@@ -374,7 +375,7 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     url: absoluteURLRegex.test(post.url) ? post.url : null,
     createdAt: moment(post.date).toDate(),
     postedAt: moment(post.date).toDate(),
-    slug: Utils.slugify(post.title),
+    slug: slugify(post.title),
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
@@ -386,7 +387,7 @@ const legacyCommentToNewComment = async (comment, legacyId, author, parentPost) 
   //eslint-disable-next-line no-console
   if (!parentPost) {console.warn("Missing parent post for comment: ", comment)}
   return {
-    _id: Random.id(),
+    _id: randomId(),
     legacy: true,
     legacyId: legacyId,
     legacyParentId: comment.parent_id,

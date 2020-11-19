@@ -52,7 +52,7 @@ const TagVoteActivityRow = ({vote, classes}: {
   classes: ClassesType
 }) => {
   const { FormatDate, VoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
-  const voteProps = useVote(vote.tagRel, "TagRels")
+  const voteProps = useVote(vote.tagRel!, "TagRels")
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
   return (
@@ -96,7 +96,6 @@ const TagVoteActivity = ({classes}: {
     collection: Votes,
     fragmentName: 'TagVotingActivity',
     limit: 200,
-    ssr: true,
     itemsPerPage: 200,
   })
 

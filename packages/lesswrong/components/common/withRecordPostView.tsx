@@ -1,21 +1,23 @@
 import React, { useContext, useCallback } from 'react';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import { useCurrentUser } from './withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import gql from 'graphql-tag';
 
-export type PostsReadContextType = {
+export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
   setPostRead: (postId: string, isRead: boolean) => void,
+  tagsRead: Record<string,boolean>,
+  setTagRead: (tagId: string, isRead: boolean) => void,
 };
-export const PostsReadContext = React.createContext<PostsReadContextType|null>(null);
-export const usePostsRead = (): PostsReadContextType => {
-  const context = useContext(PostsReadContext);
-  if (!context) throw new Error("usePostsRead called but not a descedent of Layout");
+export const ItemsReadContext = React.createContext<ItemsReadContextType|null>(null);
+export const useItemsRead = (): ItemsReadContextType => {
+  const context = useContext(ItemsReadContext);
+  if (!context) throw new Error("useItemsRead called but not a descedent of Layout");
   return context;
 }
-export const withPostsRead = hookToHoc(usePostsRead);
+export const withItemsRead = hookToHoc(useItemsRead);
 
 export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead: boolean} => {
   const [increasePostViewCount] = useMutation(gql`
@@ -28,7 +30,7 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
-  const {postsRead, setPostRead} = usePostsRead();
+  const {postsRead, setPostRead} = useItemsRead();
   const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
   const recordPostView = useCallback(async ({post, extraEventProperties}) => {
@@ -76,5 +78,45 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
 }
 
 export const withRecordPostView = hookToHoc(useRecordPostView);
+
+export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
+  const {recordEvent} = useNewEvents()
+  const currentUser = useCurrentUser();
+  const {tagsRead, setTagRead} = useItemsRead();
+  const isRead = tag && ((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
+  
+  const recordTagView = useCallback(async ({tag, extraEventProperties}) => {
+    try {
+      if (!tag) throw new Error("Tried to record view of null tag");
+      
+      // Update the client-side read status cache
+      if (!tagsRead[tag._id]) {
+        setTagRead(tag._id, true);
+      }
+
+      // Register page-visit event
+      if(currentUser) {
+        let eventProperties = {
+          userId: currentUser._id,
+          important: false,
+          intercom: true,
+          ...extraEventProperties
+        };
+
+        eventProperties = {
+          ...eventProperties,
+          documentId: tag._id,
+          tagName: tag.name,
+        };
+        
+        recordEvent('tag-view', true, eventProperties);
+      }
+    } catch(error) {
+      console.log("recordTagView error:", error); // eslint-disable-line
+    }
+  }, [tagsRead, setTagRead, currentUser, recordEvent]);
+  
+  return { recordTagView, isRead };
+}
 
 export default withRecordPostView;

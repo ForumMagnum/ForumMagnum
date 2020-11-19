@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
-import { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/CoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

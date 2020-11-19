@@ -1,12 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
-import { Posts } from '../../lib/collections/posts';
+import { postGetLastCommentedAt } from '../../lib/collections/posts/helpers';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
-import { CommentTreeNode } from '../../lib/utils/unflatten';
+import type { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -129,7 +129,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
 
     const { expandAllThreads } = this.state
     const lastVisitedAt = post?.lastVisitedAt;
-    const lastCommentedAt = post ? Posts.getLastCommentedAt(post) : null;
+    const lastCommentedAt = post ? postGetLastCommentedAt(post) : null;
     const unreadComments = lastVisitedAt && lastCommentedAt && (lastVisitedAt < lastCommentedAt);
 
     if (comments) {
@@ -146,8 +146,7 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
                 parentCommentId={parentCommentId}
                 nestingLevel={defaultNestingLevel}
                 lastCommentId={lastCommentId}
-                //eslint-disable-next-line react/no-children-prop
-                children={comment.children}
+                childComments={comment.children}
                 key={comment.item._id}
                 highlightDate={highlightDate}
                 post={post}

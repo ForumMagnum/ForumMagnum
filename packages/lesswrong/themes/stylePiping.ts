@@ -4,7 +4,7 @@ import isPlainObject from 'is-plain-object';
 const hideSpoilers = {
   backgroundColor: 'black',
   color: 'black',
-  '& a, & a:hover, & a:focus': {
+  '& a, & a:hover, & a:focus, & a::after': {
     color: 'black'
   },
   '& code': {
@@ -62,7 +62,8 @@ const tableStyles = {
   border: "1px double #b3b3b3",
   margin: "auto",
   height: "100%",
-  textAlign: "left"
+  textAlign: "left",
+  width: '100%'
 }
 
 const tableCellStyles = {
@@ -178,6 +179,10 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& table': {
     ...tableStyles
+  },
+  // CKEditor wraps tables in a figure element
+  '& figure.table': {
+    display: 'table'
   },
   '& td, & th': {
     ...tableCellStyles

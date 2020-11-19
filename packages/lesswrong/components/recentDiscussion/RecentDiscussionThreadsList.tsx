@@ -36,7 +36,6 @@ const RecentDiscussionThreadsList = ({
     extraVariablesValues: {
       commentsLimit, maxAgeHours, af
     },
-    ssr: true,
   });
 
   useGlobalKeydown((event: KeyboardEvent) => {
