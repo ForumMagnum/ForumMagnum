@@ -265,7 +265,7 @@ export default {
       id: 'groups',
       title: 'EA Groups',
       mobileTitle: 'EA Groups',
-      link: 'https://www.eahub.org/groups',
+      link: 'https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage',
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups in your area',
       showOnMobileStandalone: true,
