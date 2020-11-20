@@ -1,11 +1,15 @@
 /* eslint-disable no-tabs */
-export function CleanStyleTags( editor ) {
-	// Tell the editor that <a target="..."></a> converts into the "linkTarget" attribute in the model.
+export function SanitizeTags( editor ) {
 	editor.conversion.for( 'upcast' ).add( dispatcher => {
 		dispatcher.on( 'element:style', ( evt, data, conversionApi ) => {
 			const styleElement = data.viewItem;
 			conversionApi.consumable.consume( styleElement, { name: true } );
-			// Continue after inserted element.
 		} );
+		dispatcher.on( 'element:span', (evt, data, conversionApi) => {
+			const spanElement = data.viewItem;
+			if (spanElement.getClassNames && [...spanElement.getClassNames()].includes('MathJax')) {
+				conversionApi.consumable.consume( spanElement, { name: true } );
+			}
+		})
 	} );
 }
