@@ -51,7 +51,7 @@ const TagFlagItem = ({documentId, showNumber = true, allPages = false, style = "
     fragmentName: "TagFlagFragment",
   })
   const multiTerms = allPages ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
-  const { totalCount } = useMulti({
+  const { totalCount, loading } = useMulti({
     terms: multiTerms,
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
@@ -61,10 +61,10 @@ const TagFlagItem = ({documentId, showNumber = true, allPages = false, style = "
   });
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   const tagFlagDescription = allPages ? "All Pages" : `tagFlag ${tagFlag?._id}`
-  const tagFlagText = allPages ? "All Tags & Wikis" : tagFlag?.name
+  const tagFlagText = allPages ? "All Wiki-Tags" : tagFlag?.name
   const innerHTML = {
     __html: allPages
-      ? "All Tag and Wiki Pages sorted by most recent"
+      ? "All Wiki-Tags sorted by most recently created, including those with no flags set."
       : tagFlag?.contents?.html || "" 
   }
     
@@ -85,7 +85,7 @@ const TagFlagItem = ({documentId, showNumber = true, allPages = false, style = "
           </Card>
         </AnalyticsContext>}
     </LWPopper>
-    {tagFlagText}{(showNumber && totalCount)? `: ${totalCount}` : ``}
+    {tagFlagText}{(!loading && showNumber)? `: ${totalCount}` : ``}
   </span>
 }
 

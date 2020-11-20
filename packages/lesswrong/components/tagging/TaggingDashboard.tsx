@@ -93,6 +93,10 @@ const TaggingDashboard = ({classes}: {
     itemsPerPage: 50,
   });
 
+  const tagsFiltered = query.focus === "allTags"  //if not showing all tags, only show those with at least one non-deleted tag flag
+    ? tags
+    : tags?.filter(tag => (tag as TagWithFlagsFragment)?.tagFlags.some(tagFlag => !tagFlag.deleted))
+  
   const { results: tagFlags } = useMulti({
     terms: {
       view: "allTagFlags"
@@ -151,13 +155,13 @@ const TaggingDashboard = ({classes}: {
           <TagFlagItem documentId={tagFlag._id} style={query.focus === tagFlag._id ? "black" : "grey"} />
           </QueryLink>)}
         </div>
-        {!loading && tags?.map(tag => <TagsDetailsItem
-          key={tag._id}
-          tag={tag}
-          showFlags
-          flagId={query.focus}
-          collapse={collapsed}
-        />)}
+        {!loading && tagsFiltered?.map(tag => <TagsDetailsItem
+              key={tag._id}
+              tag={tag}
+              showFlags
+              flagId={query.focus}
+              collapse={collapsed}
+            />)}
         <div className={classes.loadMore}>
           <LoadMore {...loadMoreProps}/>
         </div>

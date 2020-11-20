@@ -561,6 +561,7 @@ interface TagFlagFragment { // fragment on TagFlags
   readonly name: string,
   readonly slug: string,
   readonly order: number,
+  readonly deleted: boolean,
   readonly contents: TagFlagFragment_contents|null,
 }
 
