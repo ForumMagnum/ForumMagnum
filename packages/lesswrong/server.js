@@ -116,6 +116,7 @@ import './server/resolvers/mozillaHubsData';
 import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';
+import './server/resolvers/elicitPredictions';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

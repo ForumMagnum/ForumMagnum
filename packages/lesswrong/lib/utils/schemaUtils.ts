@@ -75,7 +75,7 @@ export interface CollectionFieldSpecification<T extends DbObject> {
 
 export type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
 
-const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
+export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
 }: {
   collectionName: CollectionName,

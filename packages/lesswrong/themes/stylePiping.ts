@@ -1,5 +1,6 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
+import { metaculusBackground } from '../components/linkPreview/PostLinkPreview';
 
 const hideSpoilers = {
   backgroundColor: 'black',
@@ -53,6 +54,33 @@ const spoilerStyles = (theme: ThemeType) => ({
   },
   '& .spoilers > p:hover ~ p': {
     ...hideSpoilers
+  }
+})
+
+const metaculusPreviewStyles = () => ({
+  '& div.metaculus-preview': {
+    backgroundColor: metaculusBackground,
+    '& iframe': {
+      width: '100%',
+      height: 250,
+      border: 'none'
+    }
+  }
+})
+
+const youtubePreviewStyles = () => ({
+  '& figure.media div[data-oembed-url*="youtube.com"]': {
+    position: 'relative',
+    height: 0,
+    paddingBottom: '56.2493%',
+    '& iframe': {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      top: 0,
+      left: 0,
+      border: 'none'
+    }
   }
 })
 
@@ -204,6 +232,8 @@ export const postBodyStyles = (theme: ThemeType) => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
+    ...metaculusPreviewStyles(),
+    ...youtubePreviewStyles(),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -241,6 +271,8 @@ export const commentBodyStyles = (theme: ThemeType) => {
     ...theme.typography.commentStyle,
 
     ...spoilerStyles(theme),
+    ...metaculusPreviewStyles(),
+    ...youtubePreviewStyles(),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
