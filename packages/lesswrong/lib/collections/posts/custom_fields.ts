@@ -655,11 +655,11 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
     insertableBy: [userCanModeratePost],
-    editableBy: [userCanModeratePost],
+    editableBy: ['sunshines', 'admins'],
     hidden: true,
     optional: true,
-    label: "Users banned from commenting on this post",
-    control: "UsersListEditor",
+    // label: "Users banned from commenting on this post",
+    // control: "UsersListEditor",
   },
   'bannedUserIds.$': {
     type: String,
@@ -1038,7 +1038,7 @@ addFieldsDict(Posts, {
     label: "Style",
     viewableBy: ['guests'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userHasModerationGuidelines],
+    insertableBy: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {
