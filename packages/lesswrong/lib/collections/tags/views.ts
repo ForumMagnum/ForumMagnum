@@ -21,6 +21,18 @@ Tags.addView('allTagsAlphabetical', terms => {
 });
 ensureIndex(Tags, {deleted:1, adminOnly:1, name: 1});
 
+Tags.addView("userTags", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      adminOnly: viewFieldAllowAny,
+      wikiOnly: viewFieldAllowAny
+    },
+    options: {sort: {createdAt: -1}},
+  }
+});
+ensureIndex(Tags, {deleted: 1, userId: 1, createdAt: 1});
+
 Tags.addView('allPagesByNewest', terms => {
   return {
     selector: {
@@ -29,7 +41,6 @@ Tags.addView('allPagesByNewest', terms => {
     options: {sort: {createdAt: -1}},
   }
 });
-
 ensureIndex(Tags, {deleted:1, adminOnly:1, wikiOnly: 1, createdAt: 1});
 
 Tags.addView('allTagsHierarchical', terms => {

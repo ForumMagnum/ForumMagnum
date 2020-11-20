@@ -9,6 +9,7 @@ import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
 import { commentBodyStyles } from "../../themes/stylePiping";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,38 +36,62 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const TagFlagItem = ({documentId, showNumber = true, allPages = false, style = "grey", classes }: {
+
+const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
   documentId?: string,
+  itemType?: "tagFlagId" | "allPages" | "userPages" 
   showNumber?: boolean,
-  allPages?: boolean, 
+  allPages?: boolean,
+  myPages?: boolean,
   style?: "white"|"grey"|"black",
   classes: ClassesType,
 }) => {
   const { LWPopper, ContentItemBody } = Components;
   const {eventHandlers, hover, anchorEl, stopHover } = useHover();
+  const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
     documentId,
     collection: TagFlags,
     fetchPolicy: "cache-first",
     fragmentName: "TagFlagFragment",
   })
-  const multiTerms = allPages ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
+  
+  
+  const getTagFlagItemTerms = (itemType) => { 
+    switch(itemType) {
+      case 'allPages':
+        return {view: "allPagesByNewest"}
+      case 'userPages':
+        return {view: "userTags", userId: currentUser?._id}
+      default: //tagFlagId type
+        return {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
+    }
+  }
+    
   const { totalCount, loading } = useMulti({
-    terms: multiTerms,
+    terms: getTagFlagItemTerms(itemType),
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
     skip: !showNumber,
     enableTotal: true
   });
+  
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
-  const tagFlagDescription = allPages ? "All Pages" : `tagFlag ${tagFlag?._id}`
-  const tagFlagText = allPages ? "All Wiki-Tags" : tagFlag?.name
-  const innerHTML = {
-    __html: allPages
-      ? "All Wiki-Tags sorted by most recently created, including those with no flags set."
-      : tagFlag?.contents?.html || "" 
-  }
+  
+  var tagFlagDescription = `tagFlag ${tagFlag?._id}`
+  var tagFlagText = tagFlag?.name
+  var innerHTML = tagFlag?.contents?.html || ""
+  
+  if (itemType === "allPages") {
+    var tagFlagDescription = "All Pages"
+    var tagFlagText = "All Wiki-Tags"
+    var innerHTML = "All Wiki-Tags sorted by most recently created, including those with no flags set."
+  } else if (itemType === 'userPages') {
+    var tagFlagDescription = "User Wiki-Tags"
+    var tagFlagText = "My Wiki-Tags"
+    var innerHTML = "Wiki-Tags you created, including those with no flags set."
+  } 
     
   return <span {...eventHandlers} className={rootStyles}>
     <LWPopper
@@ -75,11 +100,11 @@ const TagFlagItem = ({documentId, showNumber = true, allPages = false, style = "
         onMouseEnter={stopHover}
         placement="bottom-start"
       >
-        {(allPages || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">
+        {(["allPages", "userPages"].includes(itemType) || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">
           <Card className={classes.hoverCard}>
             <ContentItemBody
               className={classes.highlight}
-              dangerouslySetInnerHTML={innerHTML}
+              dangerouslySetInnerHTML={{__html: innerHTML}}
               description={tagFlagDescription}
             />
           </Card>

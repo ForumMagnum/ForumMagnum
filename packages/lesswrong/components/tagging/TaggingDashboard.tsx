@@ -84,16 +84,27 @@ const TaggingDashboard = ({classes}: {
     fragmentName: 'UsersCurrent',
   })
   const [collapsed, setCollapsed] = useState(currentUser?.taggingDashboardCollapsed || false);
-  const multiTerms = query.focus === "allPages" ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: query.focus}
+  
+  const multiTerms = (focus) => {
+    switch (focus) {
+      case "allPages":
+        return {view: "allPagesByNewest"}
+      case "myPages":
+        return {view: "userTags", userId: currentUser?._id}
+      default:
+        return {view: "tagsByTagFlag", tagFlagId: focus}
+    }
+  }
+    
   const { results: tags, loading, loadMoreProps } = useMulti({
-    terms: multiTerms,
+    terms: multiTerms(query.focus),
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 10,
     itemsPerPage: 50,
   });
 
-  const tagsFiltered = query.focus === "allTags"  //if not showing all tags, only show those with at least one non-deleted tag flag
+  const tagsFiltered = ["allPages", "myPages"].includes(query.focus)  //if not showing all tags, only show those with at least one non-deleted tag flag
     ? tags
     : tags?.filter(tag => (tag as TagWithFlagsFragment)?.tagFlags.some(tagFlag => !tagFlag.deleted))
   
@@ -149,8 +160,11 @@ const TaggingDashboard = ({classes}: {
         </SectionTitle>
         <div className={classes.flagList}>
           <QueryLink query={query.focus === "allPages" ? {} : {focus: "allPages"}}>
-          <TagFlagItem allPages style={query.focus === "allPages" ? "black" : "grey"}/>
+            <TagFlagItem itemType={"allPages"} style={query.focus === "allPages" ? "black" : "grey"}/>
           </QueryLink>
+          {currentUser && <QueryLink query={query.focus === "myPages" ? {} : {focus: "myPages"}}>
+            <TagFlagItem itemType={"userPages"} style={query.focus === "myPages" ? "black" : "grey"}/>
+          </QueryLink>}
           {tagFlags?.map(tagFlag => <QueryLink key={tagFlag._id} query={query.focus === tagFlag._id ? {} : {focus: tagFlag._id}}>
           <TagFlagItem documentId={tagFlag._id} style={query.focus === tagFlag._id ? "black" : "grey"} />
           </QueryLink>)}
