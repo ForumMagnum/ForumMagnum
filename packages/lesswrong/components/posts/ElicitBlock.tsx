@@ -63,6 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   histogramBucket: {
     display: 'flex',
     flexGrow: 1,
+    overflow: 'hidden',
     '&:hover $sliceColoredArea': {
       backgroundColor: "rgba(0,0,0,0.15)"
     },
