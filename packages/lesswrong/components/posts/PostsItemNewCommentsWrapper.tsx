@@ -28,7 +28,7 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, pos
     terms,
     collection: Comments,
     fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first',
     limit: 5,
   });
   const { Loading, CommentsList, NoContent } = Components
