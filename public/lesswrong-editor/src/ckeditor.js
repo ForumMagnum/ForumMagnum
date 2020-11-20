@@ -13,6 +13,8 @@ import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
+// import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
+// import FontBackgroundColor from '@ckeditor/ckeditor5-font/src/fontbackgroundcolor';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
@@ -60,7 +62,7 @@ import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 //
-import { CleanStyleTags } from './clean-styles-plugin'
+import { SanitizeTags } from './clean-styles-plugin'
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -93,6 +95,8 @@ const postEditorPlugins = [
 	Essentials,
 	FontFamily,
 	FontSize,
+	// FontColor,
+	// FontBackgroundColor,
 	Heading,
 	HorizontalLine,
 	Image,
@@ -121,7 +125,7 @@ const postEditorPlugins = [
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags,
+	SanitizeTags,
 	Spoilers,
 	AutoLink
 ];
@@ -261,7 +265,7 @@ CommentEditor.builtinPlugins = [
 	Underline,
 	UploadAdapter,
 	Mathematics,
-	CleanStyleTags,
+	SanitizeTags,
 	Spoilers,
 	AutoLink
 ];
