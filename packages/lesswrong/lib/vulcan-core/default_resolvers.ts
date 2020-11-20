@@ -5,7 +5,7 @@ Default list, single, and total resolvers
 */
 
 import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
-import Users from '../collections/users/collection'
+import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 
 const defaultOptions = {
@@ -61,7 +61,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
           : docs;
 
         // take the remaining documents and remove any fields that shouldn't be accessible
-        const restrictedDocs = Users.restrictViewableFields(currentUser, collection, viewableDocs);
+        const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
 
         // prime the cache
         restrictedDocs.forEach(doc => context.loaders[collectionName].prime(doc._id, doc));
@@ -143,7 +143,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
           );
         }
 
-        const restrictedDoc = Users.restrictViewableFields(currentUser, collection, doc);
+        const restrictedDoc = restrictViewableFields(currentUser, collection, doc);
 
         debugGroupEnd();
         debug(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);

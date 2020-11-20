@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     marginBottom: 24,
@@ -38,7 +38,6 @@ const NewTagsList = ({classes}:{
     collection: Tags,
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
-    ssr: true,
     itemsPerPage: 20,
   });
 

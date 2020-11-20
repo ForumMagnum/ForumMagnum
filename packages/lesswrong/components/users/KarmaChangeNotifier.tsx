@@ -17,8 +17,8 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { getHeaderTextColor } from '../common/Header';
 import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
-import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 
 
@@ -132,7 +132,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.posts && karmaChanges.posts.map(postChange => (
               <MenuItemUntyped
                 className={classes.votedItemRow}
-                component={Link} to={Posts.getPageUrl(postChange)} key={postChange._id} >
+                component={Link} to={postGetPageUrl(postChange)} key={postChange._id} >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
                 </span>
@@ -143,7 +143,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             ))}
             {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
               <MenuItemUntyped className={classes.votedItemRow}
-                component={Link} to={Comments.getPageUrlFromIds({postId:commentChange.postId, postSlug:commentChange.postSlug, tagSlug:commentChange.tagSlug, commentId: commentChange._id})} key={commentChange._id}
+                component={Link} to={commentGetPageUrlFromIds({postId:commentChange.postId, postSlug:commentChange.postSlug, tagSlug:commentChange.tagSlug, commentId: commentChange._id})} key={commentChange._id}
                 >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
@@ -217,7 +217,7 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     });
     if (!currentUser) return;
     if (document?.karmaChanges) {
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: {
           karmaChangeLastOpened: document.karmaChanges.endDate,

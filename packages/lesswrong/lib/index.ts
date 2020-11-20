@@ -15,7 +15,7 @@ import './accounts/modify_accounts_ui';
 import './accounts/configuration';
 
 // ## Voting
-import './voting/new_vote_types';
+import './voting/voteTypes';
 
 //MomentJS configuration
 import '../components/momentjs';
@@ -75,7 +75,6 @@ import { Bans } from './collections/bans/index'
 // Chapters
 import Sequences from './collections/sequences/collection';
 import './collections/sequences/views';
-import './collections/sequences/utils';
 import './collections/sequences/helpers';
 
 import Chapters from './collections/chapters/collection';

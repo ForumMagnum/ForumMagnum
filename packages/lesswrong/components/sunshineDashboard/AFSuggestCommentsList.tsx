@@ -10,7 +10,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const AFSuggestCommentsList = ({ terms, classes }) => {
+const AFSuggestCommentsList = ({ terms, classes }: {
+  terms: any,
+  classes: ClassesType,
+}) => {
   const { results } = useMulti({
     terms,
     collection: Comments,

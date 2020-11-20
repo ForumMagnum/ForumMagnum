@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../vulcan-lib';
-import { Conversations } from '../../lib/collections/conversations/collection';
+import { conversationGetPageUrl } from '../../lib/collections/conversations/helpers';
 import { useCurrentUser } from '../../components/common/withUser';
 import * as _ from 'underscore';
 import './EmailUsername';
@@ -78,7 +78,7 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
   const currentUser = useCurrentUser();
   const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;
   const sitename = siteNameWithArticleSetting.get()
-  const conversationLink = Conversations.getPageUrl(conversation, true);
+  const conversationLink = conversationGetPageUrl(conversation, true);
   
   return (<React.Fragment>
     <p>Conversation with{" "}

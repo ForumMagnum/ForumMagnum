@@ -28,11 +28,11 @@ const COMMENT_DESCRIPTION_LENGTH = 500;
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false, context}: {
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=null, af=false, context}: {
   user: DbUser,
   startDate: Date,
   endDate: Date,
-  nextBatchDate?: Date,
+  nextBatchDate?: Date|null,
   af?: boolean,
   context?: ResolverContext,
 })

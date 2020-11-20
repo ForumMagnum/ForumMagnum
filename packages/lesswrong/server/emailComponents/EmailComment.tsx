@@ -1,14 +1,14 @@
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import groupBy from 'lodash/groupBy';
 import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
-import Tags from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {
@@ -41,28 +41,28 @@ const EmailCommentBatchComponent = registerComponent("EmailCommentBatch", EmailC
 const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
   const { document: post } = useSingle({
     documentId: postId,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsList",
   });
   if (!post)
     return null;
   
   return <div>
-    New comments on <a href={Posts.getPageUrl(post, true)}>{post.title}</a>
+    New comments on <a href={postGetPageUrl(post, true)}>{post.title}</a>
   </div>;
 }
 
 const EmailCommentsOnTagHeader = ({tagId}) => {
   const { document: tag } = useSingle({
     documentId: tagId,
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
   });
   if (!tag)
     return null;
   
   return <div>
-    New comments on <a href={Tags.getUrl(tag)}>{tag.name}</a>
+    New comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
   </div>;
 }
 
@@ -75,7 +75,7 @@ const EmailComment = ({commentId, classes}: {
   const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const { document: comment, loading, error } = useSingle({
     documentId: commentId,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: "CommentsListWithParentMetadata",
   });
   
@@ -90,11 +90,11 @@ const EmailComment = ({commentId, classes}: {
     <div className={classes.comment}>
       <EmailUsername user={comment.user}/>
       {" "}
-      <a href={Comments.getPageUrl(comment, true)}>
+      <a href={commentGetPageUrl(comment, true)}>
         <EmailFormatDate date={comment.postedAt}/>
       </a>
       {" "}
-      {comment.post && <a href={Posts.getPageUrl(comment.post, true)}>
+      {comment.post && <a href={postGetPageUrl(comment.post, true)}>
         {comment.post.title}
       </a>}
     </div>

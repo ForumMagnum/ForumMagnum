@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
@@ -111,7 +111,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
         />
         :
         <LinkCard 
-          to={Tags.getUrl(tag, {flagId, edit: true})} 
+          to={tagGetUrl(tag, {flagId, edit: true})} 
           onClick={currentUser ? undefined : () => openDialog({
             componentName: "LoginPopup", componentProps: {}
           })}
@@ -131,7 +131,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
     </div>
     {!showFlags && <div className={classNames(classes.posts, {[classes.collapsedPosts]: collapse})}>
       <div>
-        <Link to={Tags.getUrl(tag)} className={classes.postCount}>
+        <Link to={tagGetUrl(tag)} className={classes.postCount}>
           {tag.postCount} posts tagged <em>{tag.name}</em>
         </Link>
         {!tagRels && loading && <Loading/>}

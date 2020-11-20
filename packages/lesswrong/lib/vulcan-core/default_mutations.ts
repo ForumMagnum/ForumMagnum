@@ -10,7 +10,7 @@ import {
   getTypeName,
   getCollectionName
 } from '../vulcan-lib';
-import Users from '../collections/users/collection';
+import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 
 const defaultOptions = { create: true, update: true, upsert: true, delete: true };
@@ -66,7 +66,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
         }
         // check if they can perform "foo.new" operation (e.g. "movie.new")
         // OpenCRUD backwards compatibility
-        return Users.canDo(user, [
+        return userCanDo(user, [
           `${typeName.toLowerCase()}.create`,
           `${collectionName.toLowerCase()}.new`,
         ]);
@@ -124,12 +124,12 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
         // if they do, check if they can perform "foo.edit.own" action
         // if they don't, check if they can perform "foo.edit.all" action
         // OpenCRUD backwards compatibility
-        return Users.owns(user, document)
-          ? Users.canDo(user, [
+        return userOwns(user, document)
+          ? userCanDo(user, [
             `${typeName.toLowerCase()}.update.own`,
             `${collectionName.toLowerCase()}.edit.own`,
           ])
-          : Users.canDo(user, [
+          : userCanDo(user, [
             `${typeName.toLowerCase()}.update.all`,
             `${collectionName.toLowerCase()}.edit.all`,
           ]);
@@ -226,12 +226,12 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
 
         if (!user || !document) return false;
         // OpenCRUD backwards compatibility
-        return Users.owns(user, document)
-          ? Users.canDo(user, [
+        return userOwns(user, document)
+          ? userCanDo(user, [
             `${typeName.toLowerCase()}.delete.own`,
             `${collectionName.toLowerCase()}.remove.own`,
           ])
-          : Users.canDo(user, [
+          : userCanDo(user, [
             `${typeName.toLowerCase()}.delete.all`,
             `${collectionName.toLowerCase()}.remove.all`,
           ]);

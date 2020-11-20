@@ -1,16 +1,9 @@
-import Users from '../users/collection';
-
-
-/*
-
-Example-forum permissions
-
-*/
+import { userGroups } from '../../vulcan-users/permissions';
 
 const guestsActions = [
   'comments.view'
 ];
-Users.groups.guests.can(guestsActions);
+userGroups.guests.can(guestsActions);
 
 const membersActions = [
   'comments.view',
@@ -22,13 +15,13 @@ const membersActions = [
   'comments.downvote',
   'comments.cancelDownvote'
 ];
-Users.groups.members.can(membersActions);
+userGroups.members.can(membersActions);
 
 const adminActions = [
   'comments.edit.all',
   'comments.remove.all'
 ];
-Users.groups.admins.can(adminActions);
+userGroups.admins.can(adminActions);
 
 // LessWrong permissions
 
@@ -37,7 +30,7 @@ const sunshineRegimentActions = [
   'comments.replyOnBlocked.all',
   'comments.edit.all'
 ];
-Users.groups.sunshineRegiment.can(sunshineRegimentActions);
+userGroups.sunshineRegiment.can(sunshineRegimentActions);
 
 const votingActions = [
   'comments.smallDownvote',
@@ -46,4 +39,4 @@ const votingActions = [
   'comments.bigUpvote',
 ]
 
-Users.groups.members.can(votingActions);
+userGroups.members.can(votingActions);

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from '../../../lib/collections/users/collection';
+import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import withModerateComment from './withModerateComment'
 import withDialog from '../../common/withDialog'
 import withUser from '../../common/withUser';
@@ -39,7 +39,7 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
 
   render() {
     const { currentUser, comment, post } = this.props
-    if (Users.canModerateComment(currentUser, post, comment)) {
+    if (userCanModerateComment(currentUser, post, comment)) {
       if (!comment.deleted) {
         return (
           <MenuItem onClick={ this.showDeleteDialog}>

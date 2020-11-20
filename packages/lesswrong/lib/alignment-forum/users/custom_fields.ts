@@ -1,4 +1,5 @@
-import Users from "../../collections/users/collection";
+import { Users } from '../../collections/users/collection';
+import { userOwns } from '../../vulcan-users/permissions';
 import { formGroups } from "../../collections/users/custom_fields"
 import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { Posts } from '../../collections/posts';
@@ -83,16 +84,16 @@ addFieldsDict(Users, {
   afApplicationText: {
     type: String,
     optional: true,
-    canRead: [Users.owns, 'alignmentForumAdmins', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canRead: [userOwns, 'alignmentForumAdmins', 'admins'],
+    canUpdate: [userOwns, 'admins'],
     hidden: true,
   },
 
   afSubmittedApplication: {
     type: Boolean,
     optional: true,
-    canRead: [Users.owns, 'alignmentForumAdmins', 'admins'],
-    canUpdate: [Users.owns, 'admins'],
+    canRead: [userOwns, 'alignmentForumAdmins', 'admins'],
+    canUpdate: [userOwns, 'admins'],
     canCreate: ['admins'],
     hidden: true,
   }

@@ -1,7 +1,7 @@
 import { schemaDefaultValue } from '../../collectionUtils'
 import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { Utils } from '../../vulcan-lib';
+import { Utils, slugify } from '../../vulcan-lib/utils';
 import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 
@@ -36,7 +36,7 @@ export const schema: SchemaType<DbTag> = {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     onInsert: tag => {
-      const basicSlug = Utils.slugify(tag.name);
+      const basicSlug = slugify(tag.name);
       return Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
@@ -46,7 +46,7 @@ export const schema: SchemaType<DbTag> = {
           throw Error(`Specified slug is already used: ${data.slug}`)
         }
       } else if (data.name && data.name !== oldDocument.name) {
-        return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(data.name), true, oldDocument._id)
+        return Utils.getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
       }
     }
   },

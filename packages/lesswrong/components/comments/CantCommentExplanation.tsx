@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import Users from '../../lib/collections/users/collection';
+import { userBlockedCommentingReason } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -25,7 +25,7 @@ const CantCommentExplanation = ({post, classes}: {
   const currentUser = useCurrentUser();
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
-      { Users.blockedCommentingReason(currentUser, post)}
+      { userBlockedCommentingReason(currentUser, post)}
       { forumTypeSetting.get() !== 'AlignmentForum' && <span>
         (Questions? Send an email to <a className={classes.emailLink} href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
       </span> }

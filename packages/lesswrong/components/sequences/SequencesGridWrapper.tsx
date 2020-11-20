@@ -25,7 +25,6 @@ const SequencesGridWrapper = ({
     collection: Sequences,
     fragmentName: 'SequencesPageFragment',
     enableTotal: true,
-    ssr: true
   });
   
   if (results && results.length) {

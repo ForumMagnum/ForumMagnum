@@ -1,7 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
+import type { Hit } from 'react-instantsearch-core';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,22 +17,25 @@ const isLeftClick = (event: MouseEvent): boolean => {
 }
 
 const UsersSearchHit = ({hit, clickAction, classes}: {
-  hit: any,
+  hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
-}) => <div className={classes.root}>
-  <Link to={Users.getProfileUrl(hit)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
-    <Components.MetaInfo>
-      <Components.FormatDate date={hit.createdAt}/>
-    </Components.MetaInfo>
-    <Components.MetaInfo>
-      {hit.displayName}
-    </Components.MetaInfo>
-    <Components.MetaInfo>
-      {hit.karma} points
-    </Components.MetaInfo>
-  </Link>
-</div>
+}) => {
+  const user = hit as AlgoliaUser;
+  return <div className={classes.root}>
+    <Link to={userGetProfileUrl(user)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+      <Components.MetaInfo>
+        <Components.FormatDate date={user.createdAt}/>
+      </Components.MetaInfo>
+      <Components.MetaInfo>
+        {user.displayName}
+      </Components.MetaInfo>
+      <Components.MetaInfo>
+        {user.karma} points
+      </Components.MetaInfo>
+    </Link>
+  </div>
+}
 
 const UsersSearchHitComponent = registerComponent("UsersSearchHit", UsersSearchHit, {styles});
 

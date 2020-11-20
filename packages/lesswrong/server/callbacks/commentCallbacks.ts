@@ -6,6 +6,8 @@ import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
+import { userIsAdmin, userCanDo } from '../../lib/vulcan-users/permissions';
+import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
@@ -157,8 +159,8 @@ getCollectionHooks("Comments").createBefore.add(function AddReferrerToComment(co
 
 const commentIntervalSetting = new DatabasePublicSetting<number>('commentInterval', 15) // How long users should wait in between comments (in seconds)
 getCollectionHooks("Comments").newValidate.add(function CommentsNewRateLimit (comment: DbComment, user: DbUser) {
-  if (!Users.isAdmin(user)) {
-    const timeSinceLastComment = Users.timeSinceLast(user, Comments);
+  if (!userIsAdmin(user)) {
+    const timeSinceLastComment = userTimeSinceLast(user, Comments);
     const commentInterval = Math.abs(parseInt(""+commentIntervalSetting.get()));
 
     // check that user waits more than 15 seconds between comments
@@ -316,7 +318,7 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
       if (
         (comment.deleted || comment.deletedPublic) &&
         (deletedPublic || deletedReason) &&
-        !Users.canDo(currentUser, 'comments.remove.all') &&
+        !userCanDo(currentUser, 'comments.remove.all') &&
         comment.deletedByUserId !== currentUser._id) {
           throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
       }
@@ -331,7 +333,7 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&
         (deletedPublic || deleted) &&
-        !Users.canDo(currentUser, 'comment.remove.all')
+        !userCanDo(currentUser, 'comment.remove.all')
       ) {
         throw new Error("You cannot delete a comment that has children")
       }

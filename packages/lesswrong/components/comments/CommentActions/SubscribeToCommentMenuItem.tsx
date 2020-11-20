@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from '../../../lib/collections/users/collection';
+import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 // import CheckCircle from '@material-ui/icons/CheckCircle';
 import CheckCircleOutline from '@material-ui/icons/CheckCircleOutline';
@@ -13,8 +13,8 @@ const SubscribeToCommentMenuItem = ({ comment }: {
 }) => {
   const currentUser = useCurrentUser();
   
-  if (Users.canDo(currentUser, "comments.edit.all") ||
-      Users.owns(currentUser, comment)) {
+  if (userCanDo(currentUser, "comments.edit.all") ||
+      userOwns(currentUser, comment)) {
         return (
           <MenuItem>
             <ListItemIcon>

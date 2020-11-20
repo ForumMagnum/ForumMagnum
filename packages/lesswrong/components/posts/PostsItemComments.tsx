@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
-import { Posts } from "../../lib/collections/posts";
+import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentCount: {
@@ -41,7 +41,7 @@ const PostsItemComments = ({ classes, post, onClick, unreadComments, newPromoted
   unreadComments: any,
   newPromotedComments: any,
 }) => {
-  let commentCount = Posts.getCommentCount(post)
+  let commentCount = postGetCommentCount(post)
 
   let unreadCommentsClass =  classes.noUnreadComments
   if (unreadComments) { unreadCommentsClass = classes.unreadComments }

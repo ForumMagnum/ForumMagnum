@@ -3,11 +3,12 @@ import { useMessages } from '../common/withMessages';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Users from '../../lib/collections/users/collection';
+import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { Accounts } from '../../lib/meteorAccounts';
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
-import { withApollo } from 'react-apollo'
+import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -50,7 +51,7 @@ const UsersEditForm = ({terms, client, classes}: {
       </div>
     );
   }
-  if (!Users.canEdit(currentUser,
+  if (!userCanEdit(currentUser,
     terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
     return <span>Sorry, you do not have permission to do this at this time.</span>
   }
@@ -89,9 +90,9 @@ const UsersEditForm = ({terms, client, classes}: {
         collection={Users}
         {...terms}
         successCallback={user => {
-          flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
+          flash({ id: 'users.edit_success', properties: {name: userGetDisplayName(user)}, type: 'success'})
           client.resetStore()
-          history.push(Users.getProfileUrl(user));
+          history.push(userGetProfileUrl(user));
         }}
         queryFragment={getFragment('UsersEdit')}
         mutationFragment={getFragment('UsersEdit')}

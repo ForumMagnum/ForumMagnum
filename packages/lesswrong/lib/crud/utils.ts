@@ -1,8 +1,8 @@
-import { Utils } from '../vulcan-lib';
+import { camelCaseify, pluralize } from '../vulcan-lib/utils';
 import * as _ from 'underscore';
 
 export const getMultiQueryName = (typeName: string) => `multi${typeName}Query`;
-export const getMultiResolverName = (typeName: string) => Utils.camelCaseify(Utils.pluralize(typeName));
+export const getMultiResolverName = (typeName: string) => camelCaseify(pluralize(typeName));
 export const getCreateMutationName = (typeName: string) => `create${typeName}`;
 export const getUpdateMutationName = (typeName: string) => `update${typeName}`;
 export const getDeleteMutationName = (typeName: string) => `delete${typeName}`;

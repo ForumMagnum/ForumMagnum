@@ -6,7 +6,6 @@ import { LWEvents } from '../../lib/collections/lwevents';
 import { useMulti } from '../../lib/crud/withMulti';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import Users from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
@@ -114,7 +113,7 @@ const GatherTown = ({classes}: {
   const { flash } = useMessages();
 
   const { mutate: updateUser } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
 

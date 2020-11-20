@@ -1,5 +1,5 @@
 import { useCallback  } from 'react';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 
 export const useUpdateContinueReading = (postId: string|null|undefined, sequenceId: string|null|undefined): ()=>void => {

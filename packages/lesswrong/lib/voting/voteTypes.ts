@@ -1,11 +1,15 @@
-import { addVoteType } from './vote';
-// LESSWRONG – Added userSmallVotePower and userBigVotePower
 
-export const getVotePower = (karma: number, voteType: string) => {
+interface VoteTypeOptions {
+  power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),
+}
+
+
+export const calculateVotePower = (karma: number, voteType: string): number => {
   if (voteType == "smallUpvote") { return userSmallVotePower(karma, 1)}
   if (voteType == "smallDownvote") { return userSmallVotePower(karma, -1)}
   if (voteType == "bigUpvote") { return userBigVotePower(karma, 1)}
   if (voteType == "bigDownvote") { return userBigVotePower(karma, -1)}
+  else throw new Error("Invalid vote type");
 }
 
 export const userSmallVotePower = (karma: number, multiplier: number) => {
@@ -32,7 +36,18 @@ export const userBigVotePower = (karma: number, multiplier: number) => {
   return 1 * multiplier
 }
 
-addVoteType('smallUpvote', {power: (user) => userSmallVotePower(user.karma, 1), exclusive: true});
-addVoteType('smallDownvote', {power: (user) => userSmallVotePower(user.karma, -1), exclusive: true});
-addVoteType('bigUpvote', {power: (user) => userBigVotePower(user.karma, 1), exclusive: true});
-addVoteType('bigDownvote', {power: (user) => userBigVotePower(user.karma, -1), exclusive: true});
+// Define voting operations
+export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {
+  smallUpvote: {
+    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma, 1),
+  },
+  smallDownvote: {
+    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma, -1),
+  },
+  bigUpvote: {
+    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, 1),
+  },
+  bigDownvote: {
+    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, -1),
+  },
+}

@@ -12,7 +12,7 @@ const widgetStyling = {
 
 const gatherTownRightSideBarWidth = 300
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme),
     padding: 16,
@@ -73,13 +73,13 @@ const styles = (theme) => ({
   }
 })
 
-export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, classes:ClassesType}) => {
+export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
   const { GardenCodeWidget, GardenCodesList, WalledGardenEvents, PomodoroWidget } = Components
 
   const currentUser =  useCurrentUser()
 
   if (!currentUser) return null
-  const refocusOnIframe = () => iframeRef.current.focus()
+  const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>

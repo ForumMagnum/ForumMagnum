@@ -882,8 +882,6 @@ Posts.addView("sunshineNewPosts", function () {
   return {
     selector: {
       reviewedByUserId: {$exists: false},
-      frontpageDate: viewFieldNullOrMissing,
-      meta: false,
     },
     options: {
       sort: {
