@@ -116,9 +116,9 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+      {/* {<AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
-      </AnalyticsContext>}
+      </AnalyticsContext>} */}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
