@@ -405,6 +405,7 @@ importComponent("TaggingDashboard", () => require('../components/tagging/Tagging
 importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
 importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
+importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));

@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagDiscussion = ({classes, tag}: {
   classes: ClassesType,
-  tag: TagFragment
+  tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
   const { CommentsList, Loading } = Components;
   

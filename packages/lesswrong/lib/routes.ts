@@ -9,6 +9,7 @@ const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
+const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
@@ -561,7 +562,8 @@ addRoute(
     name: 'taggingDashboard',
     path: '/tags/dashboard',
     componentName: "TaggingDashboard",
-    title: "Tagging Dashboard"
+    title: "Tagging Dashboard",
+    ...taggingDashboardSubtitle
   }
 );
 

@@ -86,7 +86,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginRight: 16
   },
-  discussionButton: {
+  discussionButtonPositioning: {
     display: "flex",
     alignItems: "center",
     marginRight: 16,
@@ -128,7 +128,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet, TagDiscussionButton } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -266,13 +266,9 @@ const TagPage = ({classes}: {
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             </LWTooltip>
-
-            <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-              <CommentOutlinedIcon/> Discussion
-              <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
-                <TagDiscussion tag={tag}/>
-              </PopperCard>
-            </Link>
+            <div className={classes.discussionButtonPositioning}>
+              <TagDiscussionButton tag={tag} />
+            </div>
           </div>
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
