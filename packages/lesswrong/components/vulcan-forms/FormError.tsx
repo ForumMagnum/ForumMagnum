@@ -13,7 +13,7 @@ const FormError = ({ error, errorContext, getLabel }: {
     return error.message;
   } else if (error.id) { // An internationalized error
     // in case this is a nested fields, only keep last segment of path
-    const errorName = error?.properties?.name && error.properties.name.split('.').slice(-1)[0];
+    const errorName = error.properties?.name && error.properties.name.split('.').slice(-1)[0];
     return (
       <FormattedMessage
         id={error.id}
