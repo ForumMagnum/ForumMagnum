@@ -3,7 +3,6 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 import { postCanEdit } from './helpers';
-import type { AlgoliaDocument } from '../../../server/search/utils';
 
 const options = {
   newCheck: (user: DbUser|null) => {
