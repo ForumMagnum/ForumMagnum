@@ -41,8 +41,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   documentId?: string,
   itemType?: "tagFlagId" | "allPages" | "userPages" 
   showNumber?: boolean,
-  allPages?: boolean,
-  myPages?: boolean,
   style?: "white"|"grey"|"black",
   classes: ClassesType,
 }) => {

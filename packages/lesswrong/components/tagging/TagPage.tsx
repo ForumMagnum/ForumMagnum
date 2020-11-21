@@ -139,10 +139,14 @@ const TagPage = ({classes}: {
   const { captureEvent } =  useTracking()
   const { openDialog } = useDialog();
 
-  const multiTerms = query.flagId === "allPages" ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: query.flagId}
+  const multiTerms = {
+    allPages: {view: "allPagesByNewest"},
+    myPages: {view: "userTags", userId: currentUser?._id},
+    //tagFlagId handled as default case below
+  }
 
   const { results: otherTagsWithNavigation } = useMulti({
-    terms: multiTerms,
+    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
     collectionName: "Tags",
     fragmentName: 'TagWithFlagsFragment',
     limit: 1500,
@@ -191,6 +195,11 @@ const TagPage = ({classes}: {
 
   const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
+  
+  const tagFlagItemType = {
+    allPages: "allPages",
+    myPages: "userPages"
+  }
 
   return <AnalyticsContext
     pageContext='tagPage'
@@ -208,10 +217,10 @@ const TagPage = ({classes}: {
           <div>
             {query.flagId && <span>
               <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-                {query.flagId === "allPages"
-                  ? <TagFlagItem allPages/>
-                  : <TagFlagItem documentId={query.flagId}/>
-                }
+                  <TagFlagItem 
+                    itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+                    documentId={query.flagId}
+                  />
               </Link>
               {nextTag && <span onClick={() => setEditing(true)}><Link
                 className={classes.nextLink}
