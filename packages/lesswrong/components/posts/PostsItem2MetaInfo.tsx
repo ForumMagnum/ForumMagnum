@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -19,12 +18,12 @@ const PostsItem2MetaInfo = ({children, className, classes, read}: {
   classes: ClassesType,
   read?: boolean,
 }) => {
-  return <Typography
+  return <Components.Typography
     component='span'
     className={classNames(classes.metaInfo, {[classes.read]: read}, className)}
     variant='body2'>
       {children}
-  </Typography>
+  </Components.Typography>
 }
 
 const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo, {styles});

@@ -3,7 +3,6 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import withHover from '../common/withHover'
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -49,12 +48,12 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
     return (
         <Components.SunshineListItem hover={hover}>
           <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-            <Typography variant="body2">
+            <Components.Typography variant="body2">
               <Link to={commentGetPageUrl(comment)}>
                 Commented on post: <strong>{ comment.post?.title }</strong>
               </Link>
               <Components.CommentBody comment={comment}/>
-            </Typography>
+            </Components.Typography>
           </Components.SidebarHoverOver>
           <Components.SunshineCommentsItemOverview comment={comment}/>
             {hover && <Components.SidebarActionMenu>

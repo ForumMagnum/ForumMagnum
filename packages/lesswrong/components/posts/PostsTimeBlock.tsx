@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Typography from '@material-ui/core/Typography';
 import moment from '../../lib/moment-timezone';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
@@ -94,7 +93,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   }
 
   const render = () => {
-    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider, Typography } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))

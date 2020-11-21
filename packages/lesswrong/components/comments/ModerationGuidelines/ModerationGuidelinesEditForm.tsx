@@ -6,7 +6,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -48,9 +47,9 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
         Moderation Guidelines Edit Form
       </DialogTitle>
       <DialogContent>
-        <Typography variant="body2">
+        <Components.Typography variant="body2">
           Edit the moderation guidelines specific to this post:
-        </Typography>
+        </Components.Typography>
         {/* TODO: fix unerlying issues so we don't need this weird addFields hack. Fields does not parse properly for non-admins */}
         <Components.WrappedSmartForm
           collection={Posts}

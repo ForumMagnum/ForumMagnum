@@ -7,7 +7,6 @@ import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Typography from '@material-ui/core/Typography';
 import { createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
@@ -26,7 +25,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
-  const { Loading } = Components
+  const { Loading, Typography } = Components
   
   const [ mapsLoaded ] = useGoogleMaps("SetPersonalMapLocationDialog")
   const [ location, setLocation ] = useState(mapLocation || googleLocation)

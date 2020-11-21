@@ -10,7 +10,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
-import Typography from '@material-ui/core/Typography';
 import Users from '../../lib/collections/users/collection';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
@@ -258,7 +257,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle
+      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
     } = Components;
 
     return (

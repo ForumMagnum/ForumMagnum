@@ -5,7 +5,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../lib/alignment-forum/comments/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
@@ -53,12 +52,12 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          <Typography variant="body2">
+          <Components.Typography variant="body2">
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>
             </Link>}
             <Components.CommentBody comment={comment}/>
-          </Typography>
+          </Components.Typography>
         </Components.SidebarHoverOver>
         <Components.SunshineCommentsItemOverview comment={comment}/>
         <Components.SidebarInfo>

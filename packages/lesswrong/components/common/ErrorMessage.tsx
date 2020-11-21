@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   errorText: {
@@ -12,13 +11,13 @@ const ErrorMessage = ({message, classes}: {
   message: string,
   classes: ClassesType,
 }) => {
-  return <Typography
+  return <Components.Typography
     className={classes.errorText}
     align="center"
     variant="body1"
   >
     Error: {message}
-  </Typography>
+  </Components.Typography>
 }
 
 const ErrorMessageComponent = registerComponent("ErrorMessage", ErrorMessage, {styles});

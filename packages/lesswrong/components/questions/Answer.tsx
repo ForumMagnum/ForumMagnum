@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, useCallback } from 'react';
 import { answerStyles } from '../../themes/stylePiping'
-import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
@@ -125,7 +124,7 @@ const Answer = ({ comment, post, classes }: {
     setShowEdit(false)
   }, [setShowEdit]);
 
-  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats } = Components
+  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats, Typography } = Components
   const { html = "" } = comment.contents || {}
 
   return (

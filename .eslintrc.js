@@ -89,6 +89,7 @@ module.exports = {
       { name: "@material-ui", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
+      { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
     ]}],

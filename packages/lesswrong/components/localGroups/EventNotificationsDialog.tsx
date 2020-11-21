@@ -7,7 +7,6 @@ import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/lab/Slider';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -110,7 +109,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading } = Components
+  const { Loading, Typography } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
   const [ mapsLoaded ] = useGoogleMaps("EventNotificationsDialog")

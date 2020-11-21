@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
-import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -122,7 +121,7 @@ const PetrovDayButton = ({classes, refetch}: {
   `
   );
   
-  const { LWTooltip, LoginPopupButton } = Components
+  const { LWTooltip, LoginPopupButton, Typography } = Components
 
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
