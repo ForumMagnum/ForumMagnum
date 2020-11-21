@@ -7,7 +7,6 @@ import { useCurrentUser } from '../common/withUser';
 import { tagBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import Typography from '@material-ui/core/Typography';
-import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
@@ -15,7 +14,6 @@ import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
-import { useHover } from '../common/withHover';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
 
@@ -128,7 +126,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet, TagDiscussionButton } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet, TagDiscussionButton } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -140,8 +138,6 @@ const TagPage = ({classes}: {
   const [editing, setEditing] = useState(!!query.edit)
   const { captureEvent } =  useTracking()
   const { openDialog } = useDialog();
-
-  const { hover, anchorEl, eventHandlers} = useHover()
 
   const multiTerms = query.flagId === "allPages" ? {view: "allPagesByNewest"} : { view: "tagsByTagFlag", tagFlagId: query.flagId}
 
