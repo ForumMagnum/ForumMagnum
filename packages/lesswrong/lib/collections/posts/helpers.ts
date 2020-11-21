@@ -3,7 +3,6 @@ import { getOutgoingUrl, findWhere, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
-import type { PostsMinimumForGetPageUrl } from './collection';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 
@@ -91,6 +90,15 @@ export const getSocialPreviewImage = (post: DbPost): string => {
   if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
+}
+
+// The set of fields required for calling postGetPageUrl. Could be supplied by
+// either a fragment or a DbPost.
+export interface PostsMinimumForGetPageUrl {
+  _id: string
+  slug: string
+  isEvent?: boolean
+  groupId?: string|undefined
 }
 
 // Get URL of a post page.

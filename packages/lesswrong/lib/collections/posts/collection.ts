@@ -25,15 +25,6 @@ const options = {
   },
 }
 
-// The set of fields required for calling postGetPageUrl. Could be supplied by
-// either a fragment or a DbPost.
-export interface PostsMinimumForGetPageUrl {
-  _id: string
-  slug: string
-  isEvent?: boolean
-  groupId?: string|undefined
-}
-
 interface ExtendedPostsCollection extends PostsCollection {
   getSocialPreviewImage: (post: DbPost) => string
   // In search/utils.ts
