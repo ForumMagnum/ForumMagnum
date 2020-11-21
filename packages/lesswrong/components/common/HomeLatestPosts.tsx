@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
@@ -48,11 +48,7 @@ const useFilterSettings = (currentUser: UsersCurrent|null) => {
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
-
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
@@ -102,14 +98,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <TagFilterSettings
                   filterSettings={filterSettings} setFilterSettings={(newSettings) => {
                     setFilterSettings(newSettings)
-                    if (currentUser) {
-                      void updateUser({
-                        selector: { _id: currentUser._id},
-                        data: {
-                          frontpageFilterSettings: newSettings
-                        },
-                      })
-                    }
+                    void updateCurrentUser({
+                      frontpageFilterSettings: newSettings
+                    });
                   }}
                 />
               </span>

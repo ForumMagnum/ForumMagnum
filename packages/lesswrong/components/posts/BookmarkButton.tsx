@@ -1,5 +1,5 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -30,10 +30,7 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
   const { captureEvent } = useTracking({eventType: "bookmarkToggle", eventProps: {"postId": post._id, "bookmarked": !bookmarked}})
 
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UserBookmarks',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const { LWTooltip } = Components
 
@@ -53,16 +50,14 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
       const bookmarks = currentUser.bookmarkedPostsMetadata || []
       const newBookmarks = _.without(bookmarks, _.findWhere(bookmarks, {postId: post._id}))
 
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: { bookmarkedPostsMetadata: newBookmarks }
+      void updateCurrentUser({
+        bookmarkedPostsMetadata: newBookmarks
       });
     } else {
       setBookmarked(true)
       const bookmarks = currentUser.bookmarkedPostsMetadata || []
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
+      void updateCurrentUser({
+        bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}]
       });
     }
     captureEvent()

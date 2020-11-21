@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
 import withUser from '../common/withUser'
 import Users from '../../lib/collections/users/collection';
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps, WithUpdateUserProps {
+interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
   onClose: any,
 }
 interface AFApplicationFormState {
@@ -28,14 +28,11 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
   state: AFApplicationFormState = { applicationText: "" }
 
   handleSubmission = (event) => {
-    const { currentUser, updateUser, flash, onClose } = this.props
+    const { currentUser, updateCurrentUser, flash, onClose } = this.props
     event.preventDefault();
-    void updateUser({
-      selector: { _id: currentUser?._id },
-      data: {
-        afSubmittedApplication: true,
-        afApplicationText: this.state.applicationText,
-      }
+    void updateCurrentUser({
+      afSubmittedApplication: true,
+      afApplicationText: this.state.applicationText,
     }).then(()=>{
       flash({messageString: "Successfully submitted application", type: "success"})
       onClose()
@@ -88,10 +85,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 const AFApplicationFormComponent = registerComponent(
   'AFApplicationForm', AFApplicationForm, { styles, hocs: [
     withMessages,
-    withUpdate({
-      collection: Users,
-      fragmentName: 'SuggestAlignmentUser',
-    }),
+    withUpdateCurrentUser,
     withUser,
   ]}
 );

@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withSingle } from '../../lib/crud/withSingle';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -166,7 +166,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
 interface ExternalProps {
   documentId: string,
 }
-interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps, WithTrackingProps {
+interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithUpdateCurrentUserProps, WithStylesProps, WithTrackingProps {
   document: UserKarmaChanges
 }
 interface KarmaChangeNotifierState {
@@ -206,7 +206,7 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
   }
 
   handleClose = (e) => {
-    const { document, updateUser, currentUser } = this.props;
+    const { document, updateCurrentUser, currentUser } = this.props;
     const { anchorEl } = this.state
     if (e && anchorEl?.contains(e.target)) {
       return;
@@ -217,12 +217,9 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     });
     if (!currentUser) return;
     if (document?.karmaChanges) {
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          karmaChangeLastOpened: document.karmaChanges.endDate,
-          karmaChangeBatchStart: document.karmaChanges.startDate
-        }
+      void updateCurrentUser({
+        karmaChangeLastOpened: document.karmaChanges.endDate,
+        karmaChangeBatchStart: document.karmaChanges.startDate
       });
 
       if (document.karmaChanges.updateFrequency === "realtime") {
@@ -291,10 +288,7 @@ const KarmaChangeNotifierComponent = registerComponent<ExternalProps>('KarmaChan
       collection: Users,
       fragmentName: 'UserKarmaChanges'
     }),
-    withUpdate({
-      collection: Users,
-      fragmentName: 'UsersCurrent',
-    }),
+    withUpdateCurrentUser,
     withTracking
   ]
 });
