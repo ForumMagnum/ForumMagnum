@@ -1422,11 +1422,11 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
   taggingDashboardCollapsed: {
-  type: Boolean,
-  optional:true,
-  canRead: ['guests'],
-  hidden: true,
-  canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    hidden: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
 },
 });
 

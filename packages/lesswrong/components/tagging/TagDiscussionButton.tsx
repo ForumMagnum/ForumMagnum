@@ -11,16 +11,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.uiStyle,
     color: theme.palette.grey[700],
     display: "flex",
-    '& svg': {
-      height: 20,
-      width: 20,
-      marginRight: 4,
-      cursor: "pointer",
-      color: theme.palette.grey[700]
-    },
     alignItems: "center",
     marginRight: 8,
     marginLeft: "auto"
+  },
+  discussionButtonIcon: {
+    height: 20,
+    width: 20,
+    marginRight: 4,
+    cursor: "pointer",
+    color: theme.palette.grey[700]
   }
 });
 
@@ -35,7 +35,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", classes}: {
   const { hover, anchorEl, eventHandlers } = useHover()
   
   return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-      <CommentOutlinedIcon/> {text}
+      <CommentOutlinedIcon className={classes.discussionButtonIcon} /> {text}
       <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
         <TagDiscussion tag={tag}/>
       </PopperCard>

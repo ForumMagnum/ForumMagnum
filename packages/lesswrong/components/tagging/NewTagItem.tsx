@@ -33,26 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...tagBodyStyles(theme),
     marginBottom: 18,
   },
-  discussionButton: {
-    ...theme.typography.commentStyle,
-    ...theme.typography.body2,
-    ...theme.typography.uiStyle,
-    color: theme.palette.grey[700],
-    display: "flex",
-    '& svg': {
-      height: 20,
-      width: 20,
-      marginRight: 4,
-      cursor: "pointer",
-      color: theme.palette.grey[700]
-    },
-    alignItems: "center",
-    marginRight: 8,
-    marginLeft: "auto"
-  },
   discussionButtonPositioning: {
     display: "flex",
-    // justifyContent: "flex-end"
   }
 });
 
@@ -96,7 +78,7 @@ const NewTagItem = ({tag, classes}: {
     </div>
     
     {!tag.wikiOnly && <PostsList2
-     terms={postSearchTerms}
+      terms={postSearchTerms}
       enableTotal
       tagId={tag._id}
       itemsPerPage={20}

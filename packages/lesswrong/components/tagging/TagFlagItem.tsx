@@ -57,19 +57,14 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   })
   
   
-  const getTagFlagItemTerms = (itemType) => { 
-    switch(itemType) {
-      case 'allPages':
-        return {view: "allPagesByNewest"}
-      case 'userPages':
-        return {view: "userTags", userId: currentUser?._id}
-      default: //tagFlagId type
-        return {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
+  const TagFlagItemTerms = { 
+      allPages: {view: "allPagesByNewest"},
+      userPages: {view: "userTags", userId: currentUser?._id},
+      tagFlagId: {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
     }
-  }
     
   const { totalCount, loading } = useMulti({
-    terms: getTagFlagItemTerms(itemType),
+    terms: TagFlagItemTerms[itemType],
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
@@ -79,18 +74,22 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   
-  var tagFlagDescription = `tagFlag ${tagFlag?._id}`
-  var tagFlagText = tagFlag?.name
-  var innerHTML = tagFlag?.contents?.html || ""
   
-  if (itemType === "allPages") {
-    var tagFlagDescription = "All Pages"
-    var tagFlagText = "All Wiki-Tags"
-    var innerHTML = "All Wiki-Tags sorted by most recently created, including those with no flags set."
-  } else if (itemType === 'userPages') {
-    var tagFlagDescription = "User Wiki-Tags"
-    var tagFlagText = "My Wiki-Tags"
-    var innerHTML = "Wiki-Tags you created, including those with no flags set."
+  
+  const tagFlagDescription = {
+    tagFlagId:`tagFlag ${tagFlag?._id}`,
+    allPages:"All Pages",
+    userPages: "User Wiki-Tags"
+  }
+  const tagFlagText = {
+    tagFlagId: tagFlag?.name,
+    allPages: "All Wiki-Tags",
+    userPages: "My Wiki-Tags"
+  }
+  const hoverText = {
+    tagFlagId: tagFlag?.contents?.html || "",
+    allPages: "All Wiki-Tags sorted by most recently created, including those with no flags set.",
+    userPages: "Wiki-Tags you created, including those with no flags set."
   } 
     
   return <span {...eventHandlers} className={rootStyles}>
@@ -104,13 +103,13 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
           <Card className={classes.hoverCard}>
             <ContentItemBody
               className={classes.highlight}
-              dangerouslySetInnerHTML={{__html: innerHTML}}
-              description={tagFlagDescription}
+              dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
+              description={tagFlagDescription[itemType]}
             />
           </Card>
         </AnalyticsContext>}
     </LWPopper>
-    {tagFlagText}{(!loading && showNumber)? `: ${totalCount}` : ``}
+    {tagFlagText[itemType]}{(!loading && showNumber)? `: ${totalCount}` : ``}
   </span>
 }
 

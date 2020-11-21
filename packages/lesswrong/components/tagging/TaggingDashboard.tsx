@@ -85,19 +85,14 @@ const TaggingDashboard = ({classes}: {
   })
   const [collapsed, setCollapsed] = useState(currentUser?.taggingDashboardCollapsed || false);
   
-  const multiTerms = (focus) => {
-    switch (focus) {
-      case "allPages":
-        return {view: "allPagesByNewest"}
-      case "myPages":
-        return {view: "userTags", userId: currentUser?._id}
-      default:
-        return {view: "tagsByTagFlag", tagFlagId: focus}
-    }
+  const multiTerms = {
+      allPages: {view: "allPagesByNewest"},
+      myPages: {view: "userTags", userId: currentUser?._id},
+      //tagFlagId handled as default case below
   }
     
   const { results: tags, loading, loadMoreProps } = useMulti({
-    terms: multiTerms(query.focus),
+    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
     collection: Tags,
     fragmentName: "TagWithFlagsFragment",
     limit: 10,
@@ -166,7 +161,7 @@ const TaggingDashboard = ({classes}: {
             <TagFlagItem itemType={"userPages"} style={query.focus === "myPages" ? "black" : "grey"}/>
           </QueryLink>}
           {tagFlags?.map(tagFlag => <QueryLink key={tagFlag._id} query={query.focus === tagFlag._id ? {} : {focus: tagFlag._id}}>
-          <TagFlagItem documentId={tagFlag._id} style={query.focus === tagFlag._id ? "black" : "grey"} />
+            <TagFlagItem documentId={tagFlag._id} style={query.focus === tagFlag._id ? "black" : "grey"} />
           </QueryLink>)}
         </div>
         {!loading && tagsFiltered?.map(tag => <TagsDetailsItem
