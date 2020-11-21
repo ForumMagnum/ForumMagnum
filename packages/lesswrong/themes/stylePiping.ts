@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
-import { metaculusBackground } from '../components/linkPreview/PostLinkPreview';
+
+export const metaculusBackground = "#2c3947"
 
 const hideSpoilers = {
   backgroundColor: 'black',
