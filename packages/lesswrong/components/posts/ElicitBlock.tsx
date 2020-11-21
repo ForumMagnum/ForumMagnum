@@ -277,7 +277,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
         })}
         {!predictionsHidden && roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
           {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction}, i) => <span key={creator?._id} className={classes.name}>
-            {creator?.lwUser ? <UsersName user={creator?.lwUser} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
+            {creator?.lwUser ? <UsersName user={creator?.lwUser} tooltipPlacement={"bottom"} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
         </div>}
       </div>)}
