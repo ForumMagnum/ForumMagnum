@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
 import { useDialog } from '../common/withDialog';
+import sortBy from 'lodash/sortBy';
 
 const elicitDataFragment = `
   _id
@@ -54,7 +55,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme),
     position: 'relative',
-    paddingTop: rootPaddingTop
+    paddingTop: rootPaddingTop,
+    marginBottom: 0
   },
   histogramRoot: {
     height: rootHeight,
@@ -63,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   histogramBucket: {
     display: 'flex',
     flexGrow: 1,
-    overflow: 'hidden',
+    justifyContent: 'flex-end',
     '&:hover $sliceColoredArea': {
       backgroundColor: "rgba(0,0,0,0.15)"
     },
@@ -141,6 +143,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '100%',
     color: 'rgba(0,0,0,0.6)',
     marginTop: 4,
+    paddingBottom: 4,
     display: 'flex',
     justifyContent: 'space-between'
   },
@@ -165,7 +168,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'white',
     color: 'rgba(0,0,0,0.6)',
     height: `calc(100% - ${rootHeight + rootPaddingTop}px)`,
-    paddingTop: 5
+    paddingTop: 4
   },
   name: {
     marginRight: 4
@@ -188,9 +191,9 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     }
     ${getFragment("UsersMinimumInfo")}  
   `);
-  
-  const roughlyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => Math.floor(prediction / 10) * 10)
-  const finelyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
+  const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
+  const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
+  const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
 
   return <div className={classes.root}>
