@@ -426,3 +426,15 @@ registerFragment(`
     }
   }
 `)
+
+registerFragment(`
+  fragment WithVotePost on Post {
+    __typename
+    _id
+    currentUserVote
+    baseScore
+    score
+    afBaseScore
+    voteCount
+  }
+`);

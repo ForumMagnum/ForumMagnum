@@ -1,4 +1,4 @@
-import { registerFragment } from './vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
   fragment UsersAdmin on User {
@@ -12,65 +12,6 @@ registerFragment(`
     groups
     services
     karma
-  }
-`);
-
-registerFragment(`
-  fragment conversationsListFragment on Conversation {
-    _id
-    title
-    createdAt
-    latestActivity
-    participantIds
-    participants {
-      ...UsersMinimumInfo
-    }
-    archivedByIds
-    messageCount
-  }
-`);
-
-registerFragment(`
-  fragment newConversationFragment on Conversation {
-    _id
-    title
-    participantIds
-  }
-`);
-
-registerFragment(`
-  fragment messageListFragment on Message {
-    _id
-    user {
-      ...UsersMinimumInfo
-    }
-    contents {
-      html
-    }
-    createdAt
-    conversationId
-  }
-`);
-
-registerFragment(`
-  fragment editTitle on Conversation {
-    _id
-    title
-  }
-`);
-
-registerFragment(`
-  fragment NotificationsList on Notification {
-    _id
-    documentId
-    documentType
-    deleted
-    userId
-    createdAt
-    link
-    message
-    type
-    viewed
   }
 `);
 
@@ -194,21 +135,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment RSSFeedMinimumInfo on RSSFeed {
-    _id
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
-    createdAt
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-  }
-`);
-
-registerFragment(`
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -247,57 +173,6 @@ registerFragment(`
     signUpReCaptchaRating
     needsReview
     sunshineSnoozed
-  }
-`);
-
-registerFragment(`
-  fragment newRSSFeedFragment on RSSFeed {
-    _id
-    userId
-    createdAt
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-    status
-  }
-`);
-
-
-
-registerFragment(`
-  fragment RSSFeedMutationFragment on RSSFeed {
-    _id
-    userId
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-  }
-`);
-
-registerFragment(`
-  fragment newEventFragment on LWEvent {
-    _id
-    createdAt
-    userId
-    name
-    important
-    properties
-    intercom
-  }
-`);
-
-registerFragment(`
-  fragment lastEventFragment on LWEvent {
-    _id
-    createdAt
-    documentId
-    userId
-    name
-    important
-    properties
-    intercom
   }
 `);
 
@@ -468,108 +343,5 @@ registerFragment(`
     hideTaggingProgressBar
 
     deleted
-  }
-`)
-
-registerFragment(`
-  fragment unclaimedReportsList on Report {
-    _id
-    userId
-    user {
-      _id
-      displayName
-      username
-      slug
-    }
-    commentId
-    comment {
-      _id
-      userId
-      user {
-        ...UsersMinimumInfo
-      }
-      baseScore
-      contents {
-        ...RevisionDisplay
-      }
-      postedAt
-      deleted
-      postId
-      post {
-        _id
-        slug
-        title
-        isEvent
-      }
-    }
-    postId
-    post {
-      _id
-      slug
-      title
-      isEvent
-      contents {
-        ...RevisionDisplay
-      }
-    }
-    closedAt
-    createdAt
-    claimedUserId
-    claimedUser {
-      _id
-      displayName
-      username
-      slug
-    }
-    link
-    description
-    reportedAsSpam
-    markedAsSpam
-  }
-`);
-
-registerFragment(`
-  fragment WithVotePost on Post {
-    __typename
-    _id
-    currentUserVote
-    baseScore
-    score
-    afBaseScore
-    voteCount
-  }
-`);
-
-registerFragment(`
-  fragment RevisionDisplay on Revision {
-    _id
-    version
-    updateType
-    editedAt
-    userId
-    html
-    wordCount
-    htmlHighlight
-    plaintextDescription
-  }
-`)
-
-
-
-registerFragment(`
-  fragment RevisionEdit on Revision {
-    _id
-    version
-    updateType
-    editedAt
-    userId
-    originalContents
-    html
-    markdown
-    draftJS
-    ckEditorMarkup
-    wordCount
-    htmlHighlight
-    plaintextDescription
   }
 `)
