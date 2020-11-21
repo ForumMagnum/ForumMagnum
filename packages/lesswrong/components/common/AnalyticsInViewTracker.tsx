@@ -11,6 +11,7 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
 }) => {
   const { setNode, entry } = useIsInView(observerProps)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const captureInViewEvent = useCallback(
     useTracking({ eventType: eventType || "inViewEvent", eventProps: {...eventProps, ...observerProps}}).captureEvent,
     // absolutely no reason for eventType or props to change for InView tracker once created, easiest way to prevent rerender because of object props
