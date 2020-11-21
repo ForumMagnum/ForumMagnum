@@ -534,7 +534,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   renderUpdateTypeSelect = () => {
-    const { currentUser, formType, classes } = this.props
+    const { currentUser, formType, classes, form } = this.props
+    if (form.hideControls) return null
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
       value={this.state.updateType}
@@ -550,12 +551,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   
   renderCommitMessageInput = () => {
     const { currentUser, formType, fieldName, form, classes } = this.props
+    
     const collectionName = form.collectionName;
     if (!currentUser || (!userCanCreateCommitMessages(currentUser) && collectionName !== "Tags") || formType !== "edit") { return null }
     
     
     const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
     if (!fieldHasCommitMessages) return null;
+    if (form.hideControls) return null
     
     return <div className={classes.changeDescriptionRow}>
       <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
@@ -563,16 +566,17 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         className={classes.changeDescriptionInput}
         value={this.state.commitMessage}
         onChange={(ev) => {
-          this.setState({ commitMessage: ev.target.value });
+          this.setState({ commitMes sage: ev.target.value });
         }}
       />
     </div>
   }
 
   renderEditorTypeSelect = () => {
-    const { currentUser, classes } = this.props
+    const { currentUser, classes, form } = this.props
     const { LWTooltip } = Components
     if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
+    if (form.hideControls) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
       <LWTooltip title="Warning! Changing format will erase your content" placement="left">

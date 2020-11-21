@@ -24,8 +24,8 @@ export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, succ
       successCallback={successCallback}
       cancelCallback={cancelCallback}
       showRemove={false}
-      queryFragment={getFragment('GardenCodeFragment')}
-      mutationFragment={getFragment('GardenCodeFragment')}
+      queryFragment={getFragment('GardenCodeFragmentEdit')}
+      mutationFragment={getFragment('GardenCodeFragmentEdit')}
       submitLabel="Save"
     />
   </div>

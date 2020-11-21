@@ -6,6 +6,7 @@ import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
+import { makeEditable } from '../../editor/make_editable';
 
 function generateCode(length) {
   let result = '';
@@ -143,3 +144,15 @@ addUniversalFields({collection: GardenCodes})
 
 export default GardenCodes;
 
+export const makeEditableOptions = {
+  pingbacks: true,
+  commentEditor: true,
+  commentStyles: true,
+  hideControls: true,
+  order: 20
+}
+
+makeEditable({
+  collection: GardenCodes,
+  options: makeEditableOptions
+}) 
