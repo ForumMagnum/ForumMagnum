@@ -120,8 +120,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
   },
   markdownImgErrText: {
-    margin: `${theme.spacing.unit * 3}px 0`
-  }
+    margin: `${theme.spacing.unit * 3}px 0`,
+    color: theme.palette.error.main,
+  },
+  lastEditedWarning: {
+    color: theme.palette.error.main,
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -479,8 +483,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const { currentUser, classes } = this.props
     const type = this.getInitialEditorType();
     const defaultType = this.getUserDefaultEditor(currentUser)
-    return <div>
-        <Components.Typography variant="body2" color="error">
+    return <div className={classes.lastEditedWarning}>
+        <Components.Typography variant="body2">
           This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
           {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
           <a
@@ -693,7 +697,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           fullWidth={true}
           disableUnderline={true}
         />
-      {markdownImgErrs && editorType === 'markdown' && <Components.Typography component='aside' variant='body2' color='error' className={classes.markdownImgErrText}>
+      {markdownImgErrs && editorType === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
           Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
           connection. You should update all links to images so that they are served over a{' '}
           secure HTTPS connection (i.e. the links should start with <em>https://</em>).

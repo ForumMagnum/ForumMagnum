@@ -25,7 +25,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 720,
   },
   inline: {
-    display: 'inline'
+    display: 'inline',
+    color: theme.palette.text.secondary,
   },
   button: {
     color: theme.palette.lwTertiary.main,
@@ -106,7 +107,6 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
     return <CommentsListMeta>
       <Typography
         variant="body2"
-        color="textSecondary"
         component='span'
         className={classes.inline}>
         {
@@ -122,7 +122,6 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
       </Typography>
       {post && <Typography
         variant="body2"
-        color="textSecondary"
         component='span'
         className={classes.inline}
       >

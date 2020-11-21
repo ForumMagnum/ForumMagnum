@@ -146,9 +146,9 @@ const Answer = ({ comment, post, classes }: {
         :
         <div>
           <AnalyticsContext pageElementContext="answerItem">
-            <div className={classes.answer}>
+            <div className={classes.answer} id={comment._id}>
               <div className={classes.answerHeader}>
-                {comment.user && <Typography variant="body1" id={comment._id} className={classes.author}>
+                {comment.user && <Typography variant="body1" className={classes.author}>
                   { <UsersName user={comment.user} />}
                 </Typography >}
                 <Typography variant="subheading" className={classes.date}>

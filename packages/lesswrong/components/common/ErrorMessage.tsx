@@ -4,6 +4,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 const styles = (theme: ThemeType): JssStyles => ({
   errorText: {
     color: theme.palette.error.main,
+    textAlign: "center",
   }
 })
 
@@ -13,7 +14,6 @@ const ErrorMessage = ({message, classes}: {
 }) => {
   return <Components.Typography
     className={classes.errorText}
-    align="center"
     variant="body1"
   >
     Error: {message}
