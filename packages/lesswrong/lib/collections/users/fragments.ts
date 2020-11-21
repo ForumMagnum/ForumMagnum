@@ -144,13 +144,6 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment UsersList on User {
-    ...UsersMinimumInfo
-    karma
-  }
-`);
-
-registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma

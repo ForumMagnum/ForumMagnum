@@ -22,10 +22,3 @@ registerFragment(`
     participantIds
   }
 `);
-
-registerFragment(`
-  fragment editTitle on Conversation {
-    _id
-    title
-  }
-`);

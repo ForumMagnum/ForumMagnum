@@ -51,15 +51,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment CommentPermalink on Comment {
-    ...CommentsList
-    parentComment {
-      ...CommentsList
-    }
-  }
-`);
-
-registerFragment(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {

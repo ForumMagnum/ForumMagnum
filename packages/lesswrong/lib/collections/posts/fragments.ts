@@ -109,12 +109,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostTagRelevance on Post {
-    tagRelevance
-  }
-`);
-
-registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVote
@@ -358,15 +352,6 @@ registerFragment(`
     tableOfContents
   }
 `);
-
-registerFragment(`
-  fragment EditModerationGuidelines on Post {
-    moderationGuidelines {
-      ...RevisionEdit
-    },
-    moderationStyle
-  }
-`)
 
 registerFragment(`
   fragment PostsRevisionsList on Post {
