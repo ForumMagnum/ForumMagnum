@@ -1,6 +1,6 @@
 import { addGraphQLSchema, Vulcan } from './vulcan-lib';
 import { RateLimiter } from './rateLimiter';
-import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
+import React, { useContext, useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer } from './executionEnvironment';
 import * as _ from 'underscore';
@@ -64,18 +64,32 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
 }
 
 
-export const ReactTrackingContext = React.createContext({});
+const ReactTrackingContext = React.createContext({});
 
 export const AnalyticsContext = ({children, ...props}) => {
   const existingContextData = useContext(ReactTrackingContext)
-  const newContextData = {...existingContextData, ...props};
   
-  return <ReactTrackingContext.Provider value={newContextData}>
+  // Create a child context, which is the parent context plus the provided props
+  // merged on top of it. But create it in a referentially stable way: reuse
+  // the same object, so that changes never cause child components to rerender.
+  // (As long as they captured the context in the obvious way, they'll still get
+  // the newest values of these props when they actually log an event.)
+  const newContextData = useRef({...existingContextData});
+  for (let key of Object.keys(props))
+    newContextData.current[key] = props[key];
+  
+  return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}
   </ReactTrackingContext.Provider>
 }
 
-export function useTracking({eventType="unnamed", eventProps={}, skip=false}: {
+// An empty object, used as an argument default value. If the argument default
+// value were set to {} in the usual way, it would be a new instance of {} each
+// time; this way, it's the same {}, which in turn matters for making
+// useCallback return the same thing each tie.
+const emptyEventProps = {};
+
+export function useTracking({eventType="unnamed", eventProps=emptyEventProps, skip=false}: {
   eventType?: string,
   eventProps?: any,
   skip?: boolean
@@ -94,7 +108,7 @@ export function useTracking({eventType="unnamed", eventProps={}, skip=false}: {
 
 export const withTracking = hookToHoc(useTracking)
 
-export function useOnMountTracking({eventType="unnamed", eventProps={}, captureOnMount, skip=false}: {
+export function useOnMountTracking({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
   eventType?: string,
   eventProps?: any,
   captureOnMount?: any,
