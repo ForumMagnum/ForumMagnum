@@ -6,11 +6,10 @@ import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCoun
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
+import { postStatuses } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
-import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
-import { Tags } from '../tags/collection';
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -46,13 +45,13 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.adminOptions,
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
-      if (!post.postedAt && postGetDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
+      if (!post.postedAt && postGetDefaultStatus(currentUser) === postStatuses.STATUS_APPROVED) {
         return new Date();
       }
     },
     onEdit: (modifier, post) => {
       // Set the post's postedAt if it's going to be approved
-      if (!post.postedAt && modifier.$set.status === getCollection('Posts').config.STATUS_APPROVED) {
+      if (!post.postedAt && modifier.$set.status === postStatuses.STATUS_APPROVED) {
         return new Date();
       }
     }
@@ -547,7 +546,7 @@ const schema: SchemaType<DbPost> = {
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
       const tags = await context.loaders.Tags.loadMany(tagIds)
-      return await accessFilterMultiple(currentUser, Tags, tags, context)
+      return await accessFilterMultiple(currentUser, context.Tags, tags, context)
     }
   }),
   
@@ -570,7 +569,7 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "Comment",
     viewableBy: ['guests'],
     resolver: async (post, args, context: ResolverContext) => {
-      const { currentUser } = context;
+      const { currentUser, Comments } = context;
       if (post.lastCommentPromotedAt) {
         const comment = await Comments.findOne({postId: post._id, promoted: true}, {sort:{promotedAt: -1}})
         return await accessFilterSingle(currentUser, Comments, comment, context)
@@ -583,7 +582,7 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "Comment",
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { currentUser } = context;
+      const { currentUser, Comments } = context;
       if (post.question) {
         if (post.lastCommentPromotedAt) {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
