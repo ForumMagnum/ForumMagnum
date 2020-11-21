@@ -33,13 +33,18 @@ import { Mutation } from '@apollo/client/react/components';
 import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
-import { updateClientTemplate, getCollection, getFragment, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import { updateClientTemplate, getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { cacheUpdateGenerator } from './cacheUpdates';
 
-export const withUpdate = options => {
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
+export const withUpdate = (options: {
+  collectionName: CollectionNameString,
+  fragmentName?: FragmentName,
+  fragment?: any,
+  extraVariables?: any, //TODO: Unused?
+}) => {
+  const collection = getCollection(options.collectionName);
+  const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`

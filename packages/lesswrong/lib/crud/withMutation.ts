@@ -19,7 +19,7 @@ import * as _ from 'underscore';
 export function withMutation({name, args, fragmentName}: {
   name: string,
   args: any,
-  fragmentName?: keyof FragmentTypes,
+  fragmentName?: FragmentName,
 }) {
 
   let mutation, fragment, fragmentBlock = '';

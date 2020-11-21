@@ -4,7 +4,6 @@ import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
-import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
 
@@ -69,7 +68,7 @@ const MoveToAnswersMenuItemComponent = registerComponent<ExternalProps>(
     hocs: [
       withUser, withApollo, withMessages,
       withUpdate({
-        collection: Comments,
+        collectionName: "Comments",
         fragmentName: 'CommentsList',
       }),
     ]

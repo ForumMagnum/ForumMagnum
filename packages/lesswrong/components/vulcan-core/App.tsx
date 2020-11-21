@@ -152,17 +152,15 @@ class App extends PureComponent<any,any> {
   getLocale: PropTypes.func,
 };
 
-const updateOptions = {
-  collectionName: 'Users',
-  fragmentName: 'UsersCurrent',
-};
-
 //registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent('App', App, {
   hocs: [
     withCurrentUser,
-    withUpdate(updateOptions),
+    withUpdate({
+      collectionName: 'Users',
+      fragmentName: 'UsersCurrent',
+    }),
     withApollo, withRouter
   ]
 });

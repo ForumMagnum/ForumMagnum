@@ -6,7 +6,6 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userCanCollaborate } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import withUser from '../../common/withUser'
-import { Posts } from '../../../lib/collections/posts/collection';
 import { postCanEdit } from '../../../lib/collections/posts/helpers';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import { withItemsRead, ItemsReadContextType } from '../../common/withRecordPostView';
@@ -315,7 +314,7 @@ const PostActionsComponent = registerComponent<ExternalProps>('PostActions', Pos
     withUser,
     withDialog,
     withUpdate({
-      collection: Posts,
+      collectionName: "Posts",
       fragmentName: 'PostsList',
     }),
     withMutation({
