@@ -590,8 +590,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   renderVersionSelect = () => {
-    const { classes, document, currentUser } = this.props
+    const { classes, document, currentUser, form } = this.props
 
+    if (form.hideControls) return null
     if (!currentUser?.isAdmin) return null
     if (!this.getCurrentRevision()) return null
     return <span className={classes.select}>
@@ -606,8 +607,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   renderEditorTypeSelect = () => {
-    const { currentUser, classes } = this.props
+    const { currentUser, classes, form } = this.props
     const { LWTooltip } = Components
+
+    if (form.hideControls) return null
     if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
@@ -785,7 +788,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       && formType !== "new"
       && this.getInitialEditorType() !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
-
     return <div>
       { editorWarning }
       <div className={classNames(classes.editor, this.getBodyStyles())}>

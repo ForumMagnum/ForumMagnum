@@ -241,6 +241,11 @@ const createLWTheme = (theme: ThemeType) => {
           paddingLeft: spacingUnit
         }
       },
+      MuiFormControlLabel: {
+        label: {
+          ...typography.body2
+        }
+      },
       MuiTableCell: {
         body: {
           ...body2FontSize,

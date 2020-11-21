@@ -14,11 +14,11 @@ const gatherTownRightSideBarWidth = 300
 
 const styles = (theme) => ({
   root: {
-    ...commentBodyStyles(theme),
+    ...commentBodyStyles(theme, true),
     padding: 16,
     marginBottom: 0,
     marginTop: 0,
-    position: "relative"
+    position: "relative",
   },
   widgetsContainer: {
     display: "flex",
@@ -86,17 +86,15 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
       {currentUser.walledGardenInvite && <div className={classes.events}>
         <Typography variant="title">Garden Events</Typography>
         <div className={classes.calendarLinks}>
-          <GardenCodeWidget/>
-          <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank" rel="noopener noreferrer">
-            <Button variant="outlined" className={classes.fbEventButton}>Create FB Event</Button>
-          </a></div>
+          <div><GardenCodeWidget type="friend"/></div>
+          <div><GardenCodeWidget type="event"/></div>
         </div>
       </div>}
       {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
-        <WalledGardenEvents frontpage={false}/>
+        <GardenCodesList terms={{view:"semipublicGardenCodes", types: ['public', 'semi-public']}} />
       </div>}
       <div className={classes.codesList}>
-        <GardenCodesList />
+        <GardenCodesList terms={{view:"userGardenCodes"}}  />
       </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>

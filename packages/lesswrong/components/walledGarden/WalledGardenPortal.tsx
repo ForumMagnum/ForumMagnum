@@ -39,7 +39,8 @@ const styles = (theme) => ({
     ...theme.typography.commentStyle,
     display: "flex",
     alignItems: "center",
-    cursor: "pointer"
+    cursor: "pointer",
+    textShadow: "0 0 10px rgba(0,0,0,.8)"
   },
   closeIcon: {
     height: 48,

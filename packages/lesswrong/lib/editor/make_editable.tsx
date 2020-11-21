@@ -59,6 +59,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     formGroup,
     permissions,
     fieldName,
+    hideControls,
     hintText,
     order,
     pingbacks = false,
@@ -118,6 +119,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         commentEditor,
         commentStyles,
         getLocalStorageId,
+        hideControls
       },
     },
     
