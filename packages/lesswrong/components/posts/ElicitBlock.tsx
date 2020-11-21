@@ -12,6 +12,7 @@ import { randomId } from '../../lib/random';
 import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
 import { useDialog } from '../common/withDialog';
 import sortBy from 'lodash/sortBy';
+import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const elicitDataFragment = `
@@ -205,7 +206,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
   const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
-  const userHasPredicted = currentUser && _.some(
+  const userHasPredicted = currentUser && some(
     sortedPredictions,
     (prediction: any) => prediction?.creator?.lwUser?._id === currentUser._id
   );
