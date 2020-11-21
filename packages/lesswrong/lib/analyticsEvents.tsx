@@ -69,12 +69,32 @@ export const ReactTrackingContext = React.createContext({});
 export const AnalyticsContext = ({children, ...props}) => {
   const existingContextData = useContext(ReactTrackingContext)
   const newContextData = {...existingContextData, ...props};
+  
   return <ReactTrackingContext.Provider value={newContextData}>
     {children}
   </ReactTrackingContext.Provider>
 }
 
-export function useTracking({eventType="unnamed", eventProps = {}, captureOnMount = false,  skip = false}: {
+export function useTracking({eventType="unnamed", eventProps={}, skip=false}: {
+  eventType?: string,
+  eventProps?: any,
+  skip?: boolean
+}={}) {
+  const trackingContext = useContext(ReactTrackingContext)
+
+  const track = useCallback((type?: string|undefined, trackingData?: Record<string,any>) => {
+    captureEvent(type || eventType, {
+      ...trackingContext,
+      ...eventProps,
+      ...trackingData
+    })
+  }, [trackingContext, eventProps, eventType])
+  return {captureEvent: track}
+}
+
+export const withTracking = hookToHoc(useTracking)
+
+export function useOnMountTracking({eventType="unnamed", eventProps={}, captureOnMount, skip=false}: {
   eventType?: string,
   eventProps?: any,
   captureOnMount?: any,
@@ -100,8 +120,6 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
   }, [trackingContext, eventProps, eventType])
   return {captureEvent: track}
 }
-
-export const withTracking = hookToHoc(useTracking)
 
 export function useIsInView({rootMargin='0px', threshold=0}={}) {
   const [entry, setEntry] = useState<any>(null)
