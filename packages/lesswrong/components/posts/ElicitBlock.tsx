@@ -12,6 +12,7 @@ import { randomId } from '../../lib/random';
 import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
 import { useDialog } from '../common/withDialog';
 import sortBy from 'lodash/sortBy';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const elicitDataFragment = `
   _id
@@ -131,6 +132,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     top: -20
   },
+  invertedSliceNumber: {
+    // This number is right-aligned in the slice (and so overflows left) because
+    // if it were left-aligned or centered, it would escape the widget's bounding
+    // box on the right side, causing horizontal scrolling
+    right: 0
+  },
   sliceColoredArea: {
     backgroundColor: "rgba(0,0,0,0.1)",
   },
@@ -198,6 +205,13 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
   const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
+  const userHasPredicted = currentUser && _.some(
+    sortedPredictions,
+    (prediction: any) => prediction?.creator?.lwUser?._id === currentUser._id
+  );
+  const [revealed, setRevealed] = useState(false);
+  const predictionsHidden = currentUser?.hideElicitPredictions && !userHasPredicted && !revealed;
+  
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
 
   return <div className={classes.root}>
@@ -227,6 +241,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
                 const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
 
+                setRevealed(true);
+
                 void makeElicitPrediction({
                   variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },
                   optimisticResponse: {
@@ -250,15 +266,15 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
               className={classes.additionalVoteArea} 
               style={{height: `${(1 / (maxSize+1))*100 || 0}%`}}
             >
-              <div className={classes.sliceNumber}>{prob}%</div>
+              <div className={classNames(classes.sliceNumber, {[classes.invertedSliceNumber]: prob > 94})}>{prob}%</div>
             </div>
-            <div 
+            {!predictionsHidden && <div
               className={classes.sliceColoredArea}
               style={{height: `${(roughlyGroupedData[`${bucket*10}`]?.length / (maxSize+1))*100 || 0}%`}}
-            />
+            />}
           </div>
         })}
-        {roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
+        {!predictionsHidden && roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
           {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction}, i) => <span key={creator?._id} className={classes.name}>
             {creator?.lwUser ? <UsersName user={creator?.lwUser} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
@@ -270,6 +286,9 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
       <div className={classes.startPercentage}>1%</div>
       <div className={classes.title}>
         {data?.ElicitBlockData?.title || (loading ? null : "Can't find Question Title on Elicit")}
+        {!loading && predictionsHidden && <a onClick={()=>setRevealed(true)}>
+          {" "}(Reveal)
+        </a>}
       </div>
       <div className={classes.endPercentage}>99%</div>
     </div>
@@ -277,7 +296,10 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     
 }
 
-const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, { styles });
+const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, {
+  styles,
+  hocs: [withErrorBoundary],
+});
 
 declare global {
   interface ComponentTypes {

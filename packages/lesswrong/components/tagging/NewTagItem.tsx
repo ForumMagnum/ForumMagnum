@@ -33,6 +33,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...tagBodyStyles(theme),
     marginBottom: 18,
   },
+  discussionButtonPositioning: {
+    display: "flex",
+  }
 });
 
 const NewTagItem = ({tag, classes}: {
@@ -40,7 +43,7 @@ const NewTagItem = ({tag, classes}: {
   classes: ClassesType,
 }) => {
   const tagUrl = tagGetUrl(tag);
-  const {UsersName, FormatDate, PostsList2, ContentItemBody} = Components;
+  const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton } = Components;
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()
   
@@ -80,6 +83,10 @@ const NewTagItem = ({tag, classes}: {
       tagId={tag._id}
       itemsPerPage={20}
     />}
+    
+    <div className={classes.discussionButtonPositioning}>
+      <TagDiscussionButton tag={tag} text={`Discuss this ${tag.wikiOnly ? "wiki" : "tag"}`}/>
+    </div>
   </div>;
 }
 
