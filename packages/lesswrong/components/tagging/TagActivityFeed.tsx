@@ -1,15 +1,16 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-const TagActivityFeed = ({classes}: {
+const TagActivityFeed = ({classes, pageSize = 50}: {
   classes: ClassesType
+  pageSize?: number
 }) => {
   const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, NewTagItem, SectionTitle } = Components;
   
   return <SingleColumnSection>
-    <SectionTitle title="Recent Tag/Wiki Activity"/>
+    <SectionTitle title="Recent Tag & Wiki Activity"/>
     <MixedTypeFeed
-      pageSize={50}
+      pageSize={pageSize}
       resolverName="AllTagsActivityFeed"
       sortKeyType="Date"
       renderers={{
