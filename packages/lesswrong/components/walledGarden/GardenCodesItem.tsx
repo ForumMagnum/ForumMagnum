@@ -35,13 +35,21 @@ export const GardenCodesItem = ({classes, gardenCode}:{
   classes:ClassesType,
   gardenCode: GardenCodeFragment
 }) => {
-  const { GardenCodesEditForm } = Components
+  const { GardenCodesEditForm, LWTooltip, ContentItemBody } = Components
   const [editing, setEditing] = useState(false)
   if (editing) {
     return <GardenCodesEditForm gardenCodeId={gardenCode._id} cancelCallback={()=> setEditing(false)}   />
   }
+  const title = <span className={classes.eventName}>{gardenCode.title}</span>
   return <div className={classes.root}>
-      <span className={classes.eventName}>{gardenCode.title}</span>
+      {gardenCode.contents.html ? <LWTooltip title={<ContentItemBody
+        dangerouslySetInnerHTML={{__html: gardenCode.contents.html }}
+        description={`garden-code-${gardenCode._id}`}
+      />}>
+        {title}
+      </LWTooltip>
+        : title
+      }
       <div className={classes.eventTime}>
         {eventFormat(gardenCode.startTime)}
       </div>
