@@ -126,8 +126,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0,
     whiteSpace: 'nowrap',
     position: 'absolute',
-    top: -20,
-    
+    top: -20
   },
   invertedSliceNumber: {
     // This number is right-aligned in the slice (and so overflows left) because
