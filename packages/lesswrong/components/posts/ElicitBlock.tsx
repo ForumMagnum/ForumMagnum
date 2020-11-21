@@ -1,5 +1,5 @@
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
@@ -11,6 +11,8 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
 import { useDialog } from '../common/withDialog';
+import withErrorBoundary from '../common/withErrorBoundary';
+import * as _ from 'underscore';
 
 const elicitDataFragment = `
   _id
@@ -188,6 +190,13 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     ${getFragment("UsersMinimumInfo")}  
   `);
   
+  const userHasPredicted = currentUser && _.some(
+    data?.ElicitBlockData?.predictions,
+    (prediction: any) => prediction?.creator?.lwUser?._id === currentUser._id
+  );
+  const [revealed, setRevealed] = useState(false);
+  const predictionsHidden = currentUser?.hideElicitPredictions && !userHasPredicted && !revealed;
+  
   const roughlyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
@@ -215,6 +224,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
                 const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
 
+                setRevealed(true);
+
                 void makeElicitPrediction({
                   variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },
                   optimisticResponse: {
@@ -240,13 +251,13 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             >
               <div className={classes.sliceNumber}>{prob}%</div>
             </div>
-            <div 
+            {!predictionsHidden && <div
               className={classes.sliceColoredArea}
               style={{height: `${(roughlyGroupedData[`${bucket*10}`]?.length / (maxSize+1))*100 || 0}%`}}
-            />
+            />}
           </div>
         })}
-        {roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
+        {!predictionsHidden && roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
           {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction, sourceId}, i) => <span key={creator?._id} className={classes.name}>
             {creator?.lwUser ? <UsersName user={creator?.lwUser} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
@@ -258,6 +269,9 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
       <div className={classes.startPercentage}>1%</div>
       <div className={classes.title}>
         {data?.ElicitBlockData?.title || (loading ? null : "Can't find Question Title on Elicit")}
+        {!loading && predictionsHidden && <a onClick={()=>setRevealed(true)}>
+          {" "}(Reveal)
+        </a>}
       </div>
       <div className={classes.endPercentage}>99%</div>
     </div>
@@ -265,7 +279,10 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     
 }
 
-const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, { styles });
+const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, {
+  styles,
+  hocs: [withErrorBoundary],
+});
 
 declare global {
   interface ComponentTypes {

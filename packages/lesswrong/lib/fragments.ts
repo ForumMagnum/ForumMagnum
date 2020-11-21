@@ -111,6 +111,7 @@ registerFragment(`
     }
     showHideKarmaOption
     markDownPostEditor
+    hideElicitPredictions
     commentSorting
     location
     googleLocation
@@ -404,6 +405,7 @@ registerFragment(`
 
     # UI Settings
     markDownPostEditor
+    hideElicitPredictions
     hideIntercom
     commentSorting
     currentFrontpageFilter
