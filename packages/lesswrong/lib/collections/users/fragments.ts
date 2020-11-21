@@ -1,17 +1,70 @@
 import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
-  fragment UsersAdmin on User {
+  fragment UsersMinimumInfo on User {
     _id
+    slug
+    oldSlugs
+    createdAt
     username
+    displayName
+    fullName
+    karma
+    afKarma
+    deleted
+    groups
+    isAdmin
+    htmlBio
+    postCount
+    commentCount
+    sequenceCount
+    afPostCount
+    afCommentCount
+    beta
+    spamRiskScore
+  }
+`);
+
+registerFragment(`
+  fragment UsersProfile on User {
+    ...UsersMinimumInfo
     createdAt
     isAdmin
-    displayName
-    email
-    slug
+    bio
+    htmlBio
+    website
     groups
-    services
-    karma
+    postCount
+    afPostCount
+    frontpagePostCount
+    commentCount
+    sequenceCount
+    afCommentCount
+    sequenceCount
+    afSequenceCount
+    afSequenceDraftCount
+    sequenceDraftCount
+    moderationStyle
+    moderationGuidelines {
+      ...RevisionDisplay
+    }
+    bannedUserIds
+    location
+    googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    mongoLocation
+    shortformFeedId
+    viewUnreviewedComments
+    auto_subscribe_to_my_posts
+    auto_subscribe_to_my_comments
+    autoSubscribeAsOrganizer
+    petrovPressedButtonDate
+    sortDrafts
+    reenableDraftJs
+    ...SharedUserBooleans
   }
 `);
 
@@ -170,31 +223,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment UsersMinimumInfo on User {
-    _id
-    slug
-    oldSlugs
-    createdAt
-    username
-    displayName
-    fullName
-    karma
-    afKarma
-    deleted
-    groups
-    isAdmin
-    htmlBio
-    postCount
-    commentCount
-    sequenceCount
-    afPostCount
-    afCommentCount
-    beta
-    spamRiskScore
-  }
-`);
-
-registerFragment(`
   fragment SharedUserBooleans on User {
     walledGardenInvite
     hideWalledGardenUI
@@ -202,49 +230,6 @@ registerFragment(`
     taggingDashboardCollapsed
   }
 `)
-
-registerFragment(`
-  fragment UsersProfile on User {
-    ...UsersMinimumInfo
-    createdAt
-    isAdmin
-    bio
-    htmlBio
-    website
-    groups
-    postCount
-    afPostCount
-    frontpagePostCount
-    commentCount
-    sequenceCount
-    afCommentCount
-    sequenceCount
-    afSequenceCount
-    afSequenceDraftCount
-    sequenceDraftCount
-    moderationStyle
-    moderationGuidelines {
-      ...RevisionDisplay
-    }
-    bannedUserIds
-    location
-    googleLocation
-    mapLocation
-    mapLocationSet
-    mapMarkerText
-    htmlMapMarkerText
-    mongoLocation
-    shortformFeedId
-    viewUnreviewedComments
-    auto_subscribe_to_my_posts
-    auto_subscribe_to_my_comments
-    autoSubscribeAsOrganizer
-    petrovPressedButtonDate
-    sortDrafts
-    reenableDraftJs
-    ...SharedUserBooleans
-  }
-`);
 
 registerFragment(`
   fragment UsersMapEntry on User {
@@ -338,3 +323,18 @@ registerFragment(`
     deleted
   }
 `)
+
+registerFragment(`
+  fragment UsersAdmin on User {
+    _id
+    username
+    createdAt
+    isAdmin
+    displayName
+    email
+    slug
+    groups
+    services
+    karma
+  }
+`);
