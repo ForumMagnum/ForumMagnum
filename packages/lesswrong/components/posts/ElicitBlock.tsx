@@ -128,6 +128,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     top: -20
   },
+  invertedSliceNumber: {
+    // This number is right-aligned in the slice (and so overflows left) because
+    // if it were left-aligned or centered, it would escape the widget's bounding
+    // box on the right side, causing horizontal scrolling
+    right: 0
+  },
   sliceColoredArea: {
     backgroundColor: "rgba(0,0,0,0.1)",
   },
@@ -238,7 +244,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
               className={classes.additionalVoteArea} 
               style={{height: `${(1 / (maxSize+1))*100 || 0}%`}}
             >
-              <div className={classes.sliceNumber}>{prob}%</div>
+              <div className={classNames(classes.sliceNumber, {[classes.invertedSliceNumber]: prob > 94})}>{prob}%</div>
             </div>
             <div 
               className={classes.sliceColoredArea}
