@@ -126,7 +126,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0,
     whiteSpace: 'nowrap',
     position: 'absolute',
-    top: -20
+    top: -20,
+    // This number is right-aligned in the slice (and so overflows left) because
+    // if it were left-aligned or centered, it would escape the widget's bounding
+    // box on the right side, causing horizontal scrolling
+    right: 0,
   },
   sliceColoredArea: {
     backgroundColor: "rgba(0,0,0,0.1)",
