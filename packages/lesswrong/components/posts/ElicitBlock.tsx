@@ -11,8 +11,9 @@ import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
 import { useDialog } from '../common/withDialog';
+import sortBy from 'lodash/sortBy';
+import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
-import * as _ from 'underscore';
 
 const elicitDataFragment = `
   _id
@@ -56,7 +57,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme),
     position: 'relative',
-    paddingTop: rootPaddingTop
+    paddingTop: rootPaddingTop,
+    marginBottom: 0
   },
   histogramRoot: {
     height: rootHeight,
@@ -65,6 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   histogramBucket: {
     display: 'flex',
     flexGrow: 1,
+    justifyContent: 'flex-end',
     '&:hover $sliceColoredArea': {
       backgroundColor: "rgba(0,0,0,0.15)"
     },
@@ -148,8 +151,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '100%',
     color: 'rgba(0,0,0,0.6)',
     marginTop: 4,
+    paddingBottom: 4,
     display: 'flex',
     justifyContent: 'space-between'
+  },
+  hiddenTitleSection: {
+    opacity: 0
   },
   startPercentage: {
     whiteSpace: 'nowrap',
@@ -169,10 +176,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     width: '100%',
-    backgroundColor: 'white',
     color: 'rgba(0,0,0,0.6)',
     height: `calc(100% - ${rootHeight + rootPaddingTop}px)`,
-    paddingTop: 5
+    paddingTop: 4,
+    zIndex: 1 // Ensure that the users are displayed on top of the title element
   },
   name: {
     marginRight: 4
@@ -184,6 +191,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   questionId: String
 }) => {
   const currentUser = useCurrentUser();
+  const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
   const { UsersName } = Components;
   const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
@@ -195,23 +203,27 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     }
     ${getFragment("UsersMinimumInfo")}  
   `);
-  
-  const userHasPredicted = currentUser && _.some(
-    data?.ElicitBlockData?.predictions,
+  const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
+  const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
+  const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
+  const userHasPredicted = currentUser && some(
+    sortedPredictions,
     (prediction: any) => prediction?.creator?.lwUser?._id === currentUser._id
   );
   const [revealed, setRevealed] = useState(false);
   const predictionsHidden = currentUser?.hideElicitPredictions && !userHasPredicted && !revealed;
   
-  const roughlyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => Math.floor(prediction / 10) * 10)
-  const finelyGroupedData = groupBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
 
   return <div className={classes.root}>
     <div className={classes.histogramRoot}>
-      {times(10, (bucket) => <div key={bucket} className={classNames(classes.histogramBucket, {
-        [classes.histogramBucketCurrentUser]: roughlyGroupedData[`${bucket*10}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
-      })}>
+      {times(10, (bucket) => <div key={bucket} 
+        className={classNames(classes.histogramBucket, {
+          [classes.histogramBucketCurrentUser]: roughlyGroupedData[`${bucket*10}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
+        })}
+        onMouseEnter={() => roughlyGroupedData[`${bucket*10}`]?.length && setHideTitle(true)}
+        onMouseLeave={() => setHideTitle(false)}
+      >
         {times(10, offset => {
           const prob = (bucket*10) + offset;
           const isCurrentUserSlice = finelyGroupedData[`${prob}`]?.some(({creator}) => currentUser && creator?.sourceUserId === currentUser._id)
@@ -264,14 +276,14 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
           </div>
         })}
         {!predictionsHidden && roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
-          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction, sourceId}, i) => <span key={creator?._id} className={classes.name}>
+          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction}, i) => <span key={creator?._id} className={classes.name}>
             {creator?.lwUser ? <UsersName user={creator?.lwUser} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
         </div>}
       </div>)}
     </div>
     
-    <div className={classes.titleSection}>
+    <div className={classNames(classes.titleSection, {[classes.hiddenTitleSection]: hideTitle})}>
       <div className={classes.startPercentage}>1%</div>
       <div className={classes.title}>
         {data?.ElicitBlockData?.title || (loading ? null : "Can't find Question Title on Elicit")}
