@@ -149,7 +149,12 @@ export const makeEditableOptions = {
   commentEditor: true,
   commentStyles: true,
   hideControls: true,
-  order: 20
+  order: 20,
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members']
+  },
 }
 
 makeEditable({

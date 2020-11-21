@@ -566,7 +566,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         className={classes.changeDescriptionInput}
         value={this.state.commitMessage}
         onChange={(ev) => {
-          this.setState({ commitMes sage: ev.target.value });
+          this.setState({ commitMessage: ev.target.value });
         }}
       />
     </div>
