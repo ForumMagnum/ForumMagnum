@@ -7,6 +7,7 @@ registerFragment(`
     name
     slug
     order
+    deleted
     contents { 
       html
       htmlHighlight

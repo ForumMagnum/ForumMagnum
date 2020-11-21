@@ -111,6 +111,7 @@ registerFragment(`
     }
     showHideKarmaOption
     markDownPostEditor
+    hideElicitPredictions
     commentSorting
     location
     googleLocation
@@ -331,6 +332,7 @@ registerFragment(`
     walledGardenInvite
     hideWalledGardenUI
     walledGardenPortalOnboarded
+    taggingDashboardCollapsed
   }
 `)
 
@@ -404,6 +406,7 @@ registerFragment(`
 
     # UI Settings
     markDownPostEditor
+    hideElicitPredictions
     hideIntercom
     commentSorting
     currentFrontpageFilter
