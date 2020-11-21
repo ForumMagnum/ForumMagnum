@@ -108,7 +108,7 @@ export function extractTableOfContents(postHTML: string)
 
 function elementToToCText(cheerioTag: CheerioElement) {
   const tagHtml = cheerio(cheerioTag).html();
-  if (!tagHtml) throw Error("Tag does not exist");
+  if (!tagHtml) return null;
   const tagClone = cheerio.load(tagHtml);
   tagClone("style").remove();
   return tagClone.root().text();
