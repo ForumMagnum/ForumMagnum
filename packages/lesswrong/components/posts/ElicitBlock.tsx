@@ -1,5 +1,5 @@
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
@@ -147,6 +147,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between'
   },
+  hiddenTitleSection: {
+    opacity: 0
+  },
   startPercentage: {
     whiteSpace: 'nowrap',
   },
@@ -165,10 +168,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     width: '100%',
-    backgroundColor: 'white',
     color: 'rgba(0,0,0,0.6)',
     height: `calc(100% - ${rootHeight + rootPaddingTop}px)`,
-    paddingTop: 4
+    paddingTop: 4,
+    zIndex: 1 // Ensure that the users are displayed on top of the title element
   },
   name: {
     marginRight: 4
@@ -180,6 +183,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   questionId: String
 }) => {
   const currentUser = useCurrentUser();
+  const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
   const { UsersName } = Components;
   const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
@@ -198,9 +202,13 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
 
   return <div className={classes.root}>
     <div className={classes.histogramRoot}>
-      {times(10, (bucket) => <div key={bucket} className={classNames(classes.histogramBucket, {
-        [classes.histogramBucketCurrentUser]: roughlyGroupedData[`${bucket*10}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
-      })}>
+      {times(10, (bucket) => <div key={bucket} 
+        className={classNames(classes.histogramBucket, {
+          [classes.histogramBucketCurrentUser]: roughlyGroupedData[`${bucket*10}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
+        })}
+        onMouseEnter={() => roughlyGroupedData[`${bucket*10}`]?.length && setHideTitle(true)}
+        onMouseLeave={() => setHideTitle(false)}
+      >
         {times(10, offset => {
           const prob = (bucket*10) + offset;
           const isCurrentUserSlice = finelyGroupedData[`${prob}`]?.some(({creator}) => currentUser && creator?.sourceUserId === currentUser._id)
@@ -251,14 +259,14 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
           </div>
         })}
         {roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
-          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction, sourceId}, i) => <span key={creator?._id} className={classes.name}>
+          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction}, i) => <span key={creator?._id} className={classes.name}>
             {creator?.lwUser ? <UsersName user={creator?.lwUser} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
           </span>)}
         </div>}
       </div>)}
     </div>
     
-    <div className={classes.titleSection}>
+    <div className={classNames(classes.titleSection, {[classes.hiddenTitleSection]: hideTitle})}>
       <div className={classes.startPercentage}>1%</div>
       <div className={classes.title}>
         {data?.ElicitBlockData?.title || (loading ? null : "Can't find Question Title on Elicit")}
