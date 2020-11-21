@@ -39,7 +39,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly status: number,
   readonly frontpageDate: Date,
   readonly meta: boolean,
-  readonly draft: boolean,
   readonly deletedDraft: boolean,
   readonly viewCount: number,
   readonly clickCount: number,
@@ -91,7 +90,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly isFuture: boolean,
   readonly hideAuthor: boolean,
   readonly moderationStyle: string,
-  readonly hideCommentKarma: boolean,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly canonicalSource: string,
@@ -161,19 +159,14 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
   readonly canonicalNextPostSlug: string,
-  readonly canonicalCollectionSlug: string,
   readonly canonicalSequenceId: string,
   readonly canonicalBookId: string,
   readonly canonicalSequence: PostsDetails_canonicalSequence|null,
   readonly canonicalBook: PostsDetails_canonicalBook|null,
   readonly canonicalCollection: PostsDetails_canonicalCollection|null,
   readonly showModerationGuidelines: boolean,
-  readonly moderationGuidelines: RevisionDisplay|null,
-  readonly customHighlight: PostsDetails_customHighlight|null,
   readonly bannedUserIds: Array<string>,
-  readonly hideAuthor: boolean,
   readonly moderationStyle: string,
-  readonly voteCount: number,
   readonly currentUserVote: string,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
@@ -193,12 +186,6 @@ interface PostsDetails_canonicalBook { // fragment on Books
 interface PostsDetails_canonicalCollection { // fragment on Collections
   readonly _id: string,
   readonly title: string,
-}
-
-interface PostsDetails_customHighlight { // fragment on Revisions
-  readonly _id: string,
-  readonly version: string,
-  readonly html: string,
 }
 
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
@@ -1300,28 +1287,58 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface UsersAdmin { // fragment on Users
+interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
-  readonly username: string,
-  readonly createdAt: Date,
-  readonly isAdmin: boolean,
-  readonly displayName: string,
-  readonly email: string,
   readonly slug: string,
-  readonly groups: Array<string>,
-  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly oldSlugs: Array<string>,
+  readonly createdAt: Date,
+  readonly username: string,
+  readonly displayName: string,
+  readonly fullName: string,
   readonly karma: number,
+  readonly afKarma: number,
+  readonly deleted: boolean,
+  readonly groups: Array<string>,
+  readonly isAdmin: boolean,
+  readonly htmlBio: string,
+  readonly postCount: number,
+  readonly commentCount: number,
+  readonly sequenceCount: number,
+  readonly afPostCount: number,
+  readonly afCommentCount: number,
+  readonly beta: boolean,
+  readonly spamRiskScore: number,
+}
+
+interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
+  readonly bio: string,
+  readonly website: string,
+  readonly frontpagePostCount: number,
+  readonly afSequenceCount: number,
+  readonly afSequenceDraftCount: number,
+  readonly sequenceDraftCount: number,
+  readonly moderationStyle: string,
+  readonly moderationGuidelines: RevisionDisplay|null,
+  readonly bannedUserIds: Array<string>,
+  readonly location: string,
+  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mapLocationSet: boolean,
+  readonly mapMarkerText: string,
+  readonly htmlMapMarkerText: string,
+  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly shortformFeedId: string,
+  readonly viewUnreviewedComments: boolean,
+  readonly auto_subscribe_to_my_posts: boolean,
+  readonly auto_subscribe_to_my_comments: boolean,
+  readonly autoSubscribeAsOrganizer: boolean,
+  readonly petrovPressedButtonDate: Date,
+  readonly sortDrafts: string,
+  readonly reenableDraftJs: boolean,
 }
 
 interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
-  readonly _id: string,
-  readonly username: string,
-  readonly createdAt: Date,
-  readonly isAdmin: boolean,
-  readonly displayName: string,
   readonly email: string,
-  readonly slug: string,
-  readonly groups: Array<string>,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly pageUrl: string,
   readonly voteBanned: boolean,
@@ -1403,10 +1420,6 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
   readonly bannedUserIds: Array<string>,
 }
 
-interface UsersList extends UsersMinimumInfo { // fragment on Users
-  readonly karma: number,
-}
-
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly karma: number,
   readonly bio: string,
@@ -1430,71 +1443,11 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly sunshineSnoozed: boolean,
 }
 
-interface UsersMinimumInfo { // fragment on Users
-  readonly _id: string,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
-  readonly createdAt: Date,
-  readonly username: string,
-  readonly displayName: string,
-  readonly fullName: string,
-  readonly karma: number,
-  readonly afKarma: number,
-  readonly deleted: boolean,
-  readonly groups: Array<string>,
-  readonly isAdmin: boolean,
-  readonly htmlBio: string,
-  readonly postCount: number,
-  readonly commentCount: number,
-  readonly sequenceCount: number,
-  readonly afPostCount: number,
-  readonly afCommentCount: number,
-  readonly beta: boolean,
-  readonly spamRiskScore: number,
-}
-
 interface SharedUserBooleans { // fragment on Users
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
   readonly walledGardenPortalOnboarded: boolean,
   readonly taggingDashboardCollapsed: boolean,
-}
-
-interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
-  readonly createdAt: Date,
-  readonly isAdmin: boolean,
-  readonly bio: string,
-  readonly htmlBio: string,
-  readonly website: string,
-  readonly groups: Array<string>,
-  readonly postCount: number,
-  readonly afPostCount: number,
-  readonly frontpagePostCount: number,
-  readonly commentCount: number,
-  readonly sequenceCount: number,
-  readonly afCommentCount: number,
-  readonly sequenceCount: number,
-  readonly afSequenceCount: number,
-  readonly afSequenceDraftCount: number,
-  readonly sequenceDraftCount: number,
-  readonly moderationStyle: string,
-  readonly moderationGuidelines: RevisionDisplay|null,
-  readonly bannedUserIds: Array<string>,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
-  readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly shortformFeedId: string,
-  readonly viewUnreviewedComments: boolean,
-  readonly auto_subscribe_to_my_posts: boolean,
-  readonly auto_subscribe_to_my_comments: boolean,
-  readonly autoSubscribeAsOrganizer: boolean,
-  readonly petrovPressedButtonDate: Date,
-  readonly sortDrafts: string,
-  readonly reenableDraftJs: boolean,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
@@ -1557,6 +1510,19 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly deleted: boolean,
+}
+
+interface UsersAdmin { // fragment on Users
+  readonly _id: string,
+  readonly username: string,
+  readonly createdAt: Date,
+  readonly isAdmin: boolean,
+  readonly displayName: string,
+  readonly email: string,
+  readonly slug: string,
+  readonly groups: Array<string>,
+  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly karma: number,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
@@ -1704,18 +1670,17 @@ interface FragmentTypes {
   SubscriptionState: SubscriptionState
   VotesDefaultFragment: VotesDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
-  UsersAdmin: UsersAdmin
+  UsersMinimumInfo: UsersMinimumInfo
+  UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
   UserBookmarks: UserBookmarks
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
-  UsersList: UsersList
   SunshineUsersList: SunshineUsersList
-  UsersMinimumInfo: UsersMinimumInfo
   SharedUserBooleans: SharedUserBooleans
-  UsersProfile: UsersProfile
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
+  UsersAdmin: UsersAdmin
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   TagRelVotes: TagRelVotes

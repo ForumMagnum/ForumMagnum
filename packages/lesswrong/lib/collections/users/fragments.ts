@@ -28,19 +28,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
-    createdAt
-    isAdmin
     bio
-    htmlBio
     website
-    groups
-    postCount
-    afPostCount
     frontpagePostCount
-    commentCount
-    sequenceCount
-    afCommentCount
-    sequenceCount
     afSequenceCount
     afSequenceDraftCount
     sequenceDraftCount
@@ -72,14 +62,7 @@ registerFragment(`
   fragment UsersCurrent on User {
     ...UsersMinimumInfo
 
-    _id
-    username
-    createdAt
-    isAdmin
-    displayName
     email
-    slug
-    groups
     services
     pageUrl
     voteBanned

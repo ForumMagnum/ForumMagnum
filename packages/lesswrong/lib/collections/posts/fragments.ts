@@ -27,7 +27,6 @@ registerFragment(`
     status
     frontpageDate
     meta
-    draft
     deletedDraft
     viewCount
     clickCount
@@ -90,7 +89,6 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
-    hideCommentKarma
     submitToFrontpage
     shortform
     canonicalSource
@@ -189,7 +187,6 @@ registerFragment(`
     collectionTitle
     canonicalPrevPostSlug
     canonicalNextPostSlug
-    canonicalCollectionSlug
     canonicalSequenceId
     canonicalBookId
     canonicalSequence {
@@ -207,20 +204,10 @@ registerFragment(`
 
     # Moderation stuff
     showModerationGuidelines
-    moderationGuidelines {
-      ...RevisionDisplay
-    }
-    customHighlight {
-      _id
-      version
-      html
-    }
     bannedUserIds
-    hideAuthor
     moderationStyle
     
     # Voting
-    voteCount
     currentUserVote
     feed {
       ...RSSFeedMinimumInfo
