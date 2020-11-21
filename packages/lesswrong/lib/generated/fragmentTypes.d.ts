@@ -591,6 +591,19 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly contents: RevisionDisplay|null,
+}
+
+interface GardenCodeFragmentEdit { // fragment on GardenCodes
+  readonly _id: string,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+  readonly contents: RevisionEdit|null,
 }
 
 interface GardenCodesDefaultFragment { // fragment on GardenCodes
@@ -1676,15 +1689,9 @@ interface ChildRelatedPostRelList { // fragment on PostRelations
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
-  readonly post: SuggestAlignmentComment_post|null,
+  readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly suggestForAlignmentUsers: Array<SuggestAlignmentComment_suggestForAlignmentUsers>,
-}
-
-interface SuggestAlignmentComment_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
 }
 
 interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on Users
@@ -1741,6 +1748,7 @@ interface FragmentTypes {
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
   GardenCodeFragment: GardenCodeFragment
+  GardenCodeFragmentEdit: GardenCodeFragmentEdit
   GardenCodesDefaultFragment: GardenCodesDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment

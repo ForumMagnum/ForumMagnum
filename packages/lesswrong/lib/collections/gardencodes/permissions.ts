@@ -10,7 +10,7 @@ const memberActions = [
   'gardencodes.new',
   'gardencodes.create',
   'gardencodes.view',
-  'gardencodes.update.own'
+  'gardencode.update.own'
 ]
 
 userGroups.members.can(memberActions)
