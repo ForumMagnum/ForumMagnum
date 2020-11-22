@@ -42,7 +42,6 @@ registerFragment(`
     nominatedForReview
     reviewingForReview
     promoted
-    promotedByUserId
     promotedByUser {
       ...UsersMinimumInfo
     }

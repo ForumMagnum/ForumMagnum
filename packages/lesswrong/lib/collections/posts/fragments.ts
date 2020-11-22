@@ -21,23 +21,17 @@ registerFragment(`
     url
     postedAt
     createdAt
-    modifiedAt
     sticky
     metaSticky
     status
     frontpageDate
     meta
-    deletedDraft
-    viewCount
-    clickCount
     
     commentCount
     voteCount
     baseScore
     unlisted
     score
-    feedId
-    feedLink
     lastVisitedAt
     isRead
     lastCommentedAt
@@ -45,7 +39,6 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
-    socialPreviewImageUrl
 
     # questions
     question
@@ -55,10 +48,8 @@ registerFragment(`
     userId
     
     # Local Event data
-    groupId
     location
     googleLocation
-    mongoLocation
     onlineEvent
     startTime
     endTime
@@ -86,16 +77,11 @@ registerFragment(`
     afLastCommentedAt
     afSticky
     
-    isFuture
     hideAuthor
     moderationStyle
     submitToFrontpage
     shortform
-    canonicalSource
-    noIndex
 
-    shareWithUsers
-    
     nominationCount2018
     reviewCount2018
 
@@ -134,6 +120,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    shareWithUsers
     moderationGuidelines {
       _id
       html
@@ -143,7 +130,9 @@ registerFragment(`
       html
     }
     lastPromotedComment {
-      ...CommentsList
+      user {
+        ...UsersMinimumInfo
+      }
     }
     bestAnswer {
       ...CommentsList
@@ -180,6 +169,11 @@ registerFragment(`
   fragment PostsDetails on Post {
     ...PostsListBase
 
+    canonicalSource
+    noIndex
+    viewCount
+    socialPreviewImageUrl
+    
     # Sort settings
     commentSortOrder
     
@@ -209,6 +203,7 @@ registerFragment(`
     
     # Voting
     currentUserVote
+    feedLink
     feed {
       ...RSSFeedMinimumInfo
     }

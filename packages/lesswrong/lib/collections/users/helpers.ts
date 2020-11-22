@@ -24,12 +24,12 @@ export const userOwnsAndInGroup = (group: string) => {
   }
 }
 
-export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase|DbPost): boolean => {
+export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
   if (!currentUser) return false;
   return document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)
 }
 
-export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsBase): boolean => {
+export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {
   return userHasCkEditor(currentUser) && userIsSharedOn(currentUser, document)
 }
 
@@ -53,7 +53,7 @@ const postHasModerationGuidelines = post => {
   return post.moderationGuidelines?.originalContents || post.moderationStyle
 }
 
-export const userCanModeratePost = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null): boolean => {
+export const userCanModeratePost = (user: UsersProfile|DbUser|null, post: PostsBase|DbPost|null): boolean => {
   if (userCanDo(user,"posts.moderate.all")) {
     return true
   }
@@ -86,7 +86,7 @@ export const userCanModeratePost = (user: UsersMinimumInfo|DbUser|null, post: Po
   )
 }
 
-export const userCanModerateComment = (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList|DbComment) => {
+export const userCanModerateComment = (user: UsersProfile|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList|DbComment) => {
   if (!user || !post || !comment) return false
   if (userCanModeratePost(user, post)) return true 
   if (userOwns(user, comment) && !comment.directChildrenCount) return true 
@@ -106,7 +106,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-const getUserFromPost = (post: PostsBase|DbPost): UsersMinimumInfo|DbUser => {
+const getUserFromPost = (post: PostsDetails|DbPost): UsersProfile|DbUser => {
   // @ts-ignore Hackily handling the dual cases of "a fragment with a post subfragment" and "a DbPost with a postId"
   return post.user || mongoFindOne("Users", post.userId);
 }
@@ -120,7 +120,7 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsD
   )
 }
 
-export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsBase|DbPost): boolean => {
+export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost): boolean => {
   const postAuthor = getUserFromPost(post);
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
@@ -130,7 +130,7 @@ export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsB
   )
 }
 
-export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsBase|DbPost): boolean => {
+export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost): boolean => {
   const postAuthor = getUserFromPost(post);
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedPersonalUserIds

@@ -4,7 +4,6 @@ registerFragment(`
   fragment UsersMinimumInfo on User {
     _id
     slug
-    oldSlugs
     createdAt
     username
     displayName
@@ -12,7 +11,6 @@ registerFragment(`
     karma
     afKarma
     deleted
-    groups
     isAdmin
     htmlBio
     postCount
@@ -20,7 +18,6 @@ registerFragment(`
     sequenceCount
     afPostCount
     afCommentCount
-    beta
     spamRiskScore
   }
 `);
@@ -28,6 +25,8 @@ registerFragment(`
 registerFragment(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
+    oldSlugs
+    groups
     bio
     website
     frontpagePostCount
@@ -60,8 +59,9 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersCurrent on User {
-    ...UsersMinimumInfo
+    ...UsersProfile
 
+    beta
     email
     services
     pageUrl

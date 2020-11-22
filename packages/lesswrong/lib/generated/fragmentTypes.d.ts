@@ -33,22 +33,16 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly url: string,
   readonly postedAt: Date,
   readonly createdAt: Date,
-  readonly modifiedAt: Date,
   readonly sticky: boolean,
   readonly metaSticky: boolean,
   readonly status: number,
   readonly frontpageDate: Date,
   readonly meta: boolean,
-  readonly deletedDraft: boolean,
-  readonly viewCount: number,
-  readonly clickCount: number,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
   readonly unlisted: boolean,
   readonly score: number,
-  readonly feedId: string,
-  readonly feedLink: string,
   readonly lastVisitedAt: Date,
   readonly isRead: boolean,
   readonly lastCommentedAt: Date,
@@ -56,15 +50,12 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly canonicalCollectionSlug: string,
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
-  readonly socialPreviewImageUrl: string,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
   readonly userId: string,
-  readonly groupId: string,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly onlineEvent: boolean,
   readonly startTime: Date,
   readonly endTime: Date,
@@ -87,14 +78,10 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly afCommentCount: number,
   readonly afLastCommentedAt: Date,
   readonly afSticky: boolean,
-  readonly isFuture: boolean,
   readonly hideAuthor: boolean,
   readonly moderationStyle: string,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
-  readonly canonicalSource: string,
-  readonly noIndex: boolean,
-  readonly shareWithUsers: Array<string>,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly group: PostsBase_group|null,
@@ -121,9 +108,10 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
+  readonly shareWithUsers: Array<string>,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
-  readonly lastPromotedComment: CommentsList|null,
+  readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
 }
@@ -136,6 +124,10 @@ interface PostsListBase_moderationGuidelines { // fragment on Revisions
 interface PostsListBase_customHighlight { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface PostsListBase_lastPromotedComment { // fragment on Comments
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface PostsList extends PostsListBase { // fragment on Posts
@@ -155,6 +147,10 @@ interface PostsListTag extends PostsList { // fragment on Posts
 }
 
 interface PostsDetails extends PostsListBase { // fragment on Posts
+  readonly canonicalSource: string,
+  readonly noIndex: boolean,
+  readonly viewCount: number,
+  readonly socialPreviewImageUrl: string,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -168,6 +164,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
   readonly currentUserVote: string,
+  readonly feedLink: string,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
   readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
@@ -361,7 +358,6 @@ interface CommentsList { // fragment on Comments
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
   readonly promoted: boolean,
-  readonly promotedByUserId: string,
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
 }
@@ -1146,25 +1142,28 @@ interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
-  readonly oldSlugs: Array<string>,
   readonly core: boolean,
   readonly postCount: number,
-  readonly deleted: boolean,
   readonly adminOnly: boolean,
-  readonly defaultOrder: number,
   readonly suggestedAsFilter: boolean,
   readonly needsReview: boolean,
-  readonly reviewedByUserId: string,
   readonly descriptionTruncationCount: number,
-  readonly wikiGrade: number,
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
+}
+
+interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
+  readonly deleted: boolean,
+  readonly oldSlugs: Array<string>,
+  readonly isRead: boolean,
+  readonly defaultOrder: number,
+  readonly reviewedByUserId: string,
+  readonly wikiGrade: number,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
 }
 
-interface TagFragment extends TagBasicInfo { // fragment on Tags
-  readonly isRead: boolean,
+interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly description: TagFragment_description|null,
 }
 
@@ -1189,7 +1188,7 @@ interface TagCreationHistoryFragment_description { // fragment on Revisions
   readonly html: string,
 }
 
-interface TagRevisionFragment extends TagBasicInfo { // fragment on Tags
+interface TagRevisionFragment extends TagFragment { // fragment on Tags
   readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
 }
@@ -1210,7 +1209,15 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
 interface TagPreviewFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
-  readonly version: string,
+}
+
+interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
+  readonly description: TagDetailedPreviewFragment_description|null,
+}
+
+interface TagDetailedPreviewFragment_description { // fragment on Revisions
+  readonly _id: string,
+  readonly htmlHighlight: string,
 }
 
 interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
@@ -1290,7 +1297,6 @@ interface RevisionsDefaultFragment { // fragment on Revisions
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
-  readonly oldSlugs: Array<string>,
   readonly createdAt: Date,
   readonly username: string,
   readonly displayName: string,
@@ -1298,7 +1304,6 @@ interface UsersMinimumInfo { // fragment on Users
   readonly karma: number,
   readonly afKarma: number,
   readonly deleted: boolean,
-  readonly groups: Array<string>,
   readonly isAdmin: boolean,
   readonly htmlBio: string,
   readonly postCount: number,
@@ -1306,11 +1311,12 @@ interface UsersMinimumInfo { // fragment on Users
   readonly sequenceCount: number,
   readonly afPostCount: number,
   readonly afCommentCount: number,
-  readonly beta: boolean,
   readonly spamRiskScore: number,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
+  readonly oldSlugs: Array<string>,
+  readonly groups: Array<string>,
   readonly bio: string,
   readonly website: string,
   readonly frontpagePostCount: number,
@@ -1337,7 +1343,8 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly reenableDraftJs: boolean,
 }
 
-interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
+interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
+  readonly beta: boolean,
   readonly email: string,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly pageUrl: string,
@@ -1657,11 +1664,13 @@ interface FragmentTypes {
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagBasicInfo: TagBasicInfo
+  TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
   TagHistoryFragment: TagHistoryFragment
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
+  TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion

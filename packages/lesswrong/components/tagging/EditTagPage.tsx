@@ -6,10 +6,10 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 
 export const EditTagForm = ({tag, successCallback, cancelCallback}: {
-    tag: TagFragment|TagPreviewFragment,
-    successCallback?: any,
-    cancelCallback?: any
-  }) => {
+  tag: TagFragment,
+  successCallback?: any,
+  cancelCallback?: any
+}) => {
   return <Components.WrappedSmartForm
     key={`${tag?._id}_${tag?.description?.version}`}
     collection={Tags}
