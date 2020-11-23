@@ -5,7 +5,7 @@ import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  titlei: {
+  title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],

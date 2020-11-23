@@ -1369,6 +1369,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly commentSorting: string,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1473,6 +1474,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 interface UsersEdit extends UsersProfile { // fragment on Users
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly hideIntercom: boolean,
   readonly commentSorting: string,
   readonly currentFrontpageFilter: string,
