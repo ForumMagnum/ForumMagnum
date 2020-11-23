@@ -36,6 +36,7 @@ interface DbUser extends DbObject {
   sortDrafts: string
   hideIntercom: boolean
   markDownPostEditor: boolean
+  hideElicitPredictions: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
