@@ -11,7 +11,6 @@ import VisibilityIcon from '@material-ui/icons/VisibilityOff';
 import EmailIcon from '@material-ui/icons/Email';
 import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from '../../lib/collections/users/collection';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'

@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from '../../lib/collections/users/collection';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';

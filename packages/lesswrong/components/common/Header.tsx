@@ -11,7 +11,6 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
-import Users from '../../lib/collections/users/collection';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';

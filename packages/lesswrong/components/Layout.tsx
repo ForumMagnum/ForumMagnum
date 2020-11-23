@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from './hooks/useUpdateCurrentUser';
 import React, { PureComponent } from 'react';
-import Users from '../lib/collections/users/collection';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'

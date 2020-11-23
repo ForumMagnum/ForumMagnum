@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
 import withUser from '../common/withUser'
-import Users from '../../lib/collections/users/collection';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';

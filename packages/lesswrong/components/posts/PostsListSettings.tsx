@@ -3,7 +3,6 @@ import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useU
 import React, { Component } from 'react';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
-import Users from '../../lib/collections/users/collection';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
