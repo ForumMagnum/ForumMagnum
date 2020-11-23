@@ -297,7 +297,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     defaultValue: false,
-    canRead: [userOwns],
+    canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
