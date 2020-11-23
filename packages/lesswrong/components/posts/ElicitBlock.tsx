@@ -219,7 +219,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     <div className={classes.histogramRoot}>
       {times(10, (bucket) => <div key={bucket} 
         className={classNames(classes.histogramBucket, {
-          [classes.histogramBucketCurrentUser]: roughlyGroupedData[`${bucket*10}`]?.some(({creator}) => currentUser && creator?.displayName === currentUser.displayName)
+          [classes.histogramBucketCurrentUser]: roughlyGroupedData[`${bucket*10}`]?.some(({creator}) => currentUser && creator?.sourceUserId === currentUser._id)
         })}
         onMouseEnter={() => roughlyGroupedData[`${bucket*10}`]?.length && setHideTitle(true)}
         onMouseLeave={() => setHideTitle(false)}
