@@ -47,7 +47,7 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
   const { document: tag } = useSingle({
     documentId: hit._id,
     collection: Tags,
-    fragmentName: "TagFragment",
+    fragmentName: "TagPreviewFragment",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
 
