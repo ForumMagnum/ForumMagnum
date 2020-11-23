@@ -4,7 +4,6 @@ import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 interface ExternalProps {
   configName: string,
