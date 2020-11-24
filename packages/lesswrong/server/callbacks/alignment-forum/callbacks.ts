@@ -113,6 +113,5 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
 }
 
 addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
-addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
 getCollectionHooks("Posts").editAsync.add(MoveToAFUpdatesUserAFKarma);
 addCallback("posts.alignment.async", MoveToAFUpdatesUserAFKarma);
