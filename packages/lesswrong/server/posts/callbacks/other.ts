@@ -12,7 +12,7 @@ Callbacks to:
 
 import { Posts } from '../../../lib/collections/posts';
 import { postIsApproved } from '../../../lib/collections/posts/helpers';
-import { addCallback, Connectors, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
+import { addCallback, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
 import { getCollectionHooks } from '../../mutationCallbacks';
 
 //////////////////////////////////////////////////////
@@ -43,25 +43,6 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsync
   }
 });
 
-//////////////////////////////////////////////////////
-// posts.click.async                                //
-//////////////////////////////////////////////////////
-
-// /**
-//  * @summary Increase the number of clicks on a post
-//  * @param {string} postId – the ID of the post being edited
-//  * @param {string} ip – the IP of the current user
-//  */
-
-async function PostsClickTracking(post, ip) {
-  await Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
-}
-
-// track links clicked, locally in Events collection
-// note: this event is not sent to segment cause we cannot access the current user
-// in our server-side route /out -> sending an event would create a new anonymous
-// user: the free limit of 1,000 unique users per month would be reached quickly
-addCallback('posts.click.async', PostsClickTracking);
 
 //////////////////////////////////////////////////////
 // posts.approve.sync                              //
