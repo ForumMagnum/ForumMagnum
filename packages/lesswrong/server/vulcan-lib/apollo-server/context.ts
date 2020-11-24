@@ -60,7 +60,7 @@ const getAuthToken = req => {
   return req.headers.authorization || new Cookies(req.cookies).get('meteor_login_token');
 };
 // @see https://www.apollographql.com/docs/react/recipes/meteor#Server
-const setupAuthToken = (user: DbUser|null, context: ResolverContext) => {
+const setupAuthToken = async (user: DbUser|null, context: ResolverContext) => {
   if (user) {
     context.userId = user._id;
     context.currentUser = user;
@@ -74,7 +74,7 @@ const setupAuthToken = (user: DbUser|null, context: ResolverContext) => {
     });
     
     // identify user to any server-side analytics providers
-    userIdentifiedCallback.runCallbacks({
+    await userIdentifiedCallback.runCallbacks({
       iterator: user,
       properties: [],
     });
@@ -113,7 +113,7 @@ export const computeContextFromUser = async (user: DbUser|null, headers): Promis
   if (user)
     context.loaders.Users.prime(user._id, user);
 
-  setupAuthToken(user, context);
+  await setupAuthToken(user, context);
 
   //add the headers to the context
   context.headers = headers;

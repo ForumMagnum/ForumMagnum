@@ -23,7 +23,7 @@ class App extends PureComponent<any,any> {
   constructor(props) {
     super(props);
     if (props.currentUser) {
-      userIdentifiedCallback.runCallbacks({
+      void userIdentifiedCallback.runCallbacks({
         iterator: props.currentUser,
         properties: [],
       });
@@ -75,7 +75,7 @@ class App extends PureComponent<any,any> {
 
   UNSAFE_componentWillUpdate(nextProps) {
     if (!this.props.currentUser && nextProps.currentUser) {
-      userIdentifiedCallback.runCallbacks({
+      void userIdentifiedCallback.runCallbacks({
         iterator: nextProps.currentUser,
         properties: [],
       });
