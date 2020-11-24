@@ -1,6 +1,7 @@
 import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
-import { addCallback, updateMutator } from '../../vulcan-lib';
+import { updateMutator } from '../../vulcan-lib';
+import { commentsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
 import { getCollectionHooks } from '../../mutationCallbacks';
 import * as _ from 'underscore';
 
@@ -31,7 +32,7 @@ export function recalculateAFCommentMetadata(postId: string|null) {
 function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) {
   recalculateAFCommentMetadata(comment.postId)
 }
-addCallback("comments.alignment.async", ModerateCommentsPostUpdate);
+commentsAlignmentAsync.add(ModerateCommentsPostUpdate);
 
 
 getCollectionHooks("Comments").newAsync.add(function AlignmentCommentsNewOperations (comment: DbComment) {
@@ -68,7 +69,7 @@ function CommentsAlignmentEdit (comment: DbComment, oldComment: DbComment) {
   }
 }
 getCollectionHooks("Comments").editAsync.add(CommentsAlignmentEdit);
-addCallback("comments.alignment.async", CommentsAlignmentEdit);
+commentsAlignmentAsync.add(CommentsAlignmentEdit);
 
 
 getCollectionHooks("Comments").newAsync.add(function CommentsAlignmentNew (comment: DbComment) {
