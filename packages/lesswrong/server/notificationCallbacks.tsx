@@ -263,13 +263,12 @@ async function PostsApprovedNotification(post: DbPost) {
 }
 addCallback("posts.approve.async", PostsApprovedNotification);
 
-async function PostsUndraftNotification(post: DbPost) {
+export async function postsUndraftNotification(post: DbPost) {
   //eslint-disable-next-line no-console
   console.info("Post undrafted, creating notifications");
 
   await postsNewNotifications(post);
 }
-addCallback("posts.undraft.async", PostsUndraftNotification);
 
 function postIsPublic (post: DbPost) {
   return !post.draft && post.status === Posts.config.STATUS_APPROVED

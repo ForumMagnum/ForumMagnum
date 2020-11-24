@@ -11,6 +11,7 @@ import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
 import { getCollectionHooks } from '../mutationCallbacks';
+import { postsUndraftNotification } from '../notificationCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -23,10 +24,7 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
 
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    runCallbacksAsync({
-      name: "posts.undraft.async",
-      properties: [newPost, oldPost]
-    })
+    void postsUndraftNotification(newPost);
   }
 });
 
