@@ -52,25 +52,10 @@ export class CallbackHook<ArgumentsType extends any[]> {
 const formatHookName = (hook: string|null|undefined): string => hook?.toLowerCase() || "";
 
 /**
- * @summary A list of all registered callback hooks
- */
-const CallbackHooks: Array<any> = [];
-
-/**
  * @summary Callback hooks provide an easy way to add extra steps to common operations.
  * @namespace Callbacks
  */
 const Callbacks: Record<string,any> = {};
-
-
-/**
- * @summary Register a callback
- * @param {String} hook - The name of the hook
- * @param {Function} callback - The callback function
- */
-export const registerCallback = function (callback) {
-  CallbackHooks.push(callback);
-};
 
 /**
  * @summary Add a callback function to a hook
