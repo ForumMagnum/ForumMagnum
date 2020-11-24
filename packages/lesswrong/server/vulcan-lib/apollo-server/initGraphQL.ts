@@ -3,7 +3,7 @@
 
 import { makeExecutableSchema } from 'apollo-server';
 import { getAdditionalSchemas, queries, mutations, getContext, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';
-import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
+import { createVoteableUnionType } from '../../votingGraphQL';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -409,7 +409,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
 
 
 export const initGraphQL = () => {
-  runCallbacks({ name: 'graphql.init.before' });
+  createVoteableUnionType();
   
   const { schemaText, addedResolvers } = getTypeDefs();
   
