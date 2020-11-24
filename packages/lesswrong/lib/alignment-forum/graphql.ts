@@ -4,7 +4,7 @@ GraphQL config
 
 */
 
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers, runCallbacksAsync } from '../vulcan-lib';
 import { userCanDo } from '../vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from './users/helpers';
 import { accessFilterSingle } from '../utils/schemaUtils';
@@ -16,10 +16,6 @@ const alignmentCommentResolvers = {
 
       if (userCanDo(context.currentUser, "comments.alignment.move.all")) {
         let modifier = { $set: {af: af} };
-        modifier = runCallbacks({
-          name: 'comments.alignment.sync',
-          iterator: modifier
-        });
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = context.Comments.findOne(commentId)
         runCallbacksAsync({
@@ -46,10 +42,6 @@ const alignmentPostResolvers = {
 
       if (userCanMakeAlignmentPost(context.currentUser, post)) {
         let modifier = { $set: {af: af} };
-        modifier = runCallbacks({
-          name: 'posts.alignment.sync',
-          iterator: modifier
-        });
         context.Posts.update({_id: postId}, modifier);
         const updatedPost = context.Posts.findOne(postId)
         runCallbacksAsync({
