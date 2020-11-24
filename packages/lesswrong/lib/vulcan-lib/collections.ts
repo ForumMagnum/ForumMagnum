@@ -2,7 +2,6 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../publicSettings';
-import { runCallbacks } from './callbacks';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
@@ -204,27 +203,6 @@ export const createCollection = (options: {
       }
       parameters = mergedParameters;
     }
-
-    // iterate over posts.parameters callbacks
-    parameters = runCallbacks({
-      name: `${typeName.toLowerCase()}.parameters`,
-      iterator: parameters,
-      properties: [
-        _.clone(terms),
-        apolloClient,
-        context
-      ]
-    });
-    // OpenCRUD backwards compatibility
-    parameters = runCallbacks({
-      name: `${collectionName.toLowerCase()}.parameters`,
-      iterator: parameters,
-      properties: [
-        _.clone(terms),
-        apolloClient,
-        context
-      ]
-    });
 
     // sort using terms.orderBy (overwrite defaultView's sort)
     if (terms.orderBy && !_.isEmpty(terms.orderBy)) {
