@@ -561,6 +561,7 @@ interface TagFlagFragment { // fragment on TagFlags
   readonly name: string,
   readonly slug: string,
   readonly order: number,
+  readonly deleted: boolean,
   readonly contents: TagFlagFragment_contents|null,
 }
 
@@ -942,6 +943,7 @@ interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly commentSorting: string,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1106,6 +1108,7 @@ interface SharedUserBooleans { // fragment on Users
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
   readonly walledGardenPortalOnboarded: boolean,
+  readonly taggingDashboardCollapsed: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -1161,6 +1164,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 interface UsersEdit extends UsersProfile { // fragment on Users
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly hideIntercom: boolean,
   readonly commentSorting: string,
   readonly currentFrontpageFilter: string,

@@ -141,7 +141,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
       </div>
     </div>}
     {showFlags && <div className={classNames(classes.posts, classes.flags, {[classes.collapsedFlags]: collapse})}>
-      {(tag as TagWithFlagsFragment)?.tagFlags?.map(tagFlag => <span key={tagFlag._id}>
+      {(tag as TagWithFlagsFragment)?.tagFlags?.filter(tagFlag => !tagFlag.deleted).map(tagFlag => <span key={tagFlag._id}>
         <QueryLink query={query.focus === tagFlag?._id ? {} : {focus: tagFlag?._id}}>
           <TagFlagItem 
             documentId={tagFlag._id} 
