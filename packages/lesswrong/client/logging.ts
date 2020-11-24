@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 import { addCallback } from '../lib/vulcan-lib';
+import { routerOnUpdate } from '../components/common/NavigationEventSender';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
@@ -58,7 +59,7 @@ window.addEventListener('load', ev => {
   });
 });
 
-addCallback("router.onUpdate", ({oldLocation, newLocation}: {oldLocation: RouterLocation, newLocation: RouterLocation}) => {
+routerOnUpdate.add(({oldLocation, newLocation}: {oldLocation: RouterLocation, newLocation: RouterLocation}) => {
   captureEvent("navigate", {
     from: oldLocation.pathname,
     to: newLocation.pathname,

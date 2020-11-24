@@ -15,6 +15,10 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     addCallback(this.name, fn);
   }
   
+  remove = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType>|undefined|void) => {
+    removeCallback(this.name, fn);
+  }
+  
   runCallbacks = ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
     return runCallbacks({
       name: this.name,
@@ -98,7 +102,7 @@ export const addCallback = function (hook: string, callback) {
  * @param {Function} callback - A reference to the function which was previously
  *   passed to addCallback.
  */
-export const removeCallback = function (hookName: string, callback) {
+const removeCallback = function (hookName: string, callback) {
   const formattedHook = formatHookName(hookName);
   Callbacks[formattedHook] = _.reject(Callbacks[formattedHook],
     c => c === callback
