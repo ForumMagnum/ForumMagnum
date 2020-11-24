@@ -79,7 +79,7 @@ export const userCanDo = (user: UsersMinimumInfo|DbUser|null, actionOrActions: s
 };
 
 // Check if a user owns a document
-export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo): boolean {
+export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo|DbObject): boolean {
   if (!user) {
     // not logged in
     return false;

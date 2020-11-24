@@ -8,24 +8,19 @@ import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 
-const defaultOptions = {
+export interface ResolverOptions {
+  cacheMaxAge: number
+}
+
+const defaultOptions: ResolverOptions = {
   cacheMaxAge: 300,
 };
 
 // note: for some reason changing resolverOptions to "options" throws error
-export function getDefaultResolvers<T extends DbObject>(options) {
-  let typeName, collectionName, resolverOptions;
-  if (typeof arguments[0] === 'object') {
-    // new single-argument API
-    typeName = arguments[0].typeName;
-    collectionName = arguments[0].collectionName || getCollectionName(typeName);
-    resolverOptions = { ...defaultOptions, ...arguments[0].options };
-  } else {
-    // OpenCRUD backwards compatibility
-    collectionName = arguments[0];
-    typeName = getTypeName(collectionName);
-    resolverOptions = { ...defaultOptions, ...arguments[1] };
-  }
+export function getDefaultResolvers<N extends CollectionNameString>(collectionName: N, options?: ResolverOptions) {
+  type T = ObjectsByCollectionName[N];
+  const typeName = getTypeName(collectionName);
+  const resolverOptions = {...defaultOptions, ...options};
 
   return {
     // resolver for returning a list of documents based on a set of query terms
@@ -33,7 +28,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root, { input = {} }, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, { input = {} }, context: ResolverContext, { cacheControl }) {
         const { terms = {}, enableCache = false, enableTotal = false } = input as any; //LESSWRONG: enableTotal defaults false
 
         if (cacheControl && enableCache) {
@@ -45,7 +40,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         const { currentUser }: {currentUser: DbUser|null} = context;
 
         // get collection based on collectionName argument
-        const collection: CollectionBase<T> = context[collectionName];
+        const collection = context[collectionName] as CollectionBase<T>;
 
         // get selector and options from terms and perform Mongo query
         const parameters = await collection.getParameters(terms, {}, context);
@@ -88,7 +83,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
@@ -109,7 +104,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         }
 
         const { currentUser }: {currentUser: DbUser|null} = context;
-        const collection: CollectionBase<T> = context[collectionName];
+        const collection = context[collectionName] as CollectionBase<T>;
 
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;

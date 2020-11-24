@@ -1,11 +1,12 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { postCanEdit } from './helpers';
 import type { AlgoliaDocument } from '../../../server/search/utils';
 
-const options = {
+const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
     if (!user) return false;
     return userCanDo(user, 'posts.new')
