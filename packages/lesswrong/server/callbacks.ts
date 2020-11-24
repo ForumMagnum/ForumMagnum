@@ -9,6 +9,7 @@ import { clearVotesServer } from './voteServer';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
+import { VoteableCollections } from '../lib/make_voteable';
 
 import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, runCallbacksAsync, runQuery } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
@@ -42,10 +43,7 @@ getCollectionHooks("Users").editAsync.add(function userEditVoteBannedCallbacksAs
 
 getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    runCallbacksAsync({
-      name: 'users.nullifyVotes.async',
-      properties: [user]
-    });
+    await nullifyVotesForUser(user);
   }
 });
 
@@ -80,6 +78,12 @@ const reverseVote = async (vote: DbVote) => {
   }
 }
 
+export const nullifyVotesForUser = async (user: DbUser) => {
+  for (let collection of VoteableCollections) {
+    await nullifyVotesForUserAndCollection(user, collection);
+  }
+}
+
 const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   const collectionName = capitalize(collection._name);
   const votes = await Votes.find({
@@ -95,18 +99,6 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
-
-async function nullifyCommentVotes(user: DbUser) {
-  await nullifyVotesForUserAndCollection(user, Comments);
-  return user;
-}
-addCallback("users.nullifyVotes.async", nullifyCommentVotes)
-
-async function nullifyPostVotes(user: DbUser) {
-  await nullifyVotesForUserAndCollection(user, Posts);
-  return user;
-}
-addCallback("users.nullifyVotes.async", nullifyPostVotes)
 
 async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
