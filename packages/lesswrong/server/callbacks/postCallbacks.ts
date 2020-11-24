@@ -1,4 +1,4 @@
-import { runCallbacksAsync, createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -25,15 +25,6 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
     void postsUndraftNotification(newPost);
-  }
-});
-
-getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
-  if (newPost.draft && !oldPost.draft) {
-    runCallbacksAsync({
-      name: "posts.draft.async",
-      properties: [newPost, oldPost]
-    })
   }
 });
 
