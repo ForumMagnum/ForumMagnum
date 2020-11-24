@@ -11,7 +11,7 @@ import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
 
-import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
@@ -30,15 +30,6 @@ getCollectionHooks("Messages").newAsync.add(async function updateConversationAct
     currentUser: user,
     validate: false,
   });
-});
-
-getCollectionHooks("Users").editAsync.add(function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.voteBanned && !oldUser.voteBanned) {
-    runCallbacksAsync({
-      name: 'users.voteBanned.async',
-      properties: [user]
-    });
-  }
 });
 
 getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
