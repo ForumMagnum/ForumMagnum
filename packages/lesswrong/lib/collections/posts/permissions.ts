@@ -1,4 +1,5 @@
 import { Posts } from './collection'
+import { postStatusLabels } from './constants'
 import { guestsGroup, membersGroup, adminsGroup, userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canCommentLockGroup } from '../../permissions';
 import { userIsSharedOn } from '../users/helpers'
@@ -40,7 +41,7 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
   } else if (post.isFuture || post.draft) {
     return false;
   } else {
-    const status = _.findWhere(Posts.statuses, {value: post.status});
+    const status = _.findWhere(postStatusLabels, {value: post.status});
     if (!status) return false;
     return userCanDo(currentUser, `posts.view.${status.label}`);
   }

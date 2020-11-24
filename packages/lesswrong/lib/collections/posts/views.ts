@@ -6,6 +6,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
+import { postStatuses } from './constants';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -94,7 +95,7 @@ Posts.addDefaultView(terms => {
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
-      status: Posts.config.STATUS_APPROVED,
+      status: postStatuses.STATUS_APPROVED,
       draft: false,
       isFuture: false,
       unlisted: false,
@@ -538,7 +539,7 @@ Posts.addView("recentQuestionActivity", terms => ({
  */
 Posts.addView("scheduled", terms => ({
   selector: {
-    status: Posts.config.STATUS_APPROVED,
+    status: postStatuses.STATUS_APPROVED,
     isFuture: true
   },
   options: {
