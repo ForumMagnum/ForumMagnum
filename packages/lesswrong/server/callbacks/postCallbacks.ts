@@ -1,4 +1,4 @@
-import { addCallback, runCallbacks, runCallbacksAsync, createMutator } from '../vulcan-lib';
+import { runCallbacksAsync, createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -16,11 +16,7 @@ const MINIMUM_APPROVAL_KARMA = 5
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
-    data = runCallbacks({
-      name: "post.undraft.before",
-      iterator: data,
-      properties: [post]
-    });
+    data = postsSetPostedAt(data, post);
   }
   return data;
 });
@@ -44,11 +40,10 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostDraftedAsyncC
 });
 
 // set postedAt when a post is moved out of drafts
-function PostsSetPostedAt (data, oldPost) {
+function postsSetPostedAt (data, oldPost) {
   data.postedAt = new Date();
   return data;
 }
-addCallback("post.undraft.before", PostsSetPostedAt);
 
 voteCallbacks.castVoteAsync.add(function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   if (vote.collectionName === "Posts") {
