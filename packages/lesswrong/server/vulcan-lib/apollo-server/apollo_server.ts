@@ -26,6 +26,8 @@ import { initGraphQL, getExecutableSchema } from './initGraphQL';
 import { computeContextFromReq } from './context';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
+import { createVoteableUnionType } from '../../votingGraphQL';
+
 // onPageLoad is mostly equivalent to an Express middleware
 // excepts it is tailored to handle Meteor server side rendering
 import { onPageLoad } from 'meteor/server-render';
@@ -123,6 +125,7 @@ onStartup(() => {
   };
 
   // define executableSchema
+  createVoteableUnionType();
   initGraphQL();
   
   // create server

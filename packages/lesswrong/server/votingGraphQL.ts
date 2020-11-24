@@ -1,4 +1,4 @@
-import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from './vulcan-lib';
+import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
 import { VoteableCollections, collectionIsVoteable } from '../lib/make_voteable';
 
