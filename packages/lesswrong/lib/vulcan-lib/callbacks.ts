@@ -143,11 +143,6 @@ export const runCallbacks = function (this: any, options: {
       try {
         const result = callback.apply(this, [accumulator, ...args]);
 
-        // if callback is only supposed to run once, remove it
-        if (callback.runOnce) {
-          removeCallback(formattedHook, callback);
-        }
-
         if (typeof result === 'undefined') {
           // if result of current iteration is undefined, don't pass it on
           // debug(`// Warning: Sync callback [${callback.name}] in hook [${hook}] didn't return a result!`)
