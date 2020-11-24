@@ -8,7 +8,7 @@ import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
-import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
 import { commentGetPageUrl } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails } from './emails/renderEmail';
@@ -22,7 +22,7 @@ import { defaultNotificationTypeSettings } from '../lib/collections/users/custom
 import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
 import { isServer } from '../lib/executionEnvironment';
-import { Components, addCallback, createMutator, updateMutator } from './vulcan-lib';
+import { Components, createMutator, updateMutator } from './vulcan-lib';
 import { getCollectionHooks } from './mutationCallbacks';
 
 import React from 'react';
@@ -255,13 +255,12 @@ const getDocument = (documentType: string|null, documentId: string|null) => {
 }
 
 
-/**
- * @summary Add notification callback when a post is approved
- */
-async function PostsApprovedNotification(post: DbPost) {
-  await createNotifications([post.userId], 'postApproved', 'post', post._id);
-}
-addCallback("posts.approve.async", PostsApprovedNotification);
+// Add notification callback when a post is approved
+getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
+  if (postIsApproved(post) && !postIsApproved(oldPost)) {
+    void createNotifications([post.userId], 'postApproved', 'post', post._id);
+  }
+});
 
 export async function postsUndraftNotification(post: DbPost) {
   //eslint-disable-next-line no-console
