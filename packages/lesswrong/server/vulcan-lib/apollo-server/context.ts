@@ -14,7 +14,7 @@ import Sentry from '@sentry/node';
 import DataLoader from 'dataloader';
 import { Accounts } from '../../../lib/meteorAccounts';
 import Cookies from 'universal-cookie';
-import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
+import { userIdentifiedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import { getSchemaContextBase } from './initGraphQL';
 import findByIds from '../findbyids';
@@ -74,9 +74,9 @@ const setupAuthToken = (user: DbUser|null, context: ResolverContext) => {
     });
     
     // identify user to any server-side analytics providers
-    runCallbacks({
-      name: 'events.identify',
-      iterator: user
+    userIdentifiedCallback.runCallbacks({
+      iterator: user,
+      properties: [],
     });
   } else {
     context.userId = null;
