@@ -11,6 +11,7 @@ import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
 import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
@@ -148,10 +149,7 @@ async function userDeleteContent(user: DbUser) {
       })
     }
     
-    runCallbacksAsync({
-      name: 'posts.purge.async',
-      properties: [post]
-    })
+    await postReportPurgeAsSpam(post);
   }
 
   const comments = Comments.find({userId: user._id}).fetch();
@@ -194,10 +192,7 @@ async function userDeleteContent(user: DbUser) {
       })
     }
 
-    runCallbacksAsync({
-      name: 'comments.purge.async',
-      properties: [comment]
-    })
+    await commentReportPurgeAsSpam(comment);
   }
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
