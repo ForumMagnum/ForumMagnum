@@ -242,7 +242,7 @@ function interpretBinaryMessage(data: any): any {
       players.push({
         map: mapName,
         name: playerName,
-        id: playerId,
+        playerId: playerId,
       });
       
       pos = playerIdStart+playerIdLen;
