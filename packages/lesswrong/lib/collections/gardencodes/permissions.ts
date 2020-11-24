@@ -1,10 +1,10 @@
-import { userGroups } from '../../vulcan-users/permissions';
+import { guestsGroup, membersGroup } from '../../vulcan-users/permissions';
 
 const guestsActions = [
   'gardencodes.view'
 ]
 
-userGroups.guests.can(guestsActions)
+guestsGroup.can(guestsActions)
 
 const memberActions = [
   'gardencodes.new',
@@ -12,6 +12,6 @@ const memberActions = [
   'gardencodes.view'
 ]
 
-userGroups.members.can(memberActions)
+membersGroup.can(memberActions)
 
 

@@ -1,14 +1,13 @@
 import { Posts } from './collection'
-import { userGroups, userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { guestsGroup, membersGroup, adminsGroup, userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canCommentLockGroup } from '../../permissions';
 import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
-
-// Example Forum permissions
 
 const guestsActions = [
   'posts.view.approved'
 ];
-userGroups.guests.can(guestsActions);
+guestsGroup.can(guestsActions);
 
 const membersActions = [
   'posts.new',
@@ -17,7 +16,7 @@ const membersActions = [
   'posts.upvote',
   'posts.downvote',
 ];
-userGroups.members.can(membersActions);
+membersGroup.can(membersActions);
 
 const adminActions = [
   'posts.view.all',
@@ -29,7 +28,7 @@ const adminActions = [
   'posts.edit.all',
   'posts.remove.all'
 ];
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
 // LessWrong Permissions
 
@@ -54,7 +53,7 @@ const votingActions = [
   'posts.bigUpvote',
 ]
 
-userGroups.members.can(votingActions);
+membersGroup.can(votingActions);
 
 const sunshineRegimentActions = [
   'posts.view.all',
@@ -65,9 +64,9 @@ const sunshineRegimentActions = [
   'posts.moderate.all',
   'posts.commentLock.all'
 ];
-userGroups.sunshineRegiment.can(sunshineRegimentActions);
+sunshineRegimentGroup.can(sunshineRegimentActions);
 
 
-userGroups.trustLevel1.can(['posts.moderate.own', 'posts.suggestCurate']);
-userGroups.canModeratePersonal.can(['posts.moderate.own.personal']);
-userGroups.canCommentLock.can(['posts.commentLock.own']);
+trustLevel1Group.can(['posts.moderate.own', 'posts.suggestCurate']);
+canModeratePersonalGroup.can(['posts.moderate.own.personal']);
+canCommentLockGroup.can(['posts.commentLock.own']);

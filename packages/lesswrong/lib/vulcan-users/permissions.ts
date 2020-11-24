@@ -19,12 +19,13 @@ class Group {
   }
 }
 
-export const userGroups: Record<string,Group> = {};
+const userGroups: Record<string,Group> = {};
 
 
 // Create a new group
-export const createGroup = (groupName: string): void => {
+export const createGroup = (groupName: string): Group => {
   userGroups[groupName] = new Group();
+  return userGroups[groupName];
 };
 
 // get a list of a user's groups
@@ -211,8 +212,8 @@ export const userCanUpdateField = function (user, field, document) {
 ////////////////////
 
 // initialize the 3 out-of-the-box groups
-createGroup('guests'); // non-logged-in users
-createGroup('members'); // regular users
+export const guestsGroup = createGroup('guests'); // non-logged-in users
+export const membersGroup = createGroup('members'); // regular users
 
 const membersActions = [
   'user.create',
@@ -224,7 +225,7 @@ const membersActions = [
 ];
 userGroups.members.can(membersActions);
 
-createGroup('admins'); // admin users
+export const adminsGroup = createGroup('admins'); // admin users
 
 const adminActions = [
   'user.create',
