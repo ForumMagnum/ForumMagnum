@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../publicSettings';
 import { runCallbacks } from './callbacks';
 import { getDefaultFragmentText, registerFragment } from './fragments';
-import { Collections } from './getCollection';
+import { registerCollection } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { Utils, pluralize, camelCaseify } from './utils';
 export * from './getCollection';
@@ -271,7 +271,6 @@ export const createCollection = (options: {
     return parameters;
   };
 
-  Collections.push(collection);
-
+  registerCollection(collection);
   return collection;
 };

@@ -1,4 +1,4 @@
-import { Utils, Collections } from '../vulcan-lib';
+import { Utils, getCollectionByTypeName } from '../vulcan-lib';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 
 export const cacheUpdateGenerator = (typeName, mutationType: 'update' | 'create' | 'delete') => {
@@ -40,7 +40,7 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document })
 }
 
 const getParametersByTypeName = (terms, typeName) => {
-  const collection = Collections.find(c => c.typeName === typeName);
+  const collection = getCollectionByTypeName(typeName);
   return collection.getParameters(terms /* apolloClient */);
 }
 

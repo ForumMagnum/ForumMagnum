@@ -6,7 +6,7 @@ import Users from '../../lib/collections/users/collection'
 import { getCollection } from '../vulcan-lib';
 import Sequences from '../../lib/collections/sequences/collection'
 import { wrapVulcanAsyncScript } from './utils'
-import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
+import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
 import { algoliaIndexNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
@@ -107,7 +107,7 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   // eslint-disable-next-line no-console
   console.log("Checking documents against the mongodb...");
   const ids = _.map(allDocuments, doc=>doc._id)
-  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids); // TODO: Pagination
+  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection as unknown as AlgoliaIndexedCollection<DbObject>, ids); // TODO: Pagination
   const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
   
   const hitsToDelete = _.filter(allDocuments, doc=>doc._id in mongoIdsToDeleteDict);

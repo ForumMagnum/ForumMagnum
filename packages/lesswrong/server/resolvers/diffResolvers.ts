@@ -12,14 +12,14 @@ addGraphQLResolvers({
     // Diff resolver
     // After revision required, before revision optional (if not provided, diff
     // is against the preceding revision, whatever that is.)
-    async RevisionsDiff(root: void, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: string, fieldName: string, id: string, beforeRev: string|null, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
+    async RevisionsDiff(root: void, {collectionName, fieldName, id, beforeRev, afterRev, trim}: { collectionName: CollectionNameString, fieldName: string, id: string, beforeRev: string|null, afterRev: string, trim: boolean }, context: ResolverContext): Promise<string> {
       const {currentUser}: {currentUser: DbUser|null} = context;
       
       // Validate collectionName, fieldName
       if (!editableCollections.has(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
       }
-      if (!editableCollectionsFields[collectionName].find(f=>f===fieldName)) {
+      if (!editableCollectionsFields[collectionName]!.find(f=>f===fieldName)) {
         throw new Error(`Invalid field for RevisionsDiff: ${collectionName}.${fieldName}`);
       }
       

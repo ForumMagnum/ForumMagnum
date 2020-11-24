@@ -3,13 +3,13 @@ import { getCollection } from './vulcan-lib/collections';
 export function mongoFindOne<N extends CollectionNameString>(collectionName: N, selector: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOneOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): ObjectsByCollectionName[N]|null
 {
   const collection = getCollection(collectionName);
-  return collection.findOne(selector, options, projection);
+  return collection.findOne(selector, options, projection) as ObjectsByCollectionName[N]|null;
 }
 
 export function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Array<ObjectsByCollectionName[N]>
 {
   const collection = getCollection(collectionName);
-  return collection.find(selector, options, projection).fetch();
+  return collection.find(selector, options, projection).fetch() as ObjectsByCollectionName[N][];
 }
 
 export function mongoCount<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): number

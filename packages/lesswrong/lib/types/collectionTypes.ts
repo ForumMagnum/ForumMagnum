@@ -34,8 +34,8 @@ interface CollectionBase<T extends DbObject> {
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
   update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => number
-  remove: (idOrSelector: string|MongoSelector<T>) => void
-  insert: (data: any) => string
+  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => void
+  insert: (data: any, options?: any) => string
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>) => any
   _ensureIndex: any
 }
@@ -117,5 +117,7 @@ interface ResolverContext extends CollectionsByName {
 }
 
 type FragmentName = keyof FragmentTypes;
+
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels";
 
 }

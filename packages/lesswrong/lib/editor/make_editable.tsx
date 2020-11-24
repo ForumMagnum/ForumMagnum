@@ -43,9 +43,9 @@ const defaultOptions = {
   revisionsHaveCommitMessages: false,
 }
 
-export const editableCollections = new Set<string>()
-export const editableCollectionsFields: Record<string,Array<string>> = {}
-export const editableCollectionsFieldOptions: Record<string,any> = {};
+export const editableCollections = new Set<CollectionNameString>()
+export const editableCollectionsFields: Partial<Record<CollectionNameString,Array<string>>> = {}
+export const editableCollectionsFieldOptions: Partial<Record<CollectionNameString,any>> = {};
 
 export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,

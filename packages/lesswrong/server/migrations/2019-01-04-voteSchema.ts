@@ -1,6 +1,6 @@
 import { Votes } from '../../lib/collections/votes';
 import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
-import { Collections } from '../../lib/vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 
 registerMigration({
@@ -19,10 +19,10 @@ registerMigration({
       migrate: async (documents: Array<DbVote>) => {
         // Get the set of collections that at least one vote in the batch
         // is voting on
-        const collectionNames = _.uniq(_.pluck(documents, "collectionName"))
+        const collectionNames = _.uniq(_.pluck(documents, "collectionName")) as Array<CollectionNameString>
         
         for(let collectionName of collectionNames) {
-          const collection = _.find(Collections, c => c.collectionName===collectionName);
+          const collection = getCollection(collectionName);
           
           // Go through the votes in the batch and pick out IDs of voted-on
           // documents in this collection.

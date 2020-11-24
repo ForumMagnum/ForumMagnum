@@ -35,7 +35,7 @@ function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
   const typeName = parsedFragment.typeCondition?.name?.value;
   const collectionName = getCollectionName(typeName!);
   const collection = getCollection(collectionName);
-  assert(collection);
+  assert(!!collection);
   
   return fragmentToInterface(fragmentName, parsedFragment, collection);
 }

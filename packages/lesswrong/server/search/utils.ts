@@ -24,7 +24,7 @@ export type AlgoliaDocument = {
   [key: string]: any,
 }
 
-interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
+export interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 

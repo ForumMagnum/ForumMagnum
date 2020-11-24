@@ -68,7 +68,7 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
 });
 
 const reverseVote = async (vote: DbVote) => {
-  const collection = getCollection(vote.collectionName);
+  const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = collection.findOne({_id: vote.documentId});
   const user = Users.findOne({_id: vote.userId});
   if (document && user) {

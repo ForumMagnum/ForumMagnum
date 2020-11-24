@@ -26,14 +26,14 @@ registerMigration({
   }
 });
 
-function collectionsWithExactlyOneEditableField(): Array<{collectionName:string, fieldName:string}>
+function collectionsWithExactlyOneEditableField(): Array<{collectionName:CollectionNameString, fieldName:string}>
 {
-  let result: Array<{collectionName:string, fieldName:string}> = [];
+  let result: Array<{collectionName:CollectionNameString, fieldName:string}> = [];
   for (let collectionName of editableCollections) {
-    if (editableCollectionsFields[collectionName].length === 1) {
+    if (editableCollectionsFields[collectionName]!.length === 1) {
       result.push({
         collectionName,
-        fieldName: editableCollectionsFields[collectionName][0],
+        fieldName: editableCollectionsFields[collectionName]![0],
       });
     }
   }
