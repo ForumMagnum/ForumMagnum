@@ -1,7 +1,8 @@
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../../lib/vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers, runCallbacks } from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { moderateCommentsPostUpdate } from '../callbacks/commentCallbacks';
 
 const specificResolvers = {
   Mutation: {
@@ -35,10 +36,7 @@ const specificResolvers = {
         });
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = await context.Comments.findOne(commentId)
-        runCallbacksAsync({
-          name: 'comments.moderate.async',
-          properties: [updatedComment, comment, context]
-        });
+        moderateCommentsPostUpdate(updatedComment!, currentUser);
         return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
       } else {
         throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));

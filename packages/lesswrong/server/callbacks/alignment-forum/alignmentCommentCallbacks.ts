@@ -4,7 +4,7 @@ import { addCallback, updateMutator } from '../../vulcan-lib';
 import { getCollectionHooks } from '../../mutationCallbacks';
 import * as _ from 'underscore';
 
-function recalculateAFCommentMetadata(postId: string|null) {
+export function recalculateAFCommentMetadata(postId: string|null) {
   if (!postId)
     return;
   
@@ -31,7 +31,6 @@ function recalculateAFCommentMetadata(postId: string|null) {
 function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) {
   recalculateAFCommentMetadata(comment.postId)
 }
-addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 addCallback("comments.alignment.async", ModerateCommentsPostUpdate);
 
 
