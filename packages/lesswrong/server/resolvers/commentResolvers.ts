@@ -1,4 +1,4 @@
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacks } from '../../lib/vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
@@ -30,10 +30,6 @@ const specificResolvers = {
           set.deletedByUserId = null;
         }
         let modifier = { $set: set };
-        modifier = runCallbacks({
-          name: 'comments.moderate.sync',
-          iterator: modifier
-        });
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = await context.Comments.findOne(commentId)
         moderateCommentsPostUpdate(updatedComment!, currentUser);
