@@ -1,13 +1,7 @@
-/*
-
-GraphQL config
-
-*/
-
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacksAsync } from '../vulcan-lib';
-import { userCanDo } from '../vulcan-users/permissions';
-import { userCanMakeAlignmentPost } from './users/helpers';
-import { accessFilterSingle } from '../utils/schemaUtils';
+import { addGraphQLMutation, addGraphQLResolvers, runCallbacksAsync } from '../../lib/vulcan-lib';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helpers';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 const alignmentCommentResolvers = {
   Mutation: {
