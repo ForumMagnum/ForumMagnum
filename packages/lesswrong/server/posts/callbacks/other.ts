@@ -12,7 +12,7 @@ Callbacks to:
 
 import { Posts } from '../../../lib/collections/posts';
 import { postIsApproved } from '../../../lib/collections/posts/helpers';
-import { addCallback, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
+import { addCallback, runCallbacksAsync } from '../../vulcan-lib';
 import { getCollectionHooks } from '../../mutationCallbacks';
 
 //////////////////////////////////////////////////////
@@ -21,11 +21,7 @@ import { getCollectionHooks } from '../../mutationCallbacks';
 
 getCollectionHooks("Posts").editSync.add(function PostsEditRunPostApprovedSyncCallbacks(modifier, post) {
   if (modifier.$set && postIsApproved(modifier.$set) && !postIsApproved(post)) {
-    modifier = runCallbacks({
-      name: 'posts.approve.sync',
-      iterator: modifier,
-      properties: [post]
-    });
+    modifier.$set.postedAt = new Date();
   }
   return modifier;
 });
@@ -42,14 +38,3 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsync
     });
   }
 });
-
-
-//////////////////////////////////////////////////////
-// posts.approve.sync                              //
-//////////////////////////////////////////////////////
-
-function PostsApprovedSetPostedAt(modifier, post) {
-  modifier.$set.postedAt = new Date();
-  return modifier;
-}
-addCallback('posts.approve.sync', PostsApprovedSetPostedAt);
