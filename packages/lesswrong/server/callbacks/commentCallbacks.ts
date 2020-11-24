@@ -89,24 +89,6 @@ getCollectionHooks("Comments").newSync.add(function CommentsNewOperations (comme
 });
 
 //////////////////////////////////////////////////////
-// comments.new.async                               //
-//////////////////////////////////////////////////////
-
-
-/**
- * @summary Run the 'upvote.async' callbacks *once* the item exists in the database
- * @param {object} item - The item being operated on
- * @param {object} user - The user doing the operation
- * @param {object} collection - The collection the item belongs to
- */
-getCollectionHooks("Comments").newAsync.add(function UpvoteAsyncCallbacksAfterDocumentInsert(item, user, collection) {
-  runCallbacksAsync({
-    name: 'upvote.async',
-    properties: [item, user, collection, 'upvote']
-  });
-});
-
-//////////////////////////////////////////////////////
 // comments.remove.async                            //
 //////////////////////////////////////////////////////
 
