@@ -34,9 +34,9 @@ interface CollectionBase<T extends DbObject> {
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
   update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => number
-  remove: any
-  insert: any
-  aggregate: any
+  remove: (idOrSelector: string|MongoSelector<T>) => void
+  insert: (data: any) => string
+  aggregate: (aggregationPipeline: MongoAggregationPipeline<T>) => any
   _ensureIndex: any
 }
 
@@ -56,7 +56,7 @@ interface FindResult<T> {
   count: ()=>number
 }
 
-type MongoSelector<T extends DbObject> = Record<string,any>; //TODO
+type MongoSelector<T extends DbObject> = any; //TODO
 type MongoProjection<T extends DbObject> = Record<string,number>; //TODO
 type MongoModifier<T extends DbObject> = any; //TODO
 
@@ -65,6 +65,7 @@ type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
+type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 
 // Common base type for everything that has an _id field (including both raw DB
 // objects and fragment-resolver results).
