@@ -118,7 +118,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   });
 
   // Create WebSocket connection.
-  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}/?token=${token}`);
+  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}`);
   socket.on('open', function (data) {
     sendMessageOnSocket(socket, {
       event: "init",
@@ -131,7 +131,6 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   let playerInfoByName: Record<string,GatherTownPlayerInfo> = {};
 
   socket.on('message', function (data: any) {
-    const parsedData = data.toString('utf8').substring(1)
     const firstByte: any = data.readUInt8(0);
     if (firstByte === 0) {
       // A JSON message
