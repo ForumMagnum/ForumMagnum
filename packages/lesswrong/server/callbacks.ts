@@ -50,19 +50,13 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
 
 getCollectionHooks("Users").editAsync.add(function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.deleteContent && !oldUser.deleteContent) {
-    runCallbacksAsync({
-      name: 'users.deleteContent.async',
-      properties: [user]
-    });
+    void userDeleteContent(user);
   }
 });
 
 getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
-    runCallbacksAsync({
-      name: 'users.ban.async',
-      properties: [user]
-    });
+    void userIPBanAndResetLoginTokens(user);
   }
 });
 
@@ -100,7 +94,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-async function userDeleteContent(user: DbUser) {
+export async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = Posts.find({userId: user._id}).fetch();
@@ -189,14 +183,9 @@ async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
 }
-addCallback("users.deleteContent.async", userDeleteContent);
 
-function userResetLoginTokens(user: DbUser) {
-  Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
-}
-addCallback("users.ban.async", userResetLoginTokens);
-
-async function userIPBan(user: DbUser) {
+export async function userIPBanAndResetLoginTokens(user: DbUser) {
+  // IP ban
   const query = `
     query UserIPBan($userId:String) {
       user(input:{selector: {_id: $userId}}) {
@@ -227,8 +216,9 @@ async function userIPBan(user: DbUser) {
     })
   }
 
+  // Remove login tokens
+  Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
-addCallback("users.ban.async", userIPBan);
 
 getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user: DbUser) {
   if (!user.username) {
