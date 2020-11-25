@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -90,7 +91,7 @@ interface ExternalProps {
   onClose: any,
   open: boolean,
 }
-interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
+interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateCurrentUserProps {
 }
 
 interface SubscribeDialogState {
@@ -320,6 +321,7 @@ const SubscribeDialogComponent = registerComponent<ExternalProps>("SubscribeDial
   hocs: [
     withMobileDialog(),
     withUser,
+    withUpdateCurrentUser,
     withTracking,
   ]
 });
