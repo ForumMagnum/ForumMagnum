@@ -312,7 +312,6 @@ ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
 async function buildRevision({ originalContents, currentUser }) {
   const { data, type } = originalContents;
-  console.log("buildRevision", originalContents)
   const html = await dataToHTML(data, type, !currentUser.isAdmin)
   const wordCount = await dataToWordCount(data, type)
   
@@ -412,7 +411,6 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
   }
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
-    console.log("editorSerializationEdit", docData)
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       
