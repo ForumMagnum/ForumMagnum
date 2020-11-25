@@ -1439,6 +1439,13 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
 },
+  ctaPopupDismissed: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    hidden: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
 });
 
 export const makeEditableOptionsModeration = {

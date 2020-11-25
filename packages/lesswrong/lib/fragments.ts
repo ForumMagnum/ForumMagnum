@@ -333,6 +333,7 @@ registerFragment(`
     hideWalledGardenUI
     walledGardenPortalOnboarded
     taggingDashboardCollapsed
+    ctaPopupDismissed
   }
 `)
 

@@ -16,6 +16,7 @@ import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
+import { useUpdate } from "../../lib/crud/withUpdate";
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -103,8 +104,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  CTA: {
+  callToAction: {
     fontStyle: 'italic'
+  },
+  callToActionFlagCount: {
+    // fontSize: ".9em",
+    position: "relative",
+    marginLeft: 4,
+    marginRight: 0
+  },
+  callToActionTooltip: {
+    
   }
 });
 
@@ -198,7 +208,10 @@ const TagPage = ({classes}: {
   }
   
   const numFlags = tag?.tagFlagsIds?.length
-  const improvementCall =  <span className={classes.CTA}> Help improve this page {!!numFlags&&`${numFlags} flags set`} </span>
+  const improvementCall =  <span className={classes.callToAction}>
+    Help improve this page
+    <span className={classes.callToActionFlagCount}>{!!numFlags&&`(${numFlags} flags)`}</span>
+  </span>
   
   return <AnalyticsContext
     pageContext='tagPage'
@@ -267,8 +280,24 @@ const TagPage = ({classes}: {
               <TagDiscussionButton tag={tag} />
             </div>
             <div className={classes.discussionButtonPositioning}>
+              {tag?.tagFlags && <LWTooltip className={classes.callToActionTooltip}
+                title={
+                  <ul>
+                    {tag.tagFlags.map((flag) => <li key={flag._id}>{flag.name}</li>)}
+                  </ul>
+                }
+                >
               {currentUser ?
-                <a className={classes.button} onClick={() => setEditing(true)}>
+                <a className={classes.button} onClick={(ev) => {
+                  setEditing(true)
+                  if (!currentUser?.ctaPopupDismissed) {
+                    openDialog({
+                      componentName: "TagCTAPopup",
+                      componentProps: {}
+                    })
+                    ev.preventDefault();
+                  }
+                }}>
                   {improvementCall}
                 </a> :
                 <a className={classes.button} onClick={(ev) => {
@@ -280,6 +309,8 @@ const TagPage = ({classes}: {
                 }}>
                   {improvementCall}
                 </a>
+              }
+              </LWTooltip>
               }
             </div>
           </div>
