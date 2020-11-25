@@ -246,7 +246,7 @@ const TagPage = ({classes}: {
           <div className={classes.buttonsRow}>
             {currentUser ?
               <a className={classes.button} onClick={() => setEditing(true)}>
-                <EditOutlinedIcon /> Edit Wiki
+                <EditOutlinedIcon /> Edit
               </a> :
               <a className={classes.button} onClick={(ev) => {
                 openDialog({
@@ -255,13 +255,13 @@ const TagPage = ({classes}: {
                 });
                 ev.preventDefault();
               }}>
-                <EditOutlinedIcon /> Edit Wiki
+                <EditOutlinedIcon /> Edit
               </a>
             }
             {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
-            <LWTooltip title="Get notifications when posts are added to this tag" className={classes.subscribeToWrapper}>
+            {!tag.wikiOnly && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
               <SubscribeTo
                 document={tag}
                 className={classes.subscribeTo}
@@ -270,9 +270,12 @@ const TagPage = ({classes}: {
                 unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
-            </LWTooltip>
-            <div className={classes.discussionButtonPositioning}>
+            </LWTooltip>}
+            <div className={classes.buttonRow}>
               <TagDiscussionButton tag={tag} />
+            </div>
+            <div className={classes.discussionButtonPositioning}>
+              <i>Help improve this page (3 tags set)</i>
             </div>
           </div>
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
