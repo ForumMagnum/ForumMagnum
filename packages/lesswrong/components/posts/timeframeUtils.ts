@@ -1,7 +1,9 @@
 import moment from '../../lib/moment-timezone';
 import * as _ from 'underscore';
 
-export const timeframeToTimeBlock = {
+export type TimeframeType = "daily"|"weekly"|"monthly"|"yearly";
+
+export const timeframeToTimeBlock: Record<TimeframeType,moment.unitOfTime.DurationAs> = {
   daily: 'day',
   weekly: 'week',
   monthly: 'month',
@@ -10,7 +12,8 @@ export const timeframeToTimeBlock = {
 
 // Locally valid. Moment supports seconds, but that's not how these functions
 // work.
-const VALID_TIME_BLOCKS = [
+type TimeBlockString = moment.unitOfTime.DurationAs
+const VALID_TIME_BLOCKS: Array<TimeBlockString> = [
   'days', 'day',
   'weeks', 'week',
   'months', 'month',
@@ -27,7 +30,7 @@ const VALID_TIME_BLOCKS = [
 // timezone. It pretends that everything's in UTC for date-parsing (used for
 // date-math), but this is just a convenient fiction that doesn't effect the
 // result.
-export function getDateRange (after: string|Date, before: string|Date, timeBlock: string) {
+export function getDateRange (after: string|Date, before: string|Date, timeBlock: TimeBlockString) {
   // true for strict parsing
   const mAfter = moment.utc(after, 'YYYY-MM-DD', true)
   const mBefore = moment.utc(before, 'YYYY-MM-DD', true)
@@ -68,7 +71,7 @@ export function getDateRange (after: string|Date, before: string|Date, timeBlock
 // two Sundays before that.
 export function getAfterDefault ({numTimeBlocks, timeBlock, timezone}: {
   numTimeBlocks: number,
-  timeBlock: string,
+  timeBlock: TimeBlockString,
   timezone: string,
 }) {
   if (!numTimeBlocks || !timeBlock || !timezone) throw new Error("Missing argument in getAfterDefault");
@@ -82,7 +85,7 @@ export function getAfterDefault ({numTimeBlocks, timeBlock, timezone}: {
 // For ease of calculations, we start at the beginning of the next timeBlock.
 // i.e. if today is July 10th, the default 'before' date is August 1st.
 export function getBeforeDefault ({timeBlock, timezone}: {
-  timeBlock: string,
+  timeBlock: TimeBlockString,
   timezone: string
 }) {
   if (!timeBlock) throw new Error("Missing argument in getBeforeDefault");

@@ -1,6 +1,6 @@
 import cheerio from 'cheerio';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { Utils } from './vulcan-lib';
+import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { hostIsOnsite, getUrlClass } from '../lib/routeUtil';
 import * as _ from 'underscore';
 
@@ -26,7 +26,7 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
       // domain, and the domain doesn't matter at all except in whether or not
       // it's in the domain whitelist (which it will only be if it's overridden
       // by an absolute link).
-      const linkTargetAbsolute = new URLClass(link, Utils.getSiteUrl());
+      const linkTargetAbsolute = new URLClass(link, getSiteUrl());
       
       if (hostIsOnsite(linkTargetAbsolute.host)) {
         const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;

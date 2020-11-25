@@ -32,6 +32,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     '&::placeholder': {
       color: 'rgba(255,255,255,.5)'
+    },
+    [theme.breakpoints.down('sm')]: {
+      left: 5,
     }
   }
 });
@@ -66,4 +69,3 @@ declare global {
     EditSequenceTitle: typeof EditSequenceTitleComponent
   }
 }
-

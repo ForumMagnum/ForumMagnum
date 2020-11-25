@@ -1,6 +1,6 @@
-import React, {useRef, useEffect, useCallback} from 'react';
+import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import gql from 'graphql-tag';
@@ -131,50 +131,45 @@ const MixedTypeFeed = (args: {
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
   
-  // startLoadingMore: Ask for another page of results. Does NOT check whether a
-  // request is already pending (that's checked in maybeStartLoadingMore), and
-  // overlapping requests would be bad.
-  const requestMore = useCallback(async () => {
-    await fetchMore({
-      variables: {
-        ...resolverArgsValues,
-        ...fragmentArgsValues,
-        cutoff: data[resolverName].cutoff,
-        limit: pageSize,
-      },
-      updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-        queryIsPending.current = false;
-        if (!fetchMoreResult) {
-          return prev;
-        }
-        
-        return {
-          [resolverName]: {
-            __typename: fetchMoreResult[resolverName].__typename,
-            cutoff: fetchMoreResult[resolverName].cutoff,
-            results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
-          }
-        };
-      }
-    });
-  }, [fetchMore, pageSize, data, resolverName, resolverArgsValues, fragmentArgsValues, queryIsPending])
-  
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start
   // loading it.
-  const maybeStartLoadingMore = useCallback(() => {
+  const maybeStartLoadingMore = () => {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
       && bottomRef?.current
       && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
-      && !reachedEnd)
+      && !reachedEnd
+      && data)
     {
       if (!queryIsPending.current) {
         queryIsPending.current = true;
-        void requestMore();
+        void fetchMore({
+          variables: {
+            ...resolverArgsValues,
+            ...fragmentArgsValues,
+            cutoff: data[resolverName].cutoff,
+            limit: pageSize,
+          },
+          updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
+            queryIsPending.current = false;
+            if (!fetchMoreResult) {
+              return prev;
+            }
+            
+            return {
+              [resolverName]: {
+                __typename: fetchMoreResult[resolverName].__typename,
+                cutoff: fetchMoreResult[resolverName].cutoff,
+                results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+              }
+            };
+          }
+        });
       }
     }
-  }, [requestMore, queryIsPending, reachedEnd]);
+  }
+
   
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results

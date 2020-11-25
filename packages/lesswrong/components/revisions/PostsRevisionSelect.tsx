@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   revisionList: {
@@ -20,7 +20,7 @@ const PostsRevisionSelect = ({ classes }: {
   
   const { document: post, loading: loadingPost } = useSingle({
     documentId: postId,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsDetails",
   });
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
@@ -33,7 +33,6 @@ const PostsRevisionSelect = ({ classes }: {
     fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
-    ssr: true,
   });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
@@ -49,7 +48,7 @@ const PostsRevisionSelect = ({ classes }: {
     <div className={classes.revisionList}>
       {revisions && <RevisionSelect
         revisions={revisions}
-        getRevisionUrl={(rev: RevisionMetadata) => `${Posts.getPageUrl(post)}?revision=${rev.version}`}
+        getRevisionUrl={(rev: RevisionMetadata) => `${postGetPageUrl(post)}?revision=${rev.version}`}
         onPairSelected={compareRevs}
         loadMoreProps={loadMoreProps}
       />}

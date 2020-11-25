@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withLocation } from '../../lib/routeUtil'
+import { useLocation } from '../../lib/routeUtil'
 
-const PostsEditPage = ({ location }) => {
-  const { query } = location;
+const PostsEditPage = () => {
+  const { query } = useLocation();
   const postId = query.postId;
   const eventForm = !!(query.eventForm === "true");
   
@@ -12,9 +12,7 @@ const PostsEditPage = ({ location }) => {
   </div>
 }
 
-const PostsEditPageComponent = registerComponent('PostsEditPage', PostsEditPage, {
-  hocs: [withLocation]
-});
+const PostsEditPageComponent = registerComponent('PostsEditPage', PostsEditPage);
 
 declare global {
   interface ComponentTypes {

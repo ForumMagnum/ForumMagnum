@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     marginBottom: 24,
@@ -28,8 +28,9 @@ const styles = theme => ({
   }
 })
 
-const NewTagsList = ({classes}:{
-  classes: ClassesType
+const NewTagsList = ({classes, showHeaders = true}:{
+  classes: ClassesType,
+  showHeaders?: boolean
 }) => {
   const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
 
@@ -38,12 +39,11 @@ const NewTagsList = ({classes}:{
     collection: Tags,
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
-    ssr: true,
     itemsPerPage: 20,
   });
 
   return <div className={classes.root}>
-    <h2>New Tags</h2>
+    {showHeaders && <h2>New Tags</h2>}
     <table>
       <tbody>
         {results?.map(tag => <tr key={tag._id}>

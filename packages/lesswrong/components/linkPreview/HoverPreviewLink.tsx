@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { parseRoute, parsePath } from '../../lib/vulcan-core/appContext';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -60,7 +61,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
   }
 
   try {
-    const currentURL = new URLClass(location.url, Utils.getSiteUrl());
+    const currentURL = new URLClass(location.url, getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;

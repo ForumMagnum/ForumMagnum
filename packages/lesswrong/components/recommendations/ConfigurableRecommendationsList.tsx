@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
@@ -14,7 +15,7 @@ interface ConfigurableRecommendationsListProps extends ExternalProps, WithUserPr
 }
 interface ConfigurableRecommendationsListState {
   settingsVisible: boolean,
-  settings: any,
+  settings: Partial<RecommendationsAlgorithm>|null,
 }
 
 class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommendationsListProps,ConfigurableRecommendationsListState> {
@@ -29,7 +30,7 @@ class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommen
     });
   }
 
-  changeSettings = (newSettings) => {
+  changeSettings = (newSettings: Partial<RecommendationsAlgorithm>) => {
     this.setState({
       settings: newSettings
     });

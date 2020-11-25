@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import Sequences from '../../lib/collections/sequences/collection';
+import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import NoSSR from 'react-no-ssr';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
@@ -95,7 +95,7 @@ const SequencesPage = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const { document, loading } = useSingle({
     documentId,
-    collection: Sequences,
+    collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
   });
 
@@ -118,12 +118,12 @@ const SequencesPage = ({ documentId, classes }: {
     />
   )
 
-  const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
-  const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
+  const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
+  const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
   const { html = "" } = document.contents || {}
 
   return <div className={classes.root}>
-    <HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
+    <HeadTags url={sequenceGetPageUrl(document, true)} title={document.title}/>
     <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>

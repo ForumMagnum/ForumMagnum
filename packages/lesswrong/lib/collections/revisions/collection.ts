@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import Users from '../users/collection';
+import { userCanDo } from '../../vulcan-users/permissions';
 
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
@@ -22,7 +22,7 @@ addUniversalFields({collection: Revisions})
 Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context: ResolverContext|null): Promise<boolean> => {
   if (!revision) return false
   if ((user && user._id) === revision.userId) return true
-  if (Users.canDo(user, 'posts.view.all')) return true
+  if (userCanDo(user, 'posts.view.all')) return true
   
   // Get the document that this revision is a field of, and check for access to
   // it. This is necessary for correctly handling things like posts' draft

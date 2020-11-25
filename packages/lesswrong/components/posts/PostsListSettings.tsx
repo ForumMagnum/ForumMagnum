@@ -198,7 +198,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
   setSetting = (type, newSetting) => {
     const { updateUser, currentUser, persistentSettings } = this.props
     if (currentUser && persistentSettings) {
-      updateUser({
+      void updateUser({
         selector: { _id: currentUser._id},
         data: {
           [USER_SETTING_NAMES[type]]: newSetting,

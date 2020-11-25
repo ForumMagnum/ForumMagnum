@@ -37,7 +37,6 @@ importComponent("NewConversationButton", () => require('../components/messaging/
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
-importComponent("SelectVersion", () => require('../components/editor/SelectVersion'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -216,6 +215,7 @@ importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox'));
 importComponent("ReportPostMenuItem", () => require('../components/posts/ReportPostMenuItem'));
 importComponent("PostsItemDate", () => require('../components/posts/PostsItemDate'));
+importComponent("ElicitBlock", () => require('../components/posts/ElicitBlock'));
 
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
@@ -406,6 +406,7 @@ importComponent("TaggingDashboard", () => require('../components/tagging/Tagging
 importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
 importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
+importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));

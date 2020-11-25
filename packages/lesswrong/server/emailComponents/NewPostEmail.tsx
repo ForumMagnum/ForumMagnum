@@ -1,5 +1,5 @@
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Components, registerComponent } from '../vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import './EmailFormatDate';
@@ -35,7 +35,7 @@ const NewPostEmail = ({documentId, classes, reason}: {
   const { document } = useSingle({
     documentId,
     
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsRevision",
     extraVariables: {
       version: 'String'
@@ -46,7 +46,7 @@ const NewPostEmail = ({documentId, classes, reason}: {
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>
-        <a href={Posts.getPageUrl(document, true)} className={classes.headingLink}>{document.title}</a>
+        <a href={postGetPageUrl(document, true)} className={classes.headingLink}>{document.title}</a>
       </h1>
       
       <hr className={classes.headingHR}/>
@@ -67,7 +67,7 @@ const NewPostEmail = ({documentId, classes, reason}: {
       __html: document.contents.html
     }} />}
     
-    <a href={Posts.getPageUrl(document, true)}>Discuss</a><br/><br/>
+    <a href={postGetPageUrl(document, true)}>Discuss</a><br/><br/>
     
     {reason && `You are receiving this email because ${reason}.`}
   </React.Fragment>);

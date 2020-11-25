@@ -1,8 +1,8 @@
-import Users from './collections/users/collection';
+import { createGroup } from './vulcan-users/permissions';
 
-Users.createGroup("sunshineRegiment");
-Users.createGroup("trustLevel1");
-Users.createGroup("canBypassPostRateLimit");
-Users.createGroup("canModeratePersonal");
-Users.createGroup("canCommentLock");
-Users.createGroup("tagManager");
+createGroup("sunshineRegiment");
+createGroup("trustLevel1");
+createGroup("canBypassPostRateLimit");
+createGroup("canModeratePersonal");
+createGroup("canCommentLock");
+createGroup("tagManager");

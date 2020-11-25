@@ -7,7 +7,7 @@ const gatherTownLeftMenuWidth = 65 // We want to hide this menu, so we apply a n
 
 export const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   iframePositioning: {
     width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
     height: "100%",
@@ -17,12 +17,12 @@ const styles = (theme) => ({
 })
 
 
-const GatherTownIframeWrapper = ({iframeRef, classes}) => {
-
-
-
+const GatherTownIframeWrapper = ({iframeRef, classes}: {
+  iframeRef: React.RefObject<HTMLIFrameElement>,
+  classes: ClassesType,
+}) => {
   useEffect(() => {
-    iframeRef.current.focus()
+    iframeRef?.current?.focus && iframeRef.current.focus()
   }, [iframeRef])
 
   return <iframe className={classes.iframePositioning} ref={iframeRef} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}; display-capture ${gatherTownURL}`}></iframe>

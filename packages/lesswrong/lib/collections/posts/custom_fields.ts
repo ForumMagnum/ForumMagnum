@@ -8,10 +8,15 @@ import { getWithLoader } from '../../loaders';
 import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import Users from "../users/collection";
+import { userOwns } from '../../vulcan-users/permissions';
+import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { Sequences } from '../sequences/collection';
+import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
+import { postCanEditHideCommentKarma } from './helpers';
 import Sentry from '@sentry/core';
+
+const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
 
 export const formGroups = {
   default: {
@@ -61,7 +66,6 @@ export const formGroups = {
     name: "advancedOptions",
     label: "Options",
     startCollapsed: true,
-    flexStyle: true
   },
   highlight: {
     order: 21,
@@ -82,14 +86,14 @@ addFieldsDict(Posts, {
     control: 'EditUrl',
     placeholder: 'Add a linkpost URL',
     group: formGroups.options,
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins']
+    editableBy: [userOwns, 'sunshineRegiment', 'admins']
   },
   // Title (Overwriting original schema)
   title: {
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
   },
 
@@ -271,6 +275,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    onInsert: frontpageDefault,
     optional: true,
     hidden: true,
   },
@@ -320,6 +325,29 @@ addFieldsDict(Posts, {
     type: String,
     foreignKey: 'Users',
     optional: true
+  },
+  
+  // Cloudinary image id for an image that will be used as the OpenGraph image
+  socialPreviewImageId: {
+    type: String,
+    optional: true,
+    label: "Social Preview Image",
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: "ImageUpload",
+    group: formGroups.advancedOptions,
+  },
+  
+  // Autoset OpenGraph image, derived from the first post image in a callback
+  socialPreviewImageAutoUrl: {
+    type: String,
+    optional: true,
+    hidden: true,
+    label: "Social Preview Image Auto-generated URL",
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
   },
 
   canonicalSequenceId: {
@@ -424,7 +452,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(sequenceId, post._id);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
           return await accessFilterSingle(currentUser, Posts, nextPost, context);
@@ -435,7 +463,7 @@ addFieldsDict(Posts, {
         return await accessFilterSingle(currentUser, Posts, nextPost, context);
       }
       if(post.canonicalSequenceId) {
-        const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
         if (!nextPostID) return null;
         const nextPost = await context.loaders.Posts.load(nextPostID);
         return await accessFilterSingle(currentUser, Posts, nextPost, context);
@@ -457,7 +485,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
           return await accessFilterSingle(currentUser, Posts, prevPost, context);
@@ -468,7 +496,7 @@ addFieldsDict(Posts, {
         return await accessFilterSingle(currentUser, Posts, prevPost, context);
       }
       if(post.canonicalSequenceId) {
-        const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
         if (!prevPostID) return null;
         const prevPost = await context.loaders.Posts.load(prevPostID);
         return await accessFilterSingle(currentUser, Posts, prevPost, context);
@@ -492,7 +520,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser } = context;
       let sequence: DbSequence|null = null;
-      if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
+      if (sequenceId && await sequenceContainsPost(sequenceId, post._id)) {
         sequence = await context.loaders.Sequences.load(sequenceId);
       } else if (post.canonicalSequenceId) {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
@@ -557,7 +585,7 @@ addFieldsDict(Posts, {
     ...schemaDefaultValue(false),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true,
   },
 
@@ -567,7 +595,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     label: "Publish to meta",
@@ -626,12 +654,12 @@ addFieldsDict(Posts, {
     type: Array,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    insertableBy: [Users.canModeratePost],
-    editableBy: [Users.canModeratePost],
+    insertableBy: [userCanModeratePost],
+    editableBy: ['sunshines', 'admins'],
     hidden: true,
     optional: true,
-    label: "Users banned from commenting on this post",
-    control: "UsersListEditor",
+    // label: "Users banned from commenting on this post",
+    // control: "UsersListEditor",
   },
   'bannedUserIds.$': {
     type: String,
@@ -642,8 +670,8 @@ addFieldsDict(Posts, {
     type: Boolean,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    insertableBy: (currentUser: DbUser|null, document: DbPost) => Users.canCommentLock(currentUser, document),
-    editableBy: (currentUser: DbUser|null, document: DbPost) => Users.canCommentLock(currentUser, document),
+    insertableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
+    editableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
     optional: true,
     control: "checkbox",
   },
@@ -660,7 +688,7 @@ addFieldsDict(Posts, {
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
     control: "UsersListEditor",
@@ -682,7 +710,7 @@ addFieldsDict(Posts, {
       nullable: true,
     }),
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     hidden: true,
@@ -730,7 +758,7 @@ addFieldsDict(Posts, {
     type: Date,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "Start Time",
@@ -747,7 +775,7 @@ addFieldsDict(Posts, {
     type: Date,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "End Time",
@@ -764,7 +792,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     group: formGroups.event,
@@ -791,7 +819,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -802,7 +830,7 @@ addFieldsDict(Posts, {
   location: {
     type: String,
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     optional: true
@@ -825,7 +853,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Facebook Event",
     control: "MuiInput",
     optional: true,
@@ -837,7 +865,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     control: "MuiInput",
     optional: true,
     group: formGroups.event,
@@ -847,7 +875,7 @@ addFieldsDict(Posts, {
     type: Array,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: (props) => !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
@@ -904,7 +932,7 @@ addFieldsDict(Posts, {
     order: 15,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     control: "UsersListEditor",
     label: "Share draft with users",
@@ -988,7 +1016,7 @@ addFieldsDict(Posts, {
           }
           const sort = {sort:{createdAt:-1}}
           const event = await LWEvents.findOne(query, sort);
-          const author = await Users.findOne({_id: post.userId});
+          const author = await context.Users.findOne({_id: post.userId});
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
@@ -1009,8 +1037,8 @@ addFieldsDict(Posts, {
     group: formGroups.moderationGroup,
     label: "Style",
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userHasModerationGuidelines],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    insertableBy: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {
@@ -1031,8 +1059,8 @@ addFieldsDict(Posts, {
     optional: true,
     group: formGroups.moderationGroup,
     viewableBy: ['guests'],
-    insertableBy: ['admins', Posts.canEditHideCommentKarma],
-    editableBy: ['admins', Posts.canEditHideCommentKarma],
+    insertableBy: ['admins', postCanEditHideCommentKarma],
+    editableBy: ['admins', postCanEditHideCommentKarma],
     hidden: forumTypeSetting.get() !== 'EAForum',
     denormalized: true,
     ...schemaDefaultValue(false),
@@ -1106,7 +1134,7 @@ export const makeEditableOptionsModeration = {
   fieldName: "moderationGuidelines",
   permissions: {
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: [userHasModerationGuidelines]
   },
 }
@@ -1130,9 +1158,3 @@ makeEditable({
   collection: Posts,
   options: makeEditableOptionsCustomHighlight
 })
-
-
-// Custom fields on Users collection
-addFieldsDict(Users, {
-  // Count of the user's posts
-});

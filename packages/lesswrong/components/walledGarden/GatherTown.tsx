@@ -6,7 +6,6 @@ import { LWEvents } from '../../lib/collections/lwevents';
 import { useMulti } from '../../lib/crud/withMulti';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import Users from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
@@ -114,7 +113,7 @@ const GatherTown = ({classes}: {
   const { flash } = useMessages();
 
   const { mutate: updateUser } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
 
@@ -169,7 +168,8 @@ const GatherTown = ({classes}: {
             {tooltip}
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
-          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/> No users currently online. Check back later or be the first to join!
+          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
+          Presence indicator is currently broken. There might or might not be people in the Garden. Sorry for the inconvenience!
           {tooltip}
         </div>}
         <WalledGardenEvents />

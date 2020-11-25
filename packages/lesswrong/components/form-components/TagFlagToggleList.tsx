@@ -32,8 +32,7 @@ const TagFlagToggleList = ({ value, path }, context) => {
     collection: TagFlags,
     fragmentName: 'TagFlagFragment',
     enableTotal: false,
-    limit: 100, 
-    ssr: true
+    limit: 100,
   });
 
   if (loading) return <Loading />

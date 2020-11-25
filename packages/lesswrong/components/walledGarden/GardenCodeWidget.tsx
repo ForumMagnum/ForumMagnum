@@ -22,7 +22,7 @@ export const gardenForm = theme => ({
   }
 })
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     marginTop: 8,
     marginBottom: 8,

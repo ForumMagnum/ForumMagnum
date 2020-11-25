@@ -1,14 +1,17 @@
-import Users from "../../collections/users/collection";
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 
-Users.canSuggestPostForAlignment = ({currentUser, post}) => {
-  return currentUser && post && !post.af && !post.reviewForAlignmentUserId && Users.canDo(currentUser, "posts.alignment.suggest")
+export const userCanSuggestPostForAlignment = ({currentUser, post}: {
+  currentUser: UsersCurrent|DbUser|null,
+  post: PostsBase|DbPost
+}) => {
+  return currentUser && post && !post.af && !post.reviewForAlignmentUserId && userCanDo(currentUser, "posts.alignment.suggest")
 }
 
-Users.canMakeAlignmentPost = (user, post) => {
-  if (Users.canDo(user,"posts.moderate.all") && Users.canDo(user, "posts.alignment.move")) {
+export const userCanMakeAlignmentPost = (user: DbUser|UsersCurrent|null, post: PostsBase|DbPost) => {
+  if (userCanDo(user,"posts.moderate.all") && userCanDo(user, "posts.alignment.move")) {
     return true
   }
-  if (Users.canDo(user,"posts.alignment.move.all")) {
+  if (userCanDo(user,"posts.alignment.move.all")) {
     return true
   }
   if (!user || !post) {
@@ -16,7 +19,7 @@ Users.canMakeAlignmentPost = (user, post) => {
   }
   return !!(
     user._id === post.userId &&
-    Users.canDo(user,"posts.alignment.move") &&
-    Users.owns(user, post)
+    userCanDo(user,"posts.alignment.move") &&
+    userOwns(user, post)
   )
 }

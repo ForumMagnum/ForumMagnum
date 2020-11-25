@@ -10,7 +10,6 @@ const UserReviews = () => {
     collection: Users,
     fragmentName: 'UsersProfile',
     enableTotal: false,
-    ssr: true,
     terms: {view: 'usersProfile', slug}
   });
 

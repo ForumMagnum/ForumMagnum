@@ -80,6 +80,7 @@ import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
+import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
 import './lib/collections/posts/validate';
@@ -116,6 +117,7 @@ import './server/resolvers/mozillaHubsData';
 import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';
+import './server/resolvers/elicitPredictions';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

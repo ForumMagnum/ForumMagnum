@@ -8,12 +8,11 @@ import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
 import {useUpdate} from "../../lib/crud/withUpdate";
-import Users from "../../lib/vulcan-users";
 import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   messageStyling: {
     ...postBodyStyles(theme),
     marginTop: "100px"
@@ -58,7 +57,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   })
   const isOpenToPublic = gardenOpenToPublic.get()
@@ -76,7 +75,6 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     collection: GardenCodes,
     fragmentName: "GardenCodeFragment",
     limit: 1,
-    ssr: true,
   });
 
   const gardenCode = (results && results.length > 0 && (results[0] as HasIdType)._id) ? results[0] as FragmentTypes["GardenCodeFragment"] | null : null
@@ -90,7 +88,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const [onboarded, setOnboarded] = useState(currentUser?.walledGardenPortalOnboarded||false);
   const [expiredGardenCode, setExpiredGardenCode] = useState(moreThanFourHoursAfterCodeExpiry(gardenCode));
-  const iframeRef = useRef(null)
+  const iframeRef = useRef<HTMLIFrameElement|null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {

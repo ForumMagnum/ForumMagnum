@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import Users from '../../lib/collections/users/collection';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -21,15 +21,14 @@ const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
   const currentUser = useCurrentUser();
   const { results, loadMore, count, totalCount, showLoadMore } = useMulti({
     terms,
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    ssr: true,
     itemsPerPage: 60
   });
   const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem, LoadMore } = Components
 
-  if (results && results.length && Users.canDo(currentUser, "posts.moderate.all")) {
+  if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div>
         <SunshineListTitle>
