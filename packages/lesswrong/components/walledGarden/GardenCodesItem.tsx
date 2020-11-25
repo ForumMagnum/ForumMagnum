@@ -42,7 +42,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
   }
   const title = <span className={classes.eventName}>{gardenCode.title}</span>
   return <div className={classes.root}>
-      {gardenCode.contents.html ? <LWTooltip title={<ContentItemBody
+      {gardenCode.contents?.html ? <LWTooltip title={<ContentItemBody
         dangerouslySetInnerHTML={{__html: gardenCode.contents.html }}
         description={`garden-code-${gardenCode._id}`}
       />}>

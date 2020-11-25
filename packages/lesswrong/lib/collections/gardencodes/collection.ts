@@ -155,4 +155,4 @@ export const makeEditableOptions = {
 makeEditable({
   collection: GardenCodes,
   options: makeEditableOptions
-}) 
+})
