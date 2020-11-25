@@ -10,8 +10,7 @@ import { sortTags } from '../tagging/FooterTagList';
 
 export const POST_PREVIEW_WIDTH = 400
 
-export const highlightStyles = (theme: ThemeType) => ({
-  ...postHighlightStyles(theme),
+export const baseHighlightStyles = (theme: ThemeType) => ({
   marginTop: theme.spacing.unit*2.5,
   marginBottom: theme.spacing.unit*1.5,
   marginRight: theme.spacing.unit/2,
@@ -33,6 +32,11 @@ export const highlightStyles = (theme: ThemeType) => ({
   '& hr': {
     display: "none"
   }
+})
+
+export const highlightStyles = (theme: ThemeType) => ({
+  ...postHighlightStyles(theme),
+  ...baseHighlightStyles(theme)
 })
 
 const styles = (theme: ThemeType): JssStyles => ({

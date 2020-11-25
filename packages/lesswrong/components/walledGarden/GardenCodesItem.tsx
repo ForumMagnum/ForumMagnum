@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import CreateIcon from '@material-ui/icons/Create';
 import { eventRoot, eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
+import { baseHighlightStyles } from '../posts/PostsPreviewTooltip';
 
 const styles = theme => ({
   root: {
@@ -9,6 +10,9 @@ const styles = theme => ({
     '&:hover $icon': {
       opacity: 1
     },
+  },
+  highlight: {
+    ...baseHighlightStyles(theme)
   },
   eventName: {
     ...eventName(theme)
@@ -42,12 +46,14 @@ export const GardenCodesItem = ({classes, gardenCode}:{
   }
   const title = <span className={classes.eventName}>{gardenCode.title}</span>
   return <div className={classes.root}>
-      {gardenCode.contents?.html ? <LWTooltip title={<ContentItemBody
-        dangerouslySetInnerHTML={{__html: gardenCode.contents.html }}
-        description={`garden-code-${gardenCode._id}`}
-      />}>
+      {gardenCode.contents?.htmlHighlight ? <span className={classes.eventName}><LWTooltip title={<span className={classes.highlight}>
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: gardenCode.contents.htmlHighlight }}
+          description={`garden-code-${gardenCode._id}`}
+        />
+      </span>}>
         {title}
-      </LWTooltip>
+      </LWTooltip></span>
         : title
       }
       <div className={classes.eventTime}>
