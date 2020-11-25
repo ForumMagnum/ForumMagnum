@@ -592,6 +592,19 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly contents: RevisionDisplay|null,
+}
+
+interface GardenCodeFragmentEdit { // fragment on GardenCodes
+  readonly _id: string,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+  readonly contents: RevisionEdit|null,
 }
 
 interface GardenCodesDefaultFragment { // fragment on GardenCodes
@@ -1739,6 +1752,7 @@ interface FragmentTypes {
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
   GardenCodeFragment: GardenCodeFragment
+  GardenCodeFragmentEdit: GardenCodeFragmentEdit
   GardenCodesDefaultFragment: GardenCodesDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
