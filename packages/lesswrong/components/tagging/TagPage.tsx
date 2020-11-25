@@ -103,13 +103,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  importNotice: {
-    ...theme.typography.commentStyle,
-    marginTop: 8,
-    marginBottom: 8,
-    '& a': {
-      color: theme.palette.primary.main
-    }
+  CTA: {
+    fontStyle: 'italic'
   }
 });
 
@@ -130,10 +125,11 @@ const TagPage = ({classes}: {
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagRevisionFragment" : "TagFragment", {
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagWithFlagsAndRevisionFragment" : "TagWithFlagsFragment", {
     extraVariables: revision ? {version: 'String'} : {},
     extraVariablesValues: revision ? {version: revision} : {},
   });
+  
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
   const { captureEvent } =  useTracking()
@@ -152,7 +148,7 @@ const TagPage = ({classes}: {
     limit: 1500,
     skip: !query.flagId
   })
-
+  
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -200,7 +196,10 @@ const TagPage = ({classes}: {
     allPages: "allPages",
     myPages: "userPages"
   }
-
+  
+  const numFlags = tag?.tagFlagsIds?.length
+  const improvementCall =  <span className={classes.CTA}> Help improve this page {!!numFlags&&`${numFlags} flags set`} </span>
+  
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}
@@ -234,13 +233,6 @@ const TagPage = ({classes}: {
             {editing && tag.lesswrongWikiImportSlug && <div className={classes.importNotice}>
               <a target="_blank" rel="noopener noreferrer" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
               <SeparatorBullet/>
-              {tag.lesswrongWikiImportRevision &&
-                <span>
-                  <a target="_blank" rel="noopener noreferrer" href={`${tagGetUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
-                    See latest import revision
-                  </a>
-                </span>
-              }
             </div>}
           </div>
           <div className={classes.buttonsRow}>
@@ -275,7 +267,20 @@ const TagPage = ({classes}: {
               <TagDiscussionButton tag={tag} />
             </div>
             <div className={classes.discussionButtonPositioning}>
-              <i>Help improve this page (3 tags set)</i>
+              {currentUser ?
+                <a className={classes.button} onClick={() => setEditing(true)}>
+                  {improvementCall}
+                </a> :
+                <a className={classes.button} onClick={(ev) => {
+                  openDialog({
+                    componentName: "LoginPopup",
+                    componentProps: {}
+                  });
+                  ev.preventDefault();
+                }}>
+                  {improvementCall}
+                </a>
+              }
             </div>
           </div>
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
