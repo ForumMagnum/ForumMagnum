@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import CreateIcon from '@material-ui/icons/Create';
 import { eventRoot, eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
-import { baseHighlightStyles } from '../posts/PostsPreviewTooltip';
+import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip';
 
 const styles = theme => ({
   root: {
@@ -12,7 +12,7 @@ const styles = theme => ({
     },
   },
   highlight: {
-    ...baseHighlightStyles(theme)
+    ...highlightSimplifiedStyles
   },
   eventName: {
     ...eventName(theme)
