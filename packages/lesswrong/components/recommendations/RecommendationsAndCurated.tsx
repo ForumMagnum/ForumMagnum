@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import Hidden from '@material-ui/core/Hidden';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
@@ -40,9 +39,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 450,
     marginLeft: "auto"
   },
-  sequenceGrid: {
+  largeScreenLoggedOutSequences: {
     marginTop: 2,
     marginBottom: 2,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  smallScreenLoggedOutSequences: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
   },
   loggedOutCustomizeLabel: {
     fontSize: "1rem",
@@ -137,19 +144,17 @@ const RecommendationsAndCurated = ({
         /> }
 
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
-          <Hidden smDown implementation="css">
-            <div className={classes.sequenceGrid}>
-              <SequencesGridWrapper
-                terms={{'view':'curatedSequences', limit:3}}
-                showAuthor={true}
-                showLoadMore={false}
-              />
-            </div>
-          </Hidden>
-          <Hidden mdUp implementation="css">
-            <ContinueReadingList continueReading={continueReading} />
-          </Hidden>
-        </div>}
+        <div className={classes.largeScreenLoggedOutSequences}>
+          <SequencesGridWrapper
+            terms={{'view':'curatedSequences', limit:3}}
+            showAuthor={true}
+            showLoadMore={false}
+          />
+        </div>
+        <div className={classes.smallScreenLoggedOutSequences}>
+          <ContinueReadingList continueReading={continueReading} />
+        </div>
+      </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
       <div className={classes.subsection}>

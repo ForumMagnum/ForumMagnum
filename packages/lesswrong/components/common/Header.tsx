@@ -11,7 +11,6 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import Users from '../../lib/collections/users/collection';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
@@ -87,6 +86,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display:"none"
     }
+  },
+  hideSmDown: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  hideMdUp: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
@@ -218,12 +227,12 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
       {/* Show the ToC icon if there's a table of contents being displayed  */}
         {toc && toc.sections ? (
           <span>
-            <Hidden smDown implementation="css">
+            <div className={classes.hideSmDown}>
               <MenuIcon />
-            </Hidden>
-            <Hidden mdUp implementation="css">
+            </div>
+            <div className={classes.hideMdUp}>
               <TocIcon />
-            </Hidden>
+            </div>
           </span>
         ) : <MenuIcon />}
       </IconButton>
@@ -270,7 +279,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
                   <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
                   {this.renderNavigationMenuButton()}
                   <Typography className={classes.title} variant="title" color="textSecondary">
-                    <Hidden smDown implementation="css">
+                    <div className={classes.hideSmDown}>
                       <div className={classes.titleSubtitleContainer}>
                         <Link to="/" className={classes.titleLink}>
                           {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
@@ -278,13 +287,13 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
                         </Link>
                         <HeaderSubtitle />
                       </div>
-                    </Hidden>
-                    <Hidden mdUp implementation="css">
+                    </div>
+                    <div className={classes.hideMdUp}>
                       <Link to="/" className={classes.titleLink}>
                         {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                         {forumShortTitleSetting.get()}
                       </Link>
-                    </Hidden>
+                    </div>
                   </Typography>
                   <div className={classes.rightHeaderItems}>
                     <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >

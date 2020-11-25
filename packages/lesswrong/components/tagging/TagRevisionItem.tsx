@@ -14,6 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   textBody: {
     ...commentBodyStyles(theme),
   },
+  discussionButtonPositioning: {
+    display: "flex",
+    marginTop: "3px"
+  }
 });
 
 const TagRevisionItem = ({tag, headingStyle, revision, previousRevision, documentId, classes}: {
@@ -24,7 +28,7 @@ const TagRevisionItem = ({tag, headingStyle, revision, previousRevision, documen
   documentId: string,
   classes: ClassesType,
 }) => {
-  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata } = Components
+  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton } = Components
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
 
@@ -43,6 +47,9 @@ const TagRevisionItem = ({tag, headingStyle, revision, previousRevision, documen
         versionAfter={revision.version}
       />
     </div>}
+    <div className={classes.discussionButtonPositioning}>
+      <TagDiscussionButton tag={tag} text={`Discuss this ${tag.wikiOnly ? "wiki" : "tag"}`}/>
+    </div>
   </div>
 }
 

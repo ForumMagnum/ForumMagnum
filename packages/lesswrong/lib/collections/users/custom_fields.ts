@@ -287,10 +287,21 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
+  },
+  
+  hideElicitPredictions: {
+    order: 80,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    label: "Hide other users' Elicit predictions until I have predicted myself",
   },
 
   email: {
@@ -1179,7 +1190,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
-
+  
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1421,6 +1432,13 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  taggingDashboardCollapsed: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    hidden: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+},
 });
 
 export const makeEditableOptionsModeration = {

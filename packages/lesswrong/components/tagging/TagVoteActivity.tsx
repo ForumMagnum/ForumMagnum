@@ -87,22 +87,26 @@ const TagVoteActivityRow = ({vote, classes}: {
   );
 }
 
-const TagVoteActivity = ({classes}: {
+const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
   classes: ClassesType,
+  showHeaders?: boolean,
+  showNewTags?: boolean,
+  limit?: number,
+  itemsPerPage?: number
 }) => {
   const { SingleColumnSection, LoadMore, NewTagsList } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
     collection: Votes,
     fragmentName: 'TagVotingActivity',
-    limit: 200,
-    itemsPerPage: 200,
+    limit: limit,
+    itemsPerPage: itemsPerPage,
   })
 
   return <SingleColumnSection>
-    <NewTagsList />
+    {showNewTags && <NewTagsList />}
     <div className={classes.tagVotingTable}>
-      <h2>Tag Voting</h2>
+      {showHeaders && <h2>Tag Voting</h2>}
       <table>
         <tbody>
           <tr className={classes.headerRow}>

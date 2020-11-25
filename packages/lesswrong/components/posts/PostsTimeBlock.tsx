@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import moment from '../../lib/moment-timezone';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
@@ -20,6 +19,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 4,
     paddingBottom: 4,
     zIndex: 1
+  },
+  smallScreenTitle: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
+  largeScreenTitle: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none",
+    },
   },
   loadMore: {
     marginTop: 6,
@@ -84,91 +93,97 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
     return result
   }
 
-  const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider } = Components
-  const timeBlock = timeframeToTimeBlock[timeframe]
+  const render = () => {
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider } = Components
+    const timeBlock = timeframeToTimeBlock[timeframe]
 
-  const noPosts = !loading && (!posts || (posts.length === 0))
-  // The most recent timeBlock is hidden if there are no posts or shortforms
-  // on it, to avoid having an awkward empty partial timeBlock when it's close
-  // to midnight.
-  if (noPosts && noShortform && hideIfEmpty) {
-    return null
-  }
+    const noPosts = !loading && (!posts || (posts.length === 0))
+    // The most recent timeBlock is hidden if there are no posts or shortforms
+    // on it, to avoid having an awkward empty partial timeBlock when it's close
+    // to midnight.
+    if (noPosts && noShortform && hideIfEmpty) {
+      return null
+    }
 
-  const postGroups = postTypes.map(type => ({
-    ...type,
-    posts: posts?.filter(type.postIsType) || []
-  }))
+    const postGroups = postTypes.map(type => ({
+      ...type,
+      posts: posts?.filter(type.postIsType) || []
+    }))
 
-  return (
-    <div className={classes.root}>
-      <QueryLink merge query={{
-        after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
-        before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
-        limit: 100
-      }}>
-        <Typography variant="headline" className={classes.timeBlockTitle}>
-          {['yearly', 'monthly'].includes(timeframe) && <div>
-            {getTitle(startDate, timeframe, null)}
-          </div>}
-          {['weekly', 'daily'].includes(timeframe) && <div>
-            <Hidden xsDown implementation="css">
-              {getTitle(startDate, timeframe, 'xsDown')}
-            </Hidden>
-            <Hidden smUp implementation="css">
-              {getTitle(startDate, timeframe, 'smUp')}
-            </Hidden>
-          </div>}
-        </Typography>
-      </QueryLink>
+    return (
+      <div className={classes.root}>
+        <QueryLink merge query={{
+          after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
+          before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
+          limit: 100
+        }}>
+          <Typography variant="headline" className={classes.timeBlockTitle}>
+            {['yearly', 'monthly'].includes(timeframe) && <div>
+              {getTitle(startDate, timeframe, null)}
+            </div>}
+            {['weekly', 'daily'].includes(timeframe) && <div>
+              <div className={classes.smallScreenTitle}>
+                {getTitle(startDate, timeframe, 'xsDown')}
+              </div>
+              <div className={classes.largeScreenTitle}>
+                {getTitle(startDate, timeframe, 'smUp')}
+              </div>
+            </div>}
+          </Typography>
+        </QueryLink>
 
-      <div className={classes.dayContent}>
-        { noPosts && <div className={classes.noPosts}>
-          No posts for {
-          timeframe === 'daily' ?
-            startDate.format('MMMM Do YYYY') :
-            // Should be pretty rare. Basically people running off the end of
-            // the Forum history on yearly
-            `this ${timeBlock}`
-          }
-        </div> }
+        <div className={classes.dayContent}>
+          { noPosts && <div className={classes.noPosts}>
+            No posts for {
+            timeframe === 'daily' ?
+              startDate.format('MMMM Do YYYY') :
+              // Should be pretty rare. Basically people running off the end of
+              // the Forum history on yearly
+              `this ${timeBlock}`
+            }
+          </div> }
 
-        {postGroups.map(({name, posts, label}) => {
-          if (posts?.length > 0) return <div key={name}>
-            <div
-              className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
-            >
-              <ContentType type={name} label={label} />
+          {postGroups.map(({name, posts, label}) => {
+            if (posts?.length > 0) return <div key={name}>
+              <div
+                className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
+              >
+                <ContentType type={name} label={label} />
+              </div>
+              <div className={classes.posts}>
+                {posts.map((post, i) =>
+                  <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts!.length -1}/>
+                )}
+              </div>
             </div>
-            <div className={classes.posts}>
-              {posts.map((post, i) =>
-                <PostsItem2 key={post._id} post={post} index={i} dense showBottomBorder={i < posts!.length -1}/>
-              )}
-            </div>
-          </div>
-        })}
+          })}
 
-        {(posts && posts.length < totalCount!) && <div className={classes.loadMore}>
-          <LoadMore
-            {...loadMoreProps}
-          />
+          {(posts && posts.length < totalCount!) && <div className={classes.loadMore}>
+            <LoadMore
+              {...loadMoreProps}
+            />
+          </div>}
+
+          { loading && <Loading /> }
+          
+          {displayShortform && <ShortformTimeBlock
+            reportEmpty={reportEmptyShortform}
+            terms={{
+              view: "topShortform",
+              // NB: The comments before differs from posts in that before is not
+              // inclusive
+              before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
+              after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
+            }}
+          />}
+        </div>
+        {!loading && <div className={classes.divider}>
+          <Divider wings={false} />
         </div>}
-
-        { loading && <Loading /> }
-        
-        {displayShortform && <ShortformTimeBlock
-          reportEmpty={reportEmptyShortform}
-          terms={{
-            view: "topShortform",
-            // NB: The comments before differs from posts in that before is not
-            // inclusive
-            before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
-            after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
-          }}
-        />}
       </div>
-    </div>
-  );
+    );
+  }
+  return render();
 };
 
 const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock, {
