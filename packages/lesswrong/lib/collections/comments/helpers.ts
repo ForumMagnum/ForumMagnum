@@ -67,7 +67,12 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
 }
 
 export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): string => {
-  return (post?.commentSortOrder) || (currentUser?.commentSorting) || "postCommentsTop"
+  if (post?.commentSortOrder) return post.commentSortOrder;
+  if (currentUser?.commentSorting) return currentUser.commentSorting;
+  if (post?.shortform)
+    return "postCommentsNew";
+  else
+    return "postCommentsTop"
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {
