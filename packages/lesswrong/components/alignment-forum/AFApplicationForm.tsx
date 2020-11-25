@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
-import withUser from '../common/withUser'
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -16,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface AFApplicationFormProps extends WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
   onClose: any,
 }
 interface AFApplicationFormState {
@@ -27,7 +26,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
   state: AFApplicationFormState = { applicationText: "" }
 
   handleSubmission = (event) => {
-    const { currentUser, updateCurrentUser, flash, onClose } = this.props
+    const { updateCurrentUser, flash, onClose } = this.props
     event.preventDefault();
     void updateCurrentUser({
       afSubmittedApplication: true,
@@ -85,7 +84,6 @@ const AFApplicationFormComponent = registerComponent(
   'AFApplicationForm', AFApplicationForm, { styles, hocs: [
     withMessages,
     withUpdateCurrentUser,
-    withUser,
   ]}
 );
 
