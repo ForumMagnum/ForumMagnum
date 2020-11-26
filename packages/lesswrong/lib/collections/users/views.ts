@@ -106,6 +106,7 @@ Users.addView("allUsers", function (terms) {
   return {
     options: {
       sort: {
+        ...termsToMongoSort(terms)
         reviewedAt: -1,
         createdAt: -1
       }
