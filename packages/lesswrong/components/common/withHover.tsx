@@ -44,7 +44,7 @@ export const useHover = (eventProps?: Record<string,any>) => {
 
   const handleMouseLeave = useCallback(() => {
     setHover(false)
-    // setAnchorEl(null)
+    setAnchorEl(null)
     clearTimeout(delayTimer.current)
     const hoverDuration = datesDifference(new Date(), mouseOverStart.current as Date)
     if ( hoverDuration > 2000 ) captureEvent("hoverEventTriggered",
