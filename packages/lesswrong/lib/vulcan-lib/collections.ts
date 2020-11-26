@@ -7,7 +7,7 @@ import { runCallbacks } from './callbacks';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
-import { Utils, pluralize, camelCaseify } from './utils';
+import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
