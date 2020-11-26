@@ -143,7 +143,6 @@ export const contentTypes = {
       </React.Fragment>,
       Icon: PersonIcon
     },
-    // ea-forum-look-here: customize curated tooltip body according to your local practices
     curated: {
       tooltiptitle: 'Curated Post',
       tooltipBody: <div>
