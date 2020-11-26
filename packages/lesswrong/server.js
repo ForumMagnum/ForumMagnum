@@ -61,6 +61,7 @@ import './server/analyticsWriter';
 import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
+import './server/bookmarkMutation';
 import './server/rss';
 import './server/akismet';
 import './server/votingCron';
