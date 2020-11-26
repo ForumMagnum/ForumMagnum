@@ -49,7 +49,7 @@ const CoreReading = ({minimal=false}) => (
     <Hidden smUp implementation="css">
       <Components.CollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
     </Hidden>
-    
+
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={"/codex"}/>}
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={"/hpmor"} mergeTitle={true} />}
   </Components.CollectionsCardContainer>
@@ -62,4 +62,3 @@ declare global {
     CoreReading: typeof CoreReadingComponent
   }
 }
-

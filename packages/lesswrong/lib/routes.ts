@@ -757,4 +757,11 @@ addRoute(
     componentName: 'Reviews2018',
     title: "2018 Reviews",
   },
+  {
+    name: 'bookLanding',
+    path: '/books',
+    componentName: 'BookLanding',
+    title: "LessWrong Books",
+    background: "white"
+  },
 );
