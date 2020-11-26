@@ -8,7 +8,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
-import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

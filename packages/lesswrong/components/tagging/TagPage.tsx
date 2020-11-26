@@ -10,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
@@ -129,7 +128,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet, TagDiscussionButton } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, TagDiscussionButton } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -205,7 +204,7 @@ const TagPage = ({classes}: {
     myPages: "userPages"
   }
   
-  const numFlags = tag?.tagFlagsIds?.length
+  const numFlags = tag.tagFlagsIds?.length
   const improvementCall =  <span className={classes.callToAction}>
     Help improve this page{/*
     */}<span className={classes.callToActionFlagCount}>{
@@ -276,7 +275,7 @@ const TagPage = ({classes}: {
             </div>
             <div className={classes.ctaPositioning}>
               <LWTooltip className={classes.callToActionTooltip}
-                title={ tag?.tagFlagsIds?.length > 0 ? 
+                title={ tag.tagFlagsIds?.length > 0 ? 
                   <div>
                     {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
                   </div> :
