@@ -207,8 +207,10 @@ const TagPage = ({classes}: {
   
   const numFlags = tag?.tagFlagsIds?.length
   const improvementCall =  <span className={classes.callToAction}>
-    Help improve this page
-    <span className={classes.callToActionFlagCount}>{!!numFlags&&`(${numFlags} flags)`}</span>
+    Help improve this page{/*
+    */}<span className={classes.callToActionFlagCount}>{
+      !!numFlags&&`(${numFlags} flags)`}
+    </span>
   </span>
   
   return <AnalyticsContext
