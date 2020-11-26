@@ -16,7 +16,6 @@ import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
-import { useUpdate } from "../../lib/crud/withUpdate";
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -85,10 +84,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginRight: 16
   },
-  discussionButtonPositioning: {
+  ctaPositioning: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16,
     marginLeft: "auto"
   },
   subscribeToWrapper: {
@@ -243,30 +241,25 @@ const TagPage = ({classes}: {
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
-            {editing && tag.lesswrongWikiImportSlug && <div className={classes.importNotice}>
-              <a target="_blank" rel="noopener noreferrer" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
-              <SeparatorBullet/>
-            </div>}
           </div>
           <div className={classes.buttonsRow}>
-            {currentUser ?
-              <a className={classes.button} onClick={() => setEditing(true)}>
-                <EditOutlinedIcon /> Edit
-              </a> :
-              <a className={classes.button} onClick={(ev) => {
+            {!editing && <a className={classes.button} onClick={(ev) => {
+              if (currentUser) {
+                setEditing(true)
+              } else {
                 openDialog({
                   componentName: "LoginPopup",
                   componentProps: {}
                 });
                 ev.preventDefault();
-              }}>
-                <EditOutlinedIcon /> Edit
-              </a>
-            }
-            {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
+              }
+            } }>
+              <EditOutlinedIcon /> Edit
+            </a>} 
+            {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
-            {!tag.wikiOnly && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+            {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
               <SubscribeTo
                 document={tag}
                 className={classes.subscribeTo}
@@ -279,39 +272,28 @@ const TagPage = ({classes}: {
             <div className={classes.buttonRow}>
               <TagDiscussionButton tag={tag} />
             </div>
-            <div className={classes.discussionButtonPositioning}>
-              {tag?.tagFlags && <LWTooltip className={classes.callToActionTooltip}
-                title={
-                  <ul>
-                    {tag.tagFlags.map((flag) => <li key={flag._id}>{flag.name}</li>)}
-                  </ul>
+            <div className={classes.ctaPositioning}>
+              <LWTooltip className={classes.callToActionTooltip}
+                title={ tag?.tagFlagsIds?.length > 0 ? 
+                  <div>
+                    {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
+                  </div> :
+                  <span>
+                    This tag does not currently have any improvement flags set.
+                  </span>
                 }
                 >
-              {currentUser ?
-                <a className={classes.button} onClick={(ev) => {
-                  setEditing(true)
-                  if (!currentUser?.ctaPopupDismissed) {
-                    openDialog({
-                      componentName: "TagCTAPopup",
-                      componentProps: {}
-                    })
-                    ev.preventDefault();
-                  }
-                }}>
-                  {improvementCall}
-                </a> :
-                <a className={classes.button} onClick={(ev) => {
+                <a onClick={(ev) => {
+                  if (currentUser) setEditing(true);
                   openDialog({
-                    componentName: "LoginPopup",
+                    componentName: currentUser ? "TagCTAPopup" : "LoginPopup",
                     componentProps: {}
-                  });
+                  })
                   ev.preventDefault();
                 }}>
                   {improvementCall}
-                </a>
-              }
+                </a> 
               </LWTooltip>
-              }
             </div>
           </div>
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>

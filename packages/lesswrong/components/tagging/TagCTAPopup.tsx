@@ -3,29 +3,19 @@ import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import Card from "@material-ui/core/Card";
 import { useTagBySlug } from './useTag';
-import Button from '@material-ui/core/Button';
-import DialogActions from "@material-ui/core/DialogActions";
-import {useCurrentUser} from "../common/withUser";
-import {useUpdate} from "../../lib/crud/withUpdate";
+import { commentBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
     zIndex: theme.zIndexes.tagCTAPopup
   },
-  paper: {
+  body: {
+    ...commentBodyStyles(theme),
   },
   popupCard: {
-    ...theme.typography.commentStyle,
-    fontSize: "1.4rem",
     padding: "20px",
     display: "flex",
     flexDirection: "column"
-    
-  },
-  dismissButton: {
-    color: theme.palette.cancelButton,
-    fontSize: "1.2rem",
-    justifyContent: "flex-end"
   }
 });
 
@@ -33,11 +23,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 // dialog.
 const TagCTAPopup = ({onClose, classes}) => {
   const { ContentItemBody } = Components
-  const currentUser = useCurrentUser();
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  })
   const { tag } = useTagBySlug("tag-cta-popup", "TagFragment")
   
   return (
@@ -51,25 +36,11 @@ const TagCTAPopup = ({onClose, classes}) => {
     >
       <Card className={classes.popupCard}>
         <ContentItemBody
+          className={classes.body}
           dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
           description={`tag ${tag?.name}`}
         />
-        {/*<Button */}
-        {/*  className={classes.dismissButton}*/}
-        {/*  onClick={async () => {*/}
-        {/*    if (currentUser) {*/}
-        {/*      void updateUser({*/}
-        {/*        selector: {_id: currentUser._id},*/}
-        {/*        data: {*/}
-        {/*          ctaPopupDismissed: true*/}
-        {/*        }*/}
-        {/*      })*/}
-        {/*    }*/}
-        {/*    onClose*/}
-        {/*  }}>*/}
-        {/*  Don't show me again*/}
-        {/*</Button>*/}
-    </Card>
+      </Card>
     </Dialog>
   );
 }
