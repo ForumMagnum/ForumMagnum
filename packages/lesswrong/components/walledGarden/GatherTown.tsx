@@ -169,7 +169,7 @@ const GatherTown = ({classes}: {
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
-          Presence indicator is currently broken. There might or might not be people in the Garden. Sorry for the inconvenience!
+          No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
         <WalledGardenEvents />
