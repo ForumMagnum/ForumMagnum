@@ -1,13 +1,11 @@
-import React, { Component } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import React from 'react';
+import { registerComponent } from '../../lib/vulcan-lib';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import PropTypes from 'prop-types';
-import { commentMutationOptions } from '../../lib/collections/comments';
-import { eventFormat } from '../walledGarden/PortalBarGcalEventItem';
 
 const styles = theme => ({
   radio: {
