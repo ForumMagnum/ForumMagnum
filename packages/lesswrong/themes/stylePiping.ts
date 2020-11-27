@@ -273,7 +273,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
         pointerEvents: 'auto'
       },
     }
-  
+
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",

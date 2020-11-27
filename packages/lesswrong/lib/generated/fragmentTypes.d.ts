@@ -592,6 +592,7 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
   readonly contents: RevisionDisplay|null,
 }
 
@@ -604,6 +605,7 @@ interface GardenCodeFragmentEdit { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
   readonly contents: RevisionEdit|null,
 }
 
@@ -612,10 +614,11 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly code: string,
   readonly title: string,
   readonly userId: string,
-  readonly deleted: boolean,
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
+  readonly deleted: boolean,
 }
 
 interface BansDefaultFragment { // fragment on Bans

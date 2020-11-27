@@ -575,8 +575,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   renderEditorTypeSelect = () => {
     const { currentUser, classes, form } = this.props
     const { LWTooltip } = Components
-    if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
+
     if (form.hideControls) return null
+    if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
       <LWTooltip title="Warning! Changing format will erase your content" placement="left">
@@ -753,7 +754,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       && formType !== "new"
       && this.getInitialEditorType() !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
-
     return <div>
       { editorWarning }
       <div className={classNames(classes.editor, this.getBodyStyles())}>
