@@ -991,7 +991,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: false,
+    hidden: forumTypeSetting.get() === "EAForum",
     label: "Hide the tagging progress bar",
     order: 45,
     group: formGroups.siteCustomizations
@@ -1424,6 +1424,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() === "EAForum",
   },
   walledGardenPortalOnboarded: {
     type: Boolean,
