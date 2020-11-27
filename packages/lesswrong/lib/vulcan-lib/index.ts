@@ -1,5 +1,3 @@
-import './deep_extend';
-
 export * from './config';
 export * from './components';
 export * from './collections';

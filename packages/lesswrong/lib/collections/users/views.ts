@@ -1,6 +1,9 @@
 import Users from "../users/collection";
 import { ensureIndex } from '../../collectionUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
+import pick from 'lodash/pick';
+import isNumber from 'lodash/isNumber';
+import mapValues from 'lodash/mapValues';
 
 // Auto-generated indexes from production
 ensureIndex(Users, {username:1}, {unique:true,sparse:1});
@@ -21,6 +24,19 @@ ensureIndex(Users, {isAdmin:1});
 ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {createdAt:-1,_id:-1});
 
+const termsToMongoSort = (terms: any) => {
+  if (!terms.sort)
+    return undefined;
+  
+  const filteredSort = pick(terms.sort, [
+    "createdAt", "karma", "postCount", "commentCount",
+    "afKarma", "afPostCount", "afCommentCount",
+  ]);
+  return mapValues(filteredSort,
+    v => isNumber(v) ? v : 1
+  );
+}
+
 Users.addView('usersProfile', function(terms) {
   if (terms.userId) {
     return {
@@ -39,7 +55,7 @@ Users.addView('LWSunshinesList', function(terms) {
   return {
     selector: {groups:'sunshineRegiment'},
     options: {
-      sort: terms.sort
+      sort: termsToMongoSort(terms),
     }
   }
 });
@@ -48,14 +64,14 @@ Users.addView('LWTrustLevel1List', function(terms) {
   return {
     selector: {groups:'trustLevel1'},
     options: {
-      sort: terms.sort
+      sort: termsToMongoSort(terms),
     }
   }
 });
 
 Users.addView('LWUsersAdmin', terms => ({
   options: {
-    sort: terms.sort
+    sort: termsToMongoSort(terms),
   }
 }));
 
@@ -90,6 +106,7 @@ Users.addView("allUsers", function (terms) {
   return {
     options: {
       sort: {
+        ...termsToMongoSort(terms),
         reviewedAt: -1,
         createdAt: -1
       }

@@ -88,6 +88,11 @@ export function withSingle({
       };
 
       if (data.error) {
+        // This error was already caught by the apollo middleware, but the
+        // middleware had no idea who  made the query. To aid in debugging, log a
+        // stack trace here.
+        // eslint-disable-next-line no-console
+        console.error(data.error.message)
         // get graphQL error (see https://github.com/thebigredgeek/apollo-errors/issues/12)
         props.error = data.error.graphQLErrors[0];
       }
@@ -130,7 +135,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
 } {
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions({ collectionName, collection })
-  const { data, ...rest } = useQuery(query, {
+  const { data, error, ...rest } = useQuery(query, {
     variables: {
       input: {
         selector: { documentId }
@@ -141,8 +146,15 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     ssr: true,
     skip: skip || !documentId,
   })
+  if (error) {
+    // This error was already caught by the apollo middleware, but the
+    // middleware had no idea who  made the query. To aid in debugging, log a
+    // stack trace here.
+    // eslint-disable-next-line no-console
+    console.error(error.message)
+  }
   const document = data && data[resolverName] && data[resolverName].result
-  return { document, data, ...rest }
+  return { document, data, error, ...rest }
 }
 
 export default withSingle;

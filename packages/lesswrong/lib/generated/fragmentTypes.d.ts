@@ -561,6 +561,7 @@ interface TagFlagFragment { // fragment on TagFlags
   readonly name: string,
   readonly slug: string,
   readonly order: number,
+  readonly deleted: boolean,
   readonly contents: TagFlagFragment_contents|null,
 }
 
@@ -591,6 +592,19 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly contents: RevisionDisplay|null,
+}
+
+interface GardenCodeFragmentEdit { // fragment on GardenCodes
+  readonly _id: string,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly deleted: boolean,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+  readonly contents: RevisionEdit|null,
 }
 
 interface GardenCodesDefaultFragment { // fragment on GardenCodes
@@ -929,6 +943,7 @@ interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly commentSorting: string,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1093,6 +1108,7 @@ interface SharedUserBooleans { // fragment on Users
   readonly walledGardenInvite: boolean,
   readonly hideWalledGardenUI: boolean,
   readonly walledGardenPortalOnboarded: boolean,
+  readonly taggingDashboardCollapsed: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -1148,6 +1164,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 interface UsersEdit extends UsersProfile { // fragment on Users
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly hideIntercom: boolean,
   readonly commentSorting: string,
   readonly currentFrontpageFilter: string,
@@ -1676,15 +1693,9 @@ interface ChildRelatedPostRelList { // fragment on PostRelations
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
-  readonly post: SuggestAlignmentComment_post|null,
+  readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly suggestForAlignmentUsers: Array<SuggestAlignmentComment_suggestForAlignmentUsers>,
-}
-
-interface SuggestAlignmentComment_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
 }
 
 interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on Users
@@ -1741,6 +1752,7 @@ interface FragmentTypes {
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
   GardenCodeFragment: GardenCodeFragment
+  GardenCodeFragmentEdit: GardenCodeFragmentEdit
   GardenCodesDefaultFragment: GardenCodesDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment

@@ -14,7 +14,7 @@ const gatherTownRightSideBarWidth = 300
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme),
+    ...commentBodyStyles(theme, true),
     padding: 16,
     marginBottom: 0,
     marginTop: 0,

@@ -171,8 +171,11 @@ export function withMulti({
             error = props.data.error;
 
           if (error) {
+            // This error was already caught by the apollo middleware, but the
+            // middleware had no idea who  made the query. To aid in debugging, log a
+            // stack trace here.
             // eslint-disable-next-line no-console
-            console.log(error);
+            console.error(error.message)
           }
 
           return {
@@ -294,6 +297,14 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
     notifyOnNetworkStatusChange: true
   }
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
+  
+  if (error) {
+    // This error was already caught by the apollo middleware, but the
+    // middleware had no idea who  made the query. To aid in debugging, log a
+    // stack trace here.
+    // eslint-disable-next-line no-console
+    console.error(error.message)
+  }
   
   const count = (data && data[resolverName] && data[resolverName].results && data[resolverName].results.length) || 0;
   const totalCount = data && data[resolverName] && data[resolverName].totalCount;
