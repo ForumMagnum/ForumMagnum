@@ -572,41 +572,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     </div>
   }
 
-  // getCurrentRevision = () => {
-  //   return this.state.version || this.props.document.version
-  // }
-
-  // handleUpdateVersionNumber = (version) => {
-  //   // see SelectVersion component for additional details
-  //   this.setState({ version: version })
-  // }
-
-  // handleUpdateVersion = async (document) => {
-  //   // see SelectVersion component for additional details
-  //   if (!document?.contents) return
-  //   const editorType = document.contents?.originalContents?.type
-  //   this.setState({
-  //     ...this.getEditorStatesFromType(editorType, document.contents)
-  //   })
-  // }
-
-  // renderVersionSelect = () => {
-  //   const { classes, document, currentUser, form } = this.props
-
-  //   if (form.hideControls) return null
-  //   if (!currentUser?.isAdmin) return null
-  //   if (!this.getCurrentRevision()) return null
-  //   return <span className={classes.select}>
-  //       <Components.SelectVersion
-  //         key={this.getCurrentRevision()}
-  //         documentId={document._id}
-  //         revisionVersion={this.getCurrentRevision()}
-  //         updateVersionNumber={this.handleUpdateVersionNumber}
-  //         updateVersion={this.handleUpdateVersion}
-  //       />
-  //     </span>
-  // }
-
   renderEditorTypeSelect = () => {
     const { currentUser, classes, form } = this.props
     const { LWTooltip } = Components
