@@ -21,6 +21,28 @@ Tags.addView('allTagsAlphabetical', terms => {
 });
 ensureIndex(Tags, {deleted:1, adminOnly:1, name: 1});
 
+Tags.addView("userTags", terms => {
+  return {
+    selector: {
+      userId: terms.userId,
+      adminOnly: viewFieldAllowAny,
+      wikiOnly: viewFieldAllowAny
+    },
+    options: {sort: {createdAt: -1}},
+  }
+});
+ensureIndex(Tags, {deleted: 1, userId: 1, createdAt: 1});
+
+Tags.addView('allPagesByNewest', terms => {
+  return {
+    selector: {
+      wikiOnly: viewFieldAllowAny
+    },
+    options: {sort: {createdAt: -1}},
+  }
+});
+ensureIndex(Tags, {deleted:1, adminOnly:1, wikiOnly: 1, createdAt: 1});
+
 Tags.addView('allTagsHierarchical', terms => {
   const selector = parseInt(terms?.wikiGrade) ? {wikiGrade: parseInt(terms?.wikiGrade)} : {}
   return {
@@ -113,7 +135,7 @@ ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportSlug: 1});
 Tags.addView('unprocessedLWWikiTags', terms => {
   return {
     selector: {
-      wikiOnly: viewFieldAllowAny, 
+      wikiOnly: viewFieldAllowAny,
       tagFlagsIds: 'B5nzngQDDci4syEzD',
     }
   }
@@ -124,11 +146,11 @@ ensureIndex(Tags, {deleted: 1, adminOnly: 1, tagFlagsIds: 1});
 
 Tags.addView('tagsByTagFlag', terms => {
   return {
-    selector: terms.tagFlagId ? 
+    selector: terms.tagFlagId ?
     {
       tagFlagsIds: terms.tagFlagId,
       wikiOnly: viewFieldAllowAny
-    } : 
+    } :
     {
       tagFlagsIds: {$exists: true, $gt: []},
       wikiOnly: viewFieldAllowAny

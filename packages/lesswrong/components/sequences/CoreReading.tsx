@@ -1,6 +1,18 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Hidden from '@material-ui/core/Hidden';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  razLargeVersion: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
+  razSmallVersion: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none",
+    },
+  },
+});
 
 export interface CoreReadingCollection {
   title: string,
@@ -11,6 +23,7 @@ export interface CoreReadingCollection {
   color: string,
   big: boolean,
 }
+
 const coreReadingCollections: Array<CoreReadingCollection> = [
   {
     title: "Rationality: A-Z",
@@ -41,21 +54,24 @@ const coreReadingCollections: Array<CoreReadingCollection> = [
   }
 ]
 
-const CoreReading = ({minimal=false}) => (
+const CoreReading = ({minimal=false, classes}: {
+  minimal?: boolean,
+  classes: ClassesType,
+}) => (
   <Components.CollectionsCardContainer>
-    <Hidden xsDown implementation="css">
+    <div className={classes.razLargeVersion}>
       <Components.BigCollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
-    </Hidden>
-    <Hidden smUp implementation="css">
+    </div>
+    <div className={classes.razSmallVersion}>
       <Components.CollectionsCard collection={coreReadingCollections[0]} url={"/rationality"}/>
-    </Hidden>
+    </div>
     
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={"/codex"}/>}
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={"/hpmor"} mergeTitle={true} />}
   </Components.CollectionsCardContainer>
 );
 
-const CoreReadingComponent = registerComponent("CoreReading", CoreReading);
+const CoreReadingComponent = registerComponent("CoreReading", CoreReading, {styles});
 
 declare global {
   interface ComponentTypes {

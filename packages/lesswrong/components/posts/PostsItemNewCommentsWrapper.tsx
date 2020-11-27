@@ -5,7 +5,7 @@ import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  titlei: {
+  title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
@@ -28,7 +28,7 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, pos
     terms,
     collection: Comments,
     fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first',
     limit: 5,
   });
   const { Loading, CommentsList, NoContent } = Components
