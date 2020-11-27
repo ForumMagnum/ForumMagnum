@@ -19,7 +19,6 @@ const PostsPageEventData = ({classes, post}: {
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>
       { location && <div className={classes.eventLocation}> {location} </div> }
       { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
-      <Components.Covid19Notice/>
   </Typography>
 }
 

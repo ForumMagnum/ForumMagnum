@@ -262,7 +262,18 @@ export const postBodyStyles = (theme: ThemeType) => {
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType) => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
+  // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
+
+  const pointerEvents = dontIncludePointerEvents ?
+    {} :
+    {
+      pointerEvents: 'none',
+      '& *': {
+        pointerEvents: 'auto'
+      },
+    }
+  
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
@@ -289,10 +300,7 @@ export const commentBodyStyles = (theme: ThemeType) => {
     // spoiler styles
     // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
     // but it's the only way I was able to make this weird stuff work.
-    pointerEvents: 'none',
-    '& *': {
-      pointerEvents: 'auto'
-    },
+    ...pointerEvents,
     '& > *:hover ~ .spoiler': {
       color: 'black'
     },

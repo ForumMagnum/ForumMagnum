@@ -498,7 +498,6 @@ importComponent("TagFlagToggleList", () => require('../components/form-component
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
-importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));

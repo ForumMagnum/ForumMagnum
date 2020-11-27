@@ -58,6 +58,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
   if (!currentUser) return null
 
   if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>MAKE INVITE LINKS</Button>
+  const fields = ["title", "startTime"]
 
   return <div className={classes.root}>
     <div className={classes.row}>
@@ -101,6 +102,7 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
           </div>
           <Components.WrappedSmartForm
             collection={GardenCodes}
+            fields={fields}
             mutationFragment={getFragment("GardenCodeFragment")}
             queryFragment={getFragment("GardenCodeFragment")}
             successCallback={code => setCurrentCode(code)}/>

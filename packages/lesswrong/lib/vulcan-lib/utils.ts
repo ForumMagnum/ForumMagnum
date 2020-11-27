@@ -29,9 +29,6 @@ interface UtilsType {
   // In server/vulcan-lib/connectors.ts
   Connectors: any
   
-  // In lib/vulcan-lib/deep_extend.ts
-  deepExtend: any
-  
   // In server/tableOfContents.ts
   getTableOfContentsData: any
   extractTableOfContents: any
