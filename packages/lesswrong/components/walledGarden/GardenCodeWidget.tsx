@@ -11,7 +11,7 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 
 export const gardenForm = theme => ({
-  ...commentBodyStyles(theme),
+  ...commentBodyStyles(theme, true),
   border: "solid 1px rgba(0,0,0,.2)",
   borderRadius: 3,
   padding: 8,

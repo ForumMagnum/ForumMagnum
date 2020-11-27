@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Button, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from '../common/withUser';
 import { CAL_ID } from "./gardenCalendar";
