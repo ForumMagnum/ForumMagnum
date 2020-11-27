@@ -51,8 +51,12 @@ export const updateInSet = (queryData, document) => {
   const oldDocument = queryData.results.find(item => item._id === document._id);
   const newDocument = { ...oldDocument, ...document };
   const index = queryData.results.findIndex(item => item._id === document._id);
-  const newData = { ...queryData }; // clone
-  newData.results[index] = newDocument;
+  const newResults = [...queryData.results];
+  newResults[index] = newDocument;
+  const newData = {
+    ...queryData,
+    results: newResults
+  }; // clone
   return newData;
 };
 

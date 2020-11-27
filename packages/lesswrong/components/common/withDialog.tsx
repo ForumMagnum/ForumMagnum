@@ -5,7 +5,7 @@ import { hookToHoc } from '../../lib/hocUtils';
 import { withTracking } from '../../lib/analyticsEvents';
 
 interface OpenDialogContextType {
-  openDialog: ({componentName,componentProps}: {componentName: string, componentProps: Record<string,any>}) => void,
+  openDialog: ({componentName,componentProps}: {componentName: string, componentProps?: Record<string,any>}) => void,
   closeDialog: ()=>void,
 }
 export const OpenDialogContext = React.createContext<OpenDialogContextType|null>(null);

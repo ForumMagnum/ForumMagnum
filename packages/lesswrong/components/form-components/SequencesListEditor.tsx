@@ -85,6 +85,8 @@ class SequencesListEditor extends Component<any,any> {
     const disabledElements = ['input', 'textarea', 'select', 'option', 'button', 'svg'];
     if (disabledElements.indexOf(e.target.tagName.toLowerCase()) !== -1) {
       return true; // Return true to cancel sorting
+    } else {
+      return false;
     }
   }
 

@@ -4,7 +4,8 @@ import { getNotificationTypes } from '../lib/notificationTypes';
 import { getNotificationTypeByNameServer } from './notificationTypesServer';
 import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
-import Users from '../lib/collections/users/collection';
+import { userIsAdmin } from '../lib/vulcan-users/permissions';
+import { getUser } from '../lib/vulcan-users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from './vulcan-lib';
 import { UnsubscribeAllToken } from './emails/emailTokens';
@@ -33,7 +34,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
-  const user = Users.getUser(userId);
+  const user = getUser(userId);
   if (!user) throw new Error(`Missing user: ID ${userId}`);
   Notifications.update(
     { _id: {$in: notificationIds} },
@@ -101,7 +102,7 @@ addGraphQLResolvers({
   Query: {
     async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
       const { currentUser } = context;
-      if (!currentUser || !Users.isAdmin(currentUser)) {
+      if (!currentUser || !userIsAdmin(currentUser)) {
         throw new Error("This debug feature is only available to admin accounts");
       }
       if (!notificationIds?.length && !postId) {

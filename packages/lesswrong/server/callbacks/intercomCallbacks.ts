@@ -1,8 +1,8 @@
-import { addCallback } from '../../lib/vulcan-lib';
 import intercomClient from '../intercomSetup';
+import { getCollectionHooks } from '../mutationCallbacks';
 
 
-function sendIntercomEvent (event: DbLWEvent, user: DbUser) {
+getCollectionHooks("LWEvents").newAsync.add(function sendIntercomEvent (event: DbLWEvent, user: DbUser) {
   if (intercomClient == null) {
     // If no intercomToken is configured, then intercomClient will be null,
     // and this is a dev install with Intercom disabled. Don't try to send
@@ -25,6 +25,4 @@ function sendIntercomEvent (event: DbLWEvent, user: DbUser) {
     };
     intercomClient.events.create(intercomEvent);
   }
-}
-
-addCallback('lwevents.new.async', sendIntercomEvent);
+});

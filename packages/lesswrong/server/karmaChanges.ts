@@ -1,6 +1,6 @@
 import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
-import { KarmaChangeSettingsType } from '../lib/collections/users/custom_fields';
+import type { KarmaChangeSettingsType } from '../lib/collections/users/custom_fields';
 import moment from '../lib/moment-timezone';
 import htmlToText from 'html-to-text';
 import sumBy from 'lodash/sumBy';
@@ -28,11 +28,11 @@ const COMMENT_DESCRIPTION_LENGTH = 500;
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false, context}: {
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=null, af=false, context}: {
   user: DbUser,
   startDate: Date,
   endDate: Date,
-  nextBatchDate?: Date,
+  nextBatchDate?: Date|null,
   af?: boolean,
   context?: ResolverContext,
 })
@@ -146,7 +146,7 @@ const mapTagIdsToSlugs = async (tagIds: Array<string>, context: ResolverContext|
   const mapping: Record<string,string> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {
     const tag = context
-      ? await context.Tags.loader.load(tagId)
+      ? await context.loaders.Tags.load(tagId)
       : await Tags.findOne(tagId)
     if (tag?.slug)
       mapping[tagId] = tag.slug;

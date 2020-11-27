@@ -1,5 +1,5 @@
 import Users from '../../lib/collections/users/collection';
-import { newMutation } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 
 const createUser = user => {
   
@@ -10,7 +10,7 @@ const createUser = user => {
 
   user.services = {};
 
-  void newMutation({
+  void createMutator({
     collection: Users, 
     document: user,
     validate: false

@@ -1,4 +1,4 @@
-import { Random } from 'meteor/random';
+import { randomId } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
 import { Votes } from '../../lib/collections/votes';
 import { Vulcan } from '../vulcan-lib';
@@ -22,7 +22,7 @@ async function runVoteMigration(collectionName) {
          documentId: "$upvoted"+collectionName+".itemId",
          collectionName: {$literal: collectionName},
          userId: "$_id",
-         voteType: {$literal: "upvote"},
+         voteType: {$literal: "smallUpvote"},
          power: "$upvoted" + collectionName + ".power",
          votedAt: "$upvoted" + collectionName + ".votedAt"
       }},
@@ -38,7 +38,7 @@ async function runVoteMigration(collectionName) {
          documentId: "$downvoted"+collectionName+".itemId",
          collectionName: {$literal: collectionName},
          userId: "$_id",
-         voteType: {$literal: "downvote"},
+         voteType: {$literal: "smallDownvote"},
          power: "$downvoted" + collectionName + ".power",
          votedAt: "$downvoted" + collectionName + ".votedAt"
       }},
@@ -47,7 +47,7 @@ async function runVoteMigration(collectionName) {
     let newDownvotesArray = await newDownvotes.toArray();
     let votesArray = [...newDownvotesArray, ...newUpvotesArray]
     const newVoteMutations = votesArray.map((vote) => {
-      vote._id = Random.id();
+      vote._id = randomId();
       return { insertOne : vote }
     })
     //eslint-disable-next-line no-console

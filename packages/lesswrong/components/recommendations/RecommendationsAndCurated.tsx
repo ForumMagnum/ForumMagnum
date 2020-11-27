@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import Hidden from '@material-ui/core/Hidden';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
@@ -40,9 +39,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 450,
     marginLeft: "auto"
   },
-  sequenceGrid: {
+  largeScreenLoggedOutSequences: {
     marginTop: 2,
     marginBottom: 2,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  smallScreenLoggedOutSequences: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
   },
   loggedOutCustomizeLabel: {
     fontSize: "1rem",
@@ -116,9 +123,9 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+      {/* {<AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
-      </AnalyticsContext>}
+      </AnalyticsContext>} */}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
@@ -137,19 +144,17 @@ const RecommendationsAndCurated = ({
         /> }
 
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
-          <Hidden smDown implementation="css">
-            <div className={classes.sequenceGrid}>
-              <SequencesGridWrapper
-                terms={{'view':'curatedSequences', limit:3}}
-                showAuthor={true}
-                showLoadMore={false}
-              />
-            </div>
-          </Hidden>
-          <Hidden mdUp implementation="css">
-            <ContinueReadingList continueReading={continueReading} />
-          </Hidden>
-        </div>}
+        <div className={classes.largeScreenLoggedOutSequences}>
+          <SequencesGridWrapper
+            terms={{'view':'curatedSequences', limit:3}}
+            showAuthor={true}
+            showLoadMore={false}
+          />
+        </div>
+        <div className={classes.smallScreenLoggedOutSequences}>
+          <ContinueReadingList continueReading={continueReading} />
+        </div>
+      </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
       <div className={classes.subsection}>
@@ -160,11 +165,11 @@ const RecommendationsAndCurated = ({
             </AnalyticsContext>
           }
           <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 
-              terms={{view:"curated", limit: currentUser ? 3 : 2}} 
+            <PostsList2
+              terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
-              showLoadMore={false} 
-              hideLastUnread={true} 
+              showLoadMore={false}
+              hideLastUnread={true}
               boxShadow={false}
               curatedIconLeft={true}
             />

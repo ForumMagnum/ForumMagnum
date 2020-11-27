@@ -224,11 +224,13 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     const { currentUser, updateUser, flash, setShowMap } = this.props
     let undoAction
     if (currentUser) { 
-      updateUser({
+      void updateUser({
         selector: {_id: currentUser._id},
         data: { hideFrontpageMap: true }
       })
-      undoAction = () => updateUser({selector: {_id: currentUser._id}, data: {hideFrontpageMap: false}})
+      undoAction = () => {
+        void updateUser({selector: {_id: currentUser._id}, data: {hideFrontpageMap: false}})
+      }
     } else {
       setShowMap(false)
       undoAction = () => setShowMap(true)

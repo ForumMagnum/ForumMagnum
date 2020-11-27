@@ -1,15 +1,17 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withMulti } from '../../lib/crud/withMulti';
-import React, { Component } from 'react';
+import { useMulti } from '../../lib/crud/withMulti';
+import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from "../../lib/collections/users/collection";
+import { useLocation } from '../../lib/routeUtil';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import classNames from 'classnames';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -96,24 +98,22 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-interface ExternalProps {
+const UsersProfileFn = ({terms, slug, classes}: {
   terms: any,
   slug: string,
-}
-interface UsersProfileProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
-  loading: boolean,
-  results: Array<UsersProfile>|null,
-}
-interface UsersProfileState {
-  showSettings: boolean,
-}
+  classes: ClassesType,
+}) => {
+  const [showSettings, setShowSettings] = useState(false);
+  
+  const currentUser = useCurrentUser();
+  const {loading, results} = useMulti({
+    terms,
+    collectionName: "Users",
+    fragmentName: 'UsersProfile',
+    enableTotal: false,
+  });
 
-class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
-  state: UsersProfileState = {
-    showSettings: false
-  }
-
-  displaySequenceSection = (canEdit: boolean, user: UsersProfile)  => {
+  const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
@@ -121,8 +121,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     }
   }
 
-  renderMeta = () => {
-    const { classes, results } = this.props
+  const renderMeta = () => {
     const document = getUserFromResults(results)
     if (!document) return null
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
@@ -172,9 +171,9 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       </div>
   }
 
-  render() {
-    const { slug, classes, currentUser, loading, results, location } = this.props;
-    const { query } = location;
+  const { query } = useLocation();
+  
+  const render = () => {
     const user = getUserFromResults(results)
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags } = Components
     if (loading) {
@@ -190,14 +189,14 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     }
 
     if (user.oldSlugs?.includes(slug)) {
-      return <PermanentRedirect url={Users.getProfileUrlFromSlug(user.slug)} />
+      return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {
       if (currentUser?._id === user._id) {
         // Logged-in spammer can see their own profile
-      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+      } else if (currentUser && userCanDo(currentUser, 'posts.moderate.all')) {
         // Admins and sunshines can see spammer's profile
       } else {
         // Anyone else gets a 404 here
@@ -214,14 +213,13 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
-    const { showSettings } = this.state
     // maintain backward compatibility with bookmarks
     const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     
-    const username = Users.getDisplayName(user)
+    const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
     return (
@@ -234,7 +232,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           <SingleColumnSection>
             <div className={classes.usernameTitle}>{username}</div>
             <Typography variant="body2" className={classes.userInfo}>
-              { this.renderMeta() }
+              { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
@@ -256,7 +254,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 Edit Account
               </Link>}
             </Typography>
@@ -265,7 +263,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           </SingleColumnSection>
 
           {/* Sequences Section */}
-          { this.displaySequenceSection(ownPage, user) && <SingleColumnSection>
+          { displaySequenceSection(ownPage, user) && <SingleColumnSection>
             <SectionTitle title="Sequences">
               {ownPage && <SequencesNewButton />}
             </SectionTitle>
@@ -291,7 +289,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
-            <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
+            <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
                 <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
@@ -319,22 +317,12 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       </div>
     )
   }
+  
+  return render();
 }
 
-const UsersProfileComponent = registerComponent<ExternalProps>(
-  'UsersProfile', UsersProfileClass, {
-    styles,
-    hocs: [
-      withUser,
-      withMulti({
-        collection: Users,
-        fragmentName: 'UsersProfile',
-        enableTotal: false,
-        ssr: true
-      }),
-      withLocation, withNavigation,
-    ]
-  }
+const UsersProfileComponent = registerComponent(
+  'UsersProfile', UsersProfileFn, {styles}
 );
 
 declare global {

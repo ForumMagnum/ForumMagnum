@@ -6,7 +6,8 @@ import { batchUpdateScore } from '../server/updateScores';
 import { createDummyUser, createDummyPost, } from './utils'
 import { Posts } from '../lib/collections/posts'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { Utils, waitUntilCallbacksFinished } from '../lib/vulcan-lib';
+import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
+import { slugify } from '../lib/vulcan-lib/utils';
 import lolex from 'lolex';
 
 chai.should();
@@ -160,7 +161,7 @@ describe('Voting', async function() {
         _id: post._id,
         scoreChange: 1,
         title: post.title,
-        slug: Utils.slugify(post.title),
+        slug: slugify(post.title),
       });
       
       // TODO

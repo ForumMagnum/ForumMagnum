@@ -1,13 +1,13 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import Users from '../../lib/collections/users/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 
 const EmailConfirmationRequiredCheckbox = (props) => {
   const currentUser = useCurrentUser();
   let { label, ...otherProps } = props;
   
-  if(Users.emailAddressIsVerified(currentUser)) {
+  if(userEmailAddressIsVerified(currentUser)) {
     return (
       <Components.FormComponentCheckbox
         {...props}

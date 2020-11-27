@@ -4,13 +4,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import LinkIcon from '@material-ui/icons/Link';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Comments } from "../../../lib/collections/comments";
+import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 
 const CommentsPermalinkMenuItem = ({comment, post}: {
   comment: HasIdType,
   post: PostsBase,
 }) => {
-  return <Link to={Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id})}>
+  return <Link to={commentGetPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id})}>
     <MenuItem>
       <ListItemIcon>
         <LinkIcon />

@@ -3,7 +3,7 @@ import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
 import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSort } from '../lib/collections/comments/views';
-import { Posts } from '../lib/collections/posts/collection';
+import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { forumTypeSetting } from '../lib/instanceSettings';
@@ -108,7 +108,7 @@ export function extractTableOfContents(postHTML: string)
 
 function elementToToCText(cheerioTag: CheerioElement) {
   const tagHtml = cheerio(cheerioTag).html();
-  if (!tagHtml) throw Error("Tag does not exist");
+  if (!tagHtml) return null;
   const tagClone = cheerio.load(tagHtml);
   tagClone("style").remove();
   return tagClone.root().text();
@@ -228,7 +228,7 @@ async function getTocComments (document) {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()
-  return [{anchor:"comments", level:0, title: Posts.getCommentCountStr(document, commentCount)}]
+  return [{anchor:"comments", level:0, title: postGetCommentCountStr(document, commentCount)}]
 }
 
 const getTableOfContentsData = async ({document, version, currentUser, context}: {

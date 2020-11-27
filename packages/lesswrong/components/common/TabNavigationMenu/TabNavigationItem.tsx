@@ -69,11 +69,18 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
   // but its material-ui-provided type signature does not include this feature.
   // Case to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
+  
+  // React router links don't handle external URLs, so use a
+  // normal HTML a tag if the URL is external
+  const externalLink = /https?:\/\//.test(tab.link);
+  const Element = externalLink ? 
+    ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
+    : Link;
 
   return <LWTooltip placement='right-start' title={tab.tooltip || ''} clickable={false}>
     <MenuItemUntyped
       onClick={onClick}
-      component={Link} to={tab.link}
+      component={Element} to={tab.link}
       disableGutters
       classes={{root: classNames({
         [classes.navButton]: !tab.subItem,

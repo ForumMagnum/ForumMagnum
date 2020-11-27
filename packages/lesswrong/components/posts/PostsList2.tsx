@@ -1,7 +1,8 @@
-import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
-import { Posts } from '../../lib/collections/posts';
+import { postGetLastCommentedAt } from '../../lib/collections/posts/helpers';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -104,11 +105,11 @@ const PostsList2 = ({
   } : {}
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
     terms: terms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: !!tagId ? 'PostsListTag' : 'PostsList',
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
-    ssr: true,
+    nextFetchPolicy: "cache-first",
     itemsPerPage: itemsPerPage,
     ...tagVariables
   });
@@ -153,7 +154,7 @@ const PostsList2 = ({
   let orderedResults = results
   if (defaultToShowUnreadComments) {
     orderedResults = _.sortBy(results, (post) => {
-      return !post.lastVisitedAt || (post.lastVisitedAt >=  Posts.getLastCommentedAt(post));
+      return !post.lastVisitedAt || (post.lastVisitedAt >=  postGetLastCommentedAt(post));
     })
   }
 
@@ -165,7 +166,7 @@ const PostsList2 = ({
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
-      {error && <Error error={Utils.decodeIntlError(error)} />}
+      {error && <Error error={decodeIntlError(error)} />}
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 

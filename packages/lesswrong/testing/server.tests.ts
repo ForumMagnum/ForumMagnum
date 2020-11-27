@@ -1,6 +1,7 @@
 import './metatest.tests';
 import './voting.tests';
 import './debouncer.tests';
+import './diff.tests';
 
 // Component helper tests
 // These aren't strictly speaking server tests, but we'd like to test them at

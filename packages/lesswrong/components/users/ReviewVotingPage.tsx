@@ -7,8 +7,7 @@ import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation } from 'react-apollo';
-import Users from '../../lib/collections/users/collection';
+import { useMutation } from '@apollo/client';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
@@ -179,7 +178,6 @@ const ReviewVotingPage = ({classes}: {
     collection: Posts,
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
-    ssr: true
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
@@ -187,11 +185,10 @@ const ReviewVotingPage = ({classes}: {
     collection: ReviewVotes,
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
-    ssr: true
   })
 
   const {mutate: updateUser} = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
 
@@ -503,7 +500,7 @@ const computeTotalCost = (votes: vote[]) => {
   return sumBy(votes, ({score}) => sumOf1ToN(score))
 }
 
-function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: T[]):[K, T | undefined][] {
+function createPostVoteTuples<K extends HasIdType,T extends vote> (posts: K[], votes: T[]):[K, T | undefined][] {
   return posts.map(post => {
     const voteForPost = votes.find(vote => vote.postId === post._id)
     return [post, voteForPost]

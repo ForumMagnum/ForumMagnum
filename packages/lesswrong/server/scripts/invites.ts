@@ -1,8 +1,8 @@
-import { Accounts } from 'meteor/accounts-base';
-import { Meteor } from 'meteor/meteor';
+import { Accounts } from '../../lib/meteorAccounts';
+import { isPackageTest } from '../../lib/executionEnvironment';
 import { mailUrlSetting } from '../vulcan-core/start';
 
-if (!Meteor.isPackageTest) {
+if (!isPackageTest) {
   Accounts.emailTemplates.siteName = 'EA Forum Internal Beta';
   Accounts.emailTemplates.from = 'The Forum Team <forum@effectivealtruism.org>';
   Accounts.emailTemplates.enrollAccount.subject = (user) => {

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useCurrentUser } from '../common/withUser';
@@ -70,7 +70,6 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
     collection: TagRels,
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
-    ssr: true,
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)

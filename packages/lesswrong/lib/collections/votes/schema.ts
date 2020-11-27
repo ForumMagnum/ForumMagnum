@@ -1,4 +1,4 @@
-import Users from '../users/collection';
+import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, } from '../../collectionUtils';
 import { resolverOnlyField, SchemaType } from '../../../lib/utils/schemaUtils';
 //
@@ -36,7 +36,7 @@ const schema: SchemaType<DbVote> = {
   // The id of the user that voted
   userId: {
     type: String,
-    canRead: [Users.owns, docIsTagRel, 'admins'],
+    canRead: [userOwns, docIsTagRel, 'admins'],
     foreignKey: 'Users',
   },
   
@@ -63,7 +63,7 @@ const schema: SchemaType<DbVote> = {
   power: {
     type: Number,
     optional: true,
-    canRead: [Users.owns, docIsTagRel, 'admins'],
+    canRead: [userOwns, docIsTagRel, 'admins'],
     
     // Can be inferred from userId+voteType+votedAt (votedAt necessary because
     // the user's vote power may have changed over time)
@@ -75,7 +75,7 @@ const schema: SchemaType<DbVote> = {
   afPower: {
     type: Number,
     optional: true,
-    canRead: [Users.owns, docIsTagRel, 'admins'],
+    canRead: [userOwns, docIsTagRel, 'admins'],
   },
   
   // Whether this vote has been cancelled (by un-voting or switching to a
@@ -98,7 +98,7 @@ const schema: SchemaType<DbVote> = {
   votedAt: {
     type: Date,
     optional: true,
-    canRead: [Users.owns, docIsTagRel, 'admins'],
+    canRead: [userOwns, docIsTagRel, 'admins'],
   },
 
   tagRel: resolverOnlyField({

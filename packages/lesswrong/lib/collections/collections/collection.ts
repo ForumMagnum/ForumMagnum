@@ -3,13 +3,7 @@ import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
-interface ExtendedCollectionsCollection extends CollectionsCollection {
-  // Functions in lib/collections/collections/helpers.ts
-  getAllPostIDs: (collectionID: string) => Promise<Array<string>>
-  getPageUrl: (collection: CollectionsPageFragment|DbCollection, isAbsolute?: boolean) => string
-}
-
-export const Collections: ExtendedCollectionsCollection = createCollection({
+export const Collections: CollectionsCollection = createCollection({
   collectionName: 'Collections',
   typeName: 'Collection',
   schema,

@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { getDataFromTree } from 'react-apollo';
+import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
 import { webAppConnectHandlersUse } from '../meteor_patch';
 
@@ -19,7 +19,7 @@ import Head from './components/Head';
 import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
-import { Random } from 'meteor/random';
+import { randomId } from '../../../lib/random';
 import { publicSettings } from '../../../lib/publicSettings'
 import { getMergedStylesheet } from '../../styleGeneration';
 
@@ -53,7 +53,7 @@ const makePageRenderer = async sink => {
   // been handled by InjectData, but InjectData didn't surive the 1.12 version
   // upgrade (it injects into the page template in a way that requires a
   // response object, which the onPageLoad/sink API doesn't offer).
-  const tabId = Random.id();
+  const tabId = randomId();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   
   const clientId = req.cookies && req.cookies.clientId;
@@ -123,7 +123,7 @@ const makePageRenderer = async sink => {
 // cookies, they won't necessarily play nicely together.
 webAppConnectHandlersUse(function addClientId(req, res, next) {
   if (!req.cookies.clientId) {
-    const newClientId = Random.id();
+    const newClientId = randomId();
     req.cookies.clientId = newClientId;
     res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
   }
@@ -163,39 +163,13 @@ const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const WrappedApp = wrapWithMuiTheme(App, context);
 
   let htmlContent = '';
-  // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
-    // followed by ReactDOM.renderToString, then pass a context variable
-    // isGetDataFromTree to only the getDataFromTree call. This is to enable
-    // a hack in packages/lesswrong/server/material-ui/themeProvider.js.
-    //
-    // In getDataFromTree, the order in which components are rendered is
-    // complicated and depends on what HoCs they have and the order in which
-    // results come back from the database; whereas in
-    // ReactDOM.renderToString, the render order is simply an inorder
-    // traversal of the resulting virtual DOM. When the client rehydrates the
-    // SSR, it traverses inorder, like renderToString did.
-    //
-    // Ordinarily the render order wouldn't matter, except that material-UI
-    // JSS stylesheet generation happens on first render, and it generates
-    // some class names which contain an iterating counter, which needs to
-    // match between client and server.
-    //
-    // So the hacky solution is: when rendering for getDataFromTree, we pass
-    // a context variable isGetDataFromTree, and if that's present and true,
-    // we suppress JSS style generation.
   try {
-    await getDataFromTree(WrappedApp, {isGetDataFromTree: true});
+    htmlContent = await renderToStringWithData(WrappedApp);
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
   const afterPrerenderTime = new Date();
-  try {
-    htmlContent = await ReactDOM.renderToString(WrappedApp);
-  } catch (err) {
-    console.error(`Error while rendering React tree. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
-    console.error(err); // eslint-disable-line no-console
-  }
 
   // TODO: there should be a cleaner way to set this wrapper
   // id must always match the client side start.jsx file

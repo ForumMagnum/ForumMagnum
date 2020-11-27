@@ -1,7 +1,10 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection } from '../../vulcan-lib';
-import Users from "./collection";
-import { SchemaType } from '../../utils/schemaUtils';
+import { getCollection } from '../../vulcan-lib';
+import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
+import { userGetProfileUrl } from "./helpers";
+import { userGetEditUrl } from '../../vulcan-users/helpers';
+import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
+import type { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -21,13 +24,13 @@ import * as _ from 'underscore';
 ///////////////////////////////////////
 
 const createDisplayName = (user: DbUser): string => {
-  const profileName = Utils.getNestedProperty(user, 'profile.name');
-  const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
-  const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
+  const profileName = getNestedProperty(user, 'profile.name');
+  const twitterName = getNestedProperty(user, 'services.twitter.screenName');
+  const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;
   if (twitterName) return twitterName;
   if (linkedinFirstName)
-    return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
+    return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
   if (user.username) return user.username;
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return "[missing username]";
@@ -40,7 +43,7 @@ const adminGroup = {
 };
 
 const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
-  return getCollection('Users').owns(user, document) || getCollection('Users').isAdmin(user);
+  return userOwns(user, document) || userIsAdmin(user);
 };
 
 /**
@@ -153,10 +156,10 @@ const schema: SchemaType<DbUser> = {
     order: 20,
     onCreate: ({ document: user }) => {
       // look in a few places for the user email
-      const facebookEmail: any = Utils.getNestedProperty(user, 'services.facebook.email');
-      const githubEmail: any = Utils.getNestedProperty(user, 'services.github.email');
-      const googleEmail: any = Utils.getNestedProperty(user, 'services.google.email');
-      const linkedinEmail: any = Utils.getNestedProperty(user, 'services.linkedin.emailAddress');
+      const facebookEmail: any = getNestedProperty(user, 'services.facebook.email');
+      const githubEmail: any = getNestedProperty(user, 'services.github.email');
+      const googleEmail: any = getNestedProperty(user, 'services.google.email');
+      const linkedinEmail: any = getNestedProperty(user, 'services.linkedin.emailAddress');
 
       if (facebookEmail) return facebookEmail;
       if (githubEmail) return githubEmail;
@@ -177,7 +180,7 @@ const schema: SchemaType<DbUser> = {
     onCreate: ({ document: user }) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
-      const basicSlug = Utils.slugify(displayName);
+      const basicSlug = slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug);
     },
   },
@@ -220,7 +223,7 @@ const schema: SchemaType<DbUser> = {
     resolveAs: {
       type: 'String',
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return Users.getProfileUrl(user, true);
+        return userGetProfileUrl(user, true);
       },
     },
   },
@@ -232,7 +235,7 @@ const schema: SchemaType<DbUser> = {
     resolveAs: {
       type: 'String',
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return Users.getProfileUrl(user, false);
+        return userGetProfileUrl(user, false);
       },
     },
   },
@@ -244,7 +247,7 @@ const schema: SchemaType<DbUser> = {
     resolveAs: {
       type: 'String',
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return Users.getEditUrl(user, true);
+        return userGetEditUrl(user, true);
       },
     },
   },

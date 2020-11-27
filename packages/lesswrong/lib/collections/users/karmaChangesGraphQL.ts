@@ -1,4 +1,5 @@
 import Users from "../users/collection";
+import { userOwns } from '../../vulcan-users/permissions';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 
@@ -46,7 +47,7 @@ addGraphQLResolvers({
 
 addFieldsDict(Users, {
   "karmaChanges": {
-    viewableBy: Users.owns,
+    viewableBy: userOwns,
     type: "KarmaChanges",
     optional: true,
   }

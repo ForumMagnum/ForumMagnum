@@ -1,9 +1,8 @@
 /* eslint-disable meteor/no-session */
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts, Session } from '../../lib/meteorAccounts';
 import { loginResultCallback, getLoginServices } from './helpers';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
+import { isClient } from '../executionEnvironment';
 
 const VALID_KEYS = [
   'dropdownVisible',
@@ -59,7 +58,7 @@ Accounts._loginButtonsSession = {
   }
 };
 
-if (Meteor.isClient){
+if (isClient){
   // In the login redirect flow, we'll have the result of the login
   // attempt at page load time when we're redirected back to the
   // application.  Register a callback to update the UI (i.e. to close

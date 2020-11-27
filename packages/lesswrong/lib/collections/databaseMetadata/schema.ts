@@ -1,4 +1,4 @@
-import { SchemaType } from '../../utils/schemaUtils';
+import type { SchemaType } from '../../utils/schemaUtils';
 
 // The databaseMetadata collection is a collection of named, mostly-singleton
 // values. (Currently just databaseId, which is used for ensuring you don't

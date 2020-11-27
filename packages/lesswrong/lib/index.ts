@@ -15,7 +15,7 @@ import './accounts/modify_accounts_ui';
 import './accounts/configuration';
 
 // ## Voting
-import './voting/new_vote_types';
+import './voting/voteTypes';
 
 //MomentJS configuration
 import '../components/momentjs';
@@ -54,6 +54,10 @@ import { LWEvents } from './collections/lwevents/index';
 import { TagFlags } from './collections/tagFlags/collection';
 import './collections/tagFlags/views';
 
+// GardenCodes
+import { GardenCodes } from "./collections/gardencodes/collection";
+import './collections/gardencodes/views'
+
 // DatabaseMetadata
 import './collections/databaseMetadata/collection';
 
@@ -71,7 +75,6 @@ import { Bans } from './collections/bans/index'
 // Chapters
 import Sequences from './collections/sequences/collection';
 import './collections/sequences/views';
-import './collections/sequences/utils';
 import './collections/sequences/helpers';
 
 import Chapters from './collections/chapters/collection';
@@ -203,8 +206,9 @@ export {
   Bans,
   Localgroups,
   Comments,
-  Revisions, 
+  Revisions,
   ReviewVotes,
   PetrovDayLaunchs,
-  TagFlags
+  TagFlags,
+  GardenCodes
 }

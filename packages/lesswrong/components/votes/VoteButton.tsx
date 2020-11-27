@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { hasVotedClient } from '../../lib/voting/vote';
 import { isMobile } from '../../lib/utils/isMobile'
 import { withTheme } from '@material-ui/core/styles';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -64,24 +63,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const VoteButton = ({
-  vote, collection, document, voteType,
+const VoteButton = <T extends VoteableTypeClient>({
+  vote, collectionName, document, voteType,
   color = "secondary",
   orientation = "up",
   solidArrow,
   theme,
   classes,
 }: {
-  vote: any,
-  collection: any,
-  document: any,
+  vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent, voteId?: string})=>void,
+  collectionName: CollectionNameString,
+  document: T,
   
   voteType: string,
-  color: any,
+  color: "error"|"primary"|"secondary",
   orientation: string,
   solidArrow?: boolean
   // From withTheme. TODO: Hookify this.
-  theme?: any
+  theme?: ThemeType
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -106,15 +105,19 @@ const VoteButton = ({
     setBigVoteCompleted(false);
   }
 
-  const wrappedVote = (type: string) => {
+  const wrappedVote = (voteType: string|null) => {
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
         componentProps: {}
       });
     } else {
-      vote({document, voteType: type, collection, currentUser});
-      captureEvent("vote", {collectionName: collection.collectionName});
+      if (document.currentUserVote === voteType) {
+        vote({document, voteType: null, collectionName, currentUser});
+      } else {
+        vote({document, voteType: voteType, collectionName, currentUser});
+      }
+      captureEvent("vote", {collectionName});
     }
   }
 
@@ -130,11 +133,13 @@ const VoteButton = ({
   }
 
   const hasVoted = (type: string) => {
-    return hasVotedClient({userVotes: document.currentUserVotes, voteType: type})
+    return document.currentUserVote === type;
   }
 
-  const voted = hasVoted(`small${voteType}`) || hasVoted(`big${voteType}`)
-  const bigVoted = hasVoted(`big${voteType}`)
+  const smallVoteType = `small${voteType}`
+  const bigVoteType = `big${voteType}`
+  const voted = hasVoted(smallVoteType) || hasVoted(bigVoteType)
+  const bigVoted = hasVoted(bigVoteType)
   
   const handleClick = () => { // This handler is only used for mobile
     if(isMobile()) {

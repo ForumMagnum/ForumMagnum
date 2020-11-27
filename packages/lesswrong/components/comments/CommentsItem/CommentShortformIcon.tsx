@@ -1,7 +1,7 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import NotesIcon from '@material-ui/icons/Notes';
-import { Comments } from "../../../lib/collections/comments";
+import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -32,7 +32,7 @@ const CommentShortformIcon = ({comment, post, classes, simple}: {
 
   return (
     <LWTooltip title="Shortform">
-      <Link to={Comments.getPageUrlFromIds({postId:post._id, postSlug:post.slug, commentId: comment._id})}>
+      <Link to={commentGetPageUrlFromIds({postId:post._id, postSlug:post.slug, commentId: comment._id})}>
         <NotesIcon className={classes.icon} />
       </Link>
     </LWTooltip>

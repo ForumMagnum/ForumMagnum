@@ -1,22 +1,30 @@
 import { addCronJob } from './cronUtil';
-import { newMutation } from './vulcan-lib';
+import { createMutator } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
+import { isProduction } from '../lib/executionEnvironment';
+import { toDictionary } from '../lib/utils/toDictionary';
+import * as _ from 'underscore';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
+const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
 
-if (Meteor.isProduction) {
+if (isProduction && forumTypeSetting.get() === "LessWrong") {
   addCronJob({
     name: 'gatherTownGetUsers',
     schedule(parser) {
       return parser.text(`every 3 minutes`);
     },
     async job() {
-      const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), gatherTownRoomId.get(), gatherTownRoomName.get());
-      void newMutation({
+      const roomName = gatherTownRoomName.get();
+      const roomId = gatherTownRoomId.get();
+      if (!roomName || !roomId) return;
+      const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
+      void createMutator({
         collection: LWEvents,
         document: {
           name: 'gatherTownUsersCheck',
@@ -32,7 +40,9 @@ if (Meteor.isProduction) {
   });
 }
 
-const getGatherTownUsers = async (password, roomId, roomName) => {
+type GatherTownPlayerInfo = any;
+
+const getGatherTownUsers = async (password: string|null, roomId: string, roomName: string): Promise<Record<string,GatherTownPlayerInfo>> => {
   // Register new user to Firebase
   const authResponse = await fetch("https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCifrUkqu11lgjkz2jtp4Fx_GJh58HDlFQ", {
     "headers": {
@@ -109,38 +119,46 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
   });
 
   // Create WebSocket connection.
-  const socket = new WebSocket(`wss://premium-002.gather.town/?token=${token}`);
-  function stringToArrayBuffer(string) {
-    var binary_string = Buffer.from(string).toString(`binary`);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len + 1);
-    // We have to do some manual operation here because the Gather Town packages all start with \u0, which doesn't parse in UTF-8 (I think)
-    bytes[1] = 123
-    for (var i = 1; i <= len; i++) {
-      bytes[i + 1] = binary_string.charCodeAt(i);
-    }
-    return bytes.buffer;
-  }
-  const arrayBuffer = stringToArrayBuffer(`{"event":"init","token":"${token}","room": "${roomId}\\\\${roomName}"}`)
+  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}`);
   socket.on('open', function (data) {
-    socket.send(arrayBuffer)
+    sendMessageOnSocket(socket, {
+      event: "init",
+      token: token,
+      version: 2,
+    });
   });
 
-  let players = {}
+  let playerNamesById: Record<string,string> = {}
+  let playerInfoByName: Record<string,GatherTownPlayerInfo> = {};
 
-  socket.on('message', function (data) {
-    const parsedData = data.toString('utf8').substring(1)
-    if (isJson(parsedData)) {
-      try {
-        // Have to cut the first character before parsing as JSON because that \u0 (same as above)
-        const jsonResponse = JSON.parse(data.toString('utf8').substring(1));
-        if (jsonResponse.message && jsonResponse.message.type === "player") {
-          players[jsonResponse.message.info.name] = jsonResponse.message.info
+  socket.on('message', function (data: any) {
+    const firstByte: any = data.readUInt8(0);
+    if (firstByte === 0) {
+      // A JSON message
+      const jsonResponse = messageToJson(data);
+      if (jsonResponse) {
+        if (jsonResponse.event === "ready") {
+          sendMessageOnSocket(socket, {
+            event: "rpc",
+            target: "space",
+            args: {
+              type: "subscribe",
+              space: `${roomId}\\${roomName}`
+            }
+          });
         }
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log(err)
       }
+    } else if (firstByte === 1) {
+      // A binary message
+      const parsedMessage = interpretBinaryMessage(data)
+      if (parsedMessage?.players) {
+        for (let player of parsedMessage.players) {
+          playerNamesById[player.id] = player.name;
+          playerInfoByName[player.name] = player;
+        }
+      }
+    } else {
+      // Unrecognized message type
     }
   });
 
@@ -149,10 +167,35 @@ const getGatherTownUsers = async (password, roomId, roomName) => {
 
   socket.close();
 
-  return players
+  const playerNames = _.values(playerNamesById);
+  return toDictionary(playerNames, name=>name, name=>playerInfoByName[name]);
 }
 
-function isJson(str) {
+function stringToArrayBuffer(string) {
+  var binary_string = Buffer.from(string).toString(`binary`);
+  var len = binary_string.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i <= len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+const sendMessageOnSocket = (socket: any, message: any) => {
+  const json = JSON.stringify(message);
+  const arrayBuffer = stringToArrayBuffer(json);
+  socket.send(arrayBuffer);
+}
+
+const messageToJson = (data: any) => {
+  const messageBody = data.toString('utf8').substring(1);
+  if (isJson(messageBody))
+    return JSON.parse(messageBody);
+  else
+    return null;
+}
+
+function isJson(str: string): boolean {
   try {
     JSON.parse(str);
   } catch (e) {
@@ -161,5 +204,57 @@ function isJson(str) {
   return true;
 }
 
+const playerMessageHeaderLen = 23;
+const mapNameOffset = 15
+const playerNameOffset = 17
+const playerIdOffset = 21;
+
+function interpretBinaryMessage(data: any): any {
+  const buf = Buffer.from(data);
+  // First byte is 1 to indicate it's a binary message
+  if (buf.readUInt8(0) !== 1) {
+    //eslint-disable-next-line no-console
+    console.log("Not a recognizable binary message");
+    return null;
+  }
+  // Second byte is the length of string roomId\roomName
+  const targetSpaceLen = buf.readUInt8(1);
+  
+  // This is followed by a series of messages where the first byte is a message
+  // type. The message lengths/alignment are unfortunately not marked. We only
+  // understand message type 0 (player metadata).
+  let pos = 2+targetSpaceLen;
+  const players: Array<any> = [];
+  while (pos < buf.length) {
+    const messageType = buf.readUInt8(pos);
+    if (messageType === 0) {
+      const mapNameLen = buf.readUInt8(pos+mapNameOffset);
+      const playerNameLen = buf.readUInt8(pos+playerNameOffset);
+      const playerIdLen = buf.readUInt8(pos+playerIdOffset);
+      
+      const mapNameStart = pos+playerMessageHeaderLen;
+      const playerNameStart = mapNameStart+mapNameLen;
+      const playerIdStart = playerNameStart+playerNameLen;
+      
+      const mapName = buf.slice(mapNameStart, mapNameStart+mapNameLen).toString("utf8");
+      const playerName = buf.slice(playerNameStart, playerNameStart+playerNameLen).toString("utf8");
+      const playerId = buf.slice(playerIdStart, playerIdStart+playerIdLen).toString("utf8");
+      
+      players.push({
+        map: mapName,
+        name: playerName,
+        playerId: playerId,
+      });
+      
+      pos = playerIdStart+playerIdLen;
+    } else {
+      // Unrecognized message type. Return what we have so far.
+      return {players};
+    }
+  }
+  
+  return {players};
+}
+
 // Wait utility function
-const wait = ms => new Promise((r, j) => setTimeout(r, ms))
+const wait = (ms: number) => new Promise((r, j) => setTimeout(r, ms))

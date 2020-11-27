@@ -1,10 +1,14 @@
-import { addCallback, editMutation, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
+import { updateMutator, addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
-import Sequences from '../lib/collections/sequences/collection';
+import { getUser } from '../lib/vulcan-users/helpers';
+import { Sequences } from '../lib/collections/sequences/collection';
+import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
 import Posts from '../lib/collections/posts/collection';
-import Collections from '../lib/collections/collections/collection';
+import { Collections } from '../lib/collections/collections/collection';
+import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
+import { getCollectionHooks } from './mutationCallbacks';
 
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
@@ -12,9 +16,9 @@ import * as _ from 'underscore';
 // a partially-read sequence, and update their user object to reflect this
 // status.
 const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string) => {
-  const user = Users.getUser(userId);
+  const user = getUser(userId);
   if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
-  const postIDs = await Sequences.getAllPostIDs(sequenceId);
+  const postIDs = await sequenceGetAllPostIDs(sequenceId);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);
   const anyUnread = _.some(postIDs, (postID: string) => !postReadStatuses[postID]);
   const sequence = await Sequences.findOne({_id: sequenceId});
@@ -54,7 +58,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   // the whole collection. If they've read everything in the collection, or
   // it isn't part of a collection, they're done.
   if (collection) {
-    const collectionPostIDs = await Collections.getAllPostIDs(collection._id);
+    const collectionPostIDs = await collectionGetAllPostIDs(collection._id);
     const collectionPostReadStatuses = await postsToReadStatuses(user, collectionPostIDs);
     const collectionAnyUnread = _.some(collectionPostIDs, (postID: string) => !collectionPostReadStatuses[postID]);
     
@@ -92,7 +96,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
 }
 
 export const setUserPartiallyReadSequences = async (userId: string, newPartiallyReadSequences) => {
-  await editMutation({
+  await updateMutator({
     collection: Users,
     documentId: userId,
     set: {
@@ -109,7 +113,7 @@ const userHasPartiallyReadSequence = (user: DbUser, sequenceId: string): boolean
   return _.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId);
 }
 
-const EventUpdatePartialReadStatusCallback = async (event: DbLWEvent) => {
+getCollectionHooks("LWEvents").newAsync.add(async function EventUpdatePartialReadStatusCallback(event: DbLWEvent) {
   if (event.name === 'post-view' && event.properties.sequenceId) {
     const user = await Users.findOne({_id: event.userId});
     if (!user) return;
@@ -123,9 +127,7 @@ const EventUpdatePartialReadStatusCallback = async (event: DbLWEvent) => {
       await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId);
     }
   }
-}
- 
-addCallback('lwevents.new.async', EventUpdatePartialReadStatusCallback);
+});
 
 // Given a user and an array of post IDs, return a dictionary from
 // postID=>bool, true if the user has read the post and false otherwise.
@@ -176,7 +178,11 @@ addGraphQLResolvers({
   Mutation: {
     async updateContinueReading(root: void, {sequenceId, postId}: {sequenceId: string, postId: string}, context: ResolverContext) {
       const { currentUser } = context;
-      if (!currentUser) throw new Error("Must be logged in to record continue-reading status");
+      if (!currentUser) {
+        // If not logged in, this is ignored, but is not an error (in future
+        // versions it might associate with a clientID rather than a userID).
+        return null;
+      }
       
       await updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId);
       
