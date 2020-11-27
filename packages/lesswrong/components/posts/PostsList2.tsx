@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { postGetLastCommentedAt } from '../../lib/collections/posts/helpers';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
-import { useTracking } from "../../lib/analyticsEvents";
+import { useOnMountTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
 const Error = ({error}) => <div>
@@ -160,7 +160,7 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
+  useOnMountTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
 

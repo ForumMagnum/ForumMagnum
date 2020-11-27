@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useCurrentUser } from '../common/withUser';
-import { useTracking } from "../../lib/analyticsEvents";
+import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle } from './FooterTag';
@@ -73,7 +73,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)
-  useTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
+  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length, skip: !tagIds.length||loading})
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
