@@ -110,6 +110,24 @@ const FrontpageReviewPhase = ({classes}) => {
     <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in 2018</div>
   </div>
 
+  const nominationStartDate = new Date("2020-12-01")
+  const nominationEndDate = new Date("2020-12-15")
+  const reviewEndDate = new Date("2021-01-12")
+  const voteEndDate = new Date("2021-01-26")
+  const currentDate = new Date()
+
+  const activeRange = currentDate < nominationEndDate ? "nominations" : (
+    currentDate < reviewEndDate ? "review" : (
+      currentDate < voteEndDate ? "votes" : 
+      null
+    )
+  )
+
+  const dateFraction = (fractionDate: Date, startDate: Date, endDate: Date) => {
+    if (fractionDate < startDate) return 0
+    return ((fractionDate.getTime() - startDate.getTime())/(endDate.getTime() - startDate.getTime())*100).toFixed(2)
+  }
+
   return (
     <SingleColumnSection>
       <SectionTitle 
@@ -126,28 +144,28 @@ const FrontpageReviewPhase = ({classes}) => {
       <div className={classes.reviewTimeline}>
         <div className={classes.nominationBlock}>
           <Link to={"/nominations"}>
-            <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, classes.activeProgress)}>
+            <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "nominations"})}>
               <div className={classes.blockText}>Nominations</div>
               <div className={classes.blockText}>Dec 14</div>
-              <div className={classes.coloredProgress} style={{width: '35%'}}/>
+              <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}/>
             </LWTooltip>
           </Link>
         </div>
         <div className={classes.reviewBlock}>  
           <Link to={"/reviews"}>    
-            <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress)}>
+            <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "review"})}>
               <div className={classes.blockText}>Reviews</div>
               <div className={classes.blockText}>Jan 11</div>
-              <div className={classes.coloredProgress}/>
+              <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>
             </LWTooltip>
           </Link>    
         </div>
         <div className={classes.votingBlock}>
           <Link to={"/reviewVoting"}>
-            <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress)}>
+            <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "votes"})}>
               <div className={classes.blockText}>Votes</div>
               <div className={classes.blockText}>Jan 26</div>
-              <div className={classes.coloredProgress}/>
+              <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>
             </LWTooltip>
           </Link>
         </div>
