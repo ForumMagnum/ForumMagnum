@@ -327,23 +327,11 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
 
     const nodeClass = classNames(
       "comments-node",
+      nestingLevelToClass(updatedNestingLevel, classes),
       classes.node,
       {
         "af":comment.af,
-        [classes.commentsNodeRoot] : updatedNestingLevel === 1,
-        "comments-node-root" : updatedNestingLevel === 1,
-        "comments-node-even" : updatedNestingLevel % 2 === 0,
-        "comments-node-odd"  : updatedNestingLevel % 2 !== 0,
         [classes.highlightAnimation]: highlighted,
-        "comments-node-its-getting-nested-here": updatedNestingLevel > 8,
-        "comments-node-so-take-off-all-your-margins": updatedNestingLevel > 12,
-        "comments-node-im-getting-so-nested": updatedNestingLevel > 16,
-        "comments-node-im-gonna-drop-my-margins": updatedNestingLevel > 20,
-        "comments-node-what-are-you-even-arguing-about": updatedNestingLevel > 24,
-        "comments-node-are-you-sure-this-is-a-good-idea": updatedNestingLevel > 28,
-        "comments-node-seriously-what-the-fuck": updatedNestingLevel > 32,
-        "comments-node-are-you-curi-and-lumifer-specifically": updatedNestingLevel > 36,
-        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": updatedNestingLevel > 40,
         [classes.child]: child,
         [classes.new]: newComment,
         [classes.deleted]: comment.deleted,
@@ -430,6 +418,24 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
         </div>
     )
   }
+}
+
+const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string => {
+  return classNames({
+    [classes.commentsNodeRoot] : nestingLevel === 1,
+    "comments-node-root" : nestingLevel === 1,
+    "comments-node-even" : nestingLevel % 2 === 0,
+    "comments-node-odd"  : nestingLevel % 2 !== 0,
+    "comments-node-its-getting-nested-here": nestingLevel > 8,
+    "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
+    "comments-node-im-getting-so-nested": nestingLevel > 16,
+    "comments-node-im-gonna-drop-my-margins": nestingLevel > 20,
+    "comments-node-what-are-you-even-arguing-about": nestingLevel > 24,
+    "comments-node-are-you-sure-this-is-a-good-idea": nestingLevel > 28,
+    "comments-node-seriously-what-the-fuck": nestingLevel > 32,
+    "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
+    "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
+  });
 }
 
 const CommentsNodeComponent = registerComponent<ExternalProps>('CommentsNode', CommentsNode, {
