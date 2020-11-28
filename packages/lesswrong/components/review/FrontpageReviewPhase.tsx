@@ -68,8 +68,8 @@ export const reviewAlgorithm = {
 }
 
 const FrontpageReviewPhase = ({classes}) => {
-  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip, SectionFooter } = Components
-  const currentUser = useCurrentUser();
+  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
+  // const currentUser = useCurrentUser();
 
   const overviewToolip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2019, in three phases</div>

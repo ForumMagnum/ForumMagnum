@@ -81,7 +81,7 @@ const ReviewPostForm = ({classes, post, onClose}: {
   post: PostsList,
   onClose: ()=>void,
 }) => {
-  const { CommentsNewForm } = Components 
+  // const { CommentsNewForm } = Components 
   const [ showPrompt, setShowPrompt ] = useState(true)
 
   return <Paper className={classes.root}>
