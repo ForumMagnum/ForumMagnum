@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { useRecordPostView } from '../common/withRecordPostView';

@@ -150,9 +150,6 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
-  if (!comment)
-    return null;
-
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const passedThroughItemProps = { comment, collapsed }
