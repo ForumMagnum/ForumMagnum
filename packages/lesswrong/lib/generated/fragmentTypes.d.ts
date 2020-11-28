@@ -220,6 +220,16 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly order: number,
 }
 
+interface PostsExpandedHighlight { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsExpandedHighlight_contents|null,
+}
+
+interface PostsExpandedHighlight_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
@@ -1722,6 +1732,7 @@ interface FragmentTypes {
   PostsList: PostsList
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
+  PostsExpandedHighlight: PostsExpandedHighlight
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
