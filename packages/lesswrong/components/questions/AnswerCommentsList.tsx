@@ -45,18 +45,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const ABRIDGE_COMMENT_COUNT = 500;
 
-const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
-  terms: any,
+const AnswerCommentsList = ({lastEvent, classes, post, parentAnswer}: {
   lastEvent?: any,
   classes: ClassesType,
   post: PostsList,
-  parentAnswer: any,
+  parentAnswer: CommentsList,
 }) => {
   const [commenting, setCommenting] = React.useState(false);
   const [loadedMore, setLoadedMore] = React.useState(false);
   
   const { loadMore, results, loading, loadingMore, totalCount } = useMulti({
-    terms,
+    terms: {
+      view: "repliesToAnswer",
+      parentAnswerId: parentAnswer._id,
+      limit: ABRIDGE_COMMENT_COUNT,
+    },
     collection: Comments,
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
@@ -143,12 +146,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   );
 }
 
-const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {
-  styles,
-  areEqual: {
-    terms: "deep",
-  }
-});
+const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
 
 declare global {
   interface ComponentTypes {

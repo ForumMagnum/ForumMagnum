@@ -4,7 +4,6 @@ import { answerStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
@@ -190,10 +189,9 @@ const Answer = ({ comment, post, classes }: {
             </div>
           </AnalyticsContext>
           <AnswerCommentsList
-            terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: ABRIDGE_COMMENT_COUNT}}
             post={post}
             parentAnswer={comment}
-            />
+          />
         </div>
       }
     </div>
