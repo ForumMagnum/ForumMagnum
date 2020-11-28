@@ -8,7 +8,6 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth:570,
     ...postHighlightStyles(theme),
   },
   highlightContinue: {
