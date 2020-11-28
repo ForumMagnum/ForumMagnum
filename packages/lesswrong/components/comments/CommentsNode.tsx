@@ -222,11 +222,6 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
         <div className="comments-children">
           <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
           <RepliesToCommentList
-            terms={{
-              view: "repliesToCommentThread",
-              topLevelCommentId: comment._id,
-              limit: 500
-            }}
             parentCommentId={comment._id}
             post={post as PostsBase}
           />
