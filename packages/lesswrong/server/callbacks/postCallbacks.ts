@@ -17,7 +17,7 @@ const MINIMUM_APPROVAL_KARMA = 5
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
-    data = postsSetPostedAt(data, post);
+    data = postsSetPostedAt(data);
   }
   return data;
 });
