@@ -1,11 +1,12 @@
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
+import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
-import { Utils, pluralize, camelCaseify } from './utils';
+import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
@@ -176,8 +177,7 @@ export const createCollection = (options: {
     };
 
     if (collection.defaultView) {
-      parameters = Utils.deepExtend(
-        true,
+      parameters = merge(
         parameters,
         collection.defaultView(terms, apolloClient, context)
       );
@@ -187,7 +187,7 @@ export const createCollection = (options: {
     if (terms.view && collection.views[terms.view]) {
       const viewFn = collection.views[terms.view];
       const view = viewFn(terms, apolloClient, context);
-      let mergedParameters = Utils.deepExtend(true, parameters, view);
+      let mergedParameters = merge(parameters, view);
 
       if (
         mergedParameters.options &&
@@ -217,7 +217,7 @@ export const createCollection = (options: {
     // extend sort to sort posts by _id to break ties, unless there's already an id sort
     // NOTE: always do this last to avoid overriding another sort
     if (!(parameters.options.sort && typeof parameters.options.sort._id !== undefined)) {
-      parameters = Utils.deepExtend(true, parameters, { options: { sort: { _id: -1 } } });
+      parameters = merge(parameters, { options: { sort: { _id: -1 } } });
     }
 
     // remove any null fields (setting a field to null means it should be deleted)

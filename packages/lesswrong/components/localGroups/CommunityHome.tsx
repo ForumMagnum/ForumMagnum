@@ -89,7 +89,6 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
             terms={mapEventTerms}
           />
             <SingleColumnSection>
-              <Components.Covid19Notice/>
               <SectionTitle title="Welcome to the Community Section"/>
               <Typography variant="body2" className={classes.welcomeText}>
                 On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
@@ -154,4 +153,3 @@ declare global {
     CommunityHome: typeof CommunityHomeComponent
   }
 }
-

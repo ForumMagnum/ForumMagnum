@@ -485,6 +485,7 @@ importComponent("LocationFormComponent", () => require('../components/form-compo
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));
 importComponent("MultiSelectButtons", () => require('../components/form-components/MultiSelectButtons'));
 importComponent("FormComponentCheckbox", () => require('../components/form-components/FormComponentCheckbox'));
+importComponent("FormComponentRadioGroup", () => require('../components/form-components/FormComponentRadioGroup'));
 importComponent("SectionFooterCheckbox", () => require('../components/form-components/SectionFooterCheckbox'));
 importComponent("FormComponentDefault", () => require('../components/form-components/FormComponentDefault'));
 importComponent("FormComponentSelect", () => require('../components/form-components/FormComponentSelect'));
@@ -498,7 +499,6 @@ importComponent("TagFlagToggleList", () => require('../components/form-component
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
-importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));

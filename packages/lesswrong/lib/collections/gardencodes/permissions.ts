@@ -9,7 +9,8 @@ guestsGroup.can(guestsActions)
 const memberActions = [
   'gardencodes.new',
   'gardencodes.create',
-  'gardencodes.view'
+  'gardencodes.view',
+  'gardencode.update.own'
 ]
 
 membersGroup.can(memberActions)

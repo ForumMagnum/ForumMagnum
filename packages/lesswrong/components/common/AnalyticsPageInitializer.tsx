@@ -41,7 +41,10 @@ function useEventListener(eventName, handler){
 
 function useBeforeUnloadTracking() {
   const { captureEvent } = useTracking()
-  const trackBeforeUnload = () => captureEvent("beforeUnloadFired")
+  const trackBeforeUnload = useCallback(
+    () => captureEvent("beforeUnloadFired"),
+    [captureEvent]
+  );
 
   useEventListener('beforeunload', trackBeforeUnload)
 }
@@ -53,13 +56,13 @@ function usePageVisibility() {
   const [pageIsVisible, setPageIsVisible] = useState(!doc?.hidden)
   const [pageVisibilityState, setPageVisibilityState] = useState(doc?.visibilityState)
 
-  function handleVisibilityChange() {
-      const isVisible = !doc?.hidden
-      const visibilityState = doc?.visibilityState
-      setPageIsVisible(isVisible) //these aren't accessible till re-render or something
-      setPageVisibilityState(visibilityState)
-      captureEvent("pageVisibilityChange", {isVisible, visibilityState});
-    }
+  const handleVisibilityChange = useCallback(() => {
+    const isVisible = !doc?.hidden
+    const visibilityState = doc?.visibilityState
+    setPageIsVisible(isVisible) //these aren't accessible till re-render or something
+    setPageVisibilityState(visibilityState)
+    captureEvent("pageVisibilityChange", {isVisible, visibilityState});
+  }, [doc, captureEvent]);
 
   useEffect(() => {
     captureEvent("pageVisibilityChange", {isVisible: pageIsVisible, visibilityState: pageVisibilityState});
@@ -73,22 +76,22 @@ function usePageVisibility() {
 
 
 function useIdlenessDetection(timeoutInSeconds=60) {
-    const { captureEvent } = useTracking()
-    const [userIsIdle, setUserIsIdle] = useState(false)
-    const countdownTimer = useRef<any>(null)
+  const { captureEvent } = useTracking()
+  const [userIsIdle, setUserIsIdle] = useState(false)
+  const countdownTimer = useRef<any>(null)
 
-    const inactivityAlert = useCallback(() => {
-        captureEvent("idlenessDetection", {state: "inactive"})
-        setUserIsIdle(true)
-    }, [captureEvent, setUserIsIdle])
+  const inactivityAlert = useCallback(() => {
+    captureEvent("idlenessDetection", {state: "inactive"})
+    setUserIsIdle(true)
+  }, [captureEvent, setUserIsIdle])
 
-    const reset= useCallback(()=>{
-      const prevUserIsIdle = userIsIdle //so can do this real quick?
-      setUserIsIdle(false)
-      clearTimeout(countdownTimer.current)
-      countdownTimer.current = setTimeout(inactivityAlert, timeoutInSeconds*1000) //setTimeout uses milliseconds
-      if (prevUserIsIdle) captureEvent("idlenessDetection", {state: "active"})
-    }, [userIsIdle, setUserIsIdle, captureEvent, inactivityAlert, timeoutInSeconds])
+  const reset = useCallback(()=>{
+    const prevUserIsIdle = userIsIdle //so can do this real quick?
+    setUserIsIdle(false)
+    clearTimeout(countdownTimer.current)
+    countdownTimer.current = setTimeout(inactivityAlert, timeoutInSeconds*1000) //setTimeout uses milliseconds
+    if (prevUserIsIdle) captureEvent("idlenessDetection", {state: "active"})
+  }, [userIsIdle, setUserIsIdle, captureEvent, inactivityAlert, timeoutInSeconds])
 
 
   useEventListener("mousemove", reset)
@@ -96,12 +99,12 @@ function useIdlenessDetection(timeoutInSeconds=60) {
   useEventListener("scroll", reset)
 
   useEffect(() => {
-        reset()
-        return () => clearTimeout(countdownTimer.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    reset()
+    return () => clearTimeout(countdownTimer.current)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    return { userIsIdle }
+  return { userIsIdle }
 }
 
 

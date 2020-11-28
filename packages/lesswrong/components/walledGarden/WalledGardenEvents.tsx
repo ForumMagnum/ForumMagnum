@@ -3,6 +3,8 @@ import _uniqBy from 'lodash/uniqBy';
 import { getCalendarEvents } from './gardenCalendar';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
+// this component is no longer used. 
+// TODO: after making sure that we want to retire the google-calendar based event system, remove this component from the codebase.
 
 const WalledGardenEvents = ({frontpage=true}) => {
   const { FrontpageGcalEventItem, PortalBarGcalEventItem } = Components

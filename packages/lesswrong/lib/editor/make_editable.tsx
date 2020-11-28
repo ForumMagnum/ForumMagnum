@@ -61,7 +61,8 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     fieldName,
     hintText,
     order,
-    pingbacks = false,
+    hideControls = false,
+    pingbacks = false
     //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
 
@@ -118,7 +119,8 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         collectionName,
         commentEditor,
         commentStyles,
-        getLocalStorageId,
+        hideControls,
+        getLocalStorageId
       },
     },
     

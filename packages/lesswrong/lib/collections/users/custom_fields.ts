@@ -309,6 +309,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
