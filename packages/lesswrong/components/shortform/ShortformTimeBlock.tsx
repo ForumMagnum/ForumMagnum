@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
-import type { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformGroup: {

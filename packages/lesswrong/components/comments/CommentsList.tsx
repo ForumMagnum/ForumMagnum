@@ -1,7 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
-import { postGetLastCommentedAt } from '../../lib/collections/posts/helpers';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'

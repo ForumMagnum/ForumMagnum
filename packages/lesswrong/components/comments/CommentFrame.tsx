@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 

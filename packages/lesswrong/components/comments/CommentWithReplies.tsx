@@ -27,7 +27,6 @@ const CommentWithReplies = ({comment, post, refetch, showTitle=true, expandByDef
 }) => {
   const [markedAsVisitedAt,setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [maxChildren,setMaxChildren] = useState(3);
-  const currentUser = useCurrentUser();
   const { recordPostView } = useRecordPostView(post);
 
   const markAsRead = useCallback(async () => {

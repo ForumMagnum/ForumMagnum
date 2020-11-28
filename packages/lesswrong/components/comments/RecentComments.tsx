@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import Typography from '@material-ui/core/Typography';
-import type { CommentTreeOptions } from './commentTree';
 
 const styles = (theme: ThemeType): JssStyles =>  ({
   root: {
