@@ -97,6 +97,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly shareWithUsers: Array<string>,
+  readonly nominationCount2018: number,
+  readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
   readonly group: PostsBase_group|null,
@@ -693,6 +695,8 @@ interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
   readonly comment: string,
+  readonly year: string,
+  readonly dummy: boolean,
 }
 
 interface reviewVoteFragment { // fragment on ReviewVotes
@@ -703,6 +707,8 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
   readonly comment: string,
+  readonly year: string,
+  readonly dummy: boolean,
 }
 
 interface PostRelationsDefaultFragment { // fragment on PostRelations

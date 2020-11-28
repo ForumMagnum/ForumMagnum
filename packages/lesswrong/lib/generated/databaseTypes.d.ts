@@ -379,6 +379,8 @@ interface DbReviewVote extends DbObject {
   qualitativeScore: number
   quadraticScore: number
   comment: string
+  year: string
+  dummy: boolean
 }
 
 interface PostRelationsCollection extends CollectionBase<DbPostRelation> {
