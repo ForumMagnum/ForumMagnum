@@ -84,6 +84,7 @@ importComponent("ErrorMessage", () => require('../components/common/ErrorMessage
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage'));
 importComponent("CloudinaryImage2", () => require('../components/common/CloudinaryImage2'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
+importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
 importComponent("PostsRevisionSelect", () => require('../components/revisions/PostsRevisionSelect'));
@@ -209,7 +210,6 @@ importComponent("PostCollaborationEditor", () => require('../components/posts/Po
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
-importComponent("ShowOrHideHighlightButton", () => require('../components/posts/ShowOrHideHighlightButton'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox'));
@@ -407,6 +407,7 @@ importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/Ta
 importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
+importComponent("TagCTAPopup", () => require('../components/tagging/TagCTAPopup'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));

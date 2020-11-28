@@ -165,7 +165,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   getErrorId(error) {
-    return `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_').replace(/[.]/g,'').replace(/[,]/g,'')}`;
+    if (error?.reason) {
+      return `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_').replace(/[.]/g,'').replace(/[,]/g,'')}`;
+    }
+    return error
   }
 
   validateField(field, value) {
@@ -1057,4 +1060,3 @@ declare global {
     AccountsLoginFormInner: typeof AccountsLoginFormInnerComponent
   }
 }
-
