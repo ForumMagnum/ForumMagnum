@@ -135,7 +135,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
 
-  const { ContentItemBody, PostsItemMeta, CommentsNode, PostsHighlight, LinkPostMessage } = Components
+  const { PostsItemMeta, CommentsNode, PostsHighlight } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
