@@ -115,7 +115,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTitle, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, hideReply, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTitle, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -127,7 +127,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTit
   toggleCollapse?: ()=>void,
   truncated: boolean,
   parentAnswerId?: string|undefined,
-  hideReply?: boolean,
   classes: ClassesType,
 }) => {
   const [showReplyState, setShowReplyState] = useState(false);
@@ -136,7 +135,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTit
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
