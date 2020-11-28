@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
+import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
 
@@ -232,7 +232,12 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 }
 
 const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
-  styles, hocs: [withErrorBoundary]
+  styles,
+  areEqual: {
+    treeOptions: "shallow",
+    childComments: (oldValue: Array<CommentTreeNode<CommentsList>>, newValue: Array<CommentTreeNode<CommentsList>>) => commentTreesEqual(oldValue, newValue)
+  },
+  hocs: [withErrorBoundary]
 });
 
 declare global {

@@ -74,3 +74,17 @@ function unflattenCommentsRec<T extends ThreadableCommentType>(array: Array<Comm
 
   return tree;
 }
+
+export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Array<CommentTreeNode<Fragment>>, b: Array<CommentTreeNode<Fragment>>) {
+  if (!!a !== !!b) return false;
+  if (!a && !b) return true;
+  if (a.length !== b.length) return false;
+  
+  for (let i=0; i<a.length; i++) {
+    if (a[i].item !== b[i].item)
+      return false;
+    if (!commentTreesEqual(a[i].children, b[i].children))
+      return false;
+  }
+  return true;
+}
