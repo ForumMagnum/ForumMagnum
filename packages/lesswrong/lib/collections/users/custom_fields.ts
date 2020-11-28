@@ -1439,7 +1439,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-},
+  },
 });
 
 export const makeEditableOptionsModeration = {
