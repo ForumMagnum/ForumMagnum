@@ -1,14 +1,14 @@
-import React, { PureComponent } from 'react';
+import React, { useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
-import { withMessages } from '../../common/withMessages';
-import withModerateComment from './withModerateComment'
+import { useMessages } from '../../common/withMessages';
+import { useModerateComment } from './withModerateComment'
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import withDialog from '../../common/withDialog'
+import { useDialog } from '../../common/withDialog'
 
 const styles = (theme: ThemeType): JssStyles => ({
   deleteWithoutTrace: {
@@ -19,49 +19,43 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-interface DeleteCommentDialogProps extends WithMessagesProps, WithStylesProps {
-  moderateCommentMutation: any,
-  onClose: any,
+const DeleteCommentDialog = ({comment, onClose, classes}: {
   comment: CommentsList,
-}
-interface DeleteCommentDialogState {
-  deletedReason: string,
-}
+  onClose: ()=>void,
+  classes: ClassesType,
+}) => {
+  const [deletedReason, setDeletedReason] = useState("");
+  const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
+  const { flash } = useMessages();
 
-class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteCommentDialogState> {
-  state: DeleteCommentDialogState = { deletedReason: "" }
-
-  handleDelete = (event: React.MouseEvent) => {
-    const { moderateCommentMutation, onClose, comment, flash } = this.props
+  const handleDelete = (event: React.MouseEvent) => {
     event.preventDefault();
     moderateCommentMutation({
       commentId: comment._id,
       deleted: true,
       deletedPublic: false,
-      deletedReason: this.state.deletedReason,
+      deletedReason: deletedReason,
     }).then(()=>{
       flash({messageString: "Successfully deleted comment", type: "success"})
       onClose()
     }).catch(/* error */);
   }
 
-  handleDeletePublic = (event: React.MouseEvent) => {
-    const { moderateCommentMutation, onClose, comment, flash } = this.props
+  const handleDeletePublic = (event: React.MouseEvent) => {
 
     event.preventDefault();
     moderateCommentMutation({
       commentId: comment._id,
       deleted: true,
       deletedPublic: true,
-      deletedReason: this.state.deletedReason,
+      deletedReason: deletedReason,
     }).then(()=>{
       flash({messageString: "Successfully deleted comment", type: "success"})
       onClose()
     }).catch(/* error */);
   }
 
-  render() {
-    const { onClose, classes } = this.props
+  const render = () => {
     return (
       <Dialog open={true} onClose={onClose}>
         <DialogTitle>
@@ -74,35 +68,31 @@ class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteC
             id="comment-menu-item-delete-reason"
             label="Reason for deleting (optional)"
             className={classes.modalTextField}
-            value={this.state.deletedReason}
-            onChange={((event)=> {this.setState({deletedReason:event.target.value})})}
+            value={deletedReason}
+            onChange={(event) => setDeletedReason(event.target.value)}
             fullWidth
             multiline
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.handleDelete} className={classes.deleteWithoutTrace}>
+          <Button onClick={handleDelete} className={classes.deleteWithoutTrace}>
             Delete Without Trace
           </Button>
           <Button onClick={onClose}>
             Cancel
           </Button>
-          <Button color="primary" onClick={this.handleDeletePublic}>
+          <Button color="primary" onClick={handleDeletePublic}>
             Delete
           </Button>
         </DialogActions>
       </Dialog>
     )
   }
+  return render();
 }
 
 const DeleteCommentDialogComponent = registerComponent(
-  'DeleteCommentDialog', DeleteCommentDialog, {styles, hocs: [
-    withModerateComment({
-      fragmentName: "CommentsList"
-    }),
-    withMessages, withDialog,
-  ]}
+  'DeleteCommentDialog', DeleteCommentDialog, {styles}
 );
 
 declare global {
