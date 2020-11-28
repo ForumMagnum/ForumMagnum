@@ -145,11 +145,11 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
   // disabled except during review voting phase
-  {
-    name:'reviewVoting',
-    path: '/reviewVoting',
-    componentName: "ReviewVotingPage"
-  },
+  // {
+  //   name:'reviewVoting',
+  //   path: '/reviewVoting',
+  //   componentName: "ReviewVotingPage"
+  // },
 
   // Sequences
   {
