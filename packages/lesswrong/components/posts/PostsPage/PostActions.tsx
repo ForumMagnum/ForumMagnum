@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useNamedMutation } from '../../../lib/crud/withMutation';
@@ -6,10 +6,9 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userCanCollaborate } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
 import { useCurrentUser } from '../../common/withUser'
-import { Posts } from '../../../lib/collections/posts/collection';
 import { postCanEdit } from '../../../lib/collections/posts/helpers';
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
-import { useItemsRead, ItemsReadContextType } from '../../common/withRecordPostView';
+import { useItemsRead } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';

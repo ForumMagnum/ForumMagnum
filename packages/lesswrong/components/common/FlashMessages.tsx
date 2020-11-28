@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMessages } from './withMessages';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 

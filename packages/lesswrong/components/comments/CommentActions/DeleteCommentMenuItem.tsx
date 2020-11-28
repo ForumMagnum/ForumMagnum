@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -27,7 +27,7 @@ const DeleteCommentMenuItem = ({comment, post}: {
 
   const handleUndoDelete = (event: React.MouseEvent) => {
     event.preventDefault();
-    moderateCommentMutation({
+    void moderateCommentMutation({
       commentId: comment._id,
       deleted:false,
       deletedReason:"",

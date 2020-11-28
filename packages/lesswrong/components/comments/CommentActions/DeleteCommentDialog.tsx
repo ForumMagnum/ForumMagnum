@@ -8,7 +8,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { useDialog } from '../../common/withDialog'
 
 const styles = (theme: ThemeType): JssStyles => ({
   deleteWithoutTrace: {
@@ -30,7 +29,7 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
 
   const handleDelete = (event: React.MouseEvent) => {
     event.preventDefault();
-    moderateCommentMutation({
+    void moderateCommentMutation({
       commentId: comment._id,
       deleted: true,
       deletedPublic: false,
@@ -44,7 +43,7 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   const handleDeletePublic = (event: React.MouseEvent) => {
 
     event.preventDefault();
-    moderateCommentMutation({
+    void moderateCommentMutation({
       commentId: comment._id,
       deleted: true,
       deletedPublic: true,
