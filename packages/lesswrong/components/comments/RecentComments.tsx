@@ -40,9 +40,9 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
             treeOptions={{
               condensed: false,
               post: comment.post || undefined,
+              showPostTitle: true,
             }}
             comment={comment}
-            showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine
           />

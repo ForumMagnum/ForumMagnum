@@ -10,6 +10,7 @@ export interface CommentTreeOptions {
   hideSingleLineMeta?: boolean,
   enableHoverPreview?: boolean,
   hideReply?: boolean,
+  showPostTitle?: boolean,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
 }

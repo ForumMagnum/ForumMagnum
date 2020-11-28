@@ -115,11 +115,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTitle, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
-  showPostTitle?: boolean,
+  isChild?: boolean,
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
@@ -135,7 +135,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTit
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -281,8 +281,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, showPostTit
           </div>
         )}
 
-        {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
-        {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
+        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
+        {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
         <div className={classes.body}>
           <div className={classes.meta}>

@@ -126,15 +126,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface CommentsNodeState {
-  collapsed: boolean,
-  truncatedState: boolean,
-  singleLine: boolean,
-  truncatedStateSet: boolean,
-  highlighted: boolean,
-}
-
-const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, showPostTitle, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, hideReply, loadChildrenSeparately, classes }: {
+const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, loadChildrenSeparately, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
@@ -144,7 +136,6 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   expandAllThreads?:boolean,
   expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
   isChild?: boolean,
-  showPostTitle?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,
   showExtraChildrenButton?: any,
@@ -153,7 +144,6 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   forceSingleLine?: boolean,
   forceNotSingleLine?: boolean,
   childComments?: Array<CommentTreeNode<CommentsList>>,
-  hideReply?: boolean,
   loadChildrenSeparately?: boolean,
   classes: ClassesType,
 }) => {
@@ -282,7 +272,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
     }
   )
 
-  const passedThroughItemProps = { comment, showPostTitle, collapsed, hideReply }
+  const passedThroughItemProps = { comment, collapsed }
 
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <div className={nodeClass}

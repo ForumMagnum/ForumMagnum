@@ -62,6 +62,7 @@ const CommentWithReplies = ({comment, post, refetch, showTitle=true, expandByDef
     markAsRead: markAsRead,
     highlightDate: lastVisitedAt,
     condensed: true,
+    showPostTitle: showTitle,
     refetch,
     post,
   };
@@ -70,7 +71,6 @@ const CommentWithReplies = ({comment, post, refetch, showTitle=true, expandByDef
     treeOptions={treeOptions}
     noHash
     startThreadTruncated={true}
-    showPostTitle={showTitle}
     nestingLevel={1}
     comment={comment}
     childComments={nestedComments}
