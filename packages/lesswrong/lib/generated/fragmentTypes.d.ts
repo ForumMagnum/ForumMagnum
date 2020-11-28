@@ -97,8 +97,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly shareWithUsers: Array<string>,
-  readonly nominationCount2018: number,
-  readonly reviewCount2018: number,
+  readonly nominationCount2019: number,
+  readonly reviewCount2019: number,
   readonly group: PostsBase_group|null,
 }
 
@@ -805,7 +805,9 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly shortform: boolean,
   readonly canonicalSource: string,
   readonly nominationCount2018: number,
+  readonly nominationCount2019: number,
   readonly reviewCount2018: number,
+  readonly reviewCount2019: number,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly noIndex: boolean,

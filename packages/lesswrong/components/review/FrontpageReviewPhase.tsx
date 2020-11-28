@@ -56,86 +56,115 @@ export const reviewAlgorithm = {
   method: "sample",
   count: 3,
   scoreOffset: 0,
-  scoreExponent: 0,
+  scoreExponent: 2,
   personalBlogpostModifier: 0,
   frontpageModifier: 0,
   curatedModifier: 0,
-  review2018: true, 
+  includePersonal: true,
+  includeMeta: true,
+  reviewNominations: 2019, 
   onlyUnread: false,
   excludeDefaultRecommendations: true
 }
 
-const FrontpageReviewPhase = ({classes, settings}) => {
-  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components
+const FrontpageReviewPhase = ({classes}) => {
+  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip, SectionFooter } = Components
   const currentUser = useCurrentUser();
 
-  const reviewTooltip = <div>
-    <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
+  const overviewToolip = <div>
+    <div>The LessWrong community is reflecting on the best posts from 2019, in three phases</div>
     <ul>
-      <li><em>Nomination</em> (Nov 21 – Dec 1st)</li>
-      <li><em>Review</em> (Dec 2nd – 31st)</li>
-      <li><em>Voting</em> (Jan 1st – 7th</li>
-      <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2018" book.</li>
+      <li><em>Nomination</em> (Dec 1st – Dec 14th)</li>
+      <li><em>Review</em> (Dec 15th – Jan 11th)</li>
+      <li><em>Voting</em> (Jan 12th – Jan 26th</li>
+      <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2019" book.</li>
     </ul>
-    <div>(Currently this section shows 2018 posts with at least 2 nominations)</div>
+    <div>(Currently this section shows a random sample of 2019 posts, weighted by karma)</div>
   </div>
 
-  if (settings.hideReview) return null
+  const nominationsTooltip = <div>
+    <div>Nominate posts for the 2019 Review</div>
+    <ul>
+      <li>Any post from 2019 can be nominated</li>
+      <li>Any user registerd before 2019 can nominate posts for review</li>
+      <li>A post requires two nominations to progress to the review phase</li>
+    </ul>
+    <div>If you've been actively reading LessWrong in 2019, but didn't register an account, message us on Intercom</div>
+  </div>
+
+  const reviewTooltip = <div>
+    <div>Review posts for the 2019 Review (Opens Dec 15th)</div>
+    <ul>
+      <li>Write reviews of posts nominated for the 2019 Review</li>
+      <li>Only posts with at least one review are eligible for the final vote</li>
+    </ul>
+  </div>
+
+  const voteTooltip = <div>
+    <div>Vote on posts for the 2019 Review (Opens Jan 12th)</div>
+    <ul>
+      <li>Vote on posts that were reviewed and nominated for the 2019 Review</li>
+      <li>Any user registered before 2019 can vote in the review</li>
+      <li>The end result will be compiled into a canonical sequence and best-of 2019 book</li>
+    </ul>
+    <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in 2018</div>
+  </div>
 
   return (
-    <div>
+    <SingleColumnSection>
+      <SectionTitle 
+        title={<LWTooltip title={overviewToolip} placement="bottom-start">
+          <Link to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}>The 2019 Review</Link>
+        </LWTooltip>}
+      >
+        {currentUser &&
+          <LWTooltip title="All Posts written in 2019 are eligible to participate in the review. Click here to see all posts written in 2019.">
+            <Link to={"/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100"}><SettingsButton showIcon={false} label="See All 2019 Posts"/></Link>
+          </LWTooltip>
+        }
+      </SectionTitle>
       <div className={classes.reviewTimeline}>
         <div className={classes.nominationBlock}>
-          <LWTooltip placement="top-start" title={reviewTooltip} className={classNames(classes.progress, classes.activeProgress)}>
-            <div className={classes.blockText}>Nominations</div>
-            <div className={classes.blockText}>Dec 14</div>
-            <div className={classes.coloredProgress} style={{width: '35%'}}/>
-          </LWTooltip>
+          <Link to={"/nominations"}>
+            <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, classes.activeProgress)}>
+              <div className={classes.blockText}>Nominations</div>
+              <div className={classes.blockText}>Dec 14</div>
+              <div className={classes.coloredProgress} style={{width: '35%'}}/>
+            </LWTooltip>
+          </Link>
         </div>
-        <div className={classes.reviewBlock}>      
-          <div className={classes.progress}>
-            <div className={classes.blockText}>Reviews</div>
-            <div className={classes.blockText}>Jan 11</div>
-            <div className={classes.coloredProgress}/>
-          </div>
+        <div className={classes.reviewBlock}>  
+          <Link to={"/reviews"}>    
+            <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress)}>
+              <div className={classes.blockText}>Reviews</div>
+              <div className={classes.blockText}>Jan 11</div>
+              <div className={classes.coloredProgress}/>
+            </LWTooltip>
+          </Link>    
         </div>
         <div className={classes.votingBlock}>
-          <div className={classes.progress}>
-            <div className={classes.blockText}>Votes</div>
-            <div className={classes.blockText}>Jan 25</div>
-            <div className={classes.coloredProgress}/>
-          </div>
+          <Link to={"/reviewVoting"}>
+            <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress)}>
+              <div className={classes.blockText}>Votes</div>
+              <div className={classes.blockText}>Jan 26</div>
+              <div className={classes.coloredProgress}/>
+            </LWTooltip>
+          </Link>
         </div>
       </div>
-      {/* <SectionSubtitle className={classes.subtitle}>
-        <div>
-          <LWTooltip placement="top-start" title={reviewTooltip}>
-            <Link to={"/reviews"}>
-              The LessWrong 2018 Review
-            </Link>
-          </LWTooltip>
-        </div>
-        <div className={classes.timeRemaining}>
-          <LWTooltip placement="top-start" title={reviewTooltip}>
-            <em>You have until Dec 14th to nominate posts (<span className={classes.learnMore}>
-              <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
-            </span>)</em>
-          </LWTooltip>
-        </div>
-      </SectionSubtitle> */}
-      
+
       <AnalyticsContext listContext={"LessWrong 2019 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} />
       </AnalyticsContext>
       {/* <SectionFooter>
         <Link to={"/reviews"}>
-          Reviews Dashboard
+          All 2019 Posts
         </Link>
-        {currentUser && <Link to={`/users/${currentUser.slug}/reviews`}>
-          My Reviews
-        </Link>}
+        <Link>
+          Grouped by month 
+        </Link>
       </SectionFooter> */}
-    </div>
+    </SingleColumnSection>
   )
 }
 

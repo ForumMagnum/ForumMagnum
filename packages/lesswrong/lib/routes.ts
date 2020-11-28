@@ -145,11 +145,11 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
   // disabled except during review voting phase
-  // {
-  //   name:'reviewVoting',
-  //   path: '/reviewVoting',
-  //   componentName: "ReviewVotingPage"
-  // },
+  {
+    name:'reviewVoting',
+    path: '/reviewVoting',
+    componentName: "ReviewVotingPage"
+  },
 
   // Sequences
   {
@@ -744,10 +744,16 @@ addRoute(
     componentName: 'EmailTokenPage',
   },
   {
-    name: 'nominations',
-    path: '/nominations',
+    name: 'nominations2018',
+    path: '/nominations2018',
     componentName: 'Nominations2018',
     title: "2018 Nominations",
+  },
+  {
+    name: 'nominations',
+    path: '/nominations',
+    componentName: 'Nominations2019',
+    title: "2019 Nominations",
   },
   {
     name: 'userReviews',
@@ -756,9 +762,15 @@ addRoute(
     title: "User Reviews",
   },
   {
-    name: 'reviews',
-    path: '/reviews',
+    name: 'reviews2018',
+    path: '/reviews2018',
     componentName: 'Reviews2018',
     title: "2018 Reviews",
+  },
+  {
+    name: 'reviews',
+    path: '/reviews',
+    componentName: 'Reviews2019',
+    title: "2019 Reviews",
   },
 );

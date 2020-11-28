@@ -90,7 +90,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown, FrontpageReviewPhase } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -127,7 +127,7 @@ const RecommendationsAndCurated = ({
         <GatherTown/>
       </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
-        <Link to={"/recommendations"}>The 2019 Review</Link>
+        <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
         {currentUser &&
           <LWTooltip title="Customize your recommendations">
@@ -157,7 +157,7 @@ const RecommendationsAndCurated = ({
       </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
-      {/* <div className={classes.subsection}>
+      <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage &&
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
@@ -175,12 +175,7 @@ const RecommendationsAndCurated = ({
             />
           </AnalyticsContext>
         </div>
-      </div> */}
-      
-      {/* disabled except during review */}
-      <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
-        <FrontpageReviewPhase settings={frontpageRecommendationSettings} />
-      </AnalyticsContext>
+      </div>
 
       {renderContinueReading && <div className={currentUser ? classes.subsection : null}>
           <LWTooltip placement="top-start" title={continueReadingTooltip}>
@@ -206,7 +201,10 @@ const RecommendationsAndCurated = ({
         </AnalyticsContext>
       </div>}
 
-      
+      {/* disabled except during review */}
+      {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
+        <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
+      </AnalyticsContext> */}
 
       {/* disabled except during coronavirus times */}
       {/* <AnalyticsContext pageSectionContext="coronavirusWidget">

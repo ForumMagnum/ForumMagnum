@@ -84,7 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   maxHeight: {
     maxHeight: "calc(100vh - 450px)",
-    overflow: "scroll"
+    overflowY: "scroll"
   },
   clickHereColor: {
     color: theme.palette.primary.main

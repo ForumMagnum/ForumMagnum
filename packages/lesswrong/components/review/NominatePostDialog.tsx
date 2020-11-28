@@ -54,7 +54,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
       fullWidth maxWidth="sm"
     >
       <DialogTitle>
-        <div className={classes.nominating}>Nominating for the 2018 Review:</div>
+        <div className={classes.nominating}>Nominating for the 2019 Review:</div>
         <div className={classes.postTitle}>{post.title}</div>
       </DialogTitle>
       <DialogContent>
@@ -69,7 +69,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
             editorHintText: hintText
           }}
           prefilledProps={{
-            nominatedForReview: "2018"
+            nominatedForReview: "2019"
           }}
         />
         <Typography variant="body2" className={classes.text}>
@@ -77,9 +77,9 @@ const NominatePostDialog = ({classes, post, onClose}: {
           <Link 
             className={classes.link}
             target="_blank"
-            to={"/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review"}
+            to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}
           >
-            Click here for more information on the 2018 Review
+            Click here for more information on the 2019 Review
           </Link>
         </Typography>
       </DialogContent>

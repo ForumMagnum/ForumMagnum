@@ -528,7 +528,9 @@ interface DbPost extends DbObject {
   shortform: boolean
   canonicalSource: string
   nominationCount2018: number
+  nominationCount2019: number
   reviewCount2018: number
+  reviewCount2019: number
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean
