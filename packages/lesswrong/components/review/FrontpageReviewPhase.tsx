@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const reviewAlgorithm = {
+export const reviewAlgorithm: RecommendationsAlgorithm = {
   method: "sample",
   count: 3,
   scoreOffset: 0,
