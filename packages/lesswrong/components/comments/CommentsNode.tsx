@@ -118,26 +118,26 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
     [collapsed]
   );
 
-  const isTruncated = (): boolean => {
+  const isTruncated = ((): boolean => {
     if (expandAllThreads) return false;
     if (truncatedState) return true;
     if (truncatedStateSet) return false;
     return truncated || !!startThreadTruncated
-  }
+  })();
 
   const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
 
-  const isSingleLine = (): boolean => {
+  const isSingleLine = ((): boolean => {
     if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    return isTruncated() && !isNewComment;
-  }
+    return isTruncated && !isNewComment;
+  })();
 
   const handleExpand = async (event: React.MouseEvent) => {
     event.stopPropagation()
-    if (isTruncated() || isSingleLine()) {
+    if (isTruncated || isSingleLine) {
       markAsRead && await markAsRead()
       setTruncated(false);
       setSingleLine(false);
@@ -167,7 +167,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
       nestingLevel={updatedNestingLevel}
       hasChildren={childComments && childComments.length>0}
       highlighted={highlighted}
-      isSingleLine={isSingleLine()}
+      isSingleLine={isSingleLine}
       isChild={isChild}
       isNewComment={isNewComment}
       isReplyToAnswer={!!parentAnswerId}
@@ -175,7 +175,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
       shortform={shortform}
     >
       {comment._id && <div ref={scrollTargetRef}>
-        {isSingleLine()
+        {isSingleLine
           ? <AnalyticsContext singleLineComment commentId={comment._id}>
               <AnalyticsTracker eventType="singeLineComment">
                 <SingleLineComment
@@ -189,7 +189,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
             </AnalyticsContext>
           : <CommentsItem
               treeOptions={treeOptions}
-              truncated={isTruncated() && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
+              truncated={isTruncated && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
               nestingLevel={updatedNestingLevel}
               parentCommentId={parentCommentId}
               parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
@@ -212,13 +212,13 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
             parentCommentId={comment._id}
             parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
             nestingLevel={updatedNestingLevel+1}
-            truncated={isTruncated()}
+            truncated={isTruncated}
             childComments={child.children}
             key={child.item._id}
           />)}
       </div>}
 
-      {!isSingleLine() && loadChildrenSeparately &&
+      {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">
           <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
           <RepliesToCommentList
