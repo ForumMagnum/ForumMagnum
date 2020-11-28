@@ -1,6 +1,6 @@
 import { addGraphQLSchema, Vulcan } from './vulcan-lib';
 import { RateLimiter } from './rateLimiter';
-import React, { useContext, useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer } from './executionEnvironment';
 import * as _ from 'underscore';

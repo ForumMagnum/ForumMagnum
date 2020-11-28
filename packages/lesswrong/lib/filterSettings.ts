@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { defaultVisibilityTags } from './publicSettings';
 
 export interface FilterSettings {

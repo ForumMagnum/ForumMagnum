@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 
 export const useSetAlignmentPost = ({fragmentName}: {fragmentName: FragmentName}) => {
