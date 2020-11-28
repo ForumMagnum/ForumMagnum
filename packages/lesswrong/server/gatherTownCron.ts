@@ -15,9 +15,7 @@ const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownW
 if (isProduction) {
   addCronJob({
     name: 'gatherTownGetUsers',
-    schedule(parser) {
-      return parser.text(`every 3 minutes`);
-    },
+    interval: "every 3 minutes",
     job() {
       void pollGatherTownUsers();
     }
