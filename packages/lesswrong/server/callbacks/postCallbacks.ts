@@ -29,7 +29,7 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyn
 });
 
 // set postedAt when a post is moved out of drafts
-function postsSetPostedAt (data, oldPost) {
+function postsSetPostedAt (data: Partial<DbPost>) {
   data.postedAt = new Date();
   return data;
 }
