@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
@@ -35,14 +35,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-interface ExternalProps {
+const TagSearchHit = ({hit, onClick, classes}: {
   hit: any,
   onClick: (ev: any) => void,
-}
-interface TagSearchHitProps extends ExternalProps, WithHoverProps, WithStylesProps {
-}
-
-const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProps) => {
+  classes: ClassesType,
+}) => {
   const { PopperCard, ContentItemBody, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
@@ -50,9 +47,10 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
     fragmentName: "TagFragment",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });
+  const {eventHandlers, hover, anchorEl} = useHover();
 
   return (
-    <React.Fragment>
+    <span {...eventHandlers}>
       <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
         <div className={classes.card}>
           {!tag && <Loading/>}
@@ -69,14 +67,11 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProp
       <span className={classes.root} onClick={onClick} >
         {hit.name} <span className={classes.postCount}>({hit.postCount})</span>
       </span>
-    </React.Fragment>
+    </span>
   );
 }
 
-const TagSearchHitComponent = registerComponent<ExternalProps>("TagSearchHit", TagSearchHit, {
-  styles,
-  hocs: [withHover()]
-});
+const TagSearchHitComponent = registerComponent("TagSearchHit", TagSearchHit, {styles});
 
 declare global {
   interface ComponentTypes {
