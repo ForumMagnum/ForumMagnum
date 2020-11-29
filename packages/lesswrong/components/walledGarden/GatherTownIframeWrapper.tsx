@@ -9,10 +9,9 @@ export const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/
 
 const styles = (theme: ThemeType): JssStyles => ({
   iframePositioning: {
-    width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
+    width: "100%",
     height: "100%",
-    border: "none",
-    marginLeft: -gatherTownLeftMenuWidth,
+    border: "none"
   },
 })
 

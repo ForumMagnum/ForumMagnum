@@ -12,6 +12,9 @@ import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
+
+const toggleEventsOffset = "330px"
+
 const styles = (theme: ThemeType): JssStyles => ({
   messageStyling: {
     ...postBodyStyles(theme),
@@ -34,6 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   toggleEvents: {
     position: "absolute",
     bottom: 0,
+    left: toggleEventsOffset,
     color: "rgba(255,255,255,.8)",
     ...theme.typography.commentStyle,
     display: "flex",
