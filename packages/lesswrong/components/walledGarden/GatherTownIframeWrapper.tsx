@@ -12,7 +12,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
     height: "100%",
     border: "none",
-    marginLeft: -gatherTownLeftMenuWidth,
   },
 })
 

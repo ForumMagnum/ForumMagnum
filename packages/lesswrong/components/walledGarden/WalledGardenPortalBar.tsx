@@ -90,7 +90,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
           <div><GardenCodeWidget type="event"/></div>
         </div>
       </div>}
-      {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
+      {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
         <GardenCodesList terms={{view:"semipublicGardenCodes", types: ['public', 'semi-public']}} />
       </div>}
       <div className={classes.codesList}>

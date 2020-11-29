@@ -8,6 +8,7 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
+import { isMobile } from '../../lib/utils/isMobile'
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -123,7 +124,7 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+      {!isMobile() && <AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
       </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
