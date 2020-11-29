@@ -3,8 +3,6 @@ import { registerComponent} from '../../lib/vulcan-lib';
   import {gatherTownRoomId, gatherTownRoomName} from "../../lib/publicSettings";
 
 
-const gatherTownLeftMenuWidth = 65 // We want to hide this menu, so we apply a negative margin on the iframe
-
 export const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
 
 const styles = (theme: ThemeType): JssStyles => ({
