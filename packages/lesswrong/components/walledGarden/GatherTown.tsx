@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover $hide': {
       opacity: 1
     },
-    marginBottom: 8,
+    marginBottom: 8
   },
   secondaryInfo: {
     ...theme.typography.commentStyle,

@@ -34,7 +34,7 @@ export const eventTime = theme => ({
   [theme.breakpoints.down('xs')]: {
     width: "100%",
     textAlign: "left"
-  }
+  },
   textAlign: "right",
   display: "inline-block"
 })
