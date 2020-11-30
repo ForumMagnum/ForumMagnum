@@ -55,9 +55,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TabNavigationFooterItem = ({tab, classes}) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
+  // React router links don't handle external URLs, so use a
+  // normal HTML a tag if the URL is external
+  const externalLink = /https?:\/\//.test(tab.link);
+  const Element = externalLink ? 
+    ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
+    : Link;
 
   return <Tooltip placement='top' title={tab.tooltip || ''}>
-    <Link
+    <Element
       to={tab.link}
       className={classNames(classes.navButton, {[classes.selected]: pathname === tab.link})}
     >
@@ -75,7 +81,7 @@ const TabNavigationFooterItem = ({tab, classes}) => {
           { tab.mobileTitle || tab.title }
         </span>
       }
-    </Link>
+    </Element>
   </Tooltip>
 }
 
