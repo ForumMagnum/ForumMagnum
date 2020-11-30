@@ -52,9 +52,6 @@ addGraphQLResolvers({
         beforeUnfiltered = await getPrecedingRev(afterUnfiltered);
       }
       
-      if (!beforeUnfiltered || !afterUnfiltered)
-        return "";
-      
       const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
       const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);
       // If we don't provide a beforeRev at all, then just assume that all in the current revision is new
