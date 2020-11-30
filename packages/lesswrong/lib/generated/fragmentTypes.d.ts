@@ -222,6 +222,16 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly order: number,
 }
 
+interface PostsExpandedHighlight { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsExpandedHighlight_contents|null,
+}
+
+interface PostsExpandedHighlight_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
@@ -594,6 +604,7 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
   readonly contents: RevisionDisplay|null,
 }
 
@@ -606,6 +617,7 @@ interface GardenCodeFragmentEdit { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
   readonly contents: RevisionEdit|null,
 }
 
@@ -614,10 +626,11 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly code: string,
   readonly title: string,
   readonly userId: string,
-  readonly deleted: boolean,
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
+  readonly deleted: boolean,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -1573,6 +1586,11 @@ interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
+interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragment on Tags
+  readonly tagFlagsIds: Array<string>,
+  readonly tagFlags: Array<TagFlagFragment>,
+}
+
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
@@ -1722,6 +1740,7 @@ interface FragmentTypes {
   PostsList: PostsList
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
+  PostsExpandedHighlight: PostsExpandedHighlight
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
@@ -1830,6 +1849,7 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
+  TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
