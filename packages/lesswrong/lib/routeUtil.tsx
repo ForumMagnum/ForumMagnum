@@ -46,7 +46,7 @@ export function parseQuery(location): Record<string,string> {
 // Does not trigger rerenders on navigation events. If you want your component
 // to rerender on navigations, use useSubscribedLocation instead.
 export const useLocation = (): RouterLocation => {
-  return useContext(LocationContext);
+  return useContext(LocationContext)!;
 }
 
 // React Hook which returns the server-side server request status, used to set 404s or redirects
@@ -59,7 +59,7 @@ export const useServerRequestStatus = (): any => {
 // React Hook which returns the page location, formatted as in useLocation, and
 // triggers a rerender whenever navigation occurs.
 export const useSubscribedLocation = (): RouterLocation => {
-  return useContext(SubscribeLocationContext);
+  return useContext(SubscribeLocationContext)!;
 }
 
 // React Hook which returns an acessor-object for page navigation. Contains one
