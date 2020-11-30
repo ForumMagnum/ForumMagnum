@@ -35,9 +35,9 @@ const NominatePostMenuItem = ({ post }: {
 
   if (!currentUser) return null;
   if (post.userId === currentUser!._id) return null
-  if ((currentUser.karma||0) < 1000) return null
-  if (new Date(post.postedAt) > new Date("2019-01-01")) return null
-  if (new Date(post.postedAt) < new Date("2018-01-01")) return null
+  if (currentUser.createdAt > new Date("2019-01-01")) return null
+  if (new Date(post.postedAt) > new Date("2020-01-01")) return null
+  if (new Date(post.postedAt) < new Date("2019-01-01")) return null
 
   const nominated = !loading && nominations?.length;
 
@@ -47,7 +47,7 @@ const NominatePostMenuItem = ({ post }: {
         <div><em>(Click to review or edit your endorsement)</em></div>
       </div>
     :
-    "Write an endorsement for the 2018 Review."
+    "Write an endorsement for the 2019 Review."
 
   const handleClick = () => {
     if (nominated) {

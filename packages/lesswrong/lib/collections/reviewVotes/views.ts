@@ -4,10 +4,13 @@ import { ensureIndex } from '../../collectionUtils';
 //Messages for a specific conversation
 ReviewVotes.addView("reviewVotesFromUser", function ({userId}) {
   return {
-    selector: {userId}
+    selector: {
+      userId,
+      dummy: true // Filter and submit dummy votes until 2019 review goes properly live
+    }
   };
 });
-ensureIndex(ReviewVotes, {deleted: 1, userId: 1});
+ensureIndex(ReviewVotes, {deleted: 1, userId: 1, dummy: 1});
 
 ReviewVotes.addView("reviewVotesForPost", function ({postId}) {
   return {
