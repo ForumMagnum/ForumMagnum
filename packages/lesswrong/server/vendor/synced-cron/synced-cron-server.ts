@@ -1,5 +1,9 @@
+import later from 'later';
+import * as _ from 'underscore';
+import { onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
+
 // A package for running jobs synchronized across multiple processes
-SyncedCron = {
+export const SyncedCron: any = {
   _entries: {},
   running: false,
   options: {
@@ -24,8 +28,6 @@ SyncedCron = {
   }
 }
 
-Later = Npm.require('later');
-
 /*
   Logger factory function. Takes a prefix string and options object
   and uses an injected `logger` if provided, else falls back to
@@ -37,17 +39,13 @@ Later = Npm.require('later');
     level: String (info, warn, error, debug)
     tag: 'SyncedCron'
 */
-function createLogger(prefix) {
-  check(prefix, String);
-
+function createLogger(prefix: string) {
   // Return noop if logging is disabled.
   if(SyncedCron.options.log === false) {
     return function() {};
   }
 
-  return function(level, message) {
-    check(level, Match.OneOf('info', 'error', 'warn', 'debug'));
-    check(message, String);
+  return function(level: "info"|"error"|"warn"|"debug", message: string) {
 
     var logger = SyncedCron.options && SyncedCron.options.logger;
 
@@ -60,14 +58,15 @@ function createLogger(prefix) {
       });
 
     } else {
-      Log[level]({ message: prefix + ': ' + message });
+      //Log[level]({ message: prefix + ': ' + message });
+      console.log(prefix + ': ' + message);
     }
   }
 }
 
 var log;
 
-Meteor.startup(function() {
+onStartup(function() {
   var options = SyncedCron.options;
 
   log = createLogger('SyncedCron');
@@ -81,9 +80,10 @@ Meteor.startup(function() {
 
   // Use UTC or localtime for evaluating schedules
   if (options.utc)
-    Later.date.UTC();
+    // eslint-disable-next-line babel/new-cap
+    later.date.UTC();
   else
-    Later.date.localTime();
+    later.date.localTime();
 
   // collection holding the job history records
   SyncedCron._collection = new Mongo.Collection(options.collectionName);
@@ -99,12 +99,12 @@ Meteor.startup(function() {
 });
 
 var scheduleEntry = function(entry) {
-  var schedule = entry.schedule(Later.parse);
+  var schedule = entry.schedule(later.parse);
   entry._timer =
     SyncedCron._laterSetInterval(SyncedCron._entryWrapper(entry), schedule);
 
   log.info('Scheduled "' + entry.name + '" next run @'
-    + Later.schedule(schedule).next(1));
+    + later.schedule(schedule).next(1));
 }
 
 // add a scheduled job
@@ -113,11 +113,12 @@ var scheduleEntry = function(entry) {
 //   schedule: function(laterParser) {},//*required* when to run the job
 //   job: function() {}, //*required* the code to run
 // });
-SyncedCron.add = function(entry) {
-  check(entry.name, String);
-  check(entry.schedule, Function);
-  check(entry.job, Function);
-  check(entry.persist, Match.Optional(Boolean));
+SyncedCron.add = function(entry: {
+  name: string,
+  schedule: (parser: any)=>any,
+  job: ()=>void,
+  persist?: boolean,
+}) {
 
   if (entry.persist === undefined) {
     entry.persist = true;
@@ -138,7 +139,7 @@ SyncedCron.add = function(entry) {
 SyncedCron.start = function() {
   var self = this;
 
-  Meteor.startup(function() {
+  onStartup(function() {
     // Schedule each job with later.js
     _.each(self._entries, function(entry) {
       scheduleEntry(entry);
@@ -152,7 +153,7 @@ SyncedCron.nextScheduledAtDate = function(jobName) {
   var entry = this._entries[jobName];
 
   if (entry)
-    return Later.schedule(entry.schedule(Later.parse)).next(1);
+    return later.schedule(entry.schedule(later.parse)).next(1);
 }
 
 // Remove and stop the entry referenced by jobName
@@ -172,7 +173,7 @@ SyncedCron.remove = function(jobName) {
 // restart existing jobs
 SyncedCron.pause = function() {
   if (this.running) {
-    _.each(this._entries, function(entry) {
+    _.each(this._entries, function(entry: any) {
       entry._timer.clear();
     });
     this.running = false;
@@ -303,7 +304,7 @@ SyncedCron._laterSetInterval = function(fn, sched) {
 // From: https://github.com/bunkat/later/blob/master/src/core/settimeout.js
 SyncedCron._laterSetTimeout = function(fn, sched) {
 
-  var s = Later.schedule(sched), t;
+  var s = later.schedule(sched), t;
   scheduleTimeout();
 
   /**
@@ -329,10 +330,10 @@ SyncedCron._laterSetTimeout = function(fn, sched) {
     }
 
     if(diff < 2147483647) {
-      t = Meteor.setTimeout(function() { fn(intendedAt); }, diff);
+      t = runAfterDelay(function() { fn(intendedAt); }, diff);
     }
     else {
-      t = Meteor.setTimeout(scheduleTimeout, 2147483647);
+      t = runAfterDelay(scheduleTimeout, 2147483647);
     }
   }
 
@@ -342,7 +343,7 @@ SyncedCron._laterSetTimeout = function(fn, sched) {
     * Clears the timeout.
     */
     clear: function() {
-      Meteor.clearTimeout(t);
+      clearRunAfterDelay(t);
     }
 
   };
