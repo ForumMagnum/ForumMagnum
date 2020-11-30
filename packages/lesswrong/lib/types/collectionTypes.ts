@@ -5,7 +5,7 @@
  * was getting ignored by the type checker as an external library file, as
  * --skipLibCheck just ignores all .d.ts files.
  */
-import DataLoader from 'dataloader';
+import type DataLoader from 'dataloader';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -111,7 +111,9 @@ interface ResolverContext extends CollectionsByName {
   userId: string|null,
   currentUser: DbUser|null,
   locale: string,
-  loaders: Record<CollectionNameString, DataLoader<string,any>>
+  loaders: {
+    [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
+  }
   extraLoaders: Record<string,any>
 }
 

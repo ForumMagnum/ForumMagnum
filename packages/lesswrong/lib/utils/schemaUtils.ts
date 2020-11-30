@@ -4,6 +4,7 @@ import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
+import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 
 export interface CollectionFieldSpecification<T extends DbObject> {
@@ -89,7 +90,8 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DataType>
 
-    const resolvedDoc = await context.loaders[collectionName].load(doc[fieldName])
+    const loader = context.loaders[collectionName] as DataLoader<string,DataType>;
+    const resolvedDoc: DataType|null = await loader.load(doc[fieldName])
     if (!resolvedDoc) {
       if (!nullable) {
         // eslint-disable-next-line no-console
@@ -119,7 +121,8 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DbType>
 
-    const resolvedDocs: Array<DbType> = await context.loaders[collectionName].loadMany(keys)
+    const loader = context.loaders[collectionName] as DataLoader<string,DbType>;
+    const resolvedDocs: Array<DbType> = await loader.loadMany(keys)
 
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
