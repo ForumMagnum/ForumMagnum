@@ -9,10 +9,10 @@ export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: Ga
   const { results } = useMulti({
     terms: {
       userId: currentUser?._id,
-      enableTotal: false,
-      fetchPolicy: 'cache-and-network',
       ...terms
     },
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
     collectionName: "GardenCodes",
     fragmentName: 'GardenCodeFragment'
   });
