@@ -2,7 +2,7 @@ import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useContext } from 'react';
 import { forumTypeSetting } from './instanceSettings';
-import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext } from './vulcan-core/appContext';
+import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
 import type { RouterLocation } from './vulcan-lib/routes';
 
 // Given the props of a component which has withRouter, return the parsed query
@@ -52,7 +52,7 @@ export const useLocation = (): RouterLocation => {
 // React Hook which returns the server-side server request status, used to set 404s or redirects
 // The relevant handling happens in the renderPage function
 // This hook only works on the server and will throw an error when called on the client
-export const useServerRequestStatus = (): any => {
+export const useServerRequestStatus = (): ServerRequestStatusContextType|null => {
   return useContext(ServerRequestStatusContext)
 }
 

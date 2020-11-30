@@ -7,10 +7,15 @@ import Sentry from '@sentry/core';
 import { isClient } from '../executionEnvironment';
 import type { RouterLocation } from '../vulcan-lib/routes';
 
+export interface ServerRequestStatusContextType {
+  status?: number
+  redirectUrl?: string
+};
+
 export const LocationContext = React.createContext<RouterLocation|null>(null);
 export const SubscribeLocationContext = React.createContext<RouterLocation|null>(null);
 export const NavigationContext = React.createContext<any>(null);
-export const ServerRequestStatusContext = React.createContext<any>(null);
+export const ServerRequestStatusContext = React.createContext<ServerRequestStatusContextType|null>(null);
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
