@@ -1,6 +1,7 @@
 import later from 'later';
 import * as _ from 'underscore';
 import { onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
+import { Mongo } from 'meteor/mongo';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {
@@ -59,6 +60,8 @@ function createLogger(prefix: string) {
 
     } else {
       //Log[level]({ message: prefix + ': ' + message });
+      
+      // eslint-disable-next-line no-console
       console.log(prefix + ': ' + message);
     }
   }
