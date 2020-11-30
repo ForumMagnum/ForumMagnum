@@ -8,9 +8,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 12,
     background: "white",
     border: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderRadius: 3
+    borderRadius: 3,
+    marginBottom: 32,
   }
-}) 
+})
 
 const forumHintText = {
   LessWrong: <div>
@@ -27,9 +28,9 @@ const forumHintText = {
   </div>
 }
 
-const ShortformSubmitForm = ({ classes, successCallback}: {
+const ShortformSubmitForm = ({ successCallback, classes }: {
+  successCallback?: any,
   classes: ClassesType,
-  successCallback: any,
 }) => {
   const { CommentsNewForm } = Components;
 

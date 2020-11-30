@@ -1,4 +1,4 @@
-import { Accounts } from 'meteor/accounts-base';
+import { Accounts } from '../../meteorAccounts';
 import Users from '../users/collection';
 import { LegacyData } from '../legacyData/collection';
 import { Meteor } from 'meteor/meteor';

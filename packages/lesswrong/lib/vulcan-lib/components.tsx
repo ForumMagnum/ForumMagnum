@@ -2,6 +2,7 @@ import compose from 'lodash/flowRight';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
+import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 type ComparisonFn = (prev: any, next: any)=>boolean
@@ -77,7 +78,13 @@ export const EmailRenderContext = React.createContext<EmailRenderContextType|nul
 const addClassnames = (componentName: string, styles: any) => {
   const classesProxy = new Proxy({}, {
     get: function(obj: any, prop: any) {
-      return `${componentName}-${prop}`;
+      // Check that the prop is really a string. This isn't an error that comes
+      // up normally, but apparently React devtools will try to query for non-
+      // string properties sometimes when using the component debugger.
+      if (typeof prop === "string")
+        return `${componentName}-${prop}`;
+      else
+        return `${componentName}-invalid`;
     }
   });
   return (WrappedComponent) => (props) => {
@@ -105,7 +112,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (Meteor.isClient && (window as any).missingMainStylesheet) {
+    if (isClient && (window as any).missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));

@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
@@ -425,9 +425,11 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
+export const metaculusBackground = "#2c3947"
+
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {
-    backgroundColor: "#2c3947"
+    backgroundColor: metaculusBackground
   },
   iframeStyling: {
     width: 400,

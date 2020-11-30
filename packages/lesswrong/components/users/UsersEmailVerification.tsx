@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import Users from '../../lib/collections/users/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -37,7 +37,7 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
   sendConfirmationEmail() {
     const { updateUser, currentUser } = this.props;
     if (!currentUser) return;
-    updateUser({
+    void updateUser({
       selector: {_id: currentUser._id},
       data: { whenConfirmationEmailSent: new Date() }
     });
@@ -49,7 +49,7 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
   render() {
     let { resend=false, currentUser, classes } = this.props;
     
-    if(Users.emailAddressIsVerified(currentUser)) {
+    if(userEmailAddressIsVerified(currentUser)) {
       return (
         <div className={classes.root}>
           Your email address is verified.
@@ -85,7 +85,7 @@ const UsersEmailVerificationComponent = registerComponent<ExternalProps>('UsersE
     withErrorBoundary,
     withUser,
     withUpdate({
-      collection: Users,
+      collectionName: "Users",
       fragmentName: 'UsersCurrent',
     }),
   ]

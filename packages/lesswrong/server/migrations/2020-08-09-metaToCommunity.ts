@@ -11,7 +11,7 @@ import Users from '../../lib/collections/users/collection'
 import Tags from '../../lib/collections/tags/collection'
 import Posts from '../../lib/collections/posts/collection';
 import TagRels from '../../lib/collections/tagRels/collection';
-import { newMutation } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib/mutators';
 
 // Your frontpage settings are shaped like:
 // ```
@@ -115,7 +115,7 @@ registerMigration({
           // Oh man, I refactored this migration to use this method, and it
           // changed my life. 10/10 would use again in future migrations.
           // bulkwrite is faster, but callbacks are often important
-          await newMutation({
+          await createMutator({
             collection: TagRels,
             document: {
               tagId: communityTagId,

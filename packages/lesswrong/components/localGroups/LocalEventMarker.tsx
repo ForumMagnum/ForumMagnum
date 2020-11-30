@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 import { ArrowSVG } from './Icons'
@@ -44,7 +44,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
       <StyledMapPopup
         lat={lat}
         lng={lng}
-        link={Posts.getPageUrl(event)}
+        link={postGetPageUrl(event)}
         title={` [Event] ${event.title} `}
         metaInfo={event.contactInfo}
         cornerLinks={<GroupLinks document={event}/>}

@@ -1,10 +1,11 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
+import { metaculusBackground } from '../components/linkPreview/PostLinkPreview';
 
 const hideSpoilers = {
   backgroundColor: 'black',
   color: 'black',
-  '& a, & a:hover, & a:focus': {
+  '& a, & a:hover, & a:focus, & a::after': {
     color: 'black'
   },
   '& code': {
@@ -56,13 +57,41 @@ const spoilerStyles = (theme: ThemeType) => ({
   }
 })
 
+const metaculusPreviewStyles = () => ({
+  '& div.metaculus-preview': {
+    backgroundColor: metaculusBackground,
+    '& iframe': {
+      width: '100%',
+      height: 250,
+      border: 'none'
+    }
+  }
+})
+
+const youtubePreviewStyles = () => ({
+  '& figure.media div[data-oembed-url*="youtube.com"]': {
+    position: 'relative',
+    height: 0,
+    paddingBottom: '56.2493%',
+    '& iframe': {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      top: 0,
+      left: 0,
+      border: 'none'
+    }
+  }
+})
+
 const tableStyles = {
   borderCollapse: "collapse",
   borderSpacing: 0,
   border: "1px double #b3b3b3",
   margin: "auto",
   height: "100%",
-  textAlign: "left"
+  textAlign: "left",
+  width: '100%'
 }
 
 const tableCellStyles = {
@@ -179,6 +208,10 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& table': {
     ...tableStyles
   },
+  // CKEditor wraps tables in a figure element
+  '& figure.table': {
+    display: 'table'
+  },
   '& td, & th': {
     ...tableCellStyles
   },
@@ -199,6 +232,8 @@ export const postBodyStyles = (theme: ThemeType) => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
+    ...metaculusPreviewStyles(),
+    ...youtubePreviewStyles(),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -236,6 +271,8 @@ export const commentBodyStyles = (theme: ThemeType) => {
     ...theme.typography.commentStyle,
 
     ...spoilerStyles(theme),
+    ...metaculusPreviewStyles(),
+    ...youtubePreviewStyles(),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,

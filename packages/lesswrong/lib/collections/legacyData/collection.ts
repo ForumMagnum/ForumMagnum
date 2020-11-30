@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
-import { SchemaType} from '../../utils/schemaUtils'
+import type { SchemaType } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbLegacyData> = {
   objectId: {

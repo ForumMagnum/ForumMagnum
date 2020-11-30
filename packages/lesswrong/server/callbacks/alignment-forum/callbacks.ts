@@ -1,9 +1,12 @@
 import Users from "../../../lib/collections/users/collection";
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes';
 import { addCallback, getCollection } from '../../vulcan-lib';
-import { getVotePower } from '../../../lib/voting/new_vote_types'
+import { calculateVotePower } from '../../../lib/voting/voteTypes'
+import { getCollectionHooks } from '../../mutationCallbacks';
+import { voteCallbacks, VoteDocTuple } from '../../../lib/voting/vote';
 
-export const recalculateAFBaseScore = async (document) => {
+export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
     documentId: document._id,
     afPower: {$exists: true},
@@ -12,13 +15,13 @@ export const recalculateAFBaseScore = async (document) => {
   return votes ? votes.reduce((sum, vote) => { return vote.afPower + sum}, 0) : 0
 }
 
-async function updateAlignmentKarmaServer (newDocument, vote) {
+async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: DbVote): Promise<VoteDocTuple> {
   // Update a
   const voter = Users.findOne(vote.userId)
   if (!voter) throw Error(`Can't find voter to update Alignment Karma for vote: ${vote}`)
 
-  if (Users.canDo(voter, "votes.alignment")) {
-    const votePower = getVotePower(voter.afKarma, vote.voteType)
+  if (userCanDo(voter, "votes.alignment")) {
+    const votePower = calculateVotePower(voter.afKarma, vote.voteType)
 
     Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
     const newAFBaseScore = await recalculateAFBaseScore(newDocument)
@@ -45,16 +48,13 @@ async function updateAlignmentKarmaServer (newDocument, vote) {
   }
 }
 
-async function updateAlignmentKarmaServerCallback ({newDocument, vote}) {
+async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocTuple) {
   return await updateAlignmentKarmaServer(newDocument, vote)
 }
 
-addCallback("votes.bigDownvote.sync", updateAlignmentKarmaServerCallback);
-addCallback("votes.bigUpvote.sync", updateAlignmentKarmaServerCallback);
-addCallback("votes.smallDownvote.sync", updateAlignmentKarmaServerCallback);
-addCallback("votes.smallUpvote.sync", updateAlignmentKarmaServerCallback);
+voteCallbacks.castVoteSync.add(updateAlignmentKarmaServerCallback);
 
-async function updateAlignmentUserServer (newDocument, vote, multiplier) {
+async function updateAlignmentUserServer (newDocument: VoteableType, vote: DbVote, multiplier: number) {
   if (newDocument.af && (newDocument.userId != vote.userId)) {
     const documentUser = Users.findOne({_id:newDocument.userId})
     if (!documentUser) throw Error("Can't find user to update Alignment Karma")
@@ -73,71 +73,22 @@ async function updateAlignmentUserServer (newDocument, vote, multiplier) {
   }
 }
 
-async function updateAlignmentUserServerCallback ({newDocument, vote}) {
+async function updateAlignmentUserServerCallback ({newDocument, vote}: VoteDocTuple) {
   await updateAlignmentUserServer(newDocument, vote, 1)
 }
 
-addCallback("votes.bigDownvote.async", updateAlignmentUserServerCallback);
-addCallback("votes.bigUpvote.async", updateAlignmentUserServerCallback);
-addCallback("votes.smallDownvote.async", updateAlignmentUserServerCallback);
-addCallback("votes.smallUpvote.async", updateAlignmentUserServerCallback);
+voteCallbacks.castVoteAsync.add(updateAlignmentUserServerCallback);
 
-async function cancelAlignmentUserKarmaServer ({newDocument, vote}) {
+async function cancelAlignmentUserKarmaServer ({newDocument, vote}: VoteDocTuple) {
   await updateAlignmentUserServer(newDocument, vote, -1)
 
 }
 
-addCallback("votes.cancel.async", cancelAlignmentUserKarmaServer);
+voteCallbacks.cancelAsync.add(cancelAlignmentUserKarmaServer);
 
-function updateAlignmentKarmaClientCallback (document, collection, voter, voteType) {
-  const votePower = getVotePower(voter.afKarma, voteType)
-
-  if (document.af && Users.canDo(voter, "votes.alignment")) {
-    return {
-      ...document,
-      afBaseScore: (document.afBaseScore || 0) + (votePower || 0),
-    };
-  } else {
-    return document
-  }
-}
-
-addCallback("votes.bigDownvote.client", updateAlignmentKarmaClientCallback);
-addCallback("votes.bigUpvote.client", updateAlignmentKarmaClientCallback);
-addCallback("votes.smallDownvote.client", updateAlignmentKarmaClientCallback);
-addCallback("votes.smallUpvote.client", updateAlignmentKarmaClientCallback);
-
-function cancelAlignmentKarmaServerCallback ({newDocument, vote}) {
+voteCallbacks.cancelSync.add(function cancelAlignmentKarmaServerCallback({newDocument, vote}: VoteDocTuple) {
   void updateAlignmentKarmaServer(newDocument, vote)
-}
-
-addCallback("votes.cancel.sync", cancelAlignmentKarmaServerCallback);
-
-function cancelAlignmentKarmaClientCallback (document, collection, voter, voteType) {
-  const votePower = getVotePower(voter.afKarma, voteType)
-
-  if (document.af && Users.canDo(voter, "votes.alignment")) {
-    return {
-      ...document,
-      afBaseScore: (document.afBaseScore || 0) - (votePower || 0),
-    };
-  } else {
-    return document
-  }
-
-}
-
-addCallback("votes.cancel.client", cancelAlignmentKarmaClientCallback);
-
-function clearAlignmentKarmaClientCallback (document, collection, voter) {
-  let newDocument = { ...document }
-  document.currentUserVotes.forEach((vote)=> {
-    newDocument = cancelAlignmentKarmaClientCallback(document, collection, voter, vote.voteType)
-  })
-  return newDocument
-}
-
-addCallback("votes.clear.client", clearAlignmentKarmaClientCallback);
+});
 
 
 async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
@@ -163,5 +114,5 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
 
 addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
 addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
-addCallback("posts.edit.async", MoveToAFUpdatesUserAFKarma);
+getCollectionHooks("Posts").editAsync.add(MoveToAFUpdatesUserAFKarma);
 addCallback("posts.alignment.async", MoveToAFUpdatesUserAFKarma);

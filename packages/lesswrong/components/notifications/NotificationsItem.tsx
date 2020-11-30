@@ -1,4 +1,5 @@
-import { registerComponent, Components, Utils } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { Component } from 'react';
 import Card from '@material-ui/core/Card';
@@ -133,7 +134,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
           this.setState({clicked: true})
           
           // we also check whether it's a relative link, and if so, scroll to the item
-          const url = new UrlClass(notification.link, Utils.getSiteUrl())
+          const url = new UrlClass(notification.link, getSiteUrl())
           const hash = url.hash
           if (hash) {
             const element = document.getElementById(hash.substr(1))

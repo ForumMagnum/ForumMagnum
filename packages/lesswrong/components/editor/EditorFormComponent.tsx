@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -16,7 +16,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import * as _ from 'underscore';
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const postEditorHeight = 250;
@@ -155,7 +155,6 @@ interface EditorFormComponentState {
   editorOverride: any,
   ckEditorLoaded: any,
   updateType: string,
-  version: string,
   commitMessage: string,
   ckEditorReference: any,
   loading: boolean,
@@ -181,7 +180,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       editorOverride: null,
       ckEditorLoaded: null,
       updateType: 'minor',
-      version: '',
       commitMessage: "",
       ckEditorReference: null,
       loading: true,
@@ -205,7 +203,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       return result;
     });
 
-    if (Meteor.isClient && window) {
+    if (isClient && window) {
       this.unloadEventListener = (ev) => {
         if (this.hasUnsavedData) {
           ev.preventDefault();
@@ -221,7 +219,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     this.ckEditor = Editor
     this.setState({ckEditorLoaded: true})
     
-    if (Meteor.isClient) {
+    if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
     }
@@ -525,7 +523,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   getUserDefaultEditor = (user) => {
-    if (Users.useMarkdownPostEditor(user)) return "markdown"
+    if (userUseMarkdownPostEditor(user)) return "markdown"
     if (user?.reenableDraftJs) return "draftJS"
     return "ckEditorMarkup"
   }
@@ -569,40 +567,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         }}
       />
     </div>
-  }
-
-  getCurrentRevision = () => {
-    return this.state.version || this.props.document.version
-  }
-
-  handleUpdateVersionNumber = (version) => {
-    // see SelectVersion component for additional details
-    this.setState({ version: version })
-  }
-
-  handleUpdateVersion = async (document) => {
-    // see SelectVersion component for additional details
-    if (!document?.contents) return
-    const editorType = document.contents?.originalContents?.type
-    this.setState({
-      ...this.getEditorStatesFromType(editorType, document.contents)
-    })
-  }
-
-  renderVersionSelect = () => {
-    const { classes, document, currentUser } = this.props
-
-    if (!currentUser?.isAdmin) return null
-    if (!this.getCurrentRevision()) return null
-    return <span className={classes.select}>
-        <Components.SelectVersion
-          key={this.getCurrentRevision()}
-          documentId={document._id}
-          revisionVersion={this.getCurrentRevision()}
-          updateVersionNumber={this.handleUpdateVersionNumber}
-          updateVersion={this.handleUpdateVersion}
-        />
-      </span>
   }
 
   renderEditorTypeSelect = () => {
@@ -746,7 +710,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     return <div>
         { this.renderPlaceholder(showPlaceholder, false) }
         {draftJSValue && <EditorForm
-          isClient={Meteor.isClient}
+          isClient={isClient}
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
@@ -790,7 +754,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       { editorWarning }
       <div className={classNames(classes.editor, this.getBodyStyles())}>
         { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
-        { this.renderVersionSelect() }
         { this.renderUpdateTypeSelect() }
         { this.renderEditorTypeSelect() }
       </div>

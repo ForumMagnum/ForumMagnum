@@ -1,7 +1,7 @@
 import LRU from 'lru-cache';
 import * as _ from 'underscore';
-import { RenderResult } from './renderPage';
-import { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
+import type { RenderResult } from './renderPage';
+import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import { Globals } from '../../../lib/vulcan-lib';
 
 // Page cache. This applies only to logged-out requests, and exists primarily

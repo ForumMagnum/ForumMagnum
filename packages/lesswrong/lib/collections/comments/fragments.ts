@@ -21,9 +21,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    currentUserVotes {
-      ...VoteFragment
-    }
+    currentUserVote
     baseScore
     score
     voteCount
@@ -136,11 +134,7 @@ registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
     _id
-    currentUserVotes{
-      _id
-      voteType
-      power
-    }
+    currentUserVote
     baseScore
     score
     afBaseScore

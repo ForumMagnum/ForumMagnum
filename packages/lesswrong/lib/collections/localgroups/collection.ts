@@ -1,4 +1,4 @@
-import Users from '../users/collection';
+import { userCanDo } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import './permissions';
@@ -8,20 +8,20 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 const options = {
   newCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
-    return document.organizerIds.includes(user._id) ? Users.canDo(user, 'localgroups.new.own')
-     : Users.canDo(user, `localgroups.new.all`)
+    return document.organizerIds.includes(user._id) ? userCanDo(user, 'localgroups.new.own')
+     : userCanDo(user, `localgroups.new.all`)
   },
 
   editCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
-    return document.organizerIds.includes(user._id) ? Users.canDo(user, 'localgroups.edit.own')
-    : Users.canDo(user, `localgroups.edit.all`)
+    return document.organizerIds.includes(user._id) ? userCanDo(user, 'localgroups.edit.own')
+    : userCanDo(user, `localgroups.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
-    return document.organizerIds.includes(user._id) ? Users.canDo(user, 'localgroups.remove.own')
-    : Users.canDo(user, `localgroups.remove.all`)
+    return document.organizerIds.includes(user._id) ? userCanDo(user, 'localgroups.remove.own')
+    : userCanDo(user, `localgroups.remove.all`)
   },
 }
 

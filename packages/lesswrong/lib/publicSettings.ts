@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import { FilterTag } from './filterSettings';
+import type { FilterTag } from './filterSettings';
 // We initialize these public settings to make it available on both the client and the server,
 // but they get initialized via separate pathways on the client and on the server
 // Server: See databaseSettings.ts in the server directory
@@ -65,7 +65,6 @@ export const algoliaPrefixSetting = new DatabasePublicSetting<string | null>('al
 
 export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null) // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.webSocketUrl', null) // Websocket URL for CKEditor (for collaboration)
-export const logRocketApiKeySetting = new DatabasePublicSetting<string | null>('logRocket.apiKey', null) // LogRocket API Key
 
 export const hideUnreviewedAuthorCommentsSettings = new DatabasePublicSetting<boolean>('hideUnreviewedAuthorComments', false) // Hide comments by unreviewed authors (prevents spam, but delays new user engagement)
 export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('cloudinary.cloudName', 'lesswrong-2-0') // Cloud name for cloudinary hosting
@@ -85,3 +84,7 @@ export const defaultVisibilityTags = new DatabasePublicSetting<Array<FilterTag>>
 
 export const gatherTownRoomId = new DatabasePublicSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx")
 export const gatherTownRoomName = new DatabasePublicSetting<string | null>("gatherTownRoomName", "lesswrong-campus")
+
+// Public elicit settings
+export const elicitSourceURL = new DatabasePublicSetting('elicitSourceURL', 'https://LessWrong.com')
+export const elicitSourceId = new DatabasePublicSetting('elicitSourceId', 'XCjOpumu-')

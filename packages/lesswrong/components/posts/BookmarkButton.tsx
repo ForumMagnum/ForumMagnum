@@ -8,7 +8,6 @@ import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
-import Users from '../../lib/collections/users/collection';
 import {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
@@ -32,7 +31,7 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   const { captureEvent } = useTracking({eventType: "bookmarkToggle", eventProps: {"postId": post._id, "bookmarked": !bookmarked}})
 
   const {mutate: updateUser} = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UserBookmarks',
   });
 

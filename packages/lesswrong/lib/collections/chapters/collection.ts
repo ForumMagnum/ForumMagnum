@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import schema from './schema';
-import Users from '../users/collection';
+import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import Sequences from '../sequences/collection';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
@@ -10,21 +10,21 @@ const options = {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
-    return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.new.own') : Users.canDo(user, `chapters.new.all`)
+    return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.new.own') : userCanDo(user, `chapters.new.all`)
   },
 
   editCheck: (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
-    return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.edit.own') : Users.canDo(user, `chapters.edit.all`)
+    return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.edit.own') : userCanDo(user, `chapters.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
     let parentSequence = Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
-    return Users.owns(user, parentSequence) ? Users.canDo(user, 'chapters.remove.own') : Users.canDo(user, `chapters.remove.all`)
+    return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.remove.own') : userCanDo(user, `chapters.remove.all`)
   },
 }
 

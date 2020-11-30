@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Sentry from '@sentry/core';
-import { Meteor } from 'meteor/meteor';
+import { isServer } from '../../lib/executionEnvironment';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
@@ -122,6 +122,8 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     try {
       this.markScrollableLaTeX();
       this.markHoverableLinks();
+      this.markElicitBlocks();
+      this.setState({updatedElements: true})
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -170,7 +172,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   markScrollableLaTeX = () => {
     const { classes } = this.props;
     
-    if(!Meteor.isServer && this.bodyRef && this.bodyRef.current) {
+    if(!isServer && this.bodyRef && this.bodyRef.current) {
       let latexBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("mjx-chtml"));
       for(let i=0; i<latexBlocks.length; i++) {
         let latexBlock = latexBlocks[i];
@@ -260,7 +262,19 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
         const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel}/>
         this.replaceElement(linkTag, replacementElement);
       }
-      this.setState({updatedElements: true})
+    }
+  }
+
+  markElicitBlocks = () => {
+    if(this.bodyRef?.current) {
+      const elicitBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("elicit-binary-prediction"));
+      for (const elicitBlock of elicitBlocks) {
+        if (elicitBlock.dataset?.elicitId) {
+          const replacementElement = <Components.ElicitBlock questionId={elicitBlock.dataset.elicitId}/>
+          this.replaceElement(elicitBlock, replacementElement)
+        }
+        
+      }
     }
   }
   

@@ -2,7 +2,7 @@
  * The App + relevant wrappers
  */
 import React from 'react';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider } from '@apollo/client';
 import { Components } from '../../lib/vulcan-lib';
 import { wrapWithMuiTheme } from '../themeProvider';
 import { CookiesProvider } from 'react-cookie';

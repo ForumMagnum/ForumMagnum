@@ -1,4 +1,4 @@
-import Users from '../users/collection';
+import { userCanDo, userGroups } from '../../vulcan-users/permissions';
 import Conversations from './collection'
 
 const membersActions = [
@@ -7,7 +7,7 @@ const membersActions = [
   'conversations.remove.own',
   'conversations.view.own',
 ];
-Users.groups.members.can(membersActions);
+userGroups.members.can(membersActions);
 
 const adminActions = [
   'conversations.new.all',
@@ -15,9 +15,9 @@ const adminActions = [
   'conversations.remove.all',
   'conversations.view.all',
 ];
-Users.groups.admins.can(adminActions);
+userGroups.admins.can(adminActions);
 
 Conversations.checkAccess = async (user: DbUser|null, document: DbConversation, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;
-  return document.participantIds.includes(user._id) ? Users.canDo(user, 'conversations.view.own') : Users.canDo(user, `conversations.view.all`)
+  return document.participantIds.includes(user._id) ? userCanDo(user, 'conversations.view.own') : userCanDo(user, `conversations.view.all`)
 };

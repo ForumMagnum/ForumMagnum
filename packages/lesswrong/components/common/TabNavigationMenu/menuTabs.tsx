@@ -10,10 +10,10 @@ import { allPostsIcon } from '../../icons/allPostsIcon';
 
 
 import Home from '@material-ui/icons/Home'
-import Group from '@material-ui/icons/Group'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
-import Info from '@material-ui/icons/Info'
+import Info from '@material-ui/icons/Info';
+import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const EventsList = ({currentUser, onClick}) => {
@@ -245,14 +245,6 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'community',
-      title: 'Community',
-      link: '/tag/community',
-      iconComponent: Group,
-      tooltip: 'Read posts about EA philosophy, the EA community, and the Forum itself.',
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
       id: 'allPosts',
       title: 'All Posts',
       link: '/allPosts',
@@ -269,6 +261,15 @@ export default {
       tooltip: 'See posts tagged by their subject matter',
       showOnMobileStandalone: true,
       showOnCompressed: true,
+    }, {
+      id: 'groups',
+      title: 'EA Groups',
+      mobileTitle: 'EA Groups',
+      link: 'https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage',
+      iconComponent: SupervisedUserCircleIcon,
+      tooltip: 'See EA groups in your area',
+      showOnMobileStandalone: true,
+      showOnCompressed: true
     }, {
       id: 'divider',
       divider: true,

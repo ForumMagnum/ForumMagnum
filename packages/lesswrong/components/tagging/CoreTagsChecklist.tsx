@@ -39,7 +39,6 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
     collection: Tags,
     fragmentName: "TagFragment",
     limit: 100,
-    ssr: true,
   });
   
   const { Loading } = Components;

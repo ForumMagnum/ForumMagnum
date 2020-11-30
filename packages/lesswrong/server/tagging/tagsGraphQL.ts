@@ -1,4 +1,4 @@
-import { newMutation, addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
+import { createMutator, addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
@@ -23,7 +23,7 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
   // Check whether this document already has this tag applied
   const existingTagRel = TagRels.findOne({ tagId, postId });
   if (!existingTagRel) {
-    const tagRel = await newMutation({
+    const tagRel = await createMutator({
       collection: TagRels,
       document: { tagId, postId, userId: currentUser._id },
       validate: false,

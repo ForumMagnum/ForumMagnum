@@ -5,6 +5,8 @@ import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
 import { WeightedList } from './weightedList';
+import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
+
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -19,7 +21,9 @@ const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaul
 // current user. Returns as an array, so you can spread this into a pipeline
 // with ...pipelineFilterUnread(currentUser). If currentUser is null, returns
 // an empty array (no aggregation pipeline stages), so all posts are included.
-const pipelineFilterUnread = ({currentUser}) => {
+const pipelineFilterUnread = ({currentUser}: {
+  currentUser: DbUser|null
+}) => {
   if (!currentUser)
     return [];
 
@@ -58,7 +62,7 @@ const pipelineFilterUnread = ({currentUser}) => {
 // to define a table of possible exclusion criteria and you can
 // deterministically combine them without writing out each individual case
 // combinatorially. . ... Yeah .... Sometimes life is hard.
-const getInclusionSelector = algorithm => {
+const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
   if (algorithm.coronavirus) {
     return {
       ["tagRelevance.tNsqhzTibgGJKPEWB"]: {$gte: 1},
@@ -90,7 +94,7 @@ const getInclusionSelector = algorithm => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = algorithm => {
+const recommendablePostFilter = (algorithm: RecommendationsAlgorithm) => {
   const recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
@@ -120,7 +124,10 @@ ensureIndex(Posts, {defaultRecommendation: 1})
 // scoreRelevantFields included (but other fields projected away). If
 // onlyUnread is true and currentUser is nonnull, posts that the user has
 // already read are filtered out.
-const allRecommendablePosts = async ({currentUser, algorithm}): Promise<Array<DbPost>> => {
+const allRecommendablePosts = async ({currentUser, algorithm}: {
+  currentUser: DbUser|null,
+  algorithm: RecommendationsAlgorithm,
+}): Promise<Array<DbPost>> => {
   return await Posts.aggregate([
     // Filter to recommendable posts
     { $match: {
@@ -144,7 +151,12 @@ const allRecommendablePosts = async ({currentUser, algorithm}): Promise<Array<Db
 //   scoreFn: Function which takes a post (with at least scoreRelevantFields
 //     included), and returns a number. The posts with the highest scoreFn
 //     return value will be the ones returned.
-const topPosts = async ({count, currentUser, algorithm, scoreFn}) => {
+const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
+  count: number,
+  currentUser: DbUser|null,
+  algorithm: RecommendationsAlgorithm,
+  scoreFn: (post: DbPost)=>number,
+}) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
   const defaultRecommendations = algorithm.excludeDefaultRecommendations ? [] : recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation)
@@ -173,7 +185,12 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}) => {
 //   sampleWeightFn: Function which takes a post (with at least
 //     scoreRelevantFields included), and returns a number. Higher numbers are
 //     more likely to be recommended.
-const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
+const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
+  count: number,
+  currentUser: DbUser|null,
+  algorithm: RecommendationsAlgorithm,
+  sampleWeightFn: (post: DbPost)=>number,
+}) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
   const numPostsToReturn = Math.max(0, Math.min(recommendablePostsMetadata.length, count))
@@ -192,15 +209,19 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
   ).fetch();
 }
 
-const getModifierName = post => {
+const getModifierName = (post: DbPost) => {
   if (post.curatedDate) return 'curatedModifier'
   if (post.frontpageDate) return 'frontpageModifier'
   return 'personalBlogpostModifier'
 }
 
-const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
-  const scoreFn = post => {
-    const sectionModifier = algorithm[getModifierName(post)]
+const getRecommendedPosts = async ({count, algorithm, currentUser}: {
+  count: number,
+  algorithm: RecommendationsAlgorithm,
+  currentUser: DbUser|null
+}) => {
+  const scoreFn = (post: DbPost) => {
+    const sectionModifier = algorithm[getModifierName(post)]||0;
     const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
     return Math.max(0, weight);
   }
@@ -225,7 +246,7 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   }
 };
 
-const getDefaultResumeSequence = () => {
+const getDefaultResumeSequence = (): Array<{collectionId: string, nextPostId: string}> => {
   return [
     {
       // HPMOR
@@ -245,7 +266,7 @@ const getDefaultResumeSequence = () => {
   ]
 }
 
-const getResumeSequences = async (currentUser, context: ResolverContext) => {
+const getResumeSequences = async (currentUser: DbUser|null, context: ResolverContext) => {
   const sequences = currentUser ? currentUser.partiallyReadSequences : getDefaultResumeSequence()
 
   if (!sequences)
@@ -256,12 +277,12 @@ const getResumeSequences = async (currentUser, context: ResolverContext) => {
       const { sequenceId, collectionId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
         sequence: sequenceId
-          ? await context["Sequences"].loader.load(sequenceId)
+          ? await context.loaders.Sequences.load(sequenceId)
           : null,
         collection: collectionId
-          ? await context["Collections"].loader.load(collectionId)
+          ? await context.loaders.Collections.load(collectionId)
           : null,
-        nextPost: await context["Posts"].loader.load(nextPostId),
+        nextPost: await context.loaders.Posts.load(nextPostId),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,
@@ -272,19 +293,19 @@ const getResumeSequences = async (currentUser, context: ResolverContext) => {
   // Filter out results where nextPost is null. (Specifically, this filters out
   // the default sequences on dev databases, which would otherwise cause a crash
   // down the line.)
-  return _.filter(results, result=>result.nextPost);
+  return _.filter(results, result=>!!result.nextPost);
 }
 
 
 addGraphQLResolvers({
   Query: {
-    async ContinueReading(root, args, context: ResolverContext) {
+    async ContinueReading(root: void, args: void, context: ResolverContext) {
       const { currentUser } = context;
 
       return await getResumeSequences(currentUser, context);
     },
 
-    async Recommendations(root, {count,algorithm}, context: ResolverContext) {
+    async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
       const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
@@ -296,7 +317,7 @@ addGraphQLResolvers({
     }
   },
   Mutation: {
-    async dismissRecommendation(root, {postId}, context: ResolverContext) {
+    async dismissRecommendation(root: void, {postId}: {postId: string}, context: ResolverContext) {
       const { currentUser } = context;
       if (!currentUser) return false;
 

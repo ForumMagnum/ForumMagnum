@@ -1,10 +1,12 @@
-import Users from '../users/collection';
-import { Utils, getCollection } from '../../vulcan-lib';
+import { userOwns } from '../../vulcan-users/permissions';
+import { getCollection } from '../../vulcan-lib';
+import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { Posts } from "../posts/collection"
+import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
+import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
@@ -44,7 +46,7 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.adminOptions,
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
-      if (!post.postedAt && getCollection('Posts').getDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
+      if (!post.postedAt && postGetDefaultStatus(currentUser) === getCollection('Posts').config.STATUS_APPROVED) {
         return new Date();
       }
     },
@@ -73,7 +75,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'url',
     order: 10,
     query: `
@@ -90,7 +92,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'text',
     order: 20,
   },
@@ -100,11 +102,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     viewableBy: ['guests'],
     onInsert: (post) => {
-      return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(post.title))
+      return Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
     onEdit: (modifier, post) => {
       if (modifier.$set.title) {
-        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title), false, post._id)
+        return Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
     }
   },
@@ -155,13 +157,13 @@ const schema: SchemaType<DbPost> = {
     control: 'select',
     onInsert: (document, currentUser) => {
       if (!document.status) {
-        return getCollection('Posts').getDefaultStatus(currentUser);
+        return postGetDefaultStatus(currentUser);
       }
     },
     onEdit: (modifier, document, currentUser) => {
       // if for some reason post status has been removed, give it default status
       if (modifier.$unset && modifier.$unset.status) {
-        return getCollection('Posts').getDefaultStatus(currentUser);
+        return postGetDefaultStatus(currentUser);
       }
     },
     options: () => getCollection('Posts').statuses,
@@ -243,7 +245,7 @@ const schema: SchemaType<DbPost> = {
     onEdit: (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return Users.getDisplayNameById(modifier.$set.userId)
+        return userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },
@@ -275,26 +277,26 @@ const schema: SchemaType<DbPost> = {
   domain: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Utils.getDomain(post.url),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => getDomain(post.url),
   }),
 
   pageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getPageUrl(post, true),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getPageUrl(post, false),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, false),
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => {
-      return post.url ? Utils.getOutgoingUrl(post.url) : Posts.getPageUrl(post, true);
+      return post.url ? getOutgoingUrl(post.url) : postGetPageUrl(post, true);
     },
   }),
 
@@ -309,19 +311,25 @@ const schema: SchemaType<DbPost> = {
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getEmailShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetEmailShareUrl(post),
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getTwitterShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetTwitterShareUrl(post),
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => Posts.getFacebookShareUrl(post),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
+  }),
+  
+  socialPreviewImageUrl: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post: DbPost, args: void, context: ResolverContext) => getSocialPreviewImage(post)
   }),
 
   question: {
@@ -369,16 +377,16 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
-    onCreate: ({newDocument}) => {
+    onCreate: ({newDocument}: { newDocument: DbPost }) => {
       if (newDocument.isEvent) return false
       if ('submitToFrontpage' in newDocument) return newDocument.submitToFrontpage
       return true
     },
-    onUpdate: ({data, document}) => {
+    onUpdate: ({data, document}: { data: Partial<DbPost>, document: DbPost }) => {
       const updatedDocIsEvent = ('isEvent' in document) ? document.isEvent : false
       if (updatedDocIsEvent) return false
       return ('submitToFrontpage' in document) ? document.submitToFrontpage : true
@@ -389,7 +397,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -516,7 +524,7 @@ const schema: SchemaType<DbPost> = {
     resolver: async (post: DbPost, args: {tagId: string}, context: ResolverContext) => {
       const { tagId } = args;
       const { currentUser } = context;
-      const tagRels = await getWithLoader(TagRels,
+      const tagRels = await getWithLoader(context, TagRels,
         "tagRelByDocument",
         {
           tagId: tagId
@@ -538,7 +546,7 @@ const schema: SchemaType<DbPost> = {
       const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await Tags.loader.loadMany(tagIds)
+      const tags = await context.loaders.Tags.loadMany(tagIds)
       return await accessFilterMultiple(currentUser, Tags, tags, context)
     }
   }),

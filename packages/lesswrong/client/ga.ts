@@ -1,6 +1,4 @@
-import LogRocket from 'logrocket'
-import { googleTagManagerIdSetting, logRocketApiKeySetting } from '../lib/publicSettings';
-import { addCallback } from '../lib/vulcan-lib/callbacks';
+import { googleTagManagerIdSetting } from '../lib/publicSettings';
 
 
 function googleTagManagerInit() {
@@ -28,21 +26,3 @@ function googleTagManagerInit() {
 }
 
 googleTagManagerInit();
-
-const identifyLogRocketCallback = (currentUser: UsersCurrent) => {
-  const logRocketKey = logRocketApiKeySetting.get()
-  if (!logRocketKey) return
-
-  LogRocket.init(logRocketKey)
-  const { karma = 0, afKarma = 0, createdAt, username, displayName: lWDisplayName } = currentUser
-  const additionalData = { karma, afKarma, createdAt: createdAt.toString(), username, lWDisplayName }
-  LogRocket.identify(currentUser._id, {
-    // Don't show user display names by default
-    displayName: currentUser._id,
-    email: currentUser.email,
-    // Custom LessWrong variables
-    ...additionalData
-  })
-}
-
-addCallback("events.identify", identifyLogRocketCallback);

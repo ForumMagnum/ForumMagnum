@@ -3,7 +3,6 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
-import Conversations from '../../lib/collections/conversations/collection';
 import Typography from '@material-ui/core/Typography';
 import qs from 'qs'
 
@@ -18,14 +17,14 @@ const InboxNavigation = ({terms, currentUser}: {
   
   const { results, loading } = useMulti({
     terms,
-    collection: Conversations,
+    collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 200,
   });
   
   const { mutate: updateConversation } = useUpdate({
-    collection: Conversations,
+    collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
   });
   

@@ -1,7 +1,6 @@
-import { Utils } from '../../lib/vulcan-lib';
 let mjAPI = require('mathjax-node')
 
-Utils.trimLatexAndAddCSS = (dom, css) => {
+export const trimLatexAndAddCSS = (dom, css) => {
   // Remove empty paragraphs
   var paragraphs = dom.getElementsByClassName("MJXc-display");
   // We trim all display equations that don't have any textContent. This seems
@@ -41,7 +40,7 @@ mjAPI.config({
 });
 mjAPI.start();
 
-Utils.preProcessLatex = async (content) => {
+export const preProcessLatex = async (content) => {
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
   // inline with the first (and only the first) MathJax element; this ensures
   // that it ends up in feeds, in greaterwrong's scrapes, etc, whereas if it

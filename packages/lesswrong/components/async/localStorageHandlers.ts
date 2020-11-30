@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor';
+import { isClient } from '../../lib/executionEnvironment';
 
 function getBrowserLocalStorage() {
   try {
@@ -42,7 +42,7 @@ export const getLSHandlers = (getLocalStorageId = null) => {
       
       try {
         const savedState = JSON.parse(ls.getItem(prefix+id))
-        if (verify && savedState && Meteor.isClient && window) {
+        if (verify && savedState && isClient && window) {
           const result = window.confirm("We've found a previously saved state for this document, would you like to restore it?")
           return result ? savedState : null
         } else {

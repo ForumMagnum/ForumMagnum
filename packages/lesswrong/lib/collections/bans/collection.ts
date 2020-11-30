@@ -1,22 +1,22 @@
 import schema from './schema';
-import Users from '../users/collection'
+import { userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, } from '../../collectionUtils'
 
 const options = {
   newCheck: (user: DbUser|null, document: DbBan|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, 'bans.new');
+    return userCanDo(user, 'bans.new');
   },
 
   editCheck: (user: DbUser|null, document: DbBan|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `bans.edit.all`)
+    return userCanDo(user, `bans.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbBan|null) => {
     if (!user || !document) return false;
-    return Users.canDo(user, `bans.remove.all`)
+    return userCanDo(user, `bans.remove.all`)
   },
 }
 
