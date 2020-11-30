@@ -14,7 +14,7 @@ addGraphQLResolvers({
       const oldBookmarksList = currentUser.bookmarkedPostsMetadata;
       const alreadyBookmarked = _.some(oldBookmarksList, bookmark=>bookmark.postId===postId);
       const newBookmarksList = (isBookmarked
-        ? (alreadyBookmarked ? oldBookmarksList : [...oldBookmarksList, {postId}])
+        ? (alreadyBookmarked ? oldBookmarksList : [...(oldBookmarksList||[]), {postId}])
         : _.reject(oldBookmarksList, bookmark=>bookmark.postId===postId)
       );
       
