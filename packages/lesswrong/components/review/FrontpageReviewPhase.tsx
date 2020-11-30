@@ -86,7 +86,7 @@ const FrontpageReviewPhase = ({classes}) => {
     <div>Nominate posts for the 2019 Review</div>
     <ul>
       <li>Any post from 2019 can be nominated</li>
-      <li>Any user registerd before 2019 can nominate posts for review</li>
+      <li>Any user registered before 2019 can nominate posts for review</li>
       <li>A post requires two nominations to progress to the review phase</li>
     </ul>
     <div>If you've been actively reading LessWrong in 2019, but didn't register an account, message us on Intercom</div>
