@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
 const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
-  terms: any,
+  terms: PostsViewTerms,
   belowFold?: boolean
 }) => {
   const { results, count, totalCount, loadMore, showLoadMore } = useMulti({

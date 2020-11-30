@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
 
 const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType,
-  terms: any,
+  terms: CommentsViewTerms,
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {

@@ -5,7 +5,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 
 
 const RepliesToCommentList = ({ terms, post, parentCommentId }: {
-  terms: any,
+  terms: CommentsViewTerms,
   post: PostsBase,
   parentCommentId: string,
 }) => {

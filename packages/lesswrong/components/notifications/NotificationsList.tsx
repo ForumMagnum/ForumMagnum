@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NotificationsList = ({ terms, currentUser, classes }: {
-  terms: any,
+  terms: NotificationsViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {

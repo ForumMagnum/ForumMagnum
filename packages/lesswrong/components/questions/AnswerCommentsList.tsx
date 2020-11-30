@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const ABRIDGE_COMMENT_COUNT = 500;
 
 const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
-  terms: any,
+  terms: CommentsViewTerms,
   lastEvent?: any,
   classes: ClassesType,
   post: PostsList,

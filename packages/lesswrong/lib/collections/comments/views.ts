@@ -8,7 +8,7 @@ import { Comments } from './collection';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
-    view: CommentsViewName,
+    view?: CommentsViewName,
     postId?: string,
     userId?: string,
     tagId?: string,
@@ -16,10 +16,10 @@ declare global {
     parentAnswerId?: string,
     topLevelCommentId?: string,
     legacyId?: string,
-    authorIsUnreviewed?: boolean,
+    authorIsUnreviewed?: boolean|null,
     sortBy?: string,
-    before?: string,
-    after?: string,
+    before?: Date|string|null,
+    after?: Date|string|null,
   }
 }
 

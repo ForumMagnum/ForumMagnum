@@ -18,13 +18,13 @@ const UserReviews = () => {
   if (loading) return <Loading />
   if (!user) return <Error404 />
 
-  const nominationTerms = { 
+  const nominationTerms: CommentsViewTerms = {
     view: "nominations2018",
     userId: user._id,
     limit: 50
   }
 
-  const reviewTerms = { 
+  const reviewTerms: CommentsViewTerms = {
     view: "reviews2018",
     userId: user._id,
     limit: 50

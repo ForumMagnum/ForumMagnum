@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
   reportEmpty: ()=>void,
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {
   const { CommentsNode, LoadMore, ContentType } = Components

@@ -56,7 +56,7 @@ const postTypes = [
 ]
 
 const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, timeframe, displayShortform=true, classes }: {
-  terms: any,
+  terms: PostsViewTerms,
   timeBlockLoadComplete: ()=>void,
   startDate: any,
   hideIfEmpty: boolean,

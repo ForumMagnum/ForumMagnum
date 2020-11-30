@@ -19,7 +19,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}: {
-  terms: any,
+  terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
   classes: ClassesType,
   showNoResults?: boolean,

@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestPostsList = ({ terms, classes }: {
-  terms: any,
+  terms: PostsViewTerms,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({

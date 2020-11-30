@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: any}) => {
+export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: GardenCodesViewTerms}) => {
   const { GardenCodesItem } = Components
   const currentUser = useCurrentUser()
   const { results } = useMulti({

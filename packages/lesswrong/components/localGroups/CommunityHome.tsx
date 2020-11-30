@@ -69,14 +69,14 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
       limit: 7,
       filters: filters,
     }
-    const groupsListTerms = {
+    const groupsListTerms: LocalgroupsViewTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
       limit: 7,
       filters: filters,
     }
-    const mapEventTerms = {
+    const mapEventTerms: PostsViewTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,

@@ -5,7 +5,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
   post: PostsDetails,
-  terms: any,
+  terms: CommentsViewTerms,
   newForm?: boolean,
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount } = useMulti({

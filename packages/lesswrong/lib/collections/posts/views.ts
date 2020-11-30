@@ -35,7 +35,9 @@ declare global {
     tagId?: string,
     legacyId?: string,
     postId?: string,
-    authorIsUnreviewed?: boolean,
+    authorIsUnreviewed?: boolean|null,
+    before?: Date|string|null,
+    after?: Date|string|null,
   }
 }
 

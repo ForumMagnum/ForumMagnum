@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AnswersList = ({terms, post, classes}: {
-  terms: any,
+  terms: CommentsViewTerms,
   post: PostsList,
   classes: ClassesType,
 }) => {

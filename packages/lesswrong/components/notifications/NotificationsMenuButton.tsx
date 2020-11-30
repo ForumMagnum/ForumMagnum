@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
-  terms: any,
+  terms: NotificationsViewTerms,
   classes: ClassesType,
   open: boolean,
   color?: string,

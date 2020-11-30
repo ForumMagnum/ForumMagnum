@@ -8,7 +8,7 @@ import qs from 'qs'
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({terms, currentUser}: {
-  terms: any,
+  terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
 }) => {
   const location = useLocation();

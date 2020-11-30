@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, post, condensed, markAsRead, forceSingleLine, hideSingleLineMeta }: {
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
   highlightDate: Date,

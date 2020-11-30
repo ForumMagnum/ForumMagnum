@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewCommentsList = ({ terms, classes }: {
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {
   const { results, totalCount } = useMulti({

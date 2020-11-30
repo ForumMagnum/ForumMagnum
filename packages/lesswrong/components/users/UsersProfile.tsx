@@ -99,7 +99,7 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
 }
 
 const UsersProfileFn = ({terms, slug, classes}: {
-  terms: any,
+  terms: UsersViewTerms,
   slug: string,
   classes: ClassesType,
 }) => {
@@ -207,11 +207,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
 
 
-    const draftTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
-    const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
-    const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
-    const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
-    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:9}
+    const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+    const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
+    const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
+    const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
+    const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
     const currentSorting = query.sortedBy || query.view ||  "new"

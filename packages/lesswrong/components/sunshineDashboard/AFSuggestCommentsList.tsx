@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestCommentsList = ({ terms, classes }: {
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({

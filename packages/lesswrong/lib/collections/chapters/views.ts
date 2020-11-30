@@ -3,6 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface ChaptersViewTerms extends ViewTermsBase {
+    view?: ChaptersViewName
     sequenceId?: string
   }
 }

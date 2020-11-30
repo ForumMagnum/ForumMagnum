@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: {
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
   post: PostsList,

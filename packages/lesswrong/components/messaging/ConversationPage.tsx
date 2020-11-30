@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // The Navigation for the Inbox components
 const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   documentId: string,
-  terms: any,
+  terms: MessagesViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
