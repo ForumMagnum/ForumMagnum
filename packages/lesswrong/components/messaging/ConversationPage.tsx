@@ -36,7 +36,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
 }) => {
   const { results, loading: loadingMessages } = useMulti({
     terms,
-    collection: Messages,
+    collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 1000,

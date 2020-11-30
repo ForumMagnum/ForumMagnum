@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import Sequences from '../../lib/collections/sequences/collection';
 import classNames from 'classnames';
 
 // Share styles with SequencesGrid
@@ -22,7 +21,7 @@ const SequencesGridWrapper = ({
 }) => {
   const { results, loading, count, totalCount, loadMore, loadingMore } = useMulti({
     terms,
-    collection: Sequences,
+    collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
     enableTotal: true,
   });

@@ -16,9 +16,6 @@ import classNames from 'classnames';
 import grey from '@material-ui/core/colors/grey';
 import * as _ from 'underscore';
 
-// import { NavDropdown, MenuItem } from 'react-bootstrap';
-import Notifications from '../../lib/collections/notifications/collection'
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
@@ -84,7 +81,7 @@ const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
   );
   const { results } = useMulti({
     terms,
-    collection: Notifications,
+    collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     pollInterval: 0,
     limit: 20,

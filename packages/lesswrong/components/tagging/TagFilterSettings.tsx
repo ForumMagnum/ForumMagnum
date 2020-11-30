@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import type { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -82,7 +81,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     terms: {
       view: "suggestedFilterTags",
     },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagFragment",
     limit: 100,
   });

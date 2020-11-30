@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from "../../lib/collections/comments";
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 
@@ -13,7 +12,7 @@ const RepliesToCommentList = ({ terms, post, parentCommentId }: {
   const { CommentsList, Loading } = Components;
   const { loading, results } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: "CommentsList",
   });
   

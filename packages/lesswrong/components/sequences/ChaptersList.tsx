@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Chapters from '../../lib/collections/chapters/collection';
 
 const ChaptersList = ({terms, canEdit}: {
   terms: any,
@@ -9,7 +8,7 @@ const ChaptersList = ({terms, canEdit}: {
 }) => {
   const { results, loading } = useMulti({
     terms,
-    collection: Chapters,
+    collectionName: "Chapters",
     fragmentName: 'ChaptersFragment',
     enableTotal: false,
   });

@@ -30,7 +30,7 @@ const AllTagsAlphabetical = ({classes}: {
     terms: {
       view: "allTagsHierarchical",
     },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
     limit: 750,
   });

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { TagFlags } from '../../lib';
-import { Tags } from '../../lib/collections/tags/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -93,7 +91,7 @@ const TaggingDashboard = ({classes}: {
     
   const { results: tags, loading, loadMoreProps } = useMulti({
     terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
     limit: 10,
     itemsPerPage: 50,
@@ -107,7 +105,7 @@ const TaggingDashboard = ({classes}: {
     terms: {
       view: "allTagFlags"
     },
-    collection: TagFlags,
+    collectionName: "TagFlags",
     fragmentName: "TagFlagFragment",
     limit: 100,
   });

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
@@ -11,7 +10,7 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
 }) => {
   const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,

@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 import { gatherIcon } from '../icons/gatherIcon';
-import { LWEvents } from '../../lib/collections/lwevents';
 import { useMulti } from '../../lib/crud/withMulti';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -104,7 +103,7 @@ const GatherTown = ({classes}: {
       view: "gatherTownUsers",
       limit: 1,
     },
-    collection: LWEvents,
+    collectionName: "LWEvents",
     fragmentName: 'lastEventFragment',
     enableTotal: false,
   });

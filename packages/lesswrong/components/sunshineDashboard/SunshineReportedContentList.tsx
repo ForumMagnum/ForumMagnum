@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import Reports from '../../lib/collections/reports/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,7 +17,7 @@ const SunshineReportedContentList = ({ terms, classes }: {
   
   const { results, totalCount } = useMulti({
     terms,
-    collection: Reports,
+    collectionName: "Reports",
     fragmentName: 'unclaimedReportsList',
     enableTotal: true,
   });

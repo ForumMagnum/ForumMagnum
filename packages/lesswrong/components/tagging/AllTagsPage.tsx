@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Tags } from '../../lib/collections/tags/collection';
 import { useTagBySlug } from './useTag';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { EditTagForm } from './EditTagPage';
@@ -69,7 +68,7 @@ const AllTagsPage = ({classes}: {
       view: "allTagsHierarchical",
       wikiGrade: reverseWikiGradeDescriptions[wikiGrade]
     },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
     limit: 20,
     itemsPerPage: 100,

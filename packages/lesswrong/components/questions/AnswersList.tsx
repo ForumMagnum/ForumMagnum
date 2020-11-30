@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,7 +34,7 @@ const AnswersList = ({terms, post, classes}: {
 }) => {
   const { results } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,

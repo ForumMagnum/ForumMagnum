@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
@@ -57,7 +56,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   
   const { loadMore, results, loading, loadingMore, totalCount } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Votes } from '../../lib/collections/votes';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 
@@ -97,7 +96,7 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   const { SingleColumnSection, LoadMore, NewTagsList } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
-    collection: Votes,
+    collectionName: "Votes",
     fragmentName: 'TagVotingActivity',
     limit: limit,
     itemsPerPage: itemsPerPage,

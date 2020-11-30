@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -23,7 +22,7 @@ const RecentDiscussionThreadsList = ({
   
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsRecentDiscussion',
     fetchPolicy: 'cache-and-network',
     enableTotal: false,

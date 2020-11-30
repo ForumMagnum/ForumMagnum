@@ -2,8 +2,6 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
-import { Localgroups } from '../../lib/index';
-import { Posts } from '../../lib/collections/posts';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { PersonSVG } from './Icons'
@@ -107,14 +105,14 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsList",
     limit: 500,
   });
 
   const { results: groups = [] } = useMulti({
     terms: groupQueryTerms,
-    collection: Localgroups,
+    collectionName: "Localgroups",
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
   })

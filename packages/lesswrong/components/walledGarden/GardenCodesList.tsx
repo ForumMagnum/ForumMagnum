@@ -1,5 +1,4 @@
 import React from 'react';
-import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -14,7 +13,7 @@ export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: an
       fetchPolicy: 'cache-and-network',
       ...terms
     },
-    collection: GardenCodes,
+    collectionName: "GardenCodes",
     fragmentName: 'GardenCodeFragment'
   });
   return <div>

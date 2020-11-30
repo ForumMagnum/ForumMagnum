@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts';
 
 const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
   terms: any,
@@ -9,7 +8,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
 }) => {
   const { results, count, totalCount, loadMore, showLoadMore } = useMulti({
     terms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     enableTotal: true,
     itemsPerPage: 60
@@ -17,7 +16,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
 
   const { results: curatedResults } = useMulti({
     terms: {view:'curated', limit:1},
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
   });
   const curatedDate = new Date(curatedResults && curatedResults[0]?.curatedDate)

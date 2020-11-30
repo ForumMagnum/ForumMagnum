@@ -1,6 +1,5 @@
 import React from "react"
 import { TagFlags } from "../../lib";
-import { Tags } from "../../lib/collections/tags/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
@@ -63,7 +62,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
     
   const { totalCount, loading } = useMulti({
     terms: TagFlagItemTerms[itemType],
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
     skip: !showNumber,

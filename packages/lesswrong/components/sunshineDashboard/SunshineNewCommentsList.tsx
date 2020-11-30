@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,7 +14,7 @@ const SunshineNewCommentsList = ({ terms, classes }: {
 }) => {
   const { results, totalCount } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: true,
   });

@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Localgroups from '../../lib/collections/localgroups/collection';
 import { createStyles } from '@material-ui/core/styles'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -30,7 +29,7 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoad
 }) => {
   const { results, count, loadMore, totalCount, loading, loadingMore } = useMulti({
     terms,
-    collection: Localgroups,
+    collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
   });
