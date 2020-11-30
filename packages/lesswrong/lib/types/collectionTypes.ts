@@ -66,6 +66,10 @@ type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 
+interface ViewTermsBase {
+  limit?: number
+}
+
 // Common base type for everything that has an _id field (including both raw DB
 // objects and fragment-resolver results).
 interface HasIdType {
