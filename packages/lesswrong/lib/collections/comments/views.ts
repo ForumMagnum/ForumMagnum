@@ -18,7 +18,6 @@ declare global {
     legacyId?: string,
     authorIsUnreviewed?: boolean,
     sortBy?: string,
-    comment?: DbComment, //FIXME: this isn't a valid type for view terms
     before?: string,
     after?: string,
   }
@@ -342,7 +341,7 @@ ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:
 
 Comments.addView('shortformLatestChildren', (terms: CommentsViewTerms) => {
   return {
-    selector: { topLevelCommentId: terms.comment._id} ,
+    selector: { topLevelCommentId: terms.topLevelCommentId} ,
     options: {sort: {postedAt: -1}, limit: 500}
   };
 });

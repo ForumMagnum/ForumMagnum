@@ -28,7 +28,7 @@ Subscriptions.addView("subscriptionsOfType", function (terms: SubscriptionsViewT
     selector: {
       userId: terms.userId,
       collectionName: terms.collectionName,
-      type: terms.subcriptionType,
+      type: terms.subscriptionType,
       deleted: false,
       state: "subscribed",
     },

@@ -74,3 +74,4 @@ GardenCodes.addView("semipublicGardenCodes", function (terms: GardenCodesViewTer
 
 ensureIndex(GardenCodes, {code: 1, deleted: 1, userId: 1, });
 
+GardenCodes.addView("gardenCodeByCode", (terms: GardenCodesViewTerms) => ({}));
