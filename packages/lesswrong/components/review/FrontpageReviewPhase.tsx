@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: theme.palette.primary.light
+    backgroundColor: 'rgba(127, 175, 131, 0.75)'
   },
   coloredProgress: {
     position: 'absolute',
