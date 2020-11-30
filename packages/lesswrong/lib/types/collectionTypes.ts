@@ -119,4 +119,23 @@ interface ResolverContext extends CollectionsByName {
 
 type FragmentName = keyof FragmentTypes;
 
+interface EditableFieldContents {
+  html: string
+  wordCount: number
+  originalContents: any
+  editedAt: Date
+  userId: string
+  version: string
+  commitMessage?: string
+}
+
+// The subset of EditableFieldContents that you provide when creating a new document
+// or revision, ie, the parts of a revision which are not auto-generated.
+type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage">
+
+// For a DbObject, gets the field-names of all the make_editable fields.
+type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
+
+type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
+
 }

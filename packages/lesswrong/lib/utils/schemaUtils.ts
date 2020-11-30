@@ -12,6 +12,7 @@ export interface CollectionFieldSpecification<T extends DbObject> {
   optional?: boolean,
   defaultValue?: any,
   graphQLType?: string,
+  typescriptType?: string,
   resolveAs?: {
     type: string,
     fieldName?: string,
@@ -254,6 +255,10 @@ export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>,
   }
   collection.addField(translatedFields);
 }
+
+// For auto-generated database type definitions, provides a (string) definition
+// of this field's type. Useful for fields that would otherwise be black-box types.
+SimpleSchema.extendOptions(['typescriptType'])
 
 // For denormalized fields, needsUpdate is an optional attribute that
 // determines whether the denormalization function should be rerun given
