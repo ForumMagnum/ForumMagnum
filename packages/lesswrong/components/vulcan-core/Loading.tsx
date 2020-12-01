@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bounce3: {
     marginRight: 0,
-  }
+  },
   
   "@keyframes sk-bouncedelay": {
     "0%, 80%, 100%": {
