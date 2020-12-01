@@ -536,6 +536,7 @@ importComponent("NominatePostMenuItem", () => require('../components/review/Nomi
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog'));
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
 importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
+importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
 
 
 // Analytics Tracking
