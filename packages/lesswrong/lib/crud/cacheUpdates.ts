@@ -1,11 +1,13 @@
 import { Utils, Collections } from '../vulcan-lib';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
+import type { ApolloClient, ApolloCache } from '@apollo/client';
 
-export const updateCacheAfterCreate = (typeName: string) => {
+export const updateCacheAfterCreate = (typeName: string, client) => {
   const mutationName = getCreateMutationName(typeName);
   return (store, mutationResult) => {
     const { data: { [mutationName]: {data: document} } } = mutationResult
-    updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName,  document })
+    //updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName,  document })
+    invalidateEachQueryThatWouldReturnDocument({client, store, typeName, document});;
   }
 }
 
@@ -40,6 +42,33 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document })
     }
     store.writeQuery({query, data: newData, variables})
   })
+}
+
+export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, typeName, document }: {
+  client: ApolloClient<any>
+  store: ApolloCache<any>
+  typeName: string
+  document: any
+}) => {
+  const watches = (store as any).watches; // Use a private variable on ApolloCache to cover an API hole (no good way to enumerate queries in the cache)
+  
+  const watchesToCheck = findWatchesByTypeName(Array.from(store.watches), typeName)
+  watchesToCheck.forEach(({query, variables }) => {
+    const { input: { terms } } = variables
+    const parameters = getParametersByTypeName(terms, typeName);
+    if (Utils.mingoBelongsToSet(document, parameters.selector)) {
+      invalidateQuery({client, query, variables});
+    }
+  });
+}
+
+const invalidateQuery = ({client, query, variables}: {
+  client: ApolloClient<any>
+  query: any
+  variables: any
+}) => {
+  const observableQuery = client.watchQuery({query, variables})
+  void observableQuery.refetch(variables);
 }
 
 const getParametersByTypeName = (terms, typeName) => {
