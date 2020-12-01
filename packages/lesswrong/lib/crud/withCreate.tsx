@@ -32,7 +32,7 @@ import { Mutation } from '@apollo/client/react/components';
 import gql from 'graphql-tag';
 import { createClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
-import { cacheUpdateGenerator } from './cacheUpdates';
+import { updateCacheAfterCreate } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 
 export const withCreate = options => {
@@ -65,7 +65,7 @@ export const withCreate = options => {
         const extraVariables = getExtraVariables(ownProps, options.extraVariables)
         return mutate({
           variables: { data, ...extraVariables },
-          update: cacheUpdateGenerator(typeName, 'create')
+          update: updateCacheAfterCreate(typeName)
         });
       },
     })
@@ -100,7 +100,7 @@ export const useCreate = ({
   const wrappedCreate = ({ data }) => {
     return mutate({
       variables: { data },
-      update: cacheUpdateGenerator(typeName, 'create')
+      update: updateCacheAfterCreate(typeName)
     })
   }
   return {create: wrappedCreate, loading, error, called, data};

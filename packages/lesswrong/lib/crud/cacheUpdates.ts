@@ -1,23 +1,26 @@
 import { Utils, Collections } from '../vulcan-lib';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 
-export const cacheUpdateGenerator = (typeName, mutationType: 'update' | 'create' | 'delete') => {
-  switch(mutationType) {
-    case('update'): {
-      return (store, { data: { [getUpdateMutationName(typeName)]: {data: document} } }: any) => {
-        updateEachQueryResultOfType({ func: handleUpdateMutation, store, typeName,  document })
-      }
-    }
-    case('create'): {
-      return (store, { data: { [getCreateMutationName(typeName)]: {data: document} } }: any) => {
-        updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName, document })
-      }
-    }
-    case('delete'): {
-      return (store, { data: { [getDeleteMutationName(typeName)]: {data: document} } }: any) => {
-        updateEachQueryResultOfType({ func: handleDeleteMutation, store, typeName, document })
-      }
-    }
+export const updateCacheAfterCreate = (typeName: string) => {
+  const mutationName = getCreateMutationName(typeName);
+  return (store, mutationResult) => {
+    const { data: { [mutationName]: {data: document} } } = mutationResult
+    updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName,  document })
+  }
+}
+
+export const updateCacheAfterUpdate = (typeName: string) => {
+  const mutationName = getUpdateMutationName(typeName);
+  return (store, mutationResult) => {
+    const { data: { [mutationName]: {data: document} } } = mutationResult
+    updateEachQueryResultOfType({ func: handleUpdateMutation, store, typeName,  document })
+  }
+}
+
+export const updateCacheAfterDelete = (typeName: string) => {
+  const mutationName = getDeleteMutationName(typeName);
+  return (store, { data: { [mutationName]: {data: document} } }: any) => {
+    updateEachQueryResultOfType({ func: handleDeleteMutation, store, typeName, document })
   }
 }
 
