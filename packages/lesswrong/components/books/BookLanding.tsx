@@ -2,8 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Image } from 'cloudinary-react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import Row from 'react-bootstrap/Row';
-import { Button, TextField } from '@material-ui/core';
 import classNames from 'classnames';
 
 const bodyFontSize = "18px"
@@ -26,7 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   body: {
     fontSize: bodyFontSize,
-    fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`
+    fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`,
+    lineHeight: '1.6em'
   },
 
   outerWrapper: {
@@ -40,20 +39,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   bookContentContainer: {
-    margin: "0 0 25px",
-    height: "0",
-    paddingBottom: "100%",
+  //  margin: "0 0 25px",
+//    height: "0",
+ //   paddingBottom: "100%",
     position: "relative",
     backgroundColor: "#ffffff",
+    display: "flex"
+
     //overflow: "hidden"
   },
 
   bookContentImage: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    height: "60vh"
+    // position: "absolute",
+    // top: "50%",
+    // left: "50%",
+    // transform: "translate(-50%, -50%)",
+    height: "60vh",
+    margin: "auto auto"
   },
 
   wrapper: {
@@ -95,8 +97,9 @@ const styles = (theme: ThemeType): JssStyles => ({
  //   gridArea: "aboutTitle",
     alignItems: "flex-end",
  //   fontStyle: "italic",
-    fontSize: "18px",
-    color: "grey"
+    fontSize: "20px",
+    color: "grey",
+    marginBottom: "18px"
   },
 
   superTitle: {},
@@ -110,10 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "info"
   },
 
-  copy: {
-    fontSize: bodyFontSize,
-    lineHeight: "1.4em"
-  },
+
   button: {},
   buttonPrimary: {},
   authorList: {
@@ -249,6 +249,37 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+
+const Interlude = ({ classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, bodyText }: {
+  classes: ClassesType,
+  imageURL: string,
+  bigQuote: string,
+  bigQuoteAuthor: string,
+  accentColor: string,
+  bodyText: string
+}) => {
+
+  return (
+    <div>
+      <div className={classes.bookContentContainer} style={{display: "flex"}}>
+        <img className={classes.bookContentImage} src={imageURL} />
+      </div>
+      <div className={classNames(classes.textSettings, classes.wrapper)}>
+        <div className={classes.interludeTextContainer}>
+          <div className={classes.interludeBigQuote}>
+            {bigQuote}</div>
+          <div className={classes.interludeQuoteAuthor} style={{color: accentColor}}>
+            {bigQuoteAuthor}
+          </div>
+          <div className={classNames(classes.body, classes.interludeBodyText)}>
+            {bodyText}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const BookLanding = ({ classes }: {
   classes: ClassesType,
 }) => {
@@ -257,7 +288,12 @@ const BookLanding = ({ classes }: {
 
   return (
     <div>
-      <BookAnimation />
+      <div style={{display: "flex"}}>
+        <div style={{margin: "auto auto"}}>
+          <BookAnimation />
+        </div>
+      </div>
+
       <section>
         <div className={classes.outerWrapper}>
           <div className={classNames(classes.textSettings, classes.wrapper)}>
@@ -286,24 +322,23 @@ const BookLanding = ({ classes }: {
             <div className={classes.bookMeta}>
 
               <div className={classes.bookInfo}>
-                <p className={classes.copy}>
+                <p className={classes.body}>
                 {LW()} is a community blog devoted to refining the art of human rationality.
-                This is a collection of best new essays by the {LW()} community, collected into a beautifully packaged set,
-                each book small enough to fit in your pocket. For many who want to read {LW()}’s best recent ideas,
-                this is the best way to read {LW()}.</p>
+                This is a collection of the best new essays by the {LW()} community, with over 40 redesigned graphs,
+                packaged into beautiful set with each book small enough to fit in your pocket.</p>
               </div>
 
               <div className={classes.bookActions}>
                 <a className={classNames(classes.button, classes.buttonPrimary)}
                   data-analytics-source="book_scientific_freedom"
                   data-analytics-action="buy"
-                  href="https://www.amazon.com/dp/0578675919/"
+                  href=""
                   title="Buy this book on Amazon">
                 </a>
               </div>
 
               <div className={classes.authorList}>
-                <p className={classes.copy}>
+                <p className={classes.body}>
                   <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, Samo Burja, </span>
                   Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
                   Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
@@ -314,31 +349,46 @@ const BookLanding = ({ classes }: {
           </div>
         </div>
       </section>
-      <section>
-        <div className={classNames(classes.textSettings, classes.wrapper)}>
-          <div className={classes.bookContentContainer}>
-            <img className={classes.bookContentImage} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606289257/Book%20landing%20page/Epistemology_internals_cropped_on_white.jpg" />
-          </div>
-          <div className={classes.interludeTextContainer}>
-            <div className={classes.interludeBigQuote}>
-              The essays from LessWrong have been one of my favorite sources of wisdom [...]
-              Especially in our rapidly changing world, these writings are among those that I expect
-              will continue to be read many decades from now.</div>
-            <div className={classes.interludeQuoteAuthor} style={{color: "#40AD48"}}>
-              Vitalik Buterin (Creator, <span style={{fontVariant: "small-caps"}}>Ethereum</span>)
-            </div>
-            <div className={classNames(classes.body, classes.interludeBodyText)}>
-              A scientist is not simply someone who tries to understand how biological life works, or how chemicals combine,
-              or how physical objects move, but is someone who uses the general scientific method in each area, that allows them
-              to empirically test their beliefs and discover what's true. Similarly, a rationalist is not simply someone who
-              tries to think clearly about their personal life, or who tries to understand how civilization works,
-              or who tries to figure out what's true in a single domain like nutrition or machine learning.
-            </div>
-          </div>
-        </div>
+        <Interlude classes={classes}
+          imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606289257/Book%20landing%20page/Epistemology_internals_cropped_on_white.jpg"
+          bigQuote="The essays from LessWrong have been one of my favorite sources of wisdom [...]
+            Especially in our rapidly changing world, these writings are among those that I expect
+            will continue to be read many decades from now."
+          bigQuoteAuthor="Vitalik Buterin (Co-founder, Ethereum)"
+          accentColor="#40AD48"
+          bodyText="A scientist is not simply someone who tries to understand how life works, chemicals combine, or physical objects move.
+            They are someone who uses the general scientific method in each area, empirically testing their beliefs and discover what's true.
+            Similarly, a rationalist is not simply someone who tries to think clearly about their personal life, or who tries to understand how
+            civilization works, or who tries to figure out what's true in a single domain like nutrition or machine learning."
+          />
 
+        <Interlude classes={classes}
+          imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606289258/Book%20landing%20page/Agency_internals_copy.jpg"
+          bigQuote="Whenever there’s a cutting-edge new idea making the rounds, Eliezer was writing about it 5-10 years ago.
+            A deep dive into LessWrong will make you smarter."
+          bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
+          accentColor="#eb5b50"
+          bodyText="A rationalist is someone who is curious about the general thinking patterns that allow them to think clearly in any area,
+            and understand the laws and tools that help them make good decisions in general. The essays here explore many elements of rationality,
+            including questions about arguments, aesthetics, artificial intelligence, bayesianism, introspection, markets, game theory, and more."
+          />
 
-      </section>
+        <Interlude classes={classes}
+          imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606289260/Book%20landing%20page/Curiosity_internals_white_cropped.jpg"
+          bigQuote="Whenever there’s a cutting-edge new idea making the rounds, Eliezer was writing about it 5-10 years ago.
+            A deep dive into LessWrong will make you smarter."
+          bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
+          accentColor="#e8b10e"
+          bodyText="LessWrong is a community blog devoted to refining the art of human rationality.
+            Each year thousands of posts are written to the site. The users of the site reviewed and voted on the best posts in the last year,
+            and forty-one of the best posts were formed into this beautiful and professionally designed book set,
+            each book focused on a single theme related to the art of rationality."
+          />
+
+        <button type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+          Read a free sample chapter.
+        </button>
+
     </div>
 
   )
