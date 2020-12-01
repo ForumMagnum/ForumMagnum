@@ -30,6 +30,7 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
     limit: 5,
+    itemsPerPage: 50,
   });
 
   useEffect(() => {
