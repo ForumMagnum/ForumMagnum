@@ -72,7 +72,8 @@ const PostsList2 = ({
   itemsPerPage=25,
   hideAuthor=false,
   boxShadow=true,
-  curatedIconLeft=false
+  curatedIconLeft=false,
+  showFinalBottomBorder=false
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -94,6 +95,7 @@ const PostsList2 = ({
   hideAuthor?: boolean,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
+  showFinalBottomBorder?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -180,7 +182,7 @@ const PostsList2 = ({
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",
-            showBottomBorder: (orderedResults.length > 1) && i < (orderedResults.length - 1)
+            showBottomBorder: showFinalBottomBorder || (orderedResults.length > 1) && i < (orderedResults.length - 1)
           };
 
           if (!(hidePosts && hidePosts[i])) {

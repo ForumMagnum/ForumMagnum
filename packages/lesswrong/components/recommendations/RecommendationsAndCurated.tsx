@@ -123,9 +123,9 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+      {/* {<AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
-      </AnalyticsContext>}
+      </AnalyticsContext>} */}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
@@ -164,7 +164,7 @@ const RecommendationsAndCurated = ({
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
-          <AnalyticsContext listContext={"curatedPosts"}>
+          {/* <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
@@ -173,7 +173,7 @@ const RecommendationsAndCurated = ({
               boxShadow={false}
               curatedIconLeft={true}
             />
-          </AnalyticsContext>
+          </AnalyticsContext> */}
         </div>
       </div>
 
