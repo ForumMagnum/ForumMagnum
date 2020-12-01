@@ -52,7 +52,7 @@ export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, type
 }) => {
   const watches = (store as any).watches; // Use a private variable on ApolloCache to cover an API hole (no good way to enumerate queries in the cache)
   
-  const watchesToCheck = findWatchesByTypeName(Array.from(store.watches), typeName)
+  const watchesToCheck = findWatchesByTypeName(Array.from(watches), typeName)
   watchesToCheck.forEach(({query, variables }) => {
     const { input: { terms } } = variables
     const parameters = getParametersByTypeName(terms, typeName);
