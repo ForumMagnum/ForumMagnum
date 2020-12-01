@@ -6,13 +6,12 @@ import { LWEvents } from '../../lib/collections/lwevents';
 import { useMulti } from '../../lib/crud/withMulti';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import Users from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
-import { DatabasePublicSetting, gatherTownRoomId, gatherTownRoomName } from '../../lib/publicSettings';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { CAL_ID } from '../walledGarden/gardenCalendar';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
@@ -46,7 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: 'flex-start',
     flexWrap: "wrap",
-    marginTop: 0
+    marginTop: 0,
+    marginBottom: 4
   },
   noUsers: {
     fontSize: '0.8rem',
@@ -114,11 +114,11 @@ const GatherTown = ({classes}: {
   const { flash } = useMessages();
 
   const { mutate: updateUser } = useUpdate({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersCurrent',
   });
 
-  const { LWTooltip, AnalyticsTracker, WalledGardenEvents } = Components
+  const { LWTooltip, AnalyticsTracker, GardenCodesList } = Components
 
   if (!currentUser) return null
   if (!gardenOpenToPublic.get() && !currentUser.walledGardenInvite) return null
@@ -144,7 +144,7 @@ const GatherTown = ({classes}: {
     })
   }
 
-  const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}` //"/walledGardenPortal"
+  const gatherTownURL = "/walledGardenPortal"
 
   const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
     <div>
@@ -156,23 +156,26 @@ const GatherTown = ({classes}: {
       </Link>
   </LWTooltip> : null
 
+  let eventTypes = currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']
+
   return (
     <div className={classes.root}>
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />
       <div className={classes.icon}>{gatherIcon} </div>
       <div>
         <AnalyticsTracker eventType="link" eventProps={{to: gatherTownURL}} captureOnMount>
-          <div><a href={gatherTownURL}>Walled Garden Beta</a></div>
+          <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
         </AnalyticsTracker>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
             {tooltip}
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
-          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/> No users currently online. Check back later or be the first to join!
+          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
+          No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        <WalledGardenEvents />
+        <GardenCodesList terms={{view:"semipublicGardenCodes", types: eventTypes}} />
         <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
       </div>
     </div>

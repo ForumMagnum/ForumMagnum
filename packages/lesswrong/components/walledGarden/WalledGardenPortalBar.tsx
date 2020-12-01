@@ -1,26 +1,28 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Button, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from '../common/withUser';
 import { CAL_ID } from "./gardenCalendar";
+import { gatherTownURL } from "./GatherTownIframeWrapper";
 
 const widgetStyling = {
-  marginLeft: "30px",
+  marginLeft: 30,
 }
 
 const gatherTownRightSideBarWidth = 300
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme),
+    ...commentBodyStyles(theme, true),
     padding: 16,
     marginBottom: 0,
     marginTop: 0,
-    position: "relative"
+    position: "relative",
   },
   widgetsContainer: {
     display: "flex",
+    flexWrap: "wrap"
   },
   portalBarButton: {
     position: "relative",
@@ -38,18 +40,17 @@ const styles = (theme) => ({
     ...widgetStyling
   },
   pomodoroTimerWidget: {
-    ...widgetStyling,
-    textAlign: "right",
-    position: "absolute",
-    right: 12,
-    top: 0,
+    ...widgetStyling
+  },
+  codesList: {
+    marginLeft: 60
   },
   calendarLinks: {
     fontSize: ".8em",
     marginTop: "3px"
   },
   events: {
-    marginRight: 100
+    marginRight: 60
   },
   fbEventButton: {
     width: 135
@@ -61,31 +62,40 @@ const styles = (theme) => ({
   },
   calendars: {
     marginLeft: 60
+  },
+  link: {
+    marginRight: 16,
+    fontSize: "1rem",
+    fontStyle: "italic",
+    '& a': {
+      color: theme.palette.grey[500]
+    }
   }
 })
 
-export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, classes:ClassesType}) => {
-  const { GardenCodeWidget, WalledGardenEvents, PomodoroWidget } = Components
+export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
+  const { GardenCodeWidget, GardenCodesList, PomodoroWidget } = Components
 
   const currentUser =  useCurrentUser()
 
   if (!currentUser) return null
-  const refocusOnIframe = () => iframeRef.current.focus()
+  const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
       {currentUser.walledGardenInvite && <div className={classes.events}>
         <Typography variant="title">Garden Events</Typography>
         <div className={classes.calendarLinks}>
-          <GardenCodeWidget/>
-          <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank" rel="noopener noreferrer">
-            <Button variant="outlined" className={classes.fbEventButton}>Create FB Event</Button>
-          </a></div>
+          <div><GardenCodeWidget type="friend"/></div>
+          <div><GardenCodeWidget type="event"/></div>
         </div>
       </div>}
       {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
-        <WalledGardenEvents frontpage={false}/>
+        <GardenCodesList terms={{view:"semipublicGardenCodes", types: ['public', 'semi-public']}} />
       </div>}
+      <div className={classes.codesList}>
+        <GardenCodesList terms={{view:"userGardenCodes"}}  />
+      </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
@@ -95,6 +105,11 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:any, class
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
             Facebook Group
+          </a>
+        </div>
+        <div className={classes.link}>
+          <a href={gatherTownURL} rel="noopener noreferrer">
+            Backup GatherTown Link
           </a>
         </div>
       </div>}

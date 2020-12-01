@@ -3,7 +3,8 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from '../../../lib/collections/users/collection';
+import { userOwns } from '../../../lib/vulcan-users/permissions';
+import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 
@@ -25,7 +26,7 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPe
       if (!bannedPersonalUserIds.includes(commentUserId)) {
         bannedPersonalUserIds.push(commentUserId)
       }
-      updateUser({
+      void updateUser({
         selector: { _id: currentUser._id },
         data: {bannedPersonalUserIds:bannedPersonalUserIds},
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your personal blog posts`}))
@@ -34,7 +35,7 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPe
 
   render() {
     const { currentUser, post } = this.props
-    if (Users.canModeratePost(currentUser, post) && !post.frontpageDate && Users.owns(currentUser, post)) {
+    if (userCanModeratePost(currentUser, post) && !post.frontpageDate && userOwns(currentUser, post)) {
         return <MenuItem onClick={ this.handleBanUserFromAllPosts }>
           Ban from all your personal blog posts
         </MenuItem>
@@ -49,7 +50,7 @@ const BanUserFromAllPersonalPostsMenuItemComponent = registerComponent<ExternalP
     hocs: [
       withMessages,
       withUpdate({
-        collection: Users,
+        collectionName: "Users",
         fragmentName: 'UsersProfile',
       }),
       withUser

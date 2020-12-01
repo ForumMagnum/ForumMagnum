@@ -9,7 +9,7 @@ import StarIcon from '@material-ui/icons/Star';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import * as _ from 'underscore';
 import classNames from 'classnames';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';

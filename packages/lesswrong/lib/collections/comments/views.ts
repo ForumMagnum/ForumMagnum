@@ -341,6 +341,20 @@ Comments.addView('nominations2018', function ({userId, postId, sortBy="top"}) {
     }
   };
 });
+
+Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      nominatedForReview: "2019",
+      deleted: false
+    },
+    options: {
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+    }
+  };
+});
 // Filtering comments down to ones that include "nominated for Review" so further sort indexes not necessary
 ensureIndex(Comments,
   augmentForDefaultView({ nominatedForReview: 1, userId: 1, postId: 1 }),
@@ -354,6 +368,21 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
       userId, 
       postId, 
       reviewingForReview: "2018",
+      deleted: false
+    },
+    options: {
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+    }
+  };
+});
+
+Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
+  
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      reviewingForReview: "2019",
       deleted: false
     },
     options: {

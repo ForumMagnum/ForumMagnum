@@ -64,7 +64,6 @@ const SubscribeTo = ({
     collection: Subscriptions,
     fragmentName: 'SubscriptionState',
     enableTotal: false,
-    ssr: true
   });
   
   if (loading) {

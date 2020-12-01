@@ -73,7 +73,6 @@ const AllTagsPage = ({classes}: {
     fragmentName: "TagPreviewFragment",
     limit: 20,
     itemsPerPage: 100,
-    ssr: true
   });
 
   const currentUser = useCurrentUser()

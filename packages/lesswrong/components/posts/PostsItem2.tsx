@@ -1,14 +1,13 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Posts } from "../../lib/collections/posts";
-import { Sequences } from "../../lib/collections/sequences/collection";
-import { Collections } from "../../lib/collections/collections/collection";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt } from "../../lib/collections/posts/helpers";
+import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
+import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
-import Hidden from '@material-ui/core/Hidden';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -172,6 +171,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "none",
     [theme.breakpoints.down('xs')]: {
       display: "block"
+    }
+  },
+  nonMobileIcons: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none"
     }
   },
   mobileDismissButton: {
@@ -376,27 +380,27 @@ const PostsItem2 = ({
   }
 
   const hasUnreadComments = () => {
-    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const lastCommentedAt = postGetLastCommentedAt(post)
     const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
   }
 
   const hasNewPromotedComments = () => {
     const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
-    const lastCommentPromotedAt = Posts.getLastCommentPromotedAt(post)
+    const lastCommentPromotedAt = postGetLastCommentPromotedAt(post)
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
   }
 
   const hadUnreadComments = () => {
-    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const lastCommentedAt = postGetLastCommentedAt(post)
     return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
   }
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
 
-  const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
+  const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
   const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
@@ -414,7 +418,7 @@ const PostsItem2 = ({
     after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
   }
 
-  const reviewCountsTooltip = `${post.nominationCount2018 || 0} nomination${(post.nominationCount2018 === 1) ? "" :"s"} / ${post.reviewCount2018 || 0} review${(post.nominationCount2018 === 1) ? "" :"s"}`
+  const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   return (
       <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
@@ -461,8 +465,8 @@ const PostsItem2 = ({
                   <div className={classes.subtitle}>
                     {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                       resumeReading.sequence
-                        ? Sequences.getPageUrl(resumeReading.sequence)
-                        : Collections.getPageUrl(resumeReading.collection)
+                        ? sequenceGetPageUrl(resumeReading.sequence)
+                        : collectionGetPageUrl(resumeReading.collection)
                     }>
                       {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
                     </Link>
@@ -488,9 +492,9 @@ const PostsItem2 = ({
                   {!resumeReading && <PostsPageActions post={post} />}
                 </div>}
 
-                {showIcons && <Hidden smUp implementation="css">
+                {showIcons && <div className={classes.nonMobileIcons}>
                   <PostsItemIcons post={post}/>
-                </Hidden>}
+                </div>}
 
                 {!resumeReading && <div className={classes.commentsIcon}>
                   <PostsItemComments
@@ -504,15 +508,15 @@ const PostsItem2 = ({
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
-                    {showNominationCount && <span>{post.nominationCount2018 || 0}</span>}
-                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2018 || <span className={classes.noReviews}>0</span>}</span>}
+                    {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
 
-                {/* {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
-                  <ReviewPostButton post={post}/>
-                </Link>} */}
+                {(post.nominationCount2019 >= 2) && <Link to={postGetPageUrl(post)}>
+                  <ReviewPostButton post={post} year="2019"/>
+                </Link>}
 
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>

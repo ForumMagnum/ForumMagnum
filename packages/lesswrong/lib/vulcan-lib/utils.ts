@@ -13,30 +13,6 @@ import { DatabasePublicSetting } from '../publicSettings';
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 interface UtilsType {
-  // In vulcan-lib/utils.ts
-  camelToSpaces: (str: string) => string
-  dashToCamel: (str: string) => string
-  camelCaseify: (str: string) => string
-  capitalize: (str: string) => string
-  
-  getSiteUrl: () => string
-  getOutgoingUrl: (url: string) => string
-  slugify: (s: string) => string
-  getDomain: (url: string) => string|null
-  addHttp: (url: string) => string|null
-  combineUrls: (baseUrl: string, path: string) => string
-  getBasePath: (path: string) => string
-  
-  checkNested: any
-  getNestedProperty: any
-  getLogoUrl:() => string|undefined
-  encodeIntlError: any
-  decodeIntlError: any
-  findWhere: any
-  isPromise: (value: any) => boolean
-  pluralize: (s: string) => string
-  removeProperty: (obj: any, propertyName: string) => void
-  
   // In lib/helpers.ts
   getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => string
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => string
@@ -53,13 +29,6 @@ interface UtilsType {
   // In server/vulcan-lib/connectors.ts
   Connectors: any
   
-  // In lib/vulcan-lib/deep_extend.ts
-  deepExtend: any
-  
-  // In server/editor/utils.ts
-  trimLatexAndAddCSS: any
-  preProcessLatex: any
-  
   // In server/tableOfContents.ts
   getTableOfContentsData: any
   extractTableOfContents: any
@@ -68,10 +37,6 @@ interface UtilsType {
   createMutator: any
   updateMutator: any
   deleteMutator: any
-  
-  // In lib/collections/sequences/utils.ts
-  getSequencePostLinks: any
-  getCurrentChapter: any
   
   // In server/vulcan-lib/utils.ts
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
@@ -82,38 +47,26 @@ interface UtilsType {
 
 export const Utils: UtilsType = ({} as UtilsType);
 
-/**
- * @summary Convert a camelCase string to a space-separated capitalized string
- * See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
- * @param {String} str
- */
-Utils.camelToSpaces = function (str: string): string {
+// @summary Convert a camelCase string to a space-separated capitalized string
+// See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
+export const camelToSpaces = function (str: string): string {
   return str.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); });
 };
 
-/**
- * @summary Convert a dash separated string to camelCase.
- * @param {String} str
- */
-Utils.dashToCamel = function (str: string): string {
+// Convert a dash separated string to camelCase.
+export const dashToCamel = function (str: string): string {
   return str.replace(/(-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
 };
 
-/**
- * @summary Convert a string to camelCase and remove spaces.
- * @param {String} str
- */
-Utils.camelCaseify = function(str: string): string {
-  str = this.dashToCamel(str.replace(' ', '-'));
+// Convert a string to camelCase and remove spaces.
+export const camelCaseify = function(str: string): string {
+  str = dashToCamel(str.replace(' ', '-'));
   str = str.slice(0,1).toLowerCase() + str.slice(1);
   return str;
 };
 
-/**
- * @summary Capitalize a string.
- * @param {String} str
- */
-Utils.capitalize = function(str: string): string {
+// Capitalize a string.
+export const capitalize = function(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
@@ -124,7 +77,7 @@ Utils.capitalize = function(str: string): string {
 /**
  * @summary Returns the user defined site URL or Meteor.absoluteUrl. Add trailing '/' if missing
  */
-Utils.getSiteUrl = function (): string {
+export const getSiteUrl = function (): string {
   let url = siteUrlSetting.get();
   if (url.slice(-1) !== '/') {
     url += '/';
@@ -136,11 +89,11 @@ Utils.getSiteUrl = function (): string {
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
  */
-Utils.getOutgoingUrl = function (url: string): string {
-  return Utils.getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+export const getOutgoingUrl = function (url: string): string {
+  return getSiteUrl() + 'out?url=' + encodeURIComponent(url);
 };
 
-Utils.slugify = function (s: string): string {
+export const slugify = function (s: string): string {
   var slug = getSlug(s, {
     truncate: 60
   });
@@ -158,7 +111,7 @@ Utils.slugify = function (s: string): string {
   return slug;
 };
 
-Utils.getDomain = function(url: string): string|null {
+export const getDomain = function(url: string): string|null {
   try {
     const hostname = urlObject.parse(url).hostname
     return hostname!.replace('www.', '');
@@ -168,7 +121,7 @@ Utils.getDomain = function(url: string): string|null {
 };
 
 // add http: if missing
-Utils.addHttp = function (url: string): string|null {
+export const addHttp = function (url: string): string|null {
   try {
     if (url.substring(0, 5) !== 'http:' && url.substring(0, 6) !== 'https:') {
       url = 'http:'+url;
@@ -181,14 +134,14 @@ Utils.addHttp = function (url: string): string|null {
 
 // Combine urls without extra /s at the join
 // https://stackoverflow.com/questions/16301503/can-i-use-requirepath-join-to-safely-concatenate-urls
-Utils.combineUrls = (baseUrl: string, path:string) => {
+export const combineUrls = (baseUrl: string, path:string) => {
   return path
     ? baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
     : baseUrl;
 }
 
 // Remove query and anchor tags from path
-Utils.getBasePath = (path: string) => {
+export const getBasePath = (path: string) => {
   return path.split(/[?#]/)[0]
 }
 
@@ -197,7 +150,7 @@ Utils.getBasePath = (path: string) => {
 /////////////////////////////
 
 // http://stackoverflow.com/questions/2631001/javascript-test-for-existence-of-nested-object-key
-Utils.checkNested = function(obj /*, level1, level2, ... levelN*/) {
+export const checkNested: any = function(obj /*, level1, level2, ... levelN*/) {
   var args = Array.prototype.slice.call(arguments);
   obj = args.shift();
 
@@ -211,24 +164,24 @@ Utils.checkNested = function(obj /*, level1, level2, ... levelN*/) {
 };
 
 // see http://stackoverflow.com/questions/8051975/access-object-child-properties-using-a-dot-notation-string
-Utils.getNestedProperty = function (obj, desc) {
+export const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
 
-Utils.getLogoUrl = (): string|undefined => {
+export const getLogoUrl = (): string|undefined => {
   const logoUrl = logoUrlSetting.get()
   if (logoUrl) {
-    const prefix = Utils.getSiteUrl().slice(0,-1);
+    const prefix = getSiteUrl().slice(0,-1);
     // the logo may be hosted on another website
     return logoUrl.indexOf('://') > -1 ? logoUrl : prefix + logoUrl;
   }
 };
 
-Utils.encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);
+export const encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);
 
-Utils.decodeIntlError = (error, options = {stripped: false}) => {
+export const decodeIntlError = (error, options = {stripped: false}) => {
   try {
     // do we get the error as a string or as an error object?
     let strippedError = typeof error === 'string' ? error : error.message;
@@ -265,11 +218,11 @@ Utils.decodeIntlError = (error, options = {stripped: false}) => {
   }
 };
 
-Utils.findWhere = (array, criteria) => array.find(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
+export const findWhere = (array, criteria) => array.find(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
 
-Utils.isPromise = (value: any): boolean => isFunction(get(value, 'then'));
+export const isPromise = (value: any): boolean => isFunction(get(value, 'then'));
 
-Utils.pluralize = (s: string): string => {
+export const pluralize = (s: string): string => {
   const plural = s.slice(-1) === 'y' ?
     `${s.slice(0, -1)}ies` :
     s.slice(-1) === 's' ?
@@ -278,12 +231,12 @@ Utils.pluralize = (s: string): string => {
   return plural;
 };
 
-Utils.removeProperty = (obj: any, propertyName: string): void => {
+export const removeProperty = (obj: any, propertyName: string): void => {
   for(const prop in obj) {
     if (prop === propertyName){
       delete obj[prop];
     } else if (typeof obj[prop] === 'object') {
-      Utils.removeProperty(obj[prop], propertyName);
+      removeProperty(obj[prop], propertyName);
     }
   }
 };

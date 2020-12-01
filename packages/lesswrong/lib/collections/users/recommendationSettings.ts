@@ -1,8 +1,28 @@
 import SimpleSchema from 'simpl-schema';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import Users from "../users/collection";
+import { userOwns } from '../../vulcan-users/permissions';
 
-export const defaultAlgorithmSettings = {
+export interface RecommendationsAlgorithm {
+  method: "top"|"sample"
+  count?: number
+  scoreOffset: number
+  scoreExponent: number
+  coronavirus?: boolean
+  reviewNominations?: 2018 | 2019
+  reviewReviews?: 2018 | 2019
+  includePersonal?: boolean
+  includeMeta?: boolean
+  minimumBaseScore?: number
+  excludeDefaultRecommendations?: boolean
+  onlyUnread?: boolean
+  
+  curatedModifier?: number
+  frontpageModifier?: number
+  personalBlogpostModifier?: number
+}
+
+export const defaultAlgorithmSettings: RecommendationsAlgorithm = {
   method: "top",
   count: 10,
   scoreOffset: 0,
@@ -38,8 +58,8 @@ addFieldsDict(Users, {
     type: recommendationSettingsSchema,
     blackbox: true,
     hidden: true,
-    canRead: [Users.owns],
-    canUpdate: [Users.owns],
+    canRead: [userOwns],
+    canUpdate: [userOwns],
     optional: true,
   },
 });

@@ -7,6 +7,7 @@
 // use apollo-server-express integration
 //import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
 
@@ -135,11 +136,13 @@ onStartup(() => {
     
     //engine: engineConfig,
     schema: getExecutableSchema(),
-    formatError: (e) => {
+    formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
       // eslint-disable-next-line no-console
-      console.error(e.extensions.exception)
-      return formatError(e);
+      console.error(e?.extensions?.exception)
+      // TODO: Replace sketchy apollo-errors package with something first-party
+      // and that doesn't require a cast here
+      return formatError(e) as any;
     },
     //tracing: isDevelopment,
     tracing: false,

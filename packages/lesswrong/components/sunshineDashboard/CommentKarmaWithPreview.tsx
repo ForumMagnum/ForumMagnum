@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import Comments from '../../lib/collections/comments/collection';
+import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,14 +15,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const CommentKarmaWithPreview = ({ comment, classes }) => {
+const CommentKarmaWithPreview = ({ comment, classes }: {
+  comment: CommentsList,
+  classes: ClassesType,
+}) => {
   const { hover, anchorEl, eventHandlers } = useHover();
   const { LWPopper, CommentsNode } = Components
 
   if (!comment) return null 
 
   return <span className={classes.root} {...eventHandlers}>
-    <Link to={Comments.getPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.baseScore}</Link>
+    <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.baseScore}</Link>
     <LWPopper
         open={hover}
         anchorEl={anchorEl}

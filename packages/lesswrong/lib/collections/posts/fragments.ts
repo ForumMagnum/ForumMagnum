@@ -46,6 +46,7 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+    socialPreviewImageUrl
 
     # questions
     question
@@ -99,6 +100,8 @@ registerFragment(`
     
     nominationCount2018
     reviewCount2018
+    nominationCount2019
+    reviewCount2019
 
     group {
       _id
@@ -116,9 +119,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
   }
 `);
 
@@ -144,9 +145,11 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     moderationGuidelines {
+      _id
       html
     }
     customHighlight {
+      _id
       html
     }
     lastPromotedComment {
@@ -165,6 +168,7 @@ registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
     contents {
+      _id
       htmlHighlight
       wordCount
       version
@@ -197,12 +201,15 @@ registerFragment(`
     canonicalSequenceId
     canonicalBookId
     canonicalSequence {
+      _id
       title
     }
     canonicalBook {
+      _id
       title
     }
     canonicalCollection {
+      _id
       title
     }
 
@@ -212,6 +219,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     customHighlight {
+      _id
       version
       html
     }
@@ -221,9 +229,7 @@ registerFragment(`
     
     # Voting
     voteCount
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
     feed {
       ...RSSFeedMinimumInfo
     }
@@ -243,6 +249,16 @@ registerFragment(`
         ...PostsList
       }
       order
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsExpandedHighlight on Post {
+    _id
+    contents {
+      _id
+      html
     }
   }
 `);
@@ -398,11 +414,10 @@ registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsListBase
 
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
 
     contents {
+      _id
       html
       htmlHighlight
       wordCount
@@ -417,6 +432,7 @@ registerFragment(`
       moderatorAssistance
       
       moderationGuidelines {
+        _id
         html
       }
     }

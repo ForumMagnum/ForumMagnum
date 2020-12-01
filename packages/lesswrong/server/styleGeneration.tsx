@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/server';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
 import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
-import { addStaticRoute } from './vulcan-lib';
+import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import * as _ from 'underscore';
 import crypto from 'crypto'; //nodejs core library
 
@@ -50,7 +50,7 @@ addStaticRoute("/allStyles", ({query}, req, res, next) => {
   if (!expectedHash || expectedHash === stylesheetHash) {
     res.writeHead(200, {
       "Cache-Control": "public, max-age=604800, immutable",
-      "Content-Type": "text/css"
+      "Content-Type": "text/css; charset=utf-8"
     });
     res.end(css);
   } else {

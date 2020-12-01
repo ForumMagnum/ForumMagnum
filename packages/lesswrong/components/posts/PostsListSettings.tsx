@@ -67,10 +67,6 @@ const FILTERS_ALL = {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
     },
-    meta: {
-      label: "Community",
-      tooltip: "Posts about the EA community (including jobs, events, and announcements)."
-    },
   }
 }
 const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
@@ -198,7 +194,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
   setSetting = (type, newSetting) => {
     const { updateUser, currentUser, persistentSettings } = this.props
     if (currentUser && persistentSettings) {
-      updateUser({
+      void updateUser({
         selector: { _id: currentUser._id},
         data: {
           [USER_SETTING_NAMES[type]]: newSetting,
@@ -280,4 +276,3 @@ declare global {
     PostsListSettings: typeof PostsListSettingsComponent
   }
 }
-

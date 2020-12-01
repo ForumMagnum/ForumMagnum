@@ -4,7 +4,14 @@ import Reports from '../../lib/collections/reports/collection'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 
-const ReportForm = ({ userId, postId, commentId, onClose, title, link }) => {
+const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
+  userId: string,
+  postId: string,
+  commentId?: string,
+  onClose: ()=>void,
+  title?: string,
+  link: string,
+}) => {
   return (
     <Dialog
       title={title}

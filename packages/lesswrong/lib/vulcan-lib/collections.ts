@@ -1,12 +1,13 @@
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
+import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
 import { runCallbacks } from './callbacks';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { Collections } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
-import { Utils } from './utils';
+import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
@@ -28,7 +29,7 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
-export const getCollectionName = (typeName): CollectionNameString => Utils.pluralize(typeName) as CollectionNameString;
+export const getCollectionName = (typeName): CollectionNameString => pluralize(typeName) as CollectionNameString;
 
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
@@ -136,8 +137,8 @@ export const createCollection = (options: {
   // add typeName if missing
   collection.typeName = typeName;
   collection.options.typeName = typeName;
-  collection.options.singleResolverName = Utils.camelCaseify(typeName);
-  collection.options.multiResolverName = Utils.camelCaseify(Utils.pluralize(typeName));
+  collection.options.singleResolverName = camelCaseify(typeName);
+  collection.options.multiResolverName = camelCaseify(pluralize(typeName));
 
   // add collectionName if missing
   collection.collectionName = collectionName;
@@ -177,8 +178,7 @@ export const createCollection = (options: {
     };
 
     if (collection.defaultView) {
-      parameters = Utils.deepExtend(
-        true,
+      parameters = merge(
         parameters,
         collection.defaultView(terms, apolloClient, context)
       );
@@ -188,7 +188,7 @@ export const createCollection = (options: {
     if (terms.view && collection.views[terms.view]) {
       const viewFn = collection.views[terms.view];
       const view = viewFn(terms, apolloClient, context);
-      let mergedParameters = Utils.deepExtend(true, parameters, view);
+      let mergedParameters = merge(parameters, view);
 
       if (
         mergedParameters.options &&
@@ -239,7 +239,7 @@ export const createCollection = (options: {
     // extend sort to sort posts by _id to break ties, unless there's already an id sort
     // NOTE: always do this last to avoid overriding another sort
     if (!(parameters.options.sort && typeof parameters.options.sort._id !== undefined)) {
-      parameters = Utils.deepExtend(true, parameters, { options: { sort: { _id: -1 } } });
+      parameters = merge(parameters, { options: { sort: { _id: -1 } } });
     }
 
     // remove any null fields (setting a field to null means it should be deleted)
@@ -248,7 +248,7 @@ export const createCollection = (options: {
         parameters.selector[key] = null;
       } else if (_.isEqual(parameters.selector[key], viewFieldAllowAny)) {
         delete parameters.selector[key];
-      } else if (parameters.selector[key] === null) {
+      } else if (parameters.selector[key] === null || parameters.selector[key] === undefined) {
         //console.log(`Warning: Null key ${key} in query of collection ${collectionName} with view ${terms.view}.`);
         delete parameters.selector[key];
       }

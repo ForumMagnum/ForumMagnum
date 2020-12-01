@@ -2,7 +2,7 @@ import React, {useState, useCallback} from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import { commentBodyStyles } from '../../themes/stylePiping'
@@ -19,7 +19,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     ...theme.typography.display2,
-    ...theme.typography.postStyle,
+    ...theme.typography.commentStyle,
+    fontVariant: "small-caps",
     marginTop: 0,
     marginBottom: 8,
     display: "block",
@@ -96,7 +97,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
   
   return <div className={classes.root}>
     <div className={classes.tag}>
-      <Link to={Tags.getDiscussionUrl(tag)} className={classes.title}>
+      <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
         {tag.name}
       </Link>
       

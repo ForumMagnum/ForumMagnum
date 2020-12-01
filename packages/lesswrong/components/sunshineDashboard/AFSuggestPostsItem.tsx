@@ -2,7 +2,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
-import Users from '../../lib/collections/users/collection';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -16,14 +18,14 @@ interface ExternalProps {
   post: SuggestAlignmentPost,
 }
 interface AFSuggestPostsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updatePost: any,
+  updatePost: WithUpdateFunction<PostsCollection>,
 }
 
 class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 
   handleMoveToAlignment = () => {
     const { currentUser, post, updatePost } = this.props
-    updatePost({
+    void updatePost({
       selector: {_id: post._id},
       data: {
         reviewForAlignmentUserId: currentUser!._id,
@@ -35,7 +37,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 
   handleDisregardForAlignment = () => {
     const { currentUser, post, updatePost } = this.props
-    updatePost({
+    void updatePost({
       selector: {_id: post._id},
       data: {
         reviewForAlignmentUserId: currentUser!._id,
@@ -45,21 +47,23 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 
   render () {
     const { post, currentUser, hover, anchorEl, updatePost } = this.props
+    
+    if (!currentUser) return null;
 
-    const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser!._id)
+    const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
 
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="title">
-            <Link to={Posts.getPageUrl(post)}>
+            <Link to={postGetPageUrl(post)}>
               { post.title }
             </Link>
           </Typography>
           <br/>
-          <Components.PostsHighlight post={post}/>
+          <Components.PostsHighlight post={post} maxLengthWords={600}/>
         </Components.SidebarHoverOver>
-        <Link to={Posts.getPageUrl(post)}
+        <Link to={postGetPageUrl(post)}
           className="sunshine-sidebar-posts-title">
             {post.title}
         </Link>
@@ -68,7 +72,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
             { post.baseScore }
           </Components.SidebarInfo>
           <Components.SidebarInfo>
-            <Link to={Users.getProfileUrl(post.user)}>
+            <Link to={userGetProfileUrl(post.user)}>
                 {post.user && post.user.displayName}
             </Link>
           </Components.SidebarInfo>
@@ -81,11 +85,11 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
           { userHasVoted ?
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Posts.unSuggestForAlignment({currentUser, post, updatePost})}>
+            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>postUnSuggestForAlignment({currentUser, post, updatePost})}>
               <UndoIcon/>
             </Components.SidebarAction>
             :
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, updatePost})}>
+            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>postSuggestForAlignment({currentUser, post, updatePost})}>
               <PlusOneIcon/>
             </Components.SidebarAction>
           }

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
-import { useTracking } from "../../lib/analyticsEvents";
+import { useOnMountTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -40,11 +40,10 @@ const PingbacksList = ({classes, postId}: {
     fragmentName: "PostsList",
     limit: 5,
     enableTotal: false,
-    ssr: true
   });
 
   const pingbackIds = (results||[]).map((pingback) => pingback._id)
-  useTracking({eventType: "pingbacksList", eventProps: {pingbackIds}, captureOnMount: eventProps => eventProps.pingbackIds.length, skip: !pingbackIds.length||loading})
+  useOnMountTracking({eventType: "pingbacksList", eventProps: {pingbackIds}, captureOnMount: eventProps => eventProps.pingbackIds.length, skip: !pingbackIds.length||loading})
 
   const { Pingback, LWTooltip, LoadMore, Loading } = Components
 

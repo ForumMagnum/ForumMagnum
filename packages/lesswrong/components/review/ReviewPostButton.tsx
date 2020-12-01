@@ -19,10 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewPostButton = ({classes, post, reviewMessage="Review"}: {
+const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   classes: ClassesType,
   post: PostsBase,
-  reviewMessage: any,
+  reviewMessage?: any,
+  year: string
 }) => {
   const currentUser = useCurrentUser();
   const { openCommentBox } = useCommentBox();
@@ -44,7 +45,7 @@ const ReviewPostButton = ({classes, post, reviewMessage="Review"}: {
     }
   }
 
-  if (post.nominationCount2018 < 2) return null
+  if (post[year === "2018" ? "nominationCount2018" : "nominationCount2019"] < 2) return null
 
   return (
     <span onClick={handleClick} className={classes.root}>

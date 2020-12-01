@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userHasBoldPostItems } from '../../lib/betas';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -97,7 +97,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
   // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = pathname !== "/community"
 
-  const url = postLink || Posts.getPageUrl(post)
+  const url = postLink || postGetPageUrl(post)
 
   const title = <span>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}

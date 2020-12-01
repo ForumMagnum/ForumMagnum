@@ -1,6 +1,6 @@
 import React from 'react';
-import Users from '../collections/users/collection'
-import { Utils } from '../vulcan-lib';
+import { userOwns } from '../vulcan-users/permissions';
+import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
@@ -27,7 +27,7 @@ const defaultOptions = {
   commentLocalStorage: false,
   permissions: {
     viewableBy: ['guests'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members']
   },
   fieldName: "",
@@ -61,7 +61,8 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     fieldName,
     hintText,
     order,
-    pingbacks = false,
+    hideControls = false,
+    pingbacks = false
     //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
 
@@ -99,6 +100,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
             return await checkAccess(currentUser, revision, context) ? revision : null
           }
           return {
+            _id: `${doc._id}_${fieldName}`, //HACK
             editedAt: (doc[field]?.editedAt) || new Date(),
             userId: doc[field]?.userId,
             commitMessage: doc[field]?.commitMessage,
@@ -117,11 +119,12 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         collectionName,
         commentEditor,
         commentStyles,
-        getLocalStorageId,
+        hideControls,
+        getLocalStorageId
       },
     },
     
-    [Utils.camelCaseify(`${fieldName}Revisions`)]: {
+    [camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
       viewableBy: ['guests'],
       optional: true,
@@ -138,7 +141,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       }
     },
     
-    [Utils.camelCaseify(`${fieldName}Version`)]: {
+    [camelCaseify(`${fieldName}Version`)]: {
       type: String,
       viewableBy: ['guests'],
       optional: true,

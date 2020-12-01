@@ -1,7 +1,7 @@
 import { Components as C, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import Users from '../../lib/collections/users/collection';
+import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -54,7 +54,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
           <C.SunshineListItem hover={hover}>
             <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
               <Typography variant="body2">
-                <Link to={Users.getProfileUrl(user)}>
+                <Link to={userGetProfileUrl(user)}>
                   { user.displayName }
                 </Link>
                 <br/>
@@ -70,7 +70,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
             </C.SidebarHoverOver>
             <div>
               <C.MetaInfo>
-                <Link to={Users.getProfileUrl(user)}>
+                <Link to={userGetProfileUrl(user)}>
                     {user.displayName}
                 </Link>
               </C.MetaInfo>
@@ -101,7 +101,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
 const AFSuggestUsersItemComponent = registerComponent<ExternalProps>('AFSuggestUsersItem', AFSuggestUsersItem, {
   hocs: [
     withUpdate({
-      collection: Users,
+      collectionName: "Users",
       fragmentName: 'SunshineUsersList',
     }),
     withUser, withHover(), withErrorBoundary

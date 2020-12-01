@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip';
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
@@ -44,7 +44,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   );
   
   if (post) {
-    const url = Posts.getPageUrl(post, false, post?.sequence?._id);
+    const url = postGetPageUrl(post, false, post?.sequence?._id);
     const button = (
       <Link onClick={() => updateContinueReading()} to={url}>
         {icon}

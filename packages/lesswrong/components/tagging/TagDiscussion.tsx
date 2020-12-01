@@ -4,7 +4,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 400,
     padding: 6
@@ -19,7 +19,7 @@ const styles = theme => ({
 
 const TagDiscussion = ({classes, tag}: {
   classes: ClassesType,
-  tag: TagFragment
+  tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
   const { CommentsList, Loading } = Components;
   
@@ -34,7 +34,6 @@ const TagDiscussion = ({classes, tag}: {
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
-    ssr: true
   });
 
   if (!tag) return null
