@@ -72,6 +72,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
     collectionName: "Posts",
     fragmentName: 'PostsList',
     enableTotal: true,
+    itemsPerPage: 50,
   });
 
   useEffect(() => {
