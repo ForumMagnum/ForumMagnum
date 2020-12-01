@@ -553,3 +553,4 @@ importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap
 // Review Book related components
 importComponent("BookLanding", () => require('../components/books/BookLanding'));
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
+importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
