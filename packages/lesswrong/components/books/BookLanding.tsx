@@ -283,7 +283,7 @@ const Interlude = ({ classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, b
 const BookLanding = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, BookAnimation } = Components;
+  const { SingleColumnSection, BookAnimation, BookCheckout } = Components;
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
   return (
@@ -308,6 +308,7 @@ const BookLanding = ({ classes }: {
                 Bryan Caplan, Professor of Economics, <span style={{fontStyle: "italic"}}>George Mason University</span>
               </div>
               <div className={classes.buyButton}>
+                <BookCheckout />
                 <button>Buy the Book Set ($29)</button>
               </div>
             </div>
