@@ -68,7 +68,7 @@ export const reviewAlgorithm = {
 }
 
 const FrontpageReviewPhase = ({classes}) => {
-  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
+  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip, GatherTown } = Components
   // const currentUser = useCurrentUser();
 
   const overviewToolip = <div>
@@ -130,6 +130,9 @@ const FrontpageReviewPhase = ({classes}) => {
 
   return (
     <SingleColumnSection>
+      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+        <GatherTown/>
+      </AnalyticsContext>}
       <SectionTitle 
         title={<LWTooltip title={overviewToolip} placement="bottom-start">
           <Link to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}>The 2019 Review</Link>
