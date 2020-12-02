@@ -106,7 +106,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .book > .cover': {
       position: 'absolute',
-      background: '#0d47a1aa',
+      background: 'white',
       width: '200px',
       height: '300px',
       'border-top-right-radius': '3px',
