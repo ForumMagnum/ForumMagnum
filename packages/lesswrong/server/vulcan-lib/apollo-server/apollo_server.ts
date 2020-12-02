@@ -92,7 +92,7 @@ export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlew
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
           shipping_address_collection: {
-            allowed_countries: ['US', 'MX', 'CA', 'DE', 'FR', 'PL', 'CZ', 'AT', 'CH', 'GB', 'HU', 'CH', 'BE', 'LU', 'NL', 'GB', 'IE', 'SE', 'NO', 'FI', 'SK', 'HU', 'ES', 'IT', 'GR']
+            allowed_countries: ['US', 'MX', 'CA', 'DE', 'FR', 'PL', 'CZ', 'AT', 'CH', 'GB', 'HU', 'BE', 'LU', 'NL', 'GB', 'IE', 'SE', 'NO', 'FI', 'SK', 'HU', 'ES', 'IT', 'GR', 'DK', 'IL',	'AU']
           },
           line_items: [
             {
