@@ -12,10 +12,9 @@ const styles = theme => ({
   checkoutButton: {
     ...theme.typography.commentStyle,
     height: '36px',
-    background: theme.palette.primary.dark,
+    background: "#53a55a", //theme.palette.primary.dark,
     paddingLeft: 16,
     paddingRight: 16,
-    marginLeft: 16,
     color: 'white',
     fontSize: '14px',
     border: 0,
@@ -29,6 +28,7 @@ const styles = theme => ({
       opacity: 0.8
     }
   }
+
 })
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
