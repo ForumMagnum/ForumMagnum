@@ -2,17 +2,23 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
-
+  root: {
+    width: 1120,
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  }
 })
 
 const BookFrontpageWidget = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, BookAnimation } = Components
+  const { BookCheckout, BookAnimation } = Components
   return (
-    <SingleColumnSection>
-      <BookAnimation />
-    </SingleColumnSection>
+    <div className={classes.root}>
+      <BookAnimation>
+        <BookCheckout />
+      </BookAnimation>
+    </div>
   )
 }
 

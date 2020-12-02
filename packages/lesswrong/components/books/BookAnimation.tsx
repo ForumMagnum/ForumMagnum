@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactChildren } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
@@ -7,11 +7,12 @@ const bodyFontSize = "16px"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    
     '& .parent-container': {
-      display: 'flex',
       zIndex: '2',
       position: 'relative',
       height: 350,
+      paddingLeft: 220
     },
     '& .book-container': {
       width: '200px',
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'flex',
       'align-items': 'center',
       'justify-content': 'center',
-      'perspective': '400px',
+      'perspective': '800px',
       'transition': 'left 1.5s ease',
       'transform-style': 'preserve-3d',
       position: 'absolute',
@@ -44,6 +45,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .parent-container:hover .book::after': {
       'opacity': '0',
+    },
+    '& .parent-container:hover $revealedContent': {
+      opacity: 1
+    },
+    '& .parent-container::after': {
+      content: '""',
+      height: '344px',
+      width: 0,
+      position: 'absolute',
+      left: '134px',
+      top: '-22px',
+      background: 'transparent',
+      zIndex: -1,
+      boxShadow: '5px 23px 100px 15px #666',
+      transform: 'translateZ(-500px)',
+      transition: 'opacity 1s ease',
+      opacity: 0
+    },
+    '& .parent-container:hover::after': {
+      opacity: 1
     },
     '& .book > .cover': {
       position: 'absolute',
@@ -83,14 +104,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       'border-bottom-right-radius': '3px',
       'background': 'white',
       'transform': 'translateZ(var(--negative-spine-width, -26px))',
-      'box-shadow': '-10px 0 50px 10px #666',
+      'box-shadow': '5px 0 40px 9px #BBB',
       'z-index': '-1',
       'transition': 'opacity 1s ease'
     },
     '& .epistemology': {
       '--starting-position': '0px',
       '--collapsed-position': '8px',
-      '--right-margin-adjustment': '-18px',
       '--negative-spine-width': '-19.166px',
       '--half-spine-width': '8.5833px',
       '--negative-half-spine-width': '-8.5833px',
@@ -99,7 +119,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .agency': {
       '--starting-position': '230px',
       '--collapsed-position': '27.166px',
-      '--right-margin-adjustment': '-8px',
       '--negative-spine-width': '-13px',
       '--half-spine-width': '6.5px',
       '--negative-half-spine-width': '-6.5px'
@@ -108,7 +127,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .coordination': {
       '--starting-position': '460px',
       '--collapsed-position': '55.33px',
-      '--right-margin-adjustment': '-11px',
       '--negative-spine-width': '-20.166px',
       '--half-spine-width': '10.083px',
       '--negative-half-spine-width': '-10.083px'
@@ -117,7 +135,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .curiosity': {
       '--starting-position': '690px',
       '--collapsed-position': '81.66px',
-      '--right-margin-adjustment': '-8px',
       '--negative-spine-width': '-18.333px',
       '--half-spine-width': '9.166px',
       '--negative-half-spine-width': '-9.166px'
@@ -126,7 +143,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .alignment': {
       '--starting-position': '920px',
       '--collapsed-position': '110.82px',
-      '--right-margin-adjustment': '-8px',
       '--negative-spine-width': '-21.166px',
       '--half-spine-width': '10.583px',
       '--negative-half-spine-width': '-10.583px',
@@ -149,16 +165,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       'opacity': '100%'
     }
   },
-
+  revealedContent: {
+    opacity: 0,
+    transition: 'opacity 1s ease',
+    animationDelay: '1s'
+  }
 })
 
-const BookAnimation = ({ classes }: {
+const BookAnimation = ({ classes, children }: {
   classes: ClassesType,
+  children: any
 }) => {
 
   return (
     <div className={classes.root}>
-
       <div className="parent-container">
         <div className="book-container epistemology">
           <div className="book">
@@ -195,10 +215,10 @@ const BookAnimation = ({ classes }: {
             <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792630/v1.1_Alignment_cover_bberdl.png" />
           </div>
         </div>
+        <div className={classes.revealedContent}>
+          {children}
+        </div>
       </div>
-      <p className="hidden-quote">
-        The rationalists are great, man.
-    </p>
     </div>
   )
 }
