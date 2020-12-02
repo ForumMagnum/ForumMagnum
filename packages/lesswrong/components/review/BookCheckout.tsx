@@ -57,7 +57,7 @@ export default function BookCheckout({classes}) {
     }
     if (query.get("canceled")) {
       setMessage(
-        "Order canceled -- continue to shop around and checkout when you're ready."
+        "Order canceled."
       );
     }
   }, []);
@@ -86,7 +86,7 @@ export default function BookCheckout({classes}) {
     ) : (
       <ProductDisplay handleClick={handleClick} classes={classes}/>
     ) }
-  </div> 
+  </div>
 }
 
 const BookCheckoutComponent = registerComponent('BookCheckout', BookCheckout, {styles});
