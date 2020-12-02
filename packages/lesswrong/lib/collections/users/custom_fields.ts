@@ -992,10 +992,22 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: false,
+    hidden: forumTypeSetting.get() === "EAForum",
     label: "Hide the tagging progress bar",
     order: 45,
     group: formGroups.siteCustomizations
+  },
+
+  hideFrontpageBookAd: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
   },
 
   needsReview: {
@@ -1425,6 +1437,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() === "EAForum",
   },
   walledGardenPortalOnboarded: {
     type: Boolean,
@@ -1439,7 +1452,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-},
+  },
 });
 
 export const makeEditableOptionsModeration = {

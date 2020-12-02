@@ -9,5 +9,7 @@ registerFragment(`
     qualitativeScore
     quadraticScore
     comment
+    year
+    dummy
   }
 `)

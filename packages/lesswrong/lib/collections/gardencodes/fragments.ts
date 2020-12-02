@@ -10,6 +10,7 @@ registerFragment(`
     slug
     startTime
     endTime
+    type
     contents {
       ...RevisionDisplay
     }
@@ -26,6 +27,7 @@ registerFragment(`
     slug
     startTime
     endTime
+    type
     contents {
       ...RevisionEdit
     }

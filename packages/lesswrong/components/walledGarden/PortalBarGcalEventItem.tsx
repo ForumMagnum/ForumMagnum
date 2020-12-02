@@ -22,7 +22,7 @@ export const eventName = theme => ({
 export const eventTime = theme => ({
   fontSize: ".9em",
   opacity: .75,
-  width: 120,
+  width: 130,
   textAlign: "right",
   display: "inline-block"
 })
