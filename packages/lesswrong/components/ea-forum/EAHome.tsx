@@ -20,7 +20,7 @@ const EAHome = () => {
 
   return (
     <React.Fragment>
-      {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>}
+      {/* {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>} */}
       
       {shouldRenderSmallpox && <SmallpoxBanner/>}
 
