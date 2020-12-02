@@ -8,7 +8,7 @@ const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.pu
 const styles = theme => ({
   root: {
     display: 'flex',
-    justifyContent: 'center',
+    //justifyContent: 'center',
     alignItems: 'center',
     fontFamily: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
     'Helvetica Neue', 'Ubuntu', sans-serif`,
@@ -66,15 +66,16 @@ const styles = theme => ({
   },
   checkoutButton: {
     height: '36px',
-    background: '#556cd6',
+    background: '#4da056',
     color: 'white',
-    width: '100%',
-    fontSize: '14px',
+    width: '60%',
+    fontSize: '18px',
+    fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`,
     border: 0,
     fontWeight: '500',
     cursor: 'pointer',
     letterSpacing: '0.6',
-    borderRadius: '0 0 6px 6px',
+    borderRadius: '1px',
     transition: 'all 0.2s ease',
     boxShadow: '0px 4px 5.5px 0px rgba(0, 0, 0, 0.07)',
     '&:hover': {
@@ -89,7 +90,7 @@ const stripePublicKey = stripePublicKeySetting.get()
 const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
 const ProductDisplay = ({ handleClick, classes }) => (
   <section>
-    <div className={classes.product}>
+    {/* <div className={classes.product}>
       <img
         src="https://39669.cdn.cke-cs.com/rQvD3VnunXZu34m86e5f/images/a4058954c747cb0eb716b4e650d161c2601cac039adc6168.png/w_1966"
         alt="The cover of The LessWrong 2018 Review Book (A Map That Reflects the Territory)"
@@ -98,9 +99,9 @@ const ProductDisplay = ({ handleClick, classes }) => (
         <h3>A Map That Reflects the Territory</h3>
         <h5>$29.00</h5>
       </div>
-    </div>
+    </div> */}
     <button className={classes.checkoutButton} id="checkout-button" role="link" onClick={handleClick}>
-      Checkout
+      Buy the Book Set ($29)
     </button>
   </section>
 );
@@ -119,7 +120,7 @@ export default function BookCheckout({classes}) {
     }
     if (query.get("canceled")) {
       setMessage(
-        "Order canceled -- continue to shop around and checkout when you're ready."
+        "Order canceled."
       );
     }
   }, []);
@@ -148,7 +149,7 @@ export default function BookCheckout({classes}) {
     ) : (
       <ProductDisplay handleClick={handleClick} classes={classes}/>
     ) }
-  </div> 
+  </div>
 }
 
 const BookCheckoutComponent = registerComponent('BookCheckout', BookCheckout, {styles});

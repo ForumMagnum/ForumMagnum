@@ -5,6 +5,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 
 const bodyFontSize = "18px"
+const contentMaxWidth = "800px"
 const LW = () => {return (<span style={{fontVariant:"small-caps"}}>LessWrong</span>)}
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -42,11 +43,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   //  margin: "0 0 25px",
 //    height: "0",
  //   paddingBottom: "100%",
-    position: "relative",
-    backgroundColor: "#ffffff",
-    display: "flex"
-
-    //overflow: "hidden"
+  //  position: "relative",
+    display: "flex",
+    maxWidth: "1000px", // TODO: make relative to content maxWidth,
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginBottom: "30px"
   },
 
   bookContentImage: {
@@ -54,8 +56,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     // top: "50%",
     // left: "50%",
     // transform: "translate(-50%, -50%)",
-    height: "60vh",
-    margin: "auto auto"
+    width: "100%",
+    height: "auto"
   },
 
   wrapper: {
@@ -65,11 +67,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: "0 15px"
   },
 
-  bookMeta: {
+  bookIntroduction: {
     display: "grid",
     gridGap: "18px 0",
     gap: "18px 0",
-    maxWidth: "800px",
+    maxWidth: contentMaxWidth,
     gridTemplateRows: "auto auto",
     gridTemplateColumns: "1fr",
     gridTemplateAreas: `
@@ -121,6 +123,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   topGrid: {
+    zIndex: '0',
     display: "grid",
     gridGap: "3px 0",
    // gap: "18px 0",
@@ -152,15 +155,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: "100%"
   },
 
+  mainQuoteContainer: {
+    maxWidth: '375px'
+
+
+  },
   mainQuote: {
     gridArea: "mainQuote",
     fontSize: "28px",
-    lineHeight: "1.2em"
+    lineHeight: "1.4em",
+    marginBottom: "15px"
   },
   mainQuoteAuthor: {
     gridArea: "mainQuoteAuthor",
-    fontSize: "25px",
-    lineHeight: "1.3em",
+    fontSize: "22px",
+    lineHeight: "1.4em",
     color: "grey"
   },
   buyButton: {
@@ -169,23 +178,26 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   interludeTextContainer: {
     display: "grid",
-    gridGap: "3px 0",
+    gridGap: "3px 30px",
+    maxWidth: contentMaxWidth,
     gridTemplateRows: "auto auto",
     gridTemplateColumns: "1fr",
     gridTemplateAreas: `
       "interludeQuote"
       "interludeQuoteAuthor"
-      "body
-    `
+      "body"
+    `,
+    marginBottom: '40px'
   },
 
   interludeBigQuote: {
     gridArea: "interludeQuote",
-    fontSize: "25px"
+    fontSize: "22px"
   },
   interludeQuoteAuthor: {
-    gridArea: "interludeQuoteAuthor",
-    fontSize: "22px"
+ //   gridArea: "interludeQuoteAuthor",
+    fontSize: "18px",
+    fontWeight: "bold"
   },
    interludeBodyText: {
      gridArea: "body",
@@ -200,7 +212,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     wrapper: {
       padding: "0 15px"
     },
-    bookMeta: {
+    bookIntroduction: {
       gridTemplateColumns: "1fr 1fr",
       gridTemplateRows: "1fr",
       gridGap: "30px",
@@ -234,13 +246,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     wrapper: {
       padding: "0 60px 0 160px"
     },
-    bookMeta: {
+    bookIntroduction: {
       gridGap: "5px 30px",
       gap: "25px 60px"
     },
-    bookActions: {
-      justifyContent: "flex-start"
-    },
+
     fullSetImage: {
       width: "100%",
       height: "auto"
@@ -248,6 +258,22 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   },
 })
+
+const Hidden = ({ classes }: ClassesType) => {
+  return (
+    <div className={classes.mainQuoteContainer}>
+      {/* className={classes.topGrid}> <div className={classes.fullSetContainer}>
+        <img className={classes.fullSetImage} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606266348/mockup_with_spines_w7bopz.png" alt="LessWrong book set" />
+      </div> */}
+      <div className={classes.mainQuote}>
+        The rationality community is one of the brightest lights in the modern intellectual firmament.
+      </div>
+      <div className={classes.mainQuoteAuthor}>
+        Bryan Caplan, Professor of Economics, <span style={{fontStyle: "italic"}}>George Mason University</span>
+      </div>
+  </div>
+  )
+}
 
 
 const Interlude = ({ classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, bodyText }: {
@@ -267,10 +293,12 @@ const Interlude = ({ classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, b
       <div className={classNames(classes.textSettings, classes.wrapper)}>
         <div className={classes.interludeTextContainer}>
           <div className={classes.interludeBigQuote}>
-            {bigQuote}</div>
-          <div className={classes.interludeQuoteAuthor} style={{color: accentColor}}>
-            {bigQuoteAuthor}
+            {bigQuote}
+            <div className={classes.interludeQuoteAuthor} style={{color: accentColor}}>
+              {bigQuoteAuthor}
+            </div>
           </div>
+
           <div className={classNames(classes.body, classes.interludeBodyText)}>
             {bodyText}
           </div>
@@ -283,72 +311,53 @@ const Interlude = ({ classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, b
 const BookLanding = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, BookAnimation, BookCheckout } = Components;
+  const { BookAnimation, BookCheckout } = Components;
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
   return (
     <div>
-      <div style={{display: "flex"}}>
-        <div style={{margin: "auto auto"}}>
-          <BookAnimation />
-        </div>
-      </div>
+
 
       <section>
-        <div className={classes.outerWrapper}>
+
           <div className={classNames(classes.textSettings, classes.wrapper)}>
-            <div className={classes.topGrid}>
-              {/* <div className={classes.fullSetContainer}>
-                <img className={classes.fullSetImage} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606266348/mockup_with_spines_w7bopz.png" alt="LessWrong book set" />
-              </div> */}
-              <div className={classes.mainQuote}>
-                The rationality community is one of the brightest lights in the modern intellectual firmament.
-              </div>
-              <div className={classes.mainQuoteAuthor}>
-                Bryan Caplan, Professor of Economics, <span style={{fontStyle: "italic"}}>George Mason University</span>
-              </div>
-              <div className={classes.buyButton}>
-                <BookCheckout />
-                <button>Buy the Book Set ($29)</button>
-              </div>
-            </div>
+
+            <BookAnimation>
+              <Hidden classes={classes}/>
+            </BookAnimation>
 
             <div className={classes.bookTitle}>
-                A Map that Reflects the Territory
-              </div>
+              A Map that Reflects the Territory
+            </div>
 
-              <div className={classes.essaysBy}>
-                Essays by the {LW()} community
-              </div>
-            <div className={classes.bookMeta}>
+            <div className={classes.essaysBy}>
+              Essays by the {LW()} community
+            </div>
+            <div className={classes.bookIntroduction}>
 
-              <div className={classes.bookInfo}>
-                <p className={classes.body}>
-                {LW()} is a community blog devoted to refining the art of human rationality.
-                This is a collection of the best new essays by the {LW()} community, with over 40 redesigned graphs,
-                packaged into beautiful set with each book small enough to fit in your pocket.</p>
-              </div>
+            <div className={classes.bookInfo}>
+              <p className={classes.body}>
+              {LW()} is a community blog devoted to refining the art of human rationality.
+              This is a collection of our best new essays, with over 40 redesigned graphs,
+              packaged into a beautiful set with each book small enough to fit in your pocket.</p>
+            </div>
 
-              <div className={classes.bookActions}>
-                <a className={classNames(classes.button, classes.buttonPrimary)}
-                  data-analytics-source="book_scientific_freedom"
-                  data-analytics-action="buy"
-                  href=""
-                  title="Buy this book on Amazon">
-                </a>
-              </div>
 
-              <div className={classes.authorList}>
-                <p className={classes.body}>
-                  <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, Samo Burja, </span>
-                  Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
-                  Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
-                  Raymond Arnold, Valentine Smith, Andrew Critch, Jameson Quinn, Katja Grace
-                </p>
-              </div>
+
+            <div className={classes.authorList}>
+              <p className={classes.body}>
+                <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, Samo Burja, </span>
+                Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
+                Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
+                Raymond Arnold, Valentine Smith, Andrew Critch, Jameson Quinn, Katja Grace
+              </p>
             </div>
           </div>
+          <div className={classes.buyButton}>
+            <BookCheckout />
+          </div>
         </div>
+
       </section>
         <Interlude classes={classes}
           imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606289257/Book%20landing%20page/Epistemology_internals_cropped_on_white.jpg"
@@ -356,11 +365,11 @@ const BookLanding = ({ classes }: {
             Especially in our rapidly changing world, these writings are among those that I expect
             will continue to be read many decades from now."
           bigQuoteAuthor="Vitalik Buterin (Co-founder, Ethereum)"
-          accentColor="#40AD48"
-          bodyText="A scientist is not simply someone who tries to understand how life works, chemicals combine, or physical objects move.
-            They are someone who uses the general scientific method in each area, empirically testing their beliefs and discover what's true.
-            Similarly, a rationalist is not simply someone who tries to think clearly about their personal life, or who tries to understand how
-            civilization works, or who tries to figure out what's true in a single domain like nutrition or machine learning."
+          accentColor="#499b51"
+          bodyText="A scientist does not just try to understand how life works, chemicals combine, or physical objects move.
+            Rather, they uses the general scientific method in each area, empirically testing their beliefs to discover what's true.
+            Similarly, a rationalist is not simply someone who tries to think clearly about their personal life, how
+            civilization works, or what's true in a single domain like nutrition or machine learning."
           />
 
         <Interlude classes={classes}
@@ -369,9 +378,9 @@ const BookLanding = ({ classes }: {
             A deep dive into LessWrong will make you smarter."
           bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
           accentColor="#eb5b50"
-          bodyText="A rationalist is someone who is curious about the general thinking patterns that allow them to think clearly in any area,
-            and understand the laws and tools that help them make good decisions in general. The essays here explore many elements of rationality,
-            including questions about arguments, aesthetics, artificial intelligence, bayesianism, introspection, markets, game theory, and more."
+          bodyText="A rationalist is someone who is curious about the general thinking patterns that allow them to think clearly in any area.
+            They want to understand the laws and tools that help them make good decisions in general. The essays here explore many elements of rationality,
+            including questions about aesthetics, artificial intelligence, introspection, markets, altruism, probability theory... and much more."
           />
 
         <Interlude classes={classes}
