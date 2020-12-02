@@ -277,10 +277,10 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                   <Components.CommentOutdatedWarning comment={comment} post={post} />
                 </span>}
                 {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
-                  {`Nomination for ${comment.nominatedForReview}`}
+                  {`Nomination for ${comment.nominatedForReview} Review`}
                 </Link>}
                 {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
-                {`Review for ${comment.reviewingForReview}`}
+                {`Review for ${comment.reviewingForReview} Review`}
               </Link>}
               </div>
               { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>

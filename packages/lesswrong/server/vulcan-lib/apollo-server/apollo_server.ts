@@ -92,7 +92,16 @@ export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlew
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
           shipping_address_collection: {
-            allowed_countries: ['US', 'MX', 'CA', 'DE', 'FR', 'PL', 'CZ', 'AT', 'CH', 'GB', 'HU', 'CH', 'BE', 'LU', 'NL', 'GB', 'IE', 'SE', 'NO', 'FI', 'SK', 'HU', 'ES', 'IT', 'GR']
+            allowed_countries: [
+              // European Countries: https://www.europeancuisines.com/Europe-European-Two-Letter-Country-Code-Abbreviations
+              'AL', 'AD', 'AM', 'AT', 'BY', 'BE', 'BA', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GI', 'GR', 'HU', 'HR', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NO', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'TR', 'UA', 'VA',
+              // North American Countries
+              'US', 'MX', 'CA',
+              // Oceania Countries
+              'AU', 'NZ',
+              // Israel (Maybe shippable via Amazon North America?)
+              'IL'
+            ]
           },
           line_items: [
             {
