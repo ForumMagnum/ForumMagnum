@@ -36,11 +36,9 @@ const styles = theme => ({
 const stripePublicKey = stripePublicKeySetting.get()
 const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
 const ProductDisplay = ({ handleClick, classes }) => (
-  <section>
-    <button className={classes.checkoutButton} id="checkout-button" role="link" onClick={handleClick}>
-      Pre-Order – $29
-    </button>
-  </section>
+  <button className={classes.checkoutButton} id="checkout-button" role="link" onClick={handleClick}>
+    Pre-Order – $29
+  </button>
 );
 const Message = ({ message, classes }) => (
   <section>

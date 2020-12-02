@@ -1,11 +1,8 @@
 import React from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
-import {Image} from 'cloudinary-react';
-import {cloudinaryCloudNameSetting} from '../../lib/publicSettings';
 import classNames from 'classnames';
 
-const bodyFontSize = "18px"
-const contentMaxWidth = "800px"
+const contentMaxWidth = "1050px"
 const LW = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -15,10 +12,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   body: {
-    fontSize: bodyFontSize,
+    fontSize: '1.4em',
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`,
-    lineHeight: '1.6em',
-    color: "#5e5e5e",
+    lineHeight: '1.45',
+    color: 'rgba(0,0,0,0.7)',
     textAlign: "justify"
   },
 
@@ -28,7 +25,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
     '--book-animation-left-offset': '75px',
     [theme.breakpoints.down('md')]: {
-      width: '100%'
+      width: '100%',
+      maxWidth: '675px',
+      marginBottom: 75
     }
   },
 
@@ -49,7 +48,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 auto",
     width: "100%",
     maxWidth: "1000px",
-    padding: "0 100px 0 100px"
+    padding: "0 20px 0 20px",
+    marginBottom: 32
   },
 
   bookTitle: {
@@ -75,8 +75,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   mainQuoteContainer: {
-    maxWidth: '375px',
-    textAlign: 'right'
+    maxWidth: '650px',
+    textAlign: 'right',
+    paddingLeft: '100px'
   },
 
   mainQuote: {
@@ -94,37 +95,36 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   buyButton: {
-    marginBottom: "40px"
+    display: 'flex'
   },
 
   interludeTextContainer: {
     display: "grid",
-    gridGap: "3px 30px",
-    maxWidth: contentMaxWidth,
+    gridGap: "3px 50px",
     gridTemplateRows: "auto auto",
     gridTemplateColumns: "1fr 1fr",
     gridTemplateAreas: `
       "interludeQuote body"
-      "interludeQuoteAuthor body"
      `,
     marginBottom: '40px'
   },
 
   interludeBigQuote: {
     gridArea: "interludeQuote",
-    fontSize: "22px",
-    color: "rgba(0,0,0,0.87)"
+    fontSize: "1.6em",
+    color: "rgba(0,0,0,0.87)",
+    textAlign: 'justify'
   },
   interludeQuoteAuthor: {
- //   fontSize: "18px",
- //   fontWeight: "bold"
+    marginTop: 10,
+    textAlign: 'right'
   },
   interludeBodyText: {
     gridArea: "body",
   },
 
   sampleButton: {
-  //  ...theme.typography.commentStyle,
+   ...theme.typography.commentStyle,
     height: '36px',
     background: "#e8b10e",
     paddingLeft: 16,
@@ -147,14 +147,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: "22px",
     gridTemplateColumns: "1fr 1fr",
     gridTemplateRows: "1fr",
-    gridGap: "5px 30px",
+    gridGap: "5px 50px",
     gridTemplateAreas: `
       "authorList info"
     `
   },
   mobileParagraph: {
     display: "none",
-    padding: "25px"
+    padding: "0px 15px"
   },
   mobileInterlude: {
     display: "none"
@@ -162,19 +162,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   desktopOnlyInterlude: {
     display: "block"
   },
-  [theme.breakpoints.down('sm')]: {
-    body: {
-      lineHeight: "1.5em",
-      fontSize: "16px"
+  mobileBookImages: {
+    display: "none"
+  },
+  mobileCoverImage: {
+    width: '100%'
+  },
+  mobileSpreadImage: {
+    width: '100%'
+  },
+  [theme.breakpoints.down('xs')]: {
+    bookContentContainer: {
+      display: 'none'
     },
     bookIntroduction: {
       gridTemplateColumns: "1fr",
       gridTemplateRows: "auto auto",
       gridGap: "30px",
-      gap: "30px",
       gridTemplateAreas: `
-        "info"
         "authorList"
+        "info"
       `
     },
     interludeTextContainer: {
@@ -191,21 +198,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     sampleButton: {
       marginLeft: "auto",
-      marginRight: "auto"
+      marginRight: "auto",
+      width: '100%'
     },
     wrapper: {
       padding: "0 15px",
       marginBottom: "30px"
     },
+    mainQuote: {
+      display: 'none'
+    },
+    mainQuoteAuthor: {
+      display: 'none'
+    },
     mainQuoteContainer: {
-      display: "none"
+      paddingBottom: 60
     },
     interludeBigQuote: {
       color: "#5e5e5e",
       lineHeight: "1.4em"
     },
     mobileParagraph: {
-      visibility: "visible"
+      display: "block"
     },
     mobileInterlude: {
       display: "block"
@@ -214,6 +228,12 @@ const styles = (theme: ThemeType): JssStyles => ({
    //   visibility: "hidden",
       display: "none"
     },
+    mobileBookImages: {
+      display: 'block'
+    },
+    bookAnimationContainer: {
+      marginBottom: 0
+    }
   },
 
   [theme.breakpoints.down('md')]: {
@@ -234,9 +254,11 @@ const Hidden = ({classes}: ClassesType) => {
 }
 
 
-const Interlude = ({classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, bodyText}: {
+const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, bigQuoteAuthor, accentColor, bodyText}: {
   classes: ClassesType,
   imageURL: string,
+  coverImageUrl: string,
+  spreadImageUrl: string,
   bigQuote: string,
   bigQuoteAuthor: string,
   accentColor: string,
@@ -245,16 +267,20 @@ const Interlude = ({classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, bo
 
   return (
     <div>
-      <div className={classes.bookContentContainer} style={{display: "flex"}}>
+      <div className={classes.bookContentContainer}>
         <img className={classes.bookContentImage} src={imageURL} />
+      </div>
+      <div className={classes.mobileBookImages}>
+        <img className={classes.mobileCoverImage} src={coverImageUrl} />
+        <img className={classes.mobileSpreadImage} src={spreadImageUrl} />
       </div>
       <div className={classNames(classes.textSettings, classes.wrapper)}>
         <div className={classes.interludeTextContainer}>
           <div className={classes.interludeBigQuote}>
             {bigQuote}
-            <div className={classes.interludeQuoteAuthor} style={{color: accentColor}}>
-              {bigQuoteAuthor}
-            </div>
+            {bigQuoteAuthor && <div className={classes.interludeQuoteAuthor} style={{color: accentColor}}>
+              – {bigQuoteAuthor}
+            </div>}
           </div>
 
           <div className={classNames(classes.body, classes.interludeBodyText)}>
@@ -270,7 +296,6 @@ const BookLanding = ({classes}: {
   classes: ClassesType,
 }) => {
   const {BookAnimation, BookCheckout} = Components;
-  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
   return (
     <div>
@@ -282,41 +307,67 @@ const BookLanding = ({classes}: {
       <div className={classNames(classes.textSettings, classes.wrapper)}>
         <div className={classes.bookTitle}>
           A Map that Reflects the Territory
-            </div>
+        </div>
         <div className={classes.essaysBy}>
-          Essays by the {LW()} community
-            </div>
+          Essays by the LessWrong community
+        </div>
         <div className={classes.bookIntroduction}>
-          <div className={classes.bookSummary}>
+         <div className={classes.authorList}>
             <p className={classes.body}>
-              {LW()} is a community blog devoted to refining the art of human rationality.
-              This is a collection of our best essays from 2018. It contains over 40 redesigned graphs,
-              packaged into a beautiful set with each book small enough to fit in your pocket.</p>
-          </div>
-
-          <div className={classes.authorList}>
-            <p className={classes.body}>
-              Written by <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, Samo Burja, </span>
+              <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, Samo Burja, </span>
                 Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
                 Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
                 Raymond Arnold, Valentine Smith, Andrew Critch, Jameson Quinn and Katja Grace
               </p>
           </div>
+          <div className={classes.bookSummary}>
+            <p className={classes.body}>
+              {LW()} is a community blog devoted to refining the art of human rationality.
+              This is a collection of our best essays from 2018. It contains over 40 redesigned graphs,
+              packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
+            </p>
+            <div className={classes.buyButton}>
+              <BookCheckout />
+            </div>
+          </div>          
         </div>
-        <div className={classes.buyButton}>
-          <BookCheckout />
+        
+      </div>
+
+      <div className={classes.mobileParagraph}>
+        <div className={classNames(classes.body)}>
+          <p>
+            Each year thousands of posts are written to LessWrong. Since 2019, users
+            come together once a year to <a style={{color: "#4da056"}} href="https://www.lesswrong.com/s/uNdbAXtGdJ8wZWeNs/p/qXwmMkEBLL59NkvYR">review and vote</a> on the best posts from <span style={{fontStyle: "italic"}}>two</span> years ago.
+            This is our attempt to build an online forum that rewards truth-seeking content that can stand the test of time, rather than short-term attention-seeking.
+            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just
+            <a style={{color: "#4da056"}} href="https://www.lessestwrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
+          </p>
+          <p>
+            A scientist does not just try to understand how life works, chemicals combine, or physical objects move.
+            Rather, they use the general scientific method in each area, empirically testing their beliefs to discover what's true.
+            Similarly, a rationalist does not simply try to think clearly about their personal life, how
+            civilization works, or what's true in a single domain like nutrition or machine learning.
+          </p>
+          <p>
+            A rationalist is someone who is curious about the general patterns that allow them to think clearly in <span style={{fontStyle: "italic"}} >any</span> area.
+            They want to understand the laws and tools that help them make good decisions <span style={{fontStyle: "italic"}}>in general</span>. The essays here explore many elements of rationality,
+            including questions about aesthetics, artificial intelligence, introspection, markets, altruism, probability theory... and much more.
+          </p>
         </div>
       </div>
 
       <Interlude classes={classes}
         imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/1_Epistemology_internals_vemtes.jpg"
+        coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/1_Epistemology_front.jpg"
+        spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895482/Book%20landing%20page/Contents/1_Epistemology_internals.jpg"
         bigQuote="The essays from LessWrong have been one of my favorite sources of wisdom.
             Especially in our rapidly changing world, these writings are among those that I expect
             will continue to be read many decades from now."
         bigQuoteAuthor="Vitalik Buterin (Co-founder, Ethereum)"
         accentColor="#4da056"
         bodyText={<div>
-          Each year thousands of posts are written to {LW()}. Since 2019, users
+          Each year thousands of posts are written to LessWrong. Since 2019, users
             come together once a year to <a style={{color: "#4da056"}} href="https://www.lesswrong.com/s/uNdbAXtGdJ8wZWeNs/p/qXwmMkEBLL59NkvYR">review and vote</a> on the best posts from <span style={{fontStyle: "italic"}}>two</span> years ago.
             This is our attempt to build an online forum that rewards truth-seeking content that can stand the test of time, rather than short-term attention-seeking.
             41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just
@@ -326,6 +377,8 @@ const BookLanding = ({classes}: {
 
       <Interlude classes={classes}
         imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/2_Agency_internals_kpbogk.jpg"
+        coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/2_Agency_front.jpg"
+        spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895482/Book%20landing%20page/Contents/2_Agency_internals.jpg"
         bigQuote="Whenever there’s a cutting-edge new idea making the rounds, Eliezer was writing about it 5-10 years ago.
             A deep dive into LessWrong will make you smarter."
         bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
@@ -341,6 +394,8 @@ const BookLanding = ({classes}: {
       <div className={classes.desktopOnlyInterlude}>
         <Interlude classes={classes}
           imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/3_Coordination_internals_vicuiq.jpg"
+          coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/3_Coordination_front.jpg"
+          spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895485/Book%20landing%20page/Contents/3_Coordination_internals.jpg"
           bigQuote="Whenever there’s a cutting-edge new idea making the rounds, Eliezer was writing about it 5-10 years ago.
               A deep dive into LessWrong will make you smarter."
           bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
@@ -355,6 +410,8 @@ const BookLanding = ({classes}: {
       <div className={classes.mobileInterlude}>
         <Interlude classes={classes}
           imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/3_Coordination_internals_vicuiq.jpg"
+          coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/3_Coordination_front.jpg"
+          spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895485/Book%20landing%20page/Contents/3_Coordination_internals.jpg"
           bigQuote="The rationality community is one of the brightest lights in the modern intellectual firmament."
           bigQuoteAuthor='Bryan Caplan (Professor of Economics, George Mason University)'
           accentColor="#2298ce"
@@ -367,41 +424,22 @@ const BookLanding = ({classes}: {
 
       <Interlude classes={classes}
         imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/4_Curiosity_internals_2_copy_szbhto.jpg"
-        bigQuote='"This is not a book of essays about curiosity, but rather a book of essays exemplifying it. The authors were curious about
-          something, they set out to explore it, and they wrote down what they learned for the rest of us."'
+        coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606896839/Book%20landing%20page/Front%20covers/4_Curiosity_front.jpg"
+        spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606896891/Book%20landing%20page/Contents/4_Curiosity_internals.jpg"
+        bigQuote='This is not a book of essays about curiosity, but rather a book of essays exemplifying it. The authors were curious about
+          something, they set out to explore it, and they wrote down what they learned for the rest of us.'
         bigQuoteAuthor=''
         accentColor="#e8b10e"
-        bodyText={<div></div>}
+        bodyText={<button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+        Read a sample chapter
+        </button>}
       />
 
       <div className={classes.wrapper}>
-        <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
-          Read a sample chapter
-          </button>
+        
       </div>
 
-      <div className={classes.mobileParagraph}>
-        <div className={classNames(classes.body)}>
-          <div>
-            Each year thousands of posts are written to {LW()}. Since 2019, users
-            come together once a year to <a style={{color: "#4da056"}} href="https://www.lesswrong.com/s/uNdbAXtGdJ8wZWeNs/p/qXwmMkEBLL59NkvYR">review and vote</a> on the best posts from <span style={{fontStyle: "italic"}}>two</span> years ago.
-            This is our attempt to build an online forum that rewards truth-seeking content that can stand the test of time, rather than short-term attention-seeking.
-            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just
-            <a style={{color: "#4da056"}} href="https://www.lessestwrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
-          </div>
-          <div>
-            A scientist does not just try to understand how life works, chemicals combine, or physical objects move.
-            Rather, they use the general scientific method in each area, empirically testing their beliefs to discover what's true.
-            Similarly, a rationalist does not simply try to think clearly about their personal life, how
-            civilization works, or what's true in a single domain like nutrition or machine learning.
-          </div>
-          <div>
-            A rationalist is someone who is curious about the general patterns that allow them to think clearly in <span style={{fontStyle: "italic"}} >any</span> area.
-            They want to understand the laws and tools that help them make good decisions <span style={{fontStyle: "italic"}}>in general</span>. The essays here explore many elements of rationality,
-            including questions about aesthetics, artificial intelligence, introspection, markets, altruism, probability theory... and much more.
-          </div>
-        </div>
-      </div>
+      
     </div>
   )
 }
