@@ -3,11 +3,12 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker, FrontpageReviewPhase } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker, FrontpageReviewPhase, BookFrontpageWidget } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
+          <BookFrontpageWidget />
           <FrontpageReviewPhase />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
