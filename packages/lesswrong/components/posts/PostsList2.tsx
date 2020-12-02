@@ -182,7 +182,7 @@ const PostsList2 = ({
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",
-            showBottomBorder: showFinalBottomBorder || (orderedResults.length > 1) && i < (orderedResults.length - 1)
+            showBottomBorder: showFinalBottomBorder || ((orderedResults.length > 1) && i < (orderedResults.length - 1))
           };
 
           if (!(hidePosts && hidePosts[i])) {
