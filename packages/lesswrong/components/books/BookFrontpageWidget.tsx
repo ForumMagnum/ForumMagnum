@@ -80,6 +80,11 @@ const BookFrontpageWidget = ({ classes }: {
             </Link>
             <BookCheckout />
           </div>
+          <div className={classes.disclaimerRow}>
+            <span className={classes.hide}>
+              Hide this box
+            </span>
+          </div>
         </div>
       </BookAnimation>
     </div>

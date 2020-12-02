@@ -283,7 +283,7 @@ const Interlude = ({ classes, imageURL, bigQuote, bigQuoteAuthor, accentColor, b
 const BookLanding = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, BookAnimation, BookCheckout } = Components;
+  const { SingleColumnSection, BookAnimation, } = Components;
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
   return (

@@ -1,9 +1,5 @@
-import React, { ReactChildren } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import classNames from 'classnames';
-
-const bodyFontSize = "16px"
+import React from 'react';
+import { registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: '300px',
       transition: 'transform 1.5s ease'
     },
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       '& .parent-container:hover .book-container': {
         left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
       },
