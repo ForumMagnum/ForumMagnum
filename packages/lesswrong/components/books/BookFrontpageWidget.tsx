@@ -87,6 +87,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   descriptionText: {
     fontSize: '0.96em'
+  },
+  disclaimerRow: {
+    ...theme.typography.commentStyle,
+    fontSize: '0.65em',
+    color: 'rgba(0,0,0,0.4)',
+    marginTop: -2
   }
 })
 
@@ -139,11 +145,9 @@ const BookFrontpageWidget = ({ classes }: {
             </Link>
             <BookCheckout />
           </div>
-          {/* <div className={classes.disclaimerRow}>
-            <span className={classes.hide}>
-              Hide this box
-            </span>
-          </div> */}
+          <div className={classes.disclaimerRow}>
+            *Guaranteed delivery to North America before Christmas. We'll try our best with the rest.
+          </div>
         </div>
       </BookAnimation>
     </div>
