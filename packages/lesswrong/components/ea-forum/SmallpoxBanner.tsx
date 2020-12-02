@@ -10,7 +10,6 @@ const desktopImageId = 'Banner/Smallpox_Eradication_Day-16.png'
 
 const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
 const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
-// const srcset = `${mobileImage} `
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   image: {
