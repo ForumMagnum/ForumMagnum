@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       zIndex: '2',
       position: 'relative',
       height: 350,
-      paddingLeft: 220
+      paddingLeft: 'calc(var(--book-animation-left-offset, -100px) + 230px)',
     },
     '& .book-container': {
       width: '200px',
@@ -27,6 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: 'absolute',
       left: 'var(--starting-position)',
       top: 0,
+      zIndex: 2
     },
     '& .book': {
       transform: 'rotateY(0deg)',
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       transition: 'transform 1.5s ease'
     },
     '& .parent-container:hover .book-container': {
-      left: 'var(--collapsed-position)',
+      left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
       'margin-right': 'calc(-160px + var(--right-margin-adjustment))',
     },
     '& .parent-container:hover .book': {
@@ -47,14 +48,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       'opacity': '0',
     },
     '& .parent-container:hover $revealedContent': {
-      opacity: 1
+      opacity: 1,
+      transitionDelay: '1s',
+      transition: 'opacity 1s ease'
     },
     '& .parent-container::after': {
       content: '""',
       height: '344px',
       width: 0,
       position: 'absolute',
-      left: '134px',
+      left: 'calc(142px + var(--book-animation-left-offset, -100px))',
       top: '-22px',
       background: 'transparent',
       zIndex: -1,
@@ -104,7 +107,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       'border-bottom-right-radius': '3px',
       'background': 'white',
       'transform': 'translateZ(var(--negative-spine-width, -26px))',
-      'box-shadow': '5px 0 40px 9px #BBB',
+      'box-shadow': '5px 0 40px 9px #EEE',
       'z-index': '-1',
       'transition': 'opacity 1s ease'
     },
@@ -147,28 +150,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       '--half-spine-width': '10.583px',
       '--negative-half-spine-width': '-10.583px',
     },
-
-    '& .outer-wrapper': {
-
-    },
-
-    '& .hidden-quote': {
-      'opacity': '0%',
-      'transition': 'opacity 1s',
-      'position': 'absolute',
-      'top': '20%',
-      'left': '50%',
-      'z-index': '1',
-    },
-
-    '& .parent-container:hover .hidden-quote': {
-      'opacity': '100%'
-    }
   },
   revealedContent: {
+    position: 'relative',
     opacity: 0,
-    transition: 'opacity 1s ease',
-    animationDelay: '1s'
+    transition: 'opacity 0.5s ease'
   }
 })
 
