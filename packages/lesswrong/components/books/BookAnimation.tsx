@@ -79,12 +79,12 @@ const styles = (theme: ThemeType): JssStyles => ({
         top: '25px'
       },
       '& .book-container': {
-        left: 'calc(var(--collapsed-position) - 65px)',
+        left: 'calc(var(--collapsed-position) - 87px)',
         top: 49
       },
       '& .parent-container': {
-        paddingLeft: '200px',
-        paddingTop: '40px',
+        paddingLeft: '140px',
+        paddingTop: '1px',
         height: 'unset',
         maxWidth: 765,
         minHeight: 375

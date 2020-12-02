@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 181,
     textAlign: 'right',
     [theme.breakpoints.down('md')]: {
-      paddingRight: 16
+      paddingRight: 0
     },
     [theme.breakpoints.down('xs')]: {
       paddingRight: 16,
@@ -71,6 +71,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
     color: 'rgba(0,0,0,0.4)',
     cursor: 'pointer',
+    [theme.breakpoints.down('md')]: {
+      right: 0
+    },
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
