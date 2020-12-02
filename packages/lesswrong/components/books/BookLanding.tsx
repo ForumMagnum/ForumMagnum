@@ -171,6 +171,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   mobileSpreadImage: {
     width: '100%'
   },
+  sampleButtonWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end'
+  },
   [theme.breakpoints.down('xs')]: {
     bookContentContainer: {
       display: 'none'
@@ -430,15 +435,12 @@ const BookLanding = ({classes}: {
           something, they set out to explore it, and they wrote down what they learned for the rest of us.'
         bigQuoteAuthor=''
         accentColor="#e8b10e"
-        bodyText={<button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
-        Read a sample chapter
-        </button>}
+        bodyText={<div>
+          <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+            Read a sample chapter
+          </button>
+        </div>}
       />
-
-      <div className={classes.wrapper}>
-        
-      </div>
-
       
     </div>
   )
