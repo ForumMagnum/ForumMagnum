@@ -32,3 +32,7 @@ export const meteorLocalStorageWrapper = Meteor._localStorage;
 export const throwMeteorError = (messageId: string, message: string, messageOptions?: any) => {
   throw new Meteor.Error(messageId, message);
 }
+
+export const addGlobalForShell = (name: string, value: any) => {
+  (global as any)[name] = value;
+}
