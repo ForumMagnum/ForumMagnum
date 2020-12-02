@@ -15,8 +15,9 @@ import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-const NominatePostMenuItem = ({ post }: {
-  post: PostsBase
+const NominatePostMenuItem = ({ post, closeMenu }: {
+  post: PostsBase,
+  closeMenu: ()=>void,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -25,7 +26,7 @@ const NominatePostMenuItem = ({ post }: {
   const { results: nominations = [], loading } = useMulti({
     skip: !currentUser,
     terms: {
-      view:"nominations2018", 
+      view:"nominations2019",
       postId: post._id, 
       userId: currentUser?._id
     },
@@ -54,6 +55,7 @@ const NominatePostMenuItem = ({ post }: {
       history.push({pathname: postGetPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
+      closeMenu();
       openDialog({
         componentName:"NominatePostDialog",
         componentProps: {post}
