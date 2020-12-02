@@ -26,7 +26,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
   const { results: nominations = [], loading } = useMulti({
     skip: !currentUser,
     terms: {
-      view:"nominations2018", 
+      view:"nominations2019",
       postId: post._id, 
       userId: currentUser?._id
     },
