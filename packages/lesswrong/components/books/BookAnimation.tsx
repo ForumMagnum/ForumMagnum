@@ -214,7 +214,7 @@ const BookAnimation = ({ classes, children }: {
 }) => {
   const { query } = useLocation();
   return (
-    <div className={classNames(classes.root, {[classes.success]: !!query.success})}>
+    <div className={classNames(classes.root, {[classes.success]: !!query.success || !!query.cancelled})}>
       <div className="parent-container">
         <div className="book-container epistemology">
           <div className="book">
