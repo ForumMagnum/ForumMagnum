@@ -37,15 +37,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: '300px',
       transition: 'transform 1.5s ease'
     },
-    '& .parent-container:hover .book-container': {
-      left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
-      'margin-right': 'calc(-160px + var(--right-margin-adjustment))',
-    },
-    '& .parent-container:hover .book': {
-      'transform': 'rotateY(90deg)',
-    },
-    '& .parent-container:hover .book::after': {
-      'opacity': '0',
+    [theme.breakpoints.up('md')]: {
+      '& .parent-container:hover .book-container': {
+        left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
+      },
+      '& .parent-container:hover .book': {
+        'transform': 'rotateY(90deg)',
+      },
+      '& .parent-container:hover .book::after': {
+        'opacity': '0',
+      },
     },
     '& .parent-container:hover $revealedContent': {
       opacity: 1,
@@ -68,6 +69,44 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .parent-container:hover::after': {
       opacity: 1
+    },
+    [theme.breakpoints.down('md')]: {
+      '& .book': {
+        'transform': 'rotateY(90deg)'
+      },
+      '& .book::after': {
+        opacity: 0
+      },
+      '& .parent-container::after': {
+        left: '75px',
+        opacity: 1,
+        top: '25px'
+      },
+      '& .book-container': {
+        left: 'calc(var(--collapsed-position) - 65px)',
+        top: 49
+      },
+      '& .parent-container': {
+        paddingLeft: '200px',
+        paddingTop: '40px',
+        height: 'unset',
+        maxWidth: 765,
+        minHeight: 375
+      }
+    },
+    [theme.breakpoints.down('xs')]: {
+      '& .parent-container': {
+        paddingLeft: 16,
+        paddingTop: 395,  
+        overflow: 'hidden'
+      },
+      '& .book-container': {
+        left: 'calc(var(--collapsed-position) + 12vw)',
+      },
+      '& .parent-container::after': {
+        left: '30vw',
+      },
+      
     },
     '& .book > .cover': {
       position: 'absolute',
@@ -154,7 +193,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   revealedContent: {
     position: 'relative',
     opacity: 0,
-    transition: 'opacity 0.5s ease'
+    transition: 'opacity 0.5s ease',
+    [theme.breakpoints.down('md')]: {
+      opacity: 1
+    }
   }
 })
 
