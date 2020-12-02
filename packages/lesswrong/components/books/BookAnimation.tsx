@@ -206,37 +206,37 @@ const BookAnimation = ({ classes, children }: {
       <div className="parent-container">
         <div className="book-container epistemology">
           <div className="book">
-            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606785787/v1.1_epistemology_spine_n8p1w4.png" />
+            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606785787/v1.1_epistemology_spine_n8p1w4.jpg" />
             <div className="spine-thickness"></div>
-            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606785787/v1.1_epistemology_cover_ecxmxo.png" />
+            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606785787/v1.1_epistemology_cover_ecxmxo.jpg" />
           </div>
         </div>
         <div className="book-container agency">
           <div className="book">
-            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_agency_spine_d4jih0.png" />
+            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_agency_spine_d4jih0.jpg" />
             <div className="spine-thickness"></div>
-            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_agency_cover_yqhnyo.png" />
+            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_agency_cover_yqhnyo.jpg" />
           </div>
         </div>
         <div className="book-container coordination">
           <div className="book">
-            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_coordination_spine_doxyww.png" />
+            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_coordination_spine_doxyww.jpg" />
             <div className="spine-thickness"></div>
-            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792632/v1.1_coordination_cover_xbuj1e.png" />
+            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792632/v1.1_coordination_cover_xbuj1e.jpg" />
           </div>
         </div>
         <div className="book-container curiosity">
           <div className="book">
-            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792630/v1.1_curiosity_spine_zdr1yv.png" />
+            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792630/v1.1_curiosity_spine_zdr1yv.jpg" />
             <div className="spine-thickness"></div>
-            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792632/v1.1_curiosity_cover_yeatxr.png" />
+            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792632/v1.1_curiosity_cover_yeatxr.jpg" />
           </div>
         </div>
         <div className="book-container alignment">
           <div className="book">
-            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_Alignment_spine_bvrrmw.png" />
+            <img className="spine" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792629/v1.1_Alignment_spine_bvrrmw.jpg" />
             <div className="spine-thickness"></div>
-            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792630/v1.1_Alignment_cover_bberdl.png" />
+            <img className="cover" src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606792630/v1.1_Alignment_cover_bberdl.jpg" />
           </div>
         </div>
         <div className={classes.revealedContent}>
