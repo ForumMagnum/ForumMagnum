@@ -35,7 +35,8 @@ const NominatePostMenuItem = ({ post }: {
 
   if (!currentUser) return null;
   if (post.userId === currentUser!._id) return null
-  if (currentUser.createdAt > new Date("2019-01-01")) return null
+  console.log(currentUser.createdAt, new Date("2019-01-01"), currentUser.createdAt > new Date("2019-01-01"))
+  if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return null
   if (new Date(post.postedAt) > new Date("2020-01-01")) return null
   if (new Date(post.postedAt) < new Date("2019-01-01")) return null
 
