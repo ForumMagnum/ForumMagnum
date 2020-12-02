@@ -92,7 +92,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     fontSize: '0.65em',
     color: 'rgba(0,0,0,0.4)',
-    marginTop: -2
+    marginTop: 4,
+    lineHeight: '1.3'
   }
 })
 

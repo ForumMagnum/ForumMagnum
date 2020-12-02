@@ -1,6 +1,7 @@
 import React from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const contentMaxWidth = "1050px"
 const LW = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
@@ -41,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   bookContentImage: {
     width: "100%",
-    height: "auto"
+    height: "100%"
   },
 
   wrapper: {
@@ -126,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sampleButton: {
    ...theme.typography.commentStyle,
     height: '36px',
-    background: "#e8b10e",
+    background: "#e4c161",
     paddingLeft: 16,
     paddingRight: 16,
     color: 'white',
@@ -141,6 +142,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 0.8
     },
+  },
+  mobileSampleButton: {
+    display: "none",
+    width: '100%',
+    padding: '0px 16px'
   },
   bookIntroduction: {
     display: "grid",
@@ -175,6 +181,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-end'
+  },
+  faqLink: {
+    ...theme.typography.commentStyle,
+    display: 'flex',
+    alignItems: 'center',
+    height: 36,
+    fontSize: '1.2rem',
+    marginLeft: 16,
+    marginRight: 16,
+    color: 'rgba(0,0,0,0.6)'
   },
   [theme.breakpoints.down('xs')]: {
     bookContentContainer: {
@@ -238,6 +254,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     bookAnimationContainer: {
       marginBottom: 0
+    },
+    mobileSampleButton: {
+      display: 'block'
     }
   },
 
@@ -333,6 +352,9 @@ const BookLanding = ({classes}: {
             </p>
             <div className={classes.buyButton}>
               <BookCheckout />
+              <Link className={classes.faqLink} to="/books">
+                Read the FAQ
+              </Link>
             </div>
           </div>          
         </div>
@@ -370,7 +392,7 @@ const BookLanding = ({classes}: {
             Especially in our rapidly changing world, these writings are among those that I expect
             will continue to be read many decades from now."
         bigQuoteAuthor="Vitalik Buterin (Co-founder, Ethereum)"
-        accentColor="#4da056"
+        accentColor="#d76061"
         bodyText={<div>
           Each year thousands of posts are written to LessWrong. Since 2019, users
             come together once a year to <a style={{color: "#4da056"}} href="https://www.lesswrong.com/s/uNdbAXtGdJ8wZWeNs/p/qXwmMkEBLL59NkvYR">review and vote</a> on the best posts from <span style={{fontStyle: "italic"}}>two</span> years ago.
@@ -387,7 +409,7 @@ const BookLanding = ({classes}: {
         bigQuote="Whenever there’s a cutting-edge new idea making the rounds, Eliezer was writing about it 5-10 years ago.
             A deep dive into LessWrong will make you smarter."
         bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
-        accentColor="#eb5b50"
+        accentColor="#1d92cb"
         bodyText={<div>
           A scientist does not just try to understand how life works, chemicals combine, or physical objects move.
           Rather, they use the general scientific method in each area, empirically testing their beliefs to discover what's true.
@@ -404,7 +426,7 @@ const BookLanding = ({classes}: {
           bigQuote="Whenever there’s a cutting-edge new idea making the rounds, Eliezer was writing about it 5-10 years ago.
               A deep dive into LessWrong will make you smarter."
           bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
-          accentColor="#2298ce"
+          accentColor="#c7a23f"
           bodyText={<div>A rationalist is someone who is curious about the general patterns that allow them to think clearly in <span style={{fontStyle: "italic"}} >any</span> area.
               They want to understand the laws and tools that help them make good decisions <span style={{fontStyle: "italic"}}>in general</span>. The essays here explore many elements of rationality,
               including questions about aesthetics, artificial intelligence, introspection, markets, altruism, probability theory... and much more.
@@ -419,7 +441,7 @@ const BookLanding = ({classes}: {
           spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895485/Book%20landing%20page/Contents/3_Coordination_internals.jpg"
           bigQuote="The rationality community is one of the brightest lights in the modern intellectual firmament."
           bigQuoteAuthor='Bryan Caplan (Professor of Economics, George Mason University)'
-          accentColor="#2298ce"
+          accentColor="#c7a23f"
           bodyText={<div>A rationalist is someone who is curious about the general patterns that allow them to think clearly in <span style={{fontStyle: "italic"}} >any</span> area.
               They want to understand the laws and tools that help them make good decisions <span style={{fontStyle: "italic"}}>in general</span>. The essays here explore many elements of rationality,
               including questions about aesthetics, artificial intelligence, introspection, markets, altruism, probability theory... and much more.
@@ -435,12 +457,18 @@ const BookLanding = ({classes}: {
           something, they set out to explore it, and they wrote down what they learned for the rest of us.'
         bigQuoteAuthor=''
         accentColor="#e8b10e"
-        bodyText={<div>
+        bodyText={<div className={classes.sampleButtonWrapper}>
           <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
             Read a sample chapter
           </button>
         </div>}
       />
+
+      <div className={classes.mobileSampleButton}>
+        <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+          Read a sample chapter
+        </button>
+      </div>
       
     </div>
   )
