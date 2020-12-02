@@ -998,6 +998,18 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations
   },
 
+  hideFrontpageBookAd: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
   needsReview: {
     type: Boolean,
     canRead: ['guests'],

@@ -15,7 +15,6 @@ const styles = theme => ({
     background: theme.palette.primary.dark,
     paddingLeft: 16,
     paddingRight: 16,
-    marginLeft: 16,
     color: 'white',
     fontSize: '14px',
     border: 0,
