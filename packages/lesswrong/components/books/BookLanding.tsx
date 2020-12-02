@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const contentMaxWidth = "1050px"
-const LW = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
+const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
 const styles = (theme: ThemeType): JssStyles => ({
 
@@ -338,7 +338,7 @@ const BookLanding = ({classes}: {
         <div className={classes.bookIntroduction}>
          <div className={classes.authorList}>
             <p className={classes.body}>
-              <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, </span>
+              <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai,{" "}</span>
                 Samo Burja, Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
                 Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
                 Raymond Arnold, Valentine Smith, Andrew Critch, Jameson Quinn and Katja Grace
@@ -346,7 +346,7 @@ const BookLanding = ({classes}: {
           </div>
           <div className={classes.bookSummary}>
             <p className={classes.body}>
-              {LW()} is a community blog devoted to refining the art of human rationality.
+              {lw()} is a community blog devoted to refining the art of human rationality.
               This is a collection of our best essays from 2018. It contains over 40 redesigned graphs,
               packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
             </p>
@@ -367,8 +367,7 @@ const BookLanding = ({classes}: {
             Each year thousands of posts are written to LessWrong. Since 2019, users
             come together once a year to <a style={{color: "#4da056"}} href="https://www.lesswrong.com/s/uNdbAXtGdJ8wZWeNs/p/qXwmMkEBLL59NkvYR">review and vote</a> on the best posts from <span style={{fontStyle: "italic"}}>two</span> years ago.
             This is our attempt to build an online forum that rewards truth-seeking content that can stand the test of time, rather than short-term attention-seeking.
-            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just
-            <a style={{color: "#4da056"}} href="https://www.lessestwrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
+            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just <a style={{color: "#4da056"}} href="https://www.lessestwrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
           </p>
           <p>
             A scientist does not just try to understand how life works, chemicals combine, or physical objects move.
@@ -397,8 +396,7 @@ const BookLanding = ({classes}: {
           Each year thousands of posts are written to LessWrong. Since 2019, users
             come together once a year to <a style={{color: "#4da056"}} href="https://www.lesswrong.com/s/uNdbAXtGdJ8wZWeNs/p/qXwmMkEBLL59NkvYR">review and vote</a> on the best posts from <span style={{fontStyle: "italic"}}>two</span> years ago.
             This is our attempt to build an online forum that rewards truth-seeking content that can stand the test of time, rather than short-term attention-seeking.
-            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just
-            <a style={{color: "#4da056"}} href="https://www.lessestwrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
+            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just<a style={{color: "#4da056"}} href="https://www.lessestwrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
           </div>}
       />
 
