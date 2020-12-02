@@ -65,7 +65,7 @@ if (isClient){
   // the dialog on a successful login or display the error on a failed
   // login).
   //
-  Accounts.onPageLoadLogin(function (attemptInfo) {
+  if (Accounts.onPageLoadLogin) Accounts.onPageLoadLogin(function (attemptInfo) {
     // Ignore if we have a left over login attempt for a service that is no longer registered.
     if (_.contains(_.pluck(getLoginServices(), 'name'), attemptInfo.type))
       loginResultCallback(attemptInfo.type, attemptInfo.error);
@@ -73,7 +73,7 @@ if (isClient){
 
   // let doneCallback;
 
-  Accounts.onResetPasswordLink(function (token, done) {
+  if (Accounts.onResetPasswordLink) Accounts.onResetPasswordLink(function (token, done) {
     Accounts._loginButtonsSession.set('resetPasswordToken', token);
     Session.set(KEY_PREFIX + 'state', 'resetPasswordToken');
     // doneCallback = done;
@@ -81,7 +81,7 @@ if (isClient){
     Accounts.ui._options.onResetPasswordHook();
   });
 
-  Accounts.onEnrollmentLink(function (token, done) {
+  if (Accounts.onEnrollmentLink) Accounts.onEnrollmentLink(function (token, done) {
     Accounts._loginButtonsSession.set('enrollAccountToken', token);
     Session.set(KEY_PREFIX + 'state', 'enrollAccountToken');
     // doneCallback = done;
@@ -89,7 +89,7 @@ if (isClient){
     Accounts.ui._options.onEnrollAccountHook();
   });
 
-  Accounts.onEmailVerificationLink(function (token, done) {
+  if (Accounts.onEmailVerificationLink) Accounts.onEmailVerificationLink(function (token, done) {
     Accounts.verifyEmail(token, function (error) {
       if (! error) {
         Accounts._loginButtonsSession.set('justVerifiedEmail', true);
