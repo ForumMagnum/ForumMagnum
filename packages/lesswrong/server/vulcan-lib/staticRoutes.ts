@@ -1,6 +1,6 @@
 import type { NextFunction } from 'express';
 import type { IncomingMessage, ServerResponse } from 'http';
-import { addPickerRoute, initMeteorhacksPickerMiddleware } from '../meteorServerSideFns';
+import { addPickerRoute, initMeteorhacksPickerMiddleware } from '../../platform/current/server/meteorServerSideFns';
 
 initMeteorhacksPickerMiddleware();
 

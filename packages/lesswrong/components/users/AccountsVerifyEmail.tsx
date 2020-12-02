@@ -4,7 +4,7 @@ import { withApollo } from '@apollo/client/react/hoc';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil'
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

@@ -1,4 +1,4 @@
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 
 if (Accounts.config) {
   Accounts.config({

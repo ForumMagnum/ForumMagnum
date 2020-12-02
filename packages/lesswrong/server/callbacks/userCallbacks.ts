@@ -7,7 +7,7 @@ import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 

@@ -2,7 +2,7 @@ import { LWEvents } from '../lib/collections/lwevents/collection';
 import { createMutator } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { ForwardedWhitelist } from './forwarded_whitelist';
-import { Accounts } from '../lib/meteorAccounts';
+import { Accounts } from '../platform/current/lib/meteorAccounts';
 import { Meteor } from 'meteor/meteor';
 
 let dummyUser: DbUser|null = null;

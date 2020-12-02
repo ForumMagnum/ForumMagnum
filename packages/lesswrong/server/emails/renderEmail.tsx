@@ -1,7 +1,7 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
 import Juice from 'juice';
-import { meteorSendEmail } from '../meteorServerSideFns';
+import { meteorSendEmail } from '../../platform/current/server/meteorServerSideFns';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';

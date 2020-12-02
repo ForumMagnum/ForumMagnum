@@ -1,5 +1,5 @@
 /* eslint-disable meteor/no-session */
-import { Accounts, Session } from '../../lib/meteorAccounts';
+import { Accounts, Session } from '../../platform/current/lib/meteorAccounts';
 import { loginResultCallback, getLoginServices } from './helpers';
 import * as _ from 'underscore';
 import { isClient } from '../executionEnvironment';

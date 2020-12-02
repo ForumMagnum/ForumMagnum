@@ -1,4 +1,4 @@
-import { ServiceConfiguration } from '../../lib/meteorDdp';
+import { ServiceConfiguration } from '../../platform/current/lib/meteorDdp';
 import { DatabaseServerSetting } from '../databaseSettings';
 
 const oAuthServicesSetting = new DatabaseServerSetting<any>('oAuth', null)

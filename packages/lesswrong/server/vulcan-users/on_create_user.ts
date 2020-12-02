@@ -12,7 +12,7 @@ import {
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import clone from 'lodash/clone';
 import { onStartup, wrapAsync } from '../../lib/executionEnvironment';
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 import * as _ from 'underscore';
 
 // Takes a function that returns a promise and wraps it with Meteor.wrapAsync

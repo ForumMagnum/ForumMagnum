@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { isClient, runAfterDelay } from '../executionEnvironment';
-import { Accounts } from '../../lib/meteorAccounts';
-import { ServiceConfiguration } from '../meteorDdp';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
+import { ServiceConfiguration } from '../../platform/current/lib/meteorDdp';
 
 let browserHistory;
 try {

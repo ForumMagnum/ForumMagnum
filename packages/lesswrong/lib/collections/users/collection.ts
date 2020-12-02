@@ -3,7 +3,7 @@ import resolvers from '../../vulcan-users/resolvers';
 import { createCollection, addGraphQLQuery } from '../../vulcan-lib';
 import { Utils, encodeIntlError } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
-import { meteorUsersCollection } from '../../meteorAccounts';
+import { meteorUsersCollection } from '../../../platform/current/lib/meteorAccounts';
 import type { AlgoliaDocument } from '../../../server/search/utils';
 
 const performCheck = (mutation, user: DbUser|null, document: DbUser) => {

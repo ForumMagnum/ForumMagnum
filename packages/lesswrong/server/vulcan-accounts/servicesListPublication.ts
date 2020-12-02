@@ -1,6 +1,6 @@
 import { getLoginServices } from '../../lib/vulcan-accounts/helpers';
-import { meteorUsersCollection } from '../../lib/meteorAccounts';
-import { publishDDP } from '../../lib/meteorDdp';
+import { meteorUsersCollection } from '../../platform/current/lib/meteorAccounts';
+import { publishDDP } from '../../platform/current/lib/meteorDdp';
 
 publishDDP('servicesList', function(this: any) {
   let services = getLoginServices();

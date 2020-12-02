@@ -1,8 +1,8 @@
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 import { Bans } from '../../lib/collections/bans/collection';
 import { Meteor } from 'meteor/meteor';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { addLoginAttemptValidation } from '../meteorServerSideFns';
+import { addLoginAttemptValidation } from '../../platform/current/server/meteorServerSideFns';
 import { throwMeteorError } from '../../lib/executionEnvironment';
 
 // If set, IP bans (in the bans collection) will be enforced. Currently

@@ -1,5 +1,5 @@
 import { Accounts } from '../lib/meteorAccounts';
-import { ForwardedWhitelist } from './forwarded_whitelist';
+import { ForwardedWhitelist } from '../../../server/forwarded_whitelist';
 import { Email } from 'meteor/email';
 import { Picker } from 'meteor/meteorhacks:picker'
 import cookieParser from 'cookie-parser'

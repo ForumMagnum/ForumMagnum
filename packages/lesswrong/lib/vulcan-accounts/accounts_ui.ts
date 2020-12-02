@@ -1,4 +1,4 @@
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 import { redirect } from './helpers';
 import * as _ from 'underscore';
 

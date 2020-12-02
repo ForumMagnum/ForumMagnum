@@ -6,7 +6,7 @@
 /* super handle that.
 /****************************************************************/
 import React from 'react';
-import { subscribeDDP, Tracker } from '../../lib/meteorDdp';
+import { subscribeDDP, Tracker } from '../../platform/current/lib/meteorDdp';
 
 class TrackerComponent extends React.Component<any,any> {
   __subs: any

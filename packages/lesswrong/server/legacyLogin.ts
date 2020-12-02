@@ -1,6 +1,6 @@
 import Users from '../lib/collections/users/collection';
 import { LegacyData } from '../lib/collections/legacyData/collection';
-import { addLoginAttemptValidation } from './meteorServerSideFns';
+import { addLoginAttemptValidation } from '../platform/current/server/meteorServerSideFns';
 import { throwMeteorError } from '../lib/executionEnvironment';
 
 addLoginAttemptValidation((attempt) => {
