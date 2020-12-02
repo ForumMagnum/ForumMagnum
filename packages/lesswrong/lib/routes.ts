@@ -777,7 +777,7 @@ addRoute(
     name: 'bookLanding',
     path: '/books',
     componentName: 'BookLanding',
-    title: "LessWrong Books",
+    title: "A Map that Reflects the Territory",
     background: "white"
   },
 );
