@@ -367,7 +367,7 @@ const BookLanding = ({classes}: {
             Each year thousands of posts are written to LessWrong. Since 2019, users
             come together once a year to <a style={{color: "#4da056"}} href="https://www.lesswrong.com/s/uNdbAXtGdJ8wZWeNs/p/qXwmMkEBLL59NkvYR">review and vote</a> on the best posts from <span style={{fontStyle: "italic"}}>two</span> years ago.
             This is our attempt to build an online forum that rewards truth-seeking content that can stand the test of time, rather than short-term attention-seeking.
-            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just <a style={{color: "#4da056"}} href="https://www.lessestwrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
+            41 of the most highly rated essays in last year's review have been compiled in this book set. Meanwhile, this year's review is just <a style={{color: "#4da056"}} href="https://www.lesswrong.com/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"> getting started</a>.
           </p>
           <p>
             A scientist does not just try to understand how life works, chemicals combine, or physical objects move.
@@ -421,9 +421,8 @@ const BookLanding = ({classes}: {
           imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/3_Coordination_internals_vicuiq.jpg"
           coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/3_Coordination_front.jpg"
           spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895485/Book%20landing%20page/Contents/3_Coordination_internals.jpg"
-          bigQuote="Whenever there’s a cutting-edge new idea making the rounds, Eliezer was writing about it 5-10 years ago.
-              A deep dive into LessWrong will make you smarter."
-          bigQuoteAuthor='Tim Urban (Author, "Wait But Why")'
+          bigQuote="Rationalists like Yudkowsky update their beliefs about the world as new information comes in, whereas many non-rationalists try to make new information fit their preconceived ideas... [In predicting the coronavirus pandemic] It seems like the rationalist community was ahead of most of the rest of us."
+          bigQuoteAuthor='Scott Sumner (The Money Illusion, and Professor of Economics, George Mason University)'
           accentColor="#c7a23f"
           bodyText={<div>A rationalist is someone who is curious about the general patterns that allow them to think clearly in <span style={{fontStyle: "italic"}} >any</span> area.
               They want to understand the laws and tools that help them make good decisions <span style={{fontStyle: "italic"}}>in general</span>. The essays here explore many elements of rationality,
