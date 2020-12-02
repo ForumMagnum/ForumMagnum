@@ -337,9 +337,8 @@ const BookLanding = ({classes}: {
         </div>
         <div className={classes.bookIntroduction}>
          <div className={classes.authorList}>
-            <p className={classes.body}>
-              <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai,{" "}</span>
-                Samo Burja, Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
+            <p className={classes.body}> 
+              <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, </span> Samo Burja, Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
                 Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
                 Raymond Arnold, Valentine Smith, Andrew Critch, Jameson Quinn and Katja Grace
               </p>
