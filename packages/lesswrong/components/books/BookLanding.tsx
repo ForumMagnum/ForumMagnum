@@ -78,7 +78,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   mainQuoteContainer: {
     maxWidth: '650px',
     textAlign: 'right',
-    paddingLeft: '100px'
+    paddingLeft: '100px',
+    paddingTop: '50px'
   },
 
   mainQuote: {
