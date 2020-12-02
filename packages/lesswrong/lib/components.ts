@@ -536,6 +536,7 @@ importComponent("NominatePostMenuItem", () => require('../components/review/Nomi
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog'));
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
 importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
+importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
 
 
 // Analytics Tracking
@@ -556,3 +557,8 @@ importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Ale
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
+
+// Review Book related components
+importComponent("BookLanding", () => require('../components/books/BookLanding'));
+importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
+importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));

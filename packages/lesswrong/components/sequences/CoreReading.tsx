@@ -78,4 +78,3 @@ declare global {
     CoreReading: typeof CoreReadingComponent
   }
 }
-
