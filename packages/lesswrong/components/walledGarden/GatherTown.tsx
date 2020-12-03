@@ -136,7 +136,7 @@ const GatherTown = ({classes}: {
       },
     })
     flash({
-      messageString: "Hid Walled Garden from frontpage",
+      messageString: "Hide Walled Garden from frontpage",
       type: "success",
       action: () => void updateUser({
         selector: { _id: currentUser._id },
