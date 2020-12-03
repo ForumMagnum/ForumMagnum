@@ -17,7 +17,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`,
     lineHeight: '1.45',
     color: 'rgba(0,0,0,0.7)',
-    textAlign: "justify"
+    textAlign: "justify",
+    '& a': {
+      color: theme.palette.primary.main
+    }
   },
 
   bookAnimationContainer: {
@@ -351,7 +354,7 @@ const BookLanding = ({classes}: {
           <div className={classes.bookSummary}>
             <p className={classes.body}>
               {lw()} is a community blog devoted to refining the art of human rationality.
-              This is a collection of our best essays from 2018. It contains over 40 redesigned graphs,
+              This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
               packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
             </p>
             <div className={classes.buyButton}>
