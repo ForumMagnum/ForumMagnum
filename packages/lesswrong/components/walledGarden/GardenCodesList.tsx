@@ -4,9 +4,14 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: any}) => {
+export const GardenCodesList = ({classes, personal=false}:{classes:ClassesType, personal?: boolean}) => {
   const { GardenCodesItem } = Components
   const currentUser = useCurrentUser()
+  
+  const terms = personal ?
+    {view:"userGardenCodes"} : 
+    {view:"semipublicGardenCodes", types: ['public', 'semi-public']}
+  
   const { results } = useMulti({
     terms: {
       userId: currentUser?._id,
@@ -18,7 +23,9 @@ export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: an
     fragmentName: 'GardenCodeFragment'
   });
   return <div>
-    {results?.map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
+    {results
+      ?.filter(code=> !personal || code.type=='private') //for personal list, only show private events; for public list, show all public events
+      .map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
   </div>
 }
 

@@ -178,7 +178,7 @@ const GatherTown = ({classes}: {
           No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        <GardenCodesList terms={{view:"semipublicGardenCodes", types: eventTypes}} />
+        <GardenCodesList/>
         <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
       </div>
     </div>

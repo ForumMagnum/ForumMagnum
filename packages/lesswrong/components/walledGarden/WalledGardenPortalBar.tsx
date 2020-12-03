@@ -74,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
-  const { GardenCodeWidget, GardenCodesList, PomodoroWidget } = Components
+  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, } = Components
 
   const currentUser =  useCurrentUser()
 
@@ -91,17 +91,13 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
         </div>
       </div>}
       {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
-        <GardenCodesList terms={{view:"semipublicGardenCodes", types: ['public', 'semi-public']}} />
+        <GardenCodesList/>
+        <GardenCodesList personal/>
       </div>}
       <div className={classes.codesList}>
-        <GardenCodesList terms={{view:"userGardenCodes"}}  />
+        {/*<GardenCodesList personal/>*/}
       </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
-        <div className={classes.textButton}>
-          <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
-            Google Calendar
-          </a>
-        </div>
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
             Facebook Group

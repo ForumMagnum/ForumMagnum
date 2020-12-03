@@ -30,7 +30,7 @@ export const eventName = theme => ({
 export const eventTime = theme => ({
   fontSize: ".9em",
   opacity: .75,
-  width: 130,
+  width: 150,
   [theme.breakpoints.down('xs')]: {
     width: "100%",
     textAlign: "left"
