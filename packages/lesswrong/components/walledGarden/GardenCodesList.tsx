@@ -22,9 +22,15 @@ export const GardenCodesList = ({classes, personal=false}:{classes:ClassesType, 
     collection: GardenCodes,
     fragmentName: 'GardenCodeFragment'
   });
+  
+  console.log({results})
+  
   return <div>
     {results
-      ?.filter(code=> !personal || code.type=='private') //for personal list, only show private events; for public list, show all public events
+      // ?.filter(code => { personal ?
+      //   code.type=='private' : 
+      //   currentUser?.walledGardenInvite || code.type=='public'
+      // }) //for personal list, only show private events; for public list, show all public/semipublic events depending on membership
       .map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
   </div>
 }

@@ -12,7 +12,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { CAL_ID } from '../walledGarden/gardenCalendar';
 import { isMobile } from '../../lib/utils/isMobile'
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
@@ -159,8 +158,6 @@ const GatherTown = ({classes}: {
         Learn More
       </Link>
   </LWTooltip> : null
-
-  let eventTypes = currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']
 
   return (
     <div className={classes.root}>

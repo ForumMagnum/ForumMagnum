@@ -10,7 +10,6 @@ import LinkIcon from '@material-ui/icons/Link';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {useMessages} from "../common/withMessages";
 import { FacebookIcon } from "../localGroups/GroupLinks";
-import {CAL_ID} from "./gardenCalendar";
 
 const iconStyling = {
   marginLeft: 1,
@@ -44,7 +43,6 @@ const styles = theme => ({
   personalIcon: {
     ...iconStyling,
     marginRight: "3px",
-    // marginLeft: "1px",
     opacity: .75,
   },
   trailingIcons: {
@@ -86,7 +84,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
     return <GardenCodesEditForm gardenCodeId={gardenCode._id} cancelCallback={()=> setEditing(false)}   />
   }
   // const title = <span cla>{gardenCode.title}</span>
-  const inviteLink = `http://garden.lesswrong.com?code=${gardenCode?.code}&event=${gardenCode?.slug}`
+  const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
   
   return <div className={classes.root}>
     <span className={classes.eventName}>
