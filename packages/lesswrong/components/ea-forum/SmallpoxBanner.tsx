@@ -20,7 +20,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   image: {
-    objectFit: 'cover'
+    height: bannerHeight,
+    width: '100%',
+    objectFit: 'cover',
   }
 }))
 
@@ -30,15 +32,9 @@ const SmallpoxBanner = ({ classes }) => {
   return <SingleColumnSection>
     <Link to={featuredPost} className={classes.link}>
       <picture>
-        {/* 960px is the md boundary */}
-        <source media="(max-width: 959px)" srcSet={mobileImage} />
+        <source media="(max-width: 959.95px)" srcSet={mobileImage} />
         <source media="(min-width: 960px)" srcSet={desktopImage} />
-        <img
-          className={classes.image}
-          src={desktopImage}
-          height={bannerHeight}
-          width='100%'
-        />
+        <img className={classes.image} src={desktopImage} />
       </picture>
     </Link>
   </SingleColumnSection>
