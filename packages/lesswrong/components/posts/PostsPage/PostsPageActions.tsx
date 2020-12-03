@@ -64,7 +64,7 @@ class PostsPageActions extends PureComponent<PostsPageActionsProps,PostsPageActi
             }}
           >
             <ClickawayListener onClickAway={this.handleClose}>
-              <PostActions post={post}/>
+              <PostActions post={post} closeMenu={this.handleClose}/>
             </ClickawayListener>
           </PopperCard>
         </div>

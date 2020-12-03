@@ -15,8 +15,9 @@ import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-const NominatePostMenuItem = ({ post }: {
-  post: PostsBase
+const NominatePostMenuItem = ({ post, closeMenu }: {
+  post: PostsBase,
+  closeMenu: ()=>void,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -25,7 +26,7 @@ const NominatePostMenuItem = ({ post }: {
   const { results: nominations = [], loading } = useMulti({
     skip: !currentUser,
     terms: {
-      view:"nominations2018", 
+      view:"nominations2019",
       postId: post._id, 
       userId: currentUser?._id
     },
@@ -35,9 +36,9 @@ const NominatePostMenuItem = ({ post }: {
 
   if (!currentUser) return null;
   if (post.userId === currentUser!._id) return null
-  if ((currentUser.karma||0) < 1000) return null
-  if (new Date(post.postedAt) > new Date("2019-01-01")) return null
-  if (new Date(post.postedAt) < new Date("2018-01-01")) return null
+  if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return null
+  if (new Date(post.postedAt) > new Date("2020-01-01")) return null
+  if (new Date(post.postedAt) < new Date("2019-01-01")) return null
 
   const nominated = !loading && nominations?.length;
 
@@ -47,13 +48,14 @@ const NominatePostMenuItem = ({ post }: {
         <div><em>(Click to review or edit your endorsement)</em></div>
       </div>
     :
-    "Write an endorsement for the 2018 Review."
+    "Write an endorsement for the 2019 Review."
 
   const handleClick = () => {
     if (nominated) {
       history.push({pathname: postGetPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
+      closeMenu();
       openDialog({
         componentName:"NominatePostDialog",
         componentProps: {post}

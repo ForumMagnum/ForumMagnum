@@ -497,6 +497,18 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
   },
 
+  nominationCount2019: {
+    ...denormalizedCountOfReferences({
+      fieldName: "nominationCount2019",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.nominatedForReview === "2019"
+    }),
+    canRead: ['guests'],
+  },
+
   reviewCount2018: {
     ...denormalizedCountOfReferences({
       fieldName: "reviewCount2018",
@@ -505,6 +517,18 @@ const schema: SchemaType<DbPost> = {
       foreignTypeName: "comment",
       foreignFieldName: "postId",
       filterFn: comment => !comment.deleted && comment.reviewingForReview === "2018"
+    }),
+    canRead: ['guests'],
+  },
+
+  reviewCount2019: {
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewCount2019",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.reviewingForReview === "2019"
     }),
     canRead: ['guests'],
   },

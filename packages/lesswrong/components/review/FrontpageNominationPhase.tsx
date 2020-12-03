@@ -57,7 +57,7 @@ const FrontpageNominationPhase = ({classes, settings}) => {
               ? <div className={classes.timeRemaining}>
                   <em>You have until Dec 1st to nominate posts. (Posts need
                   2+ nominations, <span className={classes.learnMore}>
-                    <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
+                    <HoverPreviewLink href="/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review" innerHTML={"learn more"}/>
                   </span>)
                   </em>
                 </div>

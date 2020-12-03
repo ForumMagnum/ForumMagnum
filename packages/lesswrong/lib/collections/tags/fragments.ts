@@ -98,6 +98,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagWithFlagsAndRevisionFragment on Tag {
+    ...TagRevisionFragment
+    tagFlagsIds
+    tagFlags {
+      ...TagFlagFragment
+    } 
+  }
+`);
+
+registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
     tagFlagsIds

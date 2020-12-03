@@ -105,7 +105,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     fontStyle: "italic",
     fontSize: "1rem",
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing.unit,
+    marginLeft: theme.spacing.unit/2
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -323,10 +324,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>}
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
-              {`Nomination for ${comment.nominatedForReview}`}
+              {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
             {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
-            {`Review for ${comment.reviewingForReview}`}
+            {`Review for ${comment.reviewingForReview} Review`}
           </Link>}
           </div>
           { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>

@@ -248,7 +248,7 @@ export const createCollection = (options: {
         parameters.selector[key] = null;
       } else if (_.isEqual(parameters.selector[key], viewFieldAllowAny)) {
         delete parameters.selector[key];
-      } else if (parameters.selector[key] === null) {
+      } else if (parameters.selector[key] === null || parameters.selector[key] === undefined) {
         //console.log(`Warning: Null key ${key} in query of collection ${collectionName} with view ${terms.view}.`);
         delete parameters.selector[key];
       }

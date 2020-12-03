@@ -20,7 +20,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     ...theme.typography.display2,
-    ...theme.typography.postStyle,
+    ...theme.typography.commentStyle,
+    fontVariant: "small-caps",
     marginTop: 0,
     marginBottom: 8,
     display: "block",
