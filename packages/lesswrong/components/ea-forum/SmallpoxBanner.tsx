@@ -14,6 +14,11 @@ const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get
 const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  link: {
+    '&:hover': {
+      opacity: 'unset'
+    }
+  },
   image: {
     objectFit: 'cover'
   }
@@ -23,7 +28,7 @@ const SmallpoxBanner = ({ classes }) => {
   const { SingleColumnSection } = Components
   
   return <SingleColumnSection>
-    <Link to={featuredPost}>
+    <Link to={featuredPost} className={classes.link}>
       <picture>
         {/* 960px is the md boundary */}
         <source media="(max-width: 959px)" srcSet={mobileImage} />
