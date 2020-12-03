@@ -60,7 +60,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
             </Link>
           </Components.Typography>
           <br/>
-          <Components.PostsHighlight post={post}/>
+          <Components.PostsHighlight post={post} maxLengthWords={600}/>
         </Components.SidebarHoverOver>
         <Link to={postGetPageUrl(post)}
           className="sunshine-sidebar-posts-title">

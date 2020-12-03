@@ -99,6 +99,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
+  readonly nominationCount2019: number,
+  readonly reviewCount2019: number,
   readonly group: PostsBase_group|null,
 }
 
@@ -218,6 +220,16 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly targetPostId: string,
   readonly targetPost: PostsList|null,
   readonly order: number,
+}
+
+interface PostsExpandedHighlight { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsExpandedHighlight_contents|null,
+}
+
+interface PostsExpandedHighlight_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -592,10 +604,12 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
+  readonly contents: RevisionDisplay|null,
 }
 
-interface GardenCodesDefaultFragment { // fragment on GardenCodes
-  readonly createdAt: Date,
+interface GardenCodeFragmentEdit { // fragment on GardenCodes
+  readonly _id: string,
   readonly code: string,
   readonly title: string,
   readonly userId: string,
@@ -603,6 +617,20 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly slug: string,
   readonly startTime: Date,
   readonly endTime: Date,
+  readonly type: string,
+  readonly contents: RevisionEdit|null,
+}
+
+interface GardenCodesDefaultFragment { // fragment on GardenCodes
+  readonly createdAt: Date,
+  readonly code: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly slug: string,
+  readonly startTime: Date,
+  readonly endTime: Date,
+  readonly type: string,
+  readonly deleted: boolean,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -680,6 +708,8 @@ interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
   readonly comment: string,
+  readonly year: string,
+  readonly dummy: boolean,
 }
 
 interface reviewVoteFragment { // fragment on ReviewVotes
@@ -690,6 +720,8 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
   readonly comment: string,
+  readonly year: string,
+  readonly dummy: boolean,
 }
 
 interface PostRelationsDefaultFragment { // fragment on PostRelations
@@ -792,7 +824,9 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly shortform: boolean,
   readonly canonicalSource: string,
   readonly nominationCount2018: number,
+  readonly nominationCount2019: number,
   readonly reviewCount2018: number,
+  readonly reviewCount2019: number,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly noIndex: boolean,
@@ -930,6 +964,7 @@ interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly commentSorting: string,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -962,6 +997,7 @@ interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly hideTaggingProgressBar: boolean,
+  readonly hideFrontpageBookAd: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly sortDrafts: string,
@@ -1150,6 +1186,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 interface UsersEdit extends UsersProfile { // fragment on Users
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
+  readonly hideElicitPredictions: boolean,
   readonly hideIntercom: boolean,
   readonly commentSorting: string,
   readonly currentFrontpageFilter: string,
@@ -1193,6 +1230,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly notificationSharedWithMe: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
+  readonly hideFrontpageBookAd: boolean,
   readonly deleted: boolean,
 }
 
@@ -1550,6 +1588,11 @@ interface TagWithFlagsFragment extends TagFragment { // fragment on Tags
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
+interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragment on Tags
+  readonly tagFlagsIds: Array<string>,
+  readonly tagFlags: Array<TagFlagFragment>,
+}
+
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
@@ -1699,6 +1742,7 @@ interface FragmentTypes {
   PostsList: PostsList
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
+  PostsExpandedHighlight: PostsExpandedHighlight
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
@@ -1737,6 +1781,7 @@ interface FragmentTypes {
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
   GardenCodeFragment: GardenCodeFragment
+  GardenCodeFragmentEdit: GardenCodeFragmentEdit
   GardenCodesDefaultFragment: GardenCodesDefaultFragment
   BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
@@ -1806,6 +1851,7 @@ interface FragmentTypes {
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
+  TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment

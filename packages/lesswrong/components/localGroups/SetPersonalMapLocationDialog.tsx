@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
-import Dialog from '@material-ui/core/Dialog';
 import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -25,7 +24,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
-  const { Loading, Typography } = Components
+  const { Loading, Typography, LWDialog } = Components
   
   const [ mapsLoaded ] = useGoogleMaps("SetPersonalMapLocationDialog")
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
@@ -41,7 +40,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
     return null;
 
   return (
-    <Dialog
+    <LWDialog
       open={true}
       onClose={onClose}
     >
@@ -87,7 +86,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
           </a>
         </DialogActions>
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   )
 }
 

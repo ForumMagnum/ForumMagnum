@@ -287,10 +287,21 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
+  },
+  
+  hideElicitPredictions: {
+    order: 80,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    label: "Hide other users' Elicit predictions until I have predicted myself",
   },
 
   email: {
@@ -298,6 +309,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
@@ -980,10 +992,22 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: false,
+    hidden: forumTypeSetting.get() === "EAForum",
     label: "Hide the tagging progress bar",
     order: 45,
     group: formGroups.siteCustomizations
+  },
+
+  hideFrontpageBookAd: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
   },
 
   needsReview: {
@@ -1179,7 +1203,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
-
+  
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1413,6 +1437,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() === "EAForum",
   },
   walledGardenPortalOnboarded: {
     type: Boolean,
@@ -1427,7 +1452,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-},
+  },
 });
 
 export const makeEditableOptionsModeration = {

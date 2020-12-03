@@ -46,6 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 interface ExternalProps {
   post: PostsList,
+  closeMenu: ()=>void
 }
 interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps, ItemsReadContextType {
   markAsReadOrUnread: any,
@@ -161,8 +162,8 @@ class PostActions extends Component<PostActionsProps,{}> {
   }
 
   render() {
-    const { classes, post, postsRead, currentUser } = this.props
-    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    const { classes, post, postsRead, currentUser, closeMenu } = this.props
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
     if (!post) return null;
     const postAuthor = post.user;
 
@@ -170,6 +171,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
     return (
       <div className={classes.actions}>
+        <NominatePostMenuItem post={post} closeMenu={closeMenu} />
         { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>

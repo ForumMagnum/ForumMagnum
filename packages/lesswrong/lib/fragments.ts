@@ -111,6 +111,7 @@ registerFragment(`
     }
     showHideKarmaOption
     markDownPostEditor
+    hideElicitPredictions
     commentSorting
     location
     googleLocation
@@ -144,6 +145,7 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     hideTaggingProgressBar
+    hideFrontpageBookAd
 
     abTestKey
     abTestOverrides
@@ -405,6 +407,7 @@ registerFragment(`
 
     # UI Settings
     markDownPostEditor
+    hideElicitPredictions
     hideIntercom
     commentSorting
     currentFrontpageFilter
@@ -466,6 +469,7 @@ registerFragment(`
 
     hideFrontpageMap
     hideTaggingProgressBar
+    hideFrontpageBookAd
 
     deleted
   }

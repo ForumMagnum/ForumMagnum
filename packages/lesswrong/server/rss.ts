@@ -111,7 +111,7 @@ export const serveCommentRSS = async (terms, url?: string) => {
 
 
 addStaticRoute('/feed.xml', async function(params, req, res, next) {
-  res.setHeader('Content-Type', 'application/rss+xml')
+  res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8')
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
   }
