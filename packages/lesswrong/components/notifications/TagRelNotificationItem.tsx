@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   meta: {
@@ -23,7 +22,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
 
   const { document: tagRel, loading } = useSingle({
     documentId: tagRelId,
-    collection: TagRels,
+    collectionName: "TagRels",
     fragmentName: 'TagRelFragment',
   });
 

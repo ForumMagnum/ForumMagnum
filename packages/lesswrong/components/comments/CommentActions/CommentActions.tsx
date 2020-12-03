@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Divider from '@material-ui/core/Divider';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
-import Posts from '../../../lib/collections/posts/collection';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
@@ -18,7 +17,7 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
   const { document: postDetails, loading } = useSingle({
     skip: !post,
     documentId: post?._id,
-    collection: Posts,
+    collectionName: "Posts",
     fetchPolicy: "cache-first",
     fragmentName: "PostsDetails",
   });

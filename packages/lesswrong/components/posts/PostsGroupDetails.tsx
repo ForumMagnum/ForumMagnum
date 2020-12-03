@@ -2,7 +2,6 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Localgroups } from '../../lib/index';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -27,7 +26,7 @@ const PostsGroupDetails = ({ documentId, post, classes }: {
 }) => {
   const { document } = useSingle({
     documentId,
-    collection: Localgroups,
+    collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
   });
   if (document) {

@@ -7,7 +7,6 @@ import { useCookies } from 'react-cookie'
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import Sequences from '../../lib/collections/sequences/collection';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -120,7 +119,7 @@ const EAHomeHandbook = ({ classes, documentId }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading } = Components
   const { document, loading } = useSingle({
     documentId,
-    collection: Sequences,
+    collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
   });
   const { flash } = useMessages();

@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 import classNames from 'classnames';
 
 const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }: {
@@ -13,7 +12,7 @@ const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }:
 }) => {
   const { document, loading } = useSingle({
     documentId,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
   });
   if (document && !loading) {
