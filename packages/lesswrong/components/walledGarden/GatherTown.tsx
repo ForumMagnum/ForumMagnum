@@ -13,6 +13,7 @@ import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { CAL_ID } from '../walledGarden/gardenCalendar';
+import { isMobile } from '../../lib/utils/isMobile'
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
@@ -178,8 +179,7 @@ const GatherTown = ({classes}: {
           No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        <GardenCodesList/>
-        <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
+        {!isMobile() && <GardenCodesList/>}
       </div>
     </div>
   )
