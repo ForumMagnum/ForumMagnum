@@ -99,6 +99,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
+  readonly nominationCount2019: number,
+  readonly reviewCount2019: number,
   readonly group: PostsBase_group|null,
 }
 
@@ -706,6 +708,8 @@ interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
   readonly comment: string,
+  readonly year: string,
+  readonly dummy: boolean,
 }
 
 interface reviewVoteFragment { // fragment on ReviewVotes
@@ -716,6 +720,8 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
   readonly comment: string,
+  readonly year: string,
+  readonly dummy: boolean,
 }
 
 interface PostRelationsDefaultFragment { // fragment on PostRelations
@@ -818,7 +824,9 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly shortform: boolean,
   readonly canonicalSource: string,
   readonly nominationCount2018: number,
+  readonly nominationCount2019: number,
   readonly reviewCount2018: number,
+  readonly reviewCount2019: number,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly noIndex: boolean,
@@ -989,6 +997,7 @@ interface UsersCurrent extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly hideTaggingProgressBar: boolean,
+  readonly hideFrontpageBookAd: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly sortDrafts: string,
@@ -1221,6 +1230,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly notificationSharedWithMe: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
+  readonly hideFrontpageBookAd: boolean,
   readonly deleted: boolean,
 }
 

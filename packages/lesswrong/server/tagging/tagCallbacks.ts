@@ -32,6 +32,8 @@ export async function updatePostDenormalizedTags(postId: string) {
 }
 
 getCollectionHooks("Tags").createValidate.add((validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
+  if (!tag.name || !tag.name.length)
+    throw new Error("Name is required");
   if (!isValidTagName(tag.name))
     throw new Error("Invalid tag name (use only letters, digits and dash)");
   

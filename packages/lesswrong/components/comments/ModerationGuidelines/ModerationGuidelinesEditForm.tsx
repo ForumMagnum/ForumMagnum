@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import { Posts } from '../../../lib/collections/posts'
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
@@ -39,10 +38,9 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
     </div>
   }
   return (
-    <Dialog
+    <Components.LWDialog
       open={true}
       onClose={onClose}
-      disableEnforceFocus
     >
       <DialogTitle>
         Moderation Guidelines Edit Form
@@ -65,7 +63,7 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
           }}
         />
       </DialogContent>
-    </Dialog>
+    </Components.LWDialog>
   )
 }
 

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -203,6 +202,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   render() {
     const { classes, fullScreen, onClose, open, currentUser } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
+    const { LWDialog } = Components;
 
     const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
@@ -220,7 +220,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     </FormControl>
 
     return (
-      <Dialog
+      <LWDialog
         fullScreen={fullScreen}
         open={open}
         onClose={onClose}
@@ -315,7 +315,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
           }
           <Button onClick={onClose}>Close</Button>
         </DialogActions>
-      </Dialog>
+      </LWDialog>
     );
   }
 }

@@ -8,10 +8,9 @@ export interface RecommendationsAlgorithm {
   count?: number
   scoreOffset: number
   scoreExponent: number
-  
   coronavirus?: boolean
-  review2018?: boolean
-  nomination2018?: boolean
+  reviewNominations?: 2018 | 2019
+  reviewReviews?: 2018 | 2019
   includePersonal?: boolean
   includeMeta?: boolean
   minimumBaseScore?: number
