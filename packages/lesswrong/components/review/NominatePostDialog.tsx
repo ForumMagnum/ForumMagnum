@@ -1,5 +1,4 @@
 import React from 'react';
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
@@ -40,7 +39,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
   post: PostsBase,
   onClose: ()=>void,
 }) => {
-  const { CommentsNewForm } = Components;
+  const { CommentsNewForm, LWDialog } = Components;
 
   const hintText = <div className={classes.hintText}>
     <p>How has this post been useful to you over the past year or two?</p> 
@@ -49,7 +48,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
   </div>
 
   return (
-    <Dialog open={true}
+    <LWDialog open={true}
       onClose={onClose}
       fullWidth maxWidth="sm"
     >
@@ -83,7 +82,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
           </Link>
         </Typography>
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   );
 }
 
