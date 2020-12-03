@@ -137,7 +137,7 @@ const BookFrontpageWidget = ({ classes }: {
             A Map that Reflects the Territory
           </h1>
           <h4 className={classes.secondaryHeading}>
-            The best new essays from LessWrong in a set of physical books
+            The best LessWrong essays from 2018, in a set of physical books
           </h4>
           <p className={classes.descriptionText}>
             A beautifully designed collection of books, each small enough to fit in your pocket. The book set contains over forty chapters by more than twenty authors including Eliezer Yudkowsky and Scott Alexander. This is a collection of opinionated essays exploring argument, aesthetics, game theory, artificial intelligence, introspection, markets, and more, as part of LessWrong's mission to understand the laws that govern reasoning and decision-making, and build a map that reflects the territory.
