@@ -1,9 +1,37 @@
+import classNames from 'classnames';
 import React from 'react';
+import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
 
+const collapsedStyles = theme => ({
+  [theme.breakpoints.up('lg')]: {
+    '& .book-container': {
+      left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
+    },
+    '& .book': {
+      'transform': 'rotateY(90deg)',
+    },
+    '& .book::after': {
+      'opacity': '0',
+    },
+  },
+  '& $revealedContent': {
+    opacity: 1,
+    transitionDelay: '1s',
+    transition: 'opacity 1s ease'
+  },
+  '&::after': {
+    opacity: 1
+  },
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
+  success: {
+    '& .parent-container': {
+      ...collapsedStyles(theme)
+    }
+  },
   root: {
-    
     '& .parent-container': {
       zIndex: '2',
       position: 'relative',
@@ -33,21 +61,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: '300px',
       transition: 'transform 1.5s ease'
     },
-    [theme.breakpoints.up('lg')]: {
-      '& .parent-container:hover .book-container': {
-        left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
-      },
-      '& .parent-container:hover .book': {
-        'transform': 'rotateY(90deg)',
-      },
-      '& .parent-container:hover .book::after': {
-        'opacity': '0',
-      },
-    },
-    '& .parent-container:hover $revealedContent': {
-      opacity: 1,
-      transitionDelay: '1s',
-      transition: 'opacity 1s ease'
+    '& .parent-container:hover': {
+      ...collapsedStyles(theme)
     },
     '& .parent-container::after': {
       content: '""',
@@ -62,9 +77,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       transform: 'translateZ(-500px)',
       transition: 'opacity 1s ease',
       opacity: 0
-    },
-    '& .parent-container:hover::after': {
-      opacity: 1
     },
     [theme.breakpoints.down('md')]: {
       '& .book': {
@@ -200,9 +212,9 @@ const BookAnimation = ({ classes, children }: {
   classes: ClassesType,
   children: any
 }) => {
-
+  const { query } = useLocation();
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {[classes.success]: !!query.success || !!query.cancelled})}>
       <div className="parent-container">
         <div className="book-container epistemology">
           <div className="book">

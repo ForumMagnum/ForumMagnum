@@ -98,6 +98,7 @@ importComponent("LoadMore", () => require('../components/common/LoadMore'));
 importComponent("ReCaptcha", () => require('../components/common/ReCaptcha'));
 importComponent("DefaultStyleFormGroup", () => require('../components/common/DefaultStyleFormGroup'))
 importComponent("LinkCard", () => require('../components/common/LinkCard'));
+importComponent("LWDialog", () => require('../components/common/LWDialog'));
 importComponent("Error404", () => require('../components/common/Error404'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect'));
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
