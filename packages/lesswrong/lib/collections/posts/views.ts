@@ -1042,6 +1042,24 @@ Posts.addView("reviews2018", terms => {
     }
   }
 })
+
+Posts.addView("reviews2019", terms => {
+  
+  const sortings = {
+    "fewestReviews" : {reviewCount2019: 1},
+    "mostReviews" : {reviewCount2019: -1},
+    "lastCommentedAt" :  {lastCommentedAt: -1}
+  }
+
+  return {
+    selector: {
+      nominationCount2019: { $gte: 2 }
+    },
+    options: {
+      sort: { ...sortings[terms.sortBy], nominationCount2019: -1 }
+    }
+  }
+})
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
 
