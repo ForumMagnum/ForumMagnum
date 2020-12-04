@@ -3,6 +3,11 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    display: "block",
+    margin: 0,
+  }
+  
   display4: theme.typography.display4,
   display3: theme.typography.display3,
   display2: theme.typography.display2,
@@ -38,7 +43,7 @@ const Typography = ({children, variant, component, className, onClick, classes}:
 }) => {
   const Component: any = component || variantToDefaultComponent[variant] || "span";
   
-  return <Component className={classNames(className, variant)} onClick={onClick}>
+  return <Component className={classNames(classes.root, classes[variant], className)} onClick={onClick}>
     {children}
   </Component>
 }
