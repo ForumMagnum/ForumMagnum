@@ -20,7 +20,8 @@ export const GardenCodesList = ({classes, personal=false}:{classes:ClassesType, 
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
     collection: GardenCodes,
-    fragmentName: 'GardenCodeFragment'
+    fragmentName: 'GardenCodeFragment',
+    limit: 8
   });
   
   
