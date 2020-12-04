@@ -132,6 +132,7 @@
     "jsdom": "^13.1.0",
     "jsonwebtoken": "^8.5.1",
     "juice": "^7.0.0",
+    "later": "^1.2.0",
     "logrocket": "^1.0.0",
     "lolex": "^3.0.0",
     "lru-cache": "^5.1.1",

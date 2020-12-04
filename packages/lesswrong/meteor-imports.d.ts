@@ -6,7 +6,6 @@ declare module 'meteor/practicalmeteor:chai';
 declare module 'meteor/webapp';
 declare module 'meteor/server-render';
 declare module 'meteor/meteorhacks:picker';
-declare module 'meteor/littledata:synced-cron';
 declare module 'meteor/mongo';
 declare module 'meteor/ejson';
 declare module 'meteor/check';
