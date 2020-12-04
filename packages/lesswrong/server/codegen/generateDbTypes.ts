@@ -31,12 +31,13 @@ function generateCollectionType(collection: any): string {
   return sb.join('');
 }
 
-function generateCollectionDbType(collection: any): string {
+function generateCollectionDbType(collection: CollectionBase<any>): string {
   let sb: Array<string> = [];
   const typeName = collection.typeName;
   const schema = collection.simpleSchema()._schema;
   
   sb.push(`interface Db${typeName} extends DbObject {\n`);
+  sb.push(`  __collectionName?: "${collection.collectionName}"\n`);
   
   for (let fieldName of Object.keys(schema)) {
     // Resolver-only field?

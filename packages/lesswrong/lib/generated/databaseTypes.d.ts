@@ -11,6 +11,7 @@ interface DatabaseMetadataCollection extends CollectionBase<DbDatabaseMetadata> 
 }
 
 interface DbDatabaseMetadata extends DbObject {
+  __collectionName?: "DatabaseMetadata"
   name: string
   value: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -19,6 +20,7 @@ interface UsersCollection extends CollectionBase<DbUser> {
 }
 
 interface DbUser extends DbObject {
+  __collectionName?: "Users"
   username: string
   emails: Array<any /*{"definitions":[{}]}*/>
   createdAt: Date
@@ -150,6 +152,7 @@ interface VotesCollection extends CollectionBase<DbVote> {
 }
 
 interface DbVote extends DbObject {
+  __collectionName?: "Votes"
   documentId: string
   collectionName: string
   userId: string
@@ -166,6 +169,7 @@ interface CommentsCollection extends CollectionBase<DbComment> {
 }
 
 interface DbComment extends DbObject {
+  __collectionName?: "Comments"
   parentCommentId: string
   topLevelCommentId: string
   createdAt: Date
@@ -224,6 +228,7 @@ interface PostRelationsCollection extends CollectionBase<DbPostRelation> {
 }
 
 interface DbPostRelation extends DbObject {
+  __collectionName?: "PostRelations"
   createdAt: Date
   type: string
   sourcePostId: string
@@ -235,6 +240,7 @@ interface TagRelsCollection extends CollectionBase<DbTagRel> {
 }
 
 interface DbTagRel extends DbObject {
+  __collectionName?: "TagRels"
   createdAt: Date
   tagId: string
   postId: string
@@ -251,6 +257,7 @@ interface PostsCollection extends CollectionBase<DbPost> {
 }
 
 interface DbPost extends DbObject {
+  __collectionName?: "Posts"
   createdAt: Date
   postedAt: Date
   modifiedAt: Date
@@ -362,6 +369,7 @@ interface RSSFeedsCollection extends CollectionBase<DbRSSFeed> {
 }
 
 interface DbRSSFeed extends DbObject {
+  __collectionName?: "RSSFeeds"
   userId: string
   createdAt: Date
   ownedByUser: boolean
@@ -377,6 +385,7 @@ interface SequencesCollection extends CollectionBase<DbSequence> {
 }
 
 interface DbSequence extends DbObject {
+  __collectionName?: "Sequences"
   createdAt: Date
   userId: string
   title: string
@@ -399,6 +408,7 @@ interface TagsCollection extends CollectionBase<DbTag> {
 }
 
 interface DbTag extends DbObject {
+  __collectionName?: "Tags"
   createdAt: Date
   name: string
   slug: string
@@ -429,6 +439,7 @@ interface RevisionsCollection extends CollectionBase<DbRevision> {
 }
 
 interface DbRevision extends DbObject {
+  __collectionName?: "Revisions"
   documentId: string
   collectionName: string
   fieldName: string
@@ -447,6 +458,7 @@ interface NotificationsCollection extends CollectionBase<DbNotification> {
 }
 
 interface DbNotification extends DbObject {
+  __collectionName?: "Notifications"
   userId: string
   createdAt: Date
   documentId: string
@@ -465,6 +477,7 @@ interface ConversationsCollection extends CollectionBase<DbConversation> {
 }
 
 interface DbConversation extends DbObject {
+  __collectionName?: "Conversations"
   createdAt: Date
   title: string
   participantIds: Array<string>
@@ -478,6 +491,7 @@ interface MessagesCollection extends CollectionBase<DbMessage> {
 }
 
 interface DbMessage extends DbObject {
+  __collectionName?: "Messages"
   userId: string
   createdAt: Date
   conversationId: string
@@ -488,6 +502,7 @@ interface ReportsCollection extends CollectionBase<DbReport> {
 }
 
 interface DbReport extends DbObject {
+  __collectionName?: "Reports"
   userId: string
   commentId: string
   postId: string
@@ -504,6 +519,7 @@ interface LWEventsCollection extends CollectionBase<DbLWEvent> {
 }
 
 interface DbLWEvent extends DbObject {
+  __collectionName?: "LWEvents"
   createdAt: Date
   userId: string
   name: string
@@ -517,6 +533,7 @@ interface TagFlagsCollection extends CollectionBase<DbTagFlag> {
 }
 
 interface DbTagFlag extends DbObject {
+  __collectionName?: "TagFlags"
   createdAt: Date
   name: string
   deleted: boolean
@@ -529,6 +546,7 @@ interface GardenCodesCollection extends CollectionBase<DbGardenCode> {
 }
 
 interface DbGardenCode extends DbObject {
+  __collectionName?: "GardenCodes"
   createdAt: Date
   code: string
   title: string
@@ -546,6 +564,7 @@ interface MigrationsCollection extends CollectionBase<DbMigration> {
 }
 
 interface DbMigration extends DbObject {
+  __collectionName?: "Migrations"
   name: string
   started: Date
   finished: Date
@@ -556,6 +575,7 @@ interface DebouncerEventsCollection extends CollectionBase<DbDebouncerEvents> {
 }
 
 interface DbDebouncerEvents extends DbObject {
+  __collectionName?: "DebouncerEvents"
   name: string
   af: boolean
   dispatched: boolean
@@ -570,6 +590,7 @@ interface ReadStatusesCollection extends CollectionBase<DbReadStatus> {
 }
 
 interface DbReadStatus extends DbObject {
+  __collectionName?: "ReadStatuses"
   postId: string
   tagId: string
   userId: string
@@ -581,6 +602,7 @@ interface BansCollection extends CollectionBase<DbBan> {
 }
 
 interface DbBan extends DbObject {
+  __collectionName?: "Bans"
   createdAt: Date
   expirationDate: Date
   userId: string
@@ -594,6 +616,7 @@ interface ChaptersCollection extends CollectionBase<DbChapter> {
 }
 
 interface DbChapter extends DbObject {
+  __collectionName?: "Chapters"
   createdAt: Date
   title: string
   subtitle: string
@@ -607,6 +630,7 @@ interface BooksCollection extends CollectionBase<DbBook> {
 }
 
 interface DbBook extends DbObject {
+  __collectionName?: "Books"
   createdAt: Date
   postedAt: Date
   title: string
@@ -622,6 +646,7 @@ interface CollectionsCollection extends CollectionBase<DbCollection> {
 }
 
 interface DbCollection extends DbObject {
+  __collectionName?: "Collections"
   createdAt: Date
   userId: string
   title: string
@@ -635,6 +660,7 @@ interface ReviewVotesCollection extends CollectionBase<DbReviewVote> {
 }
 
 interface DbReviewVote extends DbObject {
+  __collectionName?: "ReviewVotes"
   createdAt: Date
   userId: string
   postId: string
@@ -649,6 +675,7 @@ interface LocalgroupsCollection extends CollectionBase<DbLocalgroup> {
 }
 
 interface DbLocalgroup extends DbObject {
+  __collectionName?: "Localgroups"
   createdAt: Date
   name: string
   organizerIds: Array<string>
@@ -668,6 +695,7 @@ interface SubscriptionsCollection extends CollectionBase<DbSubscription> {
 }
 
 interface DbSubscription extends DbObject {
+  __collectionName?: "Subscriptions"
   createdAt: Date
   userId: string
   state: string
@@ -681,6 +709,7 @@ interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch> {
 }
 
 interface DbPetrovDayLaunch extends DbObject {
+  __collectionName?: "PetrovDayLaunchs"
   createdAt: Date
   launchCode: string
   hashedLaunchCode: string
@@ -690,6 +719,7 @@ interface LegacyDataCollection extends CollectionBase<DbLegacyData> {
 }
 
 interface DbLegacyData extends DbObject {
+  __collectionName?: "LegacyData"
   objectId: string
   collectionName: string
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -699,6 +729,7 @@ interface EmailTokensCollection extends CollectionBase<DbEmailTokens> {
 }
 
 interface DbEmailTokens extends DbObject {
+  __collectionName?: "EmailTokens"
   token: string
   tokenType: string
   userId: string

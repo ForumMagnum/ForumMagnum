@@ -101,6 +101,7 @@ interface DbVoteableType extends VoteableType, DbObject {
 
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {
+  __collectionName?: CollectionNameString
   schemaVersion: number
 }
 
