@@ -8,6 +8,19 @@ import { Utils, getTypeName, getCollectionName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 
+interface MutationOptions<T extends DbObject> {
+  create?: boolean
+  update?: boolean
+  upsert?: boolean
+  delete?: boolean
+  
+  newCheck?: any
+  createCheck?: any
+  updateCheck?: any
+  editCheck?: any
+  deleteCheck?: any
+  removeCheck?: any
+}
 const defaultOptions = { create: true, update: true, upsert: true, delete: true };
 
 /**
@@ -23,20 +36,10 @@ const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
 const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 
-export function getDefaultMutations(options:any, moreOptions?:any) {
-  let typeName, collectionName, mutationOptions;
-
-  if (typeof arguments[0] === 'object') {
-    // new single-argument API
-    typeName = arguments[0].typeName;
-    collectionName = arguments[0].collectionName || getCollectionName(typeName);
-    mutationOptions = { ...defaultOptions, ...arguments[0].options };
-  } else {
-    // OpenCRUD backwards compatibility
-    collectionName = arguments[0];
-    typeName = getTypeName(collectionName);
-    mutationOptions = { ...defaultOptions, ...arguments[1] };
-  }
+export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
+  type T = ObjectsByCollectionName[N];
+  const typeName = getTypeName(collectionName);
+  const mutationOptions: MutationOptions<T> = { ...defaultOptions, ...options };
 
   const mutations: any = {};
 
@@ -229,7 +232,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
           ]);
       },
 
-      async mutation(root, { selector }, context) {
+      async mutation(root, { selector }, context: ResolverContext) {
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {
