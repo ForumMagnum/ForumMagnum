@@ -12,7 +12,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { isMobile } from '../../lib/utils/isMobile'
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
@@ -96,6 +95,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   allEvents: {
     fontSize: ".8em",
     fontStyle: "italic"
+  },
+  gardenCodesList: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 })
 
@@ -176,7 +180,9 @@ const GatherTown = ({classes}: {
           No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        {!isMobile() && <GardenCodesList limit={2}/>}
+        <div className={classes.gardenCodesList}>
+          <GardenCodesList limit={2}/>
+        </div>
       </div>
     </div>
   )
