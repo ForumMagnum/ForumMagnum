@@ -6,7 +6,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "block",
     margin: 0,
-  }
+  },
   
   display4: theme.typography.display4,
   display3: theme.typography.display3,

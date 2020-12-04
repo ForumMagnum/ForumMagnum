@@ -216,8 +216,11 @@ export function withMulti({
   );
 }
 
-export interface UseMultiOptions<FragmentTypeName extends keyof FragmentTypes> {
-  terms: ViewTermsByCollectionName[CollectionNamesByFragmentName[FragmentTypeName]],
+export interface UseMultiOptions<
+  FragmentTypeName extends keyof FragmentTypes,
+  CollectionName extends CollectionNameString
+> {
+  terms: ViewTermsByCollectionName[CollectionName],
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
@@ -234,7 +237,10 @@ export interface UseMultiOptions<FragmentTypeName extends keyof FragmentTypes> {
   queryLimitName?: string,
 }
 
-export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
+export function useMulti<
+  FragmentTypeName extends keyof FragmentTypes,
+  CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
+>({
   terms,
   extraVariablesValues,
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
@@ -250,7 +256,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   itemsPerPage = 10,
   skip = false,
   queryLimitName,
-}: UseMultiOptions<FragmentTypeName>): {
+}: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,

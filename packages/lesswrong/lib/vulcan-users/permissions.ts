@@ -19,7 +19,7 @@ class Group {
   }
 }
 
-const userGroups: Record<string,Group> = {};
+export const userGroups: Record<string,Group> = {};
 
 
 // Create a new group
