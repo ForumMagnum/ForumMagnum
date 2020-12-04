@@ -108,7 +108,7 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
 
 export const createCollection = (options: {
   typeName: string,
-  collectionName?: CollectionNameString,
+  collectionName: CollectionNameString,
   schema: any,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
@@ -118,7 +118,7 @@ export const createCollection = (options: {
 }): any => {
   const {
     typeName,
-    collectionName = getCollectionName(typeName),
+    collectionName,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,

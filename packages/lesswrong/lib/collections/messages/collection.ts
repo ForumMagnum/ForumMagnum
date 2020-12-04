@@ -3,9 +3,10 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import Conversations from '../conversations/collection'
 import { makeEditable } from '../../editor/make_editable'
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
-const options = {
+const options: MutationOptions<DbMessage> = {
   newCheck: (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = Conversations.findOne({_id: document.conversationId})
