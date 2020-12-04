@@ -9,9 +9,7 @@ import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/cru
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from '@apollo/client';
 import { Paper } from '@material-ui/core';
-import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
-import { ReviewVotes } from '../../lib/collections/reviewVotes/collection';
 import classNames from 'classnames';
 import * as _ from "underscore"
 import gql from 'graphql-tag';
@@ -178,14 +176,14 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
-    collection: ReviewVotes,
+    collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
   })

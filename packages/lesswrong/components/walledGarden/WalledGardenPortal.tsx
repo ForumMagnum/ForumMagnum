@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
-import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
@@ -69,7 +68,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
       view: "gardenCodeByCode",
       code: inviteCodeQuery
     },
-    collection: GardenCodes,
+    collectionName: "GardenCodes",
     fragmentName: "GardenCodeFragment",
     limit: 1,
   });

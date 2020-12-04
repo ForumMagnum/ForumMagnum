@@ -5,7 +5,6 @@ import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 
@@ -94,7 +93,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
       view: "postsWithTag",
       tagId: tag._id,
     },
-    collection: TagRels,
+    collectionName: "TagRels",
     fragmentName: "TagRelFragment",
     limit: 3,
   });

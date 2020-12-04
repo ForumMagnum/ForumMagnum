@@ -1,7 +1,6 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
-import PropTypes from 'prop-types';
 import Users from '../../lib/collections/users/collection';
 import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
@@ -34,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const UsersEditForm = ({terms, client, classes}: {
-  terms: any,
+  terms: {slug?: string, documentId?: string},
   client?: any,
   classes: ClassesType,
 }) => {
@@ -102,10 +101,6 @@ const UsersEditForm = ({terms, client, classes}: {
   );
 };
 
-
-UsersEditForm.propTypes = {
-  terms: PropTypes.object, // a user is defined by its unique _id or its unique slug
-};
 
 const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {
   styles,

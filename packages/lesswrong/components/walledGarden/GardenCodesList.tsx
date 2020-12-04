@@ -1,20 +1,19 @@
 import React from 'react';
-import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: any}) => {
+export const GardenCodesList = ({classes, terms}:{classes:ClassesType, terms: GardenCodesViewTerms}) => {
   const { GardenCodesItem } = Components
   const currentUser = useCurrentUser()
   const { results } = useMulti({
     terms: {
       userId: currentUser?._id,
-      enableTotal: false,
-      fetchPolicy: 'cache-and-network',
       ...terms
     },
-    collection: GardenCodes,
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
+    collectionName: "GardenCodes",
     fragmentName: 'GardenCodeFragment'
   });
   return <div>

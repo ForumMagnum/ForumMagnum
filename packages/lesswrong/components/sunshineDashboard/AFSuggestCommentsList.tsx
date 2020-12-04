@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -11,12 +10,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestCommentsList = ({ terms, classes }: {
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'SuggestAlignmentComment',
     fetchPolicy: 'cache-and-network',
   });

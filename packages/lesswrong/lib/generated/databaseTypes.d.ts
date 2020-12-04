@@ -146,6 +146,303 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean
 }
 
+interface VotesCollection extends CollectionBase<DbVote> {
+}
+
+interface DbVote extends DbObject {
+  documentId: string
+  collectionName: string
+  userId: string
+  authorId: string
+  voteType: string
+  power: number
+  afPower: number
+  cancelled: boolean
+  isUnvote: boolean
+  votedAt: Date
+}
+
+interface CommentsCollection extends CollectionBase<DbComment> {
+}
+
+interface DbComment extends DbObject {
+  parentCommentId: string
+  topLevelCommentId: string
+  createdAt: Date
+  postedAt: Date
+  author: string
+  postId: string
+  tagId: string
+  userId: string
+  isDeleted: boolean
+  userIP: string
+  userAgent: string
+  referrer: string
+  authorIsUnreviewed: boolean
+  answer: boolean
+  parentAnswerId: string
+  directChildrenCount: number
+  shortform: boolean
+  nominatedForReview: string
+  reviewingForReview: string
+  lastSubthreadActivity: Date
+  postVersion: string
+  promoted: boolean
+  promotedByUserId: string
+  promotedAt: Date
+  hideKarma: boolean
+  legacy: boolean
+  legacyId: string
+  legacyPoll: boolean
+  legacyParentId: string
+  retracted: boolean
+  deleted: boolean
+  deletedPublic: boolean
+  deletedReason: string
+  deletedDate: Date
+  deletedByUserId: string
+  spam: boolean
+  repliesBlockedUntil: Date
+  needsReview: boolean
+  reviewedByUserId: string
+  hideAuthor: boolean
+  moderatorHat: boolean
+  contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
+  voteCount: number
+  baseScore: number
+  score: number
+  inactive: boolean
+  af: boolean
+  afBaseScore: number
+  suggestForAlignmentUserIds: Array<string>
+  reviewForAlignmentUserId: string
+  afDate: Date
+  moveToAlignmentUserId: string
+}
+
+interface PostRelationsCollection extends CollectionBase<DbPostRelation> {
+}
+
+interface DbPostRelation extends DbObject {
+  createdAt: Date
+  type: string
+  sourcePostId: string
+  targetPostId: string
+  order: number
+}
+
+interface TagRelsCollection extends CollectionBase<DbTagRel> {
+}
+
+interface DbTagRel extends DbObject {
+  createdAt: Date
+  tagId: string
+  postId: string
+  deleted: boolean
+  userId: string
+  afBaseScore: number
+  voteCount: number
+  baseScore: number
+  score: number
+  inactive: boolean
+}
+
+interface PostsCollection extends CollectionBase<DbPost> {
+}
+
+interface DbPost extends DbObject {
+  createdAt: Date
+  postedAt: Date
+  modifiedAt: Date
+  url: string
+  title: string
+  slug: string
+  excerpt: string
+  viewCount: number
+  lastCommentedAt: Date
+  clickCount: number
+  deletedDraft: boolean
+  status: number
+  isFuture: boolean
+  sticky: boolean
+  userIP: string
+  userAgent: string
+  referrer: string
+  author: string
+  userId: string
+  scheduledAt: Date
+  question: boolean
+  authorIsUnreviewed: boolean
+  submitToFrontpage: boolean
+  hiddenRelatedQuestion: boolean
+  originalPostRelationSourceId: string
+  shortform: boolean
+  canonicalSource: string
+  nominationCount2018: number
+  nominationCount2019: number
+  reviewCount2018: number
+  reviewCount2019: number
+  lastCommentPromotedAt: Date
+  tagRelevance: any /*{"definitions":[{}]}*/
+  noIndex: boolean
+  voteCount: number
+  baseScore: number
+  score: number
+  inactive: boolean
+  legacy: boolean
+  legacyId: string
+  legacySpam: boolean
+  feedId: string
+  feedLink: string
+  curatedDate: Date
+  metaDate: Date
+  suggestForCuratedUserIds: Array<string>
+  frontpageDate: Date
+  collectionTitle: string
+  coauthorUserIds: Array<string>
+  socialPreviewImageId: string
+  socialPreviewImageAutoUrl: string
+  canonicalSequenceId: string
+  canonicalCollectionSlug: string
+  canonicalBookId: string
+  canonicalNextPostSlug: string
+  canonicalPrevPostSlug: string
+  unlisted: boolean
+  disableRecommendation: boolean
+  defaultRecommendation: boolean
+  draft: boolean
+  meta: boolean
+  hideFrontpageComments: boolean
+  maxBaseScore: number
+  scoreExceeded2Date: Date
+  scoreExceeded30Date: Date
+  scoreExceeded45Date: Date
+  scoreExceeded75Date: Date
+  bannedUserIds: Array<string>
+  commentsLocked: boolean
+  organizerIds: Array<string>
+  groupId: string
+  isEvent: boolean
+  reviewedByUserId: string
+  reviewForCuratedUserId: string
+  startTime: Date
+  localStartTime: Date
+  endTime: Date
+  localEndTime: Date
+  onlineEvent: boolean
+  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  location: string
+  contactInfo: string
+  facebookLink: string
+  website: string
+  types: Array<string>
+  metaSticky: boolean
+  shareWithUsers: Array<string>
+  commentSortOrder: string
+  hideAuthor: boolean
+  moderationStyle: string
+  hideCommentKarma: boolean
+  commentCount: number
+  contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
+  pingbacks: any /*{"definitions":[{}]}*/
+  moderationGuidelines: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
+  customHighlight: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
+  af: boolean
+  afDate: Date
+  afBaseScore: number
+  afCommentCount: number
+  afLastCommentedAt: Date
+  afSticky: boolean
+  suggestForAlignmentUserIds: Array<string>
+  reviewForAlignmentUserId: string
+}
+
+interface RSSFeedsCollection extends CollectionBase<DbRSSFeed> {
+}
+
+interface DbRSSFeed extends DbObject {
+  userId: string
+  createdAt: Date
+  ownedByUser: boolean
+  displayFullContent: boolean
+  nickname: string
+  url: string
+  status: string
+  rawFeed: any /*{"definitions":[{}]}*/
+  setCanonicalUrl: boolean
+}
+
+interface SequencesCollection extends CollectionBase<DbSequence> {
+}
+
+interface DbSequence extends DbObject {
+  createdAt: Date
+  userId: string
+  title: string
+  baseScore: number
+  score: number
+  color: string
+  gridImageId: string
+  bannerImageId: string
+  curatedOrder: number
+  userProfileOrder: number
+  draft: boolean
+  isDeleted: boolean
+  canonicalCollectionSlug: string
+  hidden: boolean
+  contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
+  af: boolean
+}
+
+interface TagsCollection extends CollectionBase<DbTag> {
+}
+
+interface DbTag extends DbObject {
+  createdAt: Date
+  name: string
+  slug: string
+  oldSlugs: Array<string>
+  core: boolean
+  suggestedAsFilter: boolean
+  defaultOrder: number
+  descriptionTruncationCount: number
+  postCount: number
+  userId: string
+  adminOnly: boolean
+  charsAdded: number
+  charsRemoved: number
+  deleted: boolean
+  lastCommentedAt: Date
+  needsReview: boolean
+  reviewedByUserId: string
+  wikiGrade: number
+  wikiOnly: boolean
+  tagFlagsIds: Array<string>
+  lesswrongWikiImportRevision: string
+  lesswrongWikiImportSlug: string
+  lesswrongWikiImportCompleted: boolean
+  description: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
+}
+
+interface RevisionsCollection extends CollectionBase<DbRevision> {
+}
+
+interface DbRevision extends DbObject {
+  documentId: string
+  collectionName: string
+  fieldName: string
+  editedAt: Date
+  updateType: string
+  version: string
+  commitMessage: string
+  userId: string
+  originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
+  html: string
+  wordCount: number
+  changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface NotificationsCollection extends CollectionBase<DbNotification> {
 }
 
@@ -185,21 +482,6 @@ interface DbMessage extends DbObject {
   createdAt: Date
   conversationId: string
   contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-}
-
-interface RSSFeedsCollection extends CollectionBase<DbRSSFeed> {
-}
-
-interface DbRSSFeed extends DbObject {
-  userId: string
-  createdAt: Date
-  ownedByUser: boolean
-  displayFullContent: boolean
-  nickname: string
-  url: string
-  status: string
-  rawFeed: any /*{"definitions":[{}]}*/
-  setCanonicalUrl: boolean
 }
 
 interface ReportsCollection extends CollectionBase<DbReport> {
@@ -308,28 +590,6 @@ interface DbBan extends DbObject {
   properties: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
-interface SequencesCollection extends CollectionBase<DbSequence> {
-}
-
-interface DbSequence extends DbObject {
-  createdAt: Date
-  userId: string
-  title: string
-  baseScore: number
-  score: number
-  color: string
-  gridImageId: string
-  bannerImageId: string
-  curatedOrder: number
-  userProfileOrder: number
-  draft: boolean
-  isDeleted: boolean
-  canonicalCollectionSlug: string
-  hidden: boolean
-  contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-  af: boolean
-}
-
 interface ChaptersCollection extends CollectionBase<DbChapter> {
 }
 
@@ -385,232 +645,6 @@ interface DbReviewVote extends DbObject {
   dummy: boolean
 }
 
-interface PostRelationsCollection extends CollectionBase<DbPostRelation> {
-}
-
-interface DbPostRelation extends DbObject {
-  createdAt: Date
-  type: string
-  sourcePostId: string
-  targetPostId: string
-  order: number
-}
-
-interface TagRelsCollection extends CollectionBase<DbTagRel> {
-}
-
-interface DbTagRel extends DbObject {
-  createdAt: Date
-  tagId: string
-  postId: string
-  deleted: boolean
-  userId: string
-  afBaseScore: number
-  voteCount: number
-  baseScore: number
-  score: number
-  inactive: boolean
-}
-
-interface TagsCollection extends CollectionBase<DbTag> {
-}
-
-interface DbTag extends DbObject {
-  createdAt: Date
-  name: string
-  slug: string
-  oldSlugs: Array<string>
-  core: boolean
-  suggestedAsFilter: boolean
-  defaultOrder: number
-  descriptionTruncationCount: number
-  postCount: number
-  userId: string
-  adminOnly: boolean
-  charsAdded: number
-  charsRemoved: number
-  deleted: boolean
-  lastCommentedAt: Date
-  needsReview: boolean
-  reviewedByUserId: string
-  wikiGrade: number
-  wikiOnly: boolean
-  tagFlagsIds: Array<string>
-  lesswrongWikiImportRevision: string
-  lesswrongWikiImportSlug: string
-  lesswrongWikiImportCompleted: boolean
-  description: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-}
-
-interface CommentsCollection extends CollectionBase<DbComment> {
-}
-
-interface DbComment extends DbObject {
-  parentCommentId: string
-  topLevelCommentId: string
-  createdAt: Date
-  postedAt: Date
-  author: string
-  postId: string
-  tagId: string
-  userId: string
-  isDeleted: boolean
-  userIP: string
-  userAgent: string
-  referrer: string
-  authorIsUnreviewed: boolean
-  answer: boolean
-  parentAnswerId: string
-  directChildrenCount: number
-  shortform: boolean
-  nominatedForReview: string
-  reviewingForReview: string
-  lastSubthreadActivity: Date
-  postVersion: string
-  promoted: boolean
-  promotedByUserId: string
-  promotedAt: Date
-  hideKarma: boolean
-  legacy: boolean
-  legacyId: string
-  legacyPoll: boolean
-  legacyParentId: string
-  retracted: boolean
-  deleted: boolean
-  deletedPublic: boolean
-  deletedReason: string
-  deletedDate: Date
-  deletedByUserId: string
-  spam: boolean
-  repliesBlockedUntil: Date
-  needsReview: boolean
-  reviewedByUserId: string
-  hideAuthor: boolean
-  moderatorHat: boolean
-  contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-  voteCount: number
-  baseScore: number
-  score: number
-  inactive: boolean
-  af: boolean
-  afBaseScore: number
-  suggestForAlignmentUserIds: Array<string>
-  reviewForAlignmentUserId: string
-  afDate: Date
-  moveToAlignmentUserId: string
-}
-
-interface PostsCollection extends CollectionBase<DbPost> {
-}
-
-interface DbPost extends DbObject {
-  createdAt: Date
-  postedAt: Date
-  modifiedAt: Date
-  url: string
-  title: string
-  slug: string
-  excerpt: string
-  viewCount: number
-  lastCommentedAt: Date
-  clickCount: number
-  deletedDraft: boolean
-  status: number
-  isFuture: boolean
-  sticky: boolean
-  userIP: string
-  userAgent: string
-  referrer: string
-  author: string
-  userId: string
-  scheduledAt: Date
-  question: boolean
-  authorIsUnreviewed: boolean
-  submitToFrontpage: boolean
-  hiddenRelatedQuestion: boolean
-  originalPostRelationSourceId: string
-  shortform: boolean
-  canonicalSource: string
-  nominationCount2018: number
-  nominationCount2019: number
-  reviewCount2018: number
-  reviewCount2019: number
-  lastCommentPromotedAt: Date
-  tagRelevance: any /*{"definitions":[{}]}*/
-  noIndex: boolean
-  legacy: boolean
-  legacyId: string
-  legacySpam: boolean
-  feedId: string
-  feedLink: string
-  curatedDate: Date
-  metaDate: Date
-  suggestForCuratedUserIds: Array<string>
-  frontpageDate: Date
-  collectionTitle: string
-  coauthorUserIds: Array<string>
-  socialPreviewImageId: string
-  socialPreviewImageAutoUrl: string
-  canonicalSequenceId: string
-  canonicalCollectionSlug: string
-  canonicalBookId: string
-  canonicalNextPostSlug: string
-  canonicalPrevPostSlug: string
-  unlisted: boolean
-  disableRecommendation: boolean
-  defaultRecommendation: boolean
-  draft: boolean
-  meta: boolean
-  hideFrontpageComments: boolean
-  maxBaseScore: number
-  scoreExceeded2Date: Date
-  scoreExceeded30Date: Date
-  scoreExceeded45Date: Date
-  scoreExceeded75Date: Date
-  bannedUserIds: Array<string>
-  commentsLocked: boolean
-  organizerIds: Array<string>
-  groupId: string
-  isEvent: boolean
-  reviewedByUserId: string
-  reviewForCuratedUserId: string
-  startTime: Date
-  localStartTime: Date
-  endTime: Date
-  localEndTime: Date
-  onlineEvent: boolean
-  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  location: string
-  contactInfo: string
-  facebookLink: string
-  website: string
-  types: Array<string>
-  metaSticky: boolean
-  shareWithUsers: Array<string>
-  commentSortOrder: string
-  hideAuthor: boolean
-  moderationStyle: string
-  hideCommentKarma: boolean
-  commentCount: number
-  contents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-  pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-  customHighlight: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"originalContents":{"optional":true,"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"label":"Original contents"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"commitMessage":{"optional":true,"type":{"definitions":[{}]},"label":"Commit message"},"html":{"optional":true,"denormalized":true,"type":{"definitions":[{}]},"label":"Html"},"updateType":{"optional":true,"type":{"definitions":[{"allowedValues":["initial","patch","minor","major"]}]},"label":"Update type"},"version":{"optional":true,"type":{"definitions":[{}]},"label":"Version"},"editedAt":{"optional":true,"type":{"definitions":[{}]},"label":"Edited at"},"wordCount":{"optional":true,"denormalized":true,"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"label":"Word count"}},"_depsLabels":{},"_schemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["originalContents","userId","commitMessage","html","updateType","version","editedAt","wordCount"],"_objectKeys":{"originalContents.":["type","data"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-  voteCount: number
-  baseScore: number
-  score: number
-  inactive: boolean
-  af: boolean
-  afDate: Date
-  afBaseScore: number
-  afCommentCount: number
-  afLastCommentedAt: Date
-  afSticky: boolean
-  suggestForAlignmentUserIds: Array<string>
-  reviewForAlignmentUserId: string
-}
-
 interface LocalgroupsCollection extends CollectionBase<DbLocalgroup> {
 }
 
@@ -641,40 +675,6 @@ interface DbSubscription extends DbObject {
   collectionName: string
   deleted: boolean
   type: string
-}
-
-interface VotesCollection extends CollectionBase<DbVote> {
-}
-
-interface DbVote extends DbObject {
-  documentId: string
-  collectionName: string
-  userId: string
-  authorId: string
-  voteType: string
-  power: number
-  afPower: number
-  cancelled: boolean
-  isUnvote: boolean
-  votedAt: Date
-}
-
-interface RevisionsCollection extends CollectionBase<DbRevision> {
-}
-
-interface DbRevision extends DbObject {
-  documentId: string
-  collectionName: string
-  fieldName: string
-  editedAt: Date
-  updateType: string
-  version: string
-  commitMessage: string
-  userId: string
-  originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/
-  html: string
-  wordCount: number
-  changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch> {
@@ -709,10 +709,18 @@ interface DbEmailTokens extends DbObject {
 interface CollectionsByName {
   DatabaseMetadata: DatabaseMetadataCollection
   Users: UsersCollection
+  Votes: VotesCollection
+  Comments: CommentsCollection
+  PostRelations: PostRelationsCollection
+  TagRels: TagRelsCollection
+  Posts: PostsCollection
+  RSSFeeds: RSSFeedsCollection
+  Sequences: SequencesCollection
+  Tags: TagsCollection
+  Revisions: RevisionsCollection
   Notifications: NotificationsCollection
   Conversations: ConversationsCollection
   Messages: MessagesCollection
-  RSSFeeds: RSSFeedsCollection
   Reports: ReportsCollection
   LWEvents: LWEventsCollection
   TagFlags: TagFlagsCollection
@@ -721,20 +729,12 @@ interface CollectionsByName {
   DebouncerEvents: DebouncerEventsCollection
   ReadStatuses: ReadStatusesCollection
   Bans: BansCollection
-  Sequences: SequencesCollection
   Chapters: ChaptersCollection
   Books: BooksCollection
   Collections: CollectionsCollection
   ReviewVotes: ReviewVotesCollection
-  PostRelations: PostRelationsCollection
-  TagRels: TagRelsCollection
-  Tags: TagsCollection
-  Comments: CommentsCollection
-  Posts: PostsCollection
   Localgroups: LocalgroupsCollection
   Subscriptions: SubscriptionsCollection
-  Votes: VotesCollection
-  Revisions: RevisionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   LegacyData: LegacyDataCollection
   EmailTokens: EmailTokensCollection
@@ -743,10 +743,18 @@ interface CollectionsByName {
 interface ObjectsByCollectionName {
   DatabaseMetadata: DbDatabaseMetadata
   Users: DbUser
+  Votes: DbVote
+  Comments: DbComment
+  PostRelations: DbPostRelation
+  TagRels: DbTagRel
+  Posts: DbPost
+  RSSFeeds: DbRSSFeed
+  Sequences: DbSequence
+  Tags: DbTag
+  Revisions: DbRevision
   Notifications: DbNotification
   Conversations: DbConversation
   Messages: DbMessage
-  RSSFeeds: DbRSSFeed
   Reports: DbReport
   LWEvents: DbLWEvent
   TagFlags: DbTagFlag
@@ -755,20 +763,12 @@ interface ObjectsByCollectionName {
   DebouncerEvents: DbDebouncerEvents
   ReadStatuses: DbReadStatus
   Bans: DbBan
-  Sequences: DbSequence
   Chapters: DbChapter
   Books: DbBook
   Collections: DbCollection
   ReviewVotes: DbReviewVote
-  PostRelations: DbPostRelation
-  TagRels: DbTagRel
-  Tags: DbTag
-  Comments: DbComment
-  Posts: DbPost
   Localgroups: DbLocalgroup
   Subscriptions: DbSubscription
-  Votes: DbVote
-  Revisions: DbRevision
   PetrovDayLaunchs: DbPetrovDayLaunch
   LegacyData: DbLegacyData
   EmailTokens: DbEmailTokens

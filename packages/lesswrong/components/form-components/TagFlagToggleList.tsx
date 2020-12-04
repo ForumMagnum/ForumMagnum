@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
-import TagFlags from '../../lib/collections/tagFlags/collection';
 import NoSsr from '@material-ui/core/NoSsr';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -29,7 +28,7 @@ const TagFlagToggleList = ({ value, path }, context) => {
     terms: {
       view: "allTagFlags"
     },
-    collection: TagFlags,
+    collectionName: "TagFlags",
     fragmentName: 'TagFlagFragment',
     enableTotal: false,
     limit: 100,

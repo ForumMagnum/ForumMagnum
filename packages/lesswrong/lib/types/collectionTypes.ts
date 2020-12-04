@@ -68,6 +68,10 @@ type MongoInsertOptions<T extends DbObject> = any; //TODO
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
 
+interface ViewTermsBase {
+  limit?: number
+}
+
 // Common base type for everything that has an _id field (including both raw DB
 // objects and fragment-resolver results).
 interface HasIdType {

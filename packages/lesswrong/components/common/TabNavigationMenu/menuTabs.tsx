@@ -25,7 +25,7 @@ const EventsList = ({currentUser, onClick}) => {
   const lng = currentUser &&
     currentUser.mongoLocation &&
     currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms: any = {
+  let eventsListTerms: PostsViewTerms = {
     view: 'events',
     onlineEvent: false,
     limit: 3,
@@ -38,7 +38,7 @@ const EventsList = ({currentUser, onClick}) => {
       limit: 2,
     }
   }
-  const onlineTerms = {
+  const onlineTerms: PostsViewTerms = {
     view: 'onlineEvents',
     limit: 2
   }

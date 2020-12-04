@@ -43,7 +43,7 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
-import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate, getCollection } from '../vulcan-lib';
 import { pluralize } from '../vulcan-lib/utils';
 
 function getGraphQLQueryFromOptions({
@@ -226,14 +226,14 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
-  collectionName, collection,
+  collectionName,
   fragmentName, //fragment,
   limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
   itemsPerPage = 10,
   skip = false,
   queryLimitName,
 }: {
-  terms: any,
+  terms: ViewTermsByCollectionName[CollectionNamesByFragmentName[FragmentTypeName]],
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
@@ -242,8 +242,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
-  collectionName?: CollectionNameString,
-  collection?: CollectionBase<any>,
+  collectionName: CollectionNameString,
   fragmentName: FragmentTypeName,
   limit?: number,
   itemsPerPage?: number,
@@ -270,7 +269,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);
   
-  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  const collection = getCollection(collectionName);
   const fragment = getFragment(fragmentName);
   
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });

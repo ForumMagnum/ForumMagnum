@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
-  terms: any,
+  terms: UsersViewTerms,
   classes: ClassesType,
   allowContentPreview?: boolean,
 }) => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from "../../lib/collections/comments";
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 
@@ -16,7 +15,7 @@ const RepliesToCommentList = ({ post, parentCommentId }: {
       topLevelCommentId: parentCommentId,
       limit: 500,
     },
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: "CommentsList",
   });
   

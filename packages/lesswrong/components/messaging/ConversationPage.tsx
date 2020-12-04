@@ -29,13 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 // The Navigation for the Inbox components
 const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   documentId: string,
-  terms: any,
+  terms: MessagesViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
   const { results, loading: loadingMessages } = useMulti({
     terms,
-    collection: Messages,
+    collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 1000,

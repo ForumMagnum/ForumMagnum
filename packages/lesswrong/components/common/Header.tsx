@@ -249,7 +249,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   render() {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
-    const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
+    const notificationTerms: NotificationsViewTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
     const hasLogo = forumTypeSetting.get() === 'EAForum'
 
     const {

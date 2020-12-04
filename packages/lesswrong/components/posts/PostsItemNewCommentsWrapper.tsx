@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { CommentTreeOptions } from '../comments/commentTree';
 
@@ -15,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions, forceSingleLine }: {
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
   post: PostsList,
@@ -24,7 +23,7 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions,
 }) => {
   const { loading, results } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-first',
     limit: 5,

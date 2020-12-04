@@ -11,6 +11,38 @@ import { postStatuses } from './constants';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
+declare global {
+  interface PostsViewTerms extends ViewTermsBase {
+    view: PostsViewName,
+    includeRelatedQuestions?: "true"|"false",
+    karmaThreshold?: number|string,
+    meta?: boolean,
+    userId?: string,
+    filter?: any,
+    filters?: any,
+    filterSettings?: any,
+    sortBy?: "fewestReviews"|"mostReviews"|"lastCommentedAt"
+    sortByMost?: boolean,
+    sortedBy?: string,
+    af?: boolean,
+    onlineEvent?: boolean,
+    groupId?: string,
+    lat?: number,
+    lng?: number,
+    slug?: string,
+    sortDrafts?: string,
+    forum?: boolean,
+    question?: boolean,
+    tagId?: string,
+    legacyId?: string,
+    postId?: string,
+    authorIsUnreviewed?: boolean|null,
+    before?: Date|string|null,
+    after?: Date|string|null,
+    timeField?: keyof DbPost,
+  }
+}
+
 /**
  * @description In allPosts and elsewhere (every component that uses PostsListSettings and some
  * that use PostsList) we use the concept of filters which are like Vulcan's
@@ -87,7 +119,7 @@ export const sortings = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-Posts.addDefaultView(terms => {
+Posts.addDefaultView((terms: PostsViewTerms) => {
   const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
@@ -112,8 +144,8 @@ Posts.addDefaultView(terms => {
   // TODO: Looks like a bug in cases where karmaThreshold = 0, because we'd
   // still want to filter.
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
-    params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
-    params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
+    params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
+    params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
   }
   if (terms.userId) {
     params.selector.hideAuthor = false
@@ -274,7 +306,7 @@ export function augmentForDefaultView(indexFields)
  * @summary User posts view
  */
 
-Posts.addView("userPosts", terms => {
+Posts.addView("userPosts", (terms: PostsViewTerms) => {
   const sortOverride = terms.sortedBy ? {} : {sort: {postedAt: -1}}
   return {
     selector: {
@@ -303,7 +335,7 @@ ensureIndex(Posts,
   }
 );
 
-const setStickies = (sortOptions, terms) => {
+const setStickies = (sortOptions, terms: PostsViewTerms) => {
   if (terms.af && terms.forum) {
     return { afSticky: -1, ...sortOptions}
   } else if (terms.meta && terms.forum) {
@@ -319,7 +351,7 @@ const stickiesIndexPrefix = {
 };
 
 
-Posts.addView("magic", terms => ({
+Posts.addView("magic", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.magic, terms)}
 }))
 ensureIndex(Posts,
@@ -365,7 +397,7 @@ ensureIndex(Posts,
 );
 
 
-Posts.addView("top", terms => ({
+Posts.addView("top", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.top, terms)}
 }))
 ensureIndex(Posts,
@@ -381,7 +413,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("new", terms => ({
+Posts.addView("new", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.new, terms)}
 }))
 ensureIndex(Posts,
@@ -397,16 +429,16 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("recentComments", terms => ({
+Posts.addView("recentComments", (terms: PostsViewTerms) => ({
   options: {sort: sortings.recentComments}
 }))
 
-Posts.addView("old", terms => ({
+Posts.addView("old", (terms: PostsViewTerms) => ({
   options: {sort: sortings.old}
 }))
 // Covered by the same index as `new`
 
-Posts.addView("timeframe", terms => ({
+Posts.addView("timeframe", (terms: PostsViewTerms) => ({
   options: {limit: terms.limit}
 }))
 ensureIndex(Posts,
@@ -416,7 +448,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("daily", terms => ({
+Posts.addView("daily", (terms: PostsViewTerms) => ({
   options: {
     sort: {baseScore: -1}
   }
@@ -428,7 +460,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("tagRelevance", terms => ({
+Posts.addView("tagRelevance", (terms: PostsViewTerms) => ({
   // note: this relies on the selector filtering done in the default view
   // sorts by the "sortedBy" parameter if it's been passed in, or otherwise sorts by tag relevance
   options: {
@@ -436,7 +468,7 @@ Posts.addView("tagRelevance", terms => ({
   }
 }));
 
-Posts.addView("frontpage", terms => ({
+Posts.addView("frontpage", (terms: PostsViewTerms) => ({
   selector: filters.frontpage,
   options: {
     sort: {sticky: -1, score: -1}
@@ -450,7 +482,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("frontpage-rss", terms => ({
+Posts.addView("frontpage-rss", (terms: PostsViewTerms) => ({
   selector: filters.frontpage,
   options: {
     sort: {frontpageDate: -1, postedAt: -1}
@@ -458,7 +490,7 @@ Posts.addView("frontpage-rss", terms => ({
 }));
 // Covered by the same index as `frontpage`
 
-Posts.addView("curated", terms => ({
+Posts.addView("curated", (terms: PostsViewTerms) => ({
   selector: filters.curated,
   options: {
     sort: {sticky: -1, curatedDate: -1, postedAt: -1}
@@ -472,7 +504,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("curated-rss", terms => ({
+Posts.addView("curated-rss", (terms: PostsViewTerms) => ({
   selector: {
     curatedDate: {$gt: new Date(0)},
   },
@@ -482,7 +514,7 @@ Posts.addView("curated-rss", terms => ({
 }));
 // Covered by the same index as `curated`
 
-Posts.addView("community", terms => ({
+Posts.addView("community", (terms: PostsViewTerms) => ({
   selector: {
     frontpageDatgroupId: { $exists: false },
     isEvent: false,
@@ -498,7 +530,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("community-rss", terms => ({
+Posts.addView("community-rss", (terms: PostsViewTerms) => ({
   selector: {
     frontpageDate: null,
     maxBaseScore: {$gt: 2}
@@ -509,7 +541,7 @@ Posts.addView("community-rss", terms => ({
 }));
 // Covered by the same index as `new`
 
-Posts.addView("meta-rss", terms => ({
+Posts.addView("meta-rss", (terms: PostsViewTerms) => ({
   selector: {
     meta: true,
   },
@@ -524,7 +556,7 @@ Posts.addView("meta-rss", terms => ({
 Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss' for rss
 
 
-Posts.addView("topQuestions", terms => ({
+Posts.addView("topQuestions", (terms: PostsViewTerms) => ({
   selector: {
     question: true,
     hiddenRelatedQuestion: viewFieldAllowAny,
@@ -541,7 +573,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("recentQuestionActivity", terms => ({
+Posts.addView("recentQuestionActivity", (terms: PostsViewTerms) => ({
   selector: {
     question: true,
     hiddenRelatedQuestion: viewFieldAllowAny,
@@ -555,7 +587,7 @@ Posts.addView("recentQuestionActivity", terms => ({
 /**
  * @summary Scheduled view
  */
-Posts.addView("scheduled", terms => ({
+Posts.addView("scheduled", (terms: PostsViewTerms) => ({
   selector: {
     status: postStatuses.STATUS_APPROVED,
     isFuture: true
@@ -570,7 +602,7 @@ Posts.addView("scheduled", terms => ({
 /**
  * @summary Draft view
  */
-Posts.addView("drafts", terms => {
+Posts.addView("drafts", (terms: PostsViewTerms) => {
   let query = {
     selector: {
       userId: viewFieldAllowAny,
@@ -615,7 +647,7 @@ ensureIndex(Posts,
 /**
  * @summary All drafts view
  */
-Posts.addView("all_drafts", terms => ({
+Posts.addView("all_drafts", (terms: PostsViewTerms) => ({
   selector: {
     draft: true
   },
@@ -624,7 +656,7 @@ Posts.addView("all_drafts", terms => ({
   }
 }));
 
-Posts.addView("unlisted", terms => {
+Posts.addView("unlisted", (terms: PostsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
@@ -636,7 +668,7 @@ Posts.addView("unlisted", terms => {
     }
 }});
 
-Posts.addView("slugPost", terms => ({
+Posts.addView("slugPost", (terms: PostsViewTerms) => ({
   selector: {
     slug: terms.slug,
   },
@@ -646,14 +678,19 @@ Posts.addView("slugPost", terms => ({
 }));
 ensureIndex(Posts, {"slug": "hashed"});
 
-Posts.addView("legacyIdPost", terms => ({
-  selector: {
-    legacyId: ""+parseInt(terms.legacyId, 36)
-  },
-  options: {
-    limit: 1
+Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
+  if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
+  const legacyId = parseInt(terms.legacyId, 36)
+  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36");
+  return {
+    selector: {
+      legacyId: ""+legacyId
+    },
+    options: {
+      limit: 1
+    }
   }
-}));
+});
 ensureIndex(Posts, {legacyId: "hashed"});
 
 const recentDiscussionFilter = {
@@ -663,7 +700,7 @@ const recentDiscussionFilter = {
   shortform: viewFieldAllowAny,
   groupId: null,
 }
-Posts.addView("recentDiscussionThreadsList", terms => {
+Posts.addView("recentDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
     selector: {
       ...recentDiscussionFilter
@@ -679,7 +716,7 @@ ensureIndex(Posts,
   { name: "posts.recentDiscussionThreadsList", }
 );
 
-Posts.addView("afRecentDiscussionThreadsList", terms => {
+Posts.addView("afRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
     selector: {
       ...recentDiscussionFilter
@@ -695,7 +732,7 @@ ensureIndex(Posts,
   { name: "posts.afRecentDiscussionThreadsList", }
 );
 
-Posts.addView("2018reviewRecentDiscussionThreadsList", terms => {
+Posts.addView("2018reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
     selector: {
       ...recentDiscussionFilter,
@@ -712,8 +749,7 @@ ensureIndex(Posts,
   { name: "posts.2018reviewRecentDiscussionThreadsList", }
 );
 
-
-Posts.addView("2019reviewRecentDiscussionThreadsList", terms => {
+Posts.addView("2019reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
     selector: {
       ...recentDiscussionFilter,
@@ -730,7 +766,7 @@ ensureIndex(Posts,
   { name: "posts.2019reviewRecentDiscussionThreadsList", }
 );
 
-Posts.addView("shortformDiscussionThreadsList", terms => {
+Posts.addView("shortformDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
     selector: {
       baseScore: {$gt:0},
@@ -750,7 +786,7 @@ ensureIndex(Posts,
   { name: "posts.shortformDiscussionThreadsList", }
 );
 
-Posts.addView("onlineEvents", function (terms) {
+Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
   const yesterday = moment().subtract(1, 'days').toDate();
   let query = {
     selector: {
@@ -774,7 +810,7 @@ ensureIndex(Posts,
   { name: "posts.onlineEvents" }
 );
 
-Posts.addView("nearbyEvents", function (terms) {
+Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
   const yesterday = moment().subtract(1, 'days').toDate();
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   let query: any = {
@@ -812,7 +848,7 @@ ensureIndex(Posts,
   { name: "posts.2dsphere" }
 );
 
-Posts.addView("events", function (terms) {
+Posts.addView("events", (terms: PostsViewTerms) => {
   const yesterday = moment().subtract(1, 'days').toDate();
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
@@ -838,7 +874,7 @@ ensureIndex(Posts,
   { name: "posts.events" }
 );
 
-Posts.addView("pastEvents", function (terms) {
+Posts.addView("pastEvents", (terms: PostsViewTerms) => {
   return {
     selector: {
       isEvent: true,
@@ -855,7 +891,7 @@ Posts.addView("pastEvents", function (terms) {
 })
 // Same index as events
 
-Posts.addView("upcomingEvents", function (terms) {
+Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
   const oneDayAgo = moment().subtract(1, 'days').toDate();
 
   return {
@@ -874,7 +910,7 @@ Posts.addView("upcomingEvents", function (terms) {
 })
 // Same index as events
 
-Posts.addView("groupPosts", function (terms) {
+Posts.addView("groupPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
       isEvent: null,
@@ -932,7 +968,7 @@ ensureIndex(Posts,
   { name: "posts.sunshineNewPosts" }
 );
 
-Posts.addView("sunshineNewUsersPosts", function (terms) {
+Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
       status: null, // allow sunshines to see posts marked as spam
@@ -994,7 +1030,7 @@ ensureIndex(Posts,
   { name: "posts.recommendable" }
 );
 
-Posts.addView("pingbackPosts", terms => {
+Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
       "pingbacks.Posts": terms.postId,
@@ -1010,7 +1046,7 @@ ensureIndex(Posts,
   { name: "posts.pingbackPosts" }
 );
 
-Posts.addView("nominations2018", terms => {
+Posts.addView("nominations2018", (terms: PostsViewTerms) => {
   return {
     selector: {
       nominationCount2018: { $gt: 0 }
@@ -1027,7 +1063,7 @@ ensureIndex(Posts,
   { name: "posts.nominations2018", }
 );
 
-Posts.addView("nominations2019", terms => {
+Posts.addView("nominations2019", (terms: PostsViewTerms) => {
   return {
     selector: {
       nominationCount2019: { $gt: 0 }
@@ -1044,8 +1080,7 @@ ensureIndex(Posts,
   { name: "posts.nominations2019", }
 );
 
-Posts.addView("reviews2018", terms => {
-  
+Posts.addView("reviews2018", (terms: PostsViewTerms) => {
   const sortings = {
     "fewestReviews" : {reviewCount2018: 1},
     "mostReviews" : {reviewCount2018: -1},
@@ -1057,14 +1092,14 @@ Posts.addView("reviews2018", terms => {
       nominationCount2018: { $gte: 2 }
     },
     options: {
-      sort: { ...sortings[terms.sortBy], nominationCount2018: -1 }
+      sort: { ...(terms.sortBy ? sortings[terms.sortBy] : undefined), nominationCount2018: -1 }
     }
   }
 })
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
 
-Posts.addView("tagProgressUntagged", terms => {
+Posts.addView("tagProgressUntagged", (terms: PostsViewTerms) => {
   return {
     selector: {  
       baseScore: {$gt: 25},
@@ -1073,7 +1108,7 @@ Posts.addView("tagProgressUntagged", terms => {
   }
 })
 
-Posts.addView("personalTagProgressUntagged", terms => {
+Posts.addView("personalTagProgressUntagged", (terms: PostsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
@@ -1083,7 +1118,7 @@ Posts.addView("personalTagProgressUntagged", terms => {
   }
 })
 
-Posts.addView("tagProgressPosts", terms => {
+Posts.addView("tagProgressPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
       baseScore: {$gt:25},
@@ -1091,7 +1126,7 @@ Posts.addView("tagProgressPosts", terms => {
   }
 })
 
-Posts.addView("personalTagProgressPosts", terms => {
+Posts.addView("personalTagProgressPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
