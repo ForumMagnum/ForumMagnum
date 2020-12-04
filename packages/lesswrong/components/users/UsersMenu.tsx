@@ -127,6 +127,11 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
                 New Shortform
               </MenuItem>
             }
+            {showNewButtons && <Divider/>}
+            {showNewButtons && <Link to={`/newPost?eventForm=true`}>
+                <MenuItem>New Event</MenuItem>
+              </Link>
+            }
             {(showNewButtons && currentUser.karma >= 1000) &&
               <Link to={`/sequencesnew`}>
                 <MenuItem>New Sequence</MenuItem>

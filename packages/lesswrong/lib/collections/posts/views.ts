@@ -742,7 +742,7 @@ Posts.addView("onlineEvents", function (terms) {
     },
     options: {
       sort: {
-        startTime: -1,
+        startTime: 1,
         createdAt: null,
         _id: null
       }
