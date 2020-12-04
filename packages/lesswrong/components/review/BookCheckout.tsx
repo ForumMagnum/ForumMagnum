@@ -53,11 +53,6 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
     if (query.get("success")) {
       setMessage("Order placed! You will receive an email confirmation.");
     }
-    if (query.get("canceled")) {
-      setMessage(
-        "Order canceled."
-      );
-    }
   }, []);
   const handleClick = async (event) => {
     const stripe = await stripePromise;
