@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
 import { getDefaultFragmentText, registerFragment } from './fragments';
-import { Collections } from './getCollection';
+import { registerCollection } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
@@ -249,7 +249,7 @@ export const createCollection = (options: {
     return parameters;
   };
 
-  Collections.push(collection);
+  registerCollection(collection);
 
   return collection;
 };

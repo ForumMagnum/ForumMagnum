@@ -151,7 +151,7 @@ interface VotesCollection extends CollectionBase<DbVote> {
 
 interface DbVote extends DbObject {
   documentId: string
-  collectionName: string
+  collectionName: CollectionNameString
   userId: string
   authorId: string
   voteType: string
@@ -430,7 +430,7 @@ interface RevisionsCollection extends CollectionBase<DbRevision> {
 
 interface DbRevision extends DbObject {
   documentId: string
-  collectionName: string
+  collectionName: CollectionNameString
   fieldName: string
   editedAt: Date
   updateType: string
