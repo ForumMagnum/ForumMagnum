@@ -73,7 +73,6 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const { results } = useMulti({
     terms: {
-      view: "gardenCodeByCode",
       code: inviteCodeQuery
     },
     collection: GardenCodes,

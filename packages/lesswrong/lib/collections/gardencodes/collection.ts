@@ -98,7 +98,7 @@ const schema: SchemaType<DbGardenCode> = {
   },
   endTime: {
     type: Date,
-    viewableBy: ['admins'],
+    viewableBy: ['guests'],
     editableBy: ['admins'],
     // insertableBy: ['members'],
     control: 'datetime',
