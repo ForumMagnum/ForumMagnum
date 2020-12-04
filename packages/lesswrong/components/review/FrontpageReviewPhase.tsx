@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 
@@ -139,7 +138,7 @@ const FrontpageReviewPhase = ({classes}) => {
         </LWTooltip>}
       >
         <LWTooltip title="All Posts written in 2019 are eligible to participate in the review. Click here to see all posts written in 2019.">
-          <Link to={"/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top"}><SettingsButton showIcon={false} label="See All 2019 Posts"/></Link>
+          <Link to={"/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top?filter=unnominated2019"}><SettingsButton showIcon={false} label="Nominate 2019 Posts"/></Link>
         </LWTooltip>
       </SectionTitle>
       <div className={classes.reviewTimeline}>
