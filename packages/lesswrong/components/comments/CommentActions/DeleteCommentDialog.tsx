@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useMessages } from '../../common/withMessages';
 import { useModerateComment } from './withModerateComment'
-import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -55,8 +54,9 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   }
 
   const render = () => {
+    const { LWDialog } = Components;
     return (
-      <Dialog open={true} onClose={onClose}>
+      <LWDialog open={true} onClose={onClose}>
         <DialogTitle>
           What is your reason for deleting this comment?
         </DialogTitle>
@@ -84,7 +84,7 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
             Delete
           </Button>
         </DialogActions>
-      </Dialog>
+      </LWDialog>
     )
   }
   return render();

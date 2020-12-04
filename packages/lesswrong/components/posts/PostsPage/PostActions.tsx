@@ -43,8 +43,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostActions = ({post, classes}: {
+const PostActions = ({post, closeMenu, classes}: {
   post: PostsList,
+  closeMenu: ()=>void
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -162,7 +163,7 @@ const PostActions = ({post, classes}: {
     });
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -170,6 +171,7 @@ const PostActions = ({post, classes}: {
 
   return (
       <div className={classes.actions}>
+        <NominatePostMenuItem post={post} closeMenu={closeMenu} />
         { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>

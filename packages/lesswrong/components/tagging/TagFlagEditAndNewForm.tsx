@@ -1,5 +1,4 @@
 import React from 'react';
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
@@ -10,11 +9,11 @@ const TagFlagEditAndNewForm = ({ tagFlagId, onClose, classes }: {
   onClose: () => void,
   classes: ClassesType,
 }) => {
+  const { LWDialog } = Components;
   return (
-    <Dialog
+    <LWDialog
       open={true}
       onClose={onClose}
-      disableEnforceFocus
     >
       <DialogTitle>
         {tagFlagId ? "Edit Tag Flag" : "Create Tag Flag"}
@@ -28,7 +27,7 @@ const TagFlagEditAndNewForm = ({ tagFlagId, onClose, classes }: {
           successCallback={onClose}
         />
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   )
 }
 

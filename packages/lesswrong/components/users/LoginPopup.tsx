@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import Dialog from '@material-ui/core/Dialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
@@ -18,12 +17,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
 const LoginPopup = ({onClose, classes}) => {
+  const { LWDialog } = Components;
   return (
-    <Dialog
+    <LWDialog
       open={true}
       onClose={onClose}
       className={classes.dialog}
-      classes={{
+      dialogClasses={{
         paper: classes.paper
       }}
     >
@@ -31,7 +31,7 @@ const LoginPopup = ({onClose, classes}) => {
         onSignedInHook={() => onClose()}
         onPostSignUpHook={() => onClose()}
       />
-    </Dialog>
+    </LWDialog>
   );
 }
 

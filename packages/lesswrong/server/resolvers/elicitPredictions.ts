@@ -72,6 +72,7 @@ async function getPredictionDataFromElicit(questionId:string) {
       'Authorization': `API_KEY ${elicitAPIKey.get()}`
     }
   })
+  if (response.status !== 200) throw new Error(`Cannot get elicit prediction, got: ${response.status}: ${response.statusText}`)
   const responseText = await response.text()
   if (!responseText) return null
   return JSON.parse(responseText)
@@ -91,6 +92,7 @@ async function sendElicitPrediction(questionId: string, prediction: number, user
       'Authorization': `API_KEY ${elicitAPIKey.get()}`
     }
   })
+  if (response.status !== 200) throw new Error(`Cannot send elicit prediction, got: ${response.status}: ${response.statusText}`)
   const responseText = await response.text()
   if (!responseText) throw Error ("Something went wrong with sending an Elicit Prediction")
   return JSON.parse(responseText)
@@ -103,7 +105,7 @@ async function cancelElicitPrediction(questionId: string, user: DbUser) {
       'Authorization': `API_KEY ${elicitAPIKey.get()}`
     }
   })
-  if (response.status !== 200) throw Error ("Something went wrong with cancelling an Elicit Prediction")
+  if (response.status !== 200) throw new Error(`Cannot cancel elicit prediction, got: ${response.status}: ${response.statusText}`)
 }
 
 async function getElicitQuestionWithPredictions(questionId: string) {
@@ -177,5 +179,3 @@ if (elicitAPIKey.get()) {
   addGraphQLQuery('ElicitBlockData(questionId: String): ElicitBlockData');
   addGraphQLMutation('MakeElicitPrediction(questionId: String, prediction: Int): ElicitBlockData');
 }
-
-
