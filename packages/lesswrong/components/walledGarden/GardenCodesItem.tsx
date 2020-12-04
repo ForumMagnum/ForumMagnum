@@ -108,10 +108,10 @@ export const GardenCodesItem = ({classes, gardenCode}:{
     </div>
     <div className={classes.trailingIcons}>
       <LWTooltip title="Click to copy invite link" placement="right">
-                                                                      <CopyToClipboard text={inviteLink} onCopy={()=>flash({messageString:"Invite link copied!"})}>
-                                                                      <LinkIcon className={classes.linkIcon}/>
-                                                                      </CopyToClipboard>
-                                                                      </LWTooltip>
+        <CopyToClipboard text={inviteLink} onCopy={()=>flash({messageString:"Invite link copied!"})}>
+          <LinkIcon className={classes.linkIcon}/>
+        </CopyToClipboard>
+      </LWTooltip>
       {gardenCode.fbLink && (gardenCode.type=="public" || currentUser?.walledGardenInvite) &&
       <LWTooltip title="Link to the FB version of this event" placement="right">
         <a href={gardenCode.fbLink} target="_blank" rel="noopener noreferrer">
