@@ -122,6 +122,10 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
                 <MenuItem>New Post</MenuItem>
               </Link>
             }
+            {showNewButtons && <Link to={`/newPost?eventForm=true`}>
+                <MenuItem>New Event</MenuItem>
+              </Link>
+            }
             {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                 New Shortform

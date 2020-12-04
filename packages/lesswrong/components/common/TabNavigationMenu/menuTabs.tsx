@@ -32,6 +32,7 @@ const EventsList = ({currentUser, onClick}) => {
   }
   if (lat && lng) {
     eventsListTerms = {
+      onlineEvent: false,
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
@@ -40,7 +41,7 @@ const EventsList = ({currentUser, onClick}) => {
   }
   const onlineTerms = {
     view: 'onlineEvents',
-    limit: 2
+    limit: 4
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
