@@ -10,7 +10,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
-import Typography from '@material-ui/core/Typography';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -57,7 +56,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: 1,
     position: "relative",
     top: 3,
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
+    color: theme.palette.text.secondary,
   },
   titleLink: {
     color: getHeaderTextColor(theme),
@@ -254,7 +254,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle
+      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
     } = Components;
 
     return (
@@ -274,7 +274,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
               <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
                   <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
                   {this.renderNavigationMenuButton()}
-                  <Typography className={classes.title} variant="title" color="textSecondary">
+                  <Typography className={classes.title} variant="title">
                     <div className={classes.hideSmDown}>
                       <div className={classes.titleSubtitleContainer}>
                         <Link to="/" className={classes.titleLink}>

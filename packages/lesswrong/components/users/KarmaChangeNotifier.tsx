@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withSingle } from '../../lib/crud/withSingle';
 import withUser from '../common/withUser';
@@ -9,7 +9,6 @@ import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from '../../lib/collections/users/collection';
-import Typography from '@material-ui/core/Typography';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
@@ -122,7 +121,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   const MenuItemUntyped = MenuItem as any;
   
   return (
-    <Typography variant="body2">
+    <Components.Typography variant="body2">
       {noKarmaChanges ?
         <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span>
         :
@@ -159,7 +158,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
       <Link to={`/account`} onClick={handleClose}>
         <span className={classes.settings}>Change Settings </span>
       </Link>
-    </Typography>
+    </Components.Typography>
   );
 }
 

@@ -6,7 +6,6 @@ Display of a single message in the Conversation Wrapper
 
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
 import grey from '@material-ui/core/colors/grey';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -55,7 +54,7 @@ const MessageItem = ({message, classes}: {
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
   
   return (
-    <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+    <Components.Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
       <div className={classes.meta}>
         {message.user && <Components.MetaInfo>
           <span className={colorClassName}><Components.UsersName user={message.user}/></span>
@@ -69,7 +68,7 @@ const MessageItem = ({message, classes}: {
         className={classes.messageBody}
         description={`message ${message._id}`}
       />
-    </Typography>
+    </Components.Typography>
   )
 }
 

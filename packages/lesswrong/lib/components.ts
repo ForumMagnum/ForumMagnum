@@ -93,6 +93,7 @@ importComponent("RevisionComparisonNotice", () => require('../components/revisio
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
+importComponent("Typography", () => require('../components/common/Typography'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
 importComponent("Footer", () => require('../components/common/Footer'));
 importComponent("LoadMore", () => require('../components/common/LoadMore'));

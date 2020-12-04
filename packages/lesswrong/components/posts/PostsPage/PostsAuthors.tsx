@@ -1,6 +1,5 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,7 +16,7 @@ const PostsAuthors = ({classes, post}: {
   classes: ClassesType,
   post: PostsDetails,
 }) => {
-  const { UsersName } = Components
+  const { UsersName, Typography } = Components
   return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>
       {!post.user || post.hideAuthor ? <Components.UserNameDeleted/> : <UsersName user={post.user} />}

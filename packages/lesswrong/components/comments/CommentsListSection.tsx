@@ -5,7 +5,6 @@ import {
 } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
@@ -26,7 +25,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 720,
   },
   inline: {
-    display: 'inline'
+    display: 'inline',
+    color: theme.palette.text.secondary,
   },
   button: {
     color: theme.palette.lwTertiary.main,
@@ -101,13 +101,12 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
   renderTitleComponent = () => {
     const { commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
     const { anchorEl, highlightDate } = this.state
-    const { CommentsListMeta } = Components
+    const { CommentsListMeta, Typography } = Components
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
     return <CommentsListMeta>
       <Typography
         variant="body2"
-        color="textSecondary"
         component='span'
         className={classes.inline}>
         {
@@ -123,7 +122,6 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
       </Typography>
       {post && <Typography
         variant="body2"
-        color="textSecondary"
         component='span'
         className={classes.inline}
       >

@@ -4,7 +4,6 @@ import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentsList: {
@@ -86,7 +85,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
     [totalCount, setLoadedMore, loadMore]
   );
 
-  const { CommentsList, Loading, CommentsNewForm } = Components
+  const { CommentsList, Loading, CommentsNewForm, Typography } = Components
   const noComments = (!results || !results.length) && !commenting
 
   if (loading || !results)

@@ -11,7 +11,6 @@ import { defaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -55,7 +54,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
