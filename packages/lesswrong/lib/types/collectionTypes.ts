@@ -108,6 +108,11 @@ interface HasCreatedAtType extends DbObject {
   createdAt: Date
 }
 
+export type AlgoliaDocument = {
+  _id: string,
+  [key: string]: any,
+}
+
 interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,

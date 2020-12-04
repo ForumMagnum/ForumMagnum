@@ -4,7 +4,6 @@ import { userHasCkEditor } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoFindOne, mongoAggregate } from '../../mongoQueries';
-import { getUserName } from '../../vulcan-users/helpers';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 
 // Get a user's display name (not unique, can take special characters and spaces)
@@ -16,6 +15,16 @@ export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string =
       (user.fullName || user.displayName) :
       (user.displayName || getUserName(user)) || ""
   }
+};
+
+// Get a user's username (unique, no special characters or spaces)
+export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
+  try {
+    if (user?.username) return user.username;
+  } catch (error) {
+    console.log(error); // eslint-disable-line
+  }
+  return null;
 };
 
 export const userOwnsAndInGroup = (group: string) => {

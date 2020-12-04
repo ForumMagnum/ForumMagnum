@@ -8,6 +8,7 @@ import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
+import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
 import { commentGetPageUrl } from '../lib/collections/comments/helpers'
@@ -272,7 +273,7 @@ async function PostsUndraftNotification(post: DbPost) {
 addCallback("posts.undraft.async", PostsUndraftNotification);
 
 function postIsPublic (post: DbPost) {
-  return !post.draft && post.status === Posts.config.STATUS_APPROVED
+  return !post.draft && post.status === postStatuses.STATUS_APPROVED
 }
 
 // Add new post notification callback on post submit

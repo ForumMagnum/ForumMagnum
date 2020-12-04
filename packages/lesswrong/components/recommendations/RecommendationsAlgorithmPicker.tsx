@@ -7,7 +7,8 @@ import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { archiveRecommendationsName } from './ConfigurableRecommendationsList';
+
+export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
