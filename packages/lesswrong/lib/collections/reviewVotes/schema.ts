@@ -48,6 +48,16 @@ const schema: SchemaType<DbReviewVote> = {
     type: String,
     viewableBy: ['guests'],
     optional: true
+  },
+  year: {
+    type: String,
+    viewableBy: ['guests'],
+    ...schemaDefaultValue("2018")
+  },
+  dummy: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    ...schemaDefaultValue(false)
   }
 };
 

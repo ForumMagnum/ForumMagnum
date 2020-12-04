@@ -98,6 +98,7 @@ interface DbUser extends DbObject {
   nearbyPeopleNotificationThreshold: number
   hideFrontpageMap: boolean
   hideTaggingProgressBar: boolean
+  hideFrontpageBookAd: boolean
   needsReview: boolean
   sunshineSnoozed: boolean
   reviewedByUserId: string
@@ -381,6 +382,8 @@ interface DbReviewVote extends DbObject {
   qualitativeScore: number
   quadraticScore: number
   comment: string
+  year: string
+  dummy: boolean
 }
 
 interface PostRelationsCollection extends CollectionBase<DbPostRelation> {
@@ -530,7 +533,9 @@ interface DbPost extends DbObject {
   shortform: boolean
   canonicalSource: string
   nominationCount2018: number
+  nominationCount2019: number
   reviewCount2018: number
+  reviewCount2019: number
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean

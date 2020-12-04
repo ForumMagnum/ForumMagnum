@@ -4,7 +4,6 @@ import React from 'react';
 import { Localgroups } from '../../lib/index';
 import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -70,15 +69,14 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
   classes: ClassesType,
   documentId: string,
 }) => {
-  const { WrappedSmartForm } = Components
+  const { WrappedSmartForm, LWDialog } = Components
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
   
-  return <Dialog
+  return <LWDialog
     open={true}
     onClose={onClose}
-    disableEnforceFocus
   >
     <DialogContent className="local-group-form">
       <WrappedSmartForm
@@ -101,7 +99,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
         }}
       />
     </DialogContent>
-  </Dialog>
+  </LWDialog>
 }
 
 const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog);

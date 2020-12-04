@@ -1,10 +1,9 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMessages } from '../common/withMessages';
 import withUser from '../common/withUser'
 import Users from '../../lib/collections/users/collection';
-import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -44,8 +43,9 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 
   render() {
     const { onClose, classes } = this.props
+    const { LWDialog } = Components;
     return (
-      <Dialog open={true} onClose={onClose}>
+      <LWDialog open={true} onClose={onClose}>
         <DialogTitle>
           AI Alignment Forum Membership Application
         </DialogTitle>
@@ -80,7 +80,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
             Submit Application
           </Button>
         </DialogActions>
-      </Dialog>
+      </LWDialog>
     )
   }
 }
