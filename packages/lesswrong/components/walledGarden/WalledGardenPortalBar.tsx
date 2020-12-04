@@ -93,9 +93,6 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
         <GardenCodesList/>
         <GardenCodesList personal/>
       </div>}
-      <div className={classes.codesList}>
-        {/*<GardenCodesList personal/>*/}
-      </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
