@@ -1,4 +1,5 @@
 import { addGraphQLSchema, Vulcan } from './vulcan-lib';
+import { CallbackChainHook } from './vulcan-lib/callbacks';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { hookToHoc } from './hocUtils'
@@ -240,3 +241,4 @@ function flushClientEvents() {
 }
 const throttledFlushClientEvents = _.throttle(flushClientEvents, 1000);
 
+export const userIdentifiedCallback = new CallbackChainHook<UsersCurrent|DbUser,[]>("events.identify");

@@ -1,4 +1,4 @@
-import { userGroups } from '../../vulcan-users/permissions';
+import { adminsGroup, membersGroup } from '../../vulcan-users/permissions';
 
 const adminActions = [
   'collections.new.all',
@@ -6,10 +6,10 @@ const adminActions = [
   'collections.remove.all'
 ];
 
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
 const memberActions = [
   'collections.edit.own',
 ];
 
-userGroups.members.can(memberActions);
+membersGroup.can(memberActions);

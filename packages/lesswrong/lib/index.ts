@@ -173,8 +173,6 @@ import './collections/postRelations';
 
 // Alignment Forum
 import './alignment-forum/permissions';
-import './alignment-forum/graphql';
-
 import './alignment-forum/posts/custom_fields';
 import './alignment-forum/posts/helpers';
 import './alignment-forum/posts/views';

@@ -151,6 +151,24 @@ Posts.addDefaultView(terms => {
       )
     }
   }
+  
+  if (terms.after || terms.before) {
+    let postedAt: any = {};
+
+    if (terms.after) {
+      postedAt.$gt = moment(terms.after).toDate();
+    }
+    if (terms.before) {
+      postedAt.$lt = moment(terms.before).toDate();
+    }
+
+    if (!_.isEmpty(postedAt) && !terms.timeField) {
+      params.selector.postedAt = postedAt;
+    } else if (!_.isEmpty(postedAt)) {
+      params.selector[terms.timeField] = postedAt;
+    }
+  }
+  
   return params;
 })
 
