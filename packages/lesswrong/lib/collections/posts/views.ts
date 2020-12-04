@@ -196,7 +196,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
 
     if (!_.isEmpty(postedAt) && !terms.timeField) {
       params.selector.postedAt = postedAt;
-    } else if (!_.isEmpty(postedAt)) {
+    } else if (!_.isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
   }
