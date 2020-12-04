@@ -216,6 +216,24 @@ export function withMulti({
   );
 }
 
+export interface UseMultiOptions<FragmentTypeName extends keyof FragmentTypes> {
+  terms: ViewTermsByCollectionName[CollectionNamesByFragmentName[FragmentTypeName]],
+  extraVariablesValues?: any,
+  pollInterval?: number,
+  enableTotal?: boolean,
+  enableCache?: boolean,
+  extraQueries?: any,
+  extraVariables?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  nextFetchPolicy?: WatchQueryFetchPolicy,
+  collectionName: CollectionNameString,
+  fragmentName: FragmentTypeName,
+  limit?: number,
+  itemsPerPage?: number,
+  skip?: boolean,
+  queryLimitName?: string,
+}
+
 export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   terms,
   extraVariablesValues,
@@ -232,23 +250,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   itemsPerPage = 10,
   skip = false,
   queryLimitName,
-}: {
-  terms: ViewTermsByCollectionName[CollectionNamesByFragmentName[FragmentTypeName]],
-  extraVariablesValues?: any,
-  pollInterval?: number,
-  enableTotal?: boolean,
-  enableCache?: boolean,
-  extraQueries?: any,
-  extraVariables?: any,
-  fetchPolicy?: WatchQueryFetchPolicy,
-  nextFetchPolicy?: WatchQueryFetchPolicy,
-  collectionName: CollectionNameString,
-  fragmentName: FragmentTypeName,
-  limit?: number,
-  itemsPerPage?: number,
-  skip?: boolean,
-  queryLimitName?: string,
-}): {
+}: UseMultiOptions<FragmentTypeName>): {
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,

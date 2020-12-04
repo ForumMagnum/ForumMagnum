@@ -1,7 +1,7 @@
-import { useMulti } from '../../lib/crud/withMulti';
+import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 
-export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(slug: string, fragmentName: FragmentTypeName, queryOptions:any=null): {
+export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(slug: string, fragmentName: FragmentTypeName, queryOptions?: Partial<UseMultiOptions<FragmentTypeName>>): {
   tag: FragmentTypes[FragmentTypeName]|null,
   loading: boolean,
   error: any
@@ -11,7 +11,7 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(slug:
       view: "tagBySlug",
       slug: slug
     },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: fragmentName,
     limit: 1,
     ssr: true,
