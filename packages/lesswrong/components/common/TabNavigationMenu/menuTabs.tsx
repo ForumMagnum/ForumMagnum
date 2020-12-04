@@ -36,7 +36,7 @@ const EventsList = ({currentUser, onClick}) => {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: 2,
+      limit: 1,
     }
   }
   const onlineTerms = {
