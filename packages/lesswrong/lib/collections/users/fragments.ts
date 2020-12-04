@@ -122,6 +122,7 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     hideTaggingProgressBar
+    hideFrontpageBookAd
 
     abTestKey
     abTestOverrides
@@ -304,6 +305,7 @@ registerFragment(`
 
     hideFrontpageMap
     hideTaggingProgressBar
+    hideFrontpageBookAd
 
     deleted
   }

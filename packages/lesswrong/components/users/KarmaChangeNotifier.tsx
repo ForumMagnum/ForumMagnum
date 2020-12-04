@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   votedItemScoreChange: {
     display: "inline-block",
-    width: 20,
+    minWidth: 20,
     textAlign: "right",
   },
   votedItemDescription: {

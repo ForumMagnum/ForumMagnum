@@ -86,7 +86,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
               <MetaInfo>Comment:</MetaInfo>
               <div><CommentBody comment={comment}/></div>
             </div>}
-            {!comment && <PostsHighlight post={post}/>}
+            {!comment && <PostsHighlight post={post} maxLengthWords={600}/>}
           </Typography>
         </SidebarHoverOver>
         {comment && <SunshineCommentsItemOverview comment={comment}/>}

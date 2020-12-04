@@ -84,6 +84,8 @@ registerFragment(`
 
     nominationCount2018
     reviewCount2018
+    nominationCount2019
+    reviewCount2019
 
     group {
       _id
@@ -223,6 +225,16 @@ registerFragment(`
         ...PostsList
       }
       order
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsExpandedHighlight on Post {
+    _id
+    contents {
+      _id
+      html
     }
   }
 `);

@@ -1,6 +1,3 @@
-
-import '../vulcan-lib/deep_extend';
-
 export * from '../vulcan-lib/components';
 export * from '../vulcan-lib/collections';
 export * from '../vulcan-lib/callbacks';

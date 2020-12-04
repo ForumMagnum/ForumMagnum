@@ -10,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
@@ -84,10 +83,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginRight: 16
   },
-  discussionButtonPositioning: {
+  ctaPositioning: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16,
     marginLeft: "auto"
   },
   subscribeToWrapper: {
@@ -103,13 +101,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  importNotice: {
-    ...theme.typography.commentStyle,
-    marginTop: 8,
-    marginBottom: 8,
-    '& a': {
-      color: theme.palette.primary.main
-    }
+  callToAction: {
+    fontStyle: 'italic'
+  },
+  callToActionFlagCount: {
+    // fontSize: ".9em",
+    position: "relative",
+    marginLeft: 4,
+    marginRight: 0
+  },
+  callToActionTooltip: {
+    
   }
 });
 
@@ -126,14 +128,15 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet, TagDiscussionButton } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, TagDiscussionButton } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagRevisionFragment" : "TagFragment", {
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagWithFlagsAndRevisionFragment" : "TagWithFlagsFragment", {
     extraVariables: revision ? {version: 'String'} : {},
     extraVariablesValues: revision ? {version: revision} : {},
   });
+  
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
   const { captureEvent } =  useTracking()
@@ -152,7 +155,7 @@ const TagPage = ({classes}: {
     limit: 1500,
     skip: !query.flagId
   })
-
+  
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -200,7 +203,15 @@ const TagPage = ({classes}: {
     allPages: "allPages",
     myPages: "userPages"
   }
-
+  
+  const numFlags = tag.tagFlagsIds?.length
+  const improvementCall =  <span className={classes.callToAction}>
+    Help improve this page{/*
+    */}<span className={classes.callToActionFlagCount}>{
+      !!numFlags&&`(${numFlags} flags)`}
+    </span>
+  </span>
+  
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}
@@ -231,37 +242,25 @@ const TagPage = ({classes}: {
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
-            {editing && tag.lesswrongWikiImportSlug && <div className={classes.importNotice}>
-              <a target="_blank" rel="noopener noreferrer" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
-              <SeparatorBullet/>
-              {tag.lesswrongWikiImportRevision &&
-                <span>
-                  <a target="_blank" rel="noopener noreferrer" href={`${tagGetUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
-                    See latest import revision
-                  </a>
-                </span>
-              }
-            </div>}
           </div>
           <div className={classes.buttonsRow}>
-            {currentUser ?
-              <a className={classes.button} onClick={() => setEditing(true)}>
-                <EditOutlinedIcon /> Edit Wiki
-              </a> :
-              <a className={classes.button} onClick={(ev) => {
+            {!editing && <a className={classes.button} onClick={(ev) => {
+              if (currentUser) {
+                setEditing(true)
+              } else {
                 openDialog({
                   componentName: "LoginPopup",
                   componentProps: {}
                 });
                 ev.preventDefault();
-              }}>
-                <EditOutlinedIcon /> Edit Wiki
-              </a>
-            }
-            {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
+              }
+            } }>
+              <EditOutlinedIcon /> Edit
+            </a>} 
+            {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
               <HistoryIcon /> History
             </Link>}
-            <LWTooltip title="Get notifications when posts are added to this tag" className={classes.subscribeToWrapper}>
+            {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
               <SubscribeTo
                 document={tag}
                 className={classes.subscribeTo}
@@ -270,9 +269,32 @@ const TagPage = ({classes}: {
                 unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
-            </LWTooltip>
-            <div className={classes.discussionButtonPositioning}>
+            </LWTooltip>}
+            <div className={classes.buttonRow}>
               <TagDiscussionButton tag={tag} />
+            </div>
+            <div className={classes.ctaPositioning}>
+              <LWTooltip className={classes.callToActionTooltip}
+                title={ tag.tagFlagsIds?.length > 0 ? 
+                  <div>
+                    {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
+                  </div> :
+                  <span>
+                    This tag does not currently have any improvement flags set.
+                  </span>
+                }
+                >
+                <a onClick={(ev) => {
+                  if (currentUser) setEditing(true);
+                  openDialog({
+                    componentName: currentUser ? "TagCTAPopup" : "LoginPopup",
+                    componentProps: {}
+                  })
+                  ev.preventDefault();
+                }}>
+                  {improvementCall}
+                </a> 
+              </LWTooltip>
             </div>
           </div>
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>

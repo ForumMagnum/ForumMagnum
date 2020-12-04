@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
-import Dialog from '@material-ui/core/Dialog';
 import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -110,7 +109,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading } = Components
+  const { Loading, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
   const [ mapsLoaded ] = useGoogleMaps("EventNotificationsDialog")
@@ -130,7 +129,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   />
 
   return (
-    <Dialog
+    <LWDialog
       open={true}
       onClose={onClose}
     >
@@ -218,7 +217,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
           </a>
         </DialogActions>
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   )
 }
 

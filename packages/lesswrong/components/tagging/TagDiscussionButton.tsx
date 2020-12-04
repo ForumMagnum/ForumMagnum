@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
+import { useMulti } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
@@ -33,9 +34,19 @@ const TagDiscussionButton = ({tag, text = "Discussion", classes}: {
   
   const { TagDiscussion, PopperCard } = Components
   const { hover, anchorEl, eventHandlers } = useHover()
+  const { totalCount } = useMulti({
+    terms: {
+      view: "commentsOnTag",
+      tagId: tag._id,
+      limit: 0,
+    },
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    enableTotal: true,
+  });
   
   return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-      <CommentOutlinedIcon className={classes.discussionButtonIcon} /> {text}
+      <CommentOutlinedIcon className={classes.discussionButtonIcon} /> {`${text} (${totalCount || 0})`}
       <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
         <TagDiscussion tag={tag}/>
       </PopperCard>

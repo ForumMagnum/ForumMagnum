@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       gridTemplateColumns: `
       minmax(0, min-content)
       minmax(0, 1fr)
-      minmax(0, 765px)
+      minmax(0, min-content)
       minmax(0, 1.4fr)
       minmax(0, min-content)
     `,

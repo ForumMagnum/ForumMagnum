@@ -8,7 +8,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
-import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -88,7 +87,6 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
   const currentUser = useCurrentUser();
   const [ editing, setEditing ] = useState(false)
   const { query } = useLocation();
-  const {openDialog} = useDialog();
 
   const { results: tagRels, loading } = useMulti({
     skip: !(tag._id) || showFlags,
@@ -111,10 +109,7 @@ const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = fa
         />
         :
         <LinkCard 
-          to={tagGetUrl(tag, {flagId, edit: true})} 
-          onClick={currentUser ? undefined : () => openDialog({
-            componentName: "LoginPopup", componentProps: {}
-          })}
+          to={tagGetUrl(tag, {flagId, edit: !!currentUser})} 
         >
           {collapse ? <div className={classes.tagName}>
             <strong>{tag.name}</strong>

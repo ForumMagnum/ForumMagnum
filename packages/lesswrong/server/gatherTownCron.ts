@@ -1,5 +1,5 @@
 import { addCronJob } from './cronUtil';
-import { createMutator } from './vulcan-lib';
+import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
@@ -18,26 +18,31 @@ if (isProduction) {
     schedule(parser) {
       return parser.text(`every 3 minutes`);
     },
-    async job() {
-      const roomName = gatherTownRoomName.get();
-      const roomId = gatherTownRoomId.get();
-      if (!roomName || !roomId) return;
-      const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
-      void createMutator({
-        collection: LWEvents,
-        document: {
-          name: 'gatherTownUsersCheck',
-          important: false,
-          properties: {
-            time: new Date(),
-            gatherTownUsers
-          }
-        },
-        validate: false,
-      })
+    job() {
+      void pollGatherTownUsers();
     }
   });
 }
+
+const pollGatherTownUsers = async () => {
+  const roomName = gatherTownRoomName.get();
+  const roomId = gatherTownRoomId.get();
+  if (!roomName || !roomId) return;
+  const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
+  void createMutator({
+    collection: LWEvents,
+    document: {
+      name: 'gatherTownUsersCheck',
+      important: false,
+      properties: {
+        time: new Date(),
+        gatherTownUsers
+      }
+    },
+    validate: false,
+  })
+}
+Globals.pollGatherTownUsers = pollGatherTownUsers;
 
 type GatherTownPlayerInfo = any;
 
@@ -152,7 +157,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
       const parsedMessage = interpretBinaryMessage(data)
       if (parsedMessage?.players) {
         for (let player of parsedMessage.players) {
-          playerNamesById[player.id] = player.name;
+          playerNamesById[player.playerId] = player.name;
           playerInfoByName[player.name] = player;
         }
       }
@@ -206,6 +211,7 @@ function isJson(str: string): boolean {
 const playerMessageHeaderLen = 23;
 const mapNameOffset = 15
 const playerNameOffset = 17
+const unknownStringFieldOffset = 19;
 const playerIdOffset = 21;
 
 function interpretBinaryMessage(data: any): any {
@@ -229,11 +235,13 @@ function interpretBinaryMessage(data: any): any {
     if (messageType === 0) {
       const mapNameLen = buf.readUInt8(pos+mapNameOffset);
       const playerNameLen = buf.readUInt8(pos+playerNameOffset);
+      const unknownStringFieldLen = buf.readUInt8(pos+unknownStringFieldOffset);
       const playerIdLen = buf.readUInt8(pos+playerIdOffset);
       
       const mapNameStart = pos+playerMessageHeaderLen;
       const playerNameStart = mapNameStart+mapNameLen;
-      const playerIdStart = playerNameStart+playerNameLen;
+      const unknownStringFieldStart = playerNameStart+unknownStringFieldLen;
+      const playerIdStart = unknownStringFieldStart+playerNameLen;
       
       const mapName = buf.slice(mapNameStart, mapNameStart+mapNameLen).toString("utf8");
       const playerName = buf.slice(playerNameStart, playerNameStart+playerNameLen).toString("utf8");

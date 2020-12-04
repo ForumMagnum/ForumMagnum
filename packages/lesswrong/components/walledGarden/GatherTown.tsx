@@ -45,7 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: 'flex-start',
     flexWrap: "wrap",
-    marginTop: 0
+    marginTop: 0,
+    marginBottom: 4
   },
   noUsers: {
     fontSize: '0.8rem',
@@ -114,7 +115,7 @@ const GatherTown = ({classes}: {
 
   const updateCurrentUser = useUpdateCurrentUser();
 
-  const { LWTooltip, AnalyticsTracker, WalledGardenEvents } = Components
+  const { LWTooltip, AnalyticsTracker, GardenCodesList } = Components
 
   if (!currentUser) return null
   if (!gardenOpenToPublic.get() && !currentUser.walledGardenInvite) return null
@@ -146,6 +147,8 @@ const GatherTown = ({classes}: {
       </Link>
   </LWTooltip> : null
 
+  let eventTypes = currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']
+
   return (
     <div className={classes.root}>
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />
@@ -160,10 +163,10 @@ const GatherTown = ({classes}: {
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
-          Presence indicator is currently broken. There might or might not be people in the Garden. Sorry for the inconvenience!
+          No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        <WalledGardenEvents />
+        <GardenCodesList terms={{view:"semipublicGardenCodes", types: eventTypes}} />
         <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
       </div>
     </div>
