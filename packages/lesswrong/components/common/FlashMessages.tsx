@@ -1,16 +1,11 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import { withMessages } from './withMessages';
-import React, { PureComponent } from 'react';
+import { useMessages } from './withMessages';
+import React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 
-interface ExternalProps {
-}
-interface FlashMessagesProps extends ExternalProps, WithMessagesProps {
-}
-
-class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
-  getProperties = (message) => {
+const FlashMessages = () => {
+  const getProperties = (message) => {
     if (typeof message === 'string') {
       // if error is a string, use it as message
       return {
@@ -27,26 +22,22 @@ class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
     }
   }
 
-  render() {
-    const { messages, clear } = this.props
-    let messageObject = messages.length > 0 && this.getProperties(messages[0]);
-    return (
-      <div className="flash-messages">
-        <Snackbar
-          open={messageObject && !messageObject.hide}
-          message={messageObject && messageObject.message}
-          autoHideDuration={6000}
-          onClose={clear}
-          action={messageObject?.action && <Button onClick={messageObject?.action} color="primary">{messageObject?.actionName || "UNDO"}</Button>}
-        />
-      </div>
-    );
-  }
+  const { messages, clear } = useMessages();
+  let messageObject = messages.length > 0 && getProperties(messages[0]);
+  return (
+    <div className="flash-messages">
+      <Snackbar
+        open={messageObject && !messageObject.hide}
+        message={messageObject && messageObject.message}
+        autoHideDuration={6000}
+        onClose={clear}
+        action={messageObject?.action && <Button onClick={messageObject?.action} color="primary">{messageObject?.actionName || "UNDO"}</Button>}
+      />
+    </div>
+  );
 }
 
-const FlashMessagesComponent = registerComponent<ExternalProps>('FlashMessages', FlashMessages, {
-  hocs: [withMessages]
-});
+const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages);
 
 declare global {
   interface ComponentTypes {

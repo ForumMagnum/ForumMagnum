@@ -1,30 +1,12 @@
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import gql from 'graphql-tag';
-import { getFragment, getFragmentName } from '../../lib/vulcan-lib';
+import { useNamedMutation } from '../../lib/crud/withMutation';
 
-export default function withSetAlignmentPost(options) {
-
-  const fragment = options.fragment || getFragment(options.fragmentName),
-        fragmentName = getFragmentName(fragment)
-
-  return graphql(gql`
-    mutation alignmentPost($postId: String, $af: Boolean) {
-      alignmentPost(postId: $postId, af: $af) {
-        ...${fragmentName}
-      }
-    }
-    ${fragment}
-  `, {
-    alias: 'withSetAlignmentPost',
-    props: ({ ownProps, mutate }: { ownProps: any, mutate: any }): any => ({
-      setAlignmentPostMutation: (args) => {
-        const { postId, af } = args;
-        return mutate({
-          variables: { postId, af }
-        });
-      }
-    }),
+export const useSetAlignmentPost = ({fragmentName}: {fragmentName: FragmentName}) => {
+  const {mutate} = useNamedMutation<{
+    postId: string, af: boolean,
+  }>({
+    name: "alignmentPost",
+    graphqlArgs: {postId: "String", af: "Boolean"},
+    fragmentName,
   });
-
+  return {setAlignmentPostMutation: mutate};
 }

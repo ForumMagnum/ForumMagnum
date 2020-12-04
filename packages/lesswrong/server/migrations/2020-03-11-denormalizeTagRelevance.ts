@@ -1,4 +1,3 @@
-import React from 'react';
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
 import { Posts } from '../../lib/collections/posts/collection';

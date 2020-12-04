@@ -1,5 +1,4 @@
 import LRU from 'lru-cache';
-import * as _ from 'underscore';
 import type { RenderResult } from './renderPage';
 import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import { Globals } from '../../../lib/vulcan-lib';
