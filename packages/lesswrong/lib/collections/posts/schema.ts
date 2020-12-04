@@ -1,12 +1,11 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { getCollection } from '../../vulcan-lib';
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
-import { postStatuses } from './constants';
+import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
@@ -165,7 +164,7 @@ const schema: SchemaType<DbPost> = {
         return postGetDefaultStatus(currentUser);
       }
     },
-    options: () => getCollection('Posts').statuses,
+    options: () => postStatusLabels,
     group: formGroups.adminOptions
   },
   // Whether a post is scheduled in the future or not
