@@ -55,7 +55,7 @@ function generateCollectionDbType(collection: any): string {
       continue;
     }
     
-    const typeName = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
+    const typeName = schema[fieldName].typescriptType || simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
     
     sb.push(`  ${fieldName}: ${typeName}\n`);
   }
