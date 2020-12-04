@@ -12,7 +12,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { CAL_ID } from '../walledGarden/gardenCalendar';
+import { isMobile } from '../../lib/utils/isMobile'
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
@@ -55,6 +55,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     marginRight: 24,
     marginLeft: 6,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   },
   hide: {
     position: 'absolute',
@@ -133,7 +136,7 @@ const GatherTown = ({classes}: {
       },
     })
     flash({
-      messageString: "Hid Walled Garden from frontpage",
+      messageString: "Hide Walled Garden from frontpage",
       type: "success",
       action: () => void updateUser({
         selector: { _id: currentUser._id },
@@ -156,8 +159,6 @@ const GatherTown = ({classes}: {
       </Link>
   </LWTooltip> : null
 
-  let eventTypes = currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']
-
   return (
     <div className={classes.root}>
       <CloseIcon className={classes.hide} onClick={hideClickHandler} />
@@ -175,8 +176,7 @@ const GatherTown = ({classes}: {
           No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        <GardenCodesList terms={{view:"semipublicGardenCodes", types: eventTypes}} />
-        <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
+        {!isMobile() && <GardenCodesList limit={2}/>}
       </div>
     </div>
   )

@@ -3,7 +3,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from '../common/withUser';
-import { CAL_ID } from "./gardenCalendar";
 import { gatherTownURL } from "./GatherTownIframeWrapper";
 
 const widgetStyling = {
@@ -74,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
-  const { GardenCodeWidget, GardenCodesList, PomodoroWidget } = Components
+  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, } = Components
 
   const currentUser =  useCurrentUser()
 
@@ -90,18 +89,14 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
           <div><GardenCodeWidget type="event"/></div>
         </div>
       </div>}
-      {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
-        <GardenCodesList terms={{view:"semipublicGardenCodes", types: ['public', 'semi-public']}} />
+      {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
+        <GardenCodesList/>
+        <GardenCodesList personal/>
       </div>}
       <div className={classes.codesList}>
-        <GardenCodesList terms={{view:"userGardenCodes"}}  />
+        {/*<GardenCodesList personal/>*/}
       </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
-        <div className={classes.textButton}>
-          <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
-            Google Calendar
-          </a>
-        </div>
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
             Facebook Group
