@@ -176,7 +176,7 @@ const GatherTown = ({classes}: {
           No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        {!isMobile() && <GardenCodesList/>}
+        {!isMobile() && <GardenCodesList limit={2}/>}
       </div>
     </div>
   )

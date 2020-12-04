@@ -4,7 +4,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-export const GardenCodesList = ({classes, personal=false}:{classes:ClassesType, personal?: boolean}) => {
+export const GardenCodesList = ({classes, limit, personal=false}:{
+  classes:ClassesType,
+  limit?: number,
+  personal?: boolean}) => {
   const { GardenCodesItem } = Components
   const currentUser = useCurrentUser()
   
@@ -21,7 +24,7 @@ export const GardenCodesList = ({classes, personal=false}:{classes:ClassesType, 
     fetchPolicy: 'cache-and-network',
     collection: GardenCodes,
     fragmentName: 'GardenCodeFragment',
-    limit: 8
+    limit: limit || 8
   });
   
   
