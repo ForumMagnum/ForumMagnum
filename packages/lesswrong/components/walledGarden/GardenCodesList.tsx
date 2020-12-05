@@ -23,7 +23,7 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
     collectionName: "GardenCodes",
-    fragmentName: 'GardenCodeFragment'
+    fragmentName: 'GardenCodeFragment',
     limit: limit || 8
   });
   
