@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser'
+// import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 
@@ -130,9 +130,9 @@ const FrontpageReviewPhase = ({classes}) => {
 
   return (
     <SingleColumnSection>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+      <AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
-      </AnalyticsContext>}
+      </AnalyticsContext>
       <SectionTitle 
         title={<LWTooltip title={overviewToolip} placement="bottom-start">
           <Link to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}>The 2019 Review</Link>

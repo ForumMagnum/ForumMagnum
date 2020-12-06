@@ -90,7 +90,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -161,7 +161,7 @@ const RecommendationsAndCurated = ({
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
-          <AnalyticsContext listContext={"curatedPosts"}>
+          {/* <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
@@ -170,7 +170,7 @@ const RecommendationsAndCurated = ({
               boxShadow={false}
               curatedIconLeft={true}
             />
-          </AnalyticsContext>
+          </AnalyticsContext> */}
         </div>
       </div>
 
