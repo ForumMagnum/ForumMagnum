@@ -39,12 +39,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left"}: {
+const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
   user: UsersMinimumInfo|null|undefined,
   nofollow?: boolean,
   simple?: boolean,
   classes: ClassesType,
-  tooltipPlacement?: "left" | "top" | "right" | "bottom"
+  tooltipPlacement?: "left" | "top" | "right" | "bottom",
+  className?: string,
 }) => {
   const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
 
@@ -71,7 +72,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     return <span {...eventHandlers} className={classes.userName}>{userGetDisplayName(user)}</span>
   }
 
-  return <span {...eventHandlers}>
+  return <span {...eventHandlers} className={className}>
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={tooltip} placement={tooltipPlacement}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}

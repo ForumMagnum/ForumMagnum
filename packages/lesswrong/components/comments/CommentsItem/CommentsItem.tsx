@@ -288,9 +288,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
-            <span className={classes.username}>
-              <CommentUserName comment={comment}/>
-            </span>
+            <CommentUserName comment={comment} className={classes.username}/>
             <CommentsItemDate
               comment={comment} post={post} tag={tag}
               scrollIntoView={scrollIntoView}
