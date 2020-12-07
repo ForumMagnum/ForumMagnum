@@ -3,38 +3,35 @@ import { ensureIndex } from '../../collectionUtils';
 
 
 GardenCodes.addDefaultView(terms => {
+  let selector 
   if (terms?.types) {
     const eventTypeStrings = eventTypes.map(type=>type.value)
     const types = terms.types?.filter(type => eventTypeStrings.includes(type))
     if (!types?.length) {
       throw Error("You didn't provide a valid type")
     }
-    return {
-      selector: {
-        type: {$in: types},
-        deleted: false
-      }
+    selector = {
+      type: {$in: types},
+      deleted: false
     }
-  }
-  if (terms?.userId) return {
-    selector: {
+  } else if (terms?.userId) {
+    selector = {
       userId: terms.userId,
       deleted: false
     }
-  }
-  if (!terms?.code) return {
-    selector: {
+  } else if (!terms?.code) {
+    selector = {
       keyDoesNotExist: "valueDoesNotExist"
     }
   }
   return {
-    selector: {
+    selector: selector || {
       code: terms.code,
       deleted: false
     },
     options: {
       sort: { 
-        startTime: -1
+        startTime: 1
       }
     }
   }

@@ -129,9 +129,9 @@ const FrontpageReviewPhase = ({classes}) => {
 
   return (
     <SingleColumnSection>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+      <AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
-      </AnalyticsContext>}
+      </AnalyticsContext>
       <SectionTitle 
         title={<LWTooltip title={overviewToolip} placement="bottom-start">
           <Link to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}>The 2019 Review</Link>
