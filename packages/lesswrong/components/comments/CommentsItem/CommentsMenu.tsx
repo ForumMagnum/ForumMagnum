@@ -10,12 +10,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     fontSize:"1.4rem"
   },
-  menu: {
-    position:"absolute",
-    right:0,
-    top:0,
-    zIndex: theme.zIndexes.commentsMenu,
-  }
 })
 
 const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
@@ -38,12 +32,15 @@ const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
   if (!currentUser) return null
   
   return (
-    <span className={className}>
-      <span onClick={event => {
-        captureEvent("commentMenuClicked", {open: true})
-        setAnchorEl(event.currentTarget)
-        setEverOpened(true);
-      }}>
+    <>
+      <span
+        className={className}
+        onClick={event => {
+          captureEvent("commentMenuClicked", {open: true})
+          setAnchorEl(event.currentTarget)
+          setEverOpened(true);
+        }}
+      >
         {icon ? icon : <MoreVertIcon
           className={classes.icon}/>}
       </span>
@@ -62,7 +59,7 @@ const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
           showEdit={showEdit}
         />}
       </Menu>
-    </span>
+    </>
   )
 }
 
