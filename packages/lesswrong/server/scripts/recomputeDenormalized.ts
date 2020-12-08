@@ -1,6 +1,7 @@
 import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments } from '../migrations/migrationUtils'
+import { createAdminContext } from '../vulcan-lib/query';
 import * as _ from 'underscore';
 
 
@@ -41,6 +42,8 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
     console.log(`${collectionName} does not have a schema defined, not computing denormalized values`)
     return
   }
+  
+  const context = createAdminContext();
 
   const schema: any = collection.simpleSchema()._schema
   if (fieldName) {
@@ -59,7 +62,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
       throw new Error(`${collectionName}.${fieldName} is missing its getValue function`)
     }
 
-    await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly })
+    await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly, context })
   } else {
     const denormalizedFields = getFieldsWithAttribute(schema, 'canAutoDenormalize')
     if (denormalizedFields.length == 0) {
@@ -74,7 +77,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
     for (let j=0; j<denormalizedFields.length; j++) {
       const fieldName = denormalizedFields[j];
       const getValue = schema[fieldName].getValue
-      await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly })
+      await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly, context })
     }
   }
 
@@ -83,7 +86,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
 }
 Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
-async function runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly }) {
+async function runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly, context }) {
   let numDifferent = 0;
 
   await migrateDocuments({
@@ -93,7 +96,7 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
     migrate: async (documents) => {
       // eslint-disable-next-line no-console
       const updates = await Promise.all(documents.map(async doc => {
-        const newValue = await getValue(doc)
+        const newValue = await getValue(doc, context)
         // If the correct value is already present, don't make a database update
         if ((isNullOrDefined(newValue) && isNullOrDefined(doc[fieldName])) || doc[fieldName] === newValue) return null
         return {
