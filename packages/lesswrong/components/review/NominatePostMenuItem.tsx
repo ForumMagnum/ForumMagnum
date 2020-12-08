@@ -15,6 +15,12 @@ import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
+export function eligibleToNominate (currentUser) {
+  if (!currentUser) return false;
+  if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return false
+  return true
+}
+
 const NominatePostMenuItem = ({ post, closeMenu }: {
   post: PostsBase,
   closeMenu: ()=>void,
@@ -34,9 +40,8 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
     fragmentName: "CommentsList"
   });
 
-  if (!currentUser) return null;
+  if (!eligibleToNominate(currentUser)) return null
   if (post.userId === currentUser!._id) return null
-  if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return null
   if (new Date(post.postedAt) > new Date("2020-01-01")) return null
   if (new Date(post.postedAt) < new Date("2019-01-01")) return null
 
