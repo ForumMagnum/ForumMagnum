@@ -3,7 +3,6 @@ import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { userGetProfileUrl } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
-import type { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////

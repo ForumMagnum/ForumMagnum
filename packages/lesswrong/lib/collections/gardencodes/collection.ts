@@ -1,7 +1,7 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import {foreignKeyField, SchemaType} from '../../utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';

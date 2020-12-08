@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField, denormalizedCountOfReferences, SchemaType } from '../../utils/schemaUtils'
+import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
 
 const schema: SchemaType<DbConversation> = {

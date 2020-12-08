@@ -1,5 +1,5 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { commentGetPageUrl } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';

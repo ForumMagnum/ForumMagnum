@@ -1,5 +1,5 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils'
 
 export const subscriptionTypes = {
