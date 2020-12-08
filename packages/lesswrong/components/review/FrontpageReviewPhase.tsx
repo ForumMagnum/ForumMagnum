@@ -85,7 +85,7 @@ export const reviewAlgorithm = {
 }
 
 const FrontpageReviewPhase = ({classes}) => {
-  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip, GatherTown, SectionFooter } = Components
+  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip, GatherTown } = Components
   const currentUser = useCurrentUser();
 
   const overviewToolip = <div>
