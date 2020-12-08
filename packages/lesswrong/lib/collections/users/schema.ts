@@ -76,6 +76,16 @@ const schema: SchemaType<DbUser> = {
   emails: {
     type: Array,
     optional: true,
+    onCreate: ({document: user}) => {
+      const oAuthEmail = getNestedProperty(user, 'services.facebook.email') |
+        getNestedProperty(user, 'services.google.email') | 
+        getNestedProperty(user, 'services.github.email') | 
+        getNestedProperty(user, 'services.linkedin.emailAddress')
+      
+      if (oAuthEmail) {
+        return [{address: oAuthEmail, verified: true}]
+      }
+    }
   },
   'emails.$': {
     type: Object,
