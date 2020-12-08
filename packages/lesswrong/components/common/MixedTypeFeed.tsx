@@ -177,7 +177,6 @@ const MixedTypeFeed = (args: {
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
-  console.log(data)
   return <div>
     {data && data[resolverName]?.results && data[resolverName].results.map((result,i) =>
       <div key={i}>
@@ -220,5 +219,4 @@ declare global {
     MixedTypeFeed: typeof MixedTypeInfiniteComponent,
   }
 }
-
 
