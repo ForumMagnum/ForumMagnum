@@ -1,5 +1,4 @@
-import { registerMigration, fillDefaultValues } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts/collection';
+import { registerMigration } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
 
 registerMigration({
