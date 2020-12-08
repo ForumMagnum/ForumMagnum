@@ -43,8 +43,6 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
     return
   }
   
-  const context = createAdminContext();
-
   const schema: any = collection.simpleSchema()._schema
   if (fieldName) {
     if (!schema[fieldName]) {
@@ -62,7 +60,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
       throw new Error(`${collectionName}.${fieldName} is missing its getValue function`)
     }
 
-    await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly, context })
+    await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly })
   } else {
     const denormalizedFields = getFieldsWithAttribute(schema, 'canAutoDenormalize')
     if (denormalizedFields.length == 0) {
@@ -77,7 +75,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
     for (let j=0; j<denormalizedFields.length; j++) {
       const fieldName = denormalizedFields[j];
       const getValue = schema[fieldName].getValue
-      await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly, context })
+      await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly })
     }
   }
 
@@ -86,7 +84,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
 }
 Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
-async function runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly, context }) {
+async function runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly }) {
   let numDifferent = 0;
 
   await migrateDocuments({
@@ -94,6 +92,8 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
     collection,
     batchSize: 100,
     migrate: async (documents) => {
+      const context = createAdminContext();
+      
       // eslint-disable-next-line no-console
       const updates = await Promise.all(documents.map(async doc => {
         const newValue = await getValue(doc, context)
@@ -119,6 +119,7 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
       if (!validateOnly) {
         // eslint-disable-next-line no-console
         if (nonEmptyUpdates.length > 0)  {
+          console.log(nonEmptyUpdates);
           await collection.rawCollection().bulkWrite(
             nonEmptyUpdates,
             { ordered: false }
