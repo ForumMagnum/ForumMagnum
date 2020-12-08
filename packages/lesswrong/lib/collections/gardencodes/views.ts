@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface GardenCodesViewTerms extends ViewTermsBase {
-    view: GardenCodesViewName
+    view?: GardenCodesViewName //Allow useMulti with no view
     types?: Array<string>
     userId?: string
     code?: string

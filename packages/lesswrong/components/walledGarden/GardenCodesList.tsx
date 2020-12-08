@@ -11,7 +11,7 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   const { GardenCodesItem } = Components
   const currentUser = useCurrentUser()
   
-  const terms = personal ?
+  const terms: GardenCodesViewTerms = personal ?
     {view:"userGardenCodes"} : 
     {view:"semipublicGardenCodes", types: ['public', 'semi-public']}
   
