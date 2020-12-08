@@ -18,9 +18,9 @@ const FormatDate = ({date, format, tooltip=true}: {
 
   const { LWTooltip } = Components
 
-  const formatted = (format
-    ? <span>{moment(new Date(date)).format(format)}</span>
-    : <span>{moment(new Date(date)).fromNow()}</span>
+  const formatted: string = (format
+    ? moment(new Date(date)).format(format)
+    : moment(new Date(date)).fromNow()
   );
   
   if (tooltip) {
@@ -28,7 +28,7 @@ const FormatDate = ({date, format, tooltip=true}: {
       {formatted}
     </LWTooltip>
   } else {
-    return formatted;
+    return <>formatted</>
   }
 };
 
