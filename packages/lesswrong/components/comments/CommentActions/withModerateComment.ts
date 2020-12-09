@@ -1,29 +1,25 @@
-import { graphql } from '@apollo/client/react/hoc';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
-import { getFragment, getFragmentName } from '../../../lib/vulcan-lib';
+import { getFragment } from '../../../lib/vulcan-lib';
 
-export default function withModerateComment(options) {
-
-  const fragment = options.fragment || getFragment(options.fragmentName),
-        fragmentName = getFragmentName(fragment)
-
-  return graphql(gql`
+export const useModerateComment = ({fragmentName}: {
+  fragmentName: FragmentName,
+}) => {
+  const [moderateComment] = useMutation(gql`
     mutation moderateComment($commentId: String, $deleted: Boolean, $deletedReason: String, $deletedPublic: Boolean) {
       moderateComment(commentId: $commentId, deleted: $deleted, deletedReason: $deletedReason, deletedPublic: $deletedPublic) {
         ...${fragmentName}
       }
     }
-    ${fragment}
-  `, {
-    alias: 'withModerateComment',
-    props: ({ ownProps, mutate }: { ownProps: any, mutate: any }): any => ({
-      moderateCommentMutation: (args) => {
-        const { commentId, deleted, deletedReason, deletedPublic } = args;
-        return mutate({
-          variables: { commentId, deleted, deletedReason, deletedPublic }
-        });
-      }
-    }),
-  });
-
+    ${getFragment(fragmentName)}
+  `);
+  
+  async function mutate(args: {commentId: string, deleted: boolean, deletedReason: string, deletedPublic?: boolean}) {
+    return await moderateComment({
+      variables: args
+    });
+  }
+  
+  return {moderateCommentMutation: mutate};
 }
+

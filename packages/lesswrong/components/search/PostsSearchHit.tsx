@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import grey from '@material-ui/core/colors/grey';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
     root: {
@@ -28,6 +27,7 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
   classes: ClassesType,
 }) => {
   const post = (hit as AlgoliaPost);
+  const {Typography} = Components;
   
   // If clickAction is provided, disable link and replace with Click of the action
   return <div className={classes.root}>

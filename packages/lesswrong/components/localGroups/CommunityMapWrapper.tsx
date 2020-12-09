@@ -4,11 +4,11 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 const CommunityMapWrapper = ({classes, groupQueryTerms, currentUserLocation, mapOptions, terms, showHideMap, petrovButton}: {
   classes: ClassesType,
-  groupQueryTerms?: any,
+  groupQueryTerms?: LocalgroupsViewTerms,
   currentUserLocation?: any,
   mapOptions?: any,
-  terms: any,
-  showHideMap?: any,
+  terms: PostsViewTerms,
+  showHideMap?: boolean,
   petrovButton?: any,
 }) => {
   return (

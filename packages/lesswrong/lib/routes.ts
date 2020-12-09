@@ -773,4 +773,11 @@ addRoute(
     componentName: 'Reviews2019',
     title: "2019 Reviews",
   },
+  {
+    name: 'bookLanding',
+    path: '/books',
+    componentName: 'BookLanding',
+    title: "A Map that Reflects the Territory",
+    background: "white"
+  },
 );

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Tags from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,7 +35,7 @@ const NewTagsList = ({classes, showHeaders = true}:{
 
   const { results, loadMoreProps } = useMulti({
     terms: {view:"newTags", limit: 4 },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
     itemsPerPage: 20,

@@ -2,7 +2,6 @@ import React, {ReactNode} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
@@ -37,7 +36,7 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
       collectionName: collectionName,
       subscriptionType: subscriptionType,
     },
-    collection: Subscriptions,
+    collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
   });
   

@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
-import Dialog from '@material-ui/core/Dialog';
 import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Typography from '@material-ui/core/Typography';
 import { createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
@@ -26,23 +24,20 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
-  const { Loading } = Components
+  const { Loading, Typography, LWDialog } = Components
   
   const [ mapsLoaded ] = useGoogleMaps("SetPersonalMapLocationDialog")
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ mapText, setMapText ] = useState(mapMarkerText || bio)
   
-  const { mutate } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  })
+  const updateCurrentUser = useUpdateCurrentUser()
   
   if (!currentUser)
     return null;
 
   return (
-    <Dialog
+    <LWDialog
       open={true}
       onClose={onClose}
     >
@@ -75,20 +70,20 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
           />
         <DialogActions className={classes.actions}>
           {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
-            void mutate({selector: {_id: currentUser._id}, data: {mapLocation: null}})
+            void updateCurrentUser({mapLocation: null})
             onClose()
           }}>
             Remove me from the map
           </a>}
           <a className={classes.submitButton} onClick={()=>{
-            void mutate({selector: {_id: currentUser._id}, data: {mapLocation: location, mapMarkerText: mapText}})
+            void updateCurrentUser({mapLocation: location, mapMarkerText: mapText})
             onClose()
           }}>
             Submit
           </a>
         </DialogActions>
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   )
 }
 

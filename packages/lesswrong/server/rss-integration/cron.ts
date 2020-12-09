@@ -80,9 +80,7 @@ const runRSSImport = async () => {
 
 addCronJob({
   name: 'addNewRSSPosts',
-  schedule(parser) {
-    return parser.text('every 10 minutes');
-  },
+  interval: 'every 10 minutes',
   job: runRSSImport
 });
 

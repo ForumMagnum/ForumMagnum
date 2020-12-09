@@ -43,15 +43,16 @@ const TagDiscussion = ({classes, tag}: {
   return <div className={classes.root}>
         {!results && loading ? <Loading/> : 
         <CommentsList
+          treeOptions={{
+            tag: tag,
+            postPage: true,
+          }}
           totalComments={totalCount}
           comments={nestedComments}
-          tag={tag}
-          postPage
         />}
         <Link to={`/tag/${tag.slug}/discussion`} className={classes.seeAll}>
           See all
         </Link>
-
     </div>
 }
 

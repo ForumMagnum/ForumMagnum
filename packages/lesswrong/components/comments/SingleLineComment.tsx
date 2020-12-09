@@ -1,12 +1,13 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
+import { CommentTreeOptions } from './commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -108,20 +109,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+const SingleLineComment = ({treeOptions, comment, classes, nestingLevel, parentCommentId, hideKarma }: {
+  treeOptions: CommentTreeOptions,
   comment: CommentsList,
-  post?: PostsMinimumInfo,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
-  enableHoverPreview?: boolean,
-  hideSingleLineMeta?: boolean,
-}
-interface SingleLineCommentProps extends ExternalProps, WithStylesProps, WithHoverProps {
-}
-
-const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}: SingleLineCommentProps) => {
+  classes: ClassesType,
+}) => {
+  const {hover} = useHover();
+  
   if (!comment) return null
+  
+  const { enableHoverPreview=true, hideSingleLineMeta, post } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
@@ -164,9 +164,12 @@ const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentC
   )
 };
 
-const SingleLineCommentComponent = registerComponent<ExternalProps>('SingleLineComment', SingleLineComment, {
+const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, {
   styles,
-  hocs: [withHover(), withErrorBoundary]
+  hocs: [withErrorBoundary],
+  areEqual: {
+    treeOptions: "shallow",
+  },
 });
 
 declare global {

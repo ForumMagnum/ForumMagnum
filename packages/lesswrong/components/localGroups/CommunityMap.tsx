@@ -2,8 +2,6 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
-import { Localgroups } from '../../lib/index';
-import { Posts } from '../../lib/collections/posts';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { PersonSVG } from './Icons'
@@ -70,8 +68,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
 const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, showHideMap = false, petrovButton }: {
-  groupTerms: any,
-  eventTerms: any,
+  groupTerms: LocalgroupsViewTerms,
+  eventTerms: PostsViewTerms,
   initialOpenWindows: Array<any>,
   center?: {lat: number, lng: number},
   zoom: number,
@@ -81,7 +79,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   petrovButton?: boolean,
 }) => {
   const { query } = useLocation()
-  const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
+  const groupQueryTerms: LocalgroupsViewTerms = groupTerms || {view: "all", filters: query?.filters || []}
 
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = useCallback(
@@ -107,14 +105,14 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsList",
     limit: 500,
   });
 
   const { results: groups = [] } = useMulti({
     terms: groupQueryTerms,
-    collection: Localgroups,
+    collectionName: "Localgroups",
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
   })

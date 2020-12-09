@@ -1,11 +1,12 @@
 import Users from '../users/collection'
-import { userCanDo, userGroups } from '../../vulcan-users/permissions';
+import { userCanDo } from '../../vulcan-users/permissions';
+import { sunshineRegimentGroup } from '../../permissions';
 
 const sunshineRegimentActions = [
   'users.edit.all',
   'users.view.deleted'
 ];
-userGroups.sunshineRegiment.can(sunshineRegimentActions);
+sunshineRegimentGroup.can(sunshineRegimentActions);
 
 Users.checkAccess = async (user: DbUser|null, document: DbUser, context: ResolverContext|null): Promise<boolean> => {
   if (document && document.deleted) return userCanDo(user, 'users.view.deleted')
