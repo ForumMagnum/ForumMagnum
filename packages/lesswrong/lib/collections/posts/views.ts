@@ -44,6 +44,9 @@ export const filters: Record<string,any> = {
   "untagged": {
     tagRelevance: {}
   },
+  "unnominated2019": {
+    nominationCount2019: 0
+  },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
     baseScore: {$gt: 25},

@@ -76,6 +76,18 @@ const schema: SchemaType<DbUser> = {
   emails: {
     type: Array,
     optional: true,
+    // This is dead code and doesn't actually run, but we do have to implement something like this in a post Meteor world
+    onCreate: ({document: user}) => {
+    
+      const oAuthEmail = getNestedProperty(user, 'services.facebook.email') |
+        getNestedProperty(user, 'services.google.email') | 
+        getNestedProperty(user, 'services.github.email') | 
+        getNestedProperty(user, 'services.linkedin.emailAddress')
+      
+      if (oAuthEmail) {
+        return [{address: oAuthEmail, verified: true}]
+      }
+    }
   },
   'emails.$': {
     type: Object,

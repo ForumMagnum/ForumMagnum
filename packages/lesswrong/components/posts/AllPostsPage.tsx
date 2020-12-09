@@ -61,7 +61,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 
     this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
       if (currentUser) {
-        void void updateUser({
+        void updateUser({
           selector: { _id: currentUser._id},
           data: {
             allPostsOpenSettings: this.state.showSettings,
