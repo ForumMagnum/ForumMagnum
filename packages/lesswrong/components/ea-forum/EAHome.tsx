@@ -12,7 +12,7 @@ const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbo
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionThreadsList, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner
+    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -28,12 +28,10 @@ const EAHome = () => {
       <HomeLatestPosts />
 
       <RecommendationsAndCurated configName="frontpageEA" />
-
-      <RecentDiscussionThreadsList
-        terms={{view: 'recentDiscussionThreadsList', limit:20}}
+      <RecentDiscussionFeed
+        af={false}
         commentsLimit={recentDiscussionCommentsPerPost}
         maxAgeHours={18}
-        af={false}
       />
     </React.Fragment>
   )
