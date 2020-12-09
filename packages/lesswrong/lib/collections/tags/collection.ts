@@ -4,7 +4,6 @@ import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import { schema } from './schema';
-import type { AlgoliaDocument } from '../../../server/search/utils';
 
 type getUrlOptions = {
   edit?: boolean, 

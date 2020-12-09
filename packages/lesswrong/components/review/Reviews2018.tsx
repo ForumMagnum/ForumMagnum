@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -27,26 +27,18 @@ const Reviews2018 = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
   const [sortReviews, setSortReviews] = useState("new")
   const [sortNominations, setSortNominations] = useState("top")
 
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
   const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip } = Components
 
   const handleSetExpandUnread = () => {
-    if (currentUser) {
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          noExpandUnreadCommentsReview: expandUnread,
-        }
-      });
-    }
+    void updateCurrentUser({
+      noExpandUnreadCommentsReview: expandUnread,
+    });
     setExpandUnread(!expandUnread)
   }
 

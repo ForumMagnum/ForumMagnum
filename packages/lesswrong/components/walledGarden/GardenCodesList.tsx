@@ -1,17 +1,17 @@
 import React from 'react';
-import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-export const GardenCodesList = ({classes, limit, personal=false}:{
+export const GardenCodesList = ({classes, limit, personal=false}: {
   classes:ClassesType,
   limit?: number,
-  personal?: boolean}) => {
+  personal?: boolean
+}) => {
   const { GardenCodesItem } = Components
   const currentUser = useCurrentUser()
   
-  const terms = personal ?
+  const terms: GardenCodesViewTerms = personal ?
     {view:"userGardenCodes"} : 
     {view:"semipublicGardenCodes", types: ['public', 'semi-public']}
   
@@ -22,7 +22,7 @@ export const GardenCodesList = ({classes, limit, personal=false}:{
     },
     enableTotal: false,
     fetchPolicy: 'cache-and-network',
-    collection: GardenCodes,
+    collectionName: "GardenCodes",
     fragmentName: 'GardenCodeFragment',
     limit: limit || 8
   });

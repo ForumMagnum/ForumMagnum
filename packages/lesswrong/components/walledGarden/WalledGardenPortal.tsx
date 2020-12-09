@@ -3,11 +3,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
-import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
-import {useUpdate} from "../../lib/crud/withUpdate";
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -60,10 +59,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar } = Components
   const currentUser = useCurrentUser();
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  })
+  const updateCurrentUser = useUpdateCurrentUser()
   const isOpenToPublic = gardenOpenToPublic.get()
 
   const { query } = useLocation();
@@ -75,7 +71,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     terms: {
       code: inviteCodeQuery
     },
-    collection: GardenCodes,
+    collectionName: "GardenCodes",
     fragmentName: "GardenCodeFragment",
     limit: 1,
   });
@@ -169,11 +165,8 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
         <a onClick={ async () => {
           setOnboarded(true)
           if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-          void updateUser({
-            selector: {_id: currentUser._id},
-            data: {
-              walledGardenPortalOnboarded: true
-            }
+          void updateCurrentUser({
+            walledGardenPortalOnboarded: true
           })
         }
         }

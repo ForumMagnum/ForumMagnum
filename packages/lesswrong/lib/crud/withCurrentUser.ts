@@ -1,30 +1,25 @@
-import { getFragment } from '../vulcan-lib';
-import { graphql } from '@apollo/client/react/hoc';
+import { fragmentTextForQuery } from '../vulcan-lib/fragments';
+import { useQuery } from '@apollo/client';
+import { hookToHoc } from '../hocUtils';
 import gql from 'graphql-tag';
 
-export const withCurrentUser = component => {
-
-  return graphql(
-    gql`
-      query getCurrentUser {
-        currentUser {
-          ...UsersCurrent
-        }
+export const useQueryCurrentUser = () => {
+  const {data, loading} = useQuery(gql`
+    query getCurrentUser {
+      currentUser {
+        ...UsersCurrent
       }
-      ${getFragment('UsersCurrent')}
-    `, {
-      alias: 'withCurrentUser',
-      
-      props(props: any) {
-        const { data } = props;
-        return {
-          currentUserLoading: data.loading,
-          currentUser: data.currentUser,
-          currentUserData: data,
-        };
-      },
     }
-  )(component);
-};
+    ${fragmentTextForQuery('UsersCurrent')}
+  `, {
+    fetchPolicy: "cache-first",
+    ssr: true,
+  });
+  
+  return {
+    currentUser: data?.currentUser,
+    currentUserLoading: loading,
+  }
+}
 
-export default withCurrentUser;
+export const withCurrentUser = hookToHoc(useQueryCurrentUser);

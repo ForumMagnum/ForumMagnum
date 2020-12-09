@@ -1,22 +1,19 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import withUser from '../../common/withUser';
-import withDialog from '../../common/withDialog'
+import { useCurrentUser } from '../../common/withUser';
+import { useDialog } from '../../common/withDialog'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-interface ExternalProps {
+const ReportCommentMenuItem = ({comment}: {
   comment: CommentsList,
-}
-interface ReportCommentMenuItemProps extends ExternalProps, WithUserProps, WithDialogProps {
-}
-
-class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}> {
-
-  showReport = (event: React.MouseEvent) => {
-    const { openDialog, comment, currentUser } = this.props;
+}) => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  
+  const showReport = (event: React.MouseEvent) => {
     if (!currentUser) return;
     
     openDialog({
@@ -30,23 +27,17 @@ class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}>
     });
   }
 
-  render() {
-    const { currentUser } = this.props;
+  if (!userCanDo(currentUser, "reports.new")) return null
 
-    if (!userCanDo(currentUser, "reports.new")) return null
-
-    return <MenuItem onClick={this.showReport}>
-      <ListItemIcon>
-        <ReportOutlinedIcon />
-      </ListItemIcon>
-      Report
-    </MenuItem>
-  }
+  return <MenuItem onClick={showReport}>
+    <ListItemIcon>
+      <ReportOutlinedIcon />
+    </ListItemIcon>
+    Report
+  </MenuItem>
 }
 
-const ReportCommentMenuItemComponent = registerComponent<ExternalProps>('ReportCommentMenuItem', ReportCommentMenuItem, {
-  hocs: [withUser, withDialog]
-});
+const ReportCommentMenuItemComponent = registerComponent('ReportCommentMenuItem', ReportCommentMenuItem);
 
 declare global {
   interface ComponentTypes {

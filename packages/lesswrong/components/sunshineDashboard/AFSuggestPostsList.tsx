@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -11,12 +10,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const AFSuggestPostsList = ({ terms, classes }: {
-  terms: any,
+  terms: PostsViewTerms,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
     terms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
     fetchPolicy: 'cache-and-network',
   });

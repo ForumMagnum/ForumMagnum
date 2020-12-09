@@ -16,9 +16,6 @@ import classNames from 'classnames';
 import grey from '@material-ui/core/colors/grey';
 import * as _ from 'underscore';
 
-// import { NavDropdown, MenuItem } from 'react-bootstrap';
-import Notifications from '../../lib/collections/notifications/collection'
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline-block",
@@ -70,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
-  terms: any,
+  terms: NotificationsViewTerms,
   classes: ClassesType,
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
@@ -78,13 +75,13 @@ const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
 }) => {
   const currentUser = useCurrentUser();
   const [tab,setTab] = useState(0);
-  const [notificationTerms,setNotificationTerms] = useState({view: 'userNotifications'});
+  const [notificationTerms,setNotificationTerms] = useState<NotificationsViewTerms>({view: 'userNotifications'});
   const [lastNotificationsCheck,setLastNotificationsCheck] = useState(
     (currentUser?.lastNotificationsCheck) || ""
   );
   const { results } = useMulti({
     terms,
-    collection: Notifications,
+    collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     pollInterval: 0,
     limit: 20,
@@ -96,7 +93,7 @@ const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
     return null;
   } else {
   
-    const notificationCategoryTabs = [
+    const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
       {
         name: "All Notifications",
         icon: () => (<AllIcon classes={{root: classes.icon}}/>),

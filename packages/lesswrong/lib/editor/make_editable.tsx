@@ -82,6 +82,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       type: RevisionStorageType,
       inputType: 'UpdateRevisionDataInput',
       optional: true,
+      typescriptType: "EditableFieldContents",
       group: formGroup,
       ...permissions,
       order,

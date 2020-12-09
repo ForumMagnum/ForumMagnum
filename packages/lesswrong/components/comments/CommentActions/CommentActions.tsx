@@ -54,7 +54,7 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
     {post && <ReportCommentMenuItem comment={comment}/>}
     {post && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
     {post && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
-    { userCanModeratePost(currentUser, postDetails) && postDetails?.user && userCanModeratePost(postDetails.user, postDetails) && <Divider />}
+    { userCanModeratePost(currentUser, postDetails) && postDetails?.user && <Divider />}
     {post && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
     {post && <DeleteCommentMenuItem comment={comment} post={postDetails}/>}
     <RetractCommentMenuItem comment={comment}/>

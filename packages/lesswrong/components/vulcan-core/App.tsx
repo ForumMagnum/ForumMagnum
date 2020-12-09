@@ -9,7 +9,8 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, runCallbacks, Strings } from '../../lib/vulcan-lib';
+import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
+import { userIdentifiedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
 
 const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
@@ -22,9 +23,9 @@ class App extends PureComponent<any,any> {
   constructor(props) {
     super(props);
     if (props.currentUser) {
-      runCallbacks({
-        name: 'events.identify',
-        iterator: props.currentUser
+      void userIdentifiedCallback.runCallbacks({
+        iterator: props.currentUser,
+        properties: [],
       });
     }
     const locale = localeSetting.get();
@@ -74,9 +75,9 @@ class App extends PureComponent<any,any> {
 
   UNSAFE_componentWillUpdate(nextProps) {
     if (!this.props.currentUser && nextProps.currentUser) {
-      runCallbacks({
-        name: 'events.identify',
-        iterator: nextProps.currentUser
+      void userIdentifiedCallback.runCallbacks({
+        iterator: nextProps.currentUser,
+        properties: [],
       });
     }
   }
@@ -152,17 +153,15 @@ class App extends PureComponent<any,any> {
   getLocale: PropTypes.func,
 };
 
-const updateOptions = {
-  collectionName: 'Users',
-  fragmentName: 'UsersCurrent',
-};
-
 //registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent('App', App, {
   hocs: [
     withCurrentUser,
-    withUpdate(updateOptions),
+    withUpdate({
+      collectionName: 'Users',
+      fragmentName: 'UsersCurrent',
+    }),
     withApollo, withRouter
   ]
 });

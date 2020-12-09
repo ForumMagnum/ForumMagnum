@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts/collection';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -36,7 +35,7 @@ const PingbacksList = ({classes, postId}: {
       view: "pingbackPosts",
       postId: postId,
     },
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsList",
     limit: 5,
     enableTotal: false,

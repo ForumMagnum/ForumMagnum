@@ -15,6 +15,10 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     addCallback(this.name, fn);
   }
   
+  remove = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType>|undefined|void) => {
+    removeCallback(this.name, fn);
+  }
+  
   runCallbacks = ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
     return runCallbacks({
       name: this.name,
@@ -48,25 +52,10 @@ export class CallbackHook<ArgumentsType extends any[]> {
 const formatHookName = (hook: string|null|undefined): string => hook?.toLowerCase() || "";
 
 /**
- * @summary A list of all registered callback hooks
- */
-const CallbackHooks: Array<any> = [];
-
-/**
  * @summary Callback hooks provide an easy way to add extra steps to common operations.
  * @namespace Callbacks
  */
 const Callbacks: Record<string,any> = {};
-
-
-/**
- * @summary Register a callback
- * @param {String} hook - The name of the hook
- * @param {Function} callback - The callback function
- */
-export const registerCallback = function (callback) {
-  CallbackHooks.push(callback);
-};
 
 /**
  * @summary Add a callback function to a hook
@@ -98,7 +87,7 @@ export const addCallback = function (hook: string, callback) {
  * @param {Function} callback - A reference to the function which was previously
  *   passed to addCallback.
  */
-export const removeCallback = function (hookName: string, callback) {
+const removeCallback = function (hookName: string, callback) {
   const formattedHook = formatHookName(hookName);
   Callbacks[formattedHook] = _.reject(Callbacks[formattedHook],
     c => c === callback
@@ -121,7 +110,6 @@ export const runCallbacks = function (this: any, options: {
   iterator?: any,
   properties?: any,
   ignoreExceptions?: boolean,
-  callbacks?: any,
 }) {
   const hook = options.name;
   const formattedHook = formatHookName(hook);
@@ -132,7 +120,7 @@ export const runCallbacks = function (this: any, options: {
     ignoreExceptions = !!options.ignoreExceptions;
   else
     ignoreExceptions = true;
-  const callbacks = options.callbacks ? options.callbacks : Callbacks[formattedHook];
+  const callbacks = Callbacks[formattedHook];
 
   // flag used to detect the callback that initiated the async context
   let asyncContext = false;
@@ -141,15 +129,8 @@ export const runCallbacks = function (this: any, options: {
 
     const runCallback = (accumulator, callback) => {
       debug(`\x1b[32m>> Running callback [${callback.name}] on hook [${formattedHook}]\x1b[0m`);
-      const newArguments = [accumulator].concat(args);
-
       try {
-        const result = callback.apply(this, newArguments);
-
-        // if callback is only supposed to run once, remove it
-        if (callback.runOnce) {
-          removeCallback(formattedHook, callback);
-        }
+        const result = callback.apply(this, [accumulator].concat(args));
 
         if (typeof result === 'undefined') {
           // if result of current iteration is undefined, don't pass it on
@@ -200,6 +181,78 @@ export const runCallbacks = function (this: any, options: {
     return item;
   }
 };
+
+// Run a provided list of callback functions, in a chain. This is similar to
+// runCallbacks (which does the same, except it gets the functions from a named
+// hook). This is used only by vulcan-forms, which previously was using
+// runCallbacks, but is new separated out in order to make runCallbacks more
+// refactor-able.
+export const runCallbacksList = function (this: any, options: {
+  iterator?: any,
+  properties?: any,
+  callbacks: any,
+}) {
+  const item = options.iterator;
+  const args = options.properties;
+  const ignoreExceptions = true;
+  const callbacks = options.callbacks;
+
+  // flag used to detect the callback that initiated the async context
+  let asyncContext = false;
+  
+  if (typeof callbacks !== 'undefined' && !!callbacks.length) {
+
+    const runCallback = (accumulator, callback) => {
+      try {
+        const result = callback.apply(this, [accumulator].concat(args));
+
+        if (typeof result === 'undefined') {
+          // if result of current iteration is undefined, don't pass it on
+          return accumulator;
+        } else {
+          return result;
+        }
+
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(`error at callback [${callback.name}] in callbacks list`);
+        // eslint-disable-next-line no-console
+        console.log(error);
+        if (error.break || (error.data && error.data.break) || !ignoreExceptions) {
+          throw error;
+        }
+        // pass the unchanged accumulator to the next iteration of the loop
+        return accumulator;
+      }
+    };
+
+    return callbacks.reduce(function (accumulator, callback, index) {
+      if (isPromise(accumulator)) {
+        if (!asyncContext) {
+          asyncContext = true;
+        }
+        return new Promise((resolve, reject) => {
+          accumulator
+            .then(result => {
+              try {
+                // run this callback once we have the previous value
+                resolve(runCallback(result, callback));
+              } catch (error) {
+                // error will be thrown only for breaking errors, so throw it up in the promise chain
+                reject(error);
+              }
+            })
+            .catch(reject);
+        });
+      } else {
+        return runCallback(accumulator, callback);
+      }
+    }, item);
+
+  } else { // else, just return the item unchanged
+    return item;
+  }
+}
 
 /**
  * @summary Successively run all of a hook's callbacks on an item, in async mode (only works on server)
