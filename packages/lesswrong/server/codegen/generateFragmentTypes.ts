@@ -16,12 +16,13 @@ export function generateFragmentTypes(): string {
   }
   
   sb.push(generateFragmentsIndexType());
+  sb.push(generateCollectionNamesByFragmentNameType());
   sb.push(generateCollectionNamesIndexType());
   
   return fragmentFileHeader + sb.join('');
 }
 
-function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
+function getParsedFragment(fragmentName: FragmentName) {
   const fragmentDefinitions = getFragment(fragmentName);
   
   // `getFragment` returns the parsed definition of a fragment plus all of its
@@ -30,10 +31,19 @@ function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
   const parsedFragment = fragmentDefinitions.definitions[0];
   assert(parsedFragment.kind == "FragmentDefinition");
   assert(parsedFragment.name.value == fragmentName);
-  
-  // Get the name of the type this fragment refers to
+  return parsedFragment;
+}
+
+function fragmentNameToCollectionName(fragmentName: FragmentName): CollectionNameString {
+  const parsedFragment = getParsedFragment(fragmentName);
   const typeName = parsedFragment.typeCondition?.name?.value;
   const collectionName = getCollectionName(typeName!);
+  return collectionName;
+}
+
+function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
+  const parsedFragment = getParsedFragment(fragmentName);
+  const collectionName = fragmentNameToCollectionName(fragmentName);
   const collection = getCollection(collectionName);
   assert(collection);
   
@@ -47,6 +57,20 @@ function generateFragmentsIndexType(): string {
   sb.push('interface FragmentTypes {\n');
   for (let fragmentName of fragmentNames) {
     sb.push(`  ${fragmentName}: ${fragmentName}\n`);
+  }
+  sb.push('}\n\n');
+  
+  return sb.join('');
+}
+
+function generateCollectionNamesByFragmentNameType(): string {
+  const fragmentNames: Array<FragmentName> = getAllFragmentNames();
+  const sb: Array<string> = [];
+  
+  sb.push(`interface CollectionNamesByFragmentName {\n`);
+  for (let fragmentName of fragmentNames) {
+    const collectionName = fragmentNameToCollectionName(fragmentName);
+    sb.push(`  ${fragmentName}: "${collectionName}"\n`);
   }
   sb.push('}\n\n');
   

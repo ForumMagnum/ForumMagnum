@@ -1,4 +1,4 @@
-import { runCallbacksAsync, addStaticRoute } from '../vulcan-lib';
+import { addStaticRoute, Connectors } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { ensureIndex } from '../../lib/collectionUtils';
 
@@ -9,12 +9,7 @@ addStaticRoute('/out', ({ query}, req, res, next) => {
       const post = Posts.findOne({url: query.url}, {sort: {postedAt: -1, createdAt: -1}});
 
       if (post) {
-        const ip = (req.headers && req.headers['x-forwarded-for']) || req.connection.remoteAddress;
-
-        runCallbacksAsync({
-          name: 'posts.click.async',
-          properties: [post, ip]
-        });
+        void incrementPostClickCount(post._id);
 
         res.writeHead(301, {'Location': query.url});
         res.end();
@@ -36,3 +31,7 @@ addStaticRoute('/out', ({ query}, req, res, next) => {
 });
 
 ensureIndex(Posts, {url:1, postedAt:-1});
+
+async function incrementPostClickCount(postId: string) {
+  await Connectors.update(Posts, {_id: postId}, { $inc: { clickCount: 1 } });
+}

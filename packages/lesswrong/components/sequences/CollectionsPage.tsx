@@ -6,7 +6,6 @@ import Collections from '../../lib/collections/collections/collection';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -71,7 +70,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionButton, ContentItemBody } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionButton, ContentItemBody, Typography } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {

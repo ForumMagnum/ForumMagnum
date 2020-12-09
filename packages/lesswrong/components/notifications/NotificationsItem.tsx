@@ -1,11 +1,11 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
-import { getUrlClass, withNavigation } from '../../lib/routeUtil';
-import withHover from '../common/withHover';
+import { getUrlClass, useNavigation } from '../../lib/routeUtil';
+import { useHover } from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 
@@ -58,27 +58,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-interface ExternalProps {
+const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
   notification: any,
   lastNotificationsCheck: any,
   currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
-}
-interface NotificationsItemProps extends ExternalProps, WithHoverProps, WithNavigationProps, WithStylesProps {
-}
-interface NotificationsItemState {
-  clicked: boolean,
-}
+  classes: ClassesType,
+}) => {
+  const [clicked,setClicked] = useState(false);
+  const {eventHandlers, hover, anchorEl} = useHover({
+    pageElementContext: "linkPreview",
+    pageElementSubContext: "notificationItem",
+  });
+  const { history } = useNavigation();
+  const { LWPopper } = Components
 
-class NotificationsItem extends Component<NotificationsItemProps,NotificationsItemState> {
-  constructor(props: NotificationsItemProps) {
-    super(props)
-    this.state = {
-      clicked: false,
-    }
-  }
-
-  renderPreview = () => {
-    const { notification, currentUser } = this.props
+  const renderPreview = () => {
     const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
 
@@ -100,8 +94,7 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
     }
   }
 
-  renderMessage = () => {
-    const { notification } = this.props
+  const renderMessage = () => {
     const { TagRelNotificationItem } = Components
     switch (notification.documentType) {
       // TODO: add case for tagRel
@@ -112,18 +105,15 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
     }
   }
 
-  render() {
-    const { classes, notification, lastNotificationsCheck, hover, anchorEl, history } = this.props;
-    const { LWPopper } = Components
-    const UrlClass = getUrlClass()
-    return (
+  return (
+    <span {...eventHandlers}>
       <a
         href={notification.link}
         className={classNames(
           classes.root,
           {
-            [classes.read]:     notification.createdAt < lastNotificationsCheck || this.state.clicked,
-            [classes.unread]: !(notification.createdAt < lastNotificationsCheck || this.state.clicked)
+            [classes.read]:     notification.createdAt < lastNotificationsCheck || clicked,
+            [classes.unread]: !(notification.createdAt < lastNotificationsCheck || clicked)
           }
         )}
         onClick={(e) => {
@@ -131,9 +121,10 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
           e.preventDefault()
           history.push(notification.link)
 
-          this.setState({clicked: true})
+          setClicked(true);
           
           // we also check whether it's a relative link, and if so, scroll to the item
+          const UrlClass = getUrlClass()
           const url = new UrlClass(notification.link, getSiteUrl())
           const hash = url.hash
           if (hash) {
@@ -142,35 +133,31 @@ class NotificationsItem extends Component<NotificationsItemProps,NotificationsIt
           }
         }}
       >
-        <LWPopper 
-          open={hover} 
-          anchorEl={anchorEl} 
+        <LWPopper
+          open={hover}
+          anchorEl={anchorEl}
           placement="left-start"
           modifiers={{
             flip: {
               behavior: ["left-start"],
               boundariesElement: 'viewport'
-            } 
+            }
           }}
         >
-          <span className={classes.preview}>{this.renderPreview()}</span>
+          <span className={classes.preview}>{renderPreview()}</span>
         </LWPopper>
         {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabel}>
-          {this.renderMessage()}
+          {renderMessage()}
         </div>
       </a>
-    )
-  }
-
+    </span>
+  )
 }
 
-const NotificationsItemComponent = registerComponent<ExternalProps>('NotificationsItem', NotificationsItem, {
+const NotificationsItemComponent = registerComponent('NotificationsItem', NotificationsItem, {
   styles,
-  hocs: [
-    withHover({pageElementContext: "linkPreview", pageElementSubContext: "notificationItem"}),
-    withErrorBoundary, withNavigation
-  ]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,7 +32,7 @@ const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }, 
       disabled={disabled}
       disableRipple
     />
-    <Typography className={classes.inline} variant="body2" component="label">{label}</Typography>
+    <Components.Typography className={classes.inline} variant="body2" component="label">{label}</Components.Typography>
   </div>
 }
 

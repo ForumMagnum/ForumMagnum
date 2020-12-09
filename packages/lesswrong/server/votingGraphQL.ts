@@ -1,8 +1,8 @@
-import { addCallback, addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from './vulcan-lib';
+import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
 import { VoteableCollections, collectionIsVoteable } from '../lib/make_voteable';
 
-function CreateVoteableUnionType() {
+export function createVoteableUnionType() {
   const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
   addGraphQLSchema(voteableSchema);
   
@@ -12,7 +12,6 @@ function CreateVoteableUnionType() {
   
   return {}
 }
-addCallback('graphql.init.before', CreateVoteableUnionType);
 
 const resolverMap = {
   Voteable: {

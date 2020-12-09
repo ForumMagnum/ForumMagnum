@@ -38,7 +38,7 @@ const CommentKarmaWithPreview = ({ comment, classes }: {
         }}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode comment={comment}/>
+        <CommentsNode treeOptions={{}} comment={comment}/>
       </div>
     </LWPopper>
   </span>

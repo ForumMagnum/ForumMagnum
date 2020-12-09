@@ -46,7 +46,7 @@ import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { intlShape } from '../../lib/vulcan-i18n';
-import { getErrors, mergeWithComponents, registerComponent, runCallbacks } from '../../lib/vulcan-lib';
+import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
@@ -242,7 +242,7 @@ class SmartForm extends Component<any,any> {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacks({ callbacks: this.submitFormCallbacks, iterator: data, properties: { form: this } });
+    data = runCallbacksList({ callbacks: this.submitFormCallbacks, iterator: data, properties: { form: this } });
 
     return data;
   };
@@ -880,7 +880,7 @@ class SmartForm extends Component<any,any> {
     }
 
     // run document through mutation success callbacks
-    document = runCallbacks({ callbacks: this.successFormCallbacks, iterator: document, properties: { form: this } });
+    document = runCallbacksList({ callbacks: this.successFormCallbacks, iterator: document, properties: { form: this } });
 
     // run success callback if it exists
     if (this.props.successCallback) this.props.successCallback(document, { form: this });
@@ -896,7 +896,7 @@ class SmartForm extends Component<any,any> {
     console.log(JSON.stringify(error));
 
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
-    runCallbacks({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });
+    runCallbacksList({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });
 
     if (!_.isEmpty(error)) {
       // add error to state

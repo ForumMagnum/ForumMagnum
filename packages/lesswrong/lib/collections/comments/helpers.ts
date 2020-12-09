@@ -4,7 +4,6 @@ import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
-import { Tags } from '../tags/collection';
 
 
 // Get a comment author's name
@@ -20,7 +19,7 @@ export function commentGetPageUrl(comment: CommentsList|DbComment, isAbsolute = 
     if (!post) throw Error(`Unable to find post for comment: ${comment}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const tag = Tags.findOne(comment.tagId);
+    const tag = mongoFindOne("Tags", {_id:comment.tagId});
     if (!tag) throw Error(`Unable to find tag for comment: ${comment}`)
     return `/tag/${tag.slug}/discussion#${comment._id}`;
   } else {

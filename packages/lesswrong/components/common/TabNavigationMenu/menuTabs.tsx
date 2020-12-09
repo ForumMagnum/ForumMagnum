@@ -25,22 +25,23 @@ const EventsList = ({currentUser, onClick}) => {
   const lng = currentUser &&
     currentUser.mongoLocation &&
     currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms: any = {
+  let eventsListTerms: PostsViewTerms = {
     view: 'events',
     onlineEvent: false,
     limit: 3,
   }
   if (lat && lng) {
     eventsListTerms = {
+      onlineEvent: false,
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: 2,
+      limit: 1,
     }
   }
-  const onlineTerms = {
+  const onlineTerms: PostsViewTerms = {
     view: 'onlineEvents',
-    limit: 2
+    limit: 4
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">

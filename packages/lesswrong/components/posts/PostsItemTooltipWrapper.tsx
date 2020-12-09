@@ -1,17 +1,17 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import withHover from "../common/withHover";
+import { useHover } from "../common/withHover";
 
-interface ExternalProps {
+const PostsItemTooltipWrapper = ({children, post}: {
   children?: React.ReactNode,
   post: PostsList,
-}
-interface PostsItemTooltipWrapperProps extends ExternalProps, WithHoverProps{
-}
-
-const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}: PostsItemTooltipWrapperProps) => {
+}) => {
   const { LWPopper, PostsPreviewTooltip } = Components
-  return <React.Fragment>
+  const {eventHandlers, hover, stopHover, anchorEl} = useHover({
+    pageElementContext: "postItemTooltip",
+    postId: post?._id
+  });
+  return <span {...eventHandlers}>
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
@@ -26,14 +26,11 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}: P
         <PostsPreviewTooltip post={post} postsList />
       </LWPopper>
       { children }
-    </React.Fragment>
+  </span>
 }
 
-const PostsItemTooltipWrapperComponent = registerComponent<ExternalProps>('PostsItemTooltipWrapper', PostsItemTooltipWrapper, {
-  hocs: [
-    withHover({pageElementContext: "postItemTooltip"}, ({post}) => ({postId: post?._id}))
-  ]
-})
+const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper
+)
 
 declare global {
   interface ComponentTypes {

@@ -11,7 +11,7 @@ module.exports = {
     // have to delete .eslintcache to make it stop reporting the error.
     // Commented out because there are immport cycles that haven't been resolved
     // yet.
-    //"plugin:import/typescript"
+    "plugin:import/typescript"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -89,6 +89,8 @@ module.exports = {
       { name: "@material-ui", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
+      { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
+      { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
     ]}],
@@ -226,7 +228,6 @@ module.exports = {
       "sinon",
       "sinon-chai",
       "chai-enzyme",
-      "meteor/littledata:synced-cron",
       "meteor/meteorhacks:picker"
     ],
     "react": {

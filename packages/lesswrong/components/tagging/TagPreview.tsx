@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { Posts } from '../../lib/collections/posts/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
@@ -62,7 +61,7 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
   const { results } = useMulti({
     skip: !(tag?._id),
     terms: tagPostTerms(tag, {}),
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsList",
     limit: postCount,
   });

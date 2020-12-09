@@ -3,7 +3,6 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import Messages from "../../lib/collections/messages/collection";
-import Typography from '@material-ui/core/Typography';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -30,13 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 // The Navigation for the Inbox components
 const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   documentId: string,
-  terms: any,
+  terms: MessagesViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
   const { results, loading: loadingMessages } = useMulti({
     terms,
-    collection: Messages,
+    collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 1000,
@@ -49,7 +48,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   });
   const loading = loadingMessages || loadingConversation;
   
-  const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem } = Components
+  const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
   
   const renderMessages = () => {
     if (loading) return <Loading />

@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
-import { withUpdate } from '../../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../../hooks/useUpdateCurrentUser';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
@@ -12,12 +12,12 @@ interface ExternalProps {
   comment: CommentsList,
   post: PostsBase,
 }
-interface BanUserFromAllPersonalPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateUserProps {
+interface BanUserFromAllPersonalPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateCurrentUserProps {
 }
 
 class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPersonalPostsMenuItemProps,{}> {
   handleBanUserFromAllPosts = (event: React.MouseEvent) => {
-    const { currentUser, comment, flash, updateUser } = this.props;
+    const { currentUser, comment, flash, updateCurrentUser } = this.props;
     if (!currentUser) return;
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on all your personal blog posts?")) {
@@ -26,9 +26,8 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPe
       if (!bannedPersonalUserIds.includes(commentUserId)) {
         bannedPersonalUserIds.push(commentUserId)
       }
-      void updateUser({
-        selector: { _id: currentUser._id },
-        data: {bannedPersonalUserIds:bannedPersonalUserIds},
+      void updateCurrentUser({
+        bannedPersonalUserIds: bannedPersonalUserIds
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your personal blog posts`}))
     }
   }
@@ -49,10 +48,7 @@ const BanUserFromAllPersonalPostsMenuItemComponent = registerComponent<ExternalP
   'BanUserFromAllPersonalPostsMenuItem', BanUserFromAllPersonalPostsMenuItem, {
     hocs: [
       withMessages,
-      withUpdate({
-        collectionName: "Users",
-        fragmentName: 'UsersProfile',
-      }),
+      withUpdateCurrentUser,
       withUser
     ]
   }

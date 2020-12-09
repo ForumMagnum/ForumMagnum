@@ -52,7 +52,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Name",
     defaultValue: "Guest Day Pass",
     order: 10
@@ -99,7 +99,7 @@ const schema: SchemaType<DbGardenCode> = {
   endTime: {
     type: Date,
     viewableBy: ['guests'],
-    // editableBy: ['members'],
+    editableBy: ['admins'],
     // insertableBy: ['members'],
     control: 'datetime',
     label: "End Time",
@@ -108,6 +108,15 @@ const schema: SchemaType<DbGardenCode> = {
     onInsert: (gardenCode) => {
       return moment(gardenCode.startTime).add(4, 'hours').toDate()
     }
+  },
+  fbLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    label: "FB Event Link",
+    optional: true,
+    order: 25
   },
   type: {
     type: String,
