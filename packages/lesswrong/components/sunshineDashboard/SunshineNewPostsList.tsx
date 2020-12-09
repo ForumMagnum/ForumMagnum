@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
@@ -12,12 +11,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewPostsList = ({ terms, classes }: {
-  terms: any,
+  terms: PostsViewTerms,
   classes: ClassesType,
 }) => {
   const { results, totalCount } = useMulti({
     terms,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     enableTotal: true,
   });

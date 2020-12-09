@@ -123,7 +123,7 @@ const PostsPagePostHeader = ({post, classes}: {
   const wordCount = post.contents?.wordCount || 0
   
   return <>
-    {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+    {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       <PostsTopSequencesNav post={post} />
     </AnalyticsContext>

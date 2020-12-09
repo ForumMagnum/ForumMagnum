@@ -212,7 +212,7 @@ class FormWrapper extends PureComponent<any> {
 
     // options for withCreate, withUpdate, and withDelete HoCs
     const mutationOptions = {
-      collection: this.props.collection,
+      collectionName: this.props.collection.collectionName,
       fragment: mutationFragment,
       extraVariables
     };

@@ -13,8 +13,7 @@ import * as _ from 'underscore';
 interface ExternalProps {
   user: SuggestAlignmentUser,
 }
-interface AFSuggestUsersItemProps extends ExternalProps, WithUserProps, WithHoverProps{
-  updateUser: any,
+interface AFSuggestUsersItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithUpdateUserProps {
 }
 interface AFSuggestUsersItemState {
   show: boolean,
@@ -27,7 +26,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
 
   handleReview = () => {
     const { currentUser, user, updateUser } = this.props
-    updateUser({
+    void updateUser({
       selector: { _id: user._id },
       data: {
         reviewForAlignmentForumUserId: currentUser!._id,
@@ -39,7 +38,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
 
   handleIgnore = () => {
     const { currentUser, user, updateUser } = this.props
-    updateUser({
+    void updateUser({
       selector: { _id: user._id },
       data: { reviewForAlignmentForumUserId: currentUser!._id }
     })

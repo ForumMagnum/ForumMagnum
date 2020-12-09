@@ -4,7 +4,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import type { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
-import { userGroups, userCanDo } from '../../vulcan-users/permissions';
+import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
 
 const schema: SchemaType<DbTagFlag> = {
@@ -58,7 +58,7 @@ const adminActions = [
   'tagFlags.edit.all',
 ];
 
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
 const options = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {

@@ -43,7 +43,7 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
-import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate, getCollection } from '../vulcan-lib';
 import { pluralize } from '../vulcan-lib/utils';
 
 function getGraphQLQueryFromOptions({
@@ -216,7 +216,31 @@ export function withMulti({
   );
 }
 
-export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
+export interface UseMultiOptions<
+  FragmentTypeName extends keyof FragmentTypes,
+  CollectionName extends CollectionNameString
+> {
+  terms: ViewTermsByCollectionName[CollectionName],
+  extraVariablesValues?: any,
+  pollInterval?: number,
+  enableTotal?: boolean,
+  enableCache?: boolean,
+  extraQueries?: any,
+  extraVariables?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  nextFetchPolicy?: WatchQueryFetchPolicy,
+  collectionName: CollectionNameString,
+  fragmentName: FragmentTypeName,
+  limit?: number,
+  itemsPerPage?: number,
+  skip?: boolean,
+  queryLimitName?: string,
+}
+
+export function useMulti<
+  FragmentTypeName extends keyof FragmentTypes,
+  CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
+>({
   terms,
   extraVariablesValues,
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
@@ -226,30 +250,13 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
-  collectionName, collection,
+  collectionName,
   fragmentName, //fragment,
   limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
   itemsPerPage = 10,
   skip = false,
   queryLimitName,
-}: {
-  terms: any,
-  extraVariablesValues?: any,
-  pollInterval?: number,
-  enableTotal?: boolean,
-  enableCache?: boolean,
-  extraQueries?: any,
-  extraVariables?: any,
-  fetchPolicy?: WatchQueryFetchPolicy,
-  nextFetchPolicy?: WatchQueryFetchPolicy,
-  collectionName?: CollectionNameString,
-  collection?: CollectionBase<any>,
-  fragmentName: FragmentTypeName,
-  limit?: number,
-  itemsPerPage?: number,
-  skip?: boolean,
-  queryLimitName?: string,
-}): {
+}: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
@@ -270,7 +277,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);
   
-  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  const collection = getCollection(collectionName);
   const fragment = getFragment(fragmentName);
   
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });

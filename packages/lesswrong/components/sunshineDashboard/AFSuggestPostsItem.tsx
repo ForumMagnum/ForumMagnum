@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -107,7 +106,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 const AFSuggestPostsItemComponent = registerComponent<ExternalProps>('AFSuggestPostsItem', AFSuggestPostsItem, {
   hocs: [
     withUpdate({
-      collection: Posts,
+      collectionName: "Posts",
       fragmentName: 'SuggestAlignmentPost',
     }),
     withUser,

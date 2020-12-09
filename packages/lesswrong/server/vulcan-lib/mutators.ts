@@ -63,8 +63,8 @@ export const createMutator = async <T extends DbObject>({
   context,
 }: {
   collection: CollectionBase<T>,
-  document: Partial<T>,
-  data?: Partial<T>,
+  document: Partial<DbInsertion<T>>,
+  data?: Partial<DbInsertion<T>>,
   currentUser?: DbUser|null,
   validate?: boolean,
   context?: ResolverContext,
@@ -95,9 +95,10 @@ export const createMutator = async <T extends DbObject>({
 
   */
   const properties: CreateCallbackProperties<T> = {
-    data, currentUser, collection, context,
-    document: document as T, // Pretend this isn't Partial<T>
-    newDocument: document as T, // Pretend this isn't Partial<T>
+    data: data as unknown as T, // Pretend this isn't Partial<T>
+    currentUser, collection, context,
+    document: document as unknown as T, // Pretend this isn't Partial<T>
+    newDocument: document as unknown as T, // Pretend this isn't Partial<T>
     schema
   };
 
@@ -117,7 +118,7 @@ export const createMutator = async <T extends DbObject>({
     });
     // OpenCRUD backwards compatibility
     document = await hooks.newValidate.runCallbacks({
-      iterator: document as T, // Pretend this isn't Partial<T>
+      iterator: document as DbInsertion<T>, // Pretend this isn't Partial<T>
       properties: [currentUser, validationErrors],
       ignoreExceptions: false,
     });
@@ -177,27 +178,27 @@ export const createMutator = async <T extends DbObject>({
 
   */
   document = await hooks.createBefore.runCallbacks({
-    iterator: document as T, // Pretend this isn't Partial<T>
+    iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [properties],
-  });
+  }) as unknown as Partial<DbInsertion<T>>;
   // OpenCRUD backwards compatibility
   document = await hooks.newBefore.runCallbacks({
-    iterator: document as T, // Pretend this isn't Partial<T>
+    iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [
       currentUser
     ]
-  });
+  }) as unknown as Partial<DbInsertion<T>>;
   document = await hooks.newSync.runCallbacks({
-    iterator: document as T, // Pretend this isn't Partial<T>
+    iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [currentUser]
-  });
+  }) as unknown as Partial<DbInsertion<T>>;
 
   /*
 
   DB Operation
 
   */
-  document._id = await Connectors.create(collection, document as T);
+  document._id = await Connectors.create(collection, document as unknown as T);
 
   /*
 
@@ -206,19 +207,20 @@ export const createMutator = async <T extends DbObject>({
   */
   // run any post-operation sync callbacks
   document = await hooks.createAfter.runCallbacks({
-    iterator: document as T, // Pretend this isn't Partial<T>
+    iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [properties],
-  });
+  }) as unknown as DbInsertion<T>;
   // OpenCRUD backwards compatibility
   document = await hooks.newAfter.runCallbacks({
-    iterator: document as T, // Pretend this isn't Partial<T>
+    iterator: document as unknown as T, // Pretend this isn't Partial<T>
     properties: [currentUser]
-  });
+  }) as unknown as DbInsertion<T>;
 
   // note: query for document to get fresh document with collection-hooks effects applied
+  let completedDocument: T = document as unknown as T;
   const queryResult = await Connectors.get(collection, document._id);
   if (queryResult)
-    document = queryResult;
+    completedDocument = queryResult;
 
   /*
 
@@ -227,16 +229,16 @@ export const createMutator = async <T extends DbObject>({
   */
   // note: make sure properties.document is up to date
   await hooks.createAsync.runCallbacksAsync(
-    [{ ...properties, document: document as T }],
+    [{ ...properties, document: completedDocument as T }],
   );
   // OpenCRUD backwards compatibility
   await hooks.newAsync.runCallbacksAsync([
-    document as T, // Pretend this isn't Partial<T>
+    completedDocument,
     currentUser,
     collection
   ]);
 
-  return { data: document as T };
+  return { data: completedDocument };
 };
 
 //
@@ -261,8 +263,8 @@ export const updateMutator = async <T extends DbObject>({
   collection: CollectionBase<T>,
   documentId: string,
   selector?: any,
-  data?: Partial<T>,
-  set?: Partial<T>,
+  data?: Partial<DbInsertion<T>>,
+  set?: Partial<DbInsertion<T>>,
   unset?: any,
   currentUser?: DbUser|null,
   validate?: boolean,

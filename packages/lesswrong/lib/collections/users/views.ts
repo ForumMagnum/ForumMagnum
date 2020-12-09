@@ -5,6 +5,23 @@ import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 
+declare global {
+  interface UsersViewTerms extends ViewTermsBase {
+    view: UsersViewName
+    sort?: {
+      createdAt?: number,
+      karma?: number,
+      postCount?: number,
+      commentCount?: number,
+      afKarma?: number,
+      afPostCount?: number,
+      afCommentCount?: number,
+    },
+    userId?: string,
+    slug?: string,
+  }
+}
+
 // Auto-generated indexes from production
 ensureIndex(Users, {username:1}, {unique:true,sparse:1});
 ensureIndex(Users, {"emails.address":1}, {unique:true,sparse:1});
@@ -24,7 +41,7 @@ ensureIndex(Users, {isAdmin:1});
 ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {createdAt:-1,_id:-1});
 
-const termsToMongoSort = (terms: any) => {
+const termsToMongoSort = (terms: UsersViewTerms) => {
   if (!terms.sort)
     return undefined;
   
@@ -37,7 +54,7 @@ const termsToMongoSort = (terms: any) => {
   );
 }
 
-Users.addView('usersProfile', function(terms) {
+Users.addView('usersProfile', function(terms: UsersViewTerms) {
   if (terms.userId) {
     return {
       selector: {_id:terms.userId}
@@ -51,7 +68,7 @@ Users.addView('usersProfile', function(terms) {
 
 ensureIndex(Users, {oldSlugs:1});
 
-Users.addView('LWSunshinesList', function(terms) {
+Users.addView('LWSunshinesList', function(terms: UsersViewTerms) {
   return {
     selector: {groups:'sunshineRegiment'},
     options: {
@@ -60,7 +77,7 @@ Users.addView('LWSunshinesList', function(terms) {
   }
 });
 
-Users.addView('LWTrustLevel1List', function(terms) {
+Users.addView('LWTrustLevel1List', function(terms: UsersViewTerms) {
   return {
     selector: {groups:'trustLevel1'},
     options: {
@@ -69,7 +86,7 @@ Users.addView('LWTrustLevel1List', function(terms) {
   }
 });
 
-Users.addView('LWUsersAdmin', terms => ({
+Users.addView('LWUsersAdmin', (terms: UsersViewTerms) => ({
   options: {
     sort: termsToMongoSort(terms),
   }
@@ -83,7 +100,7 @@ Users.addView("usersWithBannedUsers", function () {
   }
 })
 
-Users.addView("sunshineNewUsers", function (terms) {
+Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
     selector: {
       needsReview: true,
@@ -102,7 +119,7 @@ Users.addView("sunshineNewUsers", function (terms) {
 })
 ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
 
-Users.addView("allUsers", function (terms) {
+Users.addView("allUsers", function (terms: UsersViewTerms) {
   return {
     options: {
       sort: {

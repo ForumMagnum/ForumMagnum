@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import withHover from '../common/withHover'
@@ -72,7 +71,7 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
 const SunshineNewCommentsItemComponent = registerComponent<ExternalProps>('SunshineNewCommentsItem', SunshineNewCommentsItem, {
   hocs: [
     withUpdate({
-      collection: Comments,
+      collectionName: 'Comments',
       fragmentName: 'CommentsListWithParentMetadata',
     }),
     withUser, withHover(), withErrorBoundary

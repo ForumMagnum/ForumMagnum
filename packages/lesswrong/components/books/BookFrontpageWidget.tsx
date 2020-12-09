@@ -128,31 +128,58 @@ const BookFrontpageWidget = ({ classes }: {
       });
     }
   }
+
+  const BookMarketingText = ({title, subtitle, description, buttons}) => {
+    return <div className={classes.bookExplanation}>
+      <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
+      <h1 className={classes.mainHeading}>
+        {title}
+      </h1>
+      <h4 className={classes.secondaryHeading}>
+        {subtitle}
+      </h4>
+      <p className={classes.descriptionText}>
+        {description}
+      </p>
+      <div className={classes.buttonRow}>
+        {buttons}
+      </div>
+      <div className={classes.disclaimerRow}>
+        *Guaranteed delivery to North America before Christmas. We'll try our best with the rest.
+      </div>
+    </div>
+  }
+
   return (
     <div className={classes.root}>
-      <BookAnimation>
-        <div className={classes.bookExplanation}>
-          <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
-          <h1 className={classes.mainHeading}>
-            A Map that Reflects the Territory
-          </h1>
-          <h4 className={classes.secondaryHeading}>
-            The best new essays from LessWrong in a set of physical books
-          </h4>
-          <p className={classes.descriptionText}>
-            A beautifully designed collection of books, each small enough to fit in your pocket. The book set contains over forty chapters by more than twenty authors including Eliezer Yudkowsky and Scott Alexander. This is a collection of opinionated essays exploring argument, aesthetics, game theory, artificial intelligence, introspection, markets, and more, as part of LessWrong's mission to understand the laws that govern reasoning and decision-making, and build a map that reflects the territory.
-          </p>
-          <div className={classes.buttonRow}>
+      <BookAnimation successContent={
+        <BookMarketingText 
+          title={"Thank you!"}
+          subtitle={"You will receive a confirmation email imminently."}
+          description={<> 
+            <Link to="/posts/QB6BkkpwiecfF6Ekq/thanksgiving-prayer">Dear Global Economy</Link>, we thank thee for thy economies of scale, thy professional specialization, and thy international networks of trade under Ricardo's Law of Comparative Advantage, without which we would all starve to death while trying to assemble the ingredients for such a [book] as this.  Amen. 
+          </>}
+          buttons={<>
+            <div className={classes.mobileCloseButton} onClick={hideClickHandler}>Hide</div>
+            <Link className={classes.learnMore} to="/books">
+              Learn More
+            </Link>
+            <BookCheckout ignoreMessages text={"Buy Another Book"}/>
+          </>}
+        />
+      }>
+        <BookMarketingText 
+          title={"A Map that Reflects the Territory"} 
+          subtitle={"The best LessWrong essays from 2018, in a set of physical books"}
+          description={"A beautifully designed collection of books, each small enough to fit in your pocket. The book set contains over forty chapters by more than twenty authors including Eliezer Yudkowsky and Scott Alexander. This is a collection of opinionated essays exploring argument, aesthetics, game theory, artificial intelligence, introspection, markets, and more, as part of LessWrong's mission to understand the laws that govern reasoning and decision-making, and build a map that reflects the territory."}
+          buttons={<>
             <div className={classes.mobileCloseButton} onClick={hideClickHandler}>Hide</div>
             <Link className={classes.learnMore} to="/books">
               Learn More
             </Link>
             <BookCheckout />
-          </div>
-          <div className={classes.disclaimerRow}>
-            *Guaranteed delivery to North America before Christmas. We'll try our best with the rest.
-          </div>
-        </div>
+          </>}
+        />
       </BookAnimation>
     </div>
   )

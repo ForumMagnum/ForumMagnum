@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -31,10 +31,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ mapText, setMapText ] = useState(mapMarkerText || bio)
   
-  const { mutate } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  })
+  const updateCurrentUser = useUpdateCurrentUser()
   
   if (!currentUser)
     return null;
@@ -73,13 +70,13 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
           />
         <DialogActions className={classes.actions}>
           {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
-            void mutate({selector: {_id: currentUser._id}, data: {mapLocation: null}})
+            void updateCurrentUser({mapLocation: null})
             onClose()
           }}>
             Remove me from the map
           </a>}
           <a className={classes.submitButton} onClick={()=>{
-            void mutate({selector: {_id: currentUser._id}, data: {mapLocation: location, mapMarkerText: mapText}})
+            void updateCurrentUser({mapLocation: location, mapMarkerText: mapText})
             onClose()
           }}>
             Submit

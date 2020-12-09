@@ -3,7 +3,7 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker, FrontpageReviewPhase, BookFrontpageWidget } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, FrontpageReviewPhase, BookFrontpageWidget, RecommendationsAndCurated } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">

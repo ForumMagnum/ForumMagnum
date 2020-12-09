@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles =>  ({
   root: {
@@ -13,13 +12,13 @@ const styles = (theme: ThemeType): JssStyles =>  ({
 
 const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType,
-  terms: any,
+  terms: CommentsViewTerms,
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: false,
   });
@@ -35,12 +34,14 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
+            treeOptions={{
+              condensed: false,
+              post: comment.post || undefined,
+              showPostTitle: true,
+            }}
             comment={comment}
-            post={comment.post || undefined}
-            showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine
-            condensed={false}
           />
         </div>
       )}

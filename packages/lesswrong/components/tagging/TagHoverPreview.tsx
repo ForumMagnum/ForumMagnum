@@ -31,7 +31,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}
   postCount?: number
 }) => {
   const { params: {slug} } = targetLocation;
-  const { tag } = useTagBySlug(slug, "TagFragment");
+  const { tag } = useTagBySlug(slug, "TagPreviewFragment");
   const { PopperCard, TagPreview, Loading } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query

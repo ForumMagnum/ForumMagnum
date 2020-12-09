@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import Messages from "../../lib/collections/messages/collection";
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import Card from '@material-ui/core/Card';
 
@@ -40,7 +39,7 @@ const ConversationPreview = ({conversationId, currentUser, classes}: {
       view: 'conversationPreview', 
       conversationId: conversationId
     },
-    collection: Messages,
+    collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 10,
