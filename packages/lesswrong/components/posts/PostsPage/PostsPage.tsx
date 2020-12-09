@@ -167,7 +167,7 @@ class PostsPage extends Component<PostsPageProps> {
               <div className={classes.content}>
                 <div className={classes.centralColumn}>
                   {/* Body */}
-                  { post.isEvent && <Components.SmallMapPreview post={post} /> }
+                  { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
                   <div className={classes.postContent}>
                     <PostBodyPrefix post={post} query={query}/>
                     

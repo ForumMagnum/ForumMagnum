@@ -208,13 +208,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const BookAnimation = ({ classes, children }: {
+const BookAnimation = ({ classes, children, successContent }: {
   classes: ClassesType,
-  children: any
+  children: any,
+  successContent?: any
 }) => {
   const { query } = useLocation();
+  const success = !!query.success
   return (
-    <div className={classNames(classes.root, {[classes.success]: !!query.success || !!query.cancelled})}>
+    <div className={classNames(classes.root, {[classes.success]: success})}>
       <div className="parent-container">
         <div className="book-container epistemology">
           <div className="book">
@@ -252,7 +254,7 @@ const BookAnimation = ({ classes, children }: {
           </div>
         </div>
         <div className={classes.revealedContent}>
-          {children}
+          { success ? (successContent || children) : children}
         </div>
       </div>
     </div>

@@ -77,6 +77,9 @@ export const filters: Record<string,any> = {
   "untagged": {
     tagRelevance: {}
   },
+  "unnominated2019": {
+    nominationCount2019: 0
+  },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
     baseScore: {$gt: 25},
@@ -797,7 +800,7 @@ Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
     },
     options: {
       sort: {
-        startTime: -1,
+        startTime: 1,
         createdAt: null,
         _id: null
       }
@@ -1093,6 +1096,24 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
     },
     options: {
       sort: { ...(terms.sortBy ? sortings[terms.sortBy] : undefined), nominationCount2018: -1 }
+    }
+  }
+})
+
+Posts.addView("reviews2019", terms => {
+  
+  const sortings = {
+    "fewestReviews" : {reviewCount2019: 1},
+    "mostReviews" : {reviewCount2019: -1},
+    "lastCommentedAt" :  {lastCommentedAt: -1}
+  }
+
+  return {
+    selector: {
+      nominationCount2019: { $gte: 2 }
+    },
+    options: {
+      sort: { ...sortings[terms.sortBy], nominationCount2019: -1 }
     }
   }
 })

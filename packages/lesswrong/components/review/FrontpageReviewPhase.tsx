@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
+import { eligibleToNominate } from './NominatePostMenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -41,16 +42,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: 'rgba(127, 175, 131, 0.75)'
+    backgroundColor: 'rgba(127, 175, 131, 0.5)'
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: 'rgba(127, 175, 131, 0.7)'
   },
-  nominationDate: {}
+  nominationDate: {},
+  actionButtonRow: {
+    textAlign: "right",
+    display: "block",
+    marginTop: 8
+  },
+  actionButton: {
+    backgroundColor: theme.palette.primary.main,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderRadius: 3,
+    color: "white",
+    ...theme.typography.commentStyle,
+    display: "inline-block"
+  }
 })
 
 export const reviewAlgorithm: RecommendationsAlgorithm = {
@@ -70,7 +87,7 @@ export const reviewAlgorithm: RecommendationsAlgorithm = {
 
 const FrontpageReviewPhase = ({classes}) => {
   const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip, GatherTown } = Components
-  // const currentUser = useCurrentUser();
+  const currentUser = useCurrentUser();
 
   const overviewToolip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2019, in three phases</div>
@@ -129,18 +146,20 @@ const FrontpageReviewPhase = ({classes}) => {
     return ((fractionDate.getTime() - startDate.getTime())/(endDate.getTime() - startDate.getTime())*100).toFixed(2)
   }
 
+  const all2019Url = "/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top&filter=unnominated2019"
+
   return (
     <SingleColumnSection>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
+      <AnalyticsContext pageSectionContext="gatherTownWelcome">
         <GatherTown/>
-      </AnalyticsContext>}
+      </AnalyticsContext>
       <SectionTitle 
         title={<LWTooltip title={overviewToolip} placement="bottom-start">
           <Link to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}>The 2019 Review</Link>
         </LWTooltip>}
       >
         <LWTooltip title="All Posts written in 2019 are eligible to participate in the review. Click here to see all posts written in 2019.">
-          <Link to={"/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top"}><SettingsButton showIcon={false} label="See All 2019 Posts"/></Link>
+          <Link to={all2019Url}><SettingsButton showIcon={false} label="See All 2019 Posts"/></Link>
         </LWTooltip>
       </SectionTitle>
       <div className={classes.reviewTimeline}>
@@ -176,14 +195,11 @@ const FrontpageReviewPhase = ({classes}) => {
       <AnalyticsContext listContext={"LessWrong 2019 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} />
       </AnalyticsContext>
-      {/* <SectionFooter>
-        <Link to={"/reviews"}>
-          All 2019 Posts
+      {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+        <Link to={all2019Url} className={classes.actionButton}>
+          Nominate 2019 Posts
         </Link>
-        <Link>
-          Grouped by month 
-        </Link>
-      </SectionFooter> */}
+      </div>}
     </SingleColumnSection>
   )
 }
