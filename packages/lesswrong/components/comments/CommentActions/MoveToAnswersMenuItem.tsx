@@ -1,23 +1,25 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
-import { withUpdate } from '../../../lib/crud/withUpdate';
-import { withMessages } from '../../common/withMessages';
+import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
-import { Comments } from "../../../lib/collections/comments";
-import withUser from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
 
-interface ExternalProps {
+const MoveToAnswersMenuItem = ({comment, post, client}: {
   comment: CommentsList,
   post: PostsBase,
-}
-interface MoveToAnswersMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateCommentProps, WithApolloProps {
-}
-class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}> {
-
-  handleMoveToAnswers = async () => {
-    const { comment, updateComment, client, flash } = this.props
+  client?: any, //From withApollo
+}) => {
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
+  const {mutate: updateComment} = useUpdate({
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+  });
+  
+  const handleMoveToAnswers = async () => {
     await updateComment({
       selector: { _id: comment._id},
       data: {
@@ -28,8 +30,7 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
     client.resetStore()
   }
 
-  handleMoveToComments = async () => {
-    const { comment, updateComment, client, flash } = this.props
+  const handleMoveToComments = async () => {
     await updateComment({
       selector: { _id: comment._id},
       data: {
@@ -40,39 +41,30 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
     client.resetStore()
   }
 
-  render() {
-    const { currentUser, comment, post } = this.props
-    if (!comment.topLevelCommentId && post.question &&
-        (userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment))) {
-
-        if (comment.answer) {
-          return (
-            <MenuItem onClick={this.handleMoveToComments}>
-              Move To Comments
-            </MenuItem>
-          )
-        } else {
-          return (
-            <MenuItem onClick={this.handleMoveToAnswers}>
-              Move To Answers
-            </MenuItem>
-          )
-        }
+  if (!comment.topLevelCommentId && post.question &&
+    (userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment)))
+  {
+    if (comment.answer) {
+      return (
+        <MenuItem onClick={handleMoveToComments}>
+          Move To Comments
+        </MenuItem>
+      )
     } else {
-      return null
+      return (
+        <MenuItem onClick={handleMoveToAnswers}>
+          Move To Answers
+        </MenuItem>
+      )
     }
+  } else {
+    return null
   }
 }
 
-const MoveToAnswersMenuItemComponent = registerComponent<ExternalProps>(
+const MoveToAnswersMenuItemComponent = registerComponent(
   'MoveToAnswersMenuItem', MoveToAnswersMenuItem, {
-    hocs: [
-      withUser, withApollo, withMessages,
-      withUpdate({
-        collection: Comments,
-        fragmentName: 'CommentsList',
-      }),
-    ]
+    hocs: [withApollo]
   }
 );
 

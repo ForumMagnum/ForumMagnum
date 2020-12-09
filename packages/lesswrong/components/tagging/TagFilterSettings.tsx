@@ -82,7 +82,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       view: "suggestedFilterTags",
     },
     collectionName: "Tags",
-    fragmentName: "TagFragment",
+    fragmentName: "TagPreviewFragment",
     limit: 100,
   });
 
@@ -159,7 +159,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   </span>
 }
 
-const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagFragment>): FilterSettings => {
+const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
   const tagsIncluded: Record<string,boolean> = {};
   for (let tag of oldFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
@@ -169,7 +169,7 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
     ...oldFilterSettings,
     tags: [
       ...oldFilterSettings.tags,
-      ...tagsNotIncluded.map((tag: TagFragment): FilterTag => ({
+      ...tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
         tagId: tag._id,
         tagName: tag.name,
         filterMode: "Default",

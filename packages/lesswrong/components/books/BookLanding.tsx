@@ -2,6 +2,7 @@ import React from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import {captureEvent, useTracking} from "../../lib/analyticsEvents";
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
@@ -17,7 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`,
     lineHeight: '1.45',
     color: 'rgba(0,0,0,0.7)',
-    textAlign: "justify"
+    textAlign: "justify",
+    '& a': {
+      color: theme.palette.primary.main
+    }
   },
 
   bookAnimationContainer: {
@@ -289,6 +293,8 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   accentColor: string,
   bodyText: JSX.Element
 }) => {
+  
+  const { captureEvent } = useTracking()
 
   return (
     <div>
@@ -351,7 +357,7 @@ const BookLanding = ({classes}: {
           <div className={classes.bookSummary}>
             <p className={classes.body}>
               {lw()} is a community blog devoted to refining the art of human rationality.
-              This is a collection of our best essays from 2018. It contains over 40 redesigned graphs,
+              This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
               packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
             </p>
             <div className={classes.buyButton}>
@@ -459,14 +465,20 @@ const BookLanding = ({classes}: {
         bigQuoteAuthor=''
         accentColor="#e8b10e"
         bodyText={<div className={classes.sampleButtonWrapper}>
-          <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+          <button className={classes.sampleButton} type="button" onClick={() => {
+            captureEvent("readSampleClicked")
+            window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")
+          }}>
             Read a sample chapter
           </button>
         </div>}
       />
 
       <div className={classes.mobileSampleButton}>
-        <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+        <button className={classes.sampleButton} type="button" onClick={() => {
+          captureEvent("readSampleClicked")
+          window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")
+        }}>
           Read a sample chapter
         </button>
       </div>

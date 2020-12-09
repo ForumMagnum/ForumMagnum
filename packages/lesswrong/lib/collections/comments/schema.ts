@@ -1,6 +1,6 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
-import { Posts } from '../posts/collection'
+import { mongoFindOne } from '../../mongoQueries';
 import { commentGetPageUrl } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -228,7 +228,7 @@ const schema: SchemaType<DbComment> = {
       needsUpdate: data => ('postId' in data),
       getValue: async (comment: DbComment): Promise<boolean> => {
         if (!comment.postId) return false;
-        const post = await Posts.findOne({_id: comment.postId});
+        const post = await mongoFindOne("Posts", {_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
       }
@@ -271,7 +271,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     onCreate: async ({newDocument}) => {
       if (!newDocument.postId) return "1.0.0";
-      const post = await Posts.findOne({_id: newDocument.postId})
+      const post = await mongoFindOne("Posts", {_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
   },
@@ -305,7 +305,7 @@ const schema: SchemaType<DbComment> = {
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
         Utils.updateMutator({
-          collection: Posts,
+          collection: context.Posts,
           context,
           selector: {_id:document.postId},
           data: { lastCommentPromotedAt: new Date() },
@@ -348,7 +348,7 @@ const schema: SchemaType<DbComment> = {
       needsUpdate: data => ('postId' in data),
       getValue: async comment => {
         if (!comment.postId) return false;
-        const post = await Posts.findOne({_id: comment.postId});
+        const post = await mongoFindOne("Posts", {_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
       }

@@ -23,12 +23,13 @@ export const userGroups: Record<string,Group> = {};
 
 
 // Create a new group
-export const createGroup = (groupName: string): void => {
+export const createGroup = (groupName: string): Group => {
   userGroups[groupName] = new Group();
+  return userGroups[groupName];
 };
 
 // get a list of a user's groups
-export const userGetGroups = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
+export const userGetGroups = (user: UsersProfile|DbUser|null): Array<string> => {
   if (!user) { // guests user
     return ['guests'];
   } else {
@@ -47,7 +48,7 @@ export const userGetGroups = (user: UsersMinimumInfo|DbUser|null): Array<string>
 };
 
 // Get a list of all the actions a user can perform
-export const userGetActions = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
+export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> => {
   let groups = userGetGroups(user);
   if (!groups.includes('guests')) {
     // always give everybody permission for guests actions, too
@@ -72,7 +73,7 @@ export const userIsMemberOf = (user: UsersCurrent|DbUser|null, group: string): b
 };
 
 // Check if a user can perform at least one of the specified actions
-export const userCanDo = (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>): boolean => {
+export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: string|Array<string>): boolean => {
   const authorizedActions = userGetActions(user);
   const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
@@ -211,8 +212,8 @@ export const userCanUpdateField = function (user, field, document) {
 ////////////////////
 
 // initialize the 3 out-of-the-box groups
-createGroup('guests'); // non-logged-in users
-createGroup('members'); // regular users
+export const guestsGroup = createGroup('guests'); // non-logged-in users
+export const membersGroup = createGroup('members'); // regular users
 
 const membersActions = [
   'user.create',
@@ -224,7 +225,7 @@ const membersActions = [
 ];
 userGroups.members.can(membersActions);
 
-createGroup('admins'); // admin users
+export const adminsGroup = createGroup('admins'); // admin users
 
 const adminActions = [
   'user.create',

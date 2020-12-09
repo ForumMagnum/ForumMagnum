@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import moment from '../../lib/moment-timezone';
 
 export const POSTED_AT_WIDTH = 38
@@ -38,17 +38,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-interface ExternalProps {
+const PostsItemDate = ({post, classes}: {
   post: PostsBase,
-}
-interface PostsItemDateProps extends ExternalProps, WithHoverProps, WithStylesProps {
-}
-
-const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDateProps) => {
+  classes: ClassesType,
+}) => {
   const { PostsItem2MetaInfo, FormatDate, LWPopper } = Components;
+  const {eventHandlers, hover, anchorEl, stopHover} = useHover();
 
   if (post.isEvent && post.startTime) {
-    return <PostsItem2MetaInfo className={classes.startTime}>
+    return <span {...eventHandlers}><PostsItem2MetaInfo className={classes.startTime}>
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <span>
           <div className={classes.tooltipSmallText}>Event starts at</div>
@@ -56,20 +54,20 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDat
         </span>
       </LWPopper>
       <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
-    </PostsItem2MetaInfo>
+    </PostsItem2MetaInfo></span>
   }
 
   if (post.isEvent && !post.startTime) {
-    return <PostsItem2MetaInfo className={classes.startTime}>
+    return <span {...eventHandlers}><PostsItem2MetaInfo className={classes.startTime}>
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <span>To Be Determined</span>
       </LWPopper>
       <span>TBD</span>
-    </PostsItem2MetaInfo>
+    </PostsItem2MetaInfo></span>
   }
 
   if (post.curatedDate) {
-    return <PostsItem2MetaInfo className={classes.postedAt}>
+    return <span {...eventHandlers}><PostsItem2MetaInfo className={classes.postedAt}>
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <div>
           <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
@@ -77,21 +75,20 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDat
         </div>
       </LWPopper>
       <span>{moment(new Date(post.curatedDate)).fromNow()}</span>
-    </PostsItem2MetaInfo>
+    </PostsItem2MetaInfo></span>
   }
 
-  return <PostsItem2MetaInfo className={classes.postedAt}>
+  return <span {...eventHandlers}>
+    <PostsItem2MetaInfo className={classes.postedAt}>
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <ExpandedDate date={post.postedAt}/>
       </LWPopper>
       <span>{moment(new Date(post.postedAt)).fromNow()}</span>
     </PostsItem2MetaInfo>
+  </span>
 }
 
-const PostsItemDateComponent = registerComponent<ExternalProps>("PostsItemDate", PostsItemDate, {
-  styles,
-  hocs: [withHover()]
-});
+const PostsItemDateComponent = registerComponent("PostsItemDate", PostsItemDate, {styles});
 
 declare global {
   interface ComponentTypes {

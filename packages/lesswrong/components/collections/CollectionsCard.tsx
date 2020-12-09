@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/CoreReading';
 
@@ -83,7 +82,7 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   mergeTitle?: boolean,
   classes: ClassesType,
 }) => {
-  const { LinkCard, CloudinaryImage, UsersName } = Components;
+  const { LinkCard, CloudinaryImage, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>

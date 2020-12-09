@@ -1,5 +1,5 @@
 import Users from "../../../lib/collections/users/collection";
-import { addCallback } from '../../vulcan-lib';
+import { postsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
 
 async function PostsMoveToAFAddsAlignmentVoting (post: DbPost, oldPost: DbPost) {
   if (post.af && !oldPost.af) {
@@ -7,4 +7,4 @@ async function PostsMoveToAFAddsAlignmentVoting (post: DbPost, oldPost: DbPost) 
   }
 }
 
-addCallback("posts.alignment.async", PostsMoveToAFAddsAlignmentVoting);
+postsAlignmentAsync.add(PostsMoveToAFAddsAlignmentVoting);

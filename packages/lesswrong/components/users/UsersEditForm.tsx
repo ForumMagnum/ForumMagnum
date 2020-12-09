@@ -5,7 +5,6 @@ import Users from '../../lib/collections/users/collection';
 import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { Accounts } from '../../lib/meteorAccounts';
-import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
@@ -41,6 +40,7 @@ const UsersEditForm = ({terms, client, classes}: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
+  const { Typography } = Components;
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in

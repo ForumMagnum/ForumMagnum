@@ -76,7 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const TagsDetailsItem = ({tag, classes, showFlags = false, flagId, collapse = false }: {
-  tag: TagPreviewFragment | TagWithFlagsFragment,
+  tag: TagFragment | TagWithFlagsFragment,
   classes: ClassesType,
   showFlags?: boolean,
   flagId?: string,

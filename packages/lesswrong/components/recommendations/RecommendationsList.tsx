@@ -1,18 +1,14 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withRecommendations } from './withRecommendations';
+import { useRecommendations } from './withRecommendations';
 import { Typography } from '@material-ui/core'
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-interface ExternalProps {
-  algorithm: any,
-}
-interface RecommendationsListProps extends ExternalProps{
-  recommendations: Array<PostsList>|null,
-  recommendationsLoading: boolean,
-}
-
-const RecommendationsList = ({ recommendations, recommendationsLoading }: RecommendationsListProps) => {
+const RecommendationsList = ({algorithm}: {
+  algorithm: RecommendationsAlgorithm,
+}) => {
   const { PostsItem2, PostsLoading } = Components;
+  const {recommendationsLoading, recommendations} = useRecommendations(algorithm);
 
   if (recommendationsLoading || !recommendations)
     return <PostsLoading/>
@@ -25,9 +21,7 @@ const RecommendationsList = ({ recommendations, recommendationsLoading }: Recomm
   </div>
 }
 
-const RecommendationsListComponent = registerComponent<ExternalProps>('RecommendationsList', RecommendationsList, {
-  hocs: [withRecommendations]
-});
+const RecommendationsListComponent = registerComponent('RecommendationsList', RecommendationsList);
 
 declare global {
   interface ComponentTypes {

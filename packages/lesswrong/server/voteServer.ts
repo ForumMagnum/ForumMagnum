@@ -1,4 +1,5 @@
-import { Connectors, createMutator, updateMutator } from './vulcan-lib';
+import { Connectors } from './vulcan-lib/connectors';
+import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';

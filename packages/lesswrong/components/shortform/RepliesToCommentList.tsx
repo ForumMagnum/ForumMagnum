@@ -4,14 +4,17 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 
-const RepliesToCommentList = ({ terms, post, parentCommentId }: {
-  terms: CommentsViewTerms,
+const RepliesToCommentList = ({ post, parentCommentId }: {
   post: PostsBase,
   parentCommentId: string,
 }) => {
   const { CommentsList, Loading } = Components;
   const { loading, results } = useMulti({
-    terms,
+    terms: {
+      view: "repliesToCommentThread",
+      topLevelCommentId: parentCommentId,
+      limit: 500,
+    },
     collectionName: "Comments",
     fragmentName: "CommentsList",
   });
@@ -21,9 +24,11 @@ const RepliesToCommentList = ({ terms, post, parentCommentId }: {
   
   const nestedComments = unflattenComments(results);
   return <CommentsList
+    treeOptions={{
+      post,
+    }}
     totalComments={results.length}
     comments={nestedComments}
-    post={post}
     startThreadTruncated={true}
     defaultNestingLevel={2}
     parentCommentId={parentCommentId}

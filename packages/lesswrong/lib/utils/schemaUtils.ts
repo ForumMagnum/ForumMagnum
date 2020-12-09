@@ -4,6 +4,7 @@ import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
+import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 
 export interface CollectionFieldSpecification<T extends DbObject> {
@@ -11,6 +12,7 @@ export interface CollectionFieldSpecification<T extends DbObject> {
   optional?: boolean,
   defaultValue?: any,
   graphQLType?: string,
+  typescriptType?: string,
   resolveAs?: {
     type: string,
     fieldName?: string,
@@ -89,7 +91,8 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DataType>
 
-    const resolvedDoc = await context.loaders[collectionName].load(doc[fieldName])
+    const loader = context.loaders[collectionName] as DataLoader<string,DataType>;
+    const resolvedDoc: DataType|null = await loader.load(doc[fieldName])
     if (!resolvedDoc) {
       if (!nullable) {
         // eslint-disable-next-line no-console
@@ -119,7 +122,8 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const { currentUser } = context
     const collection = context[collectionName] as CollectionBase<DbType>
 
-    const resolvedDocs: Array<DbType> = await context.loaders[collectionName].loadMany(keys)
+    const loader = context.loaders[collectionName] as DataLoader<string,DbType>;
+    const resolvedDocs: Array<DbType> = await loader.loadMany(keys)
 
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
   }
@@ -251,6 +255,10 @@ export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>,
   }
   collection.addField(translatedFields);
 }
+
+// For auto-generated database type definitions, provides a (string) definition
+// of this field's type. Useful for fields that would otherwise be black-box types.
+SimpleSchema.extendOptions(['typescriptType'])
 
 // For denormalized fields, needsUpdate is an optional attribute that
 // determines whether the denormalization function should be rerun given

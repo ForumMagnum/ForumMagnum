@@ -69,7 +69,7 @@ const AllTagsPage = ({classes}: {
       wikiGrade: reverseWikiGradeDescriptions[wikiGrade]
     },
     collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
+    fragmentName: "TagFragment",
     limit: 20,
     itemsPerPage: 100,
   });

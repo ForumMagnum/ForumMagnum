@@ -48,14 +48,16 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
       </div>}
       <SubSection>
         <CommentsList
+          treeOptions={{
+            lastCommentId: lastCommentId,
+            hideSingleLineMeta: singleLine,
+            enableHoverPreview: false,
+            post: post,
+          }}
           comments={nestedComments}
           startThreadTruncated={true}
-          post={post}
-          lastCommentId={lastCommentId}
           forceSingleLine={singleLine}
           forceNotSingleLine={!singleLine}
-          hideSingleLineMeta={singleLine}
-          enableHoverPreview={false}
         />
       </SubSection>
     </div>

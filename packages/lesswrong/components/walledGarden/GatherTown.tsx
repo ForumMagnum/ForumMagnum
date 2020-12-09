@@ -4,14 +4,13 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { gatherIcon } from '../icons/gatherIcon';
 import { useMulti } from '../../lib/crud/withMulti';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { CAL_ID } from '../walledGarden/gardenCalendar';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
@@ -54,6 +53,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     marginRight: 24,
     marginLeft: 6,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   },
   hide: {
     position: 'absolute',
@@ -92,6 +94,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   allEvents: {
     fontSize: ".8em",
     fontStyle: "italic"
+  },
+  gardenCodesList: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 })
 
@@ -112,10 +119,7 @@ const GatherTown = ({classes}: {
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
 
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const { LWTooltip, AnalyticsTracker, GardenCodesList } = Components
 
@@ -125,20 +129,14 @@ const GatherTown = ({classes}: {
   if (currentUser.hideWalledGardenUI) return null
 
   const hideClickHandler = async () => {
-    await updateUser({
-      selector: { _id: currentUser._id },
-      data: {
-        hideWalledGardenUI: true
-      },
+    await updateCurrentUser({
+      hideWalledGardenUI: true
     })
     flash({
-      messageString: "Hid Walled Garden from frontpage",
+      messageString: "Hide Walled Garden from frontpage",
       type: "success",
-      action: () => void updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          hideWalledGardenUI: false
-        },
+      action: () => void updateCurrentUser({
+        hideWalledGardenUI: false
       })
     })
   }
@@ -154,8 +152,6 @@ const GatherTown = ({classes}: {
         Learn More
       </Link>
   </LWTooltip> : null
-
-  let eventTypes = currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']
 
   return (
     <div className={classes.root}>
@@ -174,8 +170,9 @@ const GatherTown = ({classes}: {
           No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        <GardenCodesList terms={{view:"semipublicGardenCodes", types: eventTypes}} />
-        <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
+        <div className={classes.gardenCodesList}>
+          <GardenCodesList limit={2}/>
+        </div>
       </div>
     </div>
   )

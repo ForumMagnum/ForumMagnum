@@ -6,6 +6,7 @@ import { forumTypeSetting } from '../../instanceSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
+import { postStatuses } from './constants';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -38,6 +39,7 @@ declare global {
     authorIsUnreviewed?: boolean|null,
     before?: Date|string|null,
     after?: Date|string|null,
+    timeField?: keyof DbPost,
   }
 }
 
@@ -74,6 +76,9 @@ export const filters: Record<string,any> = {
   },
   "untagged": {
     tagRelevance: {}
+  },
+  "unnominated2019": {
+    nominationCount2019: 0
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -125,7 +130,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params: any = {
     selector: {
-      status: Posts.config.STATUS_APPROVED,
+      status: postStatuses.STATUS_APPROVED,
       draft: false,
       isFuture: false,
       unlisted: false,
@@ -181,6 +186,24 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
       )
     }
   }
+  
+  if (terms.after || terms.before) {
+    let postedAt: any = {};
+
+    if (terms.after) {
+      postedAt.$gt = moment(terms.after).toDate();
+    }
+    if (terms.before) {
+      postedAt.$lt = moment(terms.before).toDate();
+    }
+
+    if (!_.isEmpty(postedAt) && !terms.timeField) {
+      params.selector.postedAt = postedAt;
+    } else if (!_.isEmpty(postedAt) && terms.timeField) {
+      params.selector[terms.timeField] = postedAt;
+    }
+  }
+  
   return params;
 })
 
@@ -569,7 +592,7 @@ Posts.addView("recentQuestionActivity", (terms: PostsViewTerms) => ({
  */
 Posts.addView("scheduled", (terms: PostsViewTerms) => ({
   selector: {
-    status: Posts.config.STATUS_APPROVED,
+    status: postStatuses.STATUS_APPROVED,
     isFuture: true
   },
   options: {
@@ -777,7 +800,7 @@ Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
     },
     options: {
       sort: {
-        startTime: -1,
+        startTime: 1,
         createdAt: null,
         _id: null
       }
@@ -1073,6 +1096,24 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
     },
     options: {
       sort: { ...(terms.sortBy ? sortings[terms.sortBy] : undefined), nominationCount2018: -1 }
+    }
+  }
+})
+
+Posts.addView("reviews2019", terms => {
+  
+  const sortings = {
+    "fewestReviews" : {reviewCount2019: 1},
+    "mostReviews" : {reviewCount2019: -1},
+    "lastCommentedAt" :  {lastCommentedAt: -1}
+  }
+
+  return {
+    selector: {
+      nominationCount2019: { $gte: 2 }
+    },
+    options: {
+      sort: { ...sortings[terms.sortBy], nominationCount2019: -1 }
     }
   }
 })

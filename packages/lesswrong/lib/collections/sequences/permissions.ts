@@ -1,4 +1,4 @@
-import { userGroups } from '../../vulcan-users/permissions';
+import { membersGroup, adminsGroup } from '../../vulcan-users/permissions';
 
 const membersActions = [
   'sequences.edit.own',
@@ -8,14 +8,14 @@ const membersActions = [
   'chapters.remote.own',
   'chapters.edit.own',
 ];
-userGroups.members.can(membersActions);
+membersGroup.can(membersActions);
 
 const adminActions= [
   'sequences.edit.all',
   'sequences.view.all',
   'sequences.new.all'
 ]
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
 // Ray 5/2/2018 – is this commented out code still relevant?
 

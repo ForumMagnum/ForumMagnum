@@ -27,13 +27,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const AnswersList = ({terms, post, classes}: {
-  terms: CommentsViewTerms,
+const MAX_ANSWERS_QUERIED = 100
+
+const AnswersList = ({post, classes}: {
   post: PostsList,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
-    terms,
+    terms: {
+      view: "questionAnswers",
+      postId: post._id,
+      limit: MAX_ANSWERS_QUERIED
+    },
     collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
@@ -57,12 +62,7 @@ const AnswersList = ({terms, post, classes}: {
   }
 };
 
-const AnswersListComponent = registerComponent('AnswersList', AnswersList, {
-  styles,
-  areEqual: {
-    terms: "deep",
-  }
-});
+const AnswersListComponent = registerComponent('AnswersList', AnswersList, {styles});
 
 declare global {
   interface ComponentTypes {

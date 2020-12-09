@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles =>  ({
   root: {
@@ -24,7 +23,7 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
     enableTotal: false,
   });
   if (!loadingInitial && results && !results.length) {
-    return (<Typography variant="body2">{noResultsMessage}</Typography>)
+    return (<Components.Typography variant="body2">{noResultsMessage}</Components.Typography>)
   }
   if (loadingInitial || !results) {
     return <Components.Loading />
@@ -35,12 +34,14 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
+            treeOptions={{
+              condensed: false,
+              post: comment.post || undefined,
+              showPostTitle: true,
+            }}
             comment={comment}
-            post={comment.post || undefined}
-            showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine
-            condensed={false}
           />
         </div>
       )}

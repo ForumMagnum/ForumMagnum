@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsStats = ({post, classes}: {
-  post: PostsBase,
+  post: PostsDetails,
   classes: ClassesType,
 }) => {
 

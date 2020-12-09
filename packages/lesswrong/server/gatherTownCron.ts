@@ -8,16 +8,15 @@ import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
 import { isProduction } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
 
-if (isProduction) {
+if (isProduction && forumTypeSetting.get() === "LessWrong") {
   addCronJob({
     name: 'gatherTownGetUsers',
-    schedule(parser) {
-      return parser.text(`every 3 minutes`);
-    },
+    interval: "every 3 minutes",
     job() {
       void pollGatherTownUsers();
     }

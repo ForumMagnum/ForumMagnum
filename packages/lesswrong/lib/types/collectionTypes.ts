@@ -5,7 +5,7 @@
  * was getting ignored by the type checker as an external library file, as
  * --skipLibCheck just ignores all .d.ts files.
  */
-import DataLoader from 'dataloader';
+import type DataLoader from 'dataloader';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -66,6 +66,8 @@ type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 
+type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
+
 interface ViewTermsBase {
   limit?: number
 }
@@ -110,15 +112,41 @@ interface HasCreatedAtType extends DbObject {
   createdAt: Date
 }
 
+export type AlgoliaDocument = {
+  _id: string,
+  [key: string]: any,
+}
+
 interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,
   currentUser: DbUser|null,
   locale: string,
-  loaders: Record<CollectionNameString, DataLoader<string,any>>
+  loaders: {
+    [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
+  }
   extraLoaders: Record<string,any>
 }
 
 type FragmentName = keyof FragmentTypes;
+
+interface EditableFieldContents {
+  html: string
+  wordCount: number
+  originalContents: any
+  editedAt: Date
+  userId: string
+  version: string
+  commitMessage?: string
+}
+
+// The subset of EditableFieldContents that you provide when creating a new document
+// or revision, ie, the parts of a revision which are not auto-generated.
+type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage">
+
+// For a DbObject, gets the field-names of all the make_editable fields.
+type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
+
+type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
 
 }

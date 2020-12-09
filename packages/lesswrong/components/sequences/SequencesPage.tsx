@@ -4,7 +4,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import NoSSR from 'react-no-ssr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
-import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import { postBodyStyles } from '../../themes/stylePiping'
@@ -107,7 +106,7 @@ const SequencesPage = ({ documentId, classes }: {
   }, []);
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
-    ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName, ContentItemBody } = Components
+    ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName, ContentItemBody, Typography } = Components
   if (document && document.isDeleted) return <h3>This sequence has been deleted</h3>
   if (loading || !document) return <Loading />
   if (edit) return (

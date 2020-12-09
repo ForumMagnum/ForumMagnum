@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
+import { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -12,16 +13,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, post, condensed, markAsRead, forceSingleLine, hideSingleLineMeta }: {
+const PostsItemNewCommentsWrapper = ({ terms, classes, title, post, treeOptions, forceSingleLine }: {
   terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
-  highlightDate: Date,
   post: PostsList,
-  condensed: boolean,
-  markAsRead: any,
+  treeOptions: CommentTreeOptions,
   forceSingleLine?: any,
-  hideSingleLineMeta?: boolean,
 }) => {
   const { loading, results } = useMulti({
     terms,
@@ -43,15 +41,14 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, pos
       <div>
         {title && <div className={classes.title}>{title}</div>}
         <CommentsList
+          treeOptions={{
+            ...treeOptions,
+            lastCommentId: lastCommentId,
+            post: post,
+          }}
           comments={nestedComments}
-          highlightDate={highlightDate}
           startThreadTruncated={true}
-          post={post}
-          lastCommentId={lastCommentId}
-          condensed={condensed}
           forceSingleLine={forceSingleLine}
-          hideSingleLineMeta={hideSingleLineMeta}
-          markAsRead={markAsRead}
         />
         {loading && <Loading/>}
       </div>
