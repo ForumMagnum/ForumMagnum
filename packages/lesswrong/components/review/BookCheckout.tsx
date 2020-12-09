@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
@@ -47,6 +48,7 @@ const Message = ({ message, classes }) => (
 );
 export default function BookCheckout({classes, ignoreMessages = false, text}: {classes: ClassesType, ignoreMessages?: boolean, text?: string}) {
   const [message, setMessage] = useState("");
+  const { captureEvent } = useTracking()
   useEffect(() => {
     // Check to see if this is a redirect back from Checkout
     const query = new URLSearchParams(window.location.search);
@@ -55,6 +57,7 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
     }
   }, []);
   const handleClick = async (event) => {
+    captureEvent("preOrderButtonClicked")
     const stripe = await stripePromise;
     if (stripe) {
       const response = await fetch("/create-session", {
