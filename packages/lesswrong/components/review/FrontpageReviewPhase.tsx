@@ -146,7 +146,7 @@ const FrontpageReviewPhase = ({classes}) => {
     return ((fractionDate.getTime() - startDate.getTime())/(endDate.getTime() - startDate.getTime())*100).toFixed(2)
   }
 
-  const all2019Url = "/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top"
+  const all2019Url = "/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top&filter=unnominated2019"
 
   return (
     <SingleColumnSection>
