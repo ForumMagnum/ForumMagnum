@@ -11,6 +11,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 1120,
     marginLeft: 'auto',
     marginRight: 'auto',
+    zIndex: theme.zIndexes.frontpageBooks,
+    position: "relative",
     '--book-animation-left-offset': '87.5px',
     '@media(max-width: 1375px)': {
       width: 'calc(100vw - 250px)',
