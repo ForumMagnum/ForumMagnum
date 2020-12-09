@@ -253,7 +253,7 @@ addRoute(
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
-    title: "Concepts Portal",
+    title: "Tags Portal",
   },
   {
     name: "Concepts",
