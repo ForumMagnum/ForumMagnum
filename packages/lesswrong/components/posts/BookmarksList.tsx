@@ -2,7 +2,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Users from '../../lib/collections/users/collection';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const BookmarksList = ({limit=50 }) => {
@@ -10,7 +9,7 @@ const BookmarksList = ({limit=50 }) => {
   const { PostsItem2, Loading } = Components
 
   const { document: user, loading } = useSingle({
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UserBookmarks',
     fetchPolicy: 'cache-then-network' as any, //FIXME
     documentId: currentUser!._id,
