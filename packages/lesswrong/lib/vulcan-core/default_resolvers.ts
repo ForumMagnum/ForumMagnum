@@ -4,7 +4,7 @@ Default list, single, and total resolvers
 
 */
 
-import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
+import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 
@@ -40,7 +40,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const { currentUser }: {currentUser: DbUser|null} = context;
 
         // get collection based on collectionName argument
-        const collection = context[collectionName] as CollectionBase<T>;
+        const collection = getCollection(collectionName);
 
         // get selector and options from terms and perform Mongo query
         const parameters = await collection.getParameters(terms, {}, context);
@@ -104,7 +104,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         }
 
         const { currentUser }: {currentUser: DbUser|null} = context;
-        const collection = context[collectionName] as CollectionBase<T>;
+        const collection = getCollection(collectionName);
 
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
