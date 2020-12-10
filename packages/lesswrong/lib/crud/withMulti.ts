@@ -42,7 +42,6 @@ import { useState } from 'react';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
-import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate, getCollection } from '../vulcan-lib';
 import { pluralize } from '../vulcan-lib/utils';
 import { useLocation, useNavigation } from '../routeUtil';
