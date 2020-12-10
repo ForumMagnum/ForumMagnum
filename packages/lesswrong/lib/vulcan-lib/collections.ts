@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
 import { getDefaultFragmentText, registerFragment } from './fragments';
-import { Collections } from './getCollection';
+import { registerCollection } from './getCollection';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
@@ -108,7 +108,7 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
 
 export const createCollection = (options: {
   typeName: string,
-  collectionName?: CollectionNameString,
+  collectionName: CollectionNameString,
   schema: any,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
@@ -118,7 +118,7 @@ export const createCollection = (options: {
 }): any => {
   const {
     typeName,
-    collectionName = getCollectionName(typeName),
+    collectionName,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
@@ -249,7 +249,7 @@ export const createCollection = (options: {
     return parameters;
   };
 
-  Collections.push(collection);
+  registerCollection(collection);
 
   return collection;
 };
