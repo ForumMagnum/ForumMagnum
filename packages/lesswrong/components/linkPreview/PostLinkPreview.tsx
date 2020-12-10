@@ -1,8 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
@@ -23,7 +21,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   const postID = targetLocation.params._id;
 
   const { document: post, error } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
@@ -43,7 +41,7 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
   const postID = targetLocation.params.postId;
 
   const { document: post, error } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
@@ -109,7 +107,7 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
   const commentId = targetLocation.params.commentId;
 
   const { document: post } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
@@ -175,7 +173,7 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}: {
 }) => {
 
   const { document: comment, error } = useSingle({
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: commentId,

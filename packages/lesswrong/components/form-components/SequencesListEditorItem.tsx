@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import Sequences from '../../lib/collections/sequences/collection';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
@@ -42,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SequencesListEditorItem = ({documentId, classes, ...props}) => {
   const { document, loading } = useSingle({
     documentId,
-    collection: Sequences,
+    collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
   });
   

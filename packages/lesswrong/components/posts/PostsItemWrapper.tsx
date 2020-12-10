@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
@@ -45,7 +44,7 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
   const { PostsTitle, PostsItem2MetaInfo, PostsUserAndCoauthors } = Components
   const { document, loading } = useSingle({
     documentId,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
   });
 

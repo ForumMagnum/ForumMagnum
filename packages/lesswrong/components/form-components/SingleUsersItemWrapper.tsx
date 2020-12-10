@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import Users from '../../lib/collections/users/collection';
 
 
 const SingleUsersItemWrapper = ({documentId, removeItem}: {
@@ -10,7 +9,7 @@ const SingleUsersItemWrapper = ({documentId, removeItem}: {
 }) => {
   const { document, loading } = useSingle({
     documentId,
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersProfile',
   });
   if (document && !loading) {
