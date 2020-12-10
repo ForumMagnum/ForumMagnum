@@ -30,6 +30,7 @@ const schema: SchemaType<DbVote> = {
   // The name of the collection the document belongs to
   collectionName: {
     type: String,
+    typescriptType: "CollectionNameString",
     canRead: ['guests'],
   },
 

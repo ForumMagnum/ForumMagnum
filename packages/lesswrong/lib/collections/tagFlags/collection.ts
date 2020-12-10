@@ -1,6 +1,7 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers, schemaDefaultValue } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import type { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
@@ -60,7 +61,7 @@ const adminActions = [
 
 adminsGroup.can(adminActions);
 
-const options = {
+const options: MutationOptions<DbTagFlag> = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
     if (!user || !document) return false;
     return userCanDo(user, `tagFlags.new`)

@@ -8,25 +8,19 @@ import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 
-const defaultOptions = {
+interface DefaultResolverOptions {
+  cacheMaxAge: number
+}
+
+const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
 
-// note: for some reason changing resolverOptions to "options" throws error
-export function getDefaultResolvers<T extends DbObject>(options) {
-  let typeName, collectionName, resolverOptions;
-  if (typeof arguments[0] === 'object') {
-    // new single-argument API
-    typeName = arguments[0].typeName;
-    collectionName = arguments[0].collectionName || getCollectionName(typeName);
-    resolverOptions = { ...defaultOptions, ...arguments[0].options };
-  } else {
-    // OpenCRUD backwards compatibility
-    collectionName = arguments[0];
-    typeName = getTypeName(collectionName);
-    resolverOptions = { ...defaultOptions, ...arguments[1] };
-  }
-
+export function getDefaultResolvers<N extends CollectionNameString>(collectionName: N, options?: Partial<DefaultResolverOptions>) {
+  type T = ObjectsByCollectionName[N]
+  const typeName = getTypeName(collectionName);
+  const resolverOptions = {...defaultOptions, options};
+  
   return {
     // resolver for returning a list of documents based on a set of query terms
 
@@ -46,7 +40,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         const { currentUser }: {currentUser: DbUser|null} = context;
 
         // get collection based on collectionName argument
-        const collection: CollectionBase<T> = context[collectionName];
+        const collection = context[collectionName] as CollectionBase<T>;
 
         // get selector and options from terms and perform Mongo query
         const parameters = await collection.getParameters(terms, {}, context);
@@ -110,7 +104,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         }
 
         const { currentUser }: {currentUser: DbUser|null} = context;
-        const collection: CollectionBase<T> = context[collectionName];
+        const collection = context[collectionName] as CollectionBase<T>;
 
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
