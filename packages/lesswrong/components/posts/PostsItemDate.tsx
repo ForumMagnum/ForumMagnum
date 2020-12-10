@@ -62,7 +62,7 @@ const PostsItemDate = ({post, classes}: {
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <span>To Be Determined</span>
       </LWPopper>
-      <span>TBD</span>
+      TBD
     </PostsItem2MetaInfo></span>
   }
 
@@ -74,7 +74,7 @@ const PostsItemDate = ({post, classes}: {
           <div>Posted on <ExpandedDate date={post.postedAt}/></div>
         </div>
       </LWPopper>
-      <span>{moment(new Date(post.curatedDate)).fromNow()}</span>
+      {moment(new Date(post.curatedDate)).fromNow()}
     </PostsItem2MetaInfo></span>
   }
 
@@ -83,7 +83,7 @@ const PostsItemDate = ({post, classes}: {
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <ExpandedDate date={post.postedAt}/>
       </LWPopper>
-      <span>{moment(new Date(post.postedAt)).fromNow()}</span>
+      {moment(new Date(post.postedAt)).fromNow()}
     </PostsItem2MetaInfo>
   </span>
 }

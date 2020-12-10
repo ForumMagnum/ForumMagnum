@@ -133,14 +133,13 @@ const Answer = ({ comment, post, classes }: {
           <Typography variant="body2" className={classes.deleted}>
             Answer was deleted
           </Typography>
-          <span className={classes.menu}>
-            <CommentsMenu
-              showEdit={setShowEditTrue}
-              comment={comment}
-              post={post}
-              icon={<MoreHorizIcon className={classes.menuIcon}/>}
-            />
-          </span>
+          <CommentsMenu
+            className={classes.menu}
+            showEdit={setShowEditTrue}
+            comment={comment}
+            post={post}
+            icon={<MoreHorizIcon className={classes.menuIcon}/>}
+          />
         </div>
         :
         <div>
@@ -156,14 +155,13 @@ const Answer = ({ comment, post, classes }: {
                 <span className={classes.vote}>
                   <SmallSideVote document={comment} collection={Comments}/>
                 </span>
-                <span className={classes.menu}>
-                  <CommentsMenu
-                    showEdit={setShowEditTrue}
-                    comment={comment}
-                    post={post}
-                    icon={<MoreHorizIcon className={classes.menuIcon}/>}
-                  />
-                </span>
+                <CommentsMenu
+                  className={classes.menu}
+                  showEdit={setShowEditTrue}
+                  comment={comment}
+                  post={post}
+                  icon={<MoreHorizIcon className={classes.menuIcon}/>}
+                />
               </div>
               { comment.promotedByUser && <div className={classes.metaNotice}>
                 Promoted by {comment.promotedByUser.displayName}
