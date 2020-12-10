@@ -10,6 +10,7 @@ import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
+import type { ApolloClient } from '@apollo/client';
 
 // import { debug } from './debug';
 
@@ -106,9 +107,9 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
-export const createCollection = (options: {
+export const createCollection = <N extends CollectionNameString>(options: {
   typeName: string,
-  collectionName?: CollectionNameString,
+  collectionName: N,
   schema: any,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
@@ -116,22 +117,23 @@ export const createCollection = (options: {
   resolvers?: any,
   mutations?: any,
 }): any => {
+  type T = ObjectsByCollectionName[N];
   const {
     typeName,
-    collectionName = getCollectionName(typeName),
+    collectionName,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
   } = options;
 
   // initialize new Mongo collection
-  const collection =
+  const collection: CollectionBase<T> =
     collectionName === 'Users' && meteorUsersCollection
       ? meteorUsersCollection
       : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
 
   // decorate collection with options
-  collection.options = options;
+  collection.options = options as any;
 
   // add typeName if missing
   collection.typeName = typeName;
@@ -144,7 +146,7 @@ export const createCollection = (options: {
   collection.options.collectionName = collectionName;
 
   // add views
-  collection.views = [];
+  collection.views = {};
 
   if (schema) {
     // attach schema to collection
@@ -152,7 +154,7 @@ export const createCollection = (options: {
   }
 
   // add collection to resolver context
-  const context = {};
+  const context: any = {};
   context[collectionName] = collection;
   addToGraphQLContext(context);
 
@@ -168,7 +170,7 @@ export const createCollection = (options: {
 
   // ------------------------------------- Parameters -------------------------------- //
 
-  collection.getParameters = (terms:any = {}, apolloClient, context) => {
+  collection.getParameters = ((terms: ViewTermsByCollectionName[N] = {}, apolloClient?: any, context?: ResolverContext): MergedViewQueryAndOptions<N,T> => {
     // console.log(terms);
 
     let parameters: any = {
@@ -211,7 +213,7 @@ export const createCollection = (options: {
 
     // if there is no sort, default to sorting by createdAt descending
     if (!parameters.options.sort) {
-      parameters.options.sort = { createdAt: -1 };
+      parameters.options.sort = { createdAt: -1 } as any;
     }
 
     // extend sort to sort posts by _id to break ties, unless there's already an id sort
@@ -247,7 +249,7 @@ export const createCollection = (options: {
     // console.log(parameters);
 
     return parameters;
-  };
+  }) as any;
 
   Collections.push(collection);
 

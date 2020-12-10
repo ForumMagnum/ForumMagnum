@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface RSSFeedsViewTerms extends ViewTermsBase {
-    view: RSSFeedsViewName
+    view?: RSSFeedsViewName
     userId?: string,
   }
 }

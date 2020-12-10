@@ -25,7 +25,7 @@ function generateCollectionType(collection: any): string {
   const collectionName = collection.collectionName;
   const typeName = collection.typeName;
   
-  sb.push(`interface ${collectionName}Collection extends CollectionBase<Db${typeName}> {\n`);
+  sb.push(`interface ${collectionName}Collection extends CollectionBase<Db${typeName}, "${collectionName}"> {\n`);
   sb.push("}\n\n");
   
   return sb.join('');

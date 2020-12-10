@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface RevisionsViewTerms extends ViewTermsBase {
-    view: RevisionsViewName
+    view?: RevisionsViewName
     documentId?: string
     fieldName?: string
   }

@@ -29,9 +29,11 @@ const defaultOptions = {
 
 const resolvers = {
   multi: {
-    async resolver(root, { input = {} }: any, context: ResolverContext, { cacheControl }) {
+    async resolver(root: void, args: {input: {terms?: UsersViewTerms, enableCache?: boolean, enableTotal?: boolean}}, context: ResolverContext, { cacheControl }) {
       const { currentUser, Users } = context;
-      const { terms = {}, enableCache = false, enableTotal = false } = input;
+      const input = args?.input || {};
+      const terms: UsersViewTerms = input.terms || {};
+      const { enableCache = false, enableTotal = false } = input;
 
       if (cacheControl && enableCache) {
         const maxAge = defaultOptions.cacheMaxAge;
