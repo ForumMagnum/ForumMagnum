@@ -295,14 +295,14 @@ export const hashedPetrovLaunchCodes = [
   "e8MeSpVel0bfJCC+MQSD7vLgFVDrTbVOeMzREeCEb0c=",
 ]
 
-Users.addView("areWeNuked", function () {
+/*Users.addView("areWeNuked", function () {
   return {
     selector: {
       petrovCodesEnteredHashed: {$in: hashedPetrovLaunchCodes}
     },
   }
 })
-ensureIndex(Users, {petrovCodesEnteredHashed: 1})
+ensureIndex(Users, {petrovCodesEnteredHashed: 1})*/
 
 
 
