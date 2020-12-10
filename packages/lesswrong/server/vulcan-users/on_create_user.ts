@@ -98,7 +98,7 @@ function onCreateUserCallback(options, user) {
     } else if (schemaField.onInsert) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
-      autoValue = schemaField.onInsert(clone(user));
+      autoValue = schemaField.onInsert(clone(user), user);
     }
     if (typeof autoValue !== 'undefined') {
       user[fieldName] = autoValue;
