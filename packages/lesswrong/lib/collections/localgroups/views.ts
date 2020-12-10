@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface LocalgroupsViewTerms extends ViewTermsBase {
-    view: LocalgroupsViewName
+    view?: LocalgroupsViewName
     filters?: string|Array<string>
     groupId?: string
     userId?: string

@@ -272,7 +272,7 @@ getCollectionHooks("Comments").newSync.add(function CommentsNewUserApprovedStatu
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
   var commentAuthor = Users.findOne(comment.userId);
   const votedComment = commentAuthor && await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
-  return {...comment, ...votedComment};
+  return {...comment, ...votedComment} as DbComment;
 });
 
 getCollectionHooks("Comments").newAsync.add(function NewCommentNeedsReview (comment: DbComment) {

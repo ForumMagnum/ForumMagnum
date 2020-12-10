@@ -4,7 +4,7 @@ import Sequences from './collection';
 
 declare global {
   interface SequencesViewTerms extends ViewTermsBase {
-    view: SequencesViewName
+    view?: SequencesViewName
     userId?: string
   }
 }

@@ -74,7 +74,7 @@ getCollectionHooks("Posts").newSync.add(function PostsNewDefaultTypes(post: DbPo
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
- return {...post, ...votedPost};
+ return {...post, ...votedPost} as DbPost;
 });
 
 getCollectionHooks("Posts").newSync.add(function PostsNewUserApprovedStatus (post) {

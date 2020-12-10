@@ -4,7 +4,7 @@ import { viewFieldAllowAny } from '../../vulcan-lib';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
-    view: TagsViewName
+    view?: TagsViewName
     userId?: string
     wikiGrade?: string
     slug?: string

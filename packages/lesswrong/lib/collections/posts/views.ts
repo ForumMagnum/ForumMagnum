@@ -11,9 +11,11 @@ import { postStatuses } from './constants';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
+type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
+
 declare global {
   interface PostsViewTerms extends ViewTermsBase {
-    view: PostsViewName,
+    view?: PostsViewName,
     includeRelatedQuestions?: "true"|"false",
     karmaThreshold?: number|string,
     meta?: boolean,
@@ -21,7 +23,7 @@ declare global {
     filter?: any,
     filters?: any,
     filterSettings?: any,
-    sortBy?: "fewestReviews"|"mostReviews"|"lastCommentedAt"
+    sortBy?: ReviewSortings,
     sortByMost?: boolean,
     sortedBy?: string,
     af?: boolean,
@@ -1100,9 +1102,8 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
   }
 })
 
-Posts.addView("reviews2019", terms => {
-  
-  const sortings = {
+Posts.addView("reviews2019", (terms: PostsViewTerms) => {
+  const sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
     "fewestReviews" : {reviewCount2019: 1},
     "mostReviews" : {reviewCount2019: -1},
     "lastCommentedAt" :  {lastCommentedAt: -1}
@@ -1113,7 +1114,7 @@ Posts.addView("reviews2019", terms => {
       nominationCount2019: { $gte: 2 }
     },
     options: {
-      sort: { ...sortings[terms.sortBy], nominationCount2019: -1 }
+      sort: { ...(terms.sortBy && sortings[terms.sortBy]), nominationCount2019: -1 }
     }
   }
 })
