@@ -73,7 +73,6 @@ export const createCollection = <
   resolvers?: any,
   mutations?: any,
 }): any => {
-  type T = ObjectsByCollectionName[N];
   const {
     typeName,
     collectionName,
