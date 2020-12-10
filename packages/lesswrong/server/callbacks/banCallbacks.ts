@@ -1,8 +1,7 @@
-import { Accounts } from '../../lib/meteorAccounts';
 import { Bans } from '../../lib/collections/bans/collection';
-import { ForwardedWhitelist } from '../forwarded_whitelist';
-import { Meteor } from 'meteor/meteor';
 import { DatabaseServerSetting } from '../databaseSettings';
+import { addLoginAttemptValidation } from '../../platform/current/server/meteorServerSideFns';
+import { throwMeteorError } from '../../lib/executionEnvironment';
 
 // If set, IP bans (in the bans collection) will be enforced. Currently
 // disabled by default because this isn't adequately tested, and it would be
@@ -10,7 +9,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 const ipBansEnabled = new DatabaseServerSetting<boolean>('ipBansEnabled', false)
 
 // Check for banning at the user-account level
-Accounts.validateLoginAttempt((attempt) => {
+addLoginAttemptValidation((attempt) => {
   if (!attempt.allowed) {
     return false;
   }
@@ -20,18 +19,19 @@ Accounts.validateLoginAttempt((attempt) => {
     // error message that at least works enough to tell you that the account
     // is banned, and the end date (but which goes through a broken i18n layer
     // that turns spaces into underscores).
-    throw new Meteor.Error('user-banned', 'This account is banned until ' + new Date(attempt.user.banned));
+    throwMeteorError('user-banned', 'This account is banned until ' + new Date(attempt.user.banned));
+    return false;
   } else {
     return true;
   }
 })
 
 // Check for banning at the IP-address level
-Accounts.validateLoginAttempt((attempt) => {
+addLoginAttemptValidation((attempt) => {
   if (!attempt.allowed) {
     return false;
   }
-  const ip = attempt.connection && ForwardedWhitelist.getClientIP(attempt.connection);
+  const ip = attempt.ip;
   const ban = Bans.findOne({ip: ip});
   if (ban && new Date(ban.expirationDate) > new Date()) {
     // Triggers on login or session resume from a banned IP address.
@@ -39,7 +39,8 @@ Accounts.validateLoginAttempt((attempt) => {
     // eslint-disable-next-line no-console
     console.warn(`IP address is banned: IP ${ip} attempting to log in as ${username}, ban ID ${ban._id}. IP bans enforced=${ipBansEnabled.get()}`);
     if (ipBansEnabled.get()) {
-      throw new Meteor.Error('ip-banned', 'This IP address is banned until ' + new Date(ban.expirationDate));
+      throwMeteorError('ip-banned', 'This IP address is banned until ' + new Date(ban.expirationDate));
+      return false;
     } else {
       return true;
     }

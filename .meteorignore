@@ -3,3 +3,5 @@ tmp
 *.d.ts
 ./LessWrong-Credentials/*
 .eslintrc.js
+platform/meteor
+platform/webpack

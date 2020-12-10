@@ -1,5 +1,5 @@
 import { ApolloLink } from '@apollo/client'
-import { Accounts } from '../../../../lib/meteorAccounts';
+import { Accounts } from '../../../../platform/current/lib/meteorAccounts';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/client.js
 const DEFAULT_HEADER = 'authorization'

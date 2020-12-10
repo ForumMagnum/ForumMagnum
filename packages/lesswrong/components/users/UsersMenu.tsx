@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, {useState} from 'react';
-import { meteorLogout } from '../../lib/meteorAccounts';
+import { meteorLogout } from '../../platform/current/lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';

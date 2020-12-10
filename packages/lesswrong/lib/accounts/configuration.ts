@@ -1,6 +1,8 @@
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 
-Accounts.config({
-  forbidClientAccountCreation: false,
-  loginExpirationInDays: 365*100,
-});
+if (Accounts.config) {
+  Accounts.config({
+    forbidClientAccountCreation: false,
+    loginExpirationInDays: 365*100,
+  });
+}

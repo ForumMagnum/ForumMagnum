@@ -4,7 +4,7 @@ import React from 'react';
 import Users from '../../lib/collections/users/collection';
 import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
-import { Accounts } from '../../lib/meteorAccounts';
+import { Accounts } from '../../platform/current/lib/meteorAccounts';
 import { useCurrentUser } from '../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';

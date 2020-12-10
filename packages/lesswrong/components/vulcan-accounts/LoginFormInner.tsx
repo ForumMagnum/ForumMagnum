@@ -1,7 +1,7 @@
 /* eslint-disable meteor/no-session */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Accounts, Session, meteorLogout, meteorLoginWithPassword, meteorLoginWithMethod } from '../../lib/meteorAccounts';
+import { Accounts, Session, meteorLogout, meteorLoginWithPassword, meteorLoginWithMethod } from '../../platform/current/lib/meteorAccounts';
 import { KEY_PREFIX } from '../../lib/vulcan-accounts/login_session';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 import { intlShape } from '../../lib/vulcan-i18n';

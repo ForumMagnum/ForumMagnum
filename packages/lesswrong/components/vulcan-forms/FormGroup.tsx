@@ -190,8 +190,6 @@ class FormGroup extends PureComponent<any,any> {
   currentUser: PropTypes.object
 };
 
-module.exports = FormGroup;
-
 const FormGroupComponent = registerComponent('FormGroup', FormGroup);
 
 const IconRight = ({ width = 24, height = 24 }) => (

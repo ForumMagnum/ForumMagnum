@@ -2,7 +2,7 @@ import { checkNested } from '../vulcan-lib/utils';
 import { mongoFindOne } from '../mongoQueries';
 import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
-import { meteorCurrentUserFromFiberContext } from '../meteorAccounts';
+import { meteorCurrentUserFromFiberContext } from '../../platform/current/lib/meteorAccounts';
 
 // Get a user
 export const getUser = function(userOrUserId: DbUser|string|undefined): DbUser|null {

@@ -1,3 +1,5 @@
 packages/_*
 packages/vulcan-*/**/*.test.js
 packages/ddp-server
+packages/lesswrong/platform/meteor
+packages/lesswrong/platform/webpack

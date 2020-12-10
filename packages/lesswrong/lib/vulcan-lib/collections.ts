@@ -9,7 +9,7 @@ import { addGraphQLCollection, addToGraphQLContext } from './graphql';
 import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
-import { meteorUsersCollection } from '../meteorAccounts';
+import { meteorUsersCollection } from '../../platform/current/lib/meteorAccounts';
 
 // import { debug } from './debug';
 

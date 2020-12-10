@@ -90,7 +90,7 @@ import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
 import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
-import './lib/collections/users/validate_login';
+import './server/legacyLogin';
 import './server/callbacks/userCallbacks';
 import './server/callbacks/banCallbacks';
 import './server/tableOfContents';
