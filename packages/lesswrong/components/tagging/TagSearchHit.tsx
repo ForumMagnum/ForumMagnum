@@ -64,7 +64,7 @@ const TagSearchHit = ({hit, onClick, classes}: {
         </div>
       </PopperCard>
       <span className={classes.root} onClick={onClick} >
-        {hit.name} <span className={classes.postCount}>({hit.postCount})</span>
+        {hit.name} <span className={classes.postCount}>({hit.postCount || 0})</span>
       </span>
     </span>
   );
