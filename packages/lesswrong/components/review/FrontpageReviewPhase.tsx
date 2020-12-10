@@ -53,19 +53,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   nominationDate: {},
   actionButtonRow: {
     textAlign: "right",
-    display: "block",
+    display: "flex",
+    justifyContent: "flex-end",
     marginTop: 8
   },
-  actionButton: {
+  actionButtonCTA: {
     backgroundColor: theme.palette.primary.main,
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 12,
+    paddingRight: 12,
     borderRadius: 3,
     color: "white",
     ...theme.typography.commentStyle,
     display: "inline-block"
+  },
+  actionButton: {
+    border: `solid 1px ${theme.palette.grey[400]}`,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderRadius: 3,
+    color: theme.palette.grey[600],
+    ...theme.typography.commentStyle,
+    display: "inline-block",
+    marginRight: 12
   }
 })
 
@@ -194,11 +207,24 @@ const FrontpageReviewPhase = ({classes}) => {
       <AnalyticsContext listContext={"LessWrong 2019 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} />
       </AnalyticsContext>
-      {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-        <Link to={all2019Url} className={classes.actionButton}>
-          Nominate 2019 Posts
-        </Link>
-      </div>}
+        {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+          <LWTooltip title={<div>
+              <div>View posts with at least 1 nomination</div>
+              <div><em>(Posts need at least 2 nominations)</em></div>
+            </div>}>
+            <Link to={"/nominations"} className={classes.actionButton}>
+              View Nominated Posts
+            </Link>
+          </LWTooltip>
+          <LWTooltip title={<div>
+              <div>View posts that have not yet been nominated</div>
+              <div><em>(Posts need at least 2 nominations)</em></div>
+            </div>}>
+            <Link to={all2019Url} className={classes.actionButtonCTA}>
+              Nominate 2019 Posts
+            </Link>
+          </LWTooltip>
+        </div>}
     </SingleColumnSection>
   )
 }
