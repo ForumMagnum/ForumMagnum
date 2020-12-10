@@ -34,52 +34,6 @@ export const getCollectionName = (typeName): CollectionNameString => pluralize(t
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
 /**
- * @summary replacement for Collection2's attachSchema. Pass either a schema, to
- * initialize or replace the schema, or some fields, to extend the current schema
- * @class Mongo.Collection
- */
-Mongo.Collection.prototype.attachSchema = function(schemaOrFields) {
-  if (schemaOrFields instanceof SimpleSchema) {
-    this.simpleSchema = () => schemaOrFields;
-  } else {
-    this.simpleSchema().extend(schemaOrFields);
-  }
-};
-
-/**
- * @summary Add an additional field (or an array of fields) to a schema.
- * @param {Object|Object[]} field
- */
-Mongo.Collection.prototype.addField = function(fieldOrFieldArray) {
-  const collection = this;
-  const schema = collection.simpleSchema()._schema;
-  const fieldSchema = {};
-
-  const fieldArray = Array.isArray(fieldOrFieldArray) ? fieldOrFieldArray : [fieldOrFieldArray];
-
-  // loop over fields and add them to schema (or extend existing fields)
-  fieldArray.forEach(function(field) {
-    const newField = {...schema[field.fieldName], ...field.fieldSchema};
-    fieldSchema[field.fieldName] = newField;
-  });
-
-  // add field schema to collection schema
-  collection.attachSchema(fieldSchema);
-};
-
-/**
- * @summary Remove a field from a schema.
- * @param {String} fieldName
- */
-Mongo.Collection.prototype.removeField = function(fieldName) {
-  var collection = this;
-  var schema = _.omit(collection.simpleSchema()._schema, fieldName);
-
-  // add field schema to collection schema
-  collection.attachSchema(new SimpleSchema(schema));
-};
-
-/**
  * @summary Add a default view function.
  * @param {Function} view
  */
@@ -106,10 +60,13 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
-export const createCollection = <N extends CollectionNameString>(options: {
+export const createCollection = <
+  N extends CollectionNameString,
+  T extends DbObject=ObjectsByCollectionName[N]
+>(options: {
   typeName: string,
   collectionName: N,
-  schema: any,
+  schema: SchemaType<T>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
   collection?: any,
@@ -147,10 +104,9 @@ export const createCollection = <N extends CollectionNameString>(options: {
   // add views
   collection.views = {};
 
-  if (schema) {
-    // attach schema to collection
-    collection.attachSchema(new SimpleSchema(schema));
-  }
+  // attach schema to collection
+  //collection.simpleSchema = () => new SimpleSchema(schema);
+  collection.simpleSchema = () => new SimpleSchema(schema);
 
   if (generateGraphQLSchema) {
     // add collection to list of dynamically generated GraphQL schemas
@@ -159,7 +115,7 @@ export const createCollection = <N extends CollectionNameString>(options: {
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
-  const defaultFragment = getDefaultFragmentText(collection);
+  const defaultFragment = getDefaultFragmentText(collection, collection.simpleSchema()._schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
   // ------------------------------------- Parameters -------------------------------- //

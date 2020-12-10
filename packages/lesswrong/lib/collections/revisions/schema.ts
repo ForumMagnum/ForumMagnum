@@ -1,4 +1,4 @@
-import { foreignKeyField, resolverOnlyField, accessFilterSingle, SchemaType } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const ContentType = new SimpleSchema({
