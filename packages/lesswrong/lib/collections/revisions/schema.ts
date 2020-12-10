@@ -22,6 +22,7 @@ const schema: SchemaType<DbRevision> = {
   collectionName: {
     type: String,
     viewableBy: ['guests'],
+    typescriptType: "CollectionNameString",
   },
   fieldName: {
     type: String,

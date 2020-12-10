@@ -1,4 +1,5 @@
-import { Utils, Collections } from '../vulcan-lib';
+import { Utils } from '../vulcan-lib';
+import { getCollectionByTypeName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
 
@@ -72,7 +73,7 @@ const invalidateQuery = ({client, query, variables}: {
 }
 
 const getParametersByTypeName = (terms, typeName) => {
-  const collection = Collections.find(c => c.typeName === typeName);
+  const collection = getCollectionByTypeName(typeName);
   return collection.getParameters(terms /* apolloClient */);
 }
 

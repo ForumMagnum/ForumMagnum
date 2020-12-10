@@ -1,23 +1,36 @@
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { withApollo } from '@apollo/client/react/hoc';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';
-import { withUpdate } from '../../lib/crud/withUpdate';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
-import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext } from '../../lib/vulcan-core/appContext';
+import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
 import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
 import { userIdentifiedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
+import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 
 const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
 
-class App extends PureComponent<any,any> {
-  locationContext: any
-  subscribeLocationContext: any
+interface ExternalProps {
+  apolloClient: any
+  serverRequestStatus?: ServerRequestStatusContextType
+}
+interface AppProps extends ExternalProps {
+  // From withRouter
+  location: any
+  history: any
+  
+  // From withCurrentUser HoC
+  currentUser: UsersCurrent
+  currentUserLoading: boolean
+}
+
+class App extends PureComponent<AppProps,any> {
+  locationContext: RouterLocation|null = null
+  subscribeLocationContext: RouterLocation|null = null
   navigationContext: any
   
   constructor(props) {
@@ -123,7 +136,7 @@ class App extends PureComponent<any,any> {
       <LocationContext.Provider value={this.locationContext}>
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
       <NavigationContext.Provider value={this.navigationContext}>
-      <ServerRequestStatusContext.Provider value={serverRequestStatus}>
+      <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
@@ -158,11 +171,7 @@ class App extends PureComponent<any,any> {
 const AppComponent = registerComponent('App', App, {
   hocs: [
     withCurrentUser,
-    withUpdate({
-      collectionName: 'Users',
-      fragmentName: 'UsersCurrent',
-    }),
-    withApollo, withRouter
+    withRouter
   ]
 });
 

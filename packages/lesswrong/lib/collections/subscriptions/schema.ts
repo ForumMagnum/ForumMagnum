@@ -44,6 +44,7 @@ const schema: SchemaType<DbSubscription> = {
   },
   collectionName: {
     type: String, 
+    typescriptType: "CollectionNameString",
     canRead: [userOwns],
     canCreate: ['members']
   },

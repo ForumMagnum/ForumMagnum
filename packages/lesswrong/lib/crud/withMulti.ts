@@ -38,13 +38,13 @@ import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus } from '@ap
 import { graphql } from '@apollo/client/react/hoc';
 import gql from 'graphql-tag';
 import qs from 'qs';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
-import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate, getCollection } from '../vulcan-lib';
 import { pluralize } from '../vulcan-lib/utils';
+import { useLocation, useNavigation } from '../routeUtil';
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -270,9 +270,8 @@ export function useMulti<
   loadMore: any,
   limit: number,
 } {
-  // Since we don't have access to useLocation and useNavigation we have to manually reference context here
-  const { query: locationQuery, location } = useContext(LocationContext);
-  const { history } = useContext(NavigationContext)
+  const { query: locationQuery, location } = useLocation();
+  const { history } = useNavigation();
 
   const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);

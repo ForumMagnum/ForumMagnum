@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import Posts from '../../lib/collections/posts/collection';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -16,7 +15,7 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
   const { params: {_id, postId} } = useLocation();
   const { document: post, loading } = useSingle({
     documentId: _id || postId,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: "PostsBase",
     fetchPolicy: 'cache-only',
   });

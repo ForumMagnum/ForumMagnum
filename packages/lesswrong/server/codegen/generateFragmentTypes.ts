@@ -1,4 +1,4 @@
-import { getAllFragmentNames, getFragment, getCollectionName, getCollection, Collections } from '../../lib/vulcan-lib';
+import { getAllFragmentNames, getFragment, getCollectionName, getCollection, getAllCollections, isValidCollectionName } from '../../lib/vulcan-lib';
 import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript } from './typeGenerationUtils';
 import { getSchema } from '../../lib/utils/getSchema';
 
@@ -46,7 +46,7 @@ function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
   const parsedFragment = getParsedFragment(fragmentName);
   const collectionName = fragmentNameToCollectionName(fragmentName);
   const collection = getCollection(collectionName);
-  assert(collection);
+  assert(!!collection);
   
   return fragmentToInterface(fragmentName, parsedFragment, collection);
 }
@@ -79,7 +79,7 @@ function generateCollectionNamesByFragmentNameType(): string {
 }
 
 function generateCollectionNamesIndexType(): string {
-  return 'type CollectionNameString = ' + Collections.map(c => `"${c.collectionName}"`).join('|') + '\n\n';
+  return 'type CollectionNameString = ' + getAllCollections().map(c => `"${c.collectionName}"`).join('|') + '\n\n';
 }
 
 function fragmentToInterface(interfaceName: string, parsedFragment, collection): string {
@@ -227,7 +227,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
 // that field is a collection type with optional array- or nullable-wrapping,
 // return the collection.
 function subfragmentTypeToCollection(fieldType: string): {
-  collection: any,
+  collection: CollectionBase<any>|null,
   nullable: boolean,
 }{
   if (fieldType.startsWith("Array<") && fieldType.endsWith(">")) {
@@ -246,9 +246,17 @@ function subfragmentTypeToCollection(fieldType: string): {
       nullable: false
     };
   } else {
-    return {
-      collection: getCollection(getCollectionName(fieldType)),
-      nullable: false
-    };
+    const collectionName = getCollectionName(fieldType);
+    if (isValidCollectionName(collectionName)) {
+      return {
+        collection: getCollection(collectionName),
+        nullable: false
+      };
+    } else {
+      return {
+        collection: null,
+        nullable: false
+      }
+    }
   }
 }

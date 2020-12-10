@@ -1,5 +1,4 @@
 import React from "react"
-import { TagFlags } from "../../lib";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
@@ -49,7 +48,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
     documentId,
-    collection: TagFlags,
+    collectionName: "TagFlags",
     fetchPolicy: "cache-first",
     fragmentName: "TagFlagFragment",
   })

@@ -1,4 +1,4 @@
-import { Collections } from '../../lib/vulcan-lib/getCollection';
+import { getAllCollections } from '../../lib/vulcan-lib/getCollection';
 
 // NOT AN ESCAPING FUNCTION FOR UNTRUSTED INPUT
 function wrapWithQuotes(s: string): string {
@@ -7,9 +7,10 @@ function wrapWithQuotes(s: string): string {
 
 export function generateViewTypes(): string {
   const sb: Array<string> = [];
-  const collectionsWithViews = Collections.filter(collection => Object.keys(collection.views).length > 0);
+  const collections = getAllCollections();
+  const collectionsWithViews = collections.filter(collection => Object.keys(collection.views).length > 0);
   
-  for (let collection of Collections) {
+  for (let collection of collections) {
     const collectionName = collection.collectionName;
     const views = collection.views;
     const viewNames = Object.keys(views);
@@ -27,7 +28,7 @@ export function generateViewTypes(): string {
   sb.push("\n");
   
   sb.push("interface ViewTermsByCollectionName {\n");
-  for (let collection of Collections) {
+  for (let collection of collections) {
     const collectionName = collection.collectionName;
     
     // Does this collection have any views?
@@ -40,7 +41,7 @@ export function generateViewTypes(): string {
   sb.push("}\n");
   sb.push("\n");
   
-  /*sb.push(`type CollectionNameAndTerms = ${Collections.map(c =>
+  /*sb.push(`type CollectionNameAndTerms = ${collections.map(c =>
     `{collectionName: ${wrapWithQuotes(c.collectionName)}, terms: ${c.collectionName}ViewTerms}`
   ).join("\n  |")}\n`);*/
   

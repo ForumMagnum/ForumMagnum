@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
-import Collections from '../../lib/collections/collections/collection';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -59,7 +58,7 @@ const CollectionsPage = ({ documentId, classes }: {
   const [edit, setEdit] = useState(false);
   const { document, loading } = useSingle({
     documentId,
-    collection: Collections,
+    collectionName: "Collections",
     fragmentName: 'CollectionsPageFragment',
   });
 

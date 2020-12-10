@@ -1,9 +1,10 @@
 import schema from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
-const options = {
+const options: MutationOptions<DbLWEvent> = {
   newCheck: (user: DbUser|null, document: DbLWEvent|null) => {
     if (!user || !document) return false;
     return userOwns(user, document) ? userCanDo(user, 'events.new.own') : userCanDo(user, `events.new.all`)

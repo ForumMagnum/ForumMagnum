@@ -20,7 +20,7 @@ import { asyncFilter } from '../../lib/utils/asyncUtils';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
-interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
+export interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 

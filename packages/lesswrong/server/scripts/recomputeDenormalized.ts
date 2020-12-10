@@ -30,7 +30,7 @@ Vulcan.validateAllDenormalizedValues = validateAllDenormalizedValues;
 // report how many differ; otherwise update them to the correct values. If fieldName
 // is given, recompute a single field; otherwise recompute all fields on the collection.
 export const recomputeDenormalizedValues = async ({collectionName, fieldName=null, validateOnly=false}: {
-  collectionName: string,
+  collectionName: CollectionNameString,
   fieldName?: string|null,
   validateOnly?: boolean,
 }) => {

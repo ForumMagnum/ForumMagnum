@@ -136,7 +136,7 @@ export async function validateCollection(collection)
           }
           
           // Get reduced versions of rows that the foreign-key field refers to
-          const foreignRows = await foreignCollection.find({ [foreignField]: {$in: foreignValues} }, { [foreignField]:1 })
+          const foreignRows = await foreignCollection.find({ [foreignField]: {$in: foreignValues} }, { [foreignField]:1 }).fetch()
           
           // Collect a list of values present
           const foreignValuesFound = {};
