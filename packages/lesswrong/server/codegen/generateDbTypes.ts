@@ -1,4 +1,4 @@
-import { Collections } from '../../lib/vulcan-lib';
+import { getAllCollections } from '../../lib/vulcan-lib';
 import { generatedFileHeader, simplSchemaTypeToTypescript } from './typeGenerationUtils';
 import { isUniversalField } from '../../lib/collectionUtils';
 
@@ -11,7 +11,7 @@ const dbTypesFileHeader = generatedFileHeader+`//
 export function generateDbTypes(): string {
   const sb: Array<string> = [];
   sb.push(dbTypesFileHeader);
-  for (let collection of Collections) {
+  for (let collection of getAllCollections()) {
     sb.push(generateCollectionType(collection));
     sb.push(generateCollectionDbType(collection));
   }
@@ -69,14 +69,14 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
 function generateNameMapTypes(): string {
   let sb: Array<string> = [];
   sb.push('interface CollectionsByName {\n');
-  for (let collection of Collections) {
+  for (let collection of getAllCollections()) {
     const collectionName = collection.collectionName;
     sb.push(`  ${collectionName}: ${collectionName}Collection\n`);
   }
   sb.push('}\n\n');
   
   sb.push('interface ObjectsByCollectionName {\n');
-  for (let collection of Collections) {
+  for (let collection of getAllCollections()) {
     const {collectionName, typeName} = collection;
     sb.push(`  ${collectionName}: Db${typeName}\n`);
   }

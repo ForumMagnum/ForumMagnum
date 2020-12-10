@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
-import { Tags } from '../../lib/collections/tags/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -43,7 +42,7 @@ const TagSearchHit = ({hit, onClick, classes}: {
   const { PopperCard, ContentItemBody, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
     fetchPolicy: 'cache-then-network' as any, //TODO
   });

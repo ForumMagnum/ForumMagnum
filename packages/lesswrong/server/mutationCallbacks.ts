@@ -61,7 +61,7 @@ export class CollectionMutationCallbacks<T extends DbObject> {
   deleteAsync: CallbackHook<[DeleteCallbackProperties<T>]>
   removeAsync: CallbackHook<[T,DbUser|null,CollectionBase<T>]>
   
-  constructor(collectionName: string) {
+  constructor(collectionName: CollectionNameString) {
     const collection = getCollection(collectionName);
     const typeName = collection.options.typeName;
     
