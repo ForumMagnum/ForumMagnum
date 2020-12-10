@@ -68,18 +68,6 @@ Mongo.Collection.prototype.addField = function(fieldOrFieldArray) {
 };
 
 /**
- * @summary Remove a field from a schema.
- * @param {String} fieldName
- */
-Mongo.Collection.prototype.removeField = function(fieldName) {
-  var collection = this;
-  var schema = _.omit(collection.simpleSchema()._schema, fieldName);
-
-  // add field schema to collection schema
-  collection.attachSchema(new SimpleSchema(schema));
-};
-
-/**
  * @summary Add a default view function.
  * @param {Function} view
  */
@@ -106,10 +94,13 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
-export const createCollection = (options: {
+export const createCollection = <
+  N extends CollectionNameString,
+  T extends DbObject=ObjectsByCollectionName[N]
+>(options: {
   typeName: string,
-  collectionName?: CollectionNameString,
-  schema: any,
+  collectionName: N,
+  schema: SchemaType<T>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
   collection?: any,
@@ -146,10 +137,8 @@ export const createCollection = (options: {
   // add views
   collection.views = [];
 
-  if (schema) {
-    // attach schema to collection
-    collection.attachSchema(new SimpleSchema(schema));
-  }
+  // attach schema to collection
+  collection.attachSchema(new SimpleSchema(schema));
 
   // add collection to resolver context
   const context = {};
