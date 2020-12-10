@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
@@ -35,9 +36,9 @@ const styles = theme => ({
 // recreating the `Stripe` object on every render.
 const stripePublicKey = stripePublicKeySetting.get()
 const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
-const ProductDisplay = ({ handleClick, classes }) => (
+const ProductDisplay = ({ handleClick, classes, text = "Pre-Order – $29"}) => (
   <button className={classes.checkoutButton} id="checkout-button" role="link" onClick={handleClick}>
-    Pre-Order – $29
+    {text}
   </button>
 );
 const Message = ({ message, classes }) => (
@@ -45,21 +46,18 @@ const Message = ({ message, classes }) => (
     <p className={classes.messageParagraph}>{message}</p>
   </section>
 );
-export default function BookCheckout({classes}) {
+export default function BookCheckout({classes, ignoreMessages = false, text}: {classes: ClassesType, ignoreMessages?: boolean, text?: string}) {
   const [message, setMessage] = useState("");
+  const { captureEvent } = useTracking()
   useEffect(() => {
     // Check to see if this is a redirect back from Checkout
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
       setMessage("Order placed! You will receive an email confirmation.");
     }
-    if (query.get("canceled")) {
-      setMessage(
-        "Order canceled."
-      );
-    }
   }, []);
   const handleClick = async (event) => {
+    captureEvent("preOrderButtonClicked")
     const stripe = await stripePromise;
     if (stripe) {
       const response = await fetch("/create-session", {
@@ -79,10 +77,10 @@ export default function BookCheckout({classes}) {
 
   };
   return <div className={classes.root}>
-    { message ? (
+    { (message && !ignoreMessages) ? (
       <Message message={message} classes={classes} />
     ) : (
-      <ProductDisplay handleClick={handleClick} classes={classes}/>
+      <ProductDisplay handleClick={handleClick} classes={classes} text={text}/>
     ) }
   </div>
 }

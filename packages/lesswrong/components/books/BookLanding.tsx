@@ -2,6 +2,7 @@ import React from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import {captureEvent, useTracking} from "../../lib/analyticsEvents";
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
@@ -292,6 +293,8 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   accentColor: string,
   bodyText: JSX.Element
 }) => {
+  
+  const { captureEvent } = useTracking()
 
   return (
     <div>
@@ -462,14 +465,20 @@ const BookLanding = ({classes}: {
         bigQuoteAuthor=''
         accentColor="#e8b10e"
         bodyText={<div className={classes.sampleButtonWrapper}>
-          <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+          <button className={classes.sampleButton} type="button" onClick={() => {
+            captureEvent("readSampleClicked")
+            window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")
+          }}>
             Read a sample chapter
           </button>
         </div>}
       />
 
       <div className={classes.mobileSampleButton}>
-        <button className={classes.sampleButton} type="button" onClick={() => window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")}>
+        <button className={classes.sampleButton} type="button" onClick={() => {
+          captureEvent("readSampleClicked")
+          window.open("https://drive.google.com/file/d/1CLBYmVsie-dC837lmdU5roUq5ad8CAGR/view?usp=sharing")
+        }}>
           Read a sample chapter
         </button>
       </div>

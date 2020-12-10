@@ -536,6 +536,7 @@ interface DbGardenCode extends DbObject {
   slug: string
   startTime: Date
   endTime: Date
+  fbLink: string
   type: string
   deleted: boolean
   contents: EditableFieldContents

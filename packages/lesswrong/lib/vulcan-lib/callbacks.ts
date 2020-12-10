@@ -130,7 +130,7 @@ export const runCallbacks = function (this: any, options: {
     const runCallback = (accumulator, callback) => {
       debug(`\x1b[32m>> Running callback [${callback.name}] on hook [${formattedHook}]\x1b[0m`);
       try {
-        const result = callback.apply(this, [accumulator, ...args]);
+        const result = callback.apply(this, [accumulator].concat(args));
 
         if (typeof result === 'undefined') {
           // if result of current iteration is undefined, don't pass it on
@@ -204,7 +204,7 @@ export const runCallbacksList = function (this: any, options: {
 
     const runCallback = (accumulator, callback) => {
       try {
-        const result = callback.apply(this, [accumulator, ...args]);
+        const result = callback.apply(this, [accumulator].concat(args));
 
         if (typeof result === 'undefined') {
           // if result of current iteration is undefined, don't pass it on

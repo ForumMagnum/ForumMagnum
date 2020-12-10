@@ -112,6 +112,11 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", client, classes}: {
                 New Shortform
               </MenuItem>
             }
+            {showNewButtons && <Divider/>}
+            {showNewButtons && <Link to={`/newPost?eventForm=true`}>
+                <MenuItem>New Event</MenuItem>
+              </Link>
+            }
             {(showNewButtons && currentUser.karma >= 1000) &&
               <Link to={`/sequencesnew`}>
                 <MenuItem>New Sequence</MenuItem>

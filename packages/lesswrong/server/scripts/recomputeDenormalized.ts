@@ -1,6 +1,7 @@
 import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments } from '../migrations/migrationUtils'
+import { createAdminContext } from '../vulcan-lib/query';
 import * as _ from 'underscore';
 
 
@@ -41,7 +42,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
     console.log(`${collectionName} does not have a schema defined, not computing denormalized values`)
     return
   }
-
+  
   const schema: any = collection.simpleSchema()._schema
   if (fieldName) {
     if (!schema[fieldName]) {
@@ -91,9 +92,11 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
     collection,
     batchSize: 100,
     migrate: async (documents) => {
+      const context = createAdminContext();
+      
       // eslint-disable-next-line no-console
       const updates = await Promise.all(documents.map(async doc => {
-        const newValue = await getValue(doc)
+        const newValue = await getValue(doc, context)
         // If the correct value is already present, don't make a database update
         if ((isNullOrDefined(newValue) && isNullOrDefined(doc[fieldName])) || doc[fieldName] === newValue) return null
         return {
@@ -114,8 +117,9 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
       // eslint-disable-next-line no-console
       console.log(`${nonEmptyUpdates.length} documents in batch with changing denormalized value`)
       if (!validateOnly) {
-        // eslint-disable-next-line no-console
         if (nonEmptyUpdates.length > 0)  {
+          // eslint-disable-next-line no-console
+          console.log(nonEmptyUpdates);
           await collection.rawCollection().bulkWrite(
             nonEmptyUpdates,
             { ordered: false }
