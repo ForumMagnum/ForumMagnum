@@ -298,7 +298,7 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     onUpdate: async ({data, currentUser, document, oldDocument, context}: {
       data: Partial<DbComment>,
-      currentUser: DbUser,
+      currentUser: DbUser|null,
       document: DbComment,
       oldDocument: DbComment,
       context: ResolverContext,
@@ -312,7 +312,7 @@ const schema: SchemaType<DbComment> = {
           currentUser,
           validate: false
         })
-        return currentUser._id
+        return currentUser!._id
       }
     }
   },

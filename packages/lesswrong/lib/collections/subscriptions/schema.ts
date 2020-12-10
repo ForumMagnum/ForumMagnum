@@ -27,7 +27,7 @@ const schema: SchemaType<DbSubscription> = {
       type: "User",
       nullable: false,
     }),
-    onCreate: ({currentUser}) => currentUser._id,
+    onCreate: ({currentUser}) => currentUser!._id,
     canRead: [userOwns],
     optional: true,
   },

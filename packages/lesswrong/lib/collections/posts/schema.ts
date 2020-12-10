@@ -44,7 +44,7 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.adminOptions,
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
-      if (!post.postedAt && postGetDefaultStatus(currentUser) === postStatuses.STATUS_APPROVED) {
+      if (!post.postedAt && postGetDefaultStatus(currentUser!) === postStatuses.STATUS_APPROVED) {
         return new Date();
       }
     },
@@ -155,13 +155,13 @@ const schema: SchemaType<DbPost> = {
     control: 'select',
     onInsert: (document, currentUser) => {
       if (!document.status) {
-        return postGetDefaultStatus(currentUser);
+        return postGetDefaultStatus(currentUser!);
       }
     },
     onEdit: (modifier, document, currentUser) => {
       // if for some reason post status has been removed, give it default status
       if (modifier.$unset && modifier.$unset.status) {
-        return postGetDefaultStatus(currentUser);
+        return postGetDefaultStatus(currentUser!);
       }
     },
     options: () => postStatusLabels,
