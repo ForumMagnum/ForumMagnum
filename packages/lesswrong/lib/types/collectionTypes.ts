@@ -20,7 +20,7 @@ interface CollectionBase<T extends DbObject> {
   defaultView: (terms: any) => any
   views: any
   getParameters: any
-  simpleSchema: any
+  simpleSchema: ()=>any
   addField: any
   helpers: any
   

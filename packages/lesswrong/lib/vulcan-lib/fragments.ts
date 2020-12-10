@@ -60,8 +60,7 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
 };
 
 // Create default "dumb" gql fragment object for a given collection
-export const getDefaultFragmentText = <T extends DbObject>(collection: CollectionBase<T>, options={onlyViewable: true}): string|null => {
-  const schema = getSchema(collection);
+export const getDefaultFragmentText = <T extends DbObject>(collection: CollectionBase<T>, schema: SchemaType<T>, options={onlyViewable: true}): string|null => {
   const fieldNames = _.reject(_.keys(schema), (fieldName: string) => {
     /*
 

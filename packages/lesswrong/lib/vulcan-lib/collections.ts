@@ -34,19 +34,6 @@ export const getCollectionName = (typeName): CollectionNameString => pluralize(t
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
 /**
- * @summary replacement for Collection2's attachSchema. Pass either a schema, to
- * initialize or replace the schema, or some fields, to extend the current schema
- * @class Mongo.Collection
- */
-Mongo.Collection.prototype.attachSchema = function(schemaOrFields) {
-  if (schemaOrFields instanceof SimpleSchema) {
-    this.simpleSchema = () => schemaOrFields;
-  } else {
-    this.simpleSchema().extend(schemaOrFields);
-  }
-};
-
-/**
  * @summary Add an additional field (or an array of fields) to a schema.
  * @param {Object|Object[]} field
  */
@@ -64,7 +51,7 @@ Mongo.Collection.prototype.addField = function(fieldOrFieldArray) {
   });
 
   // add field schema to collection schema
-  collection.attachSchema(fieldSchema);
+  this.simpleSchema().extend(fieldSchema);
 };
 
 /**
@@ -138,7 +125,7 @@ export const createCollection = <
   collection.views = [];
 
   // attach schema to collection
-  collection.attachSchema(new SimpleSchema(schema));
+  collection.simpleSchema = () => new SimpleSchema(schema);
 
   // add collection to resolver context
   const context = {};
@@ -152,7 +139,7 @@ export const createCollection = <
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
-  const defaultFragment = getDefaultFragmentText(collection);
+  const defaultFragment = getDefaultFragmentText(collection, collection.simpleSchema()._schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
   // ------------------------------------- Parameters -------------------------------- //
