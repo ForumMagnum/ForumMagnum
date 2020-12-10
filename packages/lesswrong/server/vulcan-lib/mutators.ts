@@ -153,10 +153,10 @@ export const createMutator = async <T extends DbObject>({
     if (schemaField.onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schemaField.onCreate({...properties, fieldName}); // eslint-disable-line no-await-in-loop
+      autoValue = await schemaField.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
     } else if (schemaField.onInsert) {
       // OpenCRUD backwards compatibility
-      autoValue = await schemaField.onInsert(clone(document), currentUser); // eslint-disable-line no-await-in-loop
+      autoValue = await schemaField.onInsert(clone(document) as any, currentUser); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
       document[fieldName] = autoValue;
