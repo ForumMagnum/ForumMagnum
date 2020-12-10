@@ -10,7 +10,7 @@ export interface CreateCallbackProperties<T extends DbObject> {
   context: ResolverContext
   document: T
   newDocument: T
-  schema: any
+  schema: SchemaType<T>
 }
 
 export interface UpdateCallbackProperties<T extends DbObject> {
@@ -21,7 +21,7 @@ export interface UpdateCallbackProperties<T extends DbObject> {
   currentUser: DbUser|null
   collection: CollectionBase<T>
   context: ResolverContext
-  schema: any
+  schema: SchemaType<T>
 }
 
 export interface DeleteCallbackProperties<T extends DbObject> {
@@ -29,7 +29,7 @@ export interface DeleteCallbackProperties<T extends DbObject> {
   currentUser: DbUser|null
   collection: CollectionBase<T>
   context: ResolverContext
-  schema: any
+  schema: SchemaType<T>
 }
 
 export class CollectionMutationCallbacks<T extends DbObject> {
