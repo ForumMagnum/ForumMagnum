@@ -1,4 +1,6 @@
-import DataLoader from 'dataloader';
+// Unused, but this doesn't get properly included as an ambient declarations file
+// unless it has at least one import
+import type DataLoader from 'dataloader';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
