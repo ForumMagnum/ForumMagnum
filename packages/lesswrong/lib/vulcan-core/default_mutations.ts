@@ -4,7 +4,7 @@ Default mutations
 
 */
 
-import { Utils, getTypeName, getCollectionName } from '../vulcan-lib';
+import { Utils, getTypeName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 

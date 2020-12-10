@@ -1,6 +1,5 @@
 import { getUnrecognizedIndexes } from '../indexUtil';
 import { Vulcan, getCollection } from '../vulcan-lib';
-import * as _ from 'underscore';
 
 Vulcan.printUnusedIndexes = async () =>
 {

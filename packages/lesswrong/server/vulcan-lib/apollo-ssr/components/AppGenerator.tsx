@@ -2,7 +2,7 @@
  * The App + relevant wrappers
  */
 import React from 'react';
-import { ApolloProvider, ApolloClient } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 // eslint-disable-next-line no-restricted-imports
 import { StaticRouter } from 'react-router';
 import { Components } from '../../../../lib/vulcan-lib/components';
