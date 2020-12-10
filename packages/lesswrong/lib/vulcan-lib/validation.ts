@@ -1,6 +1,7 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 import { userCanCreateField, userCanUpdateField } from '../vulcan-users/permissions';
+import { getSchema } from '../utils/getSchema';
 import * as _ from 'underscore';
 
 export const dataToModifier = data => ({ 
@@ -23,7 +24,7 @@ export const modifierToData = modifier => ({
 */
 export const validateDocument = (document, collection, context: ResolverContext) => {
   const { currentUser } = context;
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
 
   let validationErrors: Array<any> = [];
 
@@ -80,7 +81,7 @@ export const validateDocument = (document, collection, context: ResolverContext)
 export const validateModifier = (modifier, document, collection, context: ResolverContext) => {
   
   const { currentUser } = context;
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
   const set = modifier.$set;
   const unset = modifier.$unset;
 

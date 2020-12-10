@@ -32,12 +32,8 @@ to the client.
 */
 
 import { Utils } from '../../lib/vulcan-lib/utils';
-import {
-  validateDocument,
-  validateData,
-  dataToModifier,
-  modifierToData,
-} from '../../lib/vulcan-lib/validation';
+import { validateDocument, validateData, dataToModifier, modifierToData, } from '../../lib/vulcan-lib/validation';
+import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
 import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties } from '../mutationCallbacks';
@@ -81,7 +77,7 @@ export const createMutator = async <T extends DbObject>({
     context = createAnonymousContext();
 
   const { collectionName } = collection;
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
   
   // Cast because the type system doesn't know that the collectionName on a
   // collection object identifies the collection object type
@@ -153,13 +149,14 @@ export const createMutator = async <T extends DbObject>({
   */
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
-    if (schema[fieldName].onCreate) {
+    const schemaField = schema[fieldName];
+    if (schemaField.onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onCreate({...properties, fieldName}); // eslint-disable-line no-await-in-loop
-    } else if (schema[fieldName].onInsert) {
+      autoValue = await schemaField.onCreate({...properties, fieldName}); // eslint-disable-line no-await-in-loop
+    } else if (schemaField.onInsert) {
       // OpenCRUD backwards compatibility
-      autoValue = await schema[fieldName].onInsert(clone(document), currentUser); // eslint-disable-line no-await-in-loop
+      autoValue = await schemaField.onInsert(clone(document), currentUser); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
       document[fieldName] = autoValue;
@@ -274,7 +271,7 @@ export const updateMutator = async <T extends DbObject>({
   data: T
 }> => {
   const { collectionName } = collection;
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
@@ -504,7 +501,7 @@ export const deleteMutator = async <T extends DbObject>({
   data: T|null|undefined
 }> => {
   const { collectionName } = collection;
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
   
