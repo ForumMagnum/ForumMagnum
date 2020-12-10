@@ -5,6 +5,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
+  },
+  info: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    marginBottom: 16,
   }
 })
 
@@ -23,6 +28,10 @@ const Nominations2019 = ({classes}: {
             Sort by: {sortByMost ? "most" : "fewest"} nominations
           </a>
         </SectionTitle>
+        <div className={classes.info}>
+          <div>Posts need at least 2 nominations to continue into the Review Phase.</div>
+          <div>Nominate posts that you have personally found useful and important.</div>
+        </div>
         <PostsList2 
           terms={{view:"nominations2019", sortByMost: sortByMost, limit: 50}} 
           showNominationCount
