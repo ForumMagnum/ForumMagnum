@@ -10,7 +10,6 @@ import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
-import type { ApolloClient } from '@apollo/client';
 
 // import { debug } from './debug';
 
