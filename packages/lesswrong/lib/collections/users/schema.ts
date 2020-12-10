@@ -21,7 +21,7 @@ import * as _ from 'underscore';
 // Anything else..
 ///////////////////////////////////////
 
-const createDisplayName = (user: DbUser): string => {
+const createDisplayName = (user: DbInsertion<DbUser>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');

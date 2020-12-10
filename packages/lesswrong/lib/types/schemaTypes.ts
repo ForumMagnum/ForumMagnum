@@ -58,8 +58,8 @@ interface CollectionFieldSpecification<T extends DbObject> {
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
   //    
-  onInsert?: (doc: T, currentUser: DbUser|null) => any,
-  onCreate?: (args: {data: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: any, fieldName: string}) => any,
+  onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
+  onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: any, fieldName: string}) => any,
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: any, fieldName: string}) => any,
   onRemove?: any,
