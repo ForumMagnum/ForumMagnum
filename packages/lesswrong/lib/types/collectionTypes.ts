@@ -29,7 +29,6 @@ interface CollectionBase<
   attachSchema: any
   addField: any
   removeField: any
-  helpers: any
   
   rawCollection: any
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
