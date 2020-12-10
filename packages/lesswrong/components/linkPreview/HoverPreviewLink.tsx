@@ -70,7 +70,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
       const destinationUrl = parsedUrl.url;
 
       if (parsedUrl.currentRoute) {
-        const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
+        const PreviewComponent: any = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
 
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} onsite>
