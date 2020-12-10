@@ -25,4 +25,4 @@ export interface WithUpdateCurrentUserProps {
   updateCurrentUser: (data: Partial<MakeFieldsNullable<DbUser>>)=>Promise<void>
 }
 
-export const withUpdateCurrentUser = hookToHoc(useUpdateCurrentUser);
+export const withUpdateCurrentUser = hookToHoc(() => ({updateCurrentUser: useUpdateCurrentUser()}));
