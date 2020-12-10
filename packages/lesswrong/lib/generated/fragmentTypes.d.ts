@@ -1876,5 +1876,5 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "DatabaseMetadata"|"Users"|"Votes"|"Comments"|"PostRelations"|"TagRels"|"Posts"|"RSSFeeds"|"Sequences"|"Tags"|"Revisions"|"Notifications"|"Conversations"|"Messages"|"Reports"|"LWEvents"|"TagFlags"|"GardenCodes"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Subscriptions"|"PetrovDayLaunchs"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 
