@@ -207,7 +207,7 @@ const FrontpageReviewPhase = ({classes}) => {
       <AnalyticsContext listContext={"LessWrong 2019 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} />
       </AnalyticsContext>
-        <div className={classes.actionButtonRow}>
+        {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
           <LWTooltip title={<div>
               <div>View posts with at least 1 nomination</div>
               <div><em>(Posts need at least 2 nominations)</em></div>
@@ -224,7 +224,7 @@ const FrontpageReviewPhase = ({classes}) => {
               Nominate 2019 Posts
             </Link>
           </LWTooltip>
-        </div>
+        </div>}
     </SingleColumnSection>
   )
 }
