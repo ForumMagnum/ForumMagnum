@@ -22,6 +22,7 @@ import Sentry from '@sentry/node';
 import { randomId } from '../../../lib/random';
 import { publicSettings } from '../../../lib/publicSettings'
 import { getMergedStylesheet } from '../../styleGeneration';
+import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 
 type RenderTimings = {
   totalTime: number
@@ -142,7 +143,7 @@ const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const context: any = {};
 
   // Allows components to set statuscodes and redirects that will get executed on the server
-  let serverRequestStatus: any = {}
+  let serverRequestStatus: ServerRequestStatusContextType = {}
 
   // TODO: req object does not seem to have been processed by the Express
   // middlewares at this point

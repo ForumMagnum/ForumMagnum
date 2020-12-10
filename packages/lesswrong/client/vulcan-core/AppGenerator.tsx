@@ -16,7 +16,7 @@ const AppGenerator = ({ apolloClient, abTestGroups }) => {
       <CookiesProvider>
         <BrowserRouter>
           <ABTestGroupsContext.Provider value={abTestGroups}>
-            <Components.App />
+            <Components.App apolloClient={apolloClient} />
           </ABTestGroupsContext.Provider>
         </BrowserRouter>
       </CookiesProvider>
