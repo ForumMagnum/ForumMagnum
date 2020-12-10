@@ -32,7 +32,7 @@ to the client.
 */
 
 import { Utils } from '../../lib/vulcan-lib/utils';
-import { validateDocument, validateData, dataToModifier, modifierToData, } from '../../lib/vulcan-lib/validation';
+import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
 import { Connectors } from './connectors';

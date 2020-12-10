@@ -1,7 +1,7 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
-import { userCanCreateField, userCanUpdateField } from '../vulcan-users/permissions';
-import { getSchema } from '../utils/getSchema';
+import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
+import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
 export const dataToModifier = data => ({ 
