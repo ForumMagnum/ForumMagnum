@@ -4,12 +4,7 @@ Default mutations
 
 */
 
-import {
-  registerCallback,
-  Utils,
-  getTypeName,
-  getCollectionName
-} from '../vulcan-lib';
+import { Utils, getTypeName, getCollectionName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 
@@ -42,9 +37,6 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
     typeName = getTypeName(collectionName);
     mutationOptions = { ...defaultOptions, ...arguments[1] };
   }
-
-  // register callbacks for documentation purposes
-  registerCollectionCallbacks(typeName, mutationOptions);
 
   const mutations: any = {};
 
@@ -281,136 +273,3 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
 
   return mutations;
 }
-
-const registerCollectionCallbacks = (typeName, options) => {
-  typeName = typeName.toLowerCase();
-
-  if (options.create) {
-    registerCallback({
-      name: `${typeName}.create.validate`,
-      iterator: { validationErrors: 'An array that can be used to accumulate validation errors' },
-      properties: [
-        { document: 'The document being inserted' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of the mutation' },
-      ],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        'Validate a document before insertion (can be skipped when inserting directly on server).',
-    });
-    registerCallback({
-      name: `${typeName}.create.before`,
-      iterator: { document: 'The document being inserted' },
-      properties: [{ currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'document',
-      description: "Perform operations on a new document before it's inserted in the database.",
-    });
-    registerCallback({
-      name: `${typeName}.create.after`,
-      iterator: { document: 'The document being inserted' },
-      properties: [{ currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        "Perform operations on a new document after it's inserted in the database but *before* the mutation returns it.",
-    });
-    registerCallback({
-      name: `${typeName}.create.async`,
-      iterator: { document: 'The document being inserted' },
-      properties: [
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-      ],
-      runs: 'async',
-      returns: null,
-      description:
-        "Perform operations on a new document after it's inserted in the database asynchronously.",
-    });
-  }
-  if (options.update) {
-    registerCallback({
-      name: `${typeName}.update.validate`,
-      iterator: { validationErrors: 'An object that can be used to accumulate validation errors' },
-      properties: [
-        { document: 'The document being edited' },
-        { data: 'The client data' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of the mutation' },
-      ],
-      runs: 'sync',
-      returns: 'modifier',
-      description:
-        'Validate a document before update (can be skipped when updating directly on server).',
-    });
-    registerCallback({
-      name: `${typeName}.update.before`,
-      iterator: { data: 'The client data' },
-      properties: [{ document: 'The document being edited' }, { currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'modifier',
-      description: "Perform operations on a document before it's updated in the database.",
-    });
-    registerCallback({
-      name: `${typeName}.update.after`,
-      iterator: { newDocument: 'The document after the update' },
-      properties: [{ document: 'The document being edited' }, { currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        "Perform operations on a document after it's updated in the database but *before* the mutation returns it.",
-    });
-    registerCallback({
-      name: `${typeName}.update.async`,
-      iterator: { newDocument: 'The document after the edit' },
-      properties: [
-        { document: 'The document before the edit' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-      ],
-      runs: 'async',
-      returns: null,
-      description:
-        "Perform operations on a document after it's updated in the database asynchronously.",
-    });
-  }
-  if (options.delete) {
-    registerCallback({
-      name: `${typeName}.delete.validate`,
-      iterator: { validationErrors: 'An object that can be used to accumulate validation errors' },
-      properties: [
-        { currentUser: 'The current user' },
-        { document: 'The document being removed' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of this mutation' },
-      ],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        'Validate a document before removal (can be skipped when removing directly on server).',
-    });
-    registerCallback({
-      name: `${typeName}.delete.before`,
-      iterator: { document: 'The document being removed' },
-      properties: [{ currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: null,
-      description: "Perform operations on a document before it's removed from the database.",
-    });
-    registerCallback({
-      name: `${typeName}.delete.async`,
-      properties: [
-        { document: 'The document being removed' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-      ],
-      runs: 'async',
-      returns: null,
-      description:
-        "Perform operations on a document after it's removed from the database asynchronously.",
-    });
-  }
-};

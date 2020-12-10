@@ -1,6 +1,5 @@
 import React from 'react'
 import { createStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCookies } from 'react-cookie'
@@ -116,7 +115,7 @@ const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
 const EAHomeHandbook = ({ classes, documentId }) => {
-  const { SingleColumnSection, CloudinaryImage2, Loading } = Components
+  const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",

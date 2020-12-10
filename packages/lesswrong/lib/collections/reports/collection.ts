@@ -1,5 +1,6 @@
 import schema from './schema';
-import { userCanDo, userGroups } from '../../vulcan-users/permissions';
+import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
+import { sunshineRegimentGroup } from '../../permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
@@ -17,7 +18,7 @@ const membersActions = [
   'reports.new',
   'reports.view.own',
 ];
-userGroups.members.can(membersActions);
+membersGroup.can(membersActions);
 
 const sunshineRegimentActions = [
   'reports.new',
@@ -25,7 +26,7 @@ const sunshineRegimentActions = [
   'reports.remove.all',
   'reports.view.all',
 ];
-userGroups.sunshineRegiment.can(sunshineRegimentActions);
+sunshineRegimentGroup.can(sunshineRegimentActions);
 
 Reports.checkAccess = async (user: DbUser|null, document: DbReport, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

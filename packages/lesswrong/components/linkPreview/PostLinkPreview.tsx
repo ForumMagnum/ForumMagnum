@@ -10,7 +10,7 @@ import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import gql from 'graphql-tag';
-import { postHighlightStyles } from '../../themes/stylePiping';
+import { postHighlightStyles, metaculusBackground } from '../../themes/stylePiping';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -422,8 +422,6 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
 const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', MozillaHubPreview, {
   styles: mozillaHubStyles
 })
-
-export const metaculusBackground = "#2c3947"
 
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {

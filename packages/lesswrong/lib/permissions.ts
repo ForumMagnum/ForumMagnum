@@ -1,8 +1,8 @@
 import { createGroup } from './vulcan-users/permissions';
 
-createGroup("sunshineRegiment");
-createGroup("trustLevel1");
-createGroup("canBypassPostRateLimit");
-createGroup("canModeratePersonal");
-createGroup("canCommentLock");
-createGroup("tagManager");
+export const sunshineRegimentGroup = createGroup("sunshineRegiment");
+export const trustLevel1Group = createGroup("trustLevel1");
+export const canBypassPostRateLimitGroup = createGroup("canBypassPostRateLimit");
+export const canModeratePersonalGroup = createGroup("canModeratePersonal");
+export const canCommentLockGroup = createGroup("canCommentLock");
+export const tagManagerGroup = createGroup("tagManager");

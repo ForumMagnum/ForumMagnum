@@ -1,5 +1,4 @@
 import React from 'react';
-import Notifications from '../../lib/collections/notifications/collection';
 import Badge from '@material-ui/core/Badge';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -34,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
-  terms: any,
+  terms: NotificationsViewTerms,
   classes: ClassesType,
   open: boolean,
   color?: string,
@@ -43,7 +42,7 @@ const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
   const currentUser = useCurrentUser();
   const { results } = useMulti({
     terms,
-    collection: Notifications,
+    collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     pollInterval: 0,
     limit: 20,

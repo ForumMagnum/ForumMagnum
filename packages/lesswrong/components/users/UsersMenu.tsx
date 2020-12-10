@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, {PureComponent} from 'react';
-import PropTypes from 'prop-types';
+import React, {useState} from 'react';
 import { meteorLogout } from '../../lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -19,9 +18,9 @@ import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import withUser from '../common/withUser';
-import withDialog from '../common/withDialog'
-import withHover from '../common/withHover'
+import { useCurrentUser } from '../common/withUser';
+import { useDialog } from '../common/withDialog'
+import { useHover } from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -58,38 +57,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", client, classes}: {
   color?: string,
-}
-interface UsersMenuProps extends ExternalProps, WithUserProps, WithStylesProps, WithDialogProps, WithHoverProps {
-  client: any,
-}
-interface UsersMenuState {
-  open: boolean,
-  anchorEl: HTMLElement|null,
-}
+  client?: any,
+  classes: ClassesType
+}) => {
+  const [open,setOpen] = useState(false);
+  const currentUser = useCurrentUser();
+  const {eventHandlers, hover, anchorEl} = useHover();
+  const {openDialog} = useDialog();
+  const { LWPopper, LWTooltip } = Components
 
-class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
-  constructor(props: UsersMenuProps) {
-    super(props);
-    this.state = {
-      open: false,
-      anchorEl: null,
-    }
-  }
+  if (!currentUser) return null;
 
-  render() {
-    let { currentUser, client, classes, color, openDialog, hover, anchorEl } = this.props;
+  const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
-    const { LWPopper, LWTooltip } = Components
-
-    if (!currentUser) return null;
-
-    const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
-    const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-
-    return (
-      <div className={classes.root}>
+  return (
+      <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
           <Button classes={{root: classes.userButtonRoot}}>
             <span className={classes.userButtonContents} style={{ color: color }}>
@@ -126,6 +111,11 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
               <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                 New Shortform
               </MenuItem>
+            }
+            {showNewButtons && <Divider/>}
+            {showNewButtons && <Link to={`/newPost?eventForm=true`}>
+                <MenuItem>New Event</MenuItem>
+              </Link>
             }
             {(showNewButtons && currentUser.karma >= 1000) &&
               <Link to={`/sequencesnew`}>
@@ -187,22 +177,13 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
             </MenuItem>
           </Paper>
         </LWPopper>
-      </div>
-    )
-  }
+    </div>
+  )
 }
 
-(UsersMenu as any).propTypes = {
-  color: PropTypes.string,
-};
-
-(UsersMenu as any).defaultProps = {
-  color: "rgba(0, 0, 0, 0.6)"
-}
-
-const UsersMenuComponent = registerComponent<ExternalProps>('UsersMenu', UsersMenu, {
+const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {
   styles,
-  hocs: [withUser, withApollo, withHover(), withDialog]
+  hocs: [withApollo]
 });
 
 declare global {

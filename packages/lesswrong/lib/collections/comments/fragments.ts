@@ -42,20 +42,10 @@ registerFragment(`
     nominatedForReview
     reviewingForReview
     promoted
-    promotedByUserId
     promotedByUser {
       ...UsersMinimumInfo
     }
     directChildrenCount
-  }
-`);
-
-registerFragment(`
-  fragment CommentPermalink on Comment {
-    ...CommentsList
-    parentComment {
-      ...CommentsList
-    }
   }
 `);
 

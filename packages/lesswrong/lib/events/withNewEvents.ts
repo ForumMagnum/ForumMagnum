@@ -66,7 +66,7 @@ export const useNewEvents = () => {
     });
   }, [events, closeEvent]);
   
-  useEffect(useCallback(() => onUnmount, [onUnmount]));
+  useEffect(() => onUnmount(), [onUnmount]);
   
   return {recordEvent, closeAllEvents};
 }

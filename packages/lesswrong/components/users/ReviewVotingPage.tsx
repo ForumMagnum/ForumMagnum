@@ -9,9 +9,7 @@ import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/cru
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from '@apollo/client';
 import { Paper } from '@material-ui/core';
-import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
-import { ReviewVotes } from '../../lib/collections/reviewVotes/collection';
 import classNames from 'classnames';
 import * as _ from "underscore"
 import gql from 'graphql-tag';
@@ -178,14 +176,14 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
-    collection: ReviewVotes,
+    collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
   })
@@ -417,9 +415,11 @@ function CommentTextField({startValue, updateValue, postId}: {
     setText(startValue)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId])
+  // Spurious warning because eslint doesn't know what _.debounce does
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedUpdateValue = useCallback(_.debounce((value: any) => {
     updateValue(value)
-  }, 500), [postId])
+  }, 500), [updateValue])
   return <TextField
     id="standard-multiline-static"
     placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for final decisions of what posts to include in the Best of 2018."

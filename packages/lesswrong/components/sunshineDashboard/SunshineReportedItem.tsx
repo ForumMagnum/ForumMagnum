@@ -1,10 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
-import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -73,7 +70,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     const { report, hover, anchorEl } = this.props
     const comment = report.comment
     const post = report.post
-    const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview  } = Components
+    const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview, Typography } = Components
 
     if (!post) return null;
 
@@ -113,11 +110,11 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
 const SunshineReportedItemComponent = registerComponent<ExternalProps>('SunshineReportedItem', SunshineReportedItem, {
   hocs: [
     withUpdate({
-      collection: Comments,
+      collectionName: "Comments",
       fragmentName: 'CommentsListWithParentMetadata',
     }),
     withUpdate({
-      collection: Posts,
+      collectionName: "Posts",
       fragmentName: 'PostsList',
     }),
     withUser,
