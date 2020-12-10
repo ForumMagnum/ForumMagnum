@@ -9,9 +9,7 @@ import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/cru
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from '@apollo/client';
 import { Paper } from '@material-ui/core';
-import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
-import { ReviewVotes } from '../../lib/collections/reviewVotes/collection';
 import classNames from 'classnames';
 import * as _ from "underscore"
 import gql from 'graphql-tag';
@@ -146,6 +144,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%",
       display: "block"
     }
+  },
+  warning: {
+    color: theme.palette.error.main
   }
 });
 
@@ -175,14 +176,14 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
-    collection: ReviewVotes,
+    collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
   })
@@ -193,8 +194,8 @@ const ReviewVotingPage = ({classes}: {
   });
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
         ...reviewVoteFragment
       }
     }
@@ -230,13 +231,13 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = async ({postId, score}: {postId: string, score: number}) => await submitVote({variables: {postId, qualitativeScore: score}})
+  const dispatchQualitativeVote = async ({postId, score}: {postId: string, score: number}) => await submitVote({variables: {postId, qualitativeScore: score, year: "2018", dummy: true}})
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
   const dispatchQuadraticVote = async ({_id, postId, change, set}) => {
     const existingVote = _id && dbVotes.find(vote => vote._id === _id)
     await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: "2018", dummy: true},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
@@ -263,10 +264,10 @@ const ReviewVotingPage = ({classes}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
-  if (!currentUser || currentUser.karma < 1000) {
+  if (!currentUser || currentUser.createdAt > new Date("2019-01-01")) {
     return (
       <div className={classes.message}>
-        Only users with 1000 karma can vote on the LessWrong Review
+        Only users registered before 2019 can vote in the 2019 LessWrong Review
       </div>
     )
   }
@@ -339,8 +340,9 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <h1 className={classes.header}>Rate the most important posts of 2018</h1>
+              <h1 className={classes.header}>Try out the vote on nominated and reviewed posts from 2018</h1>
               <div className={classes.instructions}>
+                <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the 2019 Review on January 12th.</p>
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
                 <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
                 <ul>
@@ -352,14 +354,14 @@ const ReviewVotingPage = ({classes}: {
                 </ul>
                 <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details.)</p>
                 <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/zLhSjwXHnTg9QBzqH/the-final-vote-for-lw-2018-review">this post</Link>.</p>
-                <p>The vote closes on Jan 19th. If you leave this page and come back, your votes will be saved.</p>
+                {/* <p>The vote closes on Jan 19th. If you leave this page and come back, your votes will be saved.</p> */}
               </div>
             </div>
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
               <div className={classes.writeAReview}>
-                <ReviewPostButton post={expandedPost} reviewMessage={<div>
+                <ReviewPostButton post={expandedPost} year="2018" reviewMessage={<div>
                   <div>Write a public review for "{expandedPost.title}"</div>
                   <TextField
                     placeholder="Any thoughts about this post you want to share with other voters?"
@@ -413,9 +415,11 @@ function CommentTextField({startValue, updateValue, postId}: {
     setText(startValue)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId])
+  // Spurious warning because eslint doesn't know what _.debounce does
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedUpdateValue = useCallback(_.debounce((value: any) => {
     updateValue(value)
-  }, 500), [postId])
+  }, 500), [updateValue])
   return <TextField
     id="standard-multiline-static"
     placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for final decisions of what posts to include in the Best of 2018."
@@ -561,7 +565,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
         <div className={classes.postVote} >
           <div className={classes.post}>
             <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-              <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
+              <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
             </LWTooltip>
           </div>
           {post.userId !== currentUser._id && <div>

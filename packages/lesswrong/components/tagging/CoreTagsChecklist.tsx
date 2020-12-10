@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import Checkbox from '@material-ui/core/Checkbox';
-import { Tags } from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,7 +35,7 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
     terms: {
       view: "coreTags",
     },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagFragment",
     limit: 100,
   });

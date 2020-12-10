@@ -1,7 +1,6 @@
 import { Components as C, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import Users from "../../lib/collections/users/collection";
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -10,12 +9,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AFSuggestUsersList = ({ terms, classes }: {
-  terms: any,
+  terms: UsersViewTerms,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
     terms,
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'SuggestAlignmentUser',
     fetchPolicy: 'cache-and-network',
   });

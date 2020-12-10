@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const CoronavirusFrontpageWidget = ({settings}) => {
   const { SectionSubtitle, RecommendationsList, LWTooltip, SectionFooter } = Components
@@ -12,7 +13,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
   // if (settings.hideReview) return null
   if (settings.hideCoronavirus) return null
 
-  const samplingAlgorithm = {
+  const samplingAlgorithm: RecommendationsAlgorithm = {
     method: "sample",
     count: 3,
     minimumBaseScore: 30,

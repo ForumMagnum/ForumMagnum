@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import type { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -82,8 +81,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     terms: {
       view: "suggestedFilterTags",
     },
-    collection: Tags,
-    fragmentName: "TagFragment",
+    collectionName: "Tags",
+    fragmentName: "TagPreviewFragment",
     limit: 100,
   });
 
@@ -160,7 +159,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   </span>
 }
 
-const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagFragment>): FilterSettings => {
+const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
   const tagsIncluded: Record<string,boolean> = {};
   for (let tag of oldFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
@@ -170,7 +169,7 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
     ...oldFilterSettings,
     tags: [
       ...oldFilterSettings.tags,
-      ...tagsNotIncluded.map((tag: TagFragment): FilterTag => ({
+      ...tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
         tagId: tag._id,
         tagName: tag.name,
         filterMode: "Default",

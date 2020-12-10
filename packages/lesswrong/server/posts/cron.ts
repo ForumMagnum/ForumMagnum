@@ -5,9 +5,7 @@ import * as _ from 'underscore';
 
 addCronJob({
   name: 'checkScheduledPosts',
-  schedule(parser) {
-    return parser.text('every 10 minutes');
-  },
+  interval: 'every 10 minutes',
   job() {
     // fetch all posts tagged as future
     const scheduledPosts = Posts.find({isFuture: true}, {fields: {_id: 1, status: 1, postedAt: 1, userId: 1, title: 1}}).fetch();

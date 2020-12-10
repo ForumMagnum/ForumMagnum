@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
@@ -79,29 +79,20 @@ const TagProgressBar = ({ classes }: {
 
   const { LWTooltip, PostsItem2MetaInfo, SeparatorBullet } = Components;
   const currentUser = useCurrentUser();
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
   const hideClickHandler = async () => {
     if (currentUser) {
-      await updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          hideTaggingProgressBar: true
-        },
+      await updateCurrentUser({
+        hideTaggingProgressBar: true
       })
       flash({
         messageString: "Hid tagging progress bar from the frontpage",
         type: "success",
-        action: () => void updateUser({
-          selector: { _id: currentUser._id },
-          data: {
-            hideTaggingProgressBar: false
-          },
+        action: () => void updateCurrentUser({
+          hideTaggingProgressBar: false
         })
       })
     } else {

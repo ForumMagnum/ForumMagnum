@@ -6,7 +6,7 @@ import { defaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
-import { Posts } from '../posts/collection';
+import { postStatuses } from '../posts/constants';
 import Users from "./collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
@@ -998,6 +998,18 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations
   },
 
+  hideFrontpageBookAd: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -1334,7 +1346,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
+      filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
     }),
     viewableBy: ['guests'],
   },

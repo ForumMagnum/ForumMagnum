@@ -33,7 +33,7 @@ const PostsGroupDetails = ({ documentId, post, classes }: {
   if (document) {
     return <div className={classes.root}>
       <div className={classes.title}>
-        {post && post.groupId && <Link to={'/groups/' + post.groupId }>{ document.name }</Link>}
+        {post?.group && <Link to={'/groups/' + post.group._id }>{ document.name }</Link>}
       </div>
     </div>
   } else {

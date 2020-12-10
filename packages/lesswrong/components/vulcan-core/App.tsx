@@ -4,11 +4,11 @@ import React, { PureComponent } from 'react';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';
-import { withUpdate } from '../../lib/crud/withUpdate';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
 import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, runCallbacks, Strings } from '../../lib/vulcan-lib';
+import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
+import { userIdentifiedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 
@@ -36,9 +36,9 @@ class App extends PureComponent<AppProps,any> {
   constructor(props) {
     super(props);
     if (props.currentUser) {
-      runCallbacks({
-        name: 'events.identify',
-        iterator: props.currentUser
+      void userIdentifiedCallback.runCallbacks({
+        iterator: props.currentUser,
+        properties: [],
       });
     }
     const locale = localeSetting.get();
@@ -88,9 +88,9 @@ class App extends PureComponent<AppProps,any> {
 
   UNSAFE_componentWillUpdate(nextProps) {
     if (!this.props.currentUser && nextProps.currentUser) {
-      runCallbacks({
-        name: 'events.identify',
-        iterator: nextProps.currentUser
+      void userIdentifiedCallback.runCallbacks({
+        iterator: nextProps.currentUser,
+        properties: [],
       });
     }
   }
@@ -166,17 +166,11 @@ class App extends PureComponent<AppProps,any> {
   getLocale: PropTypes.func,
 };
 
-const updateOptions = {
-  collectionName: 'Users',
-  fragmentName: 'UsersCurrent',
-};
-
 //registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent('App', App, {
   hocs: [
     withCurrentUser,
-    withUpdate(updateOptions),
     withRouter
   ]
 });

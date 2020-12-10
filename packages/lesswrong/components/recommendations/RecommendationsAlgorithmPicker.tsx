@@ -1,13 +1,14 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { archiveRecommendationsName } from './ConfigurableRecommendationsList';
+
+export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -72,10 +73,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
 }) => {
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: "UsersCurrent",
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
   function applyChange(newSettings) {
     if (currentUser) {
       const mergedSettings = {
@@ -83,11 +81,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         [configName]: newSettings
       };
 
-      void updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          recommendationSettings: mergedSettings
-        },
+      void updateCurrentUser({
+        recommendationSettings: mergedSettings
       });
     }
     onChange(newSettings);

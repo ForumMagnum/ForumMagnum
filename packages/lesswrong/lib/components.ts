@@ -1,4 +1,3 @@
-import '../components/alignment-forum/withSetAlignmentComment';
 import '../components/alignment-forum/withSetAlignmentPost';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
@@ -21,6 +20,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+  importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 }
 
@@ -92,12 +92,14 @@ importComponent("RevisionComparisonNotice", () => require('../components/revisio
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
+importComponent("Typography", () => require('../components/common/Typography'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
 importComponent("Footer", () => require('../components/common/Footer'));
 importComponent("LoadMore", () => require('../components/common/LoadMore'));
 importComponent("ReCaptcha", () => require('../components/common/ReCaptcha'));
 importComponent("DefaultStyleFormGroup", () => require('../components/common/DefaultStyleFormGroup'))
 importComponent("LinkCard", () => require('../components/common/LinkCard'));
+importComponent("LWDialog", () => require('../components/common/LWDialog'));
 importComponent("Error404", () => require('../components/common/Error404'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect'));
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
@@ -319,6 +321,7 @@ importComponent("CommentsListSection", () => require('../components/comments/Com
 importComponent("CommentsList", () => require('../components/comments/CommentsList'));
 importComponent("CommentsListMeta", () => require('../components/comments/CommentsListMeta'));
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode'));
+importComponent("CommentFrame", () => require('../components/comments/CommentFrame'));
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews'));
 importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
@@ -527,13 +530,16 @@ importComponent("FrontpageNominationPhase", () => require('../components/review/
 importComponent("FrontpageReviewPhase", () => require('../components/review/FrontpageReviewPhase'));
 importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("Nominations2018", () => require('../components/review/Nominations2018'));
+importComponent("Nominations2019", () => require('../components/review/Nominations2019'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018'));
+importComponent("Reviews2019", () => require('../components/review/Reviews2019'));
 importComponent("ReviewPostButton", () => require('../components/review/ReviewPostButton'));
 importComponent("ReviewPostForm", () => require('../components/review/ReviewPostForm'));
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem'));
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog'));
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
 importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
+importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
 
 
 // Analytics Tracking
@@ -554,3 +560,8 @@ importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Ale
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
+
+// Review Book related components
+importComponent("BookLanding", () => require('../components/books/BookLanding'));
+importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
+importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));

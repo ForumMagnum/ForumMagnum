@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
-import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
@@ -84,7 +83,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   maxHeight: {
     maxHeight: "calc(100vh - 450px)",
-    overflow: "scroll"
+    overflowY: "scroll"
   },
   clickHereColor: {
     color: theme.palette.primary.main
@@ -121,8 +120,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
   },
   markdownImgErrText: {
-    margin: `${theme.spacing.unit * 3}px 0`
-  }
+    margin: `${theme.spacing.unit * 3}px 0`,
+    color: theme.palette.error.main,
+  },
+  lastEditedWarning: {
+    color: theme.palette.error.main,
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -480,8 +483,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const { currentUser, classes } = this.props
     const type = this.getInitialEditorType();
     const defaultType = this.getUserDefaultEditor(currentUser)
-    return <div>
-        <Typography variant="body2" color="error">
+    return <div className={classes.lastEditedWarning}>
+        <Components.Typography variant="body2">
           This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
           {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
           <a
@@ -491,7 +494,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
             Click here
           </a>
           {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
-        </Typography>
+        </Components.Typography>
         <br/>
       </div>
   }
@@ -699,11 +702,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           fullWidth={true}
           disableUnderline={true}
         />
-      {markdownImgErrs && editorType === 'markdown' && <Typography component='aside' variant='body2' color='error' className={classes.markdownImgErrText}>
+      {markdownImgErrs && editorType === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
           Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
           connection. You should update all links to images so that they are served over a{' '}
           secure HTTPS connection (i.e. the links should start with <em>https://</em>).
-        </Typography>}
+        </Components.Typography>}
       </div>
   }
 

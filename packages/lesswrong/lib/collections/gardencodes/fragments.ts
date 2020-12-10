@@ -10,6 +10,7 @@ registerFragment(`
     slug
     startTime
     endTime
+    fbLink
     type
     contents {
       ...RevisionDisplay
@@ -27,6 +28,7 @@ registerFragment(`
     slug
     startTime
     endTime
+    fbLink
     type
     contents {
       ...RevisionEdit

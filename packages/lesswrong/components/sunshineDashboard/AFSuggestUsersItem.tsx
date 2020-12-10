@@ -3,7 +3,6 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import ClearIcon from '@material-ui/icons/Clear';
@@ -14,8 +13,7 @@ import * as _ from 'underscore';
 interface ExternalProps {
   user: SuggestAlignmentUser,
 }
-interface AFSuggestUsersItemProps extends ExternalProps, WithUserProps, WithHoverProps{
-  updateUser: any,
+interface AFSuggestUsersItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithUpdateUserProps {
 }
 interface AFSuggestUsersItemState {
   show: boolean,
@@ -28,7 +26,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
 
   handleReview = () => {
     const { currentUser, user, updateUser } = this.props
-    updateUser({
+    void updateUser({
       selector: { _id: user._id },
       data: {
         reviewForAlignmentForumUserId: currentUser!._id,
@@ -40,7 +38,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
 
   handleIgnore = () => {
     const { currentUser, user, updateUser } = this.props
-    updateUser({
+    void updateUser({
       selector: { _id: user._id },
       data: { reviewForAlignmentForumUserId: currentUser!._id }
     })
@@ -53,7 +51,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
       return (
           <C.SunshineListItem hover={hover}>
             <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
-              <Typography variant="body2">
+              <C.Typography variant="body2">
                 <Link to={userGetProfileUrl(user)}>
                   { user.displayName }
                 </Link>
@@ -66,7 +64,7 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
                   Application:
                   {user.afApplicationText}
                 </p>}
-              </Typography>
+              </C.Typography>
             </C.SidebarHoverOver>
             <div>
               <C.MetaInfo>

@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
-import { metaculusBackground } from '../components/linkPreview/PostLinkPreview';
+
+export const metaculusBackground = "#2c3947"
 
 const hideSpoilers = {
   backgroundColor: 'black',
@@ -348,8 +349,8 @@ export const emailBodyStyles = baseBodyStyles
 
 const smallPostStyles = (theme: ThemeType) => ({
   ...theme.typography.body2,
-  fontSize: "1.35rem",
-  lineHeight: "1.8rem",
+  fontSize: "1.28rem",
+  lineHeight: "1.75rem",
   ...theme.typography.postStyle,
   '& blockquote': {
     ...theme.typography.body2,
@@ -361,7 +362,7 @@ const smallPostStyles = (theme: ThemeType) => ({
   '& li': {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontSize: "1.35rem",
+    fontSize: "1.28rem",
     lineHeight: "1.8rem",
   },
 })
