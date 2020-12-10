@@ -21,7 +21,6 @@ interface CollectionBase<T extends DbObject> {
   views: any
   getParameters: any
   simpleSchema: ()=>any
-  addField: any
   helpers: any
   
   rawCollection: any

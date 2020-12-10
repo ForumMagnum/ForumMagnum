@@ -34,27 +34,6 @@ export const getCollectionName = (typeName): CollectionNameString => pluralize(t
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
 /**
- * @summary Add an additional field (or an array of fields) to a schema.
- * @param {Object|Object[]} field
- */
-Mongo.Collection.prototype.addField = function(fieldOrFieldArray) {
-  const collection = this;
-  const schema = collection.simpleSchema()._schema;
-  const fieldSchema = {};
-
-  const fieldArray = Array.isArray(fieldOrFieldArray) ? fieldOrFieldArray : [fieldOrFieldArray];
-
-  // loop over fields and add them to schema (or extend existing fields)
-  fieldArray.forEach(function(field) {
-    const newField = {...schema[field.fieldName], ...field.fieldSchema};
-    fieldSchema[field.fieldName] = newField;
-  });
-
-  // add field schema to collection schema
-  this.simpleSchema().extend(fieldSchema);
-};
-
-/**
  * @summary Add a default view function.
  * @param {Function} view
  */
@@ -125,6 +104,7 @@ export const createCollection = <
   collection.views = [];
 
   // attach schema to collection
+  //collection.simpleSchema = () => new SimpleSchema(schema);
   collection.simpleSchema = () => new SimpleSchema(schema);
 
   // add collection to resolver context

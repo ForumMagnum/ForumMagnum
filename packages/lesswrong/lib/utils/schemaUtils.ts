@@ -172,18 +172,26 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
 }
 
 // Given a collection and a fieldName=>fieldSchema dictionary, add fields to
-// the collection schema. We use this instead of collection.addField([...])
-// because that one forces an awkward syntax in order to be array-based instead
-// of object-based.
+// the collection schema. If any of the fields mentioned are already present,
+// they will be shallow-merged. This is used for making parts of the schema
+// (in particular, resolvers, onCreate callbacks, etc) specific to server-side
+// code.
 export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
-  let translatedFields: Array<any> = [];
+  const schema = collection.simpleSchema()._schema;
+  const mergedSchema = {};
+  
+  // loop over fields and add them to schema (or extend existing fields)
   for (let key in fieldsDict) {
-    translatedFields.push({
-      fieldName: key,
-      fieldSchema: fieldsDict[key]
-    });
+    if (key in schema)
+      mergedSchema[key] = {...schema[key], ...fieldsDict[key]};
+    else
+      mergedSchema[key] = fieldsDict[key];
   }
-  collection.addField(translatedFields);
+  
+
+  // add field schema to collection schema
+  const newSchema = collection.simpleSchema().extend(mergedSchema);
+  collection.simpleSchema = () => newSchema;
 }
 
 // For auto-generated database type definitions, provides a (string) definition

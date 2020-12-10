@@ -357,13 +357,14 @@ export const updateMutator = async <T extends DbObject>({
   */
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
-    if (schema[fieldName].onUpdate) {
+    const schemaField = schema[fieldName];
+    if (schemaField.onUpdate) {
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onUpdate({...properties, fieldName});
-    } else if (schema[fieldName].onEdit) {
+      autoValue = await schemaField.onUpdate({...properties, fieldName});
+    } else if (schemaField.onEdit) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onEdit(
+      autoValue = await schemaField.onEdit(
         dataToModifier(clone(data)),
         oldDocument,
         currentUser,
