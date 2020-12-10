@@ -5,7 +5,7 @@ import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { Collections } from './getCollection';
-import { addGraphQLCollection, addToGraphQLContext } from './graphql';
+import { addGraphQLCollection } from './graphql';
 import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
@@ -152,11 +152,6 @@ export const createCollection = <N extends CollectionNameString>(options: {
     // attach schema to collection
     collection.attachSchema(new SimpleSchema(schema));
   }
-
-  // add collection to resolver context
-  const context: any = {};
-  context[collectionName] = collection;
-  addToGraphQLContext(context);
 
   if (generateGraphQLSchema) {
     // add collection to list of dynamically generated GraphQL schemas
