@@ -146,9 +146,6 @@ const BookFrontpageWidget = ({ classes }: {
       <div className={classes.buttonRow}>
         {buttons}
       </div>
-      <div className={classes.disclaimerRow}>
-        *Guaranteed delivery to North America before Christmas. We'll try our best with the rest.
-      </div>
     </div>
   }
 
