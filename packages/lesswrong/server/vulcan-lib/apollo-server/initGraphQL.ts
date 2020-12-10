@@ -2,7 +2,7 @@
 // addGraphQLResolvers &c.
 
 import { makeExecutableSchema } from 'apollo-server';
-import { getAdditionalSchemas, queries, mutations, getContext, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';
+import { getAdditionalSchemas, queries, mutations, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -437,6 +437,3 @@ export const getExecutableSchema = () => {
   }
   return executableSchema;
 };
-
-export const getSchemaContextBase = () => getContext();
-

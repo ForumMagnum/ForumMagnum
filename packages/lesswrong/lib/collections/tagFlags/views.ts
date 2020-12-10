@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface TagFlagsViewTerms extends ViewTermsBase {
-    view: TagFlagsViewName
+    view?: TagFlagsViewName
     userId?: string
   }
 }

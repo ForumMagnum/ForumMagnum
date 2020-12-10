@@ -7,7 +7,7 @@ import mapValues from 'lodash/mapValues';
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
-    view: UsersViewName
+    view?: UsersViewName
     sort?: {
       createdAt?: number,
       karma?: number,

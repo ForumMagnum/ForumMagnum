@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface LWEventsViewTerms extends ViewTermsBase {
-    view: LWEventsViewName
+    view?: LWEventsViewName
     name?: string,
     postId?: string,
     userId?: string,

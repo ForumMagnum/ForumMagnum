@@ -89,7 +89,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
     if (!doc[fieldName]) return null
 
     const { currentUser } = context
-    const collection = context[collectionName] as CollectionBase<DataType>
+    const collection = context[collectionName] as unknown as CollectionBase<DataType>
 
     const loader = context.loaders[collectionName] as DataLoader<string,DataType>;
     const resolvedDoc: DataType|null = await loader.load(doc[fieldName])
@@ -120,7 +120,7 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
-    const collection = context[collectionName] as CollectionBase<DbType>
+    const collection = context[collectionName] as unknown as CollectionBase<DbType>
 
     const loader = context.loaders[collectionName] as DataLoader<string,DbType>;
     const resolvedDocs: Array<DbType> = await loader.loadMany(keys)

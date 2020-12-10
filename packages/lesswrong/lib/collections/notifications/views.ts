@@ -3,7 +3,7 @@ import Notifications from './collection';
 
 declare global {
   interface NotificationsViewTerms extends ViewTermsBase {
-    view: NotificationsViewName
+    view?: NotificationsViewName
     type?: string
     userId?: string
     viewed?: boolean

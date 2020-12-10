@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface ReviewVotesViewTerms extends ViewTermsBase {
-    view: ReviewVotesViewName
+    view?: ReviewVotesViewName
     postId?: string
     userId?: string
   }

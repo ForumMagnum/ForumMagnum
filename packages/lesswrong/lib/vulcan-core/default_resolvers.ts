@@ -33,8 +33,9 @@ export function getDefaultResolvers<T extends DbObject>(options) {
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root, { input = {} }, context: ResolverContext, { cacheControl }) {
-        const { terms = {}, enableCache = false, enableTotal = false } = input as any; //LESSWRONG: enableTotal defaults false
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean} }, context: ResolverContext, { cacheControl }) {
+        const input = args?.input || {};
+        const { terms={}, enableCache = false, enableTotal = false } = input;
 
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
@@ -156,7 +157,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
   };
 }
 
-const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: any, parameters: any): Promise<Array<T>> => {
+const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
   const selector = parameters.selector;
   const options = {
     ...parameters.options,

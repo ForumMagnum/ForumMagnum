@@ -4,7 +4,7 @@ import Conversations from "./collection";
 
 declare global {
   interface ConversationsViewTerms extends ViewTermsBase {
-    view: ConversationsViewName
+    view?: ConversationsViewName
     userId?: string
     showArchive?: boolean
   }

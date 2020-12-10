@@ -4,7 +4,7 @@ type VotesViewName = "tagVotes";
 type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDeleted"|"postCommentsTop"|"postCommentsOld"|"postCommentsNew"|"postCommentsBest"|"postLWComments"|"allRecentComments"|"recentComments"|"recentDiscussionThread"|"afRecentDiscussionThread"|"postsItemComments"|"sunshineNewCommentsList"|"questionAnswers"|"legacyIdComment"|"sunshineNewUsersComments"|"repliesToAnswer"|"topShortform"|"shortform"|"repliesToCommentThread"|"shortformLatestChildren"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"commentsOnTag"|"alignmentSuggestedComments"|"rss";
 type PostRelationsViewName = "allPostRelations";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
-type PostsViewName = "userPosts"|"magic"|"top"|"new"|"recentComments"|"old"|"timeframe"|"daily"|"tagRelevance"|"frontpage"|"frontpage-rss"|"curated"|"curated-rss"|"community"|"community-rss"|"meta-rss"|"rss"|"topQuestions"|"recentQuestionActivity"|"scheduled"|"drafts"|"all_drafts"|"unlisted"|"slugPost"|"legacyIdPost"|"recentDiscussionThreadsList"|"afRecentDiscussionThreadsList"|"2018reviewRecentDiscussionThreadsList"|"2019reviewRecentDiscussionThreadsList"|"shortformDiscussionThreadsList"|"onlineEvents"|"nearbyEvents"|"events"|"pastEvents"|"upcomingEvents"|"groupPosts"|"postsWithBannedUsers"|"communityResourcePosts"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"sunshineCuratedSuggestions"|"pingbackPosts"|"nominations2018"|"nominations2019"|"reviews2018"|"tagProgressUntagged"|"personalTagProgressUntagged"|"tagProgressPosts"|"personalTagProgressPosts"|"alignmentSuggestedPosts";
+type PostsViewName = "userPosts"|"magic"|"top"|"new"|"recentComments"|"old"|"timeframe"|"daily"|"tagRelevance"|"frontpage"|"frontpage-rss"|"curated"|"curated-rss"|"community"|"community-rss"|"meta-rss"|"rss"|"topQuestions"|"recentQuestionActivity"|"scheduled"|"drafts"|"all_drafts"|"unlisted"|"slugPost"|"legacyIdPost"|"recentDiscussionThreadsList"|"afRecentDiscussionThreadsList"|"2018reviewRecentDiscussionThreadsList"|"2019reviewRecentDiscussionThreadsList"|"shortformDiscussionThreadsList"|"onlineEvents"|"nearbyEvents"|"events"|"pastEvents"|"upcomingEvents"|"groupPosts"|"postsWithBannedUsers"|"communityResourcePosts"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"sunshineCuratedSuggestions"|"pingbackPosts"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"tagProgressUntagged"|"personalTagProgressUntagged"|"tagProgressPosts"|"personalTagProgressPosts"|"alignmentSuggestedPosts";
 type RSSFeedsViewName = "usersFeed";
 type SequencesViewName = "userProfile"|"userProfileAll"|"curatedSequences"|"communitySequences";
 type TagsViewName = "allTagsAlphabetical"|"userTags"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag";
@@ -31,7 +31,7 @@ type LegacyDataViewName = never
 type EmailTokensViewName = never
 
 interface ViewTermsByCollectionName {
-  DatabaseMetadata: never
+  DatabaseMetadata: ViewTermsBase
   Users: UsersViewTerms
   Votes: VotesViewTerms
   Comments: CommentsViewTerms
@@ -49,19 +49,19 @@ interface ViewTermsByCollectionName {
   LWEvents: LWEventsViewTerms
   TagFlags: TagFlagsViewTerms
   GardenCodes: GardenCodesViewTerms
-  Migrations: never
-  DebouncerEvents: never
-  ReadStatuses: never
-  Bans: never
+  Migrations: ViewTermsBase
+  DebouncerEvents: ViewTermsBase
+  ReadStatuses: ViewTermsBase
+  Bans: ViewTermsBase
   Chapters: ChaptersViewTerms
-  Books: never
-  Collections: never
+  Books: ViewTermsBase
+  Collections: ViewTermsBase
   ReviewVotes: ReviewVotesViewTerms
   Localgroups: LocalgroupsViewTerms
   Subscriptions: SubscriptionsViewTerms
-  PetrovDayLaunchs: never
-  LegacyData: never
-  EmailTokens: never
+  PetrovDayLaunchs: ViewTermsBase
+  LegacyData: ViewTermsBase
+  EmailTokens: ViewTermsBase
 }
 
 
