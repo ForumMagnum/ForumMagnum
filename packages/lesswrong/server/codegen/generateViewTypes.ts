@@ -35,7 +35,7 @@ export function generateViewTypes(): string {
     if (Object.keys(collection.views).length > 0) {
       sb.push(`  ${collectionName}: ${collectionName}ViewTerms\n`);
     } else {
-      sb.push(`  ${collectionName}: never\n`);
+      sb.push(`  ${collectionName}: ViewTermsBase\n`);
     }
   }
   sb.push("}\n");

@@ -172,7 +172,7 @@ const schema: SchemaType<DbGardenCode> = {
 //   },
 // }
 //
-export const GardenCodes = createCollection({
+export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
   schema,

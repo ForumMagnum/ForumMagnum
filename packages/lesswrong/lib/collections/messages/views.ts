@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface MessagesViewTerms extends ViewTermsBase {
-    view: MessagesViewName
+    view?: MessagesViewName
     conversationId?: string
   }
 }

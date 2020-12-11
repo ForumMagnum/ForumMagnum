@@ -3,7 +3,7 @@ import { ensureIndex } from '../../collectionUtils';
 
 declare global {
   interface SubscriptionsViewTerms extends ViewTermsBase {
-    view: SubscriptionsViewName
+    view?: SubscriptionsViewName
     userId?: string
     collectionName?: string
     subscriptionType?: string

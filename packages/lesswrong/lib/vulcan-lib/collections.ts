@@ -5,7 +5,7 @@ import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
-import { addGraphQLCollection, addToGraphQLContext } from './graphql';
+import { addGraphQLCollection } from './graphql';
 import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
@@ -73,6 +73,7 @@ export const createCollection = <
   resolvers?: any,
   mutations?: any,
 }): any => {
+  type T = ObjectsByCollectionName[N];
   const {
     typeName,
     collectionName,
@@ -82,13 +83,13 @@ export const createCollection = <
   } = options;
 
   // initialize new Mongo collection
-  const collection =
+  const collection: CollectionBase<T> =
     collectionName === 'Users' && meteorUsersCollection
       ? meteorUsersCollection
       : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
 
   // decorate collection with options
-  collection.options = options;
+  collection.options = options as any;
 
   // add typeName if missing
   collection.typeName = typeName;
@@ -101,16 +102,11 @@ export const createCollection = <
   collection.options.collectionName = collectionName;
 
   // add views
-  collection.views = [];
+  collection.views = {};
 
   // attach schema to collection
   //collection.simpleSchema = () => new SimpleSchema(schema);
   collection.simpleSchema = () => new SimpleSchema(schema);
-
-  // add collection to resolver context
-  const context = {};
-  context[collectionName] = collection;
-  addToGraphQLContext(context);
 
   if (generateGraphQLSchema) {
     // add collection to list of dynamically generated GraphQL schemas
@@ -124,7 +120,7 @@ export const createCollection = <
 
   // ------------------------------------- Parameters -------------------------------- //
 
-  collection.getParameters = (terms:any = {}, apolloClient, context) => {
+  collection.getParameters = ((terms: ViewTermsByCollectionName[N] = {}, apolloClient?: any, context?: ResolverContext): MergedViewQueryAndOptions<N,T> => {
     // console.log(terms);
 
     let parameters: any = {
@@ -167,7 +163,7 @@ export const createCollection = <
 
     // if there is no sort, default to sorting by createdAt descending
     if (!parameters.options.sort) {
-      parameters.options.sort = { createdAt: -1 };
+      parameters.options.sort = { createdAt: -1 } as any;
     }
 
     // extend sort to sort posts by _id to break ties, unless there's already an id sort
@@ -203,7 +199,7 @@ export const createCollection = <
     // console.log(parameters);
 
     return parameters;
-  };
+  }) as any;
 
   registerCollection(collection);
 

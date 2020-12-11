@@ -78,7 +78,7 @@ const options: MutationOptions<DbTagFlag> = {
   },
 }
 
-export const TagFlags = createCollection({
+export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
   schema,

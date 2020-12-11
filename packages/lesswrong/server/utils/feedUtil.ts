@@ -130,7 +130,7 @@ export async function queryWithCutoff<ResultType extends DbObject>({context, col
   cutoffField: keyof ResultType,
   cutoff: any,
 }) {
-  const defaultViewSelector = collection.defaultView ? collection.defaultView({}).selector : {};
+  const defaultViewSelector = collection.defaultView ? collection.defaultView({} as any).selector : {};
   const {currentUser} = context;
   
   const resultsRaw = await collection.find({
