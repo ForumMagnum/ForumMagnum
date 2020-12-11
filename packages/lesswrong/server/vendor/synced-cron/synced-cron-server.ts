@@ -89,7 +89,7 @@ onStartup(function() {
     later.date.localTime();
 
   // collection holding the job history records
-  SyncedCron._collection = new Mongo.Collection(options.collectionName);
+  SyncedCron._collection = new MongoCollection(options.collectionName);
   SyncedCron._collection._ensureIndex({intendedAt: 1, name: 1}, {unique: true});
 
   if (options.collectionTTL) {
