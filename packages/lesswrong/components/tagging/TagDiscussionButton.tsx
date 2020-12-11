@@ -23,7 +23,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     color: theme.palette.grey[700]
   },
+  discussionCount: {
+      [theme.breakpoints.down('sm')]: { 
+        alignSelf: "flex-start" //appears to low when there's no label
+      }
+    },
   hideOnMobile: {
+    marginRight: 2,
     [theme.breakpoints.down('sm')]: { //optimized or tag paye
       display: "none"
     }
@@ -53,7 +59,8 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   
   return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
-    <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{`${text} (${totalCount || 0})`}</span>
+    <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
+    <span className={classes.discussionCount}>{`(${totalCount || 0})`}</span>
     <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>
     </PopperCard>
