@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx esbuild ./src/server.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/server/js/bundle2.js' --platform=node --external:akismet-api --external:canvas --external:mz --external:pg --external:pg-promise --external:mathjax-node --external:jsdom --external:@sentry/node --external:node-fetch --external:later --external:turndown --external:apollo-server --external:apollo-server-express --sourcemap && npx esbuild ./src/client.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/client/js/bundle.js' --sourcemap --target=es6 --define:global=window",
+    "build": "npx esbuild ./src/server.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/server/js/bundle2.js' --platform=node --external:akismet-api --external:canvas --external:express --external:mz --external:pg --external:pg-promise --external:mathjax-node --external:jsdom --external:@sentry/node --external:node-fetch --external:later --external:turndown --external:apollo-server --external:apollo-server-express --sourcemap && npx esbuild ./src/client.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/client/js/bundle.js' --sourcemap --target=es6 --define:global=window",
     "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/bundle2.js'",
     "build:prod": "export NODE_ENV=development && webpack -p",
     "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle.js'"
@@ -31,6 +31,7 @@
     "webpack-cli": "^4.0.0"
   },
   "dependencies": {
+    "@apollo/client": "^3.2.0",
     "@babel/runtime": "^7.12.1",
     "@google/maps": "^0.5.5",
     "@googlemaps/google-maps-services-js": "^3.1.13",
@@ -152,6 +153,7 @@
     "mathjax-node-page": "3.2.0",
     "mingo": "^2.2.11",
     "moment": "^2.22.2",
+    "mongodb": "^3.6.3",
     "mz": "^2.7.0",
     "papaparse": "^4.6.2",
     "pg": "^6.1.5",
@@ -184,6 +186,7 @@
     "rss": "^1.2.1",
     "sanitize-html": "^1.18.2",
     "setimmediate": "^1.0.5",
+    "shallowequal": "^1.1.0",
     "simpl-schema": "^1.5.0",
     "source-map-support": "^0.5.19",
     "speakingurl": "^9.0.0",
