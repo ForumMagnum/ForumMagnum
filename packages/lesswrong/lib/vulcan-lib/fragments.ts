@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
-import { getSchema } from '../utils/getSchema';
 
 interface FragmentDefinition {
   fragmentText: string
