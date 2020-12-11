@@ -1,9 +1,3 @@
-import { Random } from 'meteor/random';
+import { randomId, randomSecret } from '../platform/current/lib/random';
 
-export const randomId = () => {
-  return Random.id();
-}
-
-export const randomSecret = () => {
-  return Random.secret();
-}
+export { randomId, randomSecret };

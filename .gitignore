@@ -64,3 +64,6 @@ typings
 .elasticbeanstalk/*
 
 *.secret
+
+packages/lesswrong/platform/current/
+

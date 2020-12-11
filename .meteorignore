@@ -5,3 +5,4 @@ tmp
 .eslintrc.js
 platform/meteor
 platform/webpack
+webpack
