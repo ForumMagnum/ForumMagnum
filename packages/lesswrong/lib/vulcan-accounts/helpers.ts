@@ -32,9 +32,6 @@ export function getLoginServices() {
     return {name: name};
   });
 }
-// Export getLoginServices using old style globals for accounts-base which
-// requires it.
-this.getLoginServices = getLoginServices;
 
 export function hasPasswordService() {
   // First look for OAuth services.
