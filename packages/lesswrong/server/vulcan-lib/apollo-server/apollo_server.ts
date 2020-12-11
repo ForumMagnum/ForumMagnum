@@ -73,7 +73,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 // Since Meteor doesn't have an API for setting cookies, this calls setHeader
 // on the HTTP response directly; if other middlewares also want to set
 // cookies, they won't necessarily play nicely together.
-export const addClientIdMiddleware = (req, res, next) => {
+const addClientIdMiddleware = (req, res, next) => {
   if (!req.cookies.clientId) {
     const newClientId = randomId();
     req.cookies.clientId = newClientId;
@@ -83,7 +83,7 @@ export const addClientIdMiddleware = (req, res, next) => {
   next();
 };
 
-export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlewareOptions) => {
+const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlewareOptions) => {
   // IMPORTANT: order matters !
   // 1 - Add request parsing middleware
   // 2 - Add apollo specific middlewares
@@ -164,7 +164,7 @@ export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlew
   });
 };
 
-export const setupToolsMiddlewares = config => {
+const setupToolsMiddlewares = config => {
   // Voyager is a GraphQL schema visual explorer
   // available on /voyager as a default
   WebApp.connectHandlers.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
