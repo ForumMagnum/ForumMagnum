@@ -19,7 +19,7 @@ import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 import { randomId } from '../../../lib/random';
-import { publicSettings } from '../../../lib/publicSettings'
+import { publicSettings } from '../../../lib/settingsCache'
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 
