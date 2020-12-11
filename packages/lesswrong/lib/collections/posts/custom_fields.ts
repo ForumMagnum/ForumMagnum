@@ -13,7 +13,7 @@ import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 
 const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
 
@@ -974,7 +974,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
@@ -991,7 +991,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
