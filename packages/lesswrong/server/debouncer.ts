@@ -1,4 +1,4 @@
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';

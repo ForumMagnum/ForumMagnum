@@ -3,7 +3,7 @@ import { Components, Routes } from '../vulcan-lib';
 // eslint-disable-next-line no-restricted-imports
 import { matchPath } from 'react-router';
 import qs from 'qs'
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
 import type { RouterLocation } from '../vulcan-lib/routes';
 
