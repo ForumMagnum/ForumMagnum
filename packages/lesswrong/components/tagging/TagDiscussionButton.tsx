@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagDiscussionButton = ({tag, text = "Discussion", classes}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
-  text?: string,
+  text?: string | null,
   classes: ClassesType,
 }) => {
   
@@ -46,7 +46,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", classes}: {
   });
   
   return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-      <CommentOutlinedIcon className={classes.discussionButtonIcon} /> {`${text} (${totalCount || 0})`}
+      <CommentOutlinedIcon className={classes.discussionButtonIcon} /> {!!text && `${text} (${totalCount || 0})`}
       <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
         <TagDiscussion tag={tag}/>
       </PopperCard>

@@ -31,8 +31,8 @@ const SubscribeTo = ({
 }: {
   document: any,
   subscriptionType?: string,
-  subscribeMessage: string,
-  unsubscribeMessage: string,
+  subscribeMessage?: string,
+  unsubscribeMessage?: string,
   className?: string,
   classes: ClassesType,
   showIcon?: boolean,
