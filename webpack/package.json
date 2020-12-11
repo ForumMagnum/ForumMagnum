@@ -2,7 +2,7 @@
   "name": "LessWrong",
   "version": "2.1.0",
   "scripts": {
-    "build": "npx esbuild ./src/server.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/server/js/bundle2.js' --platform=node --external:akismet-api --external:canvas --external:express --external:mz --external:pg --external:pg-promise --external:mathjax-node --external:jsdom --external:@sentry/node --external:node-fetch --external:later --external:turndown --external:apollo-server --external:apollo-server-express --sourcemap && npx esbuild ./src/client.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/client/js/bundle.js' --sourcemap --target=es6 --define:global=window",
+    "build": "node build.js",
     "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/bundle2.js'",
     "build:prod": "export NODE_ENV=development && webpack -p",
     "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle.js'"
@@ -189,8 +189,8 @@
     "@graphql-codegen/cli": "^1.9.1",
     "@graphql-codegen/fragment-matcher": "^1.9.0",
     "@graphql-codegen/introspection": "^1.9.0",
-    "esbuild": "^0.7.16",
-    "esbuild-loader": "^2.4.0",
+    "esbuild": "^0.8.21",
+    "esbuild-loader": "^2.6.1",
     "eslint": "^7.14.0",
     "eslint-config-ckeditor5": "^3.1.0",
     "eslint-config-meteor": "^0.1.1",
