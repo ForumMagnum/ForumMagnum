@@ -22,13 +22,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     cursor: "pointer",
     color: theme.palette.grey[700]
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 });
 
 
-const TagDiscussionButton = ({tag, text = "Discussion", classes}: {
+const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = false, classes}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
-  text?: string | null,
+  text?: string,
+  hideLabelOnMobile?: boolean,
   classes: ClassesType,
 }) => {
   
@@ -46,10 +52,11 @@ const TagDiscussionButton = ({tag, text = "Discussion", classes}: {
   });
   
   return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-      <CommentOutlinedIcon className={classes.discussionButtonIcon} /> {!!text && `${text} (${totalCount || 0})`}
-      <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
-        <TagDiscussion tag={tag}/>
-      </PopperCard>
+    <CommentOutlinedIcon className={classes.discussionButtonIcon} />
+    <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{`${text} (${totalCount || 0})`}</span>
+    <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
+      <TagDiscussion tag={tag}/>
+    </PopperCard>
   </Link>
 }
 

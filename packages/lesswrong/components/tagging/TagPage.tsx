@@ -84,6 +84,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginRight: 16
   },
+  buttonLabel: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
+  },
   ctaPositioning: {
     display: "flex",
     alignItems: "center",
@@ -252,21 +257,24 @@ const TagPage = ({classes}: {
                 ev.preventDefault();
               }
             } }>
-              <EditOutlinedIcon />
+              <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
             </a>} 
             {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
-              <HistoryIcon />
+              <HistoryIcon /><span className={classes.buttonLabel}>History</span>
             </Link>}
             {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
               <SubscribeTo
                 document={tag}
                 className={classes.subscribeTo}
                 showIcon
+                hideLabelOnMobile
+                subscribeMessage="Subscribe"
+                unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             </LWTooltip>}
             <div className={classes.button}>
-              <TagDiscussionButton tag={tag} text={null} />
+              <TagDiscussionButton tag={tag} hideLabelOnMobile />
             </div>
             <div className={classes.callToAction}>
               <LWTooltip
