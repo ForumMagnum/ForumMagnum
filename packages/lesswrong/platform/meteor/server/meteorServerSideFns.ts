@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Accounts } from '../lib/meteorAccounts';
 import { ForwardedWhitelist } from '../../../server/forwarded_whitelist';
 import { Email } from 'meteor/email';
@@ -15,6 +16,8 @@ export const addLoginAttemptValidation = (validationFn: (attempt: {allowed: bool
     });
   });
 }
+
+export const onServerConnect = (fn) => Meteor.onConnection(fn);
 
 export const meteorSendEmail = Email.send
 

@@ -8,6 +8,8 @@ export const addLoginAttemptValidation = (validationFn: (attempt: {allowed: bool
   // TODO
 }
 
+export const onServerConnect = (fn) => {}
+
 export const meteorSendEmail = ()=>{} //TODO
 
 export function initMeteorhacksPickerMiddleware() {

@@ -3,7 +3,7 @@ import { createMutator } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { ForwardedWhitelist } from './forwarded_whitelist';
 import { Accounts } from '../platform/current/lib/meteorAccounts';
-import { Meteor } from 'meteor/meteor';
+import { onServerConnect } from '../platform/current/server/meteorServerSideFns';
 
 let dummyUser: DbUser|null = null;
 async function getDummyUser(): Promise<DbUser> {
@@ -13,7 +13,7 @@ async function getDummyUser(): Promise<DbUser> {
 }
 void getDummyUser();
 
-Meteor.onConnection(async (connection) => {
+onServerConnect(async (connection) => {
   let currentUser = await getDummyUser();
   const ip = (connection.httpHeaders && connection.httpHeaders["x-real-ip"]) || connection.clientAddress;
   
