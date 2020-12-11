@@ -85,7 +85,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16
   },
   buttonLabel: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },
@@ -112,7 +112,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginLeft: "auto",
     fontStyle: 'italic',
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },

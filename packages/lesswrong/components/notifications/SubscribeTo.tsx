@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center"
   },
   hideOnMobile: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
     }
   }

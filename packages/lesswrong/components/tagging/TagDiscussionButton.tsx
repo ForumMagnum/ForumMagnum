@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700]
   },
   hideOnMobile: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: { //optimized or tag paye
       display: "none"
     }
   }
