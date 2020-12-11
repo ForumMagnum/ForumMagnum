@@ -113,6 +113,7 @@ importComponent("TabNavigationCompressedItem", () => require('../components/comm
 importComponent("TabNavigationSubItem", () => require('../components/common/TabNavigationMenu/TabNavigationSubItem'));
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
+importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
