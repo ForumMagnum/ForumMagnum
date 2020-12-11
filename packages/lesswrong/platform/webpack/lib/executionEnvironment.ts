@@ -1,6 +1,6 @@
 
-export const isClient = !!(typeof window != 'undefined' && window.document);
-export const isServer = !isClient
+export const isClient = !webpackIsServer
+export const isServer = webpackIsServer
 export const isDevelopment = true
 export const isProduction = false
 export const isAnyTest = false

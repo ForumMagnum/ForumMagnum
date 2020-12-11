@@ -11,6 +11,7 @@ export const Accounts: any = {
     enrollAccount: {},
     resetPassword: {},
   },
+  _storedLoginToken: ()=>{},
   urls: {},
   onLogin: ()=>{},
   onCreateUser: ()=>{}
