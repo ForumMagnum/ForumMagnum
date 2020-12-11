@@ -7,47 +7,60 @@
 // use apollo-server-express integration
 //import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { onStartup, isDevelopment } from '../lib/executionEnvironment';
+import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
 
+// import { WebApp } from 'meteor/webapp';
 import bodyParser from 'body-parser';
 
 // import cookiesMiddleware from 'universal-cookie-express';
 // import Cookies from 'universal-cookie';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
-import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-server/graphiql';
+import getVoyagerConfig from './voyager';
+import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-ssr/graphiql';
 import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 //import { engineConfig } from './engine';
-import { computeContextFromReq } from '../../../server/vulcan-lib/apollo-server/context';
+import { computeContextFromReq, computeContextFromUser } from '../../../server/vulcan-lib/apollo-server/context';
 
-import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
-import { createVoteableUnionType } from '../../../server/votingGraphQL';
+import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 
-import makePageRenderer from '../../../server/vulcan-lib/apollo-ssr/renderPage';
+import { Components, populateComponentsApp } from '../../../lib/vulcan-lib/components';
+// onPageLoad is mostly equivalent to an Express middleware
+// excepts it is tailored to handle Meteor server side rendering
+// import { onPageLoad } from 'meteor/server-render';
+
+import makePageRenderer from '../apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
-import { randomId } from '../lib/random';
 
 import { formatError } from 'apollo-errors';
 
-import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
-import { DatabaseServerSetting } from '../../../server/databaseSettings';
+import express from 'express'
+import { renderToString } from 'react-dom/server'
+import { StaticRouter } from 'react-router-dom'
+import React from 'react';
+import AppGenerator from '../../../server/vulcan-lib/apollo-ssr/components/AppGenerator';
+import { createClient } from '../../../server/vulcan-lib/apollo-ssr/apolloClient';
+import { wrapWithMuiTheme } from '../../../server/material-ui/themeProvider';
+import { getMergedStylesheet } from '../../../server/styleGeneration';
+import { ApolloProvider } from '@apollo/client';
+import { renderToStringWithData } from '@apollo/client/react/ssr';
+import { Cookies, CookiesProvider } from 'react-cookie';
+import { ABTestGroupsContext } from '../../../lib/abTestImpl';
+import path from 'path'
+import { publicSettings } from '../../../lib/settingsCache';
+import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
+import { createVoteableUnionType } from '../../../server/votingGraphQL';
+
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
 const sentryRelease = sentryReleaseSetting.get()
-
-const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
-const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
-const stripePrivateKey = stripePrivateKeySetting.get()
-const stripe = stripePrivateKey && new Stripe(stripePrivateKey, {apiVersion: '2020-08-27'})
 
 if (sentryUrl && sentryEnvironment && sentryRelease) {
   Sentry.init({
@@ -64,108 +77,16 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
   console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
 }
 
-// Middleware for assigning a client ID, if one is not currently assigned.
-// Since Meteor doesn't have an API for setting cookies, this calls setHeader
-// on the HTTP response directly; if other middlewares also want to set
-// cookies, they won't necessarily play nicely together.
-const addClientIdMiddleware = (req, res, next) => {
-  if (!req.cookies.clientId) {
-    const newClientId = randomId();
-    req.cookies.clientId = newClientId;
-    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
-  }
-  
-  next();
-};
 
-const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlewareOptions) => {
-  // IMPORTANT: order matters !
-  // 1 - Add request parsing middleware
-  // 2 - Add apollo specific middlewares
-  // 3 - CLOSE CONNEXION (otherwise the endpoint hungs)
-  // 4 - ONLY THEN you can start adding other middlewares (graphql voyager etc.)
-
-  // WebApp.connectHandlers is a connect server
-  // you can add middlware as usual when using Express/Connect
-
-  // parse cookies and assign req.universalCookies object
-  WebApp.connectHandlers.use(universalCookiesMiddleware());
-  WebApp.connectHandlers.use(addClientIdMiddleware);
-
-  // parse request (order matters)
-  WebApp.connectHandlers.use(
-    config.path,
-    bodyParser.json({ limit: '50mb' })
-  );
-  WebApp.connectHandlers.use(config.path, bodyParser.text({ type: 'application/graphql' }));
-  if (stripePrivateKey && stripe) {
-    WebApp.connectHandlers.use('/create-session', async (req, res) => {
-      if (req.method === "POST") {
-        const redirectTarget = stripeURLRedirect.get()
-        const session = await stripe.checkout.sessions.create({
-          payment_method_types: ['card'],
-          shipping_address_collection: {
-            allowed_countries: [
-              // European Countries: https://www.europeancuisines.com/Europe-European-Two-Letter-Country-Code-Abbreviations
-              'AL', 'AD', 'AM', 'AT', 'BY', 'BE', 'BA', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GI', 'GR', 'HU', 'HR', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NO', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'TR', 'UA', 'VA', 'PL',
-              // North American Countries
-              'US', 'MX', 'CA',
-              // Oceania Countries
-              'AU', 'NZ',
-              // Israel (Maybe shippable via Amazon North America?)
-              'IL'
-            ]
-          },
-          line_items: [
-            {
-              price_data: {
-                currency: 'usd',
-                product_data: {
-                  name: 'A Map That Reflects the Territory',
-                  images: ['https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606805322/w_1966_jahgq7.png'],
-                },
-                unit_amount: 2900,
-              },
-              quantity: 1,
-            },
-          ],
-          mode: 'payment',
-          success_url: `${redirectTarget}?success=true`,
-          cancel_url: `${redirectTarget}?canceled=true`,
-        });
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ id: session.id }));
-      }
-    })
-  }
-  
-
-  // Provide the Meteor WebApp Connect server instance to Apollo
-  // Apollo will use it instead of its own HTTP server when handling requests
-
-  //   For the list of already set middlewares (cookies, compression...), see:
-  //  @see https://github.com/meteor/meteor/blob/master/packages/webapp/webapp_server.js
-  apolloServer.applyMiddleware({
-    ...apolloApplyMiddlewareOptions,
-  });
-
-  // setup the end point otherwise the request hangs
-  // TODO: undestand why this is necessary
-  // @see
-  WebApp.connectHandlers.use(config.path, (req, res) => {
-    if (req.method === 'GET') {
-      res.end();
-    }
-  });
-};
-
-const setupToolsMiddlewares = config => {
+export const setupToolsMiddlewares = config => {
   // Voyager is a GraphQL schema visual explorer
   // available on /voyager as a default
-  WebApp.connectHandlers.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
+  // WebApp.connectHandlers.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
   // Setup GraphiQL
-  WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
+  // WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
 };
+
+export const app = express();
 
 onStartup(() => {
   // Vulcan specific options
@@ -180,7 +101,7 @@ onStartup(() => {
     // @see https://www.apollographql.com/docs/apollo-server/api/apollo-server.html#Parameters-2
     bodyParser: false, // added manually later
     path: config.path,
-    app: WebApp.connectHandlers,
+    // app: WebApp.connectHandlers,
   };
 
   // define executableSchema
@@ -211,19 +132,98 @@ onStartup(() => {
     cacheControl: true,
     context: ({ req }) => computeContextFromReq(req),
   });
-  
-  WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
-  WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
-  
+
+  apolloServer.applyMiddleware({ app })
+
+  // Static files folder
+  console.log(__dirname)
+  console.log(path.join(__dirname, '../', '../', 'client'))
+  app.use(express.static(path.join(__dirname, '../', '../', 'client')))
+
+  app.get('*', async (request, response) => {
+    let status = 200
+    const context: any = {};
+
+    // const matches = routes.reduce((matches, route) => {
+    //   const match = matchPath(request.url, route.path, route)
+    //   if (match && match.isExact) {
+    //     matches.push({
+    //       route,
+    //       match
+    //     })
+    //   }
+    //   return matches
+    // }, [])
+
+    // // No such route, send 404 status
+    // if (matches.length === 0) {
+    //   status = 404
+    // }
+    populateComponentsApp();
+    const requestContext = await computeContextFromUser(null, request.headers);
+    const client = await createClient(requestContext);
+
+    const App = <AppGenerator
+      req={request} apolloClient={client}
+      serverRequestStatus={{}}
+      abTestGroups={{}}
+    />
+
+    const WrappedApp = wrapWithMuiTheme(App, context);
+
+    const appHtml = await renderToStringWithData(WrappedApp);
+
+    const initialState = client.extract();
+    const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
+
+    const ssrBody = `<div id="react-app">${appHtml}</div>`;
+
+    const sheetsRegistry = context.sheetsRegistry;
+    const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
+      +'<style id="jss-insertion-point"></style>'
+      +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}"></link>`
+
+    const clientScript = `<script type="text/javascript" src="/js/bundle.js?${Math.random()}"></script>`
+
+    if (!publicSettings) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+    const publicSettingsHeader = embedAsGlobalVar("publicSettings", publicSettings);
+
+    // // Get Meta header tags
+    // const helmet = Helmet.renderStatic()
+
+    // let html = index(helmet, appHtml)
+    if(request.url === `/allStyles?hash=${getMergedStylesheet().hash}`) {
+      response.writeHead(200, {
+        "Cache-Control": "public, max-age=604800, immutable",
+        "Content-Type": "text/css"
+      });
+      return response.end(getMergedStylesheet().css);
+    }
+
+    // Finally send generated HTML with initial data to the client
+    return response.status(status).send(publicSettingsHeader + jssSheets + ssrBody  + clientScript + serializedApolloState)
+  })
+
+  // WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
+  // WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
+
   // NOTE: order matters here
   // /graphql middlewares (request parsing)
-  setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);
+  // setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);
   //// other middlewares (dev tools etc.)
   // LW: Made available in production environment
-  setupToolsMiddlewares(config);
+  // setupToolsMiddlewares(config);
   
   // init the application components and routes, including components & routes from 3rd-party packages
-  populateComponentsApp();
+  //populateComponentsApp()
+
   // render the page
-  onPageLoad(makePageRenderer);
-});
+  // onPageLoad(makePageRenderer);
+
+  // Start Server
+  const port = process.env.PORT || 4000
+  const env = process.env.NODE_ENV || 'production'
+  app.listen({ port }, () => {
+    return console.info(`Server running on http://localhost:${port} [${env}]`)
+  })
+})
