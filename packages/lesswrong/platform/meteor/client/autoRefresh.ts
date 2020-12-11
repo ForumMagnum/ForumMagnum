@@ -1,6 +1,6 @@
 import { onStartup, isClient } from '../lib/executionEnvironment';
-import { disconnectDdp, reconnectDdp } from '../platform/current/lib/meteorDdp';
-import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
+import { disconnectDdp, reconnectDdp } from '../lib/meteorDdp';
+import { parsePath, parseRoute } from '../../../lib/vulcan-core/appContext';
 import { Reload } from 'meteor/reload';
 
 var disconnectTimer: any = null;
