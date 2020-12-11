@@ -1,5 +1,5 @@
 
-export const isClient = (typeof window != 'undefined' && window.document);
+export const isClient = !!(typeof window != 'undefined' && window.document);
 export const isServer = !isClient
 export const isDevelopment = true
 export const isProduction = false
@@ -10,7 +10,7 @@ export const onStartup = (fn: ()=>void) => {
   setTimeout(fn, 0);
 }
 
-export const getInstanceSettings = () => {
+export const getInstanceSettings = (): any => {
   // TODO
   return {}
 }
@@ -32,7 +32,7 @@ export const runAtInterval = setInterval;
 
 export const wrapAsync = (fn)=>fn
 
-export const meteorLocalStorageWrapper = null;
+export const meteorLocalStorageWrapper: any = null;
 
 export const throwMeteorError = (messageId: string, message: string, messageOptions?: any) => {
   throw new Error(`${messageId}: message`);

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx esbuild ./src/server.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./build/server/js/bundle2.js' --platform=node --external:canvas --external:pg-native --minify --sourcemap && npx esbuild ./src/client.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./build/client/js/bundle.js' --minify --sourcemap --target=es6 --define:global=window",
+    "build": "npx esbuild ./src/server.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./build/server/js/bundle2.js' --platform=node --external:akismet-api --external:canvas --external:mz --external:pg --external:pg-promise --external:mathjax-node --external:jsdom --external:@sentry/node --external:node-fetch --external:later --external:turndown --external:apollo-server --external:apollo-server-express --minify --sourcemap && npx esbuild ./src/client.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./build/client/js/bundle.js' --minify --sourcemap --target=es6 --define:global=window",
     "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle2.js'",
     "build:prod": "export NODE_ENV=production && webpack -p",
     "start:prod": "export NODE_ENV=production && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle.js'"
@@ -155,7 +155,6 @@
     "mz": "^2.7.0",
     "papaparse": "^4.6.2",
     "pg": "^6.1.5",
-    "pg-native": "^3.0.0",
     "pg-promise": "^5.6.7",
     "prop-types": "^15.7.2",
     "qs": "6.7.0",
