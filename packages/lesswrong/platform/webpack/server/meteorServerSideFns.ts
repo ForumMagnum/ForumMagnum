@@ -10,7 +10,7 @@ export const addLoginAttemptValidation = (validationFn: (attempt: {allowed: bool
 
 export const onServerConnect = (fn) => {}
 
-export const meteorSendEmail = ()=>{} //TODO
+export const meteorSendEmail: any = ()=>{} //TODO
 
 export function initMeteorhacksPickerMiddleware() {
   // TODO
