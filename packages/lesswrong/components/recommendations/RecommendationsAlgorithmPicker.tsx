@@ -1,14 +1,14 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
-import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
-import Users from '../../lib/collections/users/collection';
+import { defaultAlgorithmSettings, RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { archiveRecommendationsName } from './ConfigurableRecommendationsList';
+
+export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -40,7 +40,11 @@ const recommendationAlgorithms = [
   }
 ];
 
-export function getRecommendationSettings({settings, currentUser, configName})
+export function getRecommendationSettings({settings, currentUser, configName}: {
+  settings: RecommendationsAlgorithm|null,
+  currentUser: UsersCurrent|null,
+  configName: string,
+})
 {
   if (settings)
    return settings;
@@ -63,16 +67,13 @@ const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: any,
   configName: string,
-  onChange: any,
+  onChange: (newSettings: RecommendationsAlgorithm)=>void,
   showAdvanced?: boolean,
   classes: ClassesType
 }) => {
   const { SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
-  const {mutate: updateUser} = useUpdate({
-    collection: Users,
-    fragmentName: "UsersCurrent",
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
   function applyChange(newSettings) {
     if (currentUser) {
       const mergedSettings = {
@@ -80,11 +81,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         [configName]: newSettings
       };
 
-      void updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          recommendationSettings: mergedSettings
-        },
+      void updateCurrentUser({
+        recommendationSettings: mergedSettings
       });
     }
     onChange(newSettings);

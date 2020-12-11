@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Votes } from '../../lib/collections/votes';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 
@@ -52,7 +51,7 @@ const TagVoteActivityRow = ({vote, classes}: {
   classes: ClassesType
 }) => {
   const { FormatDate, VoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
-  const voteProps = useVote(vote.tagRel, "TagRels")
+  const voteProps = useVote(vote.tagRel!, "TagRels")
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
   return (
@@ -87,22 +86,26 @@ const TagVoteActivityRow = ({vote, classes}: {
   );
 }
 
-const TagVoteActivity = ({classes}: {
+const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
   classes: ClassesType,
+  showHeaders?: boolean,
+  showNewTags?: boolean,
+  limit?: number,
+  itemsPerPage?: number
 }) => {
   const { SingleColumnSection, LoadMore, NewTagsList } = Components
   const { results: votes, loadMoreProps } = useMulti({
     terms: {view:"tagVotes"},
-    collection: Votes,
+    collectionName: "Votes",
     fragmentName: 'TagVotingActivity',
-    limit: 200,
-    itemsPerPage: 200,
+    limit: limit,
+    itemsPerPage: itemsPerPage,
   })
 
   return <SingleColumnSection>
-    <NewTagsList />
+    {showNewTags && <NewTagsList />}
     <div className={classes.tagVotingTable}>
-      <h2>Tag Voting</h2>
+      {showHeaders && <h2>Tag Voting</h2>}
       <table>
         <tbody>
           <tr className={classes.headerRow}>

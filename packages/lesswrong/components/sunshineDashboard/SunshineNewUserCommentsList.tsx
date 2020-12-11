@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewUserCommentsList = ({comments, user, classes}: {
-  comments: any,
+  comments: Array<CommentsListWithParentMetadata>,
   classes: ClassesType,
   user: SunshineUsersList
 }) => {

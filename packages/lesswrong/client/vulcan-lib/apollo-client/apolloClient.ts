@@ -14,6 +14,7 @@ export const createApolloClient = () => {
   const httpLink = new BatchHttpLink({
     uri: '/graphql',
     credentials: 'same-origin',
+    batchMax: 50,
   });
   
   return new ApolloClient({

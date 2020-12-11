@@ -1,4 +1,4 @@
-import { userGroups } from '../../vulcan-users/permissions';
+import { membersGroup, adminsGroup } from '../../vulcan-users/permissions';
 import Chapters from './collection';
 
 const membersActions = [
@@ -7,7 +7,7 @@ const membersActions = [
   "chapters.edit.own",
   "chapters.remove.own",
 ];
-userGroups.members.can(membersActions);
+membersGroup.can(membersActions);
 
 const adminActions = [
   "chapters.view.all",
@@ -15,7 +15,7 @@ const adminActions = [
   "chapters.edit.all",
   "chapters.remove.all",
 ];
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
 Chapters.checkAccess = async (user: DbUser|null, document: DbChapter, context: ResolverContext|null): Promise<boolean> => {
   if (!document) return false;

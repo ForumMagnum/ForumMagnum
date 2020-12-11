@@ -1,91 +1,68 @@
-import { registerFragment } from './vulcan-lib';
+import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
-  fragment UsersAdmin on User {
+  fragment UsersMinimumInfo on User {
     _id
-    username
-    createdAt
-    isAdmin
-    displayName
-    email
     slug
-    groups
-    services
+    createdAt
+    username
+    displayName
+    fullName
     karma
-  }
-`);
-
-registerFragment(`
-  fragment conversationsListFragment on Conversation {
-    _id
-    title
-    createdAt
-    latestActivity
-    participantIds
-    participants {
-      ...UsersMinimumInfo
-    }
-    archivedByIds
-    messageCount
-  }
-`);
-
-registerFragment(`
-  fragment newConversationFragment on Conversation {
-    _id
-    title
-    participantIds
-  }
-`);
-
-registerFragment(`
-  fragment messageListFragment on Message {
-    _id
-    user {
-      ...UsersMinimumInfo
-    }
-    contents {
-      html
-    }
-    createdAt
-    conversationId
-  }
-`);
-
-registerFragment(`
-  fragment editTitle on Conversation {
-    _id
-    title
-  }
-`);
-
-registerFragment(`
-  fragment NotificationsList on Notification {
-    _id
-    documentId
-    documentType
+    afKarma
     deleted
-    userId
-    createdAt
-    link
-    message
-    type
-    viewed
+    isAdmin
+    htmlBio
+    postCount
+    commentCount
+    sequenceCount
+    afPostCount
+    afCommentCount
+    spamRiskScore
+  }
+`);
+
+registerFragment(`
+  fragment UsersProfile on User {
+    ...UsersMinimumInfo
+    oldSlugs
+    groups
+    bio
+    website
+    frontpagePostCount
+    afSequenceCount
+    afSequenceDraftCount
+    sequenceDraftCount
+    moderationStyle
+    moderationGuidelines {
+      ...RevisionDisplay
+    }
+    bannedUserIds
+    location
+    googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    mongoLocation
+    shortformFeedId
+    viewUnreviewedComments
+    auto_subscribe_to_my_posts
+    auto_subscribe_to_my_comments
+    autoSubscribeAsOrganizer
+    petrovPressedButtonDate
+    sortDrafts
+    reenableDraftJs
+    ...SharedUserBooleans
   }
 `);
 
 registerFragment(`
   fragment UsersCurrent on User {
-    ...UsersMinimumInfo
+    ...UsersProfile
 
-    _id
-    username
-    createdAt
-    isAdmin
-    displayName
+    beta
     email
-    slug
-    groups
     services
     pageUrl
     voteBanned
@@ -111,6 +88,7 @@ registerFragment(`
     }
     showHideKarmaOption
     markDownPostEditor
+    hideElicitPredictions
     commentSorting
     location
     googleLocation
@@ -144,6 +122,7 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     hideTaggingProgressBar
+    hideFrontpageBookAd
 
     abTestKey
     abTestOverrides
@@ -194,21 +173,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment RSSFeedMinimumInfo on RSSFeed {
-    _id
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
-    createdAt
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-  }
-`);
-
-registerFragment(`
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -216,13 +180,6 @@ registerFragment(`
     bannedUserIds
   }
 `)
-
-registerFragment(`
-  fragment UsersList on User {
-    ...UsersMinimumInfo
-    karma
-  }
-`);
 
 registerFragment(`
   fragment SunshineUsersList on User {
@@ -251,131 +208,13 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment newRSSFeedFragment on RSSFeed {
-    _id
-    userId
-    createdAt
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-    status
-  }
-`);
-
-
-
-registerFragment(`
-  fragment RSSFeedMutationFragment on RSSFeed {
-    _id
-    userId
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-  }
-`);
-
-registerFragment(`
-  fragment newEventFragment on LWEvent {
-    _id
-    createdAt
-    userId
-    name
-    important
-    properties
-    intercom
-  }
-`);
-
-registerFragment(`
-  fragment lastEventFragment on LWEvent {
-    _id
-    createdAt
-    documentId
-    userId
-    name
-    important
-    properties
-    intercom
-  }
-`);
-
-registerFragment(`
-  fragment UsersMinimumInfo on User {
-    _id
-    slug
-    oldSlugs
-    createdAt
-    username
-    displayName
-    fullName
-    karma
-    afKarma
-    deleted
-    groups
-    isAdmin
-    htmlBio
-    postCount
-    commentCount
-    sequenceCount
-    afPostCount
-    afCommentCount
-    beta
-    spamRiskScore
-  }
-`);
-
-registerFragment(`
   fragment SharedUserBooleans on User {
     walledGardenInvite
     hideWalledGardenUI
     walledGardenPortalOnboarded
+    taggingDashboardCollapsed
   }
 `)
-
-registerFragment(`
-  fragment UsersProfile on User {
-    ...UsersMinimumInfo
-    createdAt
-    isAdmin
-    bio
-    htmlBio
-    website
-    groups
-    postCount
-    afPostCount
-    frontpagePostCount
-    commentCount
-    sequenceCount
-    afCommentCount
-    sequenceCount
-    afSequenceCount
-    afSequenceDraftCount
-    sequenceDraftCount
-    moderationStyle
-    moderationGuidelines {
-      ...RevisionDisplay
-    }
-    bannedUserIds
-    location
-    googleLocation
-    mapLocation
-    mapLocationSet
-    mapMarkerText
-    htmlMapMarkerText
-    mongoLocation
-    shortformFeedId
-    viewUnreviewedComments
-    auto_subscribe_to_my_posts
-    auto_subscribe_to_my_comments
-    autoSubscribeAsOrganizer
-    petrovPressedButtonDate
-    sortDrafts
-    reenableDraftJs
-    ...SharedUserBooleans
-  }
-`);
 
 registerFragment(`
   fragment UsersMapEntry on User {
@@ -404,6 +243,7 @@ registerFragment(`
 
     # UI Settings
     markDownPostEditor
+    hideElicitPredictions
     hideIntercom
     commentSorting
     currentFrontpageFilter
@@ -465,114 +305,23 @@ registerFragment(`
 
     hideFrontpageMap
     hideTaggingProgressBar
+    hideFrontpageBookAd
 
     deleted
   }
 `)
 
 registerFragment(`
-  fragment unclaimedReportsList on Report {
+  fragment UsersAdmin on User {
     _id
-    userId
-    user {
-      _id
-      displayName
-      username
-      slug
-    }
-    commentId
-    comment {
-      _id
-      userId
-      user {
-        ...UsersMinimumInfo
-      }
-      baseScore
-      contents {
-        ...RevisionDisplay
-      }
-      postedAt
-      deleted
-      postId
-      post {
-        _id
-        slug
-        title
-        isEvent
-      }
-    }
-    postId
-    post {
-      _id
-      slug
-      title
-      isEvent
-      contents {
-        ...RevisionDisplay
-      }
-    }
-    closedAt
+    username
     createdAt
-    claimedUserId
-    claimedUser {
-      _id
-      displayName
-      username
-      slug
-    }
-    link
-    description
-    reportedAsSpam
-    markedAsSpam
+    isAdmin
+    displayName
+    email
+    slug
+    groups
+    services
+    karma
   }
 `);
-
-registerFragment(`
-  fragment WithVotePost on Post {
-    __typename
-    _id
-    currentUserVotes{
-      _id
-      voteType
-      power
-    }
-    baseScore
-    score
-    afBaseScore
-    voteCount
-  }
-`);
-
-registerFragment(`
-  fragment RevisionDisplay on Revision {
-    _id
-    version
-    updateType
-    editedAt
-    userId
-    html
-    wordCount
-    htmlHighlight
-    plaintextDescription
-  }
-`)
-
-
-
-registerFragment(`
-  fragment RevisionEdit on Revision {
-    _id
-    version
-    updateType
-    editedAt
-    userId
-    originalContents
-    html
-    markdown
-    draftJS
-    ckEditorMarkup
-    wordCount
-    htmlHighlight
-    plaintextDescription
-  }
-`)

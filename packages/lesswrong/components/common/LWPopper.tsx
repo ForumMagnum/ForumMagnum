@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.lwPopperTooltip,
   },
   tooltip: {
-    backgroundColor: "rgba(75,75,75,.85)",
+    backgroundColor: "rgba(75,75,75,.94)",
     borderRadius: 3,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,

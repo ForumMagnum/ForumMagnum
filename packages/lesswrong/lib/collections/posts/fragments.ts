@@ -21,24 +21,17 @@ registerFragment(`
     url
     postedAt
     createdAt
-    modifiedAt
     sticky
     metaSticky
     status
     frontpageDate
     meta
-    draft
-    deletedDraft
-    viewCount
-    clickCount
     
     commentCount
     voteCount
     baseScore
     unlisted
     score
-    feedId
-    feedLink
     lastVisitedAt
     isRead
     lastCommentedAt
@@ -55,10 +48,8 @@ registerFragment(`
     userId
     
     # Local Event data
-    groupId
     location
     googleLocation
-    mongoLocation
     onlineEvent
     startTime
     endTime
@@ -86,19 +77,15 @@ registerFragment(`
     afLastCommentedAt
     afSticky
     
-    isFuture
     hideAuthor
     moderationStyle
-    hideCommentKarma
     submitToFrontpage
     shortform
-    canonicalSource
-    noIndex
 
-    shareWithUsers
-    
     nominationCount2018
     reviewCount2018
+    nominationCount2019
+    reviewCount2019
 
     group {
       _id
@@ -108,17 +95,9 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment PostTagRelevance on Post {
-    tagRelevance
-  }
-`);
-
-registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
   }
 `);
 
@@ -143,6 +122,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    shareWithUsers
     moderationGuidelines {
       _id
       html
@@ -152,7 +132,9 @@ registerFragment(`
       html
     }
     lastPromotedComment {
-      ...CommentsList
+      user {
+        ...UsersMinimumInfo
+      }
     }
     bestAnswer {
       ...CommentsList
@@ -189,6 +171,11 @@ registerFragment(`
   fragment PostsDetails on Post {
     ...PostsListBase
 
+    canonicalSource
+    noIndex
+    viewCount
+    socialPreviewImageUrl
+    
     # Sort settings
     commentSortOrder
     
@@ -196,7 +183,6 @@ registerFragment(`
     collectionTitle
     canonicalPrevPostSlug
     canonicalNextPostSlug
-    canonicalCollectionSlug
     canonicalSequenceId
     canonicalBookId
     canonicalSequence {
@@ -214,23 +200,12 @@ registerFragment(`
 
     # Moderation stuff
     showModerationGuidelines
-    moderationGuidelines {
-      ...RevisionDisplay
-    }
-    customHighlight {
-      _id
-      version
-      html
-    }
     bannedUserIds
-    hideAuthor
     moderationStyle
     
     # Voting
-    voteCount
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
+    feedLink
     feed {
       ...RSSFeedMinimumInfo
     }
@@ -250,6 +225,16 @@ registerFragment(`
         ...PostsList
       }
       order
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsExpandedHighlight on Post {
+    _id
+    contents {
+      _id
+      html
     }
   }
 `);
@@ -363,15 +348,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment EditModerationGuidelines on Post {
-    moderationGuidelines {
-      ...RevisionEdit
-    },
-    moderationStyle
-  }
-`)
-
-registerFragment(`
   fragment PostsRevisionsList on Post {
     _id
     revisions {
@@ -405,9 +381,7 @@ registerFragment(`
   fragment SunshinePostsList on Post {
     ...PostsListBase
 
-    currentUserVotes{
-      ...VoteFragment
-    }
+    currentUserVote
 
     contents {
       _id
@@ -431,3 +405,15 @@ registerFragment(`
     }
   }
 `)
+
+registerFragment(`
+  fragment WithVotePost on Post {
+    __typename
+    _id
+    currentUserVote
+    baseScore
+    score
+    afBaseScore
+    voteCount
+  }
+`);

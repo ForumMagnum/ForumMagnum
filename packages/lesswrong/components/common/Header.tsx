@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
@@ -10,9 +10,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
-import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
-import Users from '../../lib/collections/users/collection';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -59,7 +56,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: 1,
     position: "relative",
     top: 3,
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
+    color: theme.palette.text.secondary,
   },
   titleLink: {
     color: getHeaderTextColor(theme),
@@ -87,6 +85,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display:"none"
     }
+  },
+  hideSmDown: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  hideMdUp: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
@@ -137,7 +145,7 @@ interface ExternalProps {
   toc: any,
   searchResultsArea: any,
 }
-interface HeaderProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateUserProps {
+interface HeaderProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateCurrentUserProps {
   theme: ThemeType,
 }
 interface HeaderState {
@@ -173,13 +181,10 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   }
 
   handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
-    const { updateUser, currentUser } = this.props;
+    const { updateCurrentUser, currentUser } = this.props;
     if (!currentUser) return;
     if (isOpen) {
-      updateUser({
-        selector: {_id: currentUser._id},
-        data: {lastNotificationsCheck: new Date()}
-      })
+      void updateCurrentUser({lastNotificationsCheck: new Date()});
       this.setState({
         notificationOpen: true,
         notificationHasOpened: true
@@ -218,12 +223,12 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
       {/* Show the ToC icon if there's a table of contents being displayed  */}
         {toc && toc.sections ? (
           <span>
-            <Hidden smDown implementation="css">
+            <div className={classes.hideSmDown}>
               <MenuIcon />
-            </Hidden>
-            <Hidden mdUp implementation="css">
+            </div>
+            <div className={classes.hideMdUp}>
               <TocIcon />
-            </Hidden>
+            </div>
           </span>
         ) : <MenuIcon />}
       </IconButton>
@@ -244,12 +249,12 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   render() {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
-    const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
+    const notificationTerms: NotificationsViewTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
     const hasLogo = forumTypeSetting.get() === 'EAForum'
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle
+      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
     } = Components;
 
     return (
@@ -269,8 +274,8 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
               <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
                   <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
                   {this.renderNavigationMenuButton()}
-                  <Typography className={classes.title} variant="title" color="textSecondary">
-                    <Hidden smDown implementation="css">
+                  <Typography className={classes.title} variant="title">
+                    <div className={classes.hideSmDown}>
                       <div className={classes.titleSubtitleContainer}>
                         <Link to="/" className={classes.titleLink}>
                           {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
@@ -278,13 +283,13 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
                         </Link>
                         <HeaderSubtitle />
                       </div>
-                    </Hidden>
-                    <Hidden mdUp implementation="css">
+                    </div>
+                    <div className={classes.hideMdUp}>
                       <Link to="/" className={classes.titleLink}>
                         {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                         {forumShortTitleSetting.get()}
                       </Link>
-                    </Hidden>
+                    </div>
                   </Typography>
                   <div className={classes.rightHeaderItems}>
                     <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
@@ -319,10 +324,7 @@ const HeaderComponent = registerComponent<ExternalProps>('Header', Header, {
   styles,
   hocs: [
     withErrorBoundary,
-    withUpdate({
-      collection: Users,
-      fragmentName: 'UsersCurrent',
-    }),
+    withUpdateCurrentUser,
     withUser, withTracking,
     withTheme(),
   ]

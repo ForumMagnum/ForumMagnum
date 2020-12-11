@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
@@ -18,7 +17,7 @@ const ShortformThreadList = ({ classes }: {
       view: 'shortform',
       limit:20
     },
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
     enableTotal: false,

@@ -1,4 +1,3 @@
-import React from 'react';
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { defaultFilterSettings } from '../../lib/filterSettings';
 import Users from '../../lib/collections/users/collection';

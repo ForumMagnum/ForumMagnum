@@ -1,9 +1,9 @@
-import { addCallback } from '../../lib/vulcan-lib';
 import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Users from '../../lib/collections/users/collection';
+import { voteCallbacks } from '../../lib/voting/vote';
 import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 
@@ -32,6 +32,8 @@ export async function updatePostDenormalizedTags(postId: string) {
 }
 
 getCollectionHooks("Tags").createValidate.add((validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
+  if (!tag.name || !tag.name.length)
+    throw new Error("Name is required");
   if (!isValidTagName(tag.name))
     throw new Error("Invalid tag name (use only letters, digits and dash)");
   
@@ -82,7 +84,7 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   var tagCreator = Users.findOne(tagRel.userId);
   const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
   await updatePostDenormalizedTags(tagRel.postId);
-  return {...tagRel, ...votedTagRel};
+  return {...tagRel, ...votedTagRel} as DbTagRel;
 });
 
 function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
@@ -92,11 +94,8 @@ function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
   void updatePostDenormalizedTags(tagRel.postId);
 }
 
-addCallback("votes.cancel.sync", voteUpdatePostDenormalizedTags);
-addCallback("votes.smallUpvote.async", voteUpdatePostDenormalizedTags);
-addCallback("votes.bigUpvote.async", voteUpdatePostDenormalizedTags);
-addCallback("votes.smallDownvote.async", voteUpdatePostDenormalizedTags);
-addCallback("votes.bigDownvote.async", voteUpdatePostDenormalizedTags);
+voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);
+voteCallbacks.castVoteAsync.add(voteUpdatePostDenormalizedTags);
 
 addEditableCallbacks({
   collection: Tags,

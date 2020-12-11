@@ -44,8 +44,8 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
             } else {
               if (!(pingback.collectionName in pingbacks))
                 pingbacks[pingback.collectionName] = [];
-              if (!pingbacks[pingback.collectionName].includes(pingback.documentId))
-                pingbacks[pingback.collectionName].push(pingback.documentId);
+              if (!pingbacks[pingback.collectionName]!.includes(pingback.documentId))
+                pingbacks[pingback.collectionName]!.push(pingback.documentId);
             }
           }
         }

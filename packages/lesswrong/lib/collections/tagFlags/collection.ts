@@ -1,10 +1,10 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import type { SchemaType } from '../../utils/schemaUtils'
+import { addUniversalFields, getDefaultResolvers, schemaDefaultValue } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
-import { userGroups, userCanDo } from '../../vulcan-users/permissions';
+import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
 
 const schema: SchemaType<DbTagFlag> = {
@@ -58,9 +58,9 @@ const adminActions = [
   'tagFlags.edit.all',
 ];
 
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
-const options = {
+const options: MutationOptions<DbTagFlag> = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
     if (!user || !document) return false;
     return userCanDo(user, `tagFlags.new`)
@@ -78,7 +78,7 @@ const options = {
   },
 }
 
-export const TagFlags = createCollection({
+export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
   schema,

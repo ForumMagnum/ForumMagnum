@@ -24,7 +24,7 @@ const options = {
 
 interface ExtendedUsersCollection extends UsersCollection {
   // Fron search/utils.ts
-  toAlgolia: (user: DbUser) => Promise<Array<Record<string,any>>|null>
+  toAlgolia: (user: DbUser) => Promise<Array<AlgoliaDocument>|null>
 }
 
 export const Users: ExtendedUsersCollection = createCollection({

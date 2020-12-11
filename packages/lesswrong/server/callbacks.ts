@@ -5,12 +5,14 @@ import Reports from '../lib/collections/reports/collection';
 import { Bans } from '../lib/collections/bans/collection';
 import Users from '../lib/collections/users/collection';
 import { Votes } from '../lib/collections/votes';
-import { cancelVoteServer } from './voteServer';
+import { clearVotesServer } from './voteServer';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
+import { VoteableCollections } from '../lib/make_voteable';
 
-import { getCollection, addCallback, createMutator, updateMutator, deleteMutator, runCallbacksAsync, runQuery } from './vulcan-lib';
+import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
+import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
@@ -30,56 +32,40 @@ getCollectionHooks("Messages").newAsync.add(async function updateConversationAct
   });
 });
 
-getCollectionHooks("Users").editAsync.add(function userEditVoteBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.voteBanned && !oldUser.voteBanned) {
-    runCallbacksAsync({
-      name: 'users.voteBanned.async',
-      properties: [user]
-    });
-  }
-});
-
 getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    runCallbacksAsync({
-      name: 'users.nullifyVotes.async',
-      properties: [user]
-    });
+    await nullifyVotesForUser(user);
   }
 });
 
 
 getCollectionHooks("Users").editAsync.add(function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (user.deleteContent && !oldUser.deleteContent) {
-    runCallbacksAsync({
-      name: 'users.deleteContent.async',
-      properties: [user]
-    });
+    void userDeleteContent(user);
   }
 });
 
 getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
-    runCallbacksAsync({
-      name: 'users.ban.async',
-      properties: [user]
-    });
+    void userIPBanAndResetLoginTokens(user);
   }
 });
-
-// document, voteType, collection, user, updateDocument
 
 const reverseVote = async (vote: DbVote) => {
   const collection = getCollection(vote.collectionName);
   const document = collection.findOne({_id: vote.documentId});
-  const voteType = vote.voteType;
   const user = Users.findOne({_id: vote.userId});
   if (document && user) {
-    // { document, voteType, collection, user, updateDocument }
-    await cancelVoteServer({document, voteType, collection, user, updateDocument: true})
+    await clearVotesServer({document, collection, user})
   } else {
     //eslint-disable-next-line no-console
-    console.info("No item or user found corresponding to vote: ", vote, document, user, voteType);
+    console.info("No item or user found corresponding to vote: ", vote, document, user);
+  }
+}
+
+export const nullifyVotesForUser = async (user: DbUser) => {
+  for (let collection of VoteableCollections) {
+    await nullifyVotesForUserAndCollection(user, collection);
   }
 }
 
@@ -99,19 +85,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-async function nullifyCommentVotes(user: DbUser) {
-  await nullifyVotesForUserAndCollection(user, Comments);
-  return user;
-}
-addCallback("users.nullifyVotes.async", nullifyCommentVotes)
-
-async function nullifyPostVotes(user: DbUser) {
-  await nullifyVotesForUserAndCollection(user, Posts);
-  return user;
-}
-addCallback("users.nullifyVotes.async", nullifyPostVotes)
-
-async function userDeleteContent(user: DbUser) {
+export async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = Posts.find({userId: user._id}).fetch();
@@ -152,10 +126,7 @@ async function userDeleteContent(user: DbUser) {
       })
     }
     
-    runCallbacksAsync({
-      name: 'posts.purge.async',
-      properties: [post]
-    })
+    await postReportPurgeAsSpam(post);
   }
 
   const comments = Comments.find({userId: user._id}).fetch();
@@ -198,22 +169,14 @@ async function userDeleteContent(user: DbUser) {
       })
     }
 
-    runCallbacksAsync({
-      name: 'comments.purge.async',
-      properties: [comment]
-    })
+    await commentReportPurgeAsSpam(comment);
   }
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
 }
-addCallback("users.deleteContent.async", userDeleteContent);
 
-function userResetLoginTokens(user: DbUser) {
-  Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
-}
-addCallback("users.ban.async", userResetLoginTokens);
-
-async function userIPBan(user: DbUser) {
+export async function userIPBanAndResetLoginTokens(user: DbUser) {
+  // IP ban
   const query = `
     query UserIPBan($userId:String) {
       user(input:{selector: {_id: $userId}}) {
@@ -244,8 +207,9 @@ async function userIPBan(user: DbUser) {
     })
   }
 
+  // Remove login tokens
+  Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
-addCallback("users.ban.async", userIPBan);
 
 getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user: DbUser) {
   if (!user.username) {

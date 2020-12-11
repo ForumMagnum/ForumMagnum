@@ -6,7 +6,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
@@ -33,8 +33,7 @@ const TagDiscussionPage = ({classes}: {
     <SingleColumnSection>
       { tag && <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
       <p className={classes.description}>
-        Use this page to discuss problems with the tag, ask for clarification about the tag, propose 
-        merging or splitting the tag, or just discuss edits you want to make to the tag
+        Discuss the wiki-tag on this page. Here is the place to ask questions and propose changes.
       </p>
       {tag && <TagDiscussionSection
         tag={tag}

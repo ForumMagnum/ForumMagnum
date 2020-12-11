@@ -30,7 +30,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { deleteClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
-import { cacheUpdateGenerator } from './cacheUpdates';
+import { updateCacheAfterDelete } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 import { Mutation } from '@apollo/client/react/components';
 
@@ -64,7 +64,7 @@ export const withDelete = options => {
         const extraVariables = getExtraVariables(ownProps, options.extraVariables)
         return mutate({
           variables: { selector, ...extraVariables },
-          update: cacheUpdateGenerator(typeName, 'delete')
+          update: updateCacheAfterDelete(typeName)
         });
       },
     })

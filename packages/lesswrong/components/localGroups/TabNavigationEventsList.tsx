@@ -79,7 +79,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 const TabNavigationEventsList = ({ terms, onClick, classes }: {
-  terms: any,
+  terms: PostsViewTerms,
   onClick: ()=>void,
   classes: ClassesType,
 }) => {
@@ -106,7 +106,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
         const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
-        const displayTime = startTime ? startTime.calendar(null, {
+        const displayTime = startTime ? startTime.calendar(undefined, {
           sameDay: `[${TODAY_STRING}]`,
           nextDay: `[${TOMORROW_STRING}]`,
           nextWeek: ' ',
@@ -121,7 +121,9 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
         const tooltip = <div>
             <div className={classes.tooltipTitle}>{event.title}</div>
-            <div className={classes.tooltipLogisticsTitle}>Location</div>
+            <div className={classes.tooltipLogisticsTitle}>
+             {event.onlineEvent ? "Onlne Event" : "Location"}
+            </div>
             <div>{event.location}</div>
             <div className={classes.tooltipLogisticsTitle}>Time</div>
             <div>

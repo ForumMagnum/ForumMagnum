@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
-import { hasVotedClient } from '../../lib/voting/vote';
 
 const styles = (theme: ThemeType): JssStyles => ({
   relevance: {
@@ -39,7 +38,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   relevance?: boolean
 }) => {
   const voteProps = useVote(tagRel, "TagRels");
-  const newlyVoted = !!(hasVotedClient({userVotes: voteProps.document.currentUserVotes, voteType: "smallUpvote"}) && voteProps.voteCount === 1)
+  const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
   const { TagPreview, VoteButton, TagRelevanceButton, LWTooltip } = Components;
   

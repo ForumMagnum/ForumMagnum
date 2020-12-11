@@ -6,7 +6,7 @@ import Users from '../../lib/collections/users/collection'
 import { getCollection } from '../vulcan-lib';
 import Sequences from '../../lib/collections/sequences/collection'
 import { wrapVulcanAsyncScript } from './utils'
-import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
+import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
 import { algoliaIndexNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
@@ -93,7 +93,7 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
-  const collection = getCollection(collectionName);
+  const collection = getCollection(collectionName) as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
   if (!collection) throw new Error(`Invalid collection name '${collectionName}'`);
   
   // eslint-disable-next-line no-console

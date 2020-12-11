@@ -4,9 +4,7 @@ registerFragment(`
   fragment SuggestAlignmentComment on Comment {
     ...CommentsList
     post {
-      title
-      _id
-      slug
+      ...PostsMinimumInfo
     }
     suggestForAlignmentUserIds
     suggestForAlignmentUsers {

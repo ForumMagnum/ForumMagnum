@@ -6,7 +6,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';
 import { BookIcon } from '../icons/bookIcon'
-import withHover from '../common/withHover'
+import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
@@ -37,17 +37,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+// Given a user (which may not be null), render the user name as a link with a
+// tooltip. This should not be used directly; use UsersName instead.
+const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left"}: {
   user: UsersMinimumInfo|null|undefined,
   nofollow?: boolean,
   simple?: boolean,
-}
-interface UsersNameDisplayProps extends ExternalProps, WithStylesProps, WithHoverProps {
-}
-
-// Given a user (which may not be null), render the user name as a link with a
-// tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}: UsersNameDisplayProps) => {
+  classes: ClassesType,
+  tooltipPlacement?: "left" | "top" | "right" | "bottom"
+}) => {
+  const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
 
   if (!user) return <Components.UserNameDeleted/>
   const { FormatDate, LWTooltip } = Components
@@ -69,27 +68,24 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   </span>
 
   if (simple) {
-    return <span className={classes.userName}>{userGetDisplayName(user)}</span>
+    return <span {...eventHandlers} className={classes.userName}>{userGetDisplayName(user)}</span>
   }
 
-  return <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-    <LWTooltip title={tooltip} placement="left">
+  return <span {...eventHandlers}>
+    <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+    <LWTooltip title={tooltip} placement={tooltipPlacement}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}
           {...(nofollow ? {rel:"nofollow"} : {})}
         >
         {userGetDisplayName(user)}
       </Link>
     </LWTooltip>
-  </AnalyticsContext>
+    </AnalyticsContext>
+  </span>
 }
 
-const UsersNameDisplayComponent = registerComponent<ExternalProps>(
-  'UsersNameDisplay', UsersNameDisplay, {
-    styles,
-    hocs: [
-      withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id}))
-    ]
-  }
+const UsersNameDisplayComponent = registerComponent(
+  'UsersNameDisplay', UsersNameDisplay, {styles}
 );
 
 declare global {

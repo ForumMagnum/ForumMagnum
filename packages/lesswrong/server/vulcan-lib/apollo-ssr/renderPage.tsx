@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { getDataFromTree } from '@apollo/client/react/ssr';
+import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
 import { webAppConnectHandlersUse } from '../meteor_patch';
 
@@ -22,6 +22,7 @@ import Sentry from '@sentry/node';
 import { randomId } from '../../../lib/random';
 import { publicSettings } from '../../../lib/publicSettings'
 import { getMergedStylesheet } from '../../styleGeneration';
+import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 
 type RenderTimings = {
   totalTime: number
@@ -143,7 +144,7 @@ const renderRequest = async ({req, user, startTime, res}): Promise<RenderResult>
   const context: any = {};
 
   // Allows components to set statuscodes and redirects that will get executed on the server
-  let serverRequestStatus: any = {}
+  let serverRequestStatus: ServerRequestStatusContextType = {}
 
   // TODO: req object does not seem to have been processed by the Express
   // middlewares at this point
@@ -165,7 +166,7 @@ const renderRequest = async ({req, user, startTime, res}): Promise<RenderResult>
 
   let htmlContent = '';
   try {
-    htmlContent = await getDataFromTree(WrappedApp);
+    htmlContent = await renderToStringWithData(WrappedApp);
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console

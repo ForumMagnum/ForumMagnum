@@ -1,8 +1,20 @@
 import { Subscriptions } from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
+declare global {
+  interface SubscriptionsViewTerms extends ViewTermsBase {
+    view?: SubscriptionsViewName
+    userId?: string
+    collectionName?: string
+    subscriptionType?: string
+    documentId?: string
+    type?: string
+  }
+}
+
+
 //Messages for a specific conversation
-Subscriptions.addView("subscriptionState", function (terms) {
+Subscriptions.addView("subscriptionState", function (terms: SubscriptionsViewTerms) {
   const { userId, documentId, collectionName, type} = terms
   return {
     selector: {userId, documentId, collectionName, type, deleted: false},
@@ -11,12 +23,12 @@ Subscriptions.addView("subscriptionState", function (terms) {
 });
 ensureIndex(Subscriptions, {userId: 1, documentId: 1, collectionName: 1, type: 1, createdAt: 1});
 
-Subscriptions.addView("subscriptionsOfType", function (terms) {
+Subscriptions.addView("subscriptionsOfType", function (terms: SubscriptionsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
       collectionName: terms.collectionName,
-      type: terms.subcriptionType,
+      type: terms.subscriptionType,
       deleted: false,
       state: "subscribed",
     },

@@ -1,8 +1,9 @@
 import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
-import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover';
+import type { Hit } from 'react-instantsearch-core';
 
 import grey from '@material-ui/core/colors/grey';
 
@@ -21,7 +22,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   })
 
-const PostsListEditorSearchHit = ({hit, classes}) => {
+const PostsListEditorSearchHit = ({hit, classes}: {
+  hit: Hit<any>,
+  classes: ClassesType,
+}) => {
+  const post = (hit as AlgoliaPost);
   const { eventHandlers, hover, anchorEl } = useHover({
     pageElementContext: "postListEditorSearchHit",
   });
@@ -39,21 +44,21 @@ const PostsListEditorSearchHit = ({hit, classes}) => {
           }
         }}
       >
-        <PostsPreviewTooltipSingle postId={hit._id} postsList/>
+        <PostsPreviewTooltipSingle postId={post._id} postsList/>
       </LWPopper>
       <div>
-        <PostsTitle post={hit} isLink={false}/>
+        <PostsTitle post={post as unknown as PostsBase} isLink={false}/>
       </div>
-      {hit.authorDisplayName && <MetaInfo>
-        {hit.authorDisplayName}
+      {post.authorDisplayName && <MetaInfo>
+        {post.authorDisplayName}
       </MetaInfo>}
       <MetaInfo>
-        {hit.baseScore} points
+        {post.baseScore} points
       </MetaInfo>
-      {hit.postedAt && <MetaInfo>
-        <FormatDate date={hit.postedAt}/>
+      {post.postedAt && <MetaInfo>
+        <FormatDate date={post.postedAt}/>
       </MetaInfo>}
-      <Link to={postGetLink(hit)} target={postGetLinkTarget(hit)} className={classes.postLink}>
+      <Link to={postGetPageUrl(post)} className={classes.postLink}>
         (Link)
       </Link>
     </div>

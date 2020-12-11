@@ -58,6 +58,7 @@ import './server/analyticsWriter';
 import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
+import './server/bookmarkMutation';
 import './server/rss';
 import './server/akismet';
 import './server/votingCron';
@@ -77,6 +78,7 @@ import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
+import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
 import './lib/collections/posts/validate';
@@ -95,6 +97,7 @@ import { hasEventsSetting } from './lib/instanceSettings'
 if (hasEventsSetting.get()) {
   import './server/callbacks/localgroupCallbacks';
 }
+import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
 import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
 import './server/callbacks/alignment-forum/alignmentPostCallbacks';
@@ -111,6 +114,7 @@ import './server/resolvers/mozillaHubsData';
 import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';
+import './server/resolvers/elicitPredictions';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

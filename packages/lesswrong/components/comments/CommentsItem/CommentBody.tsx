@@ -9,13 +9,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
     ...commentBodyStyles(theme),
     maxWidth: "100%",
-    overflowX: "auto",
+    overflowX: "hidden",
     overflowY: "hidden",
   },
   answerStyling: {
     ...answerStyles(theme),
     maxWidth: "100%",
-    overflowX: "auto",
+    overflowX: "hidden",
     overflowY: "hidden",
     '& .read-more a, & .read-more a:hover': {
       textShadow:"none",

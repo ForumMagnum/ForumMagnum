@@ -1,5 +1,6 @@
 import intersection from 'lodash/intersection';
 import * as _ from 'underscore';
+import { getSchema } from'../utils/getSchema';
 
 class Group {
   actions: Array<string>
@@ -23,12 +24,13 @@ export const userGroups: Record<string,Group> = {};
 
 
 // Create a new group
-export const createGroup = (groupName: string): void => {
+export const createGroup = (groupName: string): Group => {
   userGroups[groupName] = new Group();
+  return userGroups[groupName];
 };
 
 // get a list of a user's groups
-export const userGetGroups = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
+export const userGetGroups = (user: UsersProfile|DbUser|null): Array<string> => {
   if (!user) { // guests user
     return ['guests'];
   } else {
@@ -47,7 +49,7 @@ export const userGetGroups = (user: UsersMinimumInfo|DbUser|null): Array<string>
 };
 
 // Get a list of all the actions a user can perform
-export const userGetActions = (user: UsersMinimumInfo|DbUser|null): Array<string> => {
+export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> => {
   let groups = userGetGroups(user);
   if (!groups.includes('guests')) {
     // always give everybody permission for guests actions, too
@@ -72,7 +74,7 @@ export const userIsMemberOf = (user: UsersCurrent|DbUser|null, group: string): b
 };
 
 // Check if a user can perform at least one of the specified actions
-export const userCanDo = (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>): boolean => {
+export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: string|Array<string>): boolean => {
   const authorizedActions = userGetActions(user);
   const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
@@ -108,7 +110,7 @@ export const userIsAdmin = function (user: UsersMinimumInfo|DbUser|null): boolea
 export const isAdmin = userIsAdmin;
 
 // Check if a user can view a field
-export const userCanReadField = function (user: UsersCurrent|DbUser|null, field: any, document: any): boolean {
+export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
   const canRead = field.canRead || field.viewableBy; //OpenCRUD backwards compatibility
   if (canRead) {
     if (typeof canRead === 'function') {
@@ -130,7 +132,7 @@ export const userCanReadField = function (user: UsersCurrent|DbUser|null, field:
 // @param {Object} collection - The collection
 // @param {Object} document - Optionally, get a list for a specific document
 const getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T): Set<string> {
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
   let result: Set<string> = new Set();
   for (let fieldName of Object.keys(schema)) {
     if (fieldName.indexOf('.$') > -1)
@@ -167,7 +169,7 @@ export const restrictViewableFields = function <T extends DbObject>(user: UsersC
 };
 
 // Check if a user can submit a field
-export const userCanCreateField = function (user, field) {
+export const userCanCreateField = <T extends DbObject>(user: DbUser|null, field: CollectionFieldSpecification<T>) => {
   const canCreate = field.canCreate || field.insertableBy; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
@@ -186,7 +188,7 @@ export const userCanCreateField = function (user, field) {
 };
 
 // Check if a user can edit a field
-export const userCanUpdateField = function (user, field, document) {
+export const userCanUpdateField = <T extends DbObject>(user: DbUser|null, field: CollectionFieldSpecification<T>, document: Partial<T>) => {
   const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
 
   if (canUpdate) {
@@ -211,8 +213,8 @@ export const userCanUpdateField = function (user, field, document) {
 ////////////////////
 
 // initialize the 3 out-of-the-box groups
-createGroup('guests'); // non-logged-in users
-createGroup('members'); // regular users
+export const guestsGroup = createGroup('guests'); // non-logged-in users
+export const membersGroup = createGroup('members'); // regular users
 
 const membersActions = [
   'user.create',
@@ -224,7 +226,7 @@ const membersActions = [
 ];
 userGroups.members.can(membersActions);
 
-createGroup('admins'); // admin users
+export const adminsGroup = createGroup('admins'); // admin users
 
 const adminActions = [
   'user.create',

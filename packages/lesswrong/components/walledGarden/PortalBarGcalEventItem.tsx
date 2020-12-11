@@ -1,45 +1,93 @@
 import React from 'react'
 import moment from 'moment';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import {registerComponent, Components } from '../../lib/vulcan-lib';
+import { getUrlClass } from '../../lib/routeUtil';
 
-const styles = (theme) => ({
-  root: {
-    ...theme.typography.commentStyle,
-    fontSize: '1.1rem',
-    color: 'rgba(0,0,0,0.55)',
-    display: "flex",
-    justifyContent: "space-between"
-  },
-  eventTime: {
-    fontSize: ".9em",
-    opacity: .75,
-    width: 120,
-    textAlign: "right",
-    display: "inline-block"
-  },
-  tooltip: {
-    whiteSpace: "pre-wrap"
+export const eventRoot = theme => ({
+  ...theme.typography.commentStyle,
+  fontSize: '1.1rem',
+  color: 'rgba(0,0,0,0.55)',
+  display: "flex",
+  width: 350,
+  [theme.breakpoints.down('xs')]: {
+    width: "100%",
+    flexWrap: "wrap",
   }
 })
 
-const PortalBarGcalEventItem = ({classes, gcalEvent}) => {
-  const { LWTooltip } = Components
+export const eventName = theme => ({
+  width: 230,
+  [theme.breakpoints.down('xs')]: {
+    width: "100%",
+    marginRight: 8,
+  },
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "inline-block",
+  whiteSpace: "nowrap"
+})
 
-  const urlParams = new URLSearchParams(gcalEvent.htmlLink.split('?')[1])
-  const eid = urlParams.get("eid")
+export const eventTime = theme => ({
+  fontSize: ".9em",
+  opacity: .75,
+  width: 150,
+  [theme.breakpoints.down('xs')]: {
+    width: "100%",
+    textAlign: "left"
+  },
+  textAlign: "right",
+  display: "inline-block"
+})
+
+export const eventFormat = (startTime) => {
+  return moment(new Date(startTime)).format("ddd h:mma, MMM D")
+}
+
+const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    ...eventRoot(theme)
+  },
+  eventName: {
+    ...eventName(theme)
+  },
+  eventTime: {
+    ...eventTime(theme)
+  },
+})
+
+
+export const getAddToCalendarLink = (gcalEvent) => {
+  const { LWTooltip } = Components
+  
+  const UrlClass = getUrlClass()
+  const url = new UrlClass(gcalEvent.htmlLink)
+  const eid = url.searchParams.get("eid")
   const addToCalendarLink = `https://calendar.google.com/event?action=TEMPLATE&tmeid=${eid}&tmsrc=${gcalEvent.organizer.email}`
   const link = <a href={addToCalendarLink} target="_blank" rel="noopener noreferrer">
     {gcalEvent.summary}
   </a>
 
+  const noHtmlDescription = gcalEvent.description ? gcalEvent.description.replace(/<[^>]*>?/gm, '') : ""
+
+  if (gcalEvent.description) {
+    return <LWTooltip title={<div style={{whiteSpace: "pre-wrap"}}>{noHtmlDescription}</div>}>
+      {link}
+    </LWTooltip>
+  } else {
+    return link
+  }
+}
+
+const PortalBarGcalEventItem = ({classes, gcalEvent}: {
+  classes: ClassesType,
+  gcalEvent: any,
+}) => {
   return <div className={classes.root}>
-      {gcalEvent.description ?
-        <LWTooltip title={<div className={classes.tooltip}>{gcalEvent.description}</div>}>
-          {link}
-        </LWTooltip>
-      : link}
+      <span className={classes.eventName}>
+        {getAddToCalendarLink(gcalEvent)}
+      </span>
       <span className={classes.eventTime}>
-        {moment(new Date(gcalEvent.start.dateTime)).format("ddd h:mma, M/D")}
+        {eventFormat(gcalEvent.start.dateTime)}
       </span>
     </div>
 }

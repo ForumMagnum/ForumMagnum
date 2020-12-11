@@ -1,6 +1,31 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
+  fragment newEventFragment on LWEvent {
+    _id
+    createdAt
+    userId
+    name
+    important
+    properties
+    intercom
+  }
+`);
+
+registerFragment(`
+  fragment lastEventFragment on LWEvent {
+    _id
+    createdAt
+    documentId
+    userId
+    name
+    important
+    properties
+    intercom
+  }
+`);
+
+registerFragment(`
   fragment lwEventsAdminPageFragment on LWEvent {
     _id
     createdAt
@@ -20,15 +45,6 @@ registerFragment(`
   fragment emailHistoryFragment on LWEvent {
     _id
     userId
-    name
-    properties
-  }
-`);
-
-registerFragment(`
-  fragment gatherTownEventFragment on LWEvent {
-    _id
-    createdAt
     name
     properties
   }

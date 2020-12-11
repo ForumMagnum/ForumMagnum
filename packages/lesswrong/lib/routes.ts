@@ -9,6 +9,7 @@ const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
+const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
@@ -144,11 +145,11 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
   // disabled except during review voting phase
-  // {
-  //   name:'reviewVoting',
-  //   path: '/reviewVoting',
-  //   componentName: "ReviewVotingPage"
-  // },
+  {
+    name:'reviewVoting',
+    path: '/reviewVoting',
+    componentName: "ReviewVotingPage"
+  },
 
   // Sequences
   {
@@ -367,7 +368,8 @@ if (forumTypeSetting.get() === 'LessWrong') {
       path: '/walledGardenPortal',
       componentName: 'WalledGardenPortal',
       title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle
+      ...walledGardenPortalSubtitle,
+      disableAutoRefresh: true,
     },
     {
       name: 'HPMOR.posts.single',
@@ -469,6 +471,7 @@ if (hasEventsSetting.get()) {
       path: '/g/:groupId/p/:_id',
       componentName: 'PostsSingle',
       previewComponentName: 'PostLinkPreview',
+      background: postBackground,
       ...communitySubtitle,
       getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
@@ -561,7 +564,8 @@ addRoute(
     name: 'taggingDashboard',
     path: '/tags/dashboard',
     componentName: "TaggingDashboard",
-    title: "Tagging Dashboard"
+    title: "Tagging Dashboard",
+    ...taggingDashboardSubtitle
   }
 );
 
@@ -740,10 +744,16 @@ addRoute(
     componentName: 'EmailTokenPage',
   },
   {
-    name: 'nominations',
-    path: '/nominations',
+    name: 'nominations2018',
+    path: '/nominations2018',
     componentName: 'Nominations2018',
     title: "2018 Nominations",
+  },
+  {
+    name: 'nominations',
+    path: '/nominations',
+    componentName: 'Nominations2019',
+    title: "2019 Nominations",
   },
   {
     name: 'userReviews',
@@ -752,9 +762,22 @@ addRoute(
     title: "User Reviews",
   },
   {
-    name: 'reviews',
-    path: '/reviews',
+    name: 'reviews2018',
+    path: '/reviews2018',
     componentName: 'Reviews2018',
     title: "2018 Reviews",
+  },
+  {
+    name: 'reviews',
+    path: '/reviews',
+    componentName: 'Reviews2019',
+    title: "2019 Reviews",
+  },
+  {
+    name: 'bookLanding',
+    path: '/books',
+    componentName: 'BookLanding',
+    title: "A Map that Reflects the Territory",
+    background: "white"
   },
 );

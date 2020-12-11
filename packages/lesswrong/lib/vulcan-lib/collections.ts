@@ -1,12 +1,12 @@
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
+import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
-import { runCallbacks } from './callbacks';
 import { getDefaultFragmentText, registerFragment } from './fragments';
-import { Collections } from './getCollection';
-import { addGraphQLCollection, addToGraphQLContext } from './graphql';
-import { Utils, pluralize, camelCaseify } from './utils';
+import { registerCollection } from './getCollection';
+import { addGraphQLCollection } from './graphql';
+import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 
@@ -31,52 +31,6 @@ export const getCollectionName = (typeName): CollectionNameString => pluralize(t
 
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
-
-/**
- * @summary replacement for Collection2's attachSchema. Pass either a schema, to
- * initialize or replace the schema, or some fields, to extend the current schema
- * @class Mongo.Collection
- */
-Mongo.Collection.prototype.attachSchema = function(schemaOrFields) {
-  if (schemaOrFields instanceof SimpleSchema) {
-    this.simpleSchema = () => schemaOrFields;
-  } else {
-    this.simpleSchema().extend(schemaOrFields);
-  }
-};
-
-/**
- * @summary Add an additional field (or an array of fields) to a schema.
- * @param {Object|Object[]} field
- */
-Mongo.Collection.prototype.addField = function(fieldOrFieldArray) {
-  const collection = this;
-  const schema = collection.simpleSchema()._schema;
-  const fieldSchema = {};
-
-  const fieldArray = Array.isArray(fieldOrFieldArray) ? fieldOrFieldArray : [fieldOrFieldArray];
-
-  // loop over fields and add them to schema (or extend existing fields)
-  fieldArray.forEach(function(field) {
-    const newField = {...schema[field.fieldName], ...field.fieldSchema};
-    fieldSchema[field.fieldName] = newField;
-  });
-
-  // add field schema to collection schema
-  collection.attachSchema(fieldSchema);
-};
-
-/**
- * @summary Remove a field from a schema.
- * @param {String} fieldName
- */
-Mongo.Collection.prototype.removeField = function(fieldName) {
-  var collection = this;
-  var schema = _.omit(collection.simpleSchema()._schema, fieldName);
-
-  // add field schema to collection schema
-  collection.attachSchema(new SimpleSchema(schema));
-};
 
 /**
  * @summary Add a default view function.
@@ -105,10 +59,13 @@ Mongo.Collection.prototype.aggregate = function(pipelines, options) {
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
-export const createCollection = (options: {
+export const createCollection = <
+  N extends CollectionNameString,
+  T extends DbObject=ObjectsByCollectionName[N]
+>(options: {
   typeName: string,
-  collectionName?: CollectionNameString,
-  schema: any,
+  collectionName: N,
+  schema: SchemaType<T>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
   collection?: any,
@@ -117,7 +74,7 @@ export const createCollection = (options: {
 }): any => {
   const {
     typeName,
-    collectionName = getCollectionName(typeName),
+    collectionName,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
@@ -127,7 +84,7 @@ export const createCollection = (options: {
   const collection = new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true });
 
   // decorate collection with options
-  collection.options = options;
+  collection.options = options as any;
 
   // add typeName if missing
   collection.typeName = typeName;
@@ -140,17 +97,11 @@ export const createCollection = (options: {
   collection.options.collectionName = collectionName;
 
   // add views
-  collection.views = [];
+  collection.views = {};
 
-  if (schema) {
-    // attach schema to collection
-    collection.attachSchema(new SimpleSchema(schema));
-  }
-
-  // add collection to resolver context
-  const context = {};
-  context[collectionName] = collection;
-  addToGraphQLContext(context);
+  // attach schema to collection
+  //collection.simpleSchema = () => new SimpleSchema(schema);
+  collection.simpleSchema = () => new SimpleSchema(schema);
 
   if (generateGraphQLSchema) {
     // add collection to list of dynamically generated GraphQL schemas
@@ -159,12 +110,12 @@ export const createCollection = (options: {
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
-  const defaultFragment = getDefaultFragmentText(collection);
+  const defaultFragment = getDefaultFragmentText(collection, collection.simpleSchema()._schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
   // ------------------------------------- Parameters -------------------------------- //
 
-  collection.getParameters = (terms:any = {}, apolloClient, context) => {
+  collection.getParameters = ((terms: ViewTermsByCollectionName[N] = {}, apolloClient?: any, context?: ResolverContext): MergedViewQueryAndOptions<N,T> => {
     // console.log(terms);
 
     let parameters: any = {
@@ -173,8 +124,7 @@ export const createCollection = (options: {
     };
 
     if (collection.defaultView) {
-      parameters = Utils.deepExtend(
-        true,
+      parameters = merge(
         parameters,
         collection.defaultView(terms, apolloClient, context)
       );
@@ -184,7 +134,7 @@ export const createCollection = (options: {
     if (terms.view && collection.views[terms.view]) {
       const viewFn = collection.views[terms.view];
       const view = viewFn(terms, apolloClient, context);
-      let mergedParameters = Utils.deepExtend(true, parameters, view);
+      let mergedParameters = merge(parameters, view);
 
       if (
         mergedParameters.options &&
@@ -201,27 +151,6 @@ export const createCollection = (options: {
       parameters = mergedParameters;
     }
 
-    // iterate over posts.parameters callbacks
-    parameters = runCallbacks({
-      name: `${typeName.toLowerCase()}.parameters`,
-      iterator: parameters,
-      properties: [
-        _.clone(terms),
-        apolloClient,
-        context
-      ]
-    });
-    // OpenCRUD backwards compatibility
-    parameters = runCallbacks({
-      name: `${collectionName.toLowerCase()}.parameters`,
-      iterator: parameters,
-      properties: [
-        _.clone(terms),
-        apolloClient,
-        context
-      ]
-    });
-
     // sort using terms.orderBy (overwrite defaultView's sort)
     if (terms.orderBy && !_.isEmpty(terms.orderBy)) {
       parameters.options.sort = terms.orderBy;
@@ -229,13 +158,13 @@ export const createCollection = (options: {
 
     // if there is no sort, default to sorting by createdAt descending
     if (!parameters.options.sort) {
-      parameters.options.sort = { createdAt: -1 };
+      parameters.options.sort = { createdAt: -1 } as any;
     }
 
     // extend sort to sort posts by _id to break ties, unless there's already an id sort
     // NOTE: always do this last to avoid overriding another sort
     if (!(parameters.options.sort && typeof parameters.options.sort._id !== undefined)) {
-      parameters = Utils.deepExtend(true, parameters, { options: { sort: { _id: -1 } } });
+      parameters = merge(parameters, { options: { sort: { _id: -1 } } });
     }
 
     // remove any null fields (setting a field to null means it should be deleted)
@@ -244,7 +173,7 @@ export const createCollection = (options: {
         parameters.selector[key] = null;
       } else if (_.isEqual(parameters.selector[key], viewFieldAllowAny)) {
         delete parameters.selector[key];
-      } else if (parameters.selector[key] === null) {
+      } else if (parameters.selector[key] === null || parameters.selector[key] === undefined) {
         //console.log(`Warning: Null key ${key} in query of collection ${collectionName} with view ${terms.view}.`);
         delete parameters.selector[key];
       }
@@ -265,9 +194,9 @@ export const createCollection = (options: {
     // console.log(parameters);
 
     return parameters;
-  };
+  }) as any;
 
-  Collections.push(collection);
+  registerCollection(collection);
 
   return collection;
 };

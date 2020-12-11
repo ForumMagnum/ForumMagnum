@@ -1,7 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery, createMutator } from "..";
 import passport from 'passport'
 import bcrypt from 'bcrypt'
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { addGraphQLMutation, logoUrlSetting } from "../../../lib/vulcan-lib";
@@ -9,7 +9,6 @@ import { ForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
 import { hashLoginToken } from "./apollo_server";
-import { randomBytes } from "crypto";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 
@@ -86,7 +85,7 @@ const authenticationResolvers = {
         if (!user) throw new AuthenticationError("Invalid username/password")
         if (user.banned && new Date(user.banned) > new Date()) throw new AuthenticationError("This user is banned")
 
-        req.logIn(user, async err => {
+        req!.logIn(user, async err => {
           if (err) throw new AuthenticationError(err)
           token = await createAndSetToken(req, res, user)
         })
@@ -95,12 +94,12 @@ const authenticationResolvers = {
       return { token }
     },
     async logout(root, {}, { req, res }: ResolverContext) {
-      req.logOut()
-      if (req.cookies.loginToken) {
-        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
+      req!.logOut()
+      if (req?.cookies.loginToken) {
+        res!.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
       }
-      if (req.cookies['meteor_login_token']) {
-        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
+      if (req?.cookies['meteor_login_token']) {
+        res!.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
       }
       return {
         token: null

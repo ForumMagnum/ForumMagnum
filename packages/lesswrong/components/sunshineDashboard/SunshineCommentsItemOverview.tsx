@@ -3,7 +3,6 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   comment: {
@@ -12,18 +11,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineCommentsItemOverview = ({ comment, classes }) => {
+const SunshineCommentsItemOverview = ({ comment, classes }: {
+  comment: any,
+  classes: ClassesType,
+}) => {
   const { markdown = "" } = comment.contents || {}
   const commentExcerpt = markdown && markdown.substring(0,38);
   return (
     <div>
-      <Typography variant="body2">
+      <Components.Typography variant="body2">
         <Link to={comment.post && postGetPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
           { comment.deleted ? <span>COMMENT DELETED</span>
             : <span>{ commentExcerpt }</span>
           }
         </Link>
-      </Typography>
+      </Components.Typography>
       <div>
         <Components.SidebarInfo>
           { comment.baseScore }

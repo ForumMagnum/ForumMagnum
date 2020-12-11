@@ -26,6 +26,8 @@ import { initGraphQL, getExecutableSchema } from './initGraphQL';
 import { computeContextFromReq, getUser } from './context';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
+import { createVoteableUnionType } from '../../votingGraphQL';
+
 // onPageLoad is mostly equivalent to an Express middleware
 // excepts it is tailored to handle Meteor server side rendering
 import { onPageLoad } from 'meteor/server-render';
@@ -36,6 +38,7 @@ import universalCookiesMiddleware from 'universal-cookie-express';
 
 import { formatError } from 'apollo-errors';
 
+import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
@@ -43,12 +46,13 @@ import { createHash } from 'crypto'
 import passport from 'passport'
 import { Strategy as CustomStrategy } from 'passport-custom'
 import Users from '../../../lib/vulcan-users';
+import { DatabaseServerSetting } from '../../databaseSettings';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
 const sentryRelease = sentryReleaseSetting.get()
 
-const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req, done) {
+const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
   const loginToken = req.cookies['loginToken'] || req.cookies['meteor_login_token'] // Backwards compatibility with meteor_login_token here
   if (!loginToken) return done(null, false)
   const user = await getUser(loginToken)
@@ -79,6 +83,10 @@ export function tokenExpiration(when) {
   return new Date((new Date(when)).getTime() + tokenLifetimeMs);
 }
 
+const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
+const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
+const stripePrivateKey = stripePrivateKeySetting.get()
+const stripe = stripePrivateKey && new Stripe(stripePrivateKey, {apiVersion: '2020-08-27'})
 
 if (sentryUrl && sentryEnvironment && sentryRelease) {
   Sentry.init({
@@ -93,6 +101,45 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 } else {
   // eslint-disable-next-line no-console
   console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
+}
+
+const stripeMiddleware = async (req, res) => {
+  if (req.method === "POST") {
+    const redirectTarget = stripeURLRedirect.get()
+    const session = await stripe!.checkout.sessions.create({
+      payment_method_types: ['card'],
+      shipping_address_collection: {
+        allowed_countries: [
+          // European Countries: https://www.europeancuisines.com/Europe-European-Two-Letter-Country-Code-Abbreviations
+          'AL', 'AD', 'AM', 'AT', 'BY', 'BE', 'BA', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GI', 'GR', 'HU', 'HR', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NO', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'TR', 'UA', 'VA', 'PL',
+          // North American Countries
+          'US', 'MX', 'CA',
+          // Oceania Countries
+          'AU', 'NZ',
+          // Israel (Maybe shippable via Amazon North America?)
+          'IL'
+        ]
+      },
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'A Map That Reflects the Territory',
+              images: ['https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606805322/w_1966_jahgq7.png'],
+            },
+            unit_amount: 2900,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${redirectTarget}?success=true`,
+      cancel_url: `${redirectTarget}?canceled=true`,
+    });
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ id: session.id }));
+  }
 }
 
 onStartup(() => {
@@ -114,6 +161,9 @@ onStartup(() => {
   WebApp.connectHandlers.use(universalCookiesMiddleware());
   WebApp.connectHandlers.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
   WebApp.connectHandlers.use(passport.initialize())
+  if (stripePrivateKey && stripe) {
+    WebApp.connectHandlers.use(stripeMiddleware);
+  }
 
   passport.use(cookieAuthStrategy)
   WebApp.connectHandlers.use('/', (req, res, next) => {
@@ -150,6 +200,7 @@ onStartup(() => {
   })
 
   // define executableSchema
+  createVoteableUnionType();
   initGraphQL();
   
   // create server

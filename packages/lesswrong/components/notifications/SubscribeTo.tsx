@@ -61,7 +61,7 @@ const SubscribeTo = ({
       limit: 1
     },
     
-    collection: Subscriptions,
+    collectionName: "Subscriptions",
     fragmentName: 'SubscriptionState',
     enableTotal: false,
   });

@@ -15,7 +15,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const CommentKarmaWithPreview = ({ comment, classes }) => {
+const CommentKarmaWithPreview = ({ comment, classes }: {
+  comment: CommentsList,
+  classes: ClassesType,
+}) => {
   const { hover, anchorEl, eventHandlers } = useHover();
   const { LWPopper, CommentsNode } = Components
 
@@ -35,7 +38,7 @@ const CommentKarmaWithPreview = ({ comment, classes }) => {
         }}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode comment={comment}/>
+        <CommentsNode treeOptions={{}} comment={comment}/>
       </div>
     </LWPopper>
   </span>
