@@ -1,1 +1,1 @@
-export * from './apollo_server';
+import '../../../platform/current/server/apolloServer';

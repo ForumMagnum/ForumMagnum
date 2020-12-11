@@ -9,33 +9,28 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
+import { onStartup, isDevelopment } from '../lib/executionEnvironment';
 
-import { WebApp } from 'meteor/webapp';
 import bodyParser from 'body-parser';
 
 // import cookiesMiddleware from 'universal-cookie-express';
 // import Cookies from 'universal-cookie';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import getVoyagerConfig from './voyager';
-import { graphiqlMiddleware, getGraphiqlConfig } from './graphiql';
-import getPlaygroundConfig from './playground';
+import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
+import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-server/graphiql';
+import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
 
-import { initGraphQL, getExecutableSchema } from './initGraphQL';
+import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 //import { engineConfig } from './engine';
-import { computeContextFromReq } from './context';
+import { computeContextFromReq } from '../../../server/vulcan-lib/apollo-server/context';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
-import { createVoteableUnionType } from '../../votingGraphQL';
+import { createVoteableUnionType } from '../../../server/votingGraphQL';
 
-// onPageLoad is mostly equivalent to an Express middleware
-// excepts it is tailored to handle Meteor server side rendering
-import { onPageLoad } from 'meteor/server-render';
-
-import makePageRenderer from '../apollo-ssr/renderPage';
+import makePageRenderer from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
-import { randomId } from '../../../lib/random';
+import { randomId } from '../lib/random';
 
 import { formatError } from 'apollo-errors';
 
@@ -43,7 +38,7 @@ import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
-import { DatabaseServerSetting } from '../../databaseSettings';
+import { DatabaseServerSetting } from '../../../server/databaseSettings';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
