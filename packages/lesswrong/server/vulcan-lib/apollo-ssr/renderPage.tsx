@@ -8,7 +8,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
-import { webAppConnectHandlersUse } from '../meteor_patch';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
@@ -117,20 +116,6 @@ const makePageRenderer = async sink => {
     });
   }
 };
-
-// Middleware for assigning a client ID, if one is not currently assigned.
-// Since Meteor doesn't have an API for setting cookies, this calls setHeader
-// on the HTTP response directly; if other middlewares also want to set
-// cookies, they won't necessarily play nicely together.
-webAppConnectHandlersUse(function addClientId(req, res, next) {
-  if (!req.cookies.clientId) {
-    const newClientId = randomId();
-    req.cookies.clientId = newClientId;
-    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
-  }
-  
-  next();
-}, {order: 100});
 
 const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req.headers);

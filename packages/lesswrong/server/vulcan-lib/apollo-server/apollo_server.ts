@@ -35,6 +35,7 @@ import { onPageLoad } from 'meteor/server-render';
 import makePageRenderer from '../apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
+import { randomId } from '../../../lib/random';
 
 import { formatError } from 'apollo-errors';
 
@@ -68,6 +69,20 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
   console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
 }
 
+// Middleware for assigning a client ID, if one is not currently assigned.
+// Since Meteor doesn't have an API for setting cookies, this calls setHeader
+// on the HTTP response directly; if other middlewares also want to set
+// cookies, they won't necessarily play nicely together.
+export const addClientIdMiddleware = (req, res, next) => {
+  if (!req.cookies.clientId) {
+    const newClientId = randomId();
+    req.cookies.clientId = newClientId;
+    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
+  }
+  
+  next();
+};
+
 export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlewareOptions) => {
   // IMPORTANT: order matters !
   // 1 - Add request parsing middleware
@@ -80,6 +95,7 @@ export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlew
 
   // parse cookies and assign req.universalCookies object
   WebApp.connectHandlers.use(universalCookiesMiddleware());
+  WebApp.connectHandlers.use(addClientIdMiddleware);
 
   // parse request (order matters)
   WebApp.connectHandlers.use(

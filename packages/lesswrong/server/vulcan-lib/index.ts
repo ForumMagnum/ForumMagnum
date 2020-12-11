@@ -5,8 +5,6 @@ export * from './query';
 export * from '../../lib/vulcan-lib/index';
 export * from './mutators';
 export * from './errors';
-// TODO: what to do with this?
-export * from './meteor_patch';
 //export * from './render_context';
 export * from './intl';
 export * from './accounts_helpers';
