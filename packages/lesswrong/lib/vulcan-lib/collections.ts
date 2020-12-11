@@ -1,4 +1,4 @@
-import { Mongo } from 'meteor/mongo';
+import { MongoCollection } from '../../platform/current/lib/mongoCollection';
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
@@ -37,7 +37,7 @@ export const getTypeName = (collectionName: CollectionNameString) => collectionN
  * @summary Add a default view function.
  * @param {Function} view
  */
-Mongo.Collection.prototype.addDefaultView = function(view) {
+MongoCollection.prototype.addDefaultView = function(view) {
   this.defaultView = view;
 };
 
@@ -46,7 +46,7 @@ Mongo.Collection.prototype.addDefaultView = function(view) {
  * @param {String} viewName
  * @param {Function} view
  */
-Mongo.Collection.prototype.addView = function(viewName, view) {
+MongoCollection.prototype.addView = function(viewName, view) {
   this.views[viewName] = view;
 };
 
@@ -55,7 +55,7 @@ Mongo.Collection.prototype.addView = function(viewName, view) {
  * @param {Array} pipelines mongodb pipeline
  * @param {Object} options mongodb option object
  */
-Mongo.Collection.prototype.aggregate = function(pipelines, options) {
+MongoCollection.prototype.aggregate = function(pipelines, options) {
   var coll = this.rawCollection();
   return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
@@ -85,7 +85,7 @@ export const createCollection = <
   const collection: CollectionBase<T> =
     collectionName === 'Users' && meteorUsersCollection
       ? meteorUsersCollection
-      : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
+      : new MongoCollection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
 
   // decorate collection with options
   collection.options = options as any;
