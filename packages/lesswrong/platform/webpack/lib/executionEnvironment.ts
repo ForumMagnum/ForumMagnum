@@ -42,3 +42,7 @@ export const addGlobalForShell = (name: string, value: any) => {
   // TODO
 }
 
+
+// Polyfill
+import 'setimmediate';
+

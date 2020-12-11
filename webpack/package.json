@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx esbuild ./src/server.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./build/server/js/bundle2.js' --platform=node --external:akismet-api --external:canvas --external:mz --external:pg --external:pg-promise --external:mathjax-node --external:jsdom --external:@sentry/node --external:node-fetch --external:later --external:turndown --external:apollo-server --external:apollo-server-express --minify --sourcemap && npx esbuild ./src/client.js --bundle '--define:process.env.NODE_ENV=\"production\"' --outfile='./build/client/js/bundle.js' --minify --sourcemap --target=es6 --define:global=window",
+    "build": "npx esbuild ./src/server.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/server/js/bundle2.js' --platform=node --external:akismet-api --external:canvas --external:mz --external:pg --external:pg-promise --external:mathjax-node --external:jsdom --external:@sentry/node --external:node-fetch --external:later --external:turndown --external:apollo-server --external:apollo-server-express --sourcemap && npx esbuild ./src/client.js --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile='./build/client/js/bundle.js' --sourcemap --target=es6 --define:global=window",
     "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/bundle2.js'",
-    "build:prod": "export NODE_ENV=production && webpack -p",
-    "start:prod": "export NODE_ENV=production && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle.js'"
+    "build:prod": "export NODE_ENV=development && webpack -p",
+    "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle.js'"
   },
   "keywords": [],
   "author": "",
@@ -183,6 +183,7 @@
     "request": "^2.88.0",
     "rss": "^1.2.1",
     "sanitize-html": "^1.18.2",
+    "setimmediate": "^1.0.5",
     "simpl-schema": "^1.5.0",
     "source-map-support": "^0.5.19",
     "speakingurl": "^9.0.0",
