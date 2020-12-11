@@ -28,6 +28,7 @@ import {
 } from '../../../lib/vulcan-lib/graphql_templates';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib/utils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
+import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
@@ -269,7 +270,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
     ? collection.typeName
     : camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
 
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
 
   const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
 

@@ -1,4 +1,4 @@
-import { foreignKeyField, SchemaType } from '../../../lib/utils/schemaUtils';
+import { foreignKeyField } from '../../../lib/utils/schemaUtils';
 
 const schema: SchemaType<DbEmailTokens> = {
   token: {

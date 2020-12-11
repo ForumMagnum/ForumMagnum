@@ -2,7 +2,6 @@ import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, schemaDefaultValue } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import type { SchemaType } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';

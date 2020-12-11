@@ -1,6 +1,6 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, } from '../../collectionUtils';
-import { resolverOnlyField, SchemaType } from '../../../lib/utils/schemaUtils';
+import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,

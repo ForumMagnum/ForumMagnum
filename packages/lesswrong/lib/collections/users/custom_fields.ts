@@ -1300,7 +1300,7 @@ addFieldsDict(Users, {
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
     order: 40,
-    onInsert: user => {
+    onInsert: (user: DbInsertion<DbUser>) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
@@ -1479,7 +1479,7 @@ makeEditable({
 addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
-const createDisplayName = (user: DbUser): string=> {
+const createDisplayName = (user: DbInsertion<DbUser>): string=> {
   const profileName = getNestedProperty(user, 'profile.name');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;

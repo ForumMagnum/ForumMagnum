@@ -1,6 +1,5 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
-import type { SchemaType } from '../../utils/schemaUtils'
 
 // A collection which records whenever a migration is run, when it started and
 // finished, and whether it succeeded. This can be cross-checked against the

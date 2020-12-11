@@ -3,7 +3,6 @@ import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { userGetProfileUrl } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
-import type { SchemaType } from '../../utils/schemaUtils';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -22,7 +21,7 @@ import * as _ from 'underscore';
 // Anything else..
 ///////////////////////////////////////
 
-const createDisplayName = (user: DbUser): string => {
+const createDisplayName = (user: DbInsertion<DbUser>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
