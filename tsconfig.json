@@ -12,8 +12,21 @@
     "resolveJsonModule": true
   },
   "include": [
-    "packages/lesswrong/**/*.ts",
-    "packages/lesswrong/**/*.tsx",
+    "packages/lesswrong/meteor-imports.d.ts",
+    "packages/lesswrong/client/**/*.ts",
+    "packages/lesswrong/client/**/*.tsx",
+    "packages/lesswrong/components/**/*.ts",
+    "packages/lesswrong/components/**/*.tsx",
+    "packages/lesswrong/lib/**/*.ts",
+    "packages/lesswrong/lib/**/*.tsx",
+    "packages/lesswrong/platform/current/**/*.ts",
+    "packages/lesswrong/platform/current/**/*.tsx",
+    "packages/lesswrong/server/**/*.ts",
+    "packages/lesswrong/server/**/*.tsx",
+    "packages/lesswrong/testing/**/*.ts",
+    "packages/lesswrong/testing/**/*.tsx",
+    "packages/lesswrong/themes/**/*.ts",
+    "packages/lesswrong/themes/**/*.tsx",
     "packages/**/*.js",
     "packages/**/*.jsx"
   ],
