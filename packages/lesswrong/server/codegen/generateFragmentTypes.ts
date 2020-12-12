@@ -153,7 +153,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
   if (!fieldType) {
     if (fieldName in schema) {
       const fieldSchema = schema[fieldName];
-      assert(fieldSchema.type);
+      assert(fieldSchema?.type);
       if (fieldSchema?.resolveAs?.type && !fieldSchema?.resolveAs?.fieldName) {
         fieldType = graphqlTypeToTypescript(fieldSchema.resolveAs.type);
       } else {
