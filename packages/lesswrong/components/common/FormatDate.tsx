@@ -28,7 +28,7 @@ const FormatDate = ({date, format, tooltip=true}: {
       {formatted}
     </LWTooltip>
   } else {
-    return <>formatted</>
+    return <>{formatted}</>
   }
 };
 
