@@ -66,4 +66,7 @@ typings
 *.secret
 
 packages/lesswrong/platform/current/
+webpack/build
+webpack/yarn-error.log
+
 
