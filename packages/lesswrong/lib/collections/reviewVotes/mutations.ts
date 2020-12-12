@@ -11,12 +11,12 @@ addGraphQLResolvers({
       if (!currentUser) throw new Error("You must be logged in to submit a review vote");
       if (!postId) throw new Error("Missing argument: postId");
       
-      const post = Posts.findOne({_id: postId});
+      const post = await Posts.findOne({_id: postId});
       if (!await accessFilterSingle(currentUser, Posts, post, context))
         throw new Error("Invalid postId");
       
       // Check whether this post already has a review vote
-      const existingVote = ReviewVotes.findOne({ postId, userId: currentUser._id });
+      const existingVote = await ReviewVotes.findOne({ postId, userId: currentUser._id });
       if (!existingVote) {
         const finalQuadraticScore = (typeof newQuadraticScore !== 'undefined' ) ? newQuadraticScore : (quadraticChange || 0)
         const newVote = await Utils.createMutator({

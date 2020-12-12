@@ -385,9 +385,9 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post: DbPost, args: void, context: ResolverContext): DbCollection|null => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
     },
   },

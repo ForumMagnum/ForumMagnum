@@ -6,7 +6,7 @@ import { Posts } from '../../../lib/collections/posts/collection';
 import { getCollectionHooks } from '../../mutationCallbacks';
 
 const getAlignmentForumAccount = async () => {
-  let account = Users.findOne({username: "AI Alignment Forum"});
+  let account = await Users.findOne({username: "AI Alignment Forum"});
   if (!account) {
     const userData = {
       username: "AI Alignment Forum",

@@ -7,11 +7,11 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {
-  newCheck: (user: DbUser|null, document: DbComment|null) => {
+  newCheck: async (user: DbUser|null, document: DbComment|null) => {
     if (!user) return false;
 
     if (!document || !document.postId) return userCanDo(user, 'comments.new')
-    const post = mongoFindOne("Posts", document.postId)
+    const post = await mongoFindOne("Posts", document.postId)
     if (!post) return true
 
     if (!userIsAllowedToComment(user, post)) {

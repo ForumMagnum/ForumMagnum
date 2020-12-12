@@ -7,8 +7,8 @@ import { userGetDisplayName } from "../users/helpers";
 
 
 // Get a comment author's name
-export function commentGetAuthorName(comment: DbComment): string {
-  var user = mongoFindOne("Users", comment.userId);
+export async function commentGetAuthorName(comment: DbComment): Promise<string> {
+  var user = await mongoFindOne("Users", comment.userId);
   return user ? userGetDisplayName(user) : comment.author;
 };
 

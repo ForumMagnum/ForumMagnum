@@ -632,7 +632,7 @@ addFieldsDict(Users, {
     canRead: ['sunshineRegiment', 'admins'],
     resolver: async (user: DbUser, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
-      const events: Array<DbLWEvent> = LWEvents.find(
+      const events: Array<DbLWEvent> = await LWEvents.find(
         {userId: user._id, name: 'login'},
         {
           limit: 10,
@@ -1300,11 +1300,11 @@ addFieldsDict(Users, {
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
     order: 40,
-    onInsert: (user: DbInsertion<DbUser>) => {
+    onInsert: async (user: DbInsertion<DbUser>) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
-      return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
+      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
@@ -1372,7 +1372,7 @@ addFieldsDict(Users, {
       resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
         const { limit } = args;
         const { currentUser, Posts } = context;
-        const posts = Posts.find({ userId: user._id }, { limit }).fetch();
+        const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts, context);
       }
     }

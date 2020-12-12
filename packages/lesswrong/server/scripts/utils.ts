@@ -11,15 +11,15 @@ import * as _ from 'underscore';
 // crash and stop on some errors
 // TODO: Fails if nothing matches the query
 export const bulkUpdateWithJS = async ({collection, query={}, queryOptions={}, updateFunction}) => {
-  const documents = collection.find(query, queryOptions)
-  const updates = documents.map(document => ({
+  const documents = await collection.find(query, queryOptions)
+  const updates = await Promise.all(documents.map(async (document) => ({
     updateOne: {
       filter: {
         _id: document._id
       },
-      update: updateFunction(document)
+      update: await updateFunction(document)
     }
-  }))
+  })));
   await collection.rawCollection().bulkWrite(updates)
 }
 

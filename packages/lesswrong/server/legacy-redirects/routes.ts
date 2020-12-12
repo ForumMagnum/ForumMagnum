@@ -29,14 +29,14 @@ const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)
 // Because the EA Forum was identical except for the change from /lw/ to /ea/
 const legacyRouteAcronym = legacyRouteAcronymSetting.get()
 
-function findPostByLegacyId(legacyId) {
+async function findPostByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);
-  return Posts.findOne({"legacyId": parsedId.toString()});
+  return await Posts.findOne({"legacyId": parsedId.toString()});
 }
 
-function findCommentByLegacyId(legacyId) {
+async function findCommentByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);
-  return Comments.findOne({"legacyId": parsedId.toString()});
+  return await Comments.findOne({"legacyId": parsedId.toString()});
 }
 
 function makeRedirect(res, destination) {
@@ -44,12 +44,12 @@ function makeRedirect(res, destination) {
   res.end();
 }
 
-function findPostByLegacyAFId(legacyId) {
-  return Posts.findOne({"agentFoundationsId": legacyId})
+async function findPostByLegacyAFId(legacyId) {
+  return await Posts.findOne({"agentFoundationsId": legacyId})
 }
 
-function findCommentByLegacyAFId(legacyId) {
-  return Comments.findOne({"agentFoundationsId": legacyId})
+async function findCommentByLegacyAFId(legacyId) {
+  return await Comments.findOne({"agentFoundationsId": legacyId})
 }
 
 
@@ -58,11 +58,11 @@ function findCommentByLegacyAFId(legacyId) {
 
 // Route for old post links
 // Disabled because this is now properly in the routes table, as Components.LegacyPostRedirect.
-/*addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params, req, res, next) => {
+/*addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, async (params, req, res, next) => {
   if(params.id){
 
     try {
-      const post = findPostByLegacyId(params.id);
+      const post = await findPostByLegacyId(params.id);
       if (post) {
         return makeRedirect(res, postGetPageUrl(post));
       } else {
@@ -85,12 +85,12 @@ function findCommentByLegacyAFId(legacyId) {
 });
 
 // Route for old comment links
-addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`, (params, req, res, next) => {
+addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`, async (params, req, res, next) => {
   if(params.id){
 
     try {
-      const post = findPostByLegacyId(params.id);
-      const comment = findCommentByLegacyId(params.commentId);
+      const post = await findPostByLegacyId(params.id);
+      const comment = await findCommentByLegacyId(params.commentId);
       if (post && comment) {
         return makeRedirect(res, commentGetPageUrl(comment));
       } else if (post) {
@@ -113,11 +113,11 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
 });*/
 
 // Route for old user links
-addStaticRoute('/user/:slug/:category?/:filter?', (params, req, res, next) => {
+addStaticRoute('/user/:slug/:category?/:filter?', async (params, req, res, next) => {
   res.statusCode = 404
   if(params.slug){
     try {
-      const user = Users.findOne({$or: [{slug: params.slug}, {username: params.slug}]});
+      const user = await Users.findOne({$or: [{slug: params.slug}, {username: params.slug}]});
       if (user) {
         return makeRedirect(res, userGetProfileUrl(user));
       } else {
@@ -140,10 +140,10 @@ addStaticRoute('/user/:slug/:category?/:filter?', (params, req, res, next) => {
 
 // Route for old comment links
 
-addStaticRoute('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
+addStaticRoute('/posts/:_id/:slug/:commentId', async (params, req, res, next) => {
   if(params.commentId){
     try {
-      const comment = Comments.findOne({_id: params.commentId});
+      const comment = await Comments.findOne({_id: params.commentId});
       if (comment) {
         return makeRedirect(res, commentGetPageUrl(comment));
       } else {
@@ -188,11 +188,11 @@ addStaticRoute('/static/imported/:year/:month/:day/:imageName', (params, req, re
 // Legacy RSS Routes
 
 // Route for old comment rss feeds
-addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.rss`, (params, req, res, next) => {
+addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.rss`, async (params, req, res, next) => {
   if(params.id){
     try {
-      const post = findPostByLegacyId(params.id);
-      const comment = findCommentByLegacyId(params.commentId);
+      const post = await findPostByLegacyId(params.id);
+      const comment = await findCommentByLegacyId(params.commentId);
       if (post && comment) {
         return makeRedirect(res, commentGetRSSUrl(comment));
       } else if (post) {
@@ -248,16 +248,16 @@ addStaticRoute('/promoted/.rss', (params, req, res, next) => {
 
 
 // Route for old agent-foundations post and commentlinks
-addStaticRoute('/item', (params, req, res, next) => {
+addStaticRoute('/item', async (params, req, res, next) => {
   if(params.query.id){
     const id = parseInt(params.query.id)
     try {
-      const post = findPostByLegacyAFId(id);
+      const post = await findPostByLegacyAFId(id);
 
       if (post) {
         return makeRedirect(res, postGetPageUrl(post));
       } else {
-        const comment = findCommentByLegacyAFId(id);
+        const comment = await findCommentByLegacyAFId(id);
         if (comment) {
           return makeRedirect(res, commentGetPageUrl(comment))
         } else {

@@ -45,7 +45,7 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId }: {
   });
 
   // LESSWRONG – recalculateBaseScore
-  newDocument.baseScore = recalculateBaseScore(newDocument)
+  newDocument.baseScore = await recalculateBaseScore(newDocument)
   newDocument.score = recalculateScore(newDocument);
   newDocument.voteCount++;
 
@@ -115,11 +115,11 @@ export const clearVotesServer = async ({ document, user, collection }: {
     await Connectors.update(collection,
       {_id: document._id},
       {
-        $set: {baseScore: recalculateBaseScore(document) },
+        $set: {baseScore: await recalculateBaseScore(document) },
       },
       {}, true
     );
-    newDocument.baseScore = recalculateBaseScore(newDocument);
+    newDocument.baseScore = await recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
     void algoliaExportById(collection as any, newDocument._id);

@@ -11,8 +11,8 @@ export const FRONTPAGE_BONUS = frontpageBonusSetting.get();
 export const CURATED_BONUS = curatedBonusSetting.get();
 
 
-export const recalculateBaseScore = (document: VoteableType) => {
-  const votes = Votes.find(
+export const recalculateBaseScore = async (document: VoteableType) => {
+  const votes = await Votes.find(
     {
       documentId: document._id,
       cancelled: false

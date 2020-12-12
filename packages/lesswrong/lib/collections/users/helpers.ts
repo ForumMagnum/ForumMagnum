@@ -319,18 +319,18 @@ export const userGetLocation = (currentUser: UsersCurrent|null): UserLocation =>
 
 // utility function for checking how much karma a user is supposed to have
 export const userGetAggregateKarma = async (user: DbUser): Promise<number> => {
-  const posts = mongoFind("Posts", {userId:user._id}).map(post=>post._id)
-  const comments = mongoFind("Comments", {userId:user._id}).map(comment=>comment._id)
+  const posts = (await mongoFind("Posts", {userId:user._id})).map(post=>post._id)
+  const comments = (await mongoFind("Comments", {userId:user._id})).map(comment=>comment._id)
   const documentIds = [...posts, ...comments]
 
-  return await mongoAggregate("Votes", [
+  return (await mongoAggregate("Votes", [
     {$match: {
       documentId: {$in:documentIds},
       userId: {$ne: user._id},
       cancelled: false
     }},
     {$group: { _id: null, totalPower: { $sum: '$power' }}},
-  ]).toArray()[0].totalPower;
+  ]))[0].totalPower;
 }
 
 export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {

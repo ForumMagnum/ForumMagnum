@@ -99,12 +99,12 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: (post) => {
-      return Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
+    onInsert: async (post) => {
+      return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
-    onEdit: (modifier, post) => {
+    onEdit: async (modifier, post) => {
       if (modifier.$set.title) {
-        return Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
+        return await Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
     }
   },
@@ -240,10 +240,10 @@ const schema: SchemaType<DbPost> = {
     denormalized: true,
     optional: true,
     viewableBy: ['guests'],
-    onEdit: (modifier, document, currentUser) => {
+    onEdit: async (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },
@@ -611,7 +611,7 @@ const schema: SchemaType<DbPost> = {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
           return await accessFilterSingle(currentUser, Comments, comment, context)
         } else {
-          const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+          const comment = await Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
           return await accessFilterSingle(currentUser, Comments, comment, context)
         }
       }

@@ -7,23 +7,23 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
 const options: MutationOptions<DbMessage> = {
-  newCheck: (user: DbUser|null, document: DbMessage|null) => {
+  newCheck: async (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
-    const conversation = Conversations.findOne({_id: document.conversationId})
+    const conversation = await Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
       userCanDo(user, 'messages.new.own') : userCanDo(user, `messages.new.all`)
   },
 
-  editCheck: (user: DbUser|null, document: DbMessage|null) => {
+  editCheck: async (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
-    const conversation = Conversations.findOne({_id: document.conversationId})
+    const conversation = await Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
     userCanDo(user, 'messages.edit.own') : userCanDo(user, `messages.edit.all`)
   },
 
-  removeCheck: (user: DbUser|null, document: DbMessage|null) => {
+  removeCheck: async (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
-    const conversation = Conversations.findOne({_id: document.conversationId})
+    const conversation = await Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
     userCanDo(user, 'messages.remove.own') : userCanDo(user, `messages.remove.all`)
   },

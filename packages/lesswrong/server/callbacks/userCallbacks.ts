@@ -17,22 +17,22 @@ import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
 import { DatabaseServerSetting } from "../databaseSettings";
 
-voteCallbacks.castVoteAsync.add(function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
-  const user = Users.findOne(newDocument.userId)
+voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
+  const user = await Users.findOne(newDocument.userId)
   if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
-    Users.update(user._id, {$push: {groups: 'trustLevel1'}});
-    const updatedUser = Users.findOne(newDocument.userId)
+    await Users.update(user._id, {$push: {groups: 'trustLevel1'}});
+    const updatedUser = await Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
   }
 });
 
-voteCallbacks.castVoteAsync.add(function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
-  const user = Users.findOne(newDocument.userId)
+voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
+  const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
   if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
-    Users.update(user._id, {$push: {groups: 'canModeratePersonal'}});
-    const updatedUser = Users.findOne(newDocument.userId)
+    await Users.update(user._id, {$push: {groups: 'canModeratePersonal'}});
+    const updatedUser = await Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
@@ -58,7 +58,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // For each post by this author which has the authorIsUnreviewed flag set,
     // clear the authorIsUnreviewed flag so it's visible, and update postedAt
     // to now so that it goes to the right place int he latest posts list.
-    const unreviewedPosts = Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
+    const unreviewedPosts = await Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
     for (let post of unreviewedPosts) {
       await updateMutator<DbPost>({
         collection: Posts,
@@ -75,15 +75,15 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // reset the postedAt for comments, since those are by default visible
     // almost everywhere. This can bypass the mutation system fine, because the
     // flag doesn't control whether they're indexed in Algolia.
-    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
+    await Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 });
 
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
-getCollectionHooks("Users").newSync.add(function makeFirstUserAdminAndApproved (user: DbUser) {
-  const realUsersCount = Users.find({}).count();
+getCollectionHooks("Users").newSync.add(async function makeFirstUserAdminAndApproved (user: DbUser) {
+  const realUsersCount = await Users.find({}).count();
   if (realUsersCount === 0) {
     user.reviewedByUserId = "firstAccount"; //HACK
     
@@ -129,7 +129,7 @@ getCollectionHooks("Users").newAsync.add(async function addReCaptchaRating (user
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
       const reCaptchaData = JSON.parse(reCaptchaResponse)
       if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
-        Users.update(user._id, {$set: {signUpReCaptchaRating: reCaptchaData.score}})
+        await Users.update(user._id, {$set: {signUpReCaptchaRating: reCaptchaData.score}})
       } else {
         // eslint-disable-next-line no-console
         console.log("reCaptcha check failed:", reCaptchaData)
@@ -142,7 +142,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
   const subscribeToCurated = user.profile?.subscribeToCurated;
   if (subscribeToCurated) {
-    Users.update(user._id, {$set: {emailSubscribedToCurated: true}});
+    await Users.update(user._id, {$set: {emailSubscribedToCurated: true}});
   }
   
   // Regardless of the config setting, try to confirm the user's email address
@@ -162,7 +162,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
 // logged out.
 getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user) {
   const abTestKey = user.profile?.clientId || randomId();
-  Users.update(user._id, {$set: {abTestKey: abTestKey}});
+  await Users.update(user._id, {$set: {abTestKey: abTestKey}});
 });
 
 getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {

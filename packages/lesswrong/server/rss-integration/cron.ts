@@ -7,7 +7,7 @@ import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 const runRSSImport = async () => {
   const feedparser = require('feedparser-promised');
-  const feeds = RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
+  const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
   await asyncForeachSequential(feeds, async feed => {
     try {
       // create array of all posts in current rawFeed object
@@ -61,7 +61,7 @@ const runRSSImport = async () => {
           feedLink: newPost.link
         };
 
-        let lwUser = Users.findOne({_id: feed.userId});
+        let lwUser = await Users.findOne({_id: feed.userId});
 
         await createMutator({
           collection: Posts,

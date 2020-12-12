@@ -148,7 +148,7 @@ const isPermissionsFlavoredErrorString = (str: any): boolean => {
 
 export const createDefaultUser = async() => {
   // Creates defaultUser if they don't already exist
-  const defaultUser = Users.findOne({username:"defaultUser"})
+  const defaultUser = await Users.findOne({username:"defaultUser"})
   if (!defaultUser) {
     return createDummyUser({username:"defaultUser"})
   } else {
@@ -199,7 +199,7 @@ export const createDummyComment = async (user: any, data?: any) => {
     },
   }
   if (!data.postId) {
-    const randomPost = Posts.findOne()
+    const randomPost = await Posts.findOne()
     if (!randomPost) throw Error("Can't find any post to generate random comment for")
     defaultData.postId = randomPost._id; // By default, just grab ID from a random post
   }
@@ -244,15 +244,15 @@ export const createDummyMessage = async (user: any, data?: any) => {
 }
 
 export const clearDatabase = async () => {
-  Users.find().fetch().forEach((i)=>{
+  (await Users.find().fetch()).forEach((i)=>{
     Users.remove(i._id)
-  })
-  Posts.find().fetch().forEach((i)=>{
+  });
+  (await Posts.find().fetch()).forEach((i)=>{
     Posts.remove(i._id)
-  })
-  Comments.find().fetch().forEach((i)=>{
+  });
+  (await Comments.find().fetch()).forEach((i)=>{
     Posts.remove(i._id)
-  })
+  });
 }
 
 // Replacement for JSON.stringify, because that puts quotes around keys, and GraphQL does not

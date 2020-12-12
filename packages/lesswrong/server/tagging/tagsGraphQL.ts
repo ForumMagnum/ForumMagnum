@@ -13,15 +13,15 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
 }): Promise<any> => {
   // Validate that tagId and postId refer to valid non-deleted documents
   // and that this user can see both.
-  const post = Posts.findOne({_id: postId});
-  const tag = Tags.findOne({_id: tagId});
+  const post = await Posts.findOne({_id: postId});
+  const tag = await Tags.findOne({_id: tagId});
   if (!await accessFilterSingle(currentUser, Posts, post, context))
     throw new Error(`Invalid postId ${postId}, either this post does not exist, or you do not have access`);
   if (!await accessFilterSingle(currentUser, Tags, tag, context))
     throw new Error(`Invalid tagId ${tagId}, either this tag does not exist, or you do not have access`);
   
   // Check whether this document already has this tag applied
-  const existingTagRel = TagRels.findOne({ tagId, postId });
+  const existingTagRel = await TagRels.findOne({ tagId, postId });
   if (!existingTagRel) {
     const tagRel = await createMutator({
       collection: TagRels,
