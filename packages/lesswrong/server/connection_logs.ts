@@ -4,6 +4,7 @@ import Users from '../lib/collections/users/collection';
 import { ForwardedWhitelist } from './forwarded_whitelist';
 import { Accounts } from '../platform/current/lib/meteorAccounts';
 import { onServerConnect } from '../platform/current/server/meteorServerSideFns';
+import { onStartup } from '../platform/current/lib/executionEnvironment';
 
 let dummyUser: DbUser|null = null;
 async function getDummyUser(): Promise<DbUser> {
@@ -11,7 +12,9 @@ async function getDummyUser(): Promise<DbUser> {
   if (!dummyUser) throw Error("No users in the database, can't get dummy user")
   return dummyUser;
 }
-void getDummyUser();
+onStartup(() => {
+  void getDummyUser();
+});
 
 onServerConnect(async (connection) => {
   let currentUser = await getDummyUser();
