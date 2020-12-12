@@ -4,7 +4,7 @@ import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
-import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
 import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
 import { postStatuses } from '../../lib/collections/posts/constants';
@@ -487,7 +487,7 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   collection: AlgoliaIndexedCollection<T>,
   updateFunction?: any,
 }) {
-  if (!(collection.collectionName in algoliaIndexNames)) {
+  if (!collectionIsAlgoliaIndexed(collection)) {
     // If this is a collection that isn't Algolia-indexed, don't index it. (This
     // gets called from voting code, which tried to update Algolia indexes to
     // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
@@ -500,7 +500,7 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   if (!client) {
     return;
   }
-  let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
+  let algoliaIndex = client.initIndex(getAlgoliaIndexName(collection.collectionName));
   
   let totalErrors = [];
   

@@ -18,4 +18,11 @@ export const getServerSettingsLoaded = () => serverSettingsLoaded;
 // but they get initialized via separate pathways on the client and on the server
 // Server: See databaseSettings.ts in the server directory
 // Client: See publicSettings.ts in the client directory
-export const publicSettings: Record<string, any> = {}
+let publicSettings: Record<string, any> = {}
+let publicSettingsLoaded = false;
+export const setPublicSettings = (newCacheContents: Record<string,any>) => {
+  publicSettings = newCacheContents;
+  publicSettingsLoaded = true;
+}
+export const getPublicSettings = () => publicSettings;
+export const getPublicSettingsLoaded = () => publicSettingsLoaded;

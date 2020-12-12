@@ -9,14 +9,14 @@ import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
-import { algoliaIndexNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, getAlgoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import * as _ from 'underscore';
 
 async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
   if (!client) return;
   
-  const indexName = algoliaIndexNames[collection.collectionName];
+  const indexName = getAlgoliaIndexName(collection.collectionName);
   // eslint-disable-next-line no-console
   console.log(`Exporting ${indexName}...`)
   let algoliaIndex = client.initIndex(indexName)
@@ -69,7 +69,7 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
 }
 
 export async function algoliaExportAll() {
-  for (let collectionName in algoliaIndexNames) {
+  for (let collectionName in getAlgoliaIndexedCollectionNames) {
     // I found it quite surprising that I'd need to type cast this. If algoliaIndexNames
     // is of type <Record<AlgoliaIndexCollectionName, string>>, why would collectionName
     // be a string? (It's not because we have the in / of mixed up.)
@@ -97,8 +97,8 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   if (!collection) throw new Error(`Invalid collection name '${collectionName}'`);
   
   // eslint-disable-next-line no-console
-  console.log(`Deleting spurious documents from Algolia index ${algoliaIndexNames[collectionName]} for ${collectionName}`);
-  let algoliaIndex = client.initIndex(algoliaIndexNames[collectionName]);
+  console.log(`Deleting spurious documents from Algolia index ${getAlgoliaIndexName(collectionName)} for ${collectionName}`);
+  let algoliaIndex = client.initIndex(getAlgoliaIndexName(collectionName));
   
   // eslint-disable-next-line no-console
   console.log("Downloading the full index...");
@@ -120,7 +120,7 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
 }
 
 export async function algoliaCleanAll() {
-  for (let collectionName in algoliaIndexNames) {
+  for (let collectionName in getAlgoliaIndexedCollectionNames) {
     await algoliaCleanIndex(collectionName as AlgoliaIndexCollectionName);
   }
 }

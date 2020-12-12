@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
-import { defaultFilterSettings } from '../../filterSettings';
+import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
@@ -334,7 +334,7 @@ addFieldsDict(Users, {
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: userOwns,
-    ...schemaDefaultValue(defaultFilterSettings),
+    ...schemaDefaultValue(getDefaultFilterSettings),
   },
   allPostsTimeframe: {
     type: String,

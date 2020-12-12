@@ -19,7 +19,7 @@ import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 import { randomId } from '../../../lib/random';
-import { publicSettings } from '../../../lib/settingsCache'
+import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 
@@ -58,8 +58,8 @@ const makePageRenderer = async sink => {
   
   const clientId = req.cookies && req.cookies.clientId;
 
-  if (!publicSettings) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(publicSettings)}</script>`
+  if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
   
   const ssrEventParams = {
     url: req.url.pathname,
@@ -117,7 +117,7 @@ const makePageRenderer = async sink => {
   }
 };
 
-const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
+export const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req.headers);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side

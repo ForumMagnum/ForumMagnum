@@ -1,7 +1,7 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { isDevelopment, runAtInterval } from '../lib/executionEnvironment';
 import { initializeSetting } from '../lib/publicSettings'
-import { publicSettings, getServerSettingsCache, getServerSettingsLoaded, registeredSettings } from '../lib/settingsCache';
+import { getPublicSettings, getServerSettingsCache, getServerSettingsLoaded, registeredSettings } from '../lib/settingsCache';
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
 import { ensureIndex } from '../lib/collectionUtils';
@@ -20,7 +20,7 @@ if (!getServerSettingsLoaded())
 
 if (isDevelopment && runValidateSettings) {
   // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
-  setTimeout(() => validateSettings(registeredSettings, publicSettings, getServerSettingsCache()), 30000)
+  setTimeout(() => validateSettings(registeredSettings, getPublicSettings(), getServerSettingsCache()), 30000)
 }
 
 // We use Meteor.setInterval to make sure the code runs in a Fiber
