@@ -13,7 +13,7 @@ esbuild.buildSync({
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
     "mathjax-node", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
-    "apollo-server", "apollo-server-express",
+    "apollo-server", "apollo-server-express", "graphql",
   ],
 })
 
