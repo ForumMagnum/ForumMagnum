@@ -18,6 +18,7 @@ const monoStack = [
 const titleDividerSpacing = 20
 
 export const zIndexes = {
+  frontpageBooks: 0,
   commentsMenu: 1,
   sequencesPageContent: 1,
   sequencesImageScrim: 1,

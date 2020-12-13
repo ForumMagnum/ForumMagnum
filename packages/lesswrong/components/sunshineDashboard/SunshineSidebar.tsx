@@ -9,7 +9,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
+    position: "relative",
     display:"none",
+    background: "white",
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
