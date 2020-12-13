@@ -7,6 +7,7 @@ import Users from '../../lib/collections/users/collection';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
+import { onStartup } from '../../platform/current/lib/executionEnvironment';
 import { addStaticRoute } from '../vulcan-lib';
 
 // Some legacy routes have an optional subreddit prefix, which is either
@@ -25,9 +26,6 @@ import { addStaticRoute } from '../vulcan-lib';
 // old drafts via legacy routes; I'm not sure whether we support getting them
 // through other UI).
 const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)?";
-
-// Because the EA Forum was identical except for the change from /lw/ to /ea/
-const legacyRouteAcronym = legacyRouteAcronymSetting.get()
 
 async function findPostByLegacyId(legacyId) {
   const parsedId = parseInt(legacyId, 36);
@@ -188,30 +186,35 @@ addStaticRoute('/static/imported/:year/:month/:day/:imageName', (params, req, re
 // Legacy RSS Routes
 
 // Route for old comment rss feeds
-addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.rss`, async (params, req, res, next) => {
-  if(params.id){
-    try {
-      const post = await findPostByLegacyId(params.id);
-      const comment = await findCommentByLegacyId(params.commentId);
-      if (post && comment) {
-        return makeRedirect(res, commentGetRSSUrl(comment));
-      } else if (post) {
-        return makeRedirect(res, postGetPageUrl(post));
-      } else {
-        // don't redirect if we can't find a post for that link
+onStartup(() => {
+  // Because the EA Forum was identical except for the change from /lw/ to /ea/
+  const legacyRouteAcronym = legacyRouteAcronymSetting.get()
+
+  addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.rss`, async (params, req, res, next) => {
+    if(params.id){
+      try {
+        const post = await findPostByLegacyId(params.id);
+        const comment = await findCommentByLegacyId(params.commentId);
+        if (post && comment) {
+          return makeRedirect(res, commentGetRSSUrl(comment));
+        } else if (post) {
+          return makeRedirect(res, postGetPageUrl(post));
+        } else {
+          // don't redirect if we can't find a post for that link
+          res.statusCode = 404
+          res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
+        }
+      } catch (error) {
+        //eslint-disable-next-line no-console
+        console.log('// Legacy comment error', error, params)
         res.statusCode = 404
         res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
       }
-    } catch (error) {
-      //eslint-disable-next-line no-console
-      console.log('// Legacy comment error', error, params)
+    } else {
       res.statusCode = 404
       res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
     }
-  } else {
-    res.statusCode = 404
-    res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
-  }
+  });
 });
 
 // Route for old general RSS (all posts)
