@@ -21,6 +21,7 @@ import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { globalStyles } from '../lib/globalStyles';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
@@ -82,6 +83,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: "white",
   },
   '@global': {
+    ...globalStyles(theme),
     p: pBodyStyle,
     '.mapboxgl-popup': {
       willChange: 'auto !important',
