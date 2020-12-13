@@ -17,7 +17,7 @@ export const getInstanceSettings = (): any => {
 }
 
 export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
-  return "localhost:4000" // TODO
+  return "http://localhost:4000/" // TODO
 }
 
 // Like setTimeout, but with fiber handling

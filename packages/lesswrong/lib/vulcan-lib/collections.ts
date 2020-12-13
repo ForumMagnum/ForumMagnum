@@ -50,16 +50,6 @@ MongoCollection.prototype.addView = function(viewName, view) {
   this.views[viewName] = view;
 };
 
-/**
- * @summary Allow mongodb aggregation
- * @param {Array} pipelines mongodb pipeline
- * @param {Object} options mongodb option object
- */
-MongoCollection.prototype.aggregate = function(pipelines, options) {
-  var coll = this.rawCollection();
-  return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
-};
-
 export const createCollection = <
   N extends CollectionNameString,
   T extends DbObject=ObjectsByCollectionName[N]

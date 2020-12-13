@@ -45,6 +45,8 @@ export class MongoCollection<T extends DbObject> {
     });
   }
   insert = ()=>{}
+  update = ()=>{}
+  remove = ()=>{}
   _ensureIndex = ()=>{}
   
   
@@ -52,8 +54,19 @@ export class MongoCollection<T extends DbObject> {
   views: any
   defaultView: any
   addView: any
-  aggregate: any
-  rawCollection: any
   addDefaultView: any
+  
+  aggregate = (pipeline, options) => {
+    const table = this.getTable();
+    return table.aggregate(pipeline, options);
+  }
+  rawCollection = () => ({
+    bulkWrite: async () => {
+      // TODO
+    },
+    findOneAndUpdate: () => {
+      // TODO
+    }
+  })
 }
 
