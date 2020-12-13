@@ -4,7 +4,6 @@ import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions
 import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import type { AlgoliaDocument } from '../../../server/search/utils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {

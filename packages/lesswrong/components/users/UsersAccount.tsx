@@ -8,7 +8,7 @@ const UsersAccount = () => {
   const currentUser = useCurrentUser();
   
   // note: terms is as the same as a document-shape the SmartForm edit-mode expects to receive
-  const terms = params.slug ? { slug: params.slug } : currentUser ? { documentId: currentUser._id } : {};
+  const terms: {slug?: string, documentId?: string} = params.slug ? { slug: params.slug } : currentUser ? { documentId: currentUser._id } : {};
   return <div>
     <Components.UsersEditForm terms={terms} />
   </div>

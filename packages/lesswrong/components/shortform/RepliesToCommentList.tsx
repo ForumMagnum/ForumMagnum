@@ -1,19 +1,21 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from "../../lib/collections/comments";
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 
-const RepliesToCommentList = ({ terms, post, parentCommentId }: {
-  terms: any,
+const RepliesToCommentList = ({ post, parentCommentId }: {
   post: PostsBase,
   parentCommentId: string,
 }) => {
   const { CommentsList, Loading } = Components;
   const { loading, results } = useMulti({
-    terms,
-    collection: Comments,
+    terms: {
+      view: "repliesToCommentThread",
+      topLevelCommentId: parentCommentId,
+      limit: 500,
+    },
+    collectionName: "Comments",
     fragmentName: "CommentsList",
   });
   
@@ -22,9 +24,11 @@ const RepliesToCommentList = ({ terms, post, parentCommentId }: {
   
   const nestedComments = unflattenComments(results);
   return <CommentsList
+    treeOptions={{
+      post,
+    }}
     totalComments={results.length}
     comments={nestedComments}
-    post={post}
     startThreadTruncated={true}
     defaultNestingLevel={2}
     parentCommentId={parentCommentId}

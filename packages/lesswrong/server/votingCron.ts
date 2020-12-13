@@ -9,9 +9,7 @@ import { addCronJob } from './cronUtil';
 
 addCronJob({
   name: 'updateScoreActiveDocuments',
-  schedule(parser) {
-    return parser.text(`every 30 seconds`);
-  },
+  interval: `every 30 seconds`,
   job() {
     VoteableCollections.forEach(collection => {
       void batchUpdateScore({collection});
@@ -20,9 +18,7 @@ addCronJob({
 });
 addCronJob({
   name: 'updateScoreInactiveDocuments',
-  schedule(parser) {
-    return parser.text('every 24 hours');
-  },
+  interval: 'every 24 hours',
   job() {
     VoteableCollections.forEach(collection => {
       void batchUpdateScore({collection, inactive: true});

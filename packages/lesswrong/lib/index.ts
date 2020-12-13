@@ -29,23 +29,28 @@ import './collections/revisions/fragments';
 import Notifications from './collections/notifications/collection';
 import './collections/notifications/views';
 import './collections/notifications/permissions';
+import './collections/notifications/fragments';
 // Inbox
 import Messages from './collections/messages/collection'
 import './collections/messages/views';
 import './collections/messages/permissions';
+import './collections/messages/fragments';
 
 import Conversations from './collections/conversations/collection'
 import './collections/conversations/views';
 import './collections/conversations/helpers';
 import './collections/conversations/permissions';
+import './collections/conversations/fragments';
 //
 // RSSFeeds
 import RSSFeeds from './collections/rssfeeds/collection'
 import './collections/rssfeeds/views'
+import './collections/rssfeeds/fragments'
 //
 // Reports
 import Reports from './collections/reports/collection'
 import './collections/reports/views'
+import './collections/reports/fragments'
 
 // LWEvents
 import { LWEvents } from './collections/lwevents/index';
@@ -93,7 +98,6 @@ import './collections/localgroups/views';
 import './collections/localgroups/permissions';
 import './collections/localgroups/fragments';
 
-import './fragments';
 import './collections/chapters/fragments';
 import './collections/sequences/fragments';
 import './collections/books/fragments';
@@ -142,6 +146,7 @@ import './collections/users/custom_fields';
 import './collections/users/recommendationSettings';
 import './collections/users/karmaChangesGraphQL';
 import './collections/users/views';
+import './collections/users/fragments';
 
 // Comments
 import { Comments } from './collections/comments'
@@ -168,8 +173,6 @@ import './collections/postRelations';
 
 // Alignment Forum
 import './alignment-forum/permissions';
-import './alignment-forum/graphql';
-
 import './alignment-forum/posts/custom_fields';
 import './alignment-forum/posts/helpers';
 import './alignment-forum/posts/views';

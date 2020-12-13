@@ -6,7 +6,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 
 const options: MutationOptions<DbSubscription> = {
   create: true,
-  createCheck: (user: DbUser|null, document: DbSubscription|null) => {
+  newCheck: (user: DbUser|null, document: DbSubscription|null) => {
     if (!user || !document) return false;
     return userCanDo(user, 'subscriptions.new');
   },

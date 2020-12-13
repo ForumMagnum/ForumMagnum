@@ -1,4 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
+import { isValidCollectionName } from '../../lib/vulcan-lib/getCollection';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
@@ -16,6 +17,9 @@ addGraphQLResolvers({
       const {currentUser}: {currentUser: DbUser|null} = context;
       
       // Validate collectionName, fieldName
+      if (!isValidCollectionName(collectionName)) {
+        throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
+      }
       if (!editableCollections.has(collectionName)) {
         throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
       }
@@ -51,9 +55,6 @@ addGraphQLResolvers({
       } else {
         beforeUnfiltered = await getPrecedingRev(afterUnfiltered);
       }
-      
-      if (!beforeUnfiltered || !afterUnfiltered)
-        return "";
       
       const before: DbRevision|null = await accessFilterSingle(currentUser, Revisions, beforeUnfiltered, context);
       const after: DbRevision|null = await accessFilterSingle(currentUser, Revisions, afterUnfiltered, context);

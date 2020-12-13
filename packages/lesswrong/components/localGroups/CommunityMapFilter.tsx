@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import classNames from 'classnames'
@@ -11,7 +11,6 @@ import VisibilityIcon from '@material-ui/icons/VisibilityOff';
 import EmailIcon from '@material-ui/icons/Email';
 import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from '../../lib/collections/users/collection';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
@@ -186,7 +185,7 @@ interface ExternalProps {
   toggleIndividuals: any,
   showIndividuals: boolean,
 }
-interface CommunityMapFilterProps extends ExternalProps, WithLocationProps, WithNavigationProps, WithDialogProps, WithUserProps, WithUpdateUserProps, WithMessagesProps, WithStylesProps {
+interface CommunityMapFilterProps extends ExternalProps, WithLocationProps, WithNavigationProps, WithDialogProps, WithUserProps, WithUpdateCurrentUserProps, WithMessagesProps, WithStylesProps {
 }
 interface CommunityMapFilterState {
   filters: any,
@@ -221,15 +220,14 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
   }
 
   handleHideMap = () => {
-    const { currentUser, updateUser, flash, setShowMap } = this.props
+    const { currentUser, updateCurrentUser, flash, setShowMap } = this.props
     let undoAction
     if (currentUser) { 
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: { hideFrontpageMap: true }
+      void updateCurrentUser({
+        hideFrontpageMap: true
       })
       undoAction = () => {
-        void updateUser({selector: {_id: currentUser._id}, data: {hideFrontpageMap: false}})
+        void updateCurrentUser({hideFrontpageMap: false})
       }
     } else {
       setShowMap(false)
@@ -294,7 +292,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
             <span className={classes.buttonText}> Events </span>
             <span className={classes.actionContainer}>
               <Tooltip title="Create New Event">
-                <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: 'newPost', search: `?eventForm=true`})}/>
+                <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: '/newPost', search: `?eventForm=true`})}/>
               </Tooltip>
               <Tooltip title="Hide events from map">
                 <VisibilityIcon 
@@ -356,10 +354,7 @@ const CommunityMapFilterComponent = registerComponent<ExternalProps>('CommunityM
     withLocation, withNavigation,
     withDialog,
     withUser,
-    withUpdate({
-      collection: Users,
-      fragmentName: 'UsersCurrent',
-    }),
+    withUpdateCurrentUser,
     withMessages
   ]
 });

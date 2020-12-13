@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 
 import { Posts } from '../../lib/collections/posts/collection'
@@ -27,7 +26,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
-  const { PostSubmit, SubmitToFrontpageCheckbox } = Components
+  const { PostSubmit, SubmitToFrontpageCheckbox, LWDialog } = Components
   
   const QuestionSubmit = (props) => {
     return <div className={classes.formSubmit}>
@@ -38,12 +37,11 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   const af = forumTypeSetting.get() === 'AlignmentForum'
 
   return (
-    <Dialog
+    <LWDialog
       open={true}
       maxWidth={false}
       onClose={onClose}
       fullScreen={fullScreen}
-      disableEnforceFocus
     >
       <DialogContent>
         <Components.WrappedSmartForm
@@ -66,7 +64,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
           }}
         />
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   )
 }
 

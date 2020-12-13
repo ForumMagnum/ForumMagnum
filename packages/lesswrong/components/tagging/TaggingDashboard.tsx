@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { TagFlags } from '../../lib';
-import { Tags } from '../../lib/collections/tags/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
-import {useUpdate} from "../../lib/crud/withUpdate";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 
 const SECTION_WIDTH = 960
 
@@ -79,10 +77,7 @@ const TaggingDashboard = ({classes}: {
   const { SectionTitle, TagsDetailsItem, SectionButton, TagFlagItem, NewTagsList, LoadMore, TagActivityFeed, TagVoteActivity, SingleColumnSection } = Components
   const { query } = useLocation();
   const currentUser = useCurrentUser();
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  })
+  const updateCurrentUser = useUpdateCurrentUser()
   const [collapsed, setCollapsed] = useState(currentUser?.taggingDashboardCollapsed || false);
   
   const multiTerms = {
@@ -93,7 +88,7 @@ const TaggingDashboard = ({classes}: {
     
   const { results: tags, loading, loadMoreProps } = useMulti({
     terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
     limit: 10,
     itemsPerPage: 50,
@@ -107,7 +102,7 @@ const TaggingDashboard = ({classes}: {
     terms: {
       view: "allTagFlags"
     },
-    collection: TagFlags,
+    collectionName: "TagFlags",
     fragmentName: "TagFlagFragment",
     limit: 100,
   });
@@ -141,11 +136,8 @@ const TaggingDashboard = ({classes}: {
               onClick={async () => {
                  setCollapsed(!collapsed)
                  if (currentUser) {
-                   void updateUser({
-                     selector: {_id: currentUser._id},
-                     data: {
-                       taggingDashboardCollapsed: !collapsed
-                     }
+                   void updateCurrentUser({
+                     taggingDashboardCollapsed: !collapsed
                    })
                  }
                  }

@@ -1,4 +1,4 @@
-import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 import SimpleSchema from 'simpl-schema'
@@ -18,7 +18,7 @@ const schema: SchemaType<DbReviewVote> = {
       type: "User",
       nullable: true,
     }),
-    onCreate: ({currentUser}) => currentUser._id,
+    onCreate: ({currentUser}) => currentUser!._id,
     viewableBy: ['guests'],
     optional: true
   },
@@ -48,6 +48,16 @@ const schema: SchemaType<DbReviewVote> = {
     type: String,
     viewableBy: ['guests'],
     optional: true
+  },
+  year: {
+    type: String,
+    viewableBy: ['guests'],
+    ...schemaDefaultValue("2018")
+  },
+  dummy: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    ...schemaDefaultValue(false)
   }
 };
 

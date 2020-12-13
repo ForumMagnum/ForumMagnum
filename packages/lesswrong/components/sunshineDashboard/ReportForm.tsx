@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import Reports from '../../lib/collections/reports/collection'
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 
 const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
@@ -13,7 +12,7 @@ const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
   link: string,
 }) => {
   return (
-    <Dialog
+    <Components.LWDialog
       title={title}
       open={true}
       onClose={onClose}
@@ -31,7 +30,7 @@ const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
           successCallback={onClose}
         />
       </DialogContent>
-    </Dialog>
+    </Components.LWDialog>
   )
 }
 

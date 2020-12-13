@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
-import { Comments } from '../../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +19,7 @@ const CommentDeletedMetadata = ({documentId, classes}: {
 }) => {
   const { document } = useSingle({
     documentId,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'DeletedCommentsMetaData',
   });
   if (document && document.deleted) {

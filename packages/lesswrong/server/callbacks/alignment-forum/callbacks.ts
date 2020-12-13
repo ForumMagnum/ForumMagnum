@@ -1,7 +1,8 @@
 import Users from "../../../lib/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes';
-import { addCallback, getCollection } from '../../vulcan-lib';
+import { commentsAlignmentAsync, postsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
+import { getCollection } from '../../vulcan-lib';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../../lib/voting/vote';
@@ -112,7 +113,6 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
   }
 }
 
-addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
-addCallback("comments.alignment.async", MoveToAFUpdatesUserAFKarma);
+commentsAlignmentAsync.add(MoveToAFUpdatesUserAFKarma);
 getCollectionHooks("Posts").editAsync.add(MoveToAFUpdatesUserAFKarma);
-addCallback("posts.alignment.async", MoveToAFUpdatesUserAFKarma);
+postsAlignmentAsync.add(MoveToAFUpdatesUserAFKarma);

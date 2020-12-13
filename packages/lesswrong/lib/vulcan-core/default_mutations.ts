@@ -4,22 +4,14 @@ Default mutations
 
 */
 
-import {
-  registerCallback,
-  Utils,
-  getTypeName,
-  getCollectionName
-} from '../vulcan-lib';
+import { Utils, getTypeName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 
 export interface MutationOptions<T extends DbObject> {
   newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
-  createCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
   editCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
-  updateCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
   removeCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
-  deleteCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
   create?: boolean,
   update?: boolean,
   upsert?: boolean,
@@ -41,7 +33,7 @@ const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
 const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
-  type T = ObjectsByCollectionName[N]
+  type T = ObjectsByCollectionName[N];
   const typeName = getTypeName(collectionName);
   const mutationOptions: MutationOptions<T> = {...defaultOptions, ...options};
 
@@ -59,7 +51,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       // check function called on a user to see if they can perform the operation
       async check(user: DbUser|null, document: T|null): Promise<boolean> {
         // OpenCRUD backwards compatibility
-        const check = mutationOptions.createCheck || mutationOptions.newCheck;
+        const check = mutationOptions.newCheck;
         if (check) {
           return await check(user, document);
         }
@@ -113,9 +105,9 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       // check function called on a user and document to see if they can perform the operation
       async check(user: DbUser|null, document: T|null) {
         // OpenCRUD backwards compatibility
-        const check = mutationOptions.updateCheck || mutationOptions.editCheck;
+        const check = mutationOptions.editCheck;
         if (check) {
-          return check(user, document);
+          return await check(user, document);
         }
 
         if (!user || !document) return false;
@@ -123,7 +115,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         // if they do, check if they can perform "foo.edit.own" action
         // if they don't, check if they can perform "foo.edit.all" action
         // OpenCRUD backwards compatibility
-        return userOwns(user, document)
+        return userOwns(user, document as HasUserIdType)
           ? userCanDo(user, [
             `${typeName.toLowerCase()}.update.own`,
             `${collectionName.toLowerCase()}.edit.own`,
@@ -218,14 +210,14 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async check(user: DbUser|null, document: T|null) {
         // OpenCRUD backwards compatibility
-        const check = mutationOptions.deleteCheck || mutationOptions.removeCheck;
+        const check = mutationOptions.removeCheck;
         if (check) {
-          return check(user, document);
+          return await check(user, document);
         }
 
         if (!user || !document) return false;
         // OpenCRUD backwards compatibility
-        return userOwns(user, document)
+        return userOwns(user, document as HasUserIdType)
           ? userCanDo(user, [
             `${typeName.toLowerCase()}.delete.own`,
             `${collectionName.toLowerCase()}.remove.own`,

@@ -5,9 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userGetLocation } from '../../lib/collections/users/helpers';
 import withUser from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
-import EventIcon from '@material-ui/icons/Event';
 import { withLocation } from '../../lib/routeUtil';
-import Typography from '@material-ui/core/Typography';
 import withDialog from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
@@ -60,23 +58,28 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
     const { classes, currentUser } = this.props;
     const { query } = this.props.location; // From withLocation
     const filters = query?.filters || [];
-    const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink, SectionFooter } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography } = Components
 
-    const postsListTerms = {
+    const eventsListTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 7,
+      limit: 5,
       filters: filters,
+      onlineEvent: false
     }
-    const groupsListTerms = {
+    const onlineEventsListTerms = {
+      view: 'onlineEvents',
+      limit: 10
+    }
+    const groupsListTerms: LocalgroupsViewTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
-      limit: 7,
+      limit: 4,
       filters: filters,
     }
-    const mapEventTerms = {
+    const mapEventTerms: PostsViewTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
@@ -89,7 +92,6 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
             terms={mapEventTerms}
           />
             <SingleColumnSection>
-              <Components.Covid19Notice/>
               <SectionTitle title="Welcome to the Community Section"/>
               <Typography variant="body2" className={classes.welcomeText}>
                 On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
@@ -104,6 +106,21 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
                 </SectionFooter>
             </SingleColumnSection>
             <SingleColumnSection>
+              <SectionTitle title="Online Events"/>
+              <AnalyticsContext listContext={"communityEvents"}>
+                <PostsList2 terms={onlineEventsListTerms}/>
+              </AnalyticsContext>
+            </SingleColumnSection>
+            <SingleColumnSection>
+              <SectionTitle title="In-Person Events"/>
+              <AnalyticsContext listContext={"communityEvents"}>
+                <PostsList2 terms={eventsListTerms}>
+                  <Link to="/pastEvents">View Past Events</Link>
+                  <Link to="/upcomingEvents">View Upcoming Events</Link>
+                </PostsList2>
+              </AnalyticsContext>
+            </SingleColumnSection>
+            <SingleColumnSection>
               <SectionTitle title="Local Groups">
                 {this.props.currentUser && <GroupFormLink />}
               </SectionTitle>
@@ -113,22 +130,6 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
                       <Link to={"/allGroups"}>View All Groups</Link>
                   </Components.LocalGroupsList>
               }
-            </SingleColumnSection>
-            <SingleColumnSection>
-              <SectionTitle title="Events">
-                {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
-                  <SectionButton>
-                    <EventIcon />
-                    New Event
-                  </SectionButton>
-                </Link>}
-              </SectionTitle>
-              <AnalyticsContext listContext={"communityEvents"}>
-                <PostsList2 terms={postsListTerms}>
-                  <Link to="/pastEvents">View Past Events</Link>
-                  <Link to="/upcomingEvents">View Upcoming Events</Link>
-                </PostsList2>
-              </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Resources"/>
@@ -154,4 +155,3 @@ declare global {
     CommunityHome: typeof CommunityHomeComponent
   }
 }
-

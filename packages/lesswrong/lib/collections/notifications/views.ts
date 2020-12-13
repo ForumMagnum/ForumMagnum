@@ -1,9 +1,18 @@
 import { ensureIndex } from '../../collectionUtils';
 import Notifications from './collection';
 
+declare global {
+  interface NotificationsViewTerms extends ViewTermsBase {
+    view?: NotificationsViewName
+    type?: string
+    userId?: string
+    viewed?: boolean
+    lastViewedDate?: Date
+  }
+}
 
 // will be common to all other view unless specific properties are overwritten
-Notifications.addDefaultView(function (terms) {
+Notifications.addDefaultView(function (terms: NotificationsViewTerms) {
   // const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
@@ -17,7 +26,7 @@ Notifications.addDefaultView(function (terms) {
 });
 
 // notifications for a specific user (what you see in the notifications menu)
-Notifications.addView("userNotifications", (terms) => {
+Notifications.addView("userNotifications", (terms: NotificationsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
@@ -29,7 +38,7 @@ Notifications.addView("userNotifications", (terms) => {
 });
 ensureIndex(Notifications, {userId:1, emailed:1, waitingForBatch:1, createdAt:-1, type:1});
 
-Notifications.addView("unreadUserNotifications", (terms) => {
+Notifications.addView("unreadUserNotifications", (terms: NotificationsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,

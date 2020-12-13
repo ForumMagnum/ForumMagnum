@@ -1,6 +1,7 @@
 import Migrations from '../../lib/collections/migrations/collection';
 import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
+import { getSchema } from '../../lib/utils/getSchema';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -119,7 +120,7 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
 {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
-  const schema = collection.simpleSchema()._schema
+  const schema = getSchema(collection);
   if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
   const defaultValue = schema[fieldName].defaultValue;
   if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);
@@ -289,7 +290,7 @@ export async function dropUnusedField(collection, fieldName) {
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection({collection, batchSize, filter=null, callback, loadFactor=1.0}: {
+export async function forEachDocumentBatchInCollection({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
   collection: any,
   batchSize?: number,
   filter?: MongoSelector<DbObject> | null,

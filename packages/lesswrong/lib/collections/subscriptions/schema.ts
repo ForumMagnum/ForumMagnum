@@ -1,5 +1,5 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils'
 
 export const subscriptionTypes = {
@@ -27,7 +27,7 @@ const schema: SchemaType<DbSubscription> = {
       type: "User",
       nullable: false,
     }),
-    onCreate: ({currentUser}) => currentUser._id,
+    onCreate: ({currentUser}) => currentUser!._id,
     canRead: [userOwns],
     optional: true,
   },
@@ -44,6 +44,7 @@ const schema: SchemaType<DbSubscription> = {
   },
   collectionName: {
     type: String, 
+    typescriptType: "CollectionNameString",
     canRead: [userOwns],
     canCreate: ['members']
   },

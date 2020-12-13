@@ -4,7 +4,6 @@ import type { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
 import { commentBodyStyles } from '../../themes/stylePiping'
@@ -93,7 +92,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
   const { document: tag } = useSingle({
     documentId: tagId,
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
   })
 

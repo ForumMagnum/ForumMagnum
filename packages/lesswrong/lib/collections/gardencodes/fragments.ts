@@ -10,6 +10,29 @@ registerFragment(`
     slug
     startTime
     endTime
+    fbLink
+    type
+    contents {
+      ...RevisionDisplay
+    }
+  }
+`);
+
+registerFragment(`
+  fragment GardenCodeFragmentEdit on GardenCode {
+    _id
+    code
+    title
+    userId
+    deleted
+    slug
+    startTime
+    endTime
+    fbLink
+    type
+    contents {
+      ...RevisionEdit
+    }
   }
 `);
 

@@ -2,8 +2,7 @@
 // addGraphQLResolvers &c.
 
 import { makeExecutableSchema } from 'apollo-server';
-import { getAdditionalSchemas, queries, mutations, getContext, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';
-import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
+import { getAdditionalSchemas, queries, mutations, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -29,6 +28,7 @@ import {
 } from '../../../lib/vulcan-lib/graphql_templates';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib/utils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
+import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
@@ -270,7 +270,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
     ? collection.typeName
     : camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
 
-  const schema = collection.simpleSchema()._schema;
+  const schema = getSchema(collection);
 
   const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
 
@@ -409,8 +409,6 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
 
 
 export const initGraphQL = () => {
-  runCallbacks({ name: 'graphql.init.before' });
-  
   const { schemaText, addedResolvers } = getTypeDefs();
   
   let allResolvers = deepmerge(
@@ -440,6 +438,3 @@ export const getExecutableSchema = () => {
   }
   return executableSchema;
 };
-
-export const getSchemaContextBase = () => getContext();
-

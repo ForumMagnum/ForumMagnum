@@ -1,8 +1,6 @@
 import React from 'react';
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Typography from '@material-ui/core/Typography';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -40,7 +38,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
   post: PostsBase,
   onClose: ()=>void,
 }) => {
-  const { CommentsNewForm } = Components;
+  const { CommentsNewForm, Typography, LWDialog } = Components;
 
   const hintText = <div className={classes.hintText}>
     <p>How has this post been useful to you over the past year or two?</p> 
@@ -49,12 +47,12 @@ const NominatePostDialog = ({classes, post, onClose}: {
   </div>
 
   return (
-    <Dialog open={true}
+    <LWDialog open={true}
       onClose={onClose}
       fullWidth maxWidth="sm"
     >
       <DialogTitle>
-        <div className={classes.nominating}>Nominating for the 2018 Review:</div>
+        <div className={classes.nominating}>Nominating for the 2019 Review:</div>
         <div className={classes.postTitle}>{post.title}</div>
       </DialogTitle>
       <DialogContent>
@@ -69,7 +67,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
             editorHintText: hintText
           }}
           prefilledProps={{
-            nominatedForReview: "2018"
+            nominatedForReview: "2019"
           }}
         />
         <Typography variant="body2" className={classes.text}>
@@ -77,13 +75,13 @@ const NominatePostDialog = ({classes, post, onClose}: {
           <Link 
             className={classes.link}
             target="_blank"
-            to={"/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review"}
+            to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}
           >
-            Click here for more information on the 2018 Review
+            Click here for more information on the 2019 Review
           </Link>
         </Typography>
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   );
 }
 

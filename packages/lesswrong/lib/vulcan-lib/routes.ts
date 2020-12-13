@@ -14,6 +14,7 @@ export type RouterLocation = {
   hash: string,
   params: Record<string,string>,
   query: Record<string,string>,
+  redirected?: boolean,
 };
 
 export type Route = {

@@ -1,11 +1,12 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import {foreignKeyField, SchemaType} from '../../utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
+import { makeEditable } from '../../editor/make_editable';
 
 function generateCode(length) {
   let result = '';
@@ -16,6 +17,21 @@ function generateCode(length) {
   }
   return result;
 }
+
+export const eventTypes = [
+  {
+    value: "private",
+    label: "Private (only visible to you)",
+  },
+  {
+    value: "semi-public",
+    label: "Semi-Public (visible to Garden members)",
+  },
+  {
+    value: "public",
+    label: "Public (visible to all LessWrong users)",
+  }
+]
 
 const schema: SchemaType<DbGardenCode> = {
   createdAt: {
@@ -36,7 +52,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Name",
     defaultValue: "Guest Day Pass",
     order: 10
@@ -49,7 +65,7 @@ const schema: SchemaType<DbGardenCode> = {
       type: "User",
       nullable: true,
     }),
-    onCreate: ({currentUser}) => currentUser._id,
+    onCreate: ({currentUser}) => currentUser!._id,
     viewableBy: ['guests'],
     optional: true
   },
@@ -61,14 +77,6 @@ const schema: SchemaType<DbGardenCode> = {
   //   canCreate: ['members', 'admins', 'sunshineRegiment'],
   //   label: "Your Walled Garden Username"
   // },
-  deleted: {
-    type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    optional: true,
-    ...schemaDefaultValue(false),
-    order: 30
-  },
   slug: {
     type: String,
     optional: true,
@@ -91,7 +99,7 @@ const schema: SchemaType<DbGardenCode> = {
   endTime: {
     type: Date,
     viewableBy: ['guests'],
-    // editableBy: ['members'],
+    editableBy: ['admins'],
     // insertableBy: ['members'],
     control: 'datetime',
     label: "End Time",
@@ -101,6 +109,38 @@ const schema: SchemaType<DbGardenCode> = {
       return moment(gardenCode.startTime).add(4, 'hours').toDate()
     }
   },
+  fbLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    label: "FB Event Link",
+    optional: true,
+    order: 25
+  },
+  type: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    label: "Type:",
+    optional: true,
+    control: "radiogroup",
+    ...schemaDefaultValue(eventTypes[0].value),
+    form: {
+      options: eventTypes
+    },
+    order: 30,
+  },
+  deleted: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    ...schemaDefaultValue(false),
+    order: 35
+  },
+
   // validOnlyWithHost: {
   //   type: Boolean,
   //   viewableBy: ['guests'],
@@ -110,6 +150,7 @@ const schema: SchemaType<DbGardenCode> = {
   //   ...schemaDefaultValue(false),
   // },
 };
+
 
 
 //
@@ -131,7 +172,7 @@ const schema: SchemaType<DbGardenCode> = {
 //   },
 // }
 //
-export const GardenCodes = createCollection({
+export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
   schema,
@@ -142,4 +183,17 @@ export const GardenCodes = createCollection({
 addUniversalFields({collection: GardenCodes})
 
 export default GardenCodes;
+
+export const makeEditableOptions = {
+  pingbacks: true,
+  commentEditor: true,
+  commentStyles: true,
+  hideControls: true,
+  order: 20
+}
+
+makeEditable({
+  collection: GardenCodes,
+  options: makeEditableOptions
+})
 

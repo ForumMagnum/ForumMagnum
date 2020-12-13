@@ -24,7 +24,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const { flash } = useMessages();
   const { document } = useSingle({
     documentId,
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsPage',
   });
   const { params } = location; // From withLocation
