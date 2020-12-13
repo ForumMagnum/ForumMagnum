@@ -525,7 +525,7 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
 });
 
 async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
-  return await Users.rawCollection().aggregate([
+  return await Users.aggregate([
     {
       "$geoNear": {
         "near": location, 

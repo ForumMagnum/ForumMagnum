@@ -30,10 +30,10 @@ function collectionsWithExactlyOneEditableField(): Array<{collectionName:Collect
 {
   let result: Array<{collectionName:CollectionNameString, fieldName:string}> = [];
   for (let collectionName of editableCollections) {
-    if (editableCollectionsFields[collectionName].length === 1) {
+    if (editableCollectionsFields[collectionName]!.length === 1) {
       result.push({
         collectionName,
-        fieldName: editableCollectionsFields[collectionName][0],
+        fieldName: editableCollectionsFields[collectionName]![0],
       });
     }
   }

@@ -16,8 +16,8 @@ Vulcan.rerunAFVotes = async () => {
       //eslint-disable-next-line no-console
       console.log(i)
     }
-    const collection = getCollection(vote.collectionName);
-    const document = await collection.findOne({_id: vote.documentId});
+    const collection = getCollection(vote.collectionName as VoteableCollectionName);
+    const document = await collection.findOne({_id: vote.documentId}) as VoteableType;
     if (document.af) {
       await Users.update({_id:document.userId}, {$inc: {afKarma: vote.afPower}})
     }

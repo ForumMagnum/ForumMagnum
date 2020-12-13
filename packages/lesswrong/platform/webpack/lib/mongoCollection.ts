@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
-let client = null;
-let db = null;
+let client: any = null;
+let db: any = null;
 export const setDatabaseConnection = (_client, _db) => {
   client = _client;
   db = _db;
@@ -9,6 +9,8 @@ export const setDatabaseConnection = (_client, _db) => {
 export const getDatabase = () => db;
 
 export class MongoCollection<T extends DbObject> {
+  tableName: string
+  
   constructor(tableName: string) {
     this.tableName = tableName;
   }

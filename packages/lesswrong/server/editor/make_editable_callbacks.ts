@@ -435,7 +435,7 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
         // FIXME: See comment on the other Connectors.create call in this file.
         // Missing _id and schemaVersion.
         // @ts-ignore
-        const newRevision = await Connectors.create(Revisions, {
+        newRevisionId = await Connectors.create(Revisions, {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -448,7 +448,6 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
           commitMessage,
           changeMetrics,
         });
-        newRevisionId = newRevision._id;
       } else {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }

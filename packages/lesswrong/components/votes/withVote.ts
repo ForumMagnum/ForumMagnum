@@ -21,9 +21,9 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   `
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: CollectionNameString): {
+export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): {
   vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
-  collectionName: CollectionNameString,
+  collectionName: VoteableCollectionName,
   document: T,
   baseScore: number,
   voteCount: number,
@@ -39,7 +39,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   });
   
   const vote = useCallback(async ({document, voteType, collectionName, currentUser}: {
-    document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent
+    document: T, voteType: string|null, collectionName: VoteableCollectionName, currentUser: UsersCurrent
   }) => {
     const newDocument = await setVoteClient({collection, document, user: currentUser, voteType });
 

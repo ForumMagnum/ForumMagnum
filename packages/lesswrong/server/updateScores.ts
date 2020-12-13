@@ -68,7 +68,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
   const x = 1 / Math.pow((INACTIVITY_THRESHOLD_DAYS*24) + 2, TIME_DECAY_FACTOR.get());
 
-  const itemsPromise = collection.rawCollection().aggregate([
+  const itemsPromise = collection.aggregate([
     {
       $match: {
         $and: [

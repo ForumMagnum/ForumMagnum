@@ -47,7 +47,9 @@ const getDocumentsBySlug = async <T extends HasSlugType>({slug, suffix, useOldSl
 
 // LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
 Utils.getUnusedSlugByCollectionName = async function (collectionName: CollectionNameString, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
-  return await Utils.getUnusedSlug(getCollection(collectionName), slug, useOldSlugs, documentId)
+  // Not enforced: collectionName is a collection that has slugs
+  const collection = getCollection(collectionName) as CollectionBase<HasSlugType>;
+  return await Utils.getUnusedSlug(collection, slug, useOldSlugs, documentId)
 };
 
 Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): Promise<boolean> => {

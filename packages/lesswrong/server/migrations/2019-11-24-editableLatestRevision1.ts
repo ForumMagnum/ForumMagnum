@@ -21,7 +21,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections)
-    for (let fieldName of editableCollectionsFields[collectionName])
+    for (let fieldName of editableCollectionsFields[collectionName]!)
     {
       const collection = getCollection(collectionName);
       // eslint-disable-next-line no-console

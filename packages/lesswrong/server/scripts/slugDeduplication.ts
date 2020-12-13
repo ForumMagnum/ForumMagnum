@@ -7,7 +7,7 @@ async function slugDeduplication() {
   try {
     //eslint-disable-next-line no-console
     console.log("Running slugDeduplication");
-    let duplicateSlugsPromise = Posts.rawCollection().aggregate([
+    let duplicateSlugsPromise = Posts.aggregate([
       {"$group" : { "_id": "$slug", "count": { "$sum": 1 } } },
       {"$match": {"_id" :{ "$ne" : null } , "count" : {"$gt": 1} } },
       {"$project": {"slug" : "$_id", "_id" : 0} },

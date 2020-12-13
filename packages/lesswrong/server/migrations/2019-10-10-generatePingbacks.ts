@@ -9,7 +9,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections) {
-      for (let editableField of editableCollectionsFields[collectionName]) {
+      for (let editableField of editableCollectionsFields[collectionName]!) {
         if (editableCollectionsFieldOptions[collectionName][editableField].pingbacks) {
           await updatePingbacks(collectionName, editableField);
         }

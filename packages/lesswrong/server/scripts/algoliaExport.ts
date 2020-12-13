@@ -107,7 +107,7 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   // eslint-disable-next-line no-console
   console.log("Checking documents against the mongodb...");
   const ids = _.map(allDocuments, doc=>doc._id)
-  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids); // TODO: Pagination
+  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection as unknown as AlgoliaIndexedCollection<DbObject>, ids); // TODO: Pagination
   const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
   
   const hitsToDelete = _.filter(allDocuments, doc=>doc._id in mongoIdsToDeleteDict);

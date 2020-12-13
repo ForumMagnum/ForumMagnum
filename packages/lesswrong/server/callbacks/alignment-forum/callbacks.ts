@@ -27,7 +27,7 @@ async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: Db
     await Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
     const newAFBaseScore = await recalculateAFBaseScore(newDocument)
 
-    const collection = getCollection(vote.collectionName)
+    const collection = getCollection(vote.collectionName as VoteableCollectionName)
 
     await collection.update({_id: newDocument._id}, {$set: {afBaseScore: newAFBaseScore}});
 

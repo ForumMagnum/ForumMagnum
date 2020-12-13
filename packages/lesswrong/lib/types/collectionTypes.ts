@@ -35,9 +35,9 @@ interface CollectionBase<
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
   update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  remove: any
-  insert: any
-  aggregate: any
+  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => void
+  insert: (data: any, options?: any) => string
+  aggregate: (aggregationPipeline: MongoAggregationPipeline<T>) => any
   _ensureIndex: any
 }
 
@@ -93,6 +93,7 @@ type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
+type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
@@ -163,6 +164,7 @@ interface ResolverContext extends CollectionsByName {
 
 type FragmentName = keyof FragmentTypes;
 
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels";
 interface EditableFieldContents {
   html: string
   wordCount: number

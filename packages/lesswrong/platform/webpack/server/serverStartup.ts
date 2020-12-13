@@ -9,10 +9,6 @@ const dbName = 'lesswrong2';
 
 console.log("In serverStartup");
 
-const createFiber = (fn: ()=>Promise<T>):T => {
-  return fn.future();
-}
-
 async function serverStartup() {
   console.log("Starting server");
   
@@ -41,6 +37,6 @@ async function serverStartup() {
   
   console.log("Running onStartup functions");
   for (let startupFunction of onStartupFunctions)
-    startupFunction();
+    await startupFunction();
 }
 serverStartup();

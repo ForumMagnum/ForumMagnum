@@ -6,7 +6,7 @@ export const isProduction = false
 export const isAnyTest = false
 export const isPackageTest = false
 
-export const onStartupFunctions = [];
+export const onStartupFunctions: Array<()=>void> = [];
 export const onStartup = (fn: ()=>void) => {
   onStartupFunctions.push(fn);
 }
