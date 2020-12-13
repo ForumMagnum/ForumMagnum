@@ -6,5 +6,5 @@ import { getCollectionHooks } from '../mutationCallbacks';
 addEditableCallbacks({collection: Messages, options: makeEditableOptions})
 
 getCollectionHooks("Messages").createAsync.add(function unArchiveConversations({document}) {
-  Conversations.update({_id:document.conversationId}, {$set: {archivedByIds: []}});
+  void Conversations.update({_id:document.conversationId}, {$set: {archivedByIds: []}});
 });

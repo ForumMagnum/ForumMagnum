@@ -3,7 +3,8 @@ import { setDatabaseConnection } from '../lib/mongoCollection';
 import { onStartupFunctions } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 
-const mongoConnectionString = 'mongodb://localhost:27017';
+//const mongoConnectionString = 'mongodb://localhost:27017';
+const mongoConnectionString = "mongodb+srv://baserates:tWa4Zw69dipLmgSU@lesswrongdevelopmentser.jw0mo.mongodb.net/lesswrong2?retryWrites=true&w=majority";
 
 const dbName = 'lesswrong2';
 

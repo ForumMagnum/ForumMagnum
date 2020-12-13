@@ -1,4 +1,5 @@
 import { Mongo } from 'meteor/mongo';
+import { wrapAsync } from './executionEnvironment';
 
 export const MongoCollection = Mongo.Collection;
 

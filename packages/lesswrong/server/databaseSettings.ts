@@ -16,7 +16,7 @@ ensureIndex(DatabaseMetadata, {
 })
 
 if (!getServerSettingsLoaded())
-  refreshSettingsCaches()
+  void refreshSettingsCaches()
 
 if (isDevelopment && runValidateSettings) {
   // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded

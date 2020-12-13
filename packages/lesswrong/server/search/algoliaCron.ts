@@ -13,6 +13,7 @@ addCronJob({
       await algoliaExportAll();
       await algoliaCleanAll();
     } else {
+      // eslint-disable-next-line no-console
       console.log("Auto-rebuild of Algolia indexes not enabled in config");
     }
   }

@@ -19,8 +19,8 @@ export const getAlgoliaIndexedCollectionNames = (): Array<AlgoliaIndexCollection
   return ["Comments", "Posts", "Users", "Sequences", "Tags"];
 }
 
-export const collectionIsAlgoliaIndexed = (collectionName: CollectionNameString): boolean => {
-  return getAlgoliaIndexedCollectionNames().indexOf(collectionName) >= 0;
+export const collectionIsAlgoliaIndexed = (collectionName: CollectionNameString): collectionName is AlgoliaIndexCollectionName => {
+  return getAlgoliaIndexedCollectionNames().indexOf(collectionName as AlgoliaIndexCollectionName) >= 0;
 }
 
 export const isAlgoliaEnabled = () => !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get();

@@ -243,7 +243,7 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
-        DebouncerEvents.update({
+        await DebouncerEvents.update({
           _id: eventToHandle._id
         }, {
           $set: { failed: true }

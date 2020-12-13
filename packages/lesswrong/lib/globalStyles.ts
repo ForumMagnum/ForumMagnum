@@ -76,6 +76,8 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
       marginBottom: 8,
       paddingTop: 5,
     },
+    
+    backgroundColor: "white",
   },
   ".comments-node .comments-node": {
     [maxTiny]: {
@@ -102,9 +104,6 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
   },
   ".comments-node-odd": {
     backgroundColor: "rgb(252,252,252)",
-  },
-  ".comments-node-root": {
-    backgroundColor: "white",
   },
   ".comments-node-its-getting-nested-here": {
     marginLeft: "7px !important",

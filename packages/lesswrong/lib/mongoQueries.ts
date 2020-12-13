@@ -1,9 +1,9 @@
 import { getCollection } from './vulcan-lib/collections';
 
-export function mongoFindOne<N extends CollectionNameString>(collectionName: N, selector: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOneOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): ObjectsByCollectionName[N]|null
+export async function mongoFindOne<N extends CollectionNameString>(collectionName: N, selector: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOneOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<ObjectsByCollectionName[N]|null>
 {
   const collection = getCollection(collectionName);
-  return collection.findOne(selector, options, projection) as ObjectsByCollectionName[N]|null;
+  return await collection.findOne(selector, options, projection) as ObjectsByCollectionName[N]|null;
 }
 
 export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<Array<ObjectsByCollectionName[N]>>

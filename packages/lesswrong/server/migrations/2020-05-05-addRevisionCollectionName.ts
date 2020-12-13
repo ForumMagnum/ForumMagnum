@@ -17,7 +17,7 @@ registerMigration({
         callback: async (documents) => {
           // eslint-disable-next-line no-console
           console.log(`Migrating a batch of ${documents.length} documents`);
-          Revisions.update(
+          await Revisions.update(
             { documentId: { $in: documents.map(doc => doc._id) } },
             { $set: {collectionName} },
             { multi: true }
