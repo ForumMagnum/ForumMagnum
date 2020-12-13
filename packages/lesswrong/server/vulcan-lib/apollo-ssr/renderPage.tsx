@@ -17,7 +17,7 @@ import { getAllUserABTestGroups, RelevantTestGroupAllocation } from '../../../li
 import Head from './components/Head';
 import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
-import Sentry from '@sentry/node';
+import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { getMergedStylesheet } from '../../styleGeneration';
@@ -184,7 +184,7 @@ export const renderRequest = async ({req, user, startTime}): Promise<RenderResul
   
   // eslint-disable-next-line no-console
   if (timings.totalTime > 3000) {
-    Sentry.captureException(new Error("SSR time above 3 seconds"));
+    captureException(new Error("SSR time above 3 seconds"));
   }
   
   return {

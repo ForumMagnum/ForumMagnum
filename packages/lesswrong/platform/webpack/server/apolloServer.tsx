@@ -9,8 +9,8 @@
 import { ApolloServer } from 'apollo-server-express';
 
 import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
+import { renderRequest } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
-// import { WebApp } from 'meteor/webapp';
 import bodyParser from 'body-parser';
 
 // import cookiesMiddleware from 'universal-cookie-express';
@@ -21,10 +21,7 @@ import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-li
 import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
-//import { engineConfig } from './engine';
 import { computeContextFromReq, computeContextFromUser } from '../../../server/vulcan-lib/apollo-server/context';
-
-import { GraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 
 import { Components, populateComponentsApp } from '../../../lib/vulcan-lib/components';
 // onPageLoad is mostly equivalent to an Express middleware
@@ -53,7 +50,7 @@ import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { Cookies, CookiesProvider } from 'react-cookie';
 import { ABTestGroupsContext } from '../../../lib/abTestImpl';
 import path from 'path'
-import { publicSettings } from '../../../lib/settingsCache';
+import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache';
 import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
 
@@ -120,6 +117,7 @@ onStartup(() => {
     //engine: engineConfig,
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
+      console.log("In ApolloServer.formatError");
       Sentry.captureException(e);
       // eslint-disable-next-line no-console
       console.error(e?.extensions?.exception)
@@ -141,57 +139,8 @@ onStartup(() => {
   app.use(express.static(path.join(__dirname, '../', '../', 'client')))
 
   app.get('*', async (request, response) => {
-    let status = 200
     const context: any = {};
-
-    // const matches = routes.reduce((matches, route) => {
-    //   const match = matchPath(request.url, route.path, route)
-    //   if (match && match.isExact) {
-    //     matches.push({
-    //       route,
-    //       match
-    //     })
-    //   }
-    //   return matches
-    // }, [])
-
-    // // No such route, send 404 status
-    // if (matches.length === 0) {
-    //   status = 404
-    // }
-    populateComponentsApp();
-    const requestContext = await computeContextFromUser(null, request.headers);
-    const client = await createClient(requestContext);
-
-    const App = <AppGenerator
-      req={request} apolloClient={client}
-      serverRequestStatus={{}}
-      abTestGroups={{}}
-    />
-
-    const WrappedApp = wrapWithMuiTheme(App, context);
-
-    const appHtml = await renderToStringWithData(WrappedApp);
-
-    const initialState = client.extract();
-    const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
-
-    const ssrBody = `<div id="react-app">${appHtml}</div>`;
-
-    const sheetsRegistry = context.sheetsRegistry;
-    const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-      +'<style id="jss-insertion-point"></style>'
-      +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}"></link>`
-
-    const clientScript = `<script type="text/javascript" src="/js/bundle.js?${Math.random()}"></script>`
-
-    if (!publicSettings) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-    const publicSettingsHeader = embedAsGlobalVar("publicSettings", publicSettings);
-
-    // // Get Meta header tags
-    // const helmet = Helmet.renderStatic()
-
-    // let html = index(helmet, appHtml)
+    
     if(request.url === `/allStyles?hash=${getMergedStylesheet().hash}`) {
       response.writeHead(200, {
         "Cache-Control": "public, max-age=604800, immutable",
@@ -200,8 +149,21 @@ onStartup(() => {
       return response.end(getMergedStylesheet().css);
     }
 
+    const renderResult = await renderRequest({req: request, user: null, startTime: new Date()})
+    
+    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
+
+    const clientScript = `<script type="text/javascript" src="/js/bundle.js?${Math.random()}"></script>`
+
+    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings());
+
+    // // Get Meta header tags
+    // const helmet = Helmet.renderStatic()
+
+    // let html = index(helmet, appHtml)
     // Finally send generated HTML with initial data to the client
-    return response.status(status).send(publicSettingsHeader + jssSheets + ssrBody  + clientScript + serializedApolloState)
+    return response.status(status||200).send(publicSettingsHeader + jssSheets + ssrBody  + clientScript + serializedApolloState)
   })
 
   // WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
@@ -213,12 +175,6 @@ onStartup(() => {
   //// other middlewares (dev tools etc.)
   // LW: Made available in production environment
   // setupToolsMiddlewares(config);
-  
-  // init the application components and routes, including components & routes from 3rd-party packages
-  //populateComponentsApp()
-
-  // render the page
-  // onPageLoad(makePageRenderer);
 
   // Start Server
   const port = process.env.PORT || 4000

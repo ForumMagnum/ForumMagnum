@@ -9,7 +9,7 @@ import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collec
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
-import Sentry from '@sentry/node';
+import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
@@ -56,7 +56,7 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
     setTimeout(() => {
       if (!finished) {
         const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-        Sentry.captureException(new Error(errorMessage));
+        captureException(new Error(errorMessage));
         // eslint-disable-next-line no-console
         console.error(errorMessage);
       }

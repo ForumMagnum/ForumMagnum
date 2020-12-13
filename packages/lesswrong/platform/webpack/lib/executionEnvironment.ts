@@ -6,8 +6,9 @@ export const isProduction = false
 export const isAnyTest = false
 export const isPackageTest = false
 
+export const onStartupFunctions = [];
 export const onStartup = (fn: ()=>void) => {
-  setTimeout(fn, 0);
+  onStartupFunctions.push(fn);
 }
 
 export const getInstanceSettings = (): any => {
@@ -16,8 +17,7 @@ export const getInstanceSettings = (): any => {
 }
 
 export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
-  // TODO
-  return "siteUrl"
+  return "localhost:4000" // TODO
 }
 
 // Like setTimeout, but with fiber handling
