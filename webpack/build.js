@@ -18,7 +18,7 @@ esbuild.buildSync({
 })
 
 esbuild.buildSync({
-  entryPoints: ['./src/client.js'],
+  entryPoints: ['./src/platform/current/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
   sourcemap: true,
