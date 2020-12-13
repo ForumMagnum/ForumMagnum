@@ -157,13 +157,15 @@ onStartup(() => {
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings());
+    
+    const doctypeHeader = "<!doctype html>\n"
 
     // // Get Meta header tags
     // const helmet = Helmet.renderStatic()
 
     // let html = index(helmet, appHtml)
     // Finally send generated HTML with initial data to the client
-    return response.status(status||200).send(publicSettingsHeader + jssSheets + ssrBody  + clientScript + serializedApolloState)
+    return response.status(status||200).send(doctypeHeader + publicSettingsHeader + jssSheets + ssrBody  + clientScript + serializedApolloState)
   })
 
   // WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
