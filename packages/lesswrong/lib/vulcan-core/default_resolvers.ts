@@ -179,7 +179,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     if (parameters.options.limit) {
       pipeline.push({ $limit: parameters.options.limit });
     }
-    return await collection.rawCollection().aggregate(pipeline).toArray();
+    return await collection.aggregate(pipeline).toArray();
   } else {
     return await Utils.Connectors.find(collection, selector, options);
   }

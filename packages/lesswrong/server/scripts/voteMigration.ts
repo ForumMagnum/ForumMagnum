@@ -13,7 +13,7 @@ async function runVoteMigration(collectionName) {
     }
     //eslint-disable-next-line no-console
     console.log("Initializing vote migration for collection: ", collectionName)
-    let newUpvotesPromise = Users.rawCollection().aggregate([
+    let newUpvotesPromise = Users.aggregate([
       {$match: {["upvoted" + collectionName]: {$exists: true}}},
       {$project: { ["upvoted" + collectionName]: 1 }},
       {$unwind: "$upvoted" + collectionName},
@@ -29,7 +29,7 @@ async function runVoteMigration(collectionName) {
     ])
     let newUpvotes = await newUpvotesPromise;
     let newUpvotesArray = await newUpvotes.toArray();
-    let newDownvotesPromise = Users.rawCollection().aggregate([
+    let newDownvotesPromise = Users.aggregate([
       {$match: {["downvoted" + collectionName]: {$exists: true}}},
       {$project: { ["downvoted" + collectionName]: 1 }},
       {$unwind: "$downvoted" + collectionName},

@@ -429,7 +429,7 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const postRelations = await Posts.rawCollection().aggregate([
+      const postRelations = await Posts.aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
             from: "postrelations", 

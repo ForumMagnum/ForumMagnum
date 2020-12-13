@@ -21,7 +21,7 @@ export function mongoCount<N extends CollectionNameString>(collectionName: N, se
 export function mongoAggregate<N extends CollectionNameString>(collectionName: N, pipeline: any): any
 {
   const collection = getCollection(collectionName);
-  return collection.rawCollection().aggregate(pipeline);
+  return collection.aggregate(pipeline);
 }
 
 export function mongoUpdate<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): number

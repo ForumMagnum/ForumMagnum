@@ -357,7 +357,7 @@ export async function forEachBucketRangeInCollection({collection, filter, bucket
 
   // Calculate bucket boundaries using Mongo aggregate
   const maybeFilter = (filter ? [{ $match: filter }] : []);
-  const bucketBoundaries = await collection.rawCollection().aggregate([
+  const bucketBoundaries = await collection.aggregate([
     ...maybeFilter,
     { $sample: { size: sampleSize } },
     { $sort: {_id: 1} },

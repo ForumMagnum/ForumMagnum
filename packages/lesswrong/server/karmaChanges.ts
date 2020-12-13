@@ -72,7 +72,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
     ];
   }
   
-  let changedComments = await Votes.rawCollection().aggregate(
+  let changedComments = await Votes.aggregate(
     [
       ...karmaChangesInCollectionPipeline("Comments"),
       
@@ -104,7 +104,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
     }
   }
   
-  let changedPosts = await Votes.rawCollection().aggregate(
+  let changedPosts = await Votes.aggregate(
     [
       ...karmaChangesInCollectionPipeline("Posts"),
       

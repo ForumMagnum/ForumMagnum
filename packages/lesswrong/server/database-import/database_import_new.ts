@@ -138,7 +138,7 @@ const addParentCommentId = (comment, parentComment) => {
 }
 
 Vulcan.syncUserPostCount = async () => {
-  const postCounters = await Posts.rawCollection().aggregate([
+  const postCounters = await Posts.aggregate([
     {"$group" : {_id:"$userId", count:{$sum:1}}}
   ])
   //eslint-disable-next-line no-console
