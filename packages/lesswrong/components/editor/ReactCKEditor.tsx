@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EditorWatchdog } from '@lesswrong/lesswrong-editor'
+import { EditorWatchdog } from '../../platform/current/lib/wrapCkEditor';
 
 interface CKEditorProps {
   data?: any,
