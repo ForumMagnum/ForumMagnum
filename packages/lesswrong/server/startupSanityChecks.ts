@@ -6,9 +6,9 @@ import { PublicInstanceSetting } from '../lib/instanceSettings';
 // Database ID string that this config file should match with
 const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning")
 
-onStartup(() => {
+onStartup(async () => {
   const expectedDatabaseId = expectedDatabaseIdSetting.get();
-  const databaseIdObject = DatabaseMetadata.findOne({ name: "databaseId" });
+  const databaseIdObject = await DatabaseMetadata.findOne({ name: "databaseId" });
   const databaseId = databaseIdObject?.value || null;
   
   // If either the database or the settings config file contains an ID, then

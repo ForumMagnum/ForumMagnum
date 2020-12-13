@@ -71,8 +71,8 @@ const schema: SchemaType<DbSequence> = {
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
-      resolver: (sequence: DbSequence, args: void, context: ResolverContext): Array<DbChapter> => {
-        const books = context.Chapters.find(
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
+        const books = await context.Chapters.find(
           {sequenceId: sequence._id},
         ).fetch();
         return books;
@@ -166,9 +166,9 @@ const schema: SchemaType<DbSequence> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (sequence: DbSequence, args: void, context: ResolverContext): DbCollection|null => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
-        return context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
+        return await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
       }
     }
   },

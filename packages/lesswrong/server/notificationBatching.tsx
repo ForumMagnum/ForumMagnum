@@ -34,9 +34,9 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
-  const user = getUser(userId);
+  const user = await getUser(userId);
   if (!user) throw new Error(`Missing user: ID ${userId}`);
-  Notifications.update(
+  await Notifications.update(
     { _id: {$in: notificationIds} },
     { $set: { waitingForBatch: false } },
     { multi: true }
@@ -123,7 +123,7 @@ addGraphQLResolvers({
         });
       }
       if (postId) {
-        const post = Posts.findOne(postId)
+        const post = await Posts.findOne(postId)
         if (post) {
           emails = [{
             user: currentUser,

@@ -31,7 +31,7 @@ export async function updatePostDenormalizedTags(postId: string) {
   await Posts.update({_id:postId}, {$set: {tagRelevance: tagRelDict}});
 }
 
-getCollectionHooks("Tags").createValidate.add((validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
+getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
   if (!tag.name || !tag.name.length)
     throw new Error("Name is required");
   if (!isValidTagName(tag.name))
@@ -47,18 +47,20 @@ getCollectionHooks("Tags").createValidate.add((validationErrors: Array<any>, {do
   }
   
   // Name must be unique
-  const existing = Tags.find({name: normalizedName, deleted:false}).fetch();
+  const existing = await Tags.find({name: normalizedName, deleted:false}).fetch();
   if (existing.length > 0)
     throw new Error("A tag by that name already exists");
+  
+  return validationErrors;
 });
 
-getCollectionHooks("Tags").updateValidate.add((validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}) => {
+getCollectionHooks("Tags").updateValidate.add(async (validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}) => {
   const newName = normalizeTagName(newDocument.name);
   if (oldDocument.name !== newName) { // Tag renamed?
     if (!isValidTagName(newDocument.name))
       throw new Error("Invalid tag name");
     
-    const existing = Tags.find({name: newName, deleted:false}).fetch();
+    const existing = await Tags.find({name: newName, deleted:false}).fetch();
     if (existing.length > 0)
       throw new Error("A tag by that name already exists");
   }
@@ -68,20 +70,22 @@ getCollectionHooks("Tags").updateValidate.add((validationErrors: Array<any>, {ol
       ...newDocument, name: newName
     }
   }
+  
+  return validationErrors;
 });
 
 getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: {oldDocument: DbTag}) => {
   // If this is soft deleting a tag, then cascade to also soft delete any
   // tagRels that go with it.
   if (newDoc.deleted && !oldDocument.deleted) {
-    TagRels.update({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
+    await TagRels.update({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
   }
   return newDoc;
 });
 
 getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   // When you add a tag, vote for it as relevant
-  var tagCreator = Users.findOne(tagRel.userId);
+  var tagCreator = await Users.findOne(tagRel.userId);
   const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;

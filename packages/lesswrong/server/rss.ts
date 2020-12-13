@@ -11,6 +11,7 @@ import { rssTermsToUrl } from '../lib/rss_urls';
 import { addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
+import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
@@ -44,10 +45,10 @@ export const servePostRSS = async (terms, url?: string) => {
 
   parameters.options.limit = 10;
 
-  const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
+  const postsCursor = await Posts.find(parameters.selector, parameters.options).fetch();
   const restrictedPosts = await accessFilterMultiple(null, Posts, postsCursor, null);
 
-  restrictedPosts.forEach((post) => {
+  await asyncForeachSequential(restrictedPosts, async (post) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -71,7 +72,7 @@ export const servePostRSS = async (terms, url?: string) => {
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: userGetDisplayNameById(post.userId),
+      author: await userGetDisplayNameById(post.userId),
       // LESSWRONG - this was added to handle karmaThresholds
       // date: post.postedAt
       date: date,
@@ -91,11 +92,11 @@ export const serveCommentRSS = async (terms, url?: string) => {
 
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
-  const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
+  const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null);
 
-  restrictedComments.forEach(function(comment) {
-    const parentTitle = getCommentParentTitle(comment)
+  await asyncForeachSequential(restrictedComments, async (comment) => {
+    const parentTitle = await getCommentParentTitle(comment)
     feed.item({
      title: 'Comment on ' + parentTitle,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${commentGetPageUrl(comment, true)}'>Discuss</a>`,

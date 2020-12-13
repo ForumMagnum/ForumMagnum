@@ -50,7 +50,7 @@ const schema: SchemaType<DbCollection> = {
     viewableBy: ['guests'],
     resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
       const { currentUser, Books } = context;
-      const books = Books.find(
+      const books = await Books.find(
         {collectionId: collection._id},
         {sort: {number: 1}}
       ).fetch();

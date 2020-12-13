@@ -141,7 +141,7 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
         const mutation = { $set: {
           [fieldName]: defaultValue
         } };
-        const writeResult = collection.update(bucketSelector, mutation, {multi: true});
+        const writeResult = await collection.update(bucketSelector, mutation, {multi: true});
         
         nMatched += writeResult || 0;
         // eslint-disable-next-line no-console
@@ -209,7 +209,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   // eslint-disable-next-line no-constant-condition
   while(!done) {
     await runThenSleep(loadFactor, async () => {
-      let documents = collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
+      let documents = await collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
 
       if (!documents.length) {
         done = true;

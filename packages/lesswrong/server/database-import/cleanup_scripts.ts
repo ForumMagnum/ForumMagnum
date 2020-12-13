@@ -28,8 +28,8 @@ Vulcan.updateBaseScores = wrapVulcanAsyncScript('updateBaseScores', async () => 
   for (const collection of [Posts, Comments]) {
     await bulkUpdateWithJS({
       collection,
-      updateFunction: document => {
-        const newBaseScore = recalculateBaseScore(document)
+      updateFunction: async (document) => {
+        const newBaseScore = await recalculateBaseScore(document)
         return {$set: {baseScore: newBaseScore}}
       }
     })

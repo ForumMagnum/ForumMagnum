@@ -56,16 +56,16 @@ const schema: SchemaType<DbComment> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => {
+    onInsert: async (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
-        return userGetDisplayNameById(document.userId)
+        return await userGetDisplayNameById(document.userId)
       }
     },
-    onEdit: (modifier, document, currentUser) => {
+    onEdit: async (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },

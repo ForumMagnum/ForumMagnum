@@ -28,13 +28,13 @@ interface CollectionBase<
   rawCollection: any
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
-  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T | null
+  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
   // Return result is number of documents **matched** not affected
   //
   // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
-  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => number
+  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
   remove: any
   insert: any
   aggregate: any
@@ -53,8 +53,8 @@ interface CollectionOptions {
 }
 
 interface FindResult<T> {
-  fetch: ()=>Array<T>
-  count: ()=>number
+  fetch: ()=>Promise<Array<T>>
+  count: ()=>Promise<number>
 }
 
 type ViewFunction<N extends CollectionNameString> = (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext)=>ViewQueryAndOptions<N>

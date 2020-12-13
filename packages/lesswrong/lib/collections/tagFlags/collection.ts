@@ -34,12 +34,12 @@ const schema: SchemaType<DbTagFlag> = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: (tagFlag) => {
-      return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
+    onInsert: async (tagFlag) => {
+      return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
-    onEdit: (modifier, tagFlag) => {
+    onEdit: async (modifier, tagFlag) => {
       if (modifier.$set.name) {
-        return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
+        return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
       }
     }
   },

@@ -33,13 +33,13 @@ function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Pi
 
 async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string) {
   const parsedId = parseInt(legacyId, 36);
-  const post = Posts.findOne({"legacyId": parsedId.toString()});
+  const post = await Posts.findOne({"legacyId": parsedId.toString()});
   if (!post) return null;
   return getPostPingbackById(parsedUrl, post._id);
 }
 
 async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
-  const post = Posts.findOne({slug: slug});
+  const post = await Posts.findOne({slug: slug});
   if (!post) return null;
   return getPostPingbackById(parsedUrl, post._id);
 }

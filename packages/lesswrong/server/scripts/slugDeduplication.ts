@@ -1,4 +1,5 @@
 import { Posts } from '../../lib/collections/posts';
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 const runDeduplication = false;
 
@@ -18,9 +19,9 @@ async function slugDeduplication() {
     let newSlug = "";
     let postCount = 0;
     let index = 0;
-    duplicateSlugsArray.forEach((duplicateObject) => {
+    await asyncForeachSequential(duplicateSlugsArray, async (duplicateObject: any) => {
       index = 0;
-      duplicatePosts = Posts.find({slug: duplicateObject.slug}, {sort: {baseScore: -1}}).fetch();
+      duplicatePosts = await Posts.find({slug: duplicateObject.slug}, {sort: {baseScore: -1}}).fetch();
       duplicatePosts.slice(1).forEach((post: any) => { //Highest-karma post gets to keep the slug, all others get new slugs
           newSlug = post.slug + "-" + index;
           if (postCount % 100 === 0) {

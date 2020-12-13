@@ -187,11 +187,11 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     canRead: ['guests'],
     order: 40,
-    onCreate: ({ document: user }) => {
+    onCreate: async ({ document: user }) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
-      return Utils.getUnusedSlugByCollectionName('Users', basicSlug);
+      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug);
     },
   },
   /**

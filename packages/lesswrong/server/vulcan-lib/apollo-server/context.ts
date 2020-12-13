@@ -29,7 +29,7 @@ const getUser = async (loginToken: string): Promise<DbUser|null> => {
 
     const hashedToken = Accounts._hashLoginToken(loginToken)
 
-    const user = Users.findOne({
+    const user = await Users.findOne({
       'services.resume.loginTokens.hashedToken': hashedToken
     })
 
@@ -132,7 +132,7 @@ export const getCollectionsByName = (): CollectionsByName => {
 }
 
 export const getUserFromReq = async (req) => {
-  return getUser(getAuthToken(req));
+  return await getUser(getAuthToken(req));
 }
 
 // Returns a function called on every request to compute context

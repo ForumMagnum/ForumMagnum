@@ -7,23 +7,23 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
 const options: MutationOptions<DbChapter> = {
-  newCheck: (user: DbUser|null, document: DbChapter|null) => {
+  newCheck: async (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
-    let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    let parentSequence = await Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
     return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.new.own') : userCanDo(user, `chapters.new.all`)
   },
 
-  editCheck: (user: DbUser|null, document: DbChapter|null) => {
+  editCheck: async (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
-    let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    let parentSequence = await Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
     return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.edit.own') : userCanDo(user, `chapters.edit.all`)
   },
 
-  removeCheck: (user: DbUser|null, document: DbChapter|null) => {
+  removeCheck: async (user: DbUser|null, document: DbChapter|null) => {
     if (!user || !document) return false;
-    let parentSequence = Sequences.findOne({_id: document.sequenceId});
+    let parentSequence = await Sequences.findOne({_id: document.sequenceId});
     if (!parentSequence) return false
     return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.remove.own') : userCanDo(user, `chapters.remove.all`)
   },

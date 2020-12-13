@@ -6,37 +6,37 @@ export function mongoFindOne<N extends CollectionNameString>(collectionName: N, 
   return collection.findOne(selector, options, projection);
 }
 
-export function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Array<ObjectsByCollectionName[N]>
+export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<Array<ObjectsByCollectionName[N]>>
 {
   const collection = getCollection(collectionName);
-  return collection.find(selector, options, projection).fetch();
+  return await collection.find(selector, options, projection).fetch();
 }
 
-export function mongoCount<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): number
+export async function mongoCount<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<number>
 {
   const collection = getCollection(collectionName);
-  return collection.find(selector, options, projection).count();
+  return await collection.find(selector, options, projection).count();
 }
 
-export function mongoAggregate<N extends CollectionNameString>(collectionName: N, pipeline: any): any
+export async function mongoAggregate<N extends CollectionNameString>(collectionName: N, pipeline: any): any
 {
   const collection = getCollection(collectionName);
-  return collection.rawCollection().aggregate(pipeline);
+  return await collection.rawCollection().aggregate(pipeline).toArray();
 }
 
-export function mongoUpdate<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): number
+export async function mongoUpdate<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
 {
   const collection = getCollection(collectionName);
-  return collection.update(selector, modifier, options);
+  return await collection.update(selector, modifier, options);
 }
-export function mongoRemove<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoRemoveOptions<ObjectsByCollectionName[N]>)
+export async function mongoRemove<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoRemoveOptions<ObjectsByCollectionName[N]>)
 {
   const collection = getCollection(collectionName);
-  return collection.remove(selector, options);
+  return await collection.remove(selector, options);
 }
 
-export function mongoInsert<N extends CollectionNameString>(collectionName: N, insertedObject: ObjectsByCollectionName[N], options: MongoInsertOptions<ObjectsByCollectionName[N]>)
+export async function mongoInsert<N extends CollectionNameString>(collectionName: N, insertedObject: ObjectsByCollectionName[N], options: MongoInsertOptions<ObjectsByCollectionName[N]>)
 {
   const collection = getCollection(collectionName);
-  return collection.insert(insertedObject, options);
+  return await collection.insert(insertedObject, options);
 }

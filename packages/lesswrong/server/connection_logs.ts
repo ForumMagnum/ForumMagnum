@@ -8,7 +8,7 @@ import { onStartup } from '../platform/current/lib/executionEnvironment';
 
 let dummyUser: DbUser|null = null;
 async function getDummyUser(): Promise<DbUser> {
-  if (!dummyUser) dummyUser = Users.findOne();
+  if (!dummyUser) dummyUser = await Users.findOne();
   if (!dummyUser) throw Error("No users in the database, can't get dummy user")
   return dummyUser;
 }
