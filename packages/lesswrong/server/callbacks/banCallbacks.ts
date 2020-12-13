@@ -2,6 +2,7 @@ import { Bans } from '../../lib/collections/bans/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { addLoginAttemptValidation } from '../../platform/current/server/meteorServerSideFns';
 import { throwMeteorError } from '../../lib/executionEnvironment';
+import { mongoFindOneSync } from '../../lib/mongoQueries';
 
 // If set, IP bans (in the bans collection) will be enforced. Currently
 // disabled by default because this isn't adequately tested, and it would be
@@ -32,7 +33,7 @@ addLoginAttemptValidation((attempt) => {
     return false;
   }
   const ip = attempt.ip;
-  const ban = Bans.findOne({ip: ip});
+  const ban = mongoFindOneSync("Bans", {ip: ip});
   if (ban && new Date(ban.expirationDate) > new Date()) {
     // Triggers on login or session resume from a banned IP address.
     const username = attempt.user.username;

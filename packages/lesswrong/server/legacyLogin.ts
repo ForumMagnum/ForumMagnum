@@ -2,10 +2,11 @@ import Users from '../lib/collections/users/collection';
 import { LegacyData } from '../lib/collections/legacyData/collection';
 import { addLoginAttemptValidation } from '../platform/current/server/meteorServerSideFns';
 import { throwMeteorError } from '../lib/executionEnvironment';
+import { mongoFindOneSync } from '../lib/mongoQueries';
 
 addLoginAttemptValidation((attempt) => {
   const userStub = attempt.user || (attempt.methodArguments && attempt.methodArguments[0] && attempt.methodArguments[0].user);
-  const user = userStub && Users.findOne({username: userStub.username});
+  const user = userStub && mongoFindOneSync("Users", {username: userStub.username});
   if (user && user.legacy
       && user.services
       && user.services.password

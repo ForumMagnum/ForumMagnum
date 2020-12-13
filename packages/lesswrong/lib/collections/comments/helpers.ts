@@ -1,6 +1,6 @@
 import { forumTypeSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFindOne } from '../../mongoQueries';
+import { mongoFindOne, mongoFindOneSync } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
@@ -15,11 +15,11 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
 // Get URL of a comment page.
 export function commentGetPageUrl(comment: CommentsList|DbComment, isAbsolute = false): string {
   if (comment.postId) {
-    const post = mongoFindOne("Posts", comment.postId);
+    const post = mongoFindOneSync("Posts", comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const tag = mongoFindOne("Tags", {_id:comment.tagId});
+    const tag = mongoFindOneSync("Tags", {_id:comment.tagId});
     if (!tag) throw Error(`Unable to find tag for comment: ${comment}`)
     return `/tag/${tag.slug}/discussion#${comment._id}`;
   } else {
