@@ -301,7 +301,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   accentColor: string,
   bodyText: JSX.Element
 }) => {
-
+  
   const { captureEvent } = useTracking()
 
   return (
@@ -338,7 +338,7 @@ const BookLanding = ({classes}: {
 
   return (
     <div>
-      <HeadTags
+      <HeadTags 
         image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606944736/Screen_Shot_2020-11-30_at_10.17.10_PM_copy_mleu4a.png"}
         description={"LessWrong is now a book."}
       />
@@ -356,7 +356,7 @@ const BookLanding = ({classes}: {
         </div>
         <div className={classes.bookIntroduction}>
          <div className={classes.authorList}>
-            <p className={classes.body}>
+            <p className={classes.body}> 
               <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, </span> Samo Burja, Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
                 Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
                 Raymond Arnold, Valentine Smith, Andrew Critch, Jameson Quinn and Katja Grace
