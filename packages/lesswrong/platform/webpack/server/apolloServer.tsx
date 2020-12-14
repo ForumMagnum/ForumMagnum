@@ -165,7 +165,7 @@ onStartup(() => {
 
     // let html = index(helmet, appHtml)
     // Finally send generated HTML with initial data to the client
-    return response.status(status||200).send(doctypeHeader + publicSettingsHeader + jssSheets + ssrBody  + clientScript + serializedApolloState)
+    return response.status(status||200).send(doctypeHeader + publicSettingsHeader + jssSheets + ssrBody + serializedApolloState + clientScript)
   })
 
   // WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
