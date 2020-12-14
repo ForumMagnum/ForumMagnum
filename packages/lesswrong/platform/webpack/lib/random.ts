@@ -33,6 +33,3 @@ export const randomSecret = () => {
     throw new Error("No CSPRNG available on the client");
   }
 }
-
-console.log(`Sample randomId: ${randomId()}`);
-console.log(`Sample randomSecret: ${randomSecret()}`);
