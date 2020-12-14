@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "scripts": {
     "build": "node build.js",
-    "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/bundle2.js'",
+    "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/bundle2.js --settings ../settings.json'",
     "build:prod": "export NODE_ENV=development && webpack -p",
     "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle.js'"
   },

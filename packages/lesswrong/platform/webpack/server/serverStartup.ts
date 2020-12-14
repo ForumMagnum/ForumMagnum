@@ -2,19 +2,19 @@ import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { onStartupFunctions } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-
-//const mongoConnectionString = 'mongodb://localhost:27017';
-const mongoConnectionString = "mongodb+srv://baserates:tWa4Zw69dipLmgSU@lesswrongdevelopmentser.jw0mo.mongodb.net/lesswrong2?retryWrites=true&w=majority";
+import { getCommandLineArguments } from './commandLine';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const dbName = 'lesswrong2';
 
-console.log("In serverStartup");
-
 async function serverStartup() {
   console.log("Starting server");
+  console.log(`forumType = ${forumTypeSetting.get()}`);
+  
+  const commandLineArguments = getCommandLineArguments();
   
   try {
-    const client = new MongoClient(mongoConnectionString, {
+    const client = new MongoClient(commandLineArguments.mongoUrl, {
       // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
       // for various options that could be tuned here
     });
@@ -40,4 +40,5 @@ async function serverStartup() {
   for (let startupFunction of onStartupFunctions)
     await startupFunction();
 }
+
 serverStartup();

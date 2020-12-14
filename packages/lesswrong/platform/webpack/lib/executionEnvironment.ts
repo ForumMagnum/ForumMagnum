@@ -11,9 +11,20 @@ export const onStartup = (fn: ()=>void) => {
   onStartupFunctions.push(fn);
 }
 
+let instanceSettings: any = null;
 export const getInstanceSettings = (): any => {
-  // TODO
-  return {}
+  if (!instanceSettings) {
+    if (webpackIsServer) {
+      const { loadInstanceSettings } = require('../server/commandLine.ts');
+      instanceSettings = loadInstanceSettings();
+    } else {
+      instanceSettings = (window as any).publicSettings;
+    }
+  }
+  return instanceSettings;
+}
+export const setInstanceSettings = (settings: any) => {
+  instanceSettings = settings;
 }
 
 export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
@@ -45,4 +56,3 @@ export const addGlobalForShell = (name: string, value: any) => {
 
 // Polyfill
 import 'setimmediate';
-
