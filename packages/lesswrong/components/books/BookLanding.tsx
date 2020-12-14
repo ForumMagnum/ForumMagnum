@@ -197,6 +197,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16,
     color: 'rgba(0,0,0,0.6)'
   },
+  shippingNotice: {
+    ...theme.typography.commentStyle,
+    height: 36,
+    fontSize: '0.83rem',
+    marginTop: 7,
+    marginRight: 16,
+    color: 'rgba(0,0,0,0.6)'
+  },
   [theme.breakpoints.down('xs')]: {
     bookContentContainer: {
       display: 'none'
@@ -293,7 +301,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   accentColor: string,
   bodyText: JSX.Element
 }) => {
-  
+
   const { captureEvent } = useTracking()
 
   return (
@@ -330,7 +338,7 @@ const BookLanding = ({classes}: {
 
   return (
     <div>
-      <HeadTags 
+      <HeadTags
         image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606944736/Screen_Shot_2020-11-30_at_10.17.10_PM_copy_mleu4a.png"}
         description={"LessWrong is now a book."}
       />
@@ -348,7 +356,7 @@ const BookLanding = ({classes}: {
         </div>
         <div className={classes.bookIntroduction}>
          <div className={classes.authorList}>
-            <p className={classes.body}> 
+            <p className={classes.body}>
               <span style={{fontWeight: "bold"}}>Scott Alexander, Eliezer Yudkowsky, Wei Dai, </span> Samo Burja, Sarah Constantin, Zvi Mowshowitz, Viktoria Krakovna, Alkjash, Paul Christiano, Ben Pace, Alex Zhu,
                 Kaj Sotala, Rohin Shah, Georgia Ray, Abram Demski, Martin Sustrik, Patrick LaVictoire, Scott Garrabrant,
                 Raymond Arnold, Valentine Smith, Andrew Critch, Jameson Quinn and Katja Grace
@@ -360,15 +368,19 @@ const BookLanding = ({classes}: {
               This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
               packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
             </p>
-            <div className={classes.buyButton}>
-              <BookCheckout />
-              <Link className={classes.faqLink} to="/posts/TTPux7QFBpKxZtMKE/the-lesswrong-book-is-available-for-pre-order">
-                Read the FAQ
-              </Link>
+            <div>
+              <div className={classes.buyButton}>
+                <BookCheckout />
+                <Link className={classes.faqLink} to="/posts/TTPux7QFBpKxZtMKE/the-lesswrong-book-is-available-for-pre-order">
+                  Read the FAQ
+                </Link>
+              </div>
+              <div className={classes.shippingNotice}>
+                (Orders placed today arrive after Christmas)
+              </div>
             </div>
-          </div>          
+          </div>
         </div>
-        
       </div>
 
       <div className={classes.mobileParagraph}>
@@ -482,7 +494,7 @@ const BookLanding = ({classes}: {
           Read a sample chapter
         </button>
       </div>
-      
+
     </div>
   )
 }
