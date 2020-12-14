@@ -56,7 +56,10 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
   </span>
 }
 
-const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, { styles });
+const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {
