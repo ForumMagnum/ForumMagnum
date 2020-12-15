@@ -1,4 +1,5 @@
-import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery, createMutator } from "..";
+import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from "../../../lib/vulcan-lib/graphql";
+import { createMutator } from "../mutators";
 import passport from 'passport'
 import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
