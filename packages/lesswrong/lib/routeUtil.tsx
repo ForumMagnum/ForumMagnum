@@ -17,7 +17,7 @@ export function parseQuery(location): Record<string,string> {
   if (query.startsWith('?'))
     query = query.substr(1);
     
-  return qs.parse(query);
+  return qs.parse(query) as Record<string,string>;
 }
 
 // React Hook which returns the page location (parsed URL and route).

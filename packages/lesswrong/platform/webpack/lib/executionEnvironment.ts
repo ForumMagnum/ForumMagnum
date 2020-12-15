@@ -1,4 +1,8 @@
 
+declare global {
+  var webpackIsServer: boolean
+}
+
 export const isClient = !webpackIsServer
 export const isServer = webpackIsServer
 export const isDevelopment = true

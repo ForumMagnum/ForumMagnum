@@ -94,7 +94,7 @@ const authenticationResolvers = {
       
       return { token }
     },
-    async logout(root, {}, { req, res }: ResolverContext) {
+    async logout(root, args: {}, { req, res }: ResolverContext) {
       req!.logOut()
       if (req?.cookies.loginToken) {
         res!.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
