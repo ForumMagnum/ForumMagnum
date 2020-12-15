@@ -7,7 +7,7 @@ export const randomId = () => {
   if (webpackIsServer) {
     const crypto = require('crypto');
     const bytes = crypto.randomBytes(17);
-    const result = [];
+    const result: Array<string> = [];
     for (let byte of bytes) {
       // Discards part of each byte and has modulo bias. Doesn't matter in
       // this context.
@@ -15,8 +15,8 @@ export const randomId = () => {
     }
     return result.join('');
   } else {
-    const result = [];
-    function randInt(max) {
+    const result: Array<string> = [];
+    const randInt = (max: number) => {
       return Math.floor(Math.random() * max);
     }
     for (let i=0; i<17; i++)

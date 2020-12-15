@@ -16,19 +16,14 @@ import bodyParser from 'body-parser';
 // import cookiesMiddleware from 'universal-cookie-express';
 // import Cookies from 'universal-cookie';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import getVoyagerConfig from './voyager';
-import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-ssr/graphiql';
+import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
+import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 import { computeContextFromReq, computeContextFromUser } from '../../../server/vulcan-lib/apollo-server/context';
 
 import { Components, populateComponentsApp } from '../../../lib/vulcan-lib/components';
-// onPageLoad is mostly equivalent to an Express middleware
-// excepts it is tailored to handle Meteor server side rendering
-// import { onPageLoad } from 'meteor/server-render';
-
-import makePageRenderer from '../apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 

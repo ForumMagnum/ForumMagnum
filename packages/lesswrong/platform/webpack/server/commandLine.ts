@@ -9,7 +9,7 @@ interface CommandLineArguments {
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
     mongoUrl: process.env.MONGO_URL || "mongodb://localhost:27017",
-    instanceSettings: "settings.json",
+    settingsFileName: "settings.json",
   }
   
   for (let i=2; i<argv.length; i++) {
