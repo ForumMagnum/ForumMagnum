@@ -16,6 +16,7 @@ import bodyParser from 'body-parser';
 
 // import cookiesMiddleware from 'universal-cookie-express';
 // import Cookies from 'universal-cookie';
+import { pickerMiddleware } from './picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
 import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-server/graphiql';
@@ -34,6 +35,7 @@ import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
 import express from 'express'
+import { app } from './expressServer';
 import { renderToString } from 'react-dom/server'
 import { StaticRouter } from 'react-router-dom'
 import React from 'react';
@@ -99,8 +101,6 @@ export const setupToolsMiddlewares = config => {
   // WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
 };
 
-export const app = express();
-
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
@@ -123,6 +123,7 @@ onStartup(() => {
   app.use(universalCookiesMiddleware());
   app.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
   app.use(passport.initialize())
+  app.use(pickerMiddleware);
 
   passport.use(cookieAuthStrategy)
   app.use('/', (req, res, next) => {

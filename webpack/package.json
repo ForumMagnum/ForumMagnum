@@ -136,6 +136,7 @@
     "passport": "^0.4.1",
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0",
+    "path-to-regexp": "^6.2.0",
     "pg": "^6.1.5",
     "pg-promise": "^5.6.7",
     "prop-types": "^15.7.2",
