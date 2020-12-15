@@ -8,6 +8,8 @@ export const setDatabaseConnection = (_client, _db) => {
 }
 export const getDatabase = () => db;
 
+const disableAllWrites = true;
+
 export class MongoCollection<T extends DbObject> {
   tableName: string
   
@@ -44,10 +46,28 @@ export class MongoCollection<T extends DbObject> {
       ...options,
     });
   }
-  insert = ()=>{}
-  update = ()=>{}
-  remove = ()=>{}
-  _ensureIndex = ()=>{}
+  insert = async (doc, options) => {
+    if (disableAllWrites) return;
+    // TODO: Maybe add _id field here if missing?
+    const table = this.getTable();
+    const insertResult = await table.insert(doc, options);
+    return insertResult.insertedIds[0];
+  }
+  update = async (selector, update, options) => {
+    if (disableAllWrites) return;
+    const table = this.getTable();
+    const updateResult = await table.update(selector, update, options);
+    return updateResult.matchedCount;
+  }
+  remove = async (selector, options)=>{
+    if (disableAllWrites) return;
+    const table = this.getTable();
+    return await table.remove(selector, options);
+  }
+  _ensureIndex = async ()=>{
+    if (disableAllWrites) return;
+    // TODO
+  }
   
   
   //TODO
@@ -61,12 +81,31 @@ export class MongoCollection<T extends DbObject> {
     return table.aggregate(pipeline, options);
   }
   rawCollection = () => ({
-    bulkWrite: async () => {
+    bulkWrite: async (operations, options) => {
+      if (disableAllWrites) return;
+      const table = this.getTable();
+      return await table.bulkWrite(operations, options);
       // TODO
     },
-    findOneAndUpdate: () => {
+    findOneAndUpdate: async (filter, update, options) => {
+      if (disableAllWrites) return;
+      const table = this.getTable();
+      return await table.findOneAndUpdate(filter, update, options);
       // TODO
-    }
+    },
+    dropIndex: async (indexName, options) => {
+      if (disableAllWrites) return;
+      const table = this.getTable();
+      await table.dropIndex(indexName, options);
+    },
+    indexes: async () => {
+      // TODO
+    },
+    update: async (selector, update, options) => {
+      if (disableAllWrites) return;
+      const table = this.getTable();
+      return await table.update(selector, update, options);
+    },
   })
 }
 
