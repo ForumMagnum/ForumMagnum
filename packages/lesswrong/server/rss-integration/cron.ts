@@ -8,6 +8,7 @@ import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 const runRSSImport = async () => {
   const feedparser = require('feedparser-promised');
   const feeds = RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
+  console.log(`Refreshing ${feeds.length} RSS feeds`);
   await asyncForeachSequential(feeds, async feed => {
     try {
       // create array of all posts in current rawFeed object
@@ -72,7 +73,7 @@ const runRSSImport = async () => {
       })
     } catch(error) {
       //eslint-disable-next-line no-console
-      console.error('RSS error: ', error, feed);
+      console.error(`RSS error when refreshing feed ${feed.url}: ${error}`);
     }
   })
 }
