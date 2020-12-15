@@ -9,8 +9,8 @@ import { getSchema } from '../../lib/utils/getSchema';
 // the site down otherwise. See `runThenSleep`.
 const DEFAULT_LOAD_FACTOR = 0.5;
 
-export const availableMigrations = {};
-export const migrationRunners = {};
+export const availableMigrations: Record<string,any> = {};
+export const migrationRunners: Record<string,any> = {};
 
 // Put migration functions in a dictionary Vulcan.migrations to make it
 // accessible in meteor shell, working around awkward inability to import
