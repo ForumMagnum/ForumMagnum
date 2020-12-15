@@ -42,9 +42,15 @@ export class MongoCollection<T extends DbObject> {
   }
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
     const table = this.getTable();
-    return await table.findOne(selector, {
-      ...options,
-    });
+    if (typeof selector === "string") {
+      return await table.findOne({_id: selector}, {
+        ...options,
+      });
+    } else {
+      return await table.findOne(selector, {
+        ...options,
+      });
+    }
   }
   insert = async (doc, options) => {
     if (disableAllWrites) return;
