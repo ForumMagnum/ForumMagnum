@@ -64,9 +64,10 @@ export class MongoCollection<T extends DbObject> {
     const table = this.getTable();
     return await table.remove(selector, options);
   }
-  _ensureIndex = async ()=>{
+  _ensureIndex = async (fieldOrSpec, options)=>{
     if (disableAllWrites) return;
-    // TODO
+    const table = this.getTable();
+    return await table.ensureIndex(fieldOrSpec, options);
   }
   
   
@@ -98,8 +99,9 @@ export class MongoCollection<T extends DbObject> {
       const table = this.getTable();
       await table.dropIndex(indexName, options);
     },
-    indexes: async () => {
-      // TODO
+    indexes: async (options) => {
+      const table = this.getTable();
+      return await table.indexes(options);
     },
     update: async (selector, update, options) => {
       if (disableAllWrites) return;
