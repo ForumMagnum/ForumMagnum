@@ -2,17 +2,10 @@
 // vulcan:users
 import './vulcan-users/index';
 
-// vulcan:accounts
-import './vulcan-accounts/index';
-
 // schema utils
 import './utils/schemaUtils'
 // Permissions
 import './permissions';
-
-// ## Accounts
-import './accounts/modify_accounts_ui';
-import './accounts/configuration';
 
 // ## Voting
 import './voting/voteTypes';

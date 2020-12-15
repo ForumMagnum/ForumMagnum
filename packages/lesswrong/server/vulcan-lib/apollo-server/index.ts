@@ -1,1 +1,2 @@
-import '../../../platform/current/server/apolloServer';
+export * '../../../platform/current/server/apolloServer';
+import './authentication';

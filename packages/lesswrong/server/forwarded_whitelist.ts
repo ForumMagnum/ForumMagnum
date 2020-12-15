@@ -21,12 +21,13 @@ if(forwardedWhitelist) {
 }
 
 export const ForwardedWhitelist = {
-  getClientIP: (connection) => {
-    if(whitelist[connection.clientAddress]) {
-      let forwarded = connection.httpHeaders["x-forwarded-for"].trim().split(/\s*,\s*/);
-      return forwarded[forwarded.length - (parseInt(process.env['HTTP_FORWARDED_COUNT']||"") || 0) - 1];
-    } else {
-      return connection.clientAddress;
-    }
+  getClientIP: (req) => {
+    // From: https://stackoverflow.com/a/19524949
+    const ip = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
+      req.connection.remoteAddress || 
+      req.socket.remoteAddress || 
+      req.connection.socket.remoteAddress
+    
+    return ip
   }
 }

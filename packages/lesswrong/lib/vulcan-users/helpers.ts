@@ -2,16 +2,11 @@ import { checkNested } from '../vulcan-lib/utils';
 import { mongoFindOne } from '../mongoQueries';
 import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
-import { meteorCurrentUserFromFiberContext } from '../../platform/current/lib/meteorAccounts';
 
 // Get a user
 export const getUser = async function(userOrUserId: DbUser|string|undefined): Promise<DbUser|null> {
   if (typeof userOrUserId === 'undefined') {
-    if (!meteorCurrentUserFromFiberContext()) {
-      throw new Error();
-    } else {
-      return meteorCurrentUserFromFiberContext();
-    }
+    throw new Error();
   } else if (typeof userOrUserId === 'string') {
     return await mongoFindOne("Users", userOrUserId);
   } else {

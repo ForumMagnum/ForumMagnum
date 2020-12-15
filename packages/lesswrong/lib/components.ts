@@ -1,8 +1,7 @@
 import '../components/alignment-forum/withSetAlignmentPost';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
-// vulcan:accounts
-import '../components/vulcan-accounts';
+
 import '../components/vulcan-core/vulcan-core-components';
 import { forumTypeSetting } from './instanceSettings';
 // vulcan:forms

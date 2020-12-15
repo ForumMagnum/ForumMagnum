@@ -169,10 +169,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", client, classes}: {
               </Link>
             }
             <Divider/>
-            <MenuItem onClick={() => {
-              captureEvent("logOutClicked")
-              meteorLogout(() => client.resetStore())
-            }}>
+            <MenuItem component="a" href="/logout">
               Log Out
             </MenuItem>
           </Paper>

@@ -9,7 +9,6 @@ import { addGraphQLCollection } from './graphql';
 import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
-import { meteorUsersCollection } from '../../platform/current/lib/meteorAccounts';
 
 // import { debug } from './debug';
 
@@ -72,10 +71,7 @@ export const createCollection = <
   } = options;
 
   // initialize new Mongo collection
-  const collection: CollectionBase<T> =
-    collectionName === 'Users' && meteorUsersCollection
-      ? meteorUsersCollection
-      : new MongoCollection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
+  const collection = new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true });
 
   // decorate collection with options
   collection.options = options as any;

@@ -23,7 +23,7 @@ import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playgr
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 //import { engineConfig } from './engine';
-import { computeContextFromReq } from '../../../server/vulcan-lib/apollo-server/context';
+import { computeContextFromReq, getUser } from '../../../server/vulcan-lib/apollo-server/context';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
@@ -43,11 +43,46 @@ import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
+import { createHash } from 'crypto'
+import passport from 'passport'
+import { Strategy as CustomStrategy } from 'passport-custom'
+import Users from '../../../lib/vulcan-users';
 import { DatabaseServerSetting } from '../../../server/databaseSettings';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
 const sentryRelease = sentryReleaseSetting.get()
+
+const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
+  const loginToken = req.cookies['loginToken'] || req.cookies['meteor_login_token'] // Backwards compatibility with meteor_login_token here
+  if (!loginToken) return done(null, false)
+  const user = await getUser(loginToken)
+  if (!user) return done(null, false)
+  done(null, user)
+})
+
+async function deserializeUserPassport(id, done) {
+  const user = await Users.findOne({_id: id})
+  if (!user) done()
+  done(null, user)
+}
+
+passport.serializeUser((user, done) => done(null, user._id))
+passport.deserializeUser(deserializeUserPassport)
+
+export function hashLoginToken(loginToken) {
+  const hash = createHash('sha256');
+  hash.update(loginToken);
+  return hash.digest('base64');
+};
+
+export function tokenExpiration(when) {
+  const LOGIN_UNEXPIRING_TOKEN_DAYS = 365 * 100;
+  const tokenLifetimeMs = LOGIN_UNEXPIRING_TOKEN_DAYS * 24 * 60 * 60 * 1000
+  // We pass when through the Date constructor for backwards compatibility;
+  // `when` used to be a number.
+  return new Date((new Date(when)).getTime() + tokenLifetimeMs);
+}
 
 const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
 const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
@@ -69,108 +104,44 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
   console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
 }
 
-// Middleware for assigning a client ID, if one is not currently assigned.
-// Since Meteor doesn't have an API for setting cookies, this calls setHeader
-// on the HTTP response directly; if other middlewares also want to set
-// cookies, they won't necessarily play nicely together.
-const addClientIdMiddleware = (req, res, next) => {
-  if (!req.cookies.clientId) {
-    const newClientId = randomId();
-    req.cookies.clientId = newClientId;
-    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
-  }
-  
-  next();
-};
-
-const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlewareOptions) => {
-  // IMPORTANT: order matters !
-  // 1 - Add request parsing middleware
-  // 2 - Add apollo specific middlewares
-  // 3 - CLOSE CONNEXION (otherwise the endpoint hungs)
-  // 4 - ONLY THEN you can start adding other middlewares (graphql voyager etc.)
-
-  // WebApp.connectHandlers is a connect server
-  // you can add middlware as usual when using Express/Connect
-
-  // parse cookies and assign req.universalCookies object
-  WebApp.connectHandlers.use(universalCookiesMiddleware());
-  WebApp.connectHandlers.use(addClientIdMiddleware);
-
-  // parse request (order matters)
-  WebApp.connectHandlers.use(
-    config.path,
-    bodyParser.json({ limit: '50mb' })
-  );
-  WebApp.connectHandlers.use(config.path, bodyParser.text({ type: 'application/graphql' }));
-  if (stripePrivateKey && stripe) {
-    WebApp.connectHandlers.use('/create-session', async (req, res) => {
-      if (req.method === "POST") {
-        const redirectTarget = stripeURLRedirect.get()
-        const session = await stripe.checkout.sessions.create({
-          payment_method_types: ['card'],
-          shipping_address_collection: {
-            allowed_countries: [
-              // European Countries: https://www.europeancuisines.com/Europe-European-Two-Letter-Country-Code-Abbreviations
-              'AL', 'AD', 'AM', 'AT', 'BY', 'BE', 'BA', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GI', 'GR', 'HU', 'HR', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NO', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'TR', 'UA', 'VA', 'PL',
-              // North American Countries
-              'US', 'MX', 'CA',
-              // Oceania Countries
-              'AU', 'NZ',
-              // Israel (Maybe shippable via Amazon North America?)
-              'IL'
-            ]
-          },
-          line_items: [
-            {
-              price_data: {
-                currency: 'usd',
-                product_data: {
-                  name: 'A Map That Reflects the Territory',
-                  images: ['https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606805322/w_1966_jahgq7.png'],
-                },
-                unit_amount: 2900,
-              },
-              quantity: 1,
+const stripeMiddleware = async (req, res) => {
+  if (req.method === "POST") {
+    const redirectTarget = stripeURLRedirect.get()
+    const session = await stripe!.checkout.sessions.create({
+      payment_method_types: ['card'],
+      shipping_address_collection: {
+        allowed_countries: [
+          // European Countries: https://www.europeancuisines.com/Europe-European-Two-Letter-Country-Code-Abbreviations
+          'AL', 'AD', 'AM', 'AT', 'BY', 'BE', 'BA', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GI', 'GR', 'HU', 'HR', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NO', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'TR', 'UA', 'VA', 'PL',
+          // North American Countries
+          'US', 'MX', 'CA',
+          // Oceania Countries
+          'AU', 'NZ',
+          // Israel (Maybe shippable via Amazon North America?)
+          'IL'
+        ]
+      },
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'A Map That Reflects the Territory',
+              images: ['https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606805322/w_1966_jahgq7.png'],
             },
-          ],
-          mode: 'payment',
-          success_url: `${redirectTarget}?success=true`,
-          cancel_url: `${redirectTarget}?canceled=true`,
-        });
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ id: session.id }));
-      }
-    })
+            unit_amount: 2900,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${redirectTarget}?success=true`,
+      cancel_url: `${redirectTarget}?canceled=true`,
+    });
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ id: session.id }));
   }
-  
-
-  // Provide the Meteor WebApp Connect server instance to Apollo
-  // Apollo will use it instead of its own HTTP server when handling requests
-
-  //   For the list of already set middlewares (cookies, compression...), see:
-  //  @see https://github.com/meteor/meteor/blob/master/packages/webapp/webapp_server.js
-  apolloServer.applyMiddleware({
-    ...apolloApplyMiddlewareOptions,
-  });
-
-  // setup the end point otherwise the request hangs
-  // TODO: undestand why this is necessary
-  // @see
-  WebApp.connectHandlers.use(config.path, (req, res) => {
-    if (req.method === 'GET') {
-      res.end();
-    }
-  });
-};
-
-const setupToolsMiddlewares = config => {
-  // Voyager is a GraphQL schema visual explorer
-  // available on /voyager as a default
-  WebApp.connectHandlers.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
-  // Setup GraphiQL
-  WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
-};
+}
 
 onStartup(() => {
   // Vulcan specific options
@@ -187,6 +158,47 @@ onStartup(() => {
     path: config.path,
     app: WebApp.connectHandlers,
   };
+  
+  WebApp.connectHandlers.use(universalCookiesMiddleware());
+  WebApp.connectHandlers.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
+  WebApp.connectHandlers.use(passport.initialize())
+  if (stripePrivateKey && stripe) {
+    WebApp.connectHandlers.use(stripeMiddleware);
+  }
+
+  passport.use(cookieAuthStrategy)
+  WebApp.connectHandlers.use('/', (req, res, next) => {
+    passport.authenticate('custom', (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logIn(user, (err) => {
+        if (err) return next(err)
+        next()
+      })
+    })(req, res, next) 
+  })
+
+
+  WebApp.connectHandlers.use('/logout', (req, res, next) => {
+    passport.authenticate('custom', (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logOut()
+
+      // The accepted way to delete a cookie is to set an expiration date in the past.
+      if (req.cookies['meteor_login_token']) {
+        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
+      }
+      if (req.cookies.loginToken) {
+        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
+      }
+      
+      
+      res.statusCode=302;
+      res.setHeader('Location','/');
+      return res.end();
+    })(req, res, next) 
+  })
 
   // define executableSchema
   createVoteableUnionType();
@@ -214,7 +226,7 @@ onStartup(() => {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: ({ req }) => computeContextFromReq(req),
+    context: ({ req, res }) => computeContextFromReq(req, res),
   });
   
   WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
@@ -222,10 +234,48 @@ onStartup(() => {
   
   // NOTE: order matters here
   // /graphql middlewares (request parsing)
-  setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);
-  //// other middlewares (dev tools etc.)
-  // LW: Made available in production environment
-  setupToolsMiddlewares(config);
+  // IMPORTANT: order matters !
+  // 1 - Add request parsing middleware
+  // 2 - Add apollo specific middlewares
+  // 3 - Close connection (otherwise connection gets stuck)
+  // 4 - ONLY THEN you can start adding other middlewares (graphql voyager etc.)
+
+  // WebApp.connectHandlers is a connect server
+  // you can add middlware as usual when using Express/Connect
+
+  // parse cookies and assign req.universalCookies object
+  
+
+  // parse request (order matters)
+  WebApp.connectHandlers.use(
+    config.path,
+    bodyParser.json({ limit: '50mb' })
+  );
+  WebApp.connectHandlers.use(config.path, bodyParser.text({ type: 'application/graphql' }));
+
+  // Provide the Meteor WebApp Connect server instance to Apollo
+  // Apollo will use it instead of its own HTTP server when handling requests
+
+  //   For the list of already set middlewares (cookies, compression...), see:
+  //  @see https://github.com/meteor/meteor/blob/master/packages/webapp/webapp_server.js
+  apolloServer.applyMiddleware({
+    ...apolloApplyMiddlewareOptions,
+  });
+
+  // setup the end point otherwise the request hangs
+  // TODO: undestand why this is necessary
+  // @see
+  WebApp.connectHandlers.use(config.path, (req, res) => {
+    if (req.method === 'GET') {
+      res.end();
+    }
+  });
+
+  // Voyager is a GraphQL schema visual explorer
+  // available on /voyager as a default
+  WebApp.connectHandlers.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
+  // Setup GraphiQL
+  WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
   
   // init the application components and routes, including components & routes from 3rd-party packages
   populateComponentsApp();
