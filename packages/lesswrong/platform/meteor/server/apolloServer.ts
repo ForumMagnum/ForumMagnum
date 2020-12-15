@@ -105,9 +105,9 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 }
 
 const stripeMiddleware = async (req, res) => {
-  if (req.method === "POST") {
+  if (req.method === "POST" && stripe) {
     const redirectTarget = stripeURLRedirect.get()
-    const session = await stripe!.checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       shipping_address_collection: {
         allowed_countries: [

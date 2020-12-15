@@ -122,7 +122,7 @@ const makePageRenderer = async sink => {
 // Since Meteor doesn't have an API for setting cookies, this calls setHeader
 // on the HTTP response directly; if other middlewares also want to set
 // cookies, they won't necessarily play nicely together.
-webAppConnectHandlersUse(function addClientId(req, res, next) {
+WebApp.connectHandlers.use(function addClientId(req, res, next) {
   if (!req.cookies.clientId) {
     const newClientId = randomId();
     req.cookies.clientId = newClientId;

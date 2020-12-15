@@ -17,6 +17,7 @@ esbuild.buildSync({
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
     "mathjax", "mathjax-node", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
     "apollo-server", "apollo-server-express", "graphql",
+    "bcrypt", "node-pre-gyp",
   ],
 })
 

@@ -8,7 +8,7 @@ import { addGraphQLMutation, logoUrlSetting } from "../../../lib/vulcan-lib";
 import { ForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
-import { hashLoginToken } from "./apollo_server";
+import { hashLoginToken } from "../../../platform/current/server/apolloServer";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 
@@ -145,7 +145,7 @@ async function insertHashedLoginToken(userId, hashedToken) {
     hashedToken
   }
 
-  Users.update({_id: userId}, {
+  await Users.update({_id: userId}, {
     $addToSet: {
       "services.resume.loginTokens": tokenWithMetadata
     }

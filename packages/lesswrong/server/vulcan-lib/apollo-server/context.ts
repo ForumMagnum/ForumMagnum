@@ -19,7 +19,7 @@ import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
-import { hashLoginToken, tokenExpiration } from './apollo_server';
+import { hashLoginToken, tokenExpiration } from '../../../platform/current/server/apolloServer';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {

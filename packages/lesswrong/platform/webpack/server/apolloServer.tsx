@@ -144,7 +144,7 @@ onStartup(() => {
       return response.end(getMergedStylesheet().css);
     }
 
-    const renderResult = await renderRequest({req: request, user: null, startTime: new Date()})
+    const renderResult = await renderRequest({req: request, res: response, user: null, startTime: new Date()})
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
 
