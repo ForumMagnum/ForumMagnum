@@ -43,7 +43,6 @@ import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
-import { createHash } from 'crypto'
 import passport from 'passport'
 import { Strategy as CustomStrategy } from 'passport-custom'
 import Users from '../../../lib/vulcan-users';
@@ -70,24 +69,24 @@ async function deserializeUserPassport(id, done) {
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
-export function hashLoginToken(loginToken) {
-  const hash = createHash('sha256');
-  hash.update(loginToken);
-  return hash.digest('base64');
-};
-
-export function tokenExpiration(when) {
-  const LOGIN_UNEXPIRING_TOKEN_DAYS = 365 * 100;
-  const tokenLifetimeMs = LOGIN_UNEXPIRING_TOKEN_DAYS * 24 * 60 * 60 * 1000
-  // We pass when through the Date constructor for backwards compatibility;
-  // `when` used to be a number.
-  return new Date((new Date(when)).getTime() + tokenLifetimeMs);
-}
-
 const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
 const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
 const stripePrivateKey = stripePrivateKeySetting.get()
 const stripe = stripePrivateKey && new Stripe(stripePrivateKey, {apiVersion: '2020-08-27'})
+
+// Middleware for assigning a client ID, if one is not currently assigned.
+// Since Meteor doesn't have an API for setting cookies, this calls setHeader
+// on the HTTP response directly; if other middlewares also want to set
+// cookies, they won't necessarily play nicely together.
+WebApp.connectHandlers.use(function addClientId(req, res, next) {
+  if (!req.cookies.clientId) {
+    const newClientId = randomId();
+    req.cookies.clientId = newClientId;
+    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
+  }
+  
+  next();
+}, {order: 100});
 
 if (sentryUrl && sentryEnvironment && sentryRelease) {
   Sentry.init({

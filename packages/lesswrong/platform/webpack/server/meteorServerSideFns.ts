@@ -20,3 +20,5 @@ export function addPickerRoute(url: string, handler: any) {
   // TODO
 }
 
+
+export const sendVerificationEmail = (userId) => console.log("This should eventually send a verificatin email")

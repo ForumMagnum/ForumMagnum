@@ -8,7 +8,7 @@ export const setDatabaseConnection = (_client, _db) => {
 }
 export const getDatabase = () => db;
 
-const disableAllWrites = true;
+const disableAllWrites = false;
 
 export class MongoCollection<T extends DbObject> {
   tableName: string

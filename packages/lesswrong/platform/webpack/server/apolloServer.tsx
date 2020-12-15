@@ -7,6 +7,7 @@
 // use apollo-server-express integration
 //import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
 import { renderRequest } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
@@ -21,7 +22,7 @@ import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-li
 import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq, computeContextFromUser } from '../../../server/vulcan-lib/apollo-server/context';
+import { computeContextFromReq, getUser, getUserFromReq } from '../../../server/vulcan-lib/apollo-server/context';
 
 import { Components, populateComponentsApp } from '../../../lib/vulcan-lib/components';
 
@@ -48,7 +49,10 @@ import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache';
 import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
-
+import passport from 'passport'
+import { Strategy as CustomStrategy } from 'passport-custom'
+import Users from '../../../lib/vulcan-users';
+import { DatabaseServerSetting } from '../../../server/databaseSettings';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -69,6 +73,23 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
   console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
 }
 
+const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
+  const loginToken = req.universalCookies.get('loginToken') || req.universalCookies.get('meteor_login_token') // Backwards compatibility with meteor_login_token here
+  if (!loginToken) return done(null, false)
+  const user = await getUser(loginToken)
+  if (!user) return done(null, false)
+  done(null, user)
+})
+
+async function deserializeUserPassport(id, done) {
+  const user = await Users.findOne({_id: id})
+  if (!user) done()
+  done(null, user)
+}
+
+passport.serializeUser((user, done) => done(null, user._id))
+passport.deserializeUser(deserializeUserPassport)
+
 
 export const setupToolsMiddlewares = config => {
   // Voyager is a GraphQL schema visual explorer
@@ -79,6 +100,9 @@ export const setupToolsMiddlewares = config => {
 };
 
 export const app = express();
+
+passport.serializeUser((user, done) => done(null, user._id))
+passport.deserializeUser(deserializeUserPassport)
 
 onStartup(() => {
   // Vulcan specific options
@@ -96,6 +120,44 @@ onStartup(() => {
     // app: WebApp.connectHandlers,
   };
 
+  app.use(universalCookiesMiddleware());
+  app.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
+  app.use(passport.initialize())
+
+  passport.use(cookieAuthStrategy)
+  app.use('/', (req, res, next) => {
+    passport.authenticate('custom', (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logIn(user, (err) => {
+        if (err) return next(err)
+        next()
+      })
+    })(req, res, next) 
+  })
+
+
+  app.use('/logout', (req, res, next) => {
+    passport.authenticate('custom', (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logOut()
+
+      // The accepted way to delete a cookie is to set an expiration date in the past.
+      if (req.universalCookies.get('meteor_login_token')) {
+        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
+      }
+      if (req.universalCookies.get('loginToken')) {
+        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
+      }
+      
+      
+      res.statusCode=302;
+      res.setHeader('Location','/');
+      return res.end();
+    })(req, res, next) 
+  })
+
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
@@ -112,7 +174,6 @@ onStartup(() => {
     //engine: engineConfig,
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
-      console.log("In ApolloServer.formatError");
       Sentry.captureException(e);
       // eslint-disable-next-line no-console
       console.error(e?.extensions?.exception)
@@ -123,7 +184,7 @@ onStartup(() => {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: ({ req }) => computeContextFromReq(req),
+    context: ({ req, res }) => computeContextFromReq(req, res),
   });
 
   apolloServer.applyMiddleware({ app })
@@ -144,7 +205,8 @@ onStartup(() => {
       return response.end(getMergedStylesheet().css);
     }
 
-    const renderResult = await renderRequest({req: request, res: response, user: null, startTime: new Date()})
+    const user = await getUserFromReq(request);
+    const renderResult = await renderRequest({req: request, res: response, user, startTime: new Date()})
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
 

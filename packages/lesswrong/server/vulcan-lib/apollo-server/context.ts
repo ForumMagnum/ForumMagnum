@@ -10,7 +10,7 @@
  * @see https://github.com/apollographql/apollo-server/issues/420
  */
 
-import Sentry from '@sentry/node';
+import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
 import Cookies from 'universal-cookie';
 import { userIdentifiedCallback } from '../../../lib/analyticsEvents';
@@ -19,7 +19,7 @@ import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
-import { hashLoginToken, tokenExpiration } from '../../../platform/current/server/apolloServer';
+import { hashLoginToken, tokenExpiration } from '../../loginTokens';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -59,7 +59,7 @@ const setupAuthToken = async (user: DbUser|null): Promise<{
   currentUser: DbUser|null,
 }> => {
   if (user) {
-    Sentry.configureScope(scope => {
+    configureScope(scope => {
       scope.setUser({
         id: user._id,
         email: user.email,

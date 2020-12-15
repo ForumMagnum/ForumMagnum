@@ -8,7 +8,7 @@ import { addGraphQLMutation, logoUrlSetting } from "../../../lib/vulcan-lib";
 import { ForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
-import { hashLoginToken } from "../../../platform/current/server/apolloServer";
+import { hashLoginToken } from "../../loginTokens";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 

@@ -8,7 +8,7 @@ import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { sendVerificationEmail } from '../../platform/current/lib/meteorAccounts';
+import { sendVerificationEmail } from '../../platform/current/server/meteorServerSideFns';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50

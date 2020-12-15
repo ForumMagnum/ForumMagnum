@@ -16,3 +16,5 @@ export function initMeteorhacksPickerMiddleware() {
 export function addPickerRoute(url: string, handler: any) {
   Picker.route(url, handler);
 }
+
+export const sendVerificationEmail = (userId) => console.log("This should eventually send a verificatin email")
