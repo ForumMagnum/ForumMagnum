@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import { randomId } from './random';
 
 let client: any = null;
 let db: any = null;
@@ -55,6 +56,9 @@ export class MongoCollection<T extends DbObject> {
   insert = async (doc, options) => {
     if (disableAllWrites) return;
     // TODO: Maybe add _id field here if missing?
+    if (!doc._id) {
+      doc._id = randomId();
+    }
     const table = this.getTable();
     const insertResult = await table.insert(doc, options);
     return insertResult.insertedIds[0];
