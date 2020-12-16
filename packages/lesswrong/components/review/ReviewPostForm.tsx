@@ -81,7 +81,7 @@ const ReviewPostForm = ({classes, post, onClose}: {
   post: PostsList,
   onClose: ()=>void,
 }) => {
-  // const { CommentsNewForm } = Components 
+  const { CommentsNewForm } = Components 
   const [ showPrompt, setShowPrompt ] = useState(true)
 
   return <Paper className={classes.root}>
@@ -107,10 +107,10 @@ const ReviewPostForm = ({classes, post, onClose}: {
       </div>
     </div>
     <div className={classes.editor}>
-      <div className={classes.guidelines}>
+      {/* <div className={classes.guidelines}>
         Review Submission deactivated until Reviews open on Dec 15.
-      </div>
-      {/* <CommentsNewForm
+      </div> */}
+      <CommentsNewForm
         post={post}
         padding={false}
         successCallback={onClose}
@@ -123,7 +123,7 @@ const ReviewPostForm = ({classes, post, onClose}: {
         prefilledProps={{
           reviewingForReview: "2019"
         }}
-      /> */}
+      />
     </div>
   </Paper>
 }
