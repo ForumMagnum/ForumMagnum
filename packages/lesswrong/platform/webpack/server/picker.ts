@@ -40,24 +40,24 @@ class PickerImp {
     this.middlewares = [];
   }
 
-  middleware = function(callback) {
+  middleware = (callback) => {
     this.middlewares.push(callback);
   };
 
-  route = function(path, callback) {
-    var regExp = pathToRegexp(path);
+  route = (path, callback) => {
+    var regExp: any = pathToRegexp(path);
     regExp.callback = callback;
     this.routes.push(regExp);
     return this;
   };
   
-  filter = function(callback) {
+  filter = (callback) => {
     var subRouter = new PickerImp(callback);
     this.subRouters.push(subRouter);
     return subRouter;
   };
   
-  _dispatch = function(req, res, bypass) {
+  _dispatch = (req, res, bypass) => {
     var self = this;
     var currentRoute = 0;
     var currentSubRouter = 0;
@@ -107,8 +107,8 @@ class PickerImp {
     }
   };
   
-  _buildParams = function(keys, m) {
-    var params = {};
+  _buildParams = (keys, m) => {
+    var params: any = {};
     for(var lc=1; lc<m.length; lc++) {
       var key = keys[lc-1].name;
       var value = m[lc];
@@ -118,7 +118,7 @@ class PickerImp {
     return params;
   };
   
-  _processRoute = function(callback, params, req, res, next) {
+  _processRoute = (callback, params, req, res, next) => {
     doCall();
   
     function doCall () {
@@ -126,7 +126,7 @@ class PickerImp {
     }
   };
   
-  _processMiddleware = function(middleware, req, res, next) {
+  _processMiddleware = (middleware, req, res, next) => {
     doCall();
   
     function doCall() {
@@ -135,7 +135,7 @@ class PickerImp {
   };
 }
 
-export const Picker = new PickerImp();
+export const Picker = new PickerImp(null);
 export const pickerMiddleware = function(req, res, next) {
   Picker._dispatch(req, res, next);
 }
