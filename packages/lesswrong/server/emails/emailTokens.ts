@@ -1,8 +1,9 @@
-import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from '../vulcan-lib';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailTokens } from '../../lib/collections/emailTokens/collection';
 import { randomSecret } from '../../lib/random';
 import Users from '../../lib/collections/users/collection';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
+import { updateMutator } from '../vulcan-lib/mutators';
 
 let emailTokenTypesByName = {};
 
@@ -48,9 +49,9 @@ export class EmailTokenType
     return `${prefix}/emailToken/${token}`;
   }
   
-  handleToken = async (token) => {
+  handleToken = async (token, args) => {
     const user = await Users.findOne({_id: token.userId});
-    const actionResult = await this.onUseAction(user, token.params);
+    const actionResult = await this.onUseAction(user, token.params, args);
     return {
       componentName: this.resultComponentName,
       props: {...actionResult}
@@ -58,26 +59,46 @@ export class EmailTokenType
   }
 }
 
+async function getAndValidateToken(token) {
+  const results = await EmailTokens.find({ token }).fetch();
+  if (results.length != 1)
+    throw new Error("Invalid email token");
+  const tokenObj = results[0];
+  
+  if (!(tokenObj.tokenType in emailTokenTypesByName))
+    throw new Error("Email token has invalid type");
+  
+  const tokenType = emailTokenTypesByName[tokenObj.tokenType];
+  
+  if (tokenObj.usedAt && !tokenType.reusable)
+    throw new Error("This email link has already been used.");
+  
+  return { tokenObj, tokenType }
+}
 
-addGraphQLMutation('useEmailToken(token: String): JSON');
+addGraphQLMutation('useEmailToken(token: String, args: JSON): JSON');
+addGraphQLQuery('getTokenParams(token: String): JSON');
 addGraphQLResolvers({
-  Mutation: {
-    async useEmailToken(root, {token}, context: ResolverContext) {
+  Query: {
+    async getTokenParams(root, { token }, context: ResolverContext) {
       try {
-        const results = await EmailTokens.find({ token }).fetch();
-        if (results.length != 1)
-          throw new Error("Invalid email token");
-        const tokenObj = results[0];
+        const { tokenObj, tokenType } = await getAndValidateToken(token)
+        return {
+          params: tokenObj.params
+        }
+      } catch(err) {
+        return {
+          error: err.message 
+        }
+      }
+    }
+  },
+  Mutation: {
+    async useEmailToken(root, {token, args}, context: ResolverContext) {
+      try {
+        const { tokenObj, tokenType } = await getAndValidateToken(token)
         
-        if (!(tokenObj.tokenType in emailTokenTypesByName))
-          throw new Error("Email token has invalid type");
-        
-        const tokenType = emailTokenTypesByName[tokenObj.tokenType];
-        
-        if (tokenObj.usedAt && !tokenType.reusable)
-          throw new Error("This email link has already been used.");
-        
-        const resultProps = await tokenType.handleToken(tokenObj);
+        const resultProps = await tokenType.handleToken(tokenObj, args);
         await updateMutator({
           collection: EmailTokens,
           documentId: tokenObj._id,

@@ -135,7 +135,7 @@ const schema: SchemaType<DbUser> = {
     type: Object,
     optional: true,
     blackbox: true,
-    canRead: ownsOrIsAdmin,
+    canRead: ownsOrIsAdmin
   },
   /**
     The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
@@ -149,7 +149,7 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     order: 10,
     onCreate: ({ document: user }) => {
-      return createDisplayName(user);
+      return user.displayName || createDisplayName(user);
     },
   },
   /**

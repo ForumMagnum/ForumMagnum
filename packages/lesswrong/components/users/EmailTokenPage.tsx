@@ -1,7 +1,8 @@
-import React, {Component} from 'react';
+import React, {Component, useEffect, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withMutation } from '../../lib/crud/withMutation';
-import { withLocation } from '../../lib/routeUtil';
+import { useNamedMutation, withMutation } from '../../lib/crud/withMutation';
+import { useLocation, withLocation } from '../../lib/routeUtil';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 type ComponentNameAndProps = { componentName: string, props: Record<string,any> };
 interface EmailTokenPageProps extends WithLocationProps {
@@ -12,44 +13,41 @@ interface EmailTokenPageState {
   useTokenResult: ComponentNameAndProps|null,
 }
 
-class EmailTokenPage extends Component<EmailTokenPageProps,EmailTokenPageState>
-{
-  state: EmailTokenPageState = {
-    loading: true,
-    useTokenResult: null
-  };
-  
-  componentDidMount() {
-    const { params } = this.props.location;
-    const { token } = params;
-    this.props.useEmailToken({token}).then((mutationResult) => {
-      this.setState({
-        loading: false,
-        useTokenResult: mutationResult.data.useEmailToken,
-      });
-    });
-  }
-  
-  render = () => {
-    const { loading, useTokenResult } = this.state;
-    if (loading || useTokenResult===null) {
-      return <Components.Loading/>
-    } else {
-      const ResultComponent = Components[useTokenResult.componentName];
-      return <ResultComponent {...useTokenResult.props}/>
+const getTokenParamsQuery = gql`
+  query getTokenParams($token: String) {
+    getTokenParams(token: $token) {
+      params
     }
   }
+`
+
+const EmailTokenPage = () => {
+  const { Loading } = Components
+  const [useTokenResult, setUseTokenResult] = useState<any>(null)
+  const { params: { token } } = useLocation()
+  const { mutate: useEmailTokenMutation, loading: useEmailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
+  const { data: tokenParams, loading } = useQuery(getTokenParamsQuery)
+
+  useEffect(() => {
+    useEmailTokenMutation({token}).then(mutationResult => {
+      setUseTokenResult(mutationResult.data.useEmailToken)
+    })
+  }, [])
+  
+  if (loading || useEmailTokenLoading) return <Loading />
+  const handlerComponentName = tokenParams?.getTokenParams?.params?.handlerComponentName
+  if (handlerComponentName) {
+    const HandlerComponent = Components[handlerComponentName]
+    return <HandlerComponent params={tokenParams} token={token}/>
+  } 
+  if (useTokenResult) {
+    const ResultComponent = Components[useTokenResult.componentName];
+    return <ResultComponent {...useTokenResult.props}/>
+  }
+  return null
 }
 
-const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage, {
-  hocs: [
-    withLocation,
-    withMutation({
-      name: "useEmailToken",
-      args: {token: 'String'}
-    })
-  ]
-});
+const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage);
 
 declare global {
   interface ComponentTypes {
