@@ -75,7 +75,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
   }
 
   initializePlugins = (isClient, commentEditor) => {
-    const linkPlugin = createLinkPlugin();
+    const linkPlugin = createLinkPlugin({});
     const alignmentPlugin = createAlignmentPlugin();
     const focusPlugin = createFocusPlugin();
     const resizeablePlugin = createResizeablePlugin();
