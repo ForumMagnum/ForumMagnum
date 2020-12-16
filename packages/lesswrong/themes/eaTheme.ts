@@ -154,13 +154,6 @@ const theme = createLWTheme({
         padding: ".7rem",
       }
     },
-    Layout: {
-      main: {
-        '@media (max-width: 959.95px)': {
-          marginTop: 36,
-        }
-      }
-    },
     Header: {
       root: {
         height: 90,
