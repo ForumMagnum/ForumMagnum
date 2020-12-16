@@ -69,6 +69,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16,
     color: theme.palette.grey[700],
     display: "flex",
+    flexWrap: "wrap",
     '& svg': {
       height: 20,
       width: 20,
@@ -81,6 +82,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     marginRight: 16
+  },
+  buttonLabel: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   ctaPositioning: {
     display: "flex",
@@ -101,16 +107,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle
   },
   callToAction: {
-    fontStyle: 'italic'
+    display: "flex",
+    alignItems: "center",
+    marginLeft: "auto",
+    fontStyle: 'italic',
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   callToActionFlagCount: {
-    // fontSize: ".9em",
     position: "relative",
     marginLeft: 4,
     marginRight: 0
-  },
-  callToActionTooltip: {
-    
   }
 });
 
@@ -204,12 +212,6 @@ const TagPage = ({classes}: {
   }
   
   const numFlags = tag.tagFlagsIds?.length
-  const improvementCall =  <span className={classes.callToAction}>
-    Help improve this page{/*
-    */}<span className={classes.callToActionFlagCount}>{
-      !!numFlags&&`(${numFlags} flags)`}
-    </span>
-  </span>
   
   return <AnalyticsContext
     pageContext='tagPage'
@@ -254,26 +256,27 @@ const TagPage = ({classes}: {
                 ev.preventDefault();
               }
             } }>
-              <EditOutlinedIcon /> Edit
+              <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
             </a>} 
             {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
-              <HistoryIcon /> History
+              <HistoryIcon /><span className={classes.buttonLabel}>History</span>
             </Link>}
             {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
               <SubscribeTo
                 document={tag}
                 className={classes.subscribeTo}
                 showIcon
+                hideLabelOnMobile
                 subscribeMessage="Subscribe"
                 unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             </LWTooltip>}
-            <div className={classes.buttonRow}>
-              <TagDiscussionButton tag={tag} />
+            <div className={classes.button}>
+              <TagDiscussionButton tag={tag} hideLabelOnMobile />
             </div>
-            <div className={classes.ctaPositioning}>
-              <LWTooltip className={classes.callToActionTooltip}
+            <div className={classes.callToAction}>
+              <LWTooltip
                 title={ tag.tagFlagsIds?.length > 0 ? 
                   <div>
                     {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
@@ -291,7 +294,9 @@ const TagPage = ({classes}: {
                   })
                   ev.preventDefault();
                 }}>
-                  {improvementCall}
+                  <span className={classes.callToAction}> Help improve this page{/*
+                  */}<span className={classes.callToActionFlagCount}>{!!numFlags&&`(${numFlags} flags)`}</span>
+                  </span>
                 </a> 
               </LWTooltip>
             </div>
