@@ -66,7 +66,7 @@
     "@types/node-fetch": "^2.5.6",
     "@types/papaparse": "^5.0.3",
     "@types/pg": "^7.14.3",
-    "@types/qs": "^6.9.1",
+    "@types/qs": "6.9.1",
     "@types/react": "16.8.0",
     "@types/react-autosuggest": "^9.3.13",
     "@types/react-dom": "^16.9.6",
