@@ -8,6 +8,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     marginBottom: 10,
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: 4
   },
   checkbox: {
     paddingLeft: 0,
@@ -24,14 +28,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SignupSubscribeToCurated = ({ defaultValue, onChange, id, classes }: {
+const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,
   onChange: any,
-  id: string,
   classes: ClassesType,
 }) => {
   const [checked, setChecked] = useState(defaultValue);
-  return <div key={id} className={classes.root}>
+  return <div className={classes.root}>
     <Checkbox
       checked={checked}
       className={classes.checkbox}
