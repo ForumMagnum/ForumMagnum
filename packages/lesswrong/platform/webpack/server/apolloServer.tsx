@@ -237,7 +237,7 @@ onStartup(() => {
   // setupToolsMiddlewares(config);
 
   // Start Server
-  const port = process.env.PORT || 4000
+  const port = process.env.PORT || 3000
   const env = process.env.NODE_ENV || 'production'
   app.listen({ port }, () => {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
