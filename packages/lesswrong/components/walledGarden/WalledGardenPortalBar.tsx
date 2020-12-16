@@ -90,8 +90,8 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
         </div>
       </div>}
       {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
-        <GardenCodesList/>
-        <GardenCodesList personal/>
+        <GardenCodesList terms={{view: "semipublicGardenCodes", types:  currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']}}/>
+        <GardenCodesList terms={{view: "usersPrivateGardenCodes"}}/>
       </div>}
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
