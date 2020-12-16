@@ -8,6 +8,7 @@ import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 const runRSSImport = async () => {
   const feedparser = require('feedparser-promised');
   const feeds = RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
+  // eslint-disable-next-line no-console
   console.log(`Refreshing ${feeds.length} RSS feeds`);
   await asyncForeachSequential(feeds, async feed => {
     try {
