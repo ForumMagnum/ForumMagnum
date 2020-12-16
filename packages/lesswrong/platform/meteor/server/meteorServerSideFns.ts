@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { ForwardedWhitelist } from '../../../server/forwarded_whitelist';
 import { Email } from 'meteor/email';
 import { Picker } from 'meteor/meteorhacks:picker'
 import cookieParser from 'cookie-parser'

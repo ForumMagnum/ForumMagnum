@@ -6,7 +6,7 @@ import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { addGraphQLMutation, logoUrlSetting } from "../../../lib/vulcan-lib";
-import { ForwardedWhitelist } from "../../forwarded_whitelist";
+import { getForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
 import { hashLoginToken } from "../../loginTokens";
@@ -161,7 +161,7 @@ function registerLoginEvent(user, req) {
     userId: user._id,
     properties: {
       type: 'passport-login',
-      ip: ForwardedWhitelist.getClientIP(req),
+      ip: getForwardedWhitelist().getClientIP(req),
       userAgent: req.headers['user-agent'],
       referrer: req.headers['referer']
     }
