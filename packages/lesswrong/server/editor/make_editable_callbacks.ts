@@ -59,6 +59,8 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
         captureException(new Error(errorMessage));
         // eslint-disable-next-line no-console
         console.error(errorMessage);
+        finished = true;
+        resolve(html);
       }
     }, 10000);
     
