@@ -40,11 +40,13 @@ GardenCodes.addDefaultView(terms => {
 ensureIndex(GardenCodes, {code:1, deleted: 1});
 ensureIndex(GardenCodes, {userId:1, deleted: 1});
 
-GardenCodes.addView("userGardenCodes", function (terms) {
+GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
-    selector: { 
-      startTime: {$gt: twoHoursAgo }
+    selector: {
+      // userId: terms.userId,
+      type: 'private',
+      $or: [{startTime: {$gt: twoHoursAgo }}, {endTime: {$gt: new Date()}}]
     }
   }
 })
@@ -55,7 +57,7 @@ GardenCodes.addView("semipublicGardenCodes", function (terms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
     selector: { 
-      startTime: {$gt: twoHoursAgo }
+      $or: [{startTime: {$gt: twoHoursAgo }}, {endTime: {$gt: new Date()}}]
     }
   }
 })
