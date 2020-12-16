@@ -82,6 +82,7 @@
     "draft-js-alignment-plugin": "^2.0.3",
     "draft-js-anchor-plugin": "^2.0.2",
     "draft-js-block-breakout-plugin": "^2.0.1",
+    "draft-js-buttons": "2.0.1",
     "draft-js-divider-plugin": "^0.1.1",
     "draft-js-focus-plugin": "^2.1.0",
     "draft-js-image-plugin": "^2.0.5",
