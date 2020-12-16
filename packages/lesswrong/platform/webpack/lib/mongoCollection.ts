@@ -62,8 +62,13 @@ export class MongoCollection<T extends DbObject> {
   update = async (selector, update, options) => {
     if (disableAllWrites) return;
     const table = this.getTable();
-    const updateResult = await table.update(selector, update, options);
-    return updateResult.matchedCount;
+    if (typeof selector === 'string') {
+      const updateResult = await table.update({_id: selector}, update, options);
+      return updateResult.matchedCount;
+    } else {
+      const updateResult = await table.update(selector, update, options);
+      return updateResult.matchedCount;
+    }
   }
   remove = async (selector, options)=>{
     if (disableAllWrites) return;
