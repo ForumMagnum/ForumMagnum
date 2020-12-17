@@ -47,18 +47,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   closeIcon: {
     height: 48,
-    width:48,
+    width: 48,
   },
   iframeWrapper: {
     flex: 7,
     position: "relative",
+  },
+  eventDetails: {
+    marginTop: 20
   }
 })
 
 
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar } = Components
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -122,7 +125,8 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </WalledGardenMessage>
 
     if (codeNotYetValid) return <WalledGardenMessage>
-      <p>Your invite code is for an event that has yet started! Please come back at <strong>{moment(gardenCode?.startTime).format("dddd, MMMM Do, h:mma")}</strong></p>
+      <p>Your invite code is for an event that has not yet started! Please come back at the start time.</p>
+      {!!gardenCode && <GardenEventDetails gardenCode={gardenCode}/>}
     </WalledGardenMessage>
 
     if (codeExpiredBeforeSession) return <WalledGardenMessage>
@@ -145,22 +149,21 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   if (!onboarded) {
     return <SingleColumnSection className={classes.messageStyling}>
+      <h2><strong>Welcome to the Walled Garden, a curated space for truthseekers!</strong></h2>
       {!!gardenCode && <div>
         <p>
-          Congratulations! Your invite code to <strong>{gardenCode.title}</strong> is valid (and will be for next many hours).
+          Your invite code to <strong>{gardenCode.title}</strong> is valid (and will be for next many hours).
           Please take a look at our guidelines below, then join the party!
         </p>
-        <hr />
       </div>
       }
-      <p><strong>Welcome to the Walled Garden, a curated space for truthseekers!</strong></p>
-      <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays from 12pm to 4pm PT. Otherwise, it is open by invite only.</p>
+      <p><strong>IMPORTANT TECHNICAL INFORMATION</strong></p>
       <ul>
-        <li>Please wear headphones, preferably with a microphone! Try to be in a low-background noise environment.</li>
-        <li>Ensure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
+        <li>Please wear headphones! Try to be in a low-background noise environment.</li>
+        <li>Make sure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
         <li>The Garden will not load from an incognito window or if 3rd-party cookies are blocked. (It is built on a 3rd-party platform.)</li>
         <li>Technical Problems once you're in the Garden? Refresh the tab.</li>
-        <li>Lost or stuck? Respawn (<i>gear icon</i> &gt; <i>respawn</i>)</li>
+        <li>Lost or stuck? Respawn (<i>click username</i> &gt; <i>reset position</i>) or message a host using chat (left sidebar)</li>
         <li>Interactions are voluntary. It's okay to leave conversations.</li>
         <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right) or
           email (team@lesswrong.com).</li>
@@ -181,6 +184,11 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
           <b>Enter the Garden</b>
         </a>
       </AnalyticsTracker>
+      {!!gardenCode && <div className={classes.eventDetails}>
+        <p><strong>EVENT DETAILS.</strong>May contain important instructions.</p>
+        {!!gardenCode && <GardenEventDetails gardenCode={gardenCode}/>}
+      </div>
+      }
     </SingleColumnSection>
   }
 

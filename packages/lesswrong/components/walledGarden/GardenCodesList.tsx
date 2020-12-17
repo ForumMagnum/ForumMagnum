@@ -16,10 +16,6 @@ export const GardenCodesList = ({classes, terms, limit}: {classes:ClassesType, t
   const { GardenCodesItem, Loading, LoadMore } = Components
   const currentUser = useCurrentUser()
   
-  // const terms = personal ?
-  //   {view:"userGardenCodes"} : 
-  //   {view:"semipublicGardenCodes", types: ['public', 'semi-public']}
-  
   const { results, loading, loadMoreProps } = useMulti({
     terms: {
       userId: currentUser?._id,
@@ -33,11 +29,6 @@ export const GardenCodesList = ({classes, terms, limit}: {classes:ClassesType, t
     itemsPerPage: 10
   });
   
-  console.log({terms, loadMoreProps})
-  
-  // const resultsFiltered = results?.filter(code => personal ? 
-  //   code.type=='private' : 
-  //   (currentUser?.walledGardenInvite || code.type=='public')) //for personal list, only show private events; for public list, show all public/semipublic events depending on membership
   
   return <div>
     {results?.map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
