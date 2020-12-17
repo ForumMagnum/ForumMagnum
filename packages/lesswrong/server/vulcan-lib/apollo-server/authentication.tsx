@@ -264,6 +264,7 @@ const authenticationResolvers = {
           </p>
         </body>
       });  
+      return "";
     }
   } 
 };
@@ -272,6 +273,7 @@ addGraphQLResolvers(authenticationResolvers);
 addGraphQLMutation('login(username: String, password: String): LoginReturnData');
 addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean): LoginReturnData');
 addGraphQLMutation('logout: LoginReturnData');
+addGraphQLMutation('resetPassword(email: String): String');
 
 async function insertHashedLoginToken(userId, hashedToken) {
   const tokenWithMetadata = {

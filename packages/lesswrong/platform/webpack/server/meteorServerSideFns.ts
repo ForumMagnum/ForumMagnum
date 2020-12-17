@@ -9,7 +9,10 @@ export const addLoginAttemptValidation = (validationFn: (attempt: {allowed: bool
 
 export const onServerConnect = (fn) => {}
 
-export const meteorSendEmail: any = ()=>{} //TODO
+export const meteorSendEmail: any = (email)=>{
+  console.log("Sending email not yet implemented");
+  console.log(email);
+}
 
 export function initMeteorhacksPickerMiddleware() {
   // TODO
