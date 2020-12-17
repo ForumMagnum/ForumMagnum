@@ -2,7 +2,7 @@
  * https://github.com/arqex/react-datetime
  * Copied from vulcan-forms datetime.scss, because it wasn't getting applied post-Apollo2 upgrade. Ideally this would be turned into JSS.
  */
-
+export default `
 .rdt {
   position: relative;
 }
@@ -216,3 +216,4 @@ td.rdtYear:hover {
 .rdtDayPart {
   margin-top: 43px;
 }
+`;

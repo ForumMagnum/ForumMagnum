@@ -7,6 +7,7 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
+import datetimeStyles from '../styles/datetimeStyles';
 
 const generateMergedStylesheet = (): string => {
   importAllComponents();
@@ -30,8 +31,12 @@ const generateMergedStylesheet = (): string => {
   const WrappedTree = wrapWithMuiTheme(DummyTree, context);
   
   ReactDOM.renderToString(WrappedTree);
-  const stylesheet = context.sheetsRegistry.toString()
-  return stylesheet;
+  const jssStylesheet = context.sheetsRegistry.toString()
+  
+  return [
+    datetimeStyles,
+    jssStylesheet
+  ].join("\n");
 }
 
 let mergedStylesheet: string|null = null;

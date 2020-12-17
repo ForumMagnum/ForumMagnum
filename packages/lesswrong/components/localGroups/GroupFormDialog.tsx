@@ -18,28 +18,28 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   localGroupForm: {
     "& div": {
       fontFamily: theme.typography.fontFamily,
-    }
+    },
     "& .editor": {
       minHeight: 50,
       fontSize: "1.1rem",
       position: "relative",
-    }
+    },
     "& .form-submit": {
       marginTop: 10,
       textAlign: "right",
-    }
+    },
     "& .form-component-select": {
       "& .col-sm-9": {
         width: "100%",
         padding: 0,
-      }
+      },
       "& label": {
         display: "none",
-      }
+      },
       "& .form-component-clear": {
         display: "none"
-      }
-    }
+      },
+    },
   },
   inactiveButton: {
     '&&': {
