@@ -1,29 +1,4 @@
 
-.local-group-form {
-  div { font-family: $comments-font }
-  .editor {
-    min-height: 50px;
-    font-size: 1.1rem;
-    position: relative;
-  }
-  .form-submit {
-    margin-top: 10px;
-    text-align: right;
-  }
-  .form-component-select {
-    .col-sm-9 {
-      width: 100%;
-      padding: 0px;
-    }
-    label {
-      display: none;
-    }
-    .form-component-clear {
-      display: none;
-    }
-  }
-}
-
 /* Experimental: Somewhat hacky solution to get rid of close window in google Info Windows */
 .gm-style-iw > button {
   display: none !important;

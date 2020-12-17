@@ -15,6 +15,32 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     marginTop: 20
   },
+  localGroupForm: {
+    "& div": {
+      fontFamily: theme.typography.fontFamily,
+    }
+    "& .editor": {
+      minHeight: 50,
+      fontSize: "1.1rem",
+      position: "relative",
+    }
+    "& .form-submit": {
+      marginTop: 10,
+      textAlign: "right",
+    }
+    "& .form-component-select": {
+      "& .col-sm-9": {
+        width: "100%",
+        padding: 0,
+      }
+      "& label": {
+        display: "none",
+      }
+      "& .form-component-clear": {
+        display: "none"
+      }
+    }
+  },
   inactiveButton: {
     '&&': {
       color: theme.palette.error.main,
@@ -78,7 +104,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
     open={true}
     onClose={onClose}
   >
-    <DialogContent className="local-group-form">
+    <DialogContent className={classes.localGroupForm}>
       <WrappedSmartForm
         collection={Localgroups}
         documentId={documentId}
@@ -102,7 +128,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
   </LWDialog>
 }
 
-const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog);
+const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog, {styles});
 
 declare global {
   interface ComponentTypes {
