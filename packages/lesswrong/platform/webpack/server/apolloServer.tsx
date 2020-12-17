@@ -113,9 +113,10 @@ onStartup(() => {
   apolloServer.applyMiddleware({ app })
 
   // Static files folder
-  console.log(__dirname)
-  console.log(path.join(__dirname, '../', '../', 'client'))
-  app.use(express.static(path.join(__dirname, '../', '../', 'client')))
+  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
+  app.use(express.static(path.join(__dirname, '../../client')))
+  console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
+  app.use(express.static(path.join(__dirname, '../../../../public')))
 
   app.get('*', async (request, response) => {
     const context: any = {};
