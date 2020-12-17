@@ -116,7 +116,7 @@ var scheduleEntry = function(entry) {
 //   schedule: function(laterParser) {},//*required* when to run the job
 //   job: function() {}, //*required* the code to run
 // });
-SyncedCron.add = function(entry: {
+SyncedCron.add = async function(entry: {
   name: string,
   schedule: (parser: any)=>any,
   job: ()=>void,
@@ -142,7 +142,7 @@ SyncedCron.add = function(entry: {
 SyncedCron.start = function() {
   var self = this;
 
-  onStartup(function() {
+  onStartup(async function() {
     // Schedule each job with later.js
     _.each(self._entries, function(entry) {
       scheduleEntry(entry);
@@ -196,7 +196,7 @@ SyncedCron.stop = function() {
 SyncedCron._entryWrapper = function(entry) {
   var self = this;
 
-  return function(intendedAt) {
+  return async function(intendedAt) {
     intendedAt = new Date(intendedAt.getTime());
     intendedAt.setMilliseconds(0);
 
@@ -212,7 +212,7 @@ SyncedCron._entryWrapper = function(entry) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = self._collection.insert(jobHistory);
+        jobHistory._id = await self._collection.insert(jobHistory);
       } catch(e) {
         // http://www.mongodb.org/about/contributors/error-codes/
         // 11000 == duplicate key error
@@ -232,7 +232,7 @@ SyncedCron._entryWrapper = function(entry) {
 
       log.info('Finished "' + entry.name + '".');
       if(entry.persist) {
-        self._collection.update({_id: jobHistory._id}, {
+        await self._collection.update({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             result: output
@@ -242,7 +242,7 @@ SyncedCron._entryWrapper = function(entry) {
     } catch(e) {
       log.info('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
       if(entry.persist) {
-        self._collection.update({_id: jobHistory._id}, {
+        await self._collection.update({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             error: (e && e.stack) ? e.stack : e
@@ -254,9 +254,9 @@ SyncedCron._entryWrapper = function(entry) {
 }
 
 // for tests
-SyncedCron._reset = function() {
+SyncedCron._reset = async function() {
   this._entries = {};
-  this._collection.remove({});
+  await this._collection.remove({});
   this.running = false;
 }
 
