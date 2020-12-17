@@ -46,7 +46,8 @@ import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from
 import passport from 'passport'
 import { Strategy as CustomStrategy } from 'passport-custom'
 import Users from '../../../lib/vulcan-users';
-import { DatabaseServerSetting } from '../../../server/databaseSettings';
+import { DatabaseServerSetting } from '../../databaseSettings';
+import { createAndSetToken } from '../../../server/vulcan-lib/apollo-server/authentication';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -165,6 +166,11 @@ onStartup(() => {
     WebApp.connectHandlers.use(stripeMiddleware);
   }
 
+  // A useful lesson about connect handlers: 
+  // Turns out, connect handlers also cover all subpaths. This means that if you want to have two paths
+  // /auth/google and /auth/google/callback then if you want the more specific path to be properly covered
+  // Then you have to first register the /auth/google/callback handler before you handle 
+
   passport.use(cookieAuthStrategy)
   WebApp.connectHandlers.use('/', (req, res, next) => {
     passport.authenticate('custom', (err, user, info) => {
@@ -197,6 +203,60 @@ onStartup(() => {
       res.setHeader('Location','/');
       return res.end();
     })(req, res, next) 
+  })
+
+  WebApp.connectHandlers.use('/auth/google/callback', (req, res, next) => {
+    passport.authenticate('google', {}, (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logIn(user, async (err) => {
+        if (err) return next(err)
+        await createAndSetToken(req, res, user)
+        res.statusCode=302;
+        res.setHeader('Location', '/')
+        return res.end();
+      })
+    })(req, res, next)
+  } )
+
+  WebApp.connectHandlers.use('/auth/google', (req, res, next) => {
+    passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/userinfo.email'], accessType: "offline", prompt: "consent"})(req, res, next)
+  })
+
+  WebApp.connectHandlers.use('/auth/facebook/callback', (req, res, next) => {
+    passport.authenticate('facebook', {}, (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logIn(user, async (err) => {
+        if (err) return next(err)
+        await createAndSetToken(req, res, user)
+        res.statusCode=302;
+        res.setHeader('Location', '/')
+        return res.end();
+      })
+    })(req, res, next)
+  } )
+
+  WebApp.connectHandlers.use('/auth/facebook', (req, res, next) => {
+    passport.authenticate('facebook')(req, res, next)
+  })
+
+  WebApp.connectHandlers.use('/auth/github/callback', (req, res, next) => {
+    passport.authenticate('github', {}, (err, user, info) => {
+      if (err) return next(err)
+      if (!user) return next()
+      req.logIn(user, async (err) => {
+        if (err) return next(err)
+        await createAndSetToken(req, res, user)
+        res.statusCode=302;
+        res.setHeader('Location', '/')
+        return res.end();
+      })
+    })(req, res, next)
+  } )
+
+  WebApp.connectHandlers.use('/auth/github', (req, res, next) => {
+    passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })
 
   // define executableSchema
