@@ -4,6 +4,7 @@
   "scripts": {
     "build": "node build.js",
     "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/bundle2.js --settings ../settings.json'",
+    "debug": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node inspect --trace-warnings -r source-map-support/register -- build/server/js/bundle2.js --settings ../settings.json'",
     "build:prod": "export NODE_ENV=development && webpack -p",
     "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/bundle.js'"
   },
