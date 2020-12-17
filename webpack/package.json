@@ -114,7 +114,7 @@
     "import": "0.0.6",
     "intercom-client": "^2.10.2",
     "intl": "^1.2.4",
-    "jsdom": "^16.4.0",
+    "jsdom": "^13.1.0",
     "jsonwebtoken": "^8.5.1",
     "juice": "^7.0.0",
     "later": "^1.2.0",
@@ -217,7 +217,6 @@
     "webpack-cli": "^4.0.0"
   },
   "resolutions": {
-    "jsdom": "^16.4.0",
     "graphql": "^14.0.0",
     "graphql-tools": "4.0.7"
   }
