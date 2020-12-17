@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { Strategy as PassportStrategy } from 'passport-strategy';
+import type { Request } from 'express';
 
 type VerifyFn = (username: string, password: string, done: (err: Error | null, user: any, info?:IVerifyOptions) => void) => void;
 interface IVerifyOptions {
