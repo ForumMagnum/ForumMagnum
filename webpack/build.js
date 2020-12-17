@@ -15,7 +15,7 @@ const clientBundleBanner = `/*
 esbuild.buildSync({
   entryPoints: ['./src/platform/current/server/serverStartup.ts'],
   bundle: true,
-  outfile: './build/server/js/bundle2.js',
+  outfile: './build/server/js/serverBundle.js',
   platform: "node",
   sourcemap: true,
   minify: false,
