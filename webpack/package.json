@@ -11,6 +11,7 @@
     "@apollo/client": "^3.2.0",
     "@babel/runtime": "^7.12.1",
     "@google/maps": "^0.5.5",
+    "@lesswrong/lesswrong-editor": "../public/lesswrong-editor",
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "@material-ui/core": "3.1.2",
     "@material-ui/icons": "^3.0.0",
