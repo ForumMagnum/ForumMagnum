@@ -39,14 +39,9 @@ import { formatError } from 'apollo-errors';
 
 import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
-import * as SentryIntegrations from '@sentry/integrations';
-import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
+import { addSentryMiddlewares } from '../../../server/logging';
 import { DatabaseServerSetting } from '../../../server/databaseSettings';
-
-const sentryUrl = sentryUrlSetting.get()
-const sentryEnvironment = sentryEnvironmentSetting.get()
-const sentryRelease = sentryReleaseSetting.get()
 
 const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
 const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
@@ -66,21 +61,6 @@ WebApp.connectHandlers.use(function addClientId(req, res, next) {
   
   next();
 }, {order: 100});
-
-if (sentryUrl && sentryEnvironment && sentryRelease) {
-  Sentry.init({
-    dsn: sentryUrl,
-    environment: sentryEnvironment,
-    release: sentryRelease,
-    integrations: [
-      new SentryIntegrations.Dedupe(),
-      new SentryIntegrations.ExtraErrorData(),
-    ],
-  });
-} else {
-  // eslint-disable-next-line no-console
-  console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
-}
 
 const stripeMiddleware = async (req, res) => {
   if (req.method === "POST" && stripe) {
@@ -149,6 +129,7 @@ onStartup(() => {
   // Then you have to first register the /auth/google/callback handler before you handle 
 
   addAuthMiddlewares((...args) => WebApp.connectHandlers.use(...args));
+  addSentryMiddlewares((...args) => WebApp.connectHandlers.use(...args));
 
   // define executableSchema
   createVoteableUnionType();
@@ -179,8 +160,6 @@ onStartup(() => {
     context: ({ req, res }) => computeContextFromReq(req, res),
   });
   
-  WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
-  WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
   
   // NOTE: order matters here
   // /graphql middlewares (request parsing)

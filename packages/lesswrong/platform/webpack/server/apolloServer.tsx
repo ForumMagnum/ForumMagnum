@@ -29,8 +29,6 @@ import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
 
 import * as Sentry from '@sentry/node';
-import * as SentryIntegrations from '@sentry/integrations';
-import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
 import express from 'express'
 import { app } from './expressServer';
 import { renderToString } from 'react-dom/server'
@@ -50,25 +48,7 @@ import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUt
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
 import { DatabaseServerSetting } from '../../../server/databaseSettings';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
-
-const sentryUrl = sentryUrlSetting.get()
-const sentryEnvironment = sentryEnvironmentSetting.get()
-const sentryRelease = sentryReleaseSetting.get()
-
-if (sentryUrl && sentryEnvironment && sentryRelease) {
-  Sentry.init({
-    dsn: sentryUrl,
-    environment: sentryEnvironment,
-    release: sentryRelease,
-    integrations: [
-      new SentryIntegrations.Dedupe(),
-      new SentryIntegrations.ExtraErrorData(),
-    ],
-  });
-} else {
-  // eslint-disable-next-line no-console
-  console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
-}
+import { addSentryMiddlewares } from '../../../server/logging';
 
 export const setupToolsMiddlewares = config => {
   // Voyager is a GraphQL schema visual explorer
@@ -99,6 +79,7 @@ onStartup(() => {
   app.use(pickerMiddleware);
 
   addAuthMiddlewares((...args) => app.use(...args));
+  addSentryMiddlewares((...args) => app.use(...args));
 
   // define executableSchema
   createVoteableUnionType();
@@ -166,9 +147,6 @@ onStartup(() => {
     // Finally send generated HTML with initial data to the client
     return response.status(status||200).send(doctypeHeader + publicSettingsHeader + jssSheets + ssrBody + serializedApolloState + clientScript)
   })
-
-  // WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
-  // WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
 
   // NOTE: order matters here
   // /graphql middlewares (request parsing)
