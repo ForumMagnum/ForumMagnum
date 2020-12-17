@@ -55,6 +55,7 @@ import passport from 'passport'
 import { Strategy as CustomStrategy } from 'passport-custom'
 import Users from '../../../lib/vulcan-users';
 import { DatabaseServerSetting } from '../../../server/databaseSettings';
+import { addOauthMiddlewares } from '../../../server/oauthMiddlewares';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -158,6 +159,8 @@ onStartup(() => {
       return res.end();
     })(req, res, next) 
   })
+  
+  addOauthMiddlewares((path,handler) => app.use(path, handler));
 
   // define executableSchema
   createVoteableUnionType();

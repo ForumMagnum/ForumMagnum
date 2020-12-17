@@ -45,9 +45,9 @@ import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
 import passport from 'passport'
 import { Strategy as CustomStrategy } from 'passport-custom'
+import { addOauthMiddlewares } from '../../../server/oauthMiddlewares';
 import Users from '../../../lib/vulcan-users';
-import { DatabaseServerSetting } from '../../databaseSettings';
-import { createAndSetToken } from '../../../server/vulcan-lib/apollo-server/authentication';
+import { DatabaseServerSetting } from '../../../server/databaseSettings';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -205,59 +205,7 @@ onStartup(() => {
     })(req, res, next) 
   })
 
-  WebApp.connectHandlers.use('/auth/google/callback', (req, res, next) => {
-    passport.authenticate('google', {}, (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, async (err) => {
-        if (err) return next(err)
-        await createAndSetToken(req, res, user)
-        res.statusCode=302;
-        res.setHeader('Location', '/')
-        return res.end();
-      })
-    })(req, res, next)
-  } )
-
-  WebApp.connectHandlers.use('/auth/google', (req, res, next) => {
-    passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/userinfo.email'], accessType: "offline", prompt: "consent"})(req, res, next)
-  })
-
-  WebApp.connectHandlers.use('/auth/facebook/callback', (req, res, next) => {
-    passport.authenticate('facebook', {}, (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, async (err) => {
-        if (err) return next(err)
-        await createAndSetToken(req, res, user)
-        res.statusCode=302;
-        res.setHeader('Location', '/')
-        return res.end();
-      })
-    })(req, res, next)
-  } )
-
-  WebApp.connectHandlers.use('/auth/facebook', (req, res, next) => {
-    passport.authenticate('facebook')(req, res, next)
-  })
-
-  WebApp.connectHandlers.use('/auth/github/callback', (req, res, next) => {
-    passport.authenticate('github', {}, (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, async (err) => {
-        if (err) return next(err)
-        await createAndSetToken(req, res, user)
-        res.statusCode=302;
-        res.setHeader('Location', '/')
-        return res.end();
-      })
-    })(req, res, next)
-  } )
-
-  WebApp.connectHandlers.use('/auth/github', (req, res, next) => {
-    passport.authenticate('github', { scope: ['user:email']})(req, res, next)
-  })
+  addOauthMiddlewares((path,handler) => WebApp.connectHandlers.use(path, handler));
 
   // define executableSchema
   createVoteableUnionType();
