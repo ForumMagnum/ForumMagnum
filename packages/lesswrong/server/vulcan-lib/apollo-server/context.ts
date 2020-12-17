@@ -108,10 +108,10 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
   let context: ResolverContext = {
     ...getCollectionsByName(),
     ...generateDataLoaders(),
-    req,
+    req: req as any,
     res,
-    headers: req?.headers,
-    locale: req?.headers ? getHeaderLocale(req.headers, null) : "en-US",
+    headers: (req as any)?.headers,
+    locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     ...await setupAuthToken(user),
   };
 

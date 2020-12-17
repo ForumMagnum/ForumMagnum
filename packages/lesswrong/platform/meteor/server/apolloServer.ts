@@ -42,6 +42,7 @@ import * as Sentry from '@sentry/node';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
 import { DatabaseServerSetting } from '../../../server/databaseSettings';
+import { getCookieFromReq, setCookieOnResponse } from '../../../server/utils/httpUtil';
 
 const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
 const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
@@ -53,10 +54,14 @@ const stripe = stripePrivateKey && new Stripe(stripePrivateKey, {apiVersion: '20
 // on the HTTP response directly; if other middlewares also want to set
 // cookies, they won't necessarily play nicely together.
 WebApp.connectHandlers.use(function addClientId(req, res, next) {
-  if (!req.cookies.clientId) {
+  if (!getCookieFromReq(req, "clientId")) {
     const newClientId = randomId();
-    req.cookies.clientId = newClientId;
-    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
+    setCookieOnResponse({
+      req, res,
+      cookieName: "clientId",
+      cookieValue: newClientId,
+      maxAge: 315360000
+    });
   }
   
   next();

@@ -3,15 +3,7 @@ import { createAndSetToken } from './vulcan-lib/apollo-server/authentication';
 import { Strategy as CustomStrategy } from 'passport-custom'
 import { getUser } from './vulcan-lib/apollo-server/context';
 import { Users } from '../lib/collections/users/collection';
-
-function getCookieFromReq(req, cookieName: string) {
-  if (req.universalCookies)
-    return req.universalCookies.get(cookieName);
-  else if (req.cookies)
-    return req.cookies[cookieName];
-  else
-    throw new Error("Tried to get a cookie but middleware not correctly configured");
-}
+import { getCookieFromReq } from './utils/httpUtil';
 
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
   const loginToken = getCookieFromReq(req, 'loginToken') || getCookieFromReq(req, 'meteor_login_token') // Backwards compatibility with meteor_login_token here

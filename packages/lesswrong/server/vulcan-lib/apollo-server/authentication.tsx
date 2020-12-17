@@ -17,6 +17,7 @@ import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../notificationBatching';
+import { clearCookie } from '../../utils/httpUtil';
 
 async function comparePasswords(password, hash) {
   return await bcrypt.compare(createHash('sha256').update(password).digest('hex'), hash)
@@ -184,7 +185,6 @@ export const ResetPasswordToken = new EmailTokenType({
   resultComponentName: "EmailTokenResult",
 });
 
-
 const authenticationResolvers = {
   Mutation: {
     async login(root, { username, password }, { req, res }: ResolverContext) {
@@ -207,12 +207,8 @@ const authenticationResolvers = {
     },
     async logout(root, args: {}, { req, res }: ResolverContext) {
       req!.logOut()
-      if (req?.cookies.loginToken) {
-        res!.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
-      }
-      if (req?.cookies['meteor_login_token']) {
-        res!.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
-      }
+      clearCookie(req, res, "loginToken");
+      clearCookie(req, res, "meteor_login_token");
       return {
         token: null
       }

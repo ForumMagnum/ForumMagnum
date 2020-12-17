@@ -22,6 +22,8 @@ import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
+import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import type { Request, Response } from 'express';
 
 type RenderTimings = {
   totalTime: number
@@ -57,7 +59,7 @@ const makePageRenderer = async sink => {
   const tabId = randomId();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   
-  const clientId = req.cookies && req.cookies.clientId;
+  const clientId = getCookieFromReq(req, "clientId");
 
   if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
   const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
@@ -118,7 +120,12 @@ const makePageRenderer = async sink => {
   }
 };
 
-export const renderRequest = async ({req, user, startTime, res}): Promise<RenderResult> => {
+export const renderRequest = async ({req, user, startTime, res}: {
+  req: Request,
+  user: DbUser|null,
+  startTime: Date,
+  res: Response,
+}): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -153,7 +160,7 @@ export const renderRequest = async ({req, user, startTime, res}): Promise<Render
   try {
     htmlContent = await renderToStringWithData(WrappedApp);
   } catch(err) {
-    console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
+    console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
   const afterPrerenderTime = new Date();

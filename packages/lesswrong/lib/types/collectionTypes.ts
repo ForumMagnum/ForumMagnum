@@ -161,7 +161,7 @@ interface ResolverContext extends CollectionsByName {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
   extraLoaders: Record<string,any>
-  req?: Request & {logIn: any, logOut: any, cookies: any},
+  req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
   res?: Response
 }
 
