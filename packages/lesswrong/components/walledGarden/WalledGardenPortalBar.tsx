@@ -89,10 +89,10 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
           <div><GardenCodeWidget type="event"/></div>
         </div>
       </div>}
-      {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
+      <div className={classes.eventWidget}>
         <GardenCodesList terms={{view: "semipublicGardenCodes", types:  currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']}}/>
-        <GardenCodesList terms={{view: "usersPrivateGardenCodes"}}/>
-      </div>}
+        {currentUser.walledGardenInvite &&   <GardenCodesList terms={{view: "usersPrivateGardenCodes"}}/>}
+      </div>
       {currentUser.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
