@@ -1,5 +1,5 @@
 import React from 'react'
-import { createMutator, updateMutator } from "..";
+import { createMutator, updateMutator } from "../mutators";
 import passport from 'passport'
 import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
@@ -9,10 +9,10 @@ import { Strategy as FacebookOAuthStrategy } from 'passport-facebook';
 import { Strategy as GithubOAuthStrategy } from 'passport-github2';
 import sha1 from 'crypto-js/sha1';
 import { addGraphQLMutation, getSiteUrl, addGraphQLSchema, addGraphQLResolvers, Utils, slugify } from "../../../lib/vulcan-lib";
-import { ForwardedWhitelist } from "../../forwarded_whitelist";
+import { getForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
-import { hashLoginToken } from "./apollo_server";
+import { hashLoginToken } from "../../loginTokens";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
@@ -205,7 +205,7 @@ const authenticationResolvers = {
       })
       return { token }
     },
-    async logout(root, {}, { req, res }: ResolverContext) {
+    async logout(root, args: {}, { req, res }: ResolverContext) {
       req!.logOut()
       if (req?.cookies.loginToken) {
         res!.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
@@ -279,7 +279,7 @@ async function insertHashedLoginToken(userId, hashedToken) {
     hashedToken
   }
 
-  Users.update({_id: userId}, {
+  await Users.update({_id: userId}, {
     $addToSet: {
       "services.resume.loginTokens": tokenWithMetadata
     }
@@ -294,7 +294,7 @@ function registerLoginEvent(user, req) {
     userId: user._id,
     properties: {
       type: 'passport-login',
-      ip: ForwardedWhitelist.getClientIP(req),
+      ip: getForwardedWhitelist().getClientIP(req),
       userAgent: req.headers['user-agent'],
       referrer: req.headers['referer']
     }
