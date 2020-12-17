@@ -63,8 +63,8 @@ export class MongoCollection<T extends DbObject> {
       doc._id = randomId();
     }
     const table = this.getTable();
-    const insertResult = await table.insert(doc, options);
-    return insertResult.insertedIds[0];
+    const insertResult = await table.insertOne(doc, options);
+    return insertResult.insertedId;
   }
   update = async (selector, update, options) => {
     if (disableAllWrites) return;
