@@ -14,8 +14,6 @@ import { onStartup, isDevelopment } from '../lib/executionEnvironment';
 import { WebApp } from 'meteor/webapp';
 import bodyParser from 'body-parser';
 
-// import cookiesMiddleware from 'universal-cookie-express';
-// import Cookies from 'universal-cookie';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
 import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-server/graphiql';
@@ -23,7 +21,7 @@ import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playgr
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 //import { engineConfig } from './engine';
-import { computeContextFromReq, getUser } from '../../../server/vulcan-lib/apollo-server/context';
+import { computeContextFromReq } from '../../../server/vulcan-lib/apollo-server/context';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
@@ -43,32 +41,12 @@ import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
-import passport from 'passport'
-import { Strategy as CustomStrategy } from 'passport-custom'
-import { addOauthMiddlewares } from '../../../server/oauthMiddlewares';
-import Users from '../../../lib/vulcan-users';
+import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { DatabaseServerSetting } from '../../../server/databaseSettings';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
 const sentryRelease = sentryReleaseSetting.get()
-
-const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
-  const loginToken = req.cookies['loginToken'] || req.cookies['meteor_login_token'] // Backwards compatibility with meteor_login_token here
-  if (!loginToken) return done(null, false)
-  const user = await getUser(loginToken)
-  if (!user) return done(null, false)
-  done(null, user)
-})
-
-async function deserializeUserPassport(id, done) {
-  const user = await Users.findOne({_id: id})
-  if (!user) done()
-  done(null, user)
-}
-
-passport.serializeUser((user, done) => done(null, user._id))
-passport.deserializeUser(deserializeUserPassport)
 
 const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
 const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
@@ -161,7 +139,6 @@ onStartup(() => {
   
   WebApp.connectHandlers.use(universalCookiesMiddleware());
   WebApp.connectHandlers.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
-  WebApp.connectHandlers.use(passport.initialize())
   if (stripePrivateKey && stripe) {
     WebApp.connectHandlers.use(stripeMiddleware);
   }
@@ -171,41 +148,7 @@ onStartup(() => {
   // /auth/google and /auth/google/callback then if you want the more specific path to be properly covered
   // Then you have to first register the /auth/google/callback handler before you handle 
 
-  passport.use(cookieAuthStrategy)
-  WebApp.connectHandlers.use('/', (req, res, next) => {
-    passport.authenticate('custom', (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, (err) => {
-        if (err) return next(err)
-        next()
-      })
-    })(req, res, next) 
-  })
-
-
-  WebApp.connectHandlers.use('/logout', (req, res, next) => {
-    passport.authenticate('custom', (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logOut()
-
-      // The accepted way to delete a cookie is to set an expiration date in the past.
-      if (req.cookies['meteor_login_token']) {
-        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
-      }
-      if (req.cookies.loginToken) {
-        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
-      }
-      
-      
-      res.statusCode=302;
-      res.setHeader('Location','/');
-      return res.end();
-    })(req, res, next) 
-  })
-
-  addOauthMiddlewares((path,handler) => WebApp.connectHandlers.use(path, handler));
+  addAuthMiddlewares((...args) => WebApp.connectHandlers.use(...args));
 
   // define executableSchema
   createVoteableUnionType();

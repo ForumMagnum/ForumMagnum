@@ -13,9 +13,6 @@ import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
 import { renderRequest } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
-
-// import cookiesMiddleware from 'universal-cookie-express';
-// import Cookies from 'universal-cookie';
 import { pickerMiddleware } from './picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
@@ -23,7 +20,7 @@ import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-li
 import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq, getUser, getUserFromReq } from '../../../server/vulcan-lib/apollo-server/context';
+import { computeContextFromReq, getUserFromReq } from '../../../server/vulcan-lib/apollo-server/context';
 
 import { Components, populateComponentsApp } from '../../../lib/vulcan-lib/components';
 
@@ -51,11 +48,8 @@ import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache';
 import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
-import passport from 'passport'
-import { Strategy as CustomStrategy } from 'passport-custom'
-import Users from '../../../lib/vulcan-users';
 import { DatabaseServerSetting } from '../../../server/databaseSettings';
-import { addOauthMiddlewares } from '../../../server/oauthMiddlewares';
+import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -76,24 +70,6 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
   console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
 }
 
-const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
-  const loginToken = req.universalCookies.get('loginToken') || req.universalCookies.get('meteor_login_token') // Backwards compatibility with meteor_login_token here
-  if (!loginToken) return done(null, false)
-  const user = await getUser(loginToken)
-  if (!user) return done(null, false)
-  done(null, user)
-})
-
-async function deserializeUserPassport(id, done) {
-  const user = await Users.findOne({_id: id})
-  if (!user) done()
-  done(null, user)
-}
-
-passport.serializeUser((user, done) => done(null, user._id))
-passport.deserializeUser(deserializeUserPassport)
-
-
 export const setupToolsMiddlewares = config => {
   // Voyager is a GraphQL schema visual explorer
   // available on /voyager as a default
@@ -101,9 +77,6 @@ export const setupToolsMiddlewares = config => {
   // Setup GraphiQL
   // WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
 };
-
-passport.serializeUser((user, done) => done(null, user._id))
-passport.deserializeUser(deserializeUserPassport)
 
 onStartup(() => {
   // Vulcan specific options
@@ -123,44 +96,9 @@ onStartup(() => {
 
   app.use(universalCookiesMiddleware());
   app.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
-  app.use(passport.initialize())
   app.use(pickerMiddleware);
 
-  passport.use(cookieAuthStrategy)
-  app.use('/', (req, res, next) => {
-    passport.authenticate('custom', (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, (err) => {
-        if (err) return next(err)
-        next()
-      })
-    })(req, res, next) 
-  })
-
-
-  app.use('/logout', (req, res, next) => {
-    passport.authenticate('custom', (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logOut()
-
-      // The accepted way to delete a cookie is to set an expiration date in the past.
-      if (req.universalCookies.get('meteor_login_token')) {
-        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
-      }
-      if (req.universalCookies.get('loginToken')) {
-        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
-      }
-      
-      
-      res.statusCode=302;
-      res.setHeader('Location','/');
-      return res.end();
-    })(req, res, next) 
-  })
-  
-  addOauthMiddlewares((path,handler) => app.use(path, handler));
+  addAuthMiddlewares((...args) => app.use(...args));
 
   // define executableSchema
   createVoteableUnionType();
