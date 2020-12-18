@@ -105,7 +105,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
       </LWTooltip>}
       {gardenCode.contents?.htmlHighlight ? <span><LWTooltip title={<span className={classes.highlight}>
           <ContentItemBody
-            dangerouslySetInnerHTML={{__html: truncate(gardenCode.contents.htmlHighlight, 400, "characters", "...(click to open event page)") }}
+            dangerouslySetInnerHTML={{__html: truncate(gardenCode.contents.htmlHighlight, 1000, "characters", "...(click to open event page)") }}
             description={`garden-code-${gardenCode._id}`}
           />
         </span>}>
