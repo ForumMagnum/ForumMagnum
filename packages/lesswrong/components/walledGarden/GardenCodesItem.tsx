@@ -10,9 +10,11 @@ import LinkIcon from '@material-ui/icons/Link';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {useMessages} from "../common/withMessages";
 import { FacebookIcon } from "../localGroups/GroupLinks";
+import { Link } from '../../lib/reactRouterWrapper';
+import { truncate } from '../../lib/editor/ellipsize';
 
 const iconStyling = {
-  marginLeft: 1,
+  marginLeft: 2,
   height: 16,
   width: 16,
   cursor: "pointer",
@@ -26,7 +28,7 @@ const iconStyling = {
 const styles = theme => ({
   root: {
     ...eventRoot(theme),
-    width: "420px",
+    width: 420,
     '&:hover $icon': {
       opacity: 1
     },
@@ -37,12 +39,18 @@ const styles = theme => ({
   eventName: {
     ...eventName(theme)
   },
+  eventNameLink: {
+    // color: `${theme.palette.grey[800]} !important`,
+    // color: "rgba(0,0,0,0.3) !important",
+    color: "rgba(0,0,0,0.55) !important",
+  },
   eventTime: {
     ...eventTime(theme)
   },
   personalIcon: {
     ...iconStyling,
-    marginRight: "3px",
+    marginLeft: 0,
+    marginRight: 3,
     opacity: .75,
   },
   trailingIcons: {
@@ -50,20 +58,23 @@ const styles = theme => ({
     width: 48,
     marginLeft: 8,
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "flex-start"
   },
   linkIcon: {
     ...iconStyling,
+    marginLeft: 0,
     opacity: .5,
     transform: 'rotate(-45deg)',
   },
-  fbIcon: {
+  fbIconContainer: {
     ...iconStyling,
+  },
+  fbIcon: {
     color: theme.palette.grey[700],
     height: 12,
     width: 12,
     opacity: .5,
-    marginBottom: 2
+    marginBottom: 1
   },
   editIcon: {
     ...iconStyling,
@@ -84,7 +95,8 @@ export const GardenCodesItem = ({classes, gardenCode}:{
     return <GardenCodesEditForm gardenCodeId={gardenCode._id} cancelCallback={()=> setEditing(false)}   />
   }
   // const title = <span cla>{gardenCode.title}</span>
-  const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
+  // const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
+  const inviteLink = `localhost:3000/walledGardenPortal?code=${gardenCode.code}&event=${gardenCode.slug}` //TOD-DO: put back correct one
   
   return <div className={classes.root}>
     <span className={classes.eventName}>
@@ -93,16 +105,20 @@ export const GardenCodesItem = ({classes, gardenCode}:{
       </LWTooltip>}
       {gardenCode.contents?.htmlHighlight ? <span><LWTooltip title={<span className={classes.highlight}>
           <ContentItemBody
-            dangerouslySetInnerHTML={{__html: gardenCode.contents.htmlHighlight }}
+            dangerouslySetInnerHTML={{__html: truncate(gardenCode.contents.htmlHighlight, 400, "characters", "...(click to open event page)") }}
             description={`garden-code-${gardenCode._id}`}
           />
         </span>}>
-          {gardenCode.title}
+          <a className={classes.eventNameLink} href={inviteLink} target="_blank" rel="noopener noreferrer">
+            {gardenCode.title}
+          </a>
         </LWTooltip>
       </span>
-        : gardenCode.title
-      }
-    </span>
+        : <a className={classes.eventNameLink} href={inviteLink} target="_blank" rel="noopener noreferrer">
+          {gardenCode.title}
+        </a>
+        }
+        </span>
     <div className={classes.eventTime}>
       {eventFormat(gardenCode.startTime)}
     </div>
@@ -112,12 +128,14 @@ export const GardenCodesItem = ({classes, gardenCode}:{
           <LinkIcon className={classes.linkIcon}/>
         </CopyToClipboard>
       </LWTooltip>
-      {gardenCode.fbLink && (gardenCode.type=="public" || currentUser?.walledGardenInvite) &&
-      <LWTooltip title="Link to the FB version of this event" placement="right">
-        <a href={gardenCode.fbLink} target="_blank" rel="noopener noreferrer">
-          <FacebookIcon className={classes.fbIcon}/>
-        </a>
-      </LWTooltip>}
+      <div className={classes.fbIconContainer}> {/*container for fb icon to maintain spacing*/} 
+        {gardenCode.fbLink && (gardenCode.type=="public" || currentUser?.walledGardenInvite) &&
+        <LWTooltip title="Link to the FB version of this event" placement="right">
+          <a href={gardenCode.fbLink} target="_blank" rel="noopener noreferrer">
+            <FacebookIcon className={classes.fbIcon}/>
+          </a>
+        </LWTooltip>}
+      </div>
       {(userCanDo(currentUser, "gardencodes.edit.all") || userOwns(currentUser, gardenCode)) &&
       <LWTooltip title="Click to edit event invite" placement="right">
         <CreateIcon className={classes.editIcon} onClick={() => setEditing(true)}/>

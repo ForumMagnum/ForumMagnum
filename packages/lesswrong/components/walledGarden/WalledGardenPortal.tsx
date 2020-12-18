@@ -86,8 +86,8 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const { query, url, currentRoute, location } = useLocation();
   const { history } = useNavigation();
-  const { code: inviteCodeQuery, entered: enteredQuery } = query;
-  console.log({query, url, currentRoute, location})
+  const { code: inviteCodeQuery, entered } = query;
+  const enteredQuery = entered === "true"
 
   const [ hideBar, setHideBar ] = useState(false);
 
@@ -164,14 +164,17 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </SingleColumnSection>
   }
 
-  if ((!!gardenCode && !enteredQuery) || !onboarded){
+  
+  if ((!!gardenCode && !enteredQuery) || (!!currentUser && !onboarded)){
     return <SingleColumnSection className={classes.root}>
       <h2><strong>Welcome to the Walled Garden, a curated space for truthseekers!</strong></h2>
       {!!gardenCode && <div>
         {codeIsValid ?
           <p>Your invite code to <strong>{gardenCode.title}</strong> is valid (and will be for next many hours).</p> :
-          <p>You have reached the Garden via an invite code that is not currently valid. However, as a full Garden Member you may enter anyway. :) </p>
+          <p>You have reached the Garden via an invite code that is not currently valid.</p>
         }
+        {currentUser?.walledGardenInvite && <p>Of course, as a Walled Garden member, you may enter anytime. :)</p>}
+        {!currentUser?.walledGardenInvite && isOpenToPublic && <p>However, the Garden is currently to the public, so you may enter anyway! :)</p>}
       </div>
       }
       <p><strong>IMPORTANT TECHNICAL INFORMATION</strong>
