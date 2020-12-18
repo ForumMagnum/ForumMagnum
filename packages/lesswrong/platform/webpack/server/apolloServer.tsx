@@ -1,11 +1,3 @@
-/**
- * @see https://www.apollographql.com/docs/apollo-server/whats-new.html
- * @see https://www.apollographql.com/docs/apollo-server/migration-two-dot.html
- */
-
-// Meteor WebApp use a Connect server, so we need to
-// use apollo-server-express integration
-//import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
@@ -22,7 +14,7 @@ import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playgr
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 import { computeContextFromReq, getUserFromReq } from '../../../server/vulcan-lib/apollo-server/context';
 
-import { Components, populateComponentsApp } from '../../../lib/vulcan-lib/components';
+import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -31,47 +23,24 @@ import { formatError } from 'apollo-errors';
 import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
-import { renderToString } from 'react-dom/server'
-import { StaticRouter } from 'react-router-dom'
 import React from 'react';
-import AppGenerator from '../../../server/vulcan-lib/apollo-ssr/components/AppGenerator';
-import { createClient } from '../../../server/vulcan-lib/apollo-ssr/apolloClient';
-import { wrapWithMuiTheme } from '../../../server/material-ui/themeProvider';
-import { getMergedStylesheet } from '../../../server/styleGeneration';
-import { ApolloProvider } from '@apollo/client';
-import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { Cookies, CookiesProvider } from 'react-cookie';
-import { ABTestGroupsContext } from '../../../lib/abTestImpl';
 import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache';
 import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
-import { DatabaseServerSetting } from '../../../server/databaseSettings';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
 
 onStartup(() => {
-  // Vulcan specific options
-  const config = {
-    path: '/graphql',
-    maxAccountsCacheSizeInMB: 1,
-    voyagerPath: '/graphql-voyager',
-    graphiqlPath: '/graphiql',
-  };
-  const apolloApplyMiddlewareOptions = {
-    // @see https://github.com/meteor/meteor/blob/master/packages/webapp/webapp_server.js
-    // @see https://www.apollographql.com/docs/apollo-server/api/apollo-server.html#Parameters-2
-    bodyParser: false, // added manually later
-    path: config.path,
-    // app: WebApp.connectHandlers,
-  };
+  const addMiddleware = (...args) => app.use(...args);
+  const config = { path: '/graphql' };
 
   app.use(universalCookiesMiddleware());
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use(pickerMiddleware);
 
-  addAuthMiddlewares((...args) => app.use(...args));
-  addSentryMiddlewares((...args) => app.use(...args));
+  addAuthMiddlewares(addMiddleware);
+  addSentryMiddlewares(addMiddleware);
 
   // define executableSchema
   createVoteableUnionType();
@@ -83,10 +52,8 @@ onStartup(() => {
     // graphql playground (replacement to graphiql), available on the app path
     playground: getPlaygroundConfig(config),
     introspection: true,
-    // context optionbject or a function of the current request (+ maybe some other params)
     debug: isDevelopment,
     
-    //engine: engineConfig,
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
@@ -110,10 +77,10 @@ onStartup(() => {
   console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../../public')))
 
-  // Voyager is a GraphQL schema visual explorer available on /voyager as a default
-  app.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
+  // Voyager is a GraphQL schema visual explorer
+  app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
   // Setup GraphiQL
-  app.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
+  app.use("/graphiql", graphiqlMiddleware(getGraphiqlConfig(config)));
 
   app.get('*', async (request, response) => {
     const context: any = {};
@@ -123,6 +90,7 @@ onStartup(() => {
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
 
+    // FIXME: Hash client bundle on startup to control caching correctly
     const clientScript = `<script type="text/javascript" src="/js/bundle.js?${Math.random()}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
