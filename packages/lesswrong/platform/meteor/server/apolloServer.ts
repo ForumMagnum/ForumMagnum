@@ -27,6 +27,7 @@ import universalCookiesMiddleware from 'universal-cookie-express';
 
 import { formatError } from 'apollo-errors';
 
+import { addClientIdMiddleware } from '../../../server/clientIdMiddleware';
 import { addStripeMiddleware } from '../../../server/stripeMiddleware';
 import * as Sentry from '@sentry/node';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
