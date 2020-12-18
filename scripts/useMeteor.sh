@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# If we're not in the root of the repo, cd there
+SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")"
+REPO_DIR="$SCRIPTS_DIR/.."
+cd "$REPO_DIR"
+
 rm -f packages/lesswrong/platform/current
 ln -s ./meteor packages/lesswrong/platform/current
 

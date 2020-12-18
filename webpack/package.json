@@ -2,9 +2,10 @@
   "name": "LessWrong",
   "version": "2.1.0",
   "scripts": {
-    "build": "node build.js",
-    "start": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/serverBundle.js --settings ../settings.json'",
-    "debug": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node inspect --trace-warnings -r source-map-support/register -- build/server/js/serverBundle.js --settings ../settings.json'",
+    "build": "../scripts/useWebpack.sh && node build.js",
+    "start": "../scripts/useWebpack.sh && export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/serverBundle.js --settings ../settings.json'",
+    "start-dev-db": "../scripts/useWebpack.sh && export NODE_ENV=development MONGO_URL=\"$(cat ../../LessWrong-Credentials/connectionStrings/dev-db.txt)\" && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/serverBundle.js --settings ../settings.json'",
+    "debug": "../scripts/useWebpack.sh && export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node inspect --trace-warnings -r source-map-support/register -- build/server/js/serverBundle.js --settings ../settings.json'",
     "build:prod": "export NODE_ENV=development && webpack -p",
     "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/serverBundle.js'"
   },
