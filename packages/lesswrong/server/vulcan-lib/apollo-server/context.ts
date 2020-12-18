@@ -20,6 +20,7 @@ import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration } from '../../loginTokens';
+import type { Request, Response } from 'express';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -107,10 +108,10 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
   let context: ResolverContext = {
     ...getCollectionsByName(),
     ...generateDataLoaders(),
-    req,
+    req: req as any,
     res,
-    headers: req?.headers,
-    locale: req?.headers ? getHeaderLocale(req.headers, null) : "en-US",
+    headers: (req as any)?.headers,
+    locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     ...await setupAuthToken(user),
   };
 
@@ -134,7 +135,7 @@ export const getUserFromReq = async (req) => {
 }
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = async (req, res): Promise<ResolverContext> => {
+export const computeContextFromReq = async (req: Request, res: Response): Promise<ResolverContext> => {
   const user = await getUserFromReq(req);
   return computeContextFromUser(user, req, res);
 };

@@ -11,6 +11,7 @@ import Cookies from 'universal-cookie';
 import { ABTestGroupsContext } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import type { CompleteTestGroupAllocation } from '../../../../lib/abTestImpl';
+import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 
 // The client-side App will instead use <BrowserRouter>
 // see client-side vulcan:core/lib/client/start.jsx implementation
@@ -22,14 +23,11 @@ const AppGenerator = ({ req, apolloClient, serverRequestStatus, abTestGroups }: 
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroups: CompleteTestGroupAllocation,
 }) => {
-  // TODO: universalCookies should be defined here, but it isn't
-  // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
-  const cookies = new Cookies(req.cookies); // req.universalCookies;
   const App = (
     <ApolloProvider client={apolloClient}>
       {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
       <StaticRouter location={req.url} context={{}}>
-        <CookiesProvider cookies={cookies}>
+        <CookiesProvider cookies={getAllCookiesFromReq(req)}>
           <ABTestGroupsContext.Provider value={abTestGroups}>
             <Components.App apolloClient={apolloClient} serverRequestStatus={serverRequestStatus}/>
           </ABTestGroupsContext.Provider>

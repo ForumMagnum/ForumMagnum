@@ -6,6 +6,7 @@
  * --skipLibCheck just ignores all .d.ts files.
  */
 import type DataLoader from 'dataloader';
+import type { Request, Response } from 'express';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -160,8 +161,8 @@ interface ResolverContext extends CollectionsByName {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
   extraLoaders: Record<string,any>
-  req?: Request & {logIn: any, logOut: any, cookies: any},
-  res?: Response & {setHeader: any}
+  req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
+  res?: Response
 }
 
 type FragmentName = keyof FragmentTypes;

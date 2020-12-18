@@ -38,8 +38,10 @@ export class MongoCollection<T extends DbObject> {
         return result;
       },
       count: async () => {
-        // TODO
-        return 0;
+        const table = this.getTable();
+        return await table.countDocuments(selector, {
+          ...options,
+        });
       }
     };
   }
@@ -57,13 +59,12 @@ export class MongoCollection<T extends DbObject> {
   }
   insert = async (doc, options) => {
     if (disableAllWrites) return;
-    // TODO: Maybe add _id field here if missing?
     if (!doc._id) {
       doc._id = randomId();
     }
     const table = this.getTable();
-    const insertResult = await table.insert(doc, options);
-    return insertResult.insertedIds[0];
+    const insertResult = await table.insertOne(doc, options);
+    return insertResult.insertedId;
   }
   update = async (selector, update, options) => {
     if (disableAllWrites) return;
@@ -84,7 +85,11 @@ export class MongoCollection<T extends DbObject> {
   _ensureIndex = async (fieldOrSpec, options)=>{
     if (disableAllWrites) return;
     const table = this.getTable();
-    return await table.ensureIndex(fieldOrSpec, options);
+    try {
+      return await table.ensureIndex(fieldOrSpec, options);
+    } catch(e) {
+      console.error(`Error creating index ${JSON.stringify(fieldOrSpec)} on ${this.tableName}: ${e}`);
+    }
   }
   
   
@@ -103,13 +108,11 @@ export class MongoCollection<T extends DbObject> {
       if (disableAllWrites) return;
       const table = this.getTable();
       return await table.bulkWrite(operations, options);
-      // TODO
     },
     findOneAndUpdate: async (filter, update, options) => {
       if (disableAllWrites) return;
       const table = this.getTable();
       return await table.findOneAndUpdate(filter, update, options);
-      // TODO
     },
     dropIndex: async (indexName, options) => {
       if (disableAllWrites) return;

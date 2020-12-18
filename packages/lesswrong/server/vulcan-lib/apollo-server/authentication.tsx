@@ -17,6 +17,7 @@ import { wrapAndSendEmail } from '../../notificationBatching';
 import SimpleSchema from 'simpl-schema';
 import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpers';
 import { getCaptchaRating } from '../../callbacks/userCallbacks';
+import { clearCookie } from '../../utils/httpUtil';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -29,6 +30,7 @@ async function createPasswordHash(password) {
   const meteorClientSideHash = createMeteorClientSideHash(password)
   return await bcrypt.hash(meteorClientSideHash, 10)
 }
+
 
 async function comparePasswords(password, hash) {
   return await bcrypt.compare(createMeteorClientSideHash(password), hash)
@@ -160,7 +162,6 @@ const ResetPasswordToken = new EmailTokenType({
   path: "resetPassword" // Defined in routes.ts
 });
 
-
 const authenticationResolvers = {
   Mutation: {
     async login(root, { username, password }, { req, res }: ResolverContext) {
@@ -183,12 +184,8 @@ const authenticationResolvers = {
     },
     async logout(root, args: {}, { req, res }: ResolverContext) {
       req!.logOut()
-      if (req?.cookies.loginToken) {
-        res!.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)   
-      }
-      if (req?.cookies['meteor_login_token']) {
-        res!.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)   
-      }
+      clearCookie(req, res, "loginToken");
+      clearCookie(req, res, "meteor_login_token");
       return {
         token: null
       }
