@@ -28,6 +28,7 @@ import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache';
 import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
+import { addStripeMiddleware } from '../../../server/stripeMiddleware';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
 
@@ -39,6 +40,7 @@ onStartup(() => {
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use(pickerMiddleware);
 
+  addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
 
