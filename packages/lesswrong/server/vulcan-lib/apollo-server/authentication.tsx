@@ -4,11 +4,8 @@ import passport from 'passport'
 import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
-import { Strategy as GoogleOAuthStrategy } from 'passport-google-oauth20';
-import { Strategy as FacebookOAuthStrategy } from 'passport-facebook';
-import { Strategy as GithubOAuthStrategy } from 'passport-github2';
 import sha1 from 'crypto-js/sha1';
-import { addGraphQLMutation, getSiteUrl, addGraphQLSchema, addGraphQLResolvers, Utils, slugify } from "../../../lib/vulcan-lib";
+import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, } from "../../../lib/vulcan-lib";
 import { getForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
@@ -17,9 +14,24 @@ import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../notificationBatching';
+import SimpleSchema from 'simpl-schema';
+import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpers';
+import { getCaptchaRating } from '../../callbacks/userCallbacks';
+
+// Meteor hashed its passwords twice, once on the client
+// and once again on the server. To preserve backwards compatibility
+// with Meteor passwords, we do the same, but do it both on the server-side
+function createMeteorClientSideHash(password) {
+  return createHash('sha256').update(password).digest('hex')
+}
+
+async function createPasswordHash(password) {
+  const meteorClientSideHash = createMeteorClientSideHash(password)
+  return await bcrypt.hash(meteorClientSideHash, 10)
+}
 
 async function comparePasswords(password, hash) {
-  return await bcrypt.compare(createHash('sha256').update(password).digest('hex'), hash)
+  return await bcrypt.compare(createMeteorClientSideHash(password), hash)
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
@@ -41,80 +53,16 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
     }
     return done(null, false, { message: 'Incorrect password.' });
   } 
-  
   return done(null, user)
 })
 
 passport.use(passwordAuthStrategy)
 
-function createOAuthUserHandler(idPath, getIdFromProfile, getUserDataFromProfile) {
-  return async (accessToken, refreshToken, profile, done) => {
-    const user = await Users.findOne({[idPath]: getIdFromProfile(profile)})
-    if (!user) {
-      const { data: user } = await createMutator({
-        collection: Users,
-        document: getUserDataFromProfile(profile),
-        validate: false,
-        currentUser: null
-      })
-      return done(null, user)
-    }
-    return done(null, user)
-  }
+
+function validatePassword(password:string): {validPassword: true} | {validPassword: false, reason: string} {
+  if (password.length < 6) return { validPassword: false, reason: "Your password needs to be at least 6 characters long"}
+  return { validPassword: true }
 }
-
-passport.use(new GoogleOAuthStrategy({
-    clientID: "630233024243-ujp4pqk2h8of5nsguo4g1lur3rrt804e.apps.googleusercontent.com",
-    clientSecret: "O6VOctyzah9S97bK16-cFhTH",
-    callbackURL: `${getSiteUrl()}auth/google/callback`,
-    proxy: true
-  },
-  createOAuthUserHandler('services.google.id', profile => profile.id, profile => ({
-    email: profile.emails[0].address,
-    services: {
-      google: profile
-    },
-    emails: profile.emails,
-    username: Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-    displayName: profile.displayName,
-    emailSubscribedToCurated: true
-  }))
-))
-
-passport.use(new FacebookOAuthStrategy({
-    clientID: "1482228762084891",
-    clientSecret: "396e976ca3e58246b55f339968837461",
-    callbackURL: `${getSiteUrl()}auth/facebook/callback`,
-    profileFields: ['id', 'emails', 'name', 'displayName'],
-    proxy: true
-  },
-  createOAuthUserHandler('services.facebook.id', profile => profile.id, profile => ({
-    email: profile.emails[0].value,
-    services: {
-      facebook: profile
-    },
-    username: Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-    displayName: profile.displayName,
-    emailSubscribedToCurated: true
-  }))
-))
-
-passport.use(new GithubOAuthStrategy({
-    clientID: "70e4b6aa0005f8cbdfc2",
-    clientSecret: "23b06bca49400f6d2e63b8ac5c1a4500f1ca3666",
-    callbackURL: `${getSiteUrl()}auth/github/callback`,
-    scope: [ 'user:email' ], // fetches non-public emails as well
-  },
-  createOAuthUserHandler('services.github.id', profile => profile.id, profile => ({
-    email: profile.emails[0].value,
-    services: {
-      github: profile
-    },
-    username: Utils.getUnusedSlugByCollectionName("Users", slugify(profile.username)),
-    displayName: profile.username || profile.displayName,
-    emailSubscribedToCurated: true
-  }))
-));
 
 const loginData = `type LoginReturnData {
   token: String
@@ -150,9 +98,11 @@ export async function createAndSetToken(req, res, user) {
   return token
 }
 
-export const VerifyEmailToken = new EmailTokenType({
+
+const VerifyEmailToken = new EmailTokenType({
   name: "verifyEmail",
   onUseAction: async (user) => {
+    if (userEmailAddressIsVerified(user)) return {message: "Your email address is already verified"}
     await updateMutator({ 
       collection: Users,
       documentId: user._id,
@@ -167,21 +117,47 @@ export const VerifyEmailToken = new EmailTokenType({
   resultComponentName: "EmailTokenResult"
 });
 
-export const ResetPasswordToken = new EmailTokenType({
+
+export async function sendVerificationEmail(user: DbUser) {
+  const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
+  await wrapAndSendEmail({
+    user, 
+    subject: "Verify your LessWrong email",
+    body: <div>
+      <p>
+        Click here to verify your LessWrong email 
+      </p>
+      <p>
+        <a href={verifyEmailLink}>
+          {verifyEmailLink}
+        </a>
+      </p>
+    </div>
+  })
+}
+
+const ResetPasswordToken = new EmailTokenType({
   name: "resetPassword",
-  onUseAction: async (user) => {
+  onUseAction: async (user, params, args) => {
+    if (!args) throw Error("Using a reset-password token requires providing a new password")
+    const { password } = args
+    const validatePasswordResponse = validatePassword(password)
+    if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+
     await updateMutator({ 
       collection: Users,
       documentId: user._id,
       set: {
-        'emails.0.verified': true,
+        'services.password.bcrypt': await createPasswordHash(password),
+        'services.resume.loginTokens': []
       } as any,
       unset: {},
       validate: false,
     });
-    return {message: "Your email has been verified" };
+    return {message: "Your new password has been set. Try logging in again." };
   },
   resultComponentName: "EmailTokenResult",
+  path: "resetPassword" // Defined in routes.ts
 });
 
 
@@ -217,8 +193,22 @@ const authenticationResolvers = {
         token: null
       }
     },
-    async signup(root, { email, username, password, subscribeToCurated }, context: ResolverContext) {
+    async signup(root, { email, username, password, subscribeToCurated, recaptchaToken }, context: ResolverContext) {
       if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
+      if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
+      const validatePasswordResponse = validatePassword(password)
+      if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+
+      const reCaptchaResponse = await getCaptchaRating(recaptchaToken)
+      const reCaptchaData = JSON.parse(reCaptchaResponse)
+      let recaptchaScore : number | undefined = undefined
+      if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
+        recaptchaScore = reCaptchaData.score
+      } else {
+        // eslint-disable-next-line no-console
+        console.log("reCaptcha check failed:", reCaptchaData)
+      }
+
       const { req, res } = context
       const { data: user } = await createMutator({
         collection: Users,
@@ -226,7 +216,7 @@ const authenticationResolvers = {
           email,
           services: {
             password: {
-              bcrypt: createHash('sha256').update(password).digest('hex')
+              bcrypt: await createPasswordHash(password)
             },
             resume: {
               loginTokens: []
@@ -236,7 +226,8 @@ const authenticationResolvers = {
             address: email, verified: false
           }],
           username: username,
-          emailSubscribedToCurated: subscribeToCurated
+          emailSubscribedToCurated: subscribeToCurated,
+          signUpReCaptchaRating: recaptchaScore
         },
         validate: false,
         currentUser: null,
@@ -249,31 +240,39 @@ const authenticationResolvers = {
     },
     async resetPassword(root, { email }, context: ResolverContext) {
       if (!email) throw Error("Email is required for resetting passwords")
-      const user = await Users.findOne({email})
+      const user = await Users.findOne({'emails.address': email})
       if (!user) throw Error("Can't find user with given email address")
-      const tokenLink = await ResetPasswordToken.generateLink(user._id, { handlerComponentName: "CommentsItem" })
+      const tokenLink = await ResetPasswordToken.generateLink(user._id)
       await wrapAndSendEmail({
         user,
         subject: "Password Reset Request",
-        body: <body>
+        body: <div>
           <p>
             You requested a password reset. Follow the following link to reset your password: 
           </p>
           <p>
             <a href={tokenLink}></a>
           </p>
-        </body>
+        </div>
       });  
-      return "";
+      return `Successfully sent password reset email to ${email}`;
+    },
+    async verifyEmail(root, { userId }, context: ResolverContext) {
+      if (!userId) throw Error("User ID is required for validating your email")
+      const user = await Users.findOne({_id: userId})
+      if (!user) throw Error("Can't find user with given ID")
+      await sendVerificationEmail(user)
+      return `Successfully sent verification email to ${user.displayName}`
     }
   } 
 };
 
 addGraphQLResolvers(authenticationResolvers);
 addGraphQLMutation('login(username: String, password: String): LoginReturnData');
-addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean): LoginReturnData');
+addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean, recaptchaToken: String): LoginReturnData');
 addGraphQLMutation('logout: LoginReturnData');
 addGraphQLMutation('resetPassword(email: String): String');
+addGraphQLMutation('verifyEmail(userId: String): String');
 
 async function insertHashedLoginToken(userId, hashedToken) {
   const tokenWithMetadata = {

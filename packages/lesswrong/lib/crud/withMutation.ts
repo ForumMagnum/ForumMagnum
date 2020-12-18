@@ -89,7 +89,7 @@ export function useNamedMutation<ArgsType=any>({name, graphqlArgs, fragmentName}
     `;
   }
   
-  const [mutate, loading] = useMutation(gql`${mutation}${fragmentName ? fragment : ''}`);
+  const [mutate, { loading }] = useMutation(gql`${mutation}${fragmentName ? fragment : ''}`);
   return {mutate: async (variables: ArgsType) => {
     return await mutate({ variables });
   }, loading};

@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { gql, useMutation } from '@apollo/client';
+import { DocumentNode } from '@apollo/client';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useMessages } from '../common/withMessages';
 
 
 const styles = theme => ({
@@ -59,13 +62,7 @@ const styles = theme => ({
     fontSize: '0.9em',
     padding: 6
   },
-  toggleState: {
-    cursor: 'pointer',
-    '&:hover': {
-      color: 'rgba(0,0,0,0.5)'
-    }
-  },
-  resetPassword: {
+  toggle: {
     cursor: 'pointer',
     '&:hover': {
       color: 'rgba(0,0,0,0.5)'
@@ -89,11 +86,28 @@ const signupMutation = gql`
   }
 `
 
+const passwordResetMutation = gql`
+  mutation resetPassword($email: String) {
+    resetPassword(email: $email)
+  }
+`
 
-const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState, classes }: {
-  onSignedInHook?: any,
-  onPostSignUpHook?: any,
-  formState?: any,
+type possibleActions = "login" | "signup" | "pwReset"
+
+const currentActionToMutation : Record<possibleActions, DocumentNode> = {
+  login: loginMutation, 
+  signup: signupMutation,
+  pwReset: passwordResetMutation
+}
+
+const currentActionToButtonText : Record<possibleActions, string> = {
+  login: "Log In",
+  signup: "Sign Up", 
+  pwReset: "Request Password Reset"
+}
+
+const WrappedLoginForm = ({ startingState = "login", classes }: {
+  startingState: possibleActions,
   classes: ClassesType
 }) => {
   const { SignupSubscribeToCurated } = Components;
@@ -101,50 +115,43 @@ const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState, classes
   const [username, setUsername] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string | undefined>(undefined)
   const [email, setEmail] = useState<string | undefined>(undefined)
-  const [signup, setSignup] = useState<boolean>(false)
-  const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(true)
-  const [ mutate, { error } ] = useMutation(signup ? signupMutation : loginMutation, { errorPolicy: 'all' })
-  const submitFunction = signup ? 
-    async () => {
-      const { data } = await mutate({ variables: { email, username, password, subscribeToCurated }})
-      if (data?.signup?.token) {
-        location.reload()
-      }
-    } :
-    async () => {
-      const { data } = await mutate({ variables: { username, password }})
-      if (data?.login?.token) {
-        // If login is successful, just refresh the page
-        location.reload()
-      }
-    }
-  // const clientId = useClientId();
+  const { flash } = useMessages();
+  const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
+  const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(!['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get()))
+  const [ mutate, { error } ] = useMutation(currentActionToMutation[currentAction], { errorPolicy: 'all' })
 
-  // const customSignupFields = ['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get())
-  //   ? []
-  //   : [
-  //     {
-  //       id: "subscribeToCurated",
-  //       type: 'custom',
-  //       defaultValue: true,
-  //       renderCustom: Components.SignupSubscribeToCurated
-  //     }
-  //   ]
+  const submitFunction = async (e) => {
+    e.preventDefault();
+    const variables = 
+      currentAction === "signup" ? { email, username, password, reCaptchaToken, subscribeToCurated } : (
+      currentAction === "login" ? { username, password } :
+      currentAction === "pwReset" ? { email } : {})
+    const { data } = await mutate({ variables })
+    if (data?.login?.token || data?.signup?.token) location.reload()
+    if (data?.resetPassword) {
+      flash(data?.resetPassword)
+    }
+  }
 
   return <React.Fragment>
     {reCaptchaSiteKeySetting.get()
       && <Components.ReCaptcha verifyCallback={(token) => setReCaptchaToken(token)} action="login/signup"/>}
-    <div className={classes.root}>
-      {signup && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
-      <input value={username} type="text" name="username" placeholder={signup ? "username" : "username or email"} className={classes.input} onChange={event => setUsername(event.target.value)}/>
-      <input value={password} type="password" name="password" placeholder="password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
-      <button className={classes.submit} onClick={submitFunction}>
-        {signup ? "Sign Up" : "Log In"}
-      </button>
-      {signup && <SignupSubscribeToCurated defaultValue={true} onChange={(e) => setSubscribeToCurated(e.target.value)} />}
+    <form className={classes.root} onSubmit={submitFunction}>
+      {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
+      {["signup", "login"].includes(currentAction) && <>
+        <input value={username} type="text" name="username" placeholder={currentAction === "signup" ? "username" : "username or email"} className={classes.input} onChange={event => setUsername(event.target.value)}/>
+        <input value={password} type="password" name="password" placeholder="password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
+      </>}
+      <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
+      
+      {currentAction === "signup" && !['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get()) &&
+        <SignupSubscribeToCurated defaultValue={subscribeToCurated} onChange={(e) => setSubscribeToCurated(e.target.value)} />
+      }
       <div className={classes.options}>
-        <span className={classes.toggleState} onClick={() => setSignup(!signup)}> {signup ? "Log In" : "Sign Up"} </span>
-        <span className={classes.resetPassword}> Reset Password </span>
+        { currentAction !== "login" && <span className={classes.toggle} onClick={() => setCurrentAction("login")}> Log In </span> }
+        { currentAction === "login" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
+        { currentAction === "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
+        { currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span> }
       </div>
       <div className={classes.oAuthComment}>...or continue with</div>
       <div className={classes.oAuthBlock}>
@@ -155,7 +162,7 @@ const WrappedLoginForm = ({ onSignedInHook, onPostSignUpHook, formState, classes
       {/* <a href="/auth/facebook"><FacebookIcon /></a>
       <a href="/auth/github"><GithubIcon /></a> */}
       {error && <div className={classes.error}>{error.message}</div>}
-    </div>
+    </form>
   </React.Fragment>;
 }
 

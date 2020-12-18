@@ -97,9 +97,9 @@ passport.deserializeUser(deserializeUserPassport)
 export const setupToolsMiddlewares = config => {
   // Voyager is a GraphQL schema visual explorer
   // available on /voyager as a default
-  // WebApp.connectHandlers.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
+  app.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
   // Setup GraphiQL
-  // WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
+  app.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
 };
 
 passport.serializeUser((user, done) => done(null, user._id))
@@ -238,6 +238,7 @@ onStartup(() => {
   //// other middlewares (dev tools etc.)
   // LW: Made available in production environment
   // setupToolsMiddlewares(config);
+  app.use('/graphiql', graphiqlMiddleware(getGraphiqlConfig(config)));
 
   // Start Server
   const port = process.env.PORT || 3000

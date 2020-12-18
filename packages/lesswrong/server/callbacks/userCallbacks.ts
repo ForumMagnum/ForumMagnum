@@ -8,7 +8,6 @@ import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { sendVerificationEmail } from '../../platform/current/server/meteorServerSideFns';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -16,6 +15,7 @@ const TRUSTLEVEL1_THRESHOLD = 2000
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
 import { DatabaseServerSetting } from "../databaseSettings";
+import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
@@ -45,7 +45,7 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
       && (!user.whenConfirmationEmailSent
           || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
-    sendVerificationEmail(user._id);
+    sendVerificationEmail(user);
   }
 });
 
@@ -106,7 +106,7 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
 });
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
-const getCaptchaRating = async (token): Promise<string> => {
+export const getCaptchaRating = async (token): Promise<string> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
     request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
@@ -122,36 +122,15 @@ const getCaptchaRating = async (token): Promise<string> => {
     );
   });
 }
-getCollectionHooks("Users").newAsync.add(async function addReCaptchaRating (user: DbUser) {
-  if (reCaptchaSecretSetting.get()) {
-    const reCaptchaToken = user?.profile?.reCaptchaToken 
-    if (reCaptchaToken) {
-      const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-      const reCaptchaData = JSON.parse(reCaptchaResponse)
-      if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
-        await Users.update(user._id, {$set: {signUpReCaptchaRating: reCaptchaData.score}})
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("reCaptcha check failed:", reCaptchaData)
-      }
-    }
-  }
-});
 
 getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
-  // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
-  const subscribeToCurated = user.profile?.subscribeToCurated;
-  if (subscribeToCurated) {
-    await Users.update(user._id, {$set: {emailSubscribedToCurated: true}});
-  }
-  
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
   if (!isAnyTest) {
-    sendVerificationEmail(user._id);
+    sendVerificationEmail(user);
     
-    if (subscribeToCurated) {
+    if (user.emailSubscribedToCurated) {
       await bellNotifyEmailVerificationRequired(user);
     }
   }

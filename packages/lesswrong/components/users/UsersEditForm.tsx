@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
+import { gql, useMutation } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -31,6 +32,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const passwordResetMutation = gql`
+  mutation resetPassword($email: String) {
+    resetPassword(email: $email)
+  }
+`
+
 const UsersEditForm = ({terms, client, classes}: {
   terms: {slug?: string, documentId?: string},
   client?: any,
@@ -40,6 +47,7 @@ const UsersEditForm = ({terms, client, classes}: {
   const { flash } = useMessages();
   const { history } = useNavigation();
   const { Typography } = Components;
+  const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -58,15 +66,9 @@ const UsersEditForm = ({terms, client, classes}: {
   // user is an admin. This component does not have access to the user email at
   // all in admin mode unfortunately. In the fullness of time we could fix that,
   // currently we disable it below
-  const requestPasswordReset = () => {
-    // TODO: Implement 
-    console.log("This should reset the password, but it's not yet implemented")
-    // flash({
-    //   messageString: error ?
-    //   error.reason :
-    //   // TODO: This doesn't seem to display
-    //   "Sent password reset email to " + currentUser?.email
-    // })
+  const requestPasswordReset = async () => {
+    const { data } = await mutate({variables: { email: currentUser?.emails[0]?.address }})
+    flash(data?.resetPassword)
   } 
 
   // Since there are two urls from which this component can be rendered, with different terms, we have to

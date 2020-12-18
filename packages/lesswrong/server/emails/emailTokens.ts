@@ -13,8 +13,9 @@ export class EmailTokenType
   onUseAction: any
   resultComponentName: string
   reusable: boolean
+  path: string
   
-  constructor({ name, onUseAction, resultComponentName, reusable=false }) {
+  constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }) {
     if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
     if (name in emailTokenTypesByName)
@@ -24,10 +25,11 @@ export class EmailTokenType
     this.onUseAction = onUseAction;
     this.resultComponentName = resultComponentName;
     this.reusable = reusable;
+    this.path = path;
     emailTokenTypesByName[name] = this;
   }
   
-  generateToken = async (userId, params?: any) => {
+  generateToken = async (userId) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = randomSecret();
@@ -35,18 +37,17 @@ export class EmailTokenType
       token: token,
       tokenType: this.name,
       userId: userId,
-      usedAt: null,
-      params: params,
+      usedAt: null
     });
     return token;
   }
   
-  generateLink = async (userId, params?: any) => {
+  generateLink = async (userId) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
-    const token = await this.generateToken(userId, params);
+    const token = await this.generateToken(userId);
     const prefix = getSiteUrl().slice(0,-1);
-    return `${prefix}/emailToken/${token}`;
+    return `${prefix}/${this.path}/${token}`;
   }
   
   handleToken = async (token, args) => {
@@ -79,23 +80,10 @@ async function getAndValidateToken(token) {
 addGraphQLMutation('useEmailToken(token: String, args: JSON): JSON');
 addGraphQLQuery('getTokenParams(token: String): JSON');
 addGraphQLResolvers({
-  Query: {
-    async getTokenParams(root, { token }, context: ResolverContext) {
-      try {
-        const { tokenObj, tokenType } = await getAndValidateToken(token)
-        return {
-          params: tokenObj.params
-        }
-      } catch(err) {
-        return {
-          error: err.message 
-        }
-      }
-    }
-  },
   Mutation: {
     async useEmailToken(root, {token, args}, context: ResolverContext) {
       try {
+        console.log(token, args)
         const { tokenObj, tokenType } = await getAndValidateToken(token)
         
         const resultProps = await tokenType.handleToken(tokenObj, args);

@@ -744,6 +744,11 @@ addRoute(
     componentName: 'EmailTokenPage',
   },
   {
+    name: 'password-reset',
+    path: '/resetPassword/:token',
+    componentName: 'PasswordResetPage',
+  },
+  {
     name: 'nominations2018',
     path: '/nominations2018',
     componentName: 'Nominations2018',
