@@ -50,14 +50,6 @@ import { DatabaseServerSetting } from '../../../server/databaseSettings';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
 
-export const setupToolsMiddlewares = config => {
-  // Voyager is a GraphQL schema visual explorer
-  // available on /voyager as a default
-  // WebApp.connectHandlers.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
-  // Setup GraphiQL
-  // WebApp.connectHandlers.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
-};
-
 onStartup(() => {
   // Vulcan specific options
   const config = {
@@ -118,6 +110,11 @@ onStartup(() => {
   console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../../public')))
 
+  // Voyager is a GraphQL schema visual explorer available on /voyager as a default
+  app.use(config.voyagerPath, voyagerMiddleware(getVoyagerConfig(config)));
+  // Setup GraphiQL
+  app.use(config.graphiqlPath, graphiqlMiddleware(getGraphiqlConfig(config)));
+
   app.get('*', async (request, response) => {
     const context: any = {};
 
@@ -140,13 +137,6 @@ onStartup(() => {
     // Finally send generated HTML with initial data to the client
     return response.status(status||200).send(doctypeHeader + publicSettingsHeader + jssSheets + ssrBody + serializedApolloState + clientScript)
   })
-
-  // NOTE: order matters here
-  // /graphql middlewares (request parsing)
-  // setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);
-  //// other middlewares (dev tools etc.)
-  // LW: Made available in production environment
-  // setupToolsMiddlewares(config);
 
   // Start Server
   const port = process.env.PORT || 3000
