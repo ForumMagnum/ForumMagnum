@@ -24,7 +24,6 @@ import { onPageLoad } from 'meteor/server-render';
 import makePageRenderer from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
-import { randomId } from '../lib/random';
 
 import { formatError } from 'apollo-errors';
 
@@ -32,25 +31,6 @@ import { addStripeMiddleware } from '../../../server/stripeMiddleware';
 import * as Sentry from '@sentry/node';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
-import { getCookieFromReq, setCookieOnResponse } from '../../../server/utils/httpUtil';
-
-// Middleware for assigning a client ID, if one is not currently assigned.
-// Since Meteor doesn't have an API for setting cookies, this calls setHeader
-// on the HTTP response directly; if other middlewares also want to set
-// cookies, they won't necessarily play nicely together.
-WebApp.connectHandlers.use(function addClientId(req, res, next) {
-  if (!getCookieFromReq(req, "clientId")) {
-    const newClientId = randomId();
-    setCookieOnResponse({
-      req, res,
-      cookieName: "clientId",
-      cookieValue: newClientId,
-      maxAge: 315360000
-    });
-  }
-  
-  next();
-}, {order: 100});
 
 // A useful lesson about connect handlers: 
 // Turns out, connect handlers also cover all subpaths. This means that if you
@@ -68,6 +48,7 @@ onStartup(() => {
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
+  addClientIdMiddleware(addMiddleware);
 
   // define executableSchema
   createVoteableUnionType();

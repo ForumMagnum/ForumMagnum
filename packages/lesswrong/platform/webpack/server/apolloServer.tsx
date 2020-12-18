@@ -31,6 +31,7 @@ import { createVoteableUnionType } from '../../../server/votingGraphQL';
 import { addStripeMiddleware } from '../../../server/stripeMiddleware';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
+import { addClientIdMiddleware } from '../../../server/clientIdMiddleware';
 
 onStartup(() => {
   const addMiddleware = (...args) => app.use(...args);
@@ -43,6 +44,7 @@ onStartup(() => {
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
+  addClientIdMiddleware(addMiddleware);
 
   // define executableSchema
   createVoteableUnionType();
