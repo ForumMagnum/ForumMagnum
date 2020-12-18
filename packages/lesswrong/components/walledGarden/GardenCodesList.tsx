@@ -3,7 +3,6 @@ import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import {commentBodyStyles} from "../../themes/stylePiping";
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
