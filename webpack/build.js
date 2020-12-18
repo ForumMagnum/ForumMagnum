@@ -37,8 +37,9 @@ esbuild.buildSync({
   target: "es6",
   sourcemap: true,
   outfile: "./build/client/js/bundle.js",
-  minify: false,
+  minify: isProduction,
   banner: clientBundleBanner,
+  treeShaking: "ignore-annotations",
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
     "webpackIsServer": false,
