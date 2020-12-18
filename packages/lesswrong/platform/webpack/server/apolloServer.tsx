@@ -120,14 +120,6 @@ onStartup(() => {
 
   app.get('*', async (request, response) => {
     const context: any = {};
-    
-    if(request.url === `/allStyles?hash=${getMergedStylesheet().hash}`) {
-      response.writeHead(200, {
-        "Cache-Control": "public, max-age=604800, immutable",
-        "Content-Type": "text/css"
-      });
-      return response.end(getMergedStylesheet().css);
-    }
 
     const user = await getUserFromReq(request);
     const renderResult = await renderRequest({req: request, res: response, user, startTime: new Date()})
