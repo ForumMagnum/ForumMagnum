@@ -4,12 +4,22 @@ import { onStartupFunctions } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
+import process from 'process';
 
 const dbName = 'lesswrong2';
 
 async function serverStartup() {
   console.log("Starting server");
-  console.log(`forumType = ${forumTypeSetting.get()}`);
+  
+  const isTTY = process.stdout.isTTY;
+  const CSI = "\x1b[";
+  const blue = isTTY ? `${CSI}34m` : "";
+  const endBlue = isTTY ? `${CSI}39m` : "";
+  
+  wrapConsoleLogFunctions((log, ...message) => {
+    process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
+    log(...message);
+  });
   
   const commandLineArguments = getCommandLineArguments();
   
@@ -21,9 +31,6 @@ async function serverStartup() {
     await client.connect();
     const db = client.db(dbName);
     setDatabaseConnection(client, db);
-    
-    const postCount = await db.collection("posts").count();
-    console.log(`Database contains ${postCount} posts`);
   } catch(err) {
     console.log("Failed to connect to mongodb");
     console.log(err);
@@ -39,6 +46,15 @@ async function serverStartup() {
   console.log("Running onStartup functions");
   for (let startupFunction of onStartupFunctions)
     await startupFunction();
+}
+
+function wrapConsoleLogFunctions(wrapper: (originalFn: any, ...message: any[])=>void) {
+  for (let functionName of ["log", "info", "warn", "error", "trace"]) {
+    const originalFn = console[functionName];
+    console[functionName] = (...message: any[]) => {
+      wrapper(originalFn, ...message);
+    }
+  }
 }
 
 serverStartup();
