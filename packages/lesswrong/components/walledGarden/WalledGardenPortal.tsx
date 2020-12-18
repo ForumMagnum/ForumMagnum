@@ -12,7 +12,6 @@ import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
-import Button from '@material-ui/core/Button';
 
 const toggleEventsOffset = "330px"
 
@@ -84,7 +83,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   })
   const isOpenToPublic = gardenOpenToPublic.get()
 
-  const { query, url, currentRoute, location } = useLocation();
+  const { query } = useLocation();
   const { history } = useNavigation();
   const { code: inviteCodeQuery, entered } = query;
   const enteredQuery = entered === "true"
@@ -177,40 +176,38 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
         {!currentUser?.walledGardenInvite && isOpenToPublic && <p>However, the Garden is currently to the public, so you may enter anyway! :)</p>}
       </div>
       }
-      <p><strong>IMPORTANT TECHNICAL INFORMATION</strong>
-        <ul>
-          <li>Please wear headphones! Try to be in a low-background noise environment.</li>
-          <li>Make sure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
-          <li>The Garden will not load from an incognito window or if 3rd-party cookies are blocked.</li>
-          <li>Technical Problems once you're in the Garden? Refresh the tab.</li>
-          <li>Lost or stuck? Message a host using chat (left sidebar)</li>
-          <li>Interactions are voluntary. It's okay to leave conversations.</li>
-          <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right on most pages) or
-            email (team@lesswrong.com).</li>
-        </ul>
-      </p>
+      <p><strong>IMPORTANT TECHNICAL INFORMATION</strong></p>
+      <ul>
+        <li>Please wear headphones! Try to be in a low-background noise environment.</li>
+        <li>Make sure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
+        <li>The Garden will not load from an incognito window or if 3rd-party cookies are blocked.</li>
+        <li>Technical Problems once you're in the Garden? Refresh the tab.</li>
+        <li>Lost or stuck? Message a host using chat (left sidebar)</li>
+        <li>Interactions are voluntary. It's okay to leave conversations.</li>
+        <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right on most pages) or
+          email (team@lesswrong.com).</li>
+      </ul>
       <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
         <div className={classes.enterButton}>
           <a className={classes.buttonStyling} onClick={ async () => {
             setOnboarded(true)
             history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
             if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-            void updateUser({
-              selector: {_id: currentUser._id},
-              data: {
-                walledGardenPortalOnboarded: true
-              }
-            })
-          }
-          }
-          }>
+              void updateUser({
+                selector: {_id: currentUser._id},
+                data: {
+                  walledGardenPortalOnboarded: true
+                }
+              })
+            }
+          }}>
             <b>Enter the Garden</b>
           </a>
         </div>
       </AnalyticsTracker>
       {!!gardenCode && <div className={classes.eventDetails}>
         <p><strong>EVENT DETAILS</strong> <em>May contain important instructions</em></p>
-        {!!gardenCode && <GardenEventDetails gardenCode={gardenCode}/>}
+        <GardenEventDetails gardenCode={gardenCode}/>
       </div>
       }
     </SingleColumnSection>

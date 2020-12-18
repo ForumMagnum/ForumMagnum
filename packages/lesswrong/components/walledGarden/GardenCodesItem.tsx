@@ -10,7 +10,6 @@ import LinkIcon from '@material-ui/icons/Link';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {useMessages} from "../common/withMessages";
 import { FacebookIcon } from "../localGroups/GroupLinks";
-import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 
 const iconStyling = {
@@ -40,8 +39,6 @@ const styles = theme => ({
     ...eventName(theme)
   },
   eventNameLink: {
-    // color: `${theme.palette.grey[800]} !important`,
-    // color: "rgba(0,0,0,0.3) !important",
     color: "rgba(0,0,0,0.55) !important",
   },
   eventTime: {
@@ -94,9 +91,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
   if (editing) {
     return <GardenCodesEditForm gardenCodeId={gardenCode._id} cancelCallback={()=> setEditing(false)}   />
   }
-  // const title = <span cla>{gardenCode.title}</span>
-  // const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
-  const inviteLink = `localhost:3000/walledGardenPortal?code=${gardenCode.code}&event=${gardenCode.slug}` //TOD-DO: put back correct one
+  const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
   
   return <div className={classes.root}>
     <span className={classes.eventName}>

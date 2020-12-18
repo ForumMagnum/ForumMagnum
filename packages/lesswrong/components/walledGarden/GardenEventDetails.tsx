@@ -2,23 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Typography from "@material-ui/core/Typography";
-import { FacebookIcon } from "../localGroups/GroupLinks";
-import LinkIcon from "@material-ui/icons/Link";
 import { useMessages } from "../common/withMessages";
 import moment from "../../lib/moment-timezone";
 import {useTimezone} from "../common/withTimezone";
 
-const iconStyling = {
-  marginLeft: 1,
-  height: 20,
-  width: 20,
-  cursor: "pointer",
-  position: "relative",
-  top: 1,
-  '&:hover': {
-    opacity: 0.5
-  }
-}
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,6 +26,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: "small-caps",
     fontSize: "1.6rem",
     marginBottom: 30
+  },
+  description: {
+    marginBottom: 20
   }
 })
 
@@ -59,14 +49,19 @@ export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCod
         </CopyToClipboard>
       </LWTooltip>
     <div className={classes.startTime}>
-      <div>{moment(gardenCode?.startTime).tz(timezone).format("dddd, MMMM Do, YYYY")}</div>
-      <div>{moment(gardenCode?.startTime).tz(timezone).format("h:mma z")}</div>
+      <div>{moment(gardenCode.startTime).tz(timezone).format("dddd, MMMM Do, YYYY")}</div>
+      <div>{moment(gardenCode.startTime).tz(timezone).format("h:mma z")}</div>
     </div>
     <ContentItemBody
       dangerouslySetInnerHTML={{__html: gardenCode.contents?.html||""}}
       description={`gardenCode ${gardenCode.code}`}
       className={classes.description}
     />
+    {gardenCode.fbLink  && <LWTooltip title="Link to the FB version of this event" placement="right">
+      <a href={gardenCode.fbLink} target="_blank" rel="noopener noreferrer">
+        <em>Facebook Event</em>
+      </a>
+    </LWTooltip>}
   </div>
 }
 
