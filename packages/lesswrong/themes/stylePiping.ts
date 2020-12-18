@@ -63,7 +63,7 @@ const metaculusPreviewStyles = () => ({
     backgroundColor: metaculusBackground,
     '& iframe': {
       width: '100%',
-      height: 250,
+      height: 400,
       border: 'none'
     }
   }
