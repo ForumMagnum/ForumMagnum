@@ -32,6 +32,14 @@ import { addStripeMiddleware } from '../../../server/stripeMiddleware';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
 import { addClientIdMiddleware } from '../../../server/clientIdMiddleware';
+import fs from 'fs';
+import crypto from 'crypto';
+
+const getClientBundleHash = () => {
+  const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
+  const bundleText = fs.readFileSync(bundlePath, 'utf8');
+  return crypto.createHash('sha256').update(bundleText, 'utf8').digest('hex');
+}
 
 onStartup(() => {
   const addMiddleware = (...args) => app.use(...args);
@@ -80,6 +88,8 @@ onStartup(() => {
   app.use(express.static(path.join(__dirname, '../../client')))
   console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../../public')))
+  
+  const clientBundleHash = getClientBundleHash();
 
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
@@ -95,17 +105,13 @@ onStartup(() => {
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
 
     // FIXME: Hash client bundle on startup to control caching correctly
-    const clientScript = `<script type="text/javascript" src="/js/bundle.js?${Math.random()}"></script>`
+    const clientScript = `<script type="text/javascript" src="/js/bundle.js?hash=${clientBundleHash}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings());
     
     const doctypeHeader = "<!doctype html>\n"
 
-    // // Get Meta header tags
-    // const helmet = Helmet.renderStatic()
-
-    // let html = index(helmet, appHtml)
     // Finally send generated HTML with initial data to the client
     return response.status(status||200).send(doctypeHeader + publicSettingsHeader + jssSheets + ssrBody + serializedApolloState + clientScript)
   })
