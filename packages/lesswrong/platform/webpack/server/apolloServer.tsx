@@ -75,7 +75,7 @@ onStartup(() => {
   };
 
   app.use(universalCookiesMiddleware());
-  app.use(bodyParser.urlencoded()) // We send passwords + username via urlencoded form parameters
+  app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use(pickerMiddleware);
 
   addAuthMiddlewares((...args) => app.use(...args));
