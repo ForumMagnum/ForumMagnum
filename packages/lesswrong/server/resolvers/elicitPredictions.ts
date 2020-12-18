@@ -4,6 +4,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
 import { encode } from 'querystring'
+import { onStartup } from '../../platform/current/lib/executionEnvironment';
 
 const ElicitUserType = `type ElicitUser {
   isQuestionCreator: Boolean
@@ -146,36 +147,38 @@ async function getElicitQuestionWithPredictions(questionId: string) {
   }
 }
 
-if (elicitAPIKey.get()) {
-  const elicitPredictionResolver = {
-    ElicitUser: {
-      lwUser: generateIdResolverSingle({
-        collectionName: "Users",
-        fieldName: "sourceUserId",
-        nullable: true 
-      })
-    },
-    Query: {
-      async ElicitBlockData(root, { questionId }, context: ResolverContext) {
-        return await getElicitQuestionWithPredictions(questionId)
-      }
-    },
-    Mutation: {
-      async MakeElicitPrediction(root, { questionId, prediction }, { currentUser }: ResolverContext) {
-        if (!currentUser) throw Error("Can only make elicit prediction when logged in")
-        if (prediction) {
-          const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
-          if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
-        } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
-          await cancelElicitPrediction(questionId, currentUser)
+onStartup(() => {
+  if (elicitAPIKey.get()) {
+    const elicitPredictionResolver = {
+      ElicitUser: {
+        lwUser: generateIdResolverSingle({
+          collectionName: "Users",
+          fieldName: "sourceUserId",
+          nullable: true 
+        })
+      },
+      Query: {
+        async ElicitBlockData(root, { questionId }, context: ResolverContext) {
+          return await getElicitQuestionWithPredictions(questionId)
         }
-        const newData = await getElicitQuestionWithPredictions(questionId)
-        return newData
+      },
+      Mutation: {
+        async MakeElicitPrediction(root, { questionId, prediction }, { currentUser }: ResolverContext) {
+          if (!currentUser) throw Error("Can only make elicit prediction when logged in")
+          if (prediction) {
+            const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
+            if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
+          } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
+            await cancelElicitPrediction(questionId, currentUser)
+          }
+          const newData = await getElicitQuestionWithPredictions(questionId)
+          return newData
+        }
       }
-    }
-  };
-  
-  addGraphQLResolvers(elicitPredictionResolver);
-  addGraphQLQuery('ElicitBlockData(questionId: String): ElicitBlockData');
-  addGraphQLMutation('MakeElicitPrediction(questionId: String, prediction: Int): ElicitBlockData');
-}
+    };
+    
+    addGraphQLResolvers(elicitPredictionResolver);
+    addGraphQLQuery('ElicitBlockData(questionId: String): ElicitBlockData');
+    addGraphQLMutation('MakeElicitPrediction(questionId: String, prediction: Int): ElicitBlockData');
+  }
+})
