@@ -6,3 +6,4 @@ tmp
 platform/meteor
 platform/webpack
 webpack
+node_modules*
