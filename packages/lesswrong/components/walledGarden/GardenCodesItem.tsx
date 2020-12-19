@@ -75,13 +75,12 @@ const styles = theme => ({
   },
   editIcon: {
     ...iconStyling,
-    // color: theme.palette.grey[700],
     opacity: .35,
   },
 })
 
 
-export const checkFBLink = (linkString: string) => {return linkString.startsWith('http') ? linkString : `https://${linkString}`}
+export const makeLinkAbsolute = (link: string) => {return link.startsWith('http://') || link.startsWith('https://') ? link : `https://${link}`}
 
 export const GardenCodesItem = ({classes, gardenCode}:{
   classes:ClassesType,
@@ -129,7 +128,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
       <div className={classes.fbIconContainer}> {/*container for fb icon to maintain spacing*/} 
         {gardenCode.fbLink && (gardenCode.type=="public" || currentUser?.walledGardenInvite) &&
         <LWTooltip title="Link to the FB version of this event" placement="right">
-          <a href={checkFBLink(gardenCode.fbLink)} target="_blank" rel="noopener noreferrer">
+          <a href={makeLinkAbsolute(gardenCode.fbLink)} target="_blank" rel="noopener noreferrer">
             <FacebookIcon className={classes.fbIcon}/>
           </a>
         </LWTooltip>}

@@ -5,7 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import { useMessages } from "../common/withMessages";
 import moment from "../../lib/moment-timezone";
 import {useTimezone} from "../common/withTimezone";
-import { checkFBLink } from "./GardenCodesItem";
+import { makeLinkAbsolute } from "./GardenCodesItem";
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -59,7 +59,7 @@ export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCod
       className={classes.description}
     />
     {gardenCode.fbLink  && <LWTooltip title="Link to the FB version of this event" placement="right">
-      <a href={checkFBLink(gardenCode.fbLink)} target="_blank" rel="noopener noreferrer">
+      <a href={makeLinkAbsolute(gardenCode.fbLink)} target="_blank" rel="noopener noreferrer">
         <em>Facebook Event</em>
       </a>
     </LWTooltip>}
