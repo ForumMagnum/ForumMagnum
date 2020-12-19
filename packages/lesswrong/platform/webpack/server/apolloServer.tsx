@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
-import { renderRequest } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
+import { renderWithCache } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './picker';
@@ -100,11 +100,10 @@ onStartup(() => {
     const context: any = {};
 
     const user = await getUserFromReq(request);
-    const renderResult = await renderRequest({req: request, res: response, user, startTime: new Date()})
+    const renderResult = await renderWithCache(request, response);
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
 
-    // FIXME: Hash client bundle on startup to control caching correctly
     const clientScript = `<script type="text/javascript" src="/js/bundle.js?hash=${clientBundleHash}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')

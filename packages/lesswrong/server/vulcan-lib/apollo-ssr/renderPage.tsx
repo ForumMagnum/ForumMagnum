@@ -42,10 +42,8 @@ export type RenderResult = {
   timings: RenderTimings
 }
 
-const makePageRenderer = async sink => {
+export const renderWithCache = async (req: Request, res: Response) => {
   const startTime = new Date();
-  const req = sink.request;
-  const res = sink.response;
   const user = await getUserFromReq(req);
   
   const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
@@ -58,6 +56,7 @@ const makePageRenderer = async sink => {
   // response object, which the onPageLoad/sink API doesn't offer).
   const tabId = randomId();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+  const url = getPathFromReq(req);
   
   const clientId = getCookieFromReq(req, "clientId");
 
@@ -65,7 +64,7 @@ const makePageRenderer = async sink => {
   const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
   
   const ssrEventParams = {
-    url: req.url.pathname,
+    url: url,
     clientId, tabId,
     userAgent: userAgent,
   };
@@ -77,10 +76,6 @@ const makePageRenderer = async sink => {
     const rendered = await renderRequest({
       req, user, startTime, res
     });
-    sendToSink(sink, {
-      ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
-    });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
       userId: user._id,
@@ -89,23 +84,24 @@ const makePageRenderer = async sink => {
       abTestGroups: rendered.abTestGroups,
     });
     // eslint-disable-next-line no-console
-    console.log(`Rendered ${req.url.path} for ${user.username}: ${printTimings(rendered.timings)}`);
+    console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
+    
+    return {
+      ...rendered,
+      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+    };
   } else {
     const abTestGroups = getAllUserABTestGroups(user, clientId);
     const rendered = await cachedPageRender(req, abTestGroups, (req) => renderRequest({
       req, user: null, startTime, res
     }));
-    sendToSink(sink, {
-      ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
-    });
     
     if (rendered.cached) {
       // eslint-disable-next-line no-console
-      console.log(`Served ${req.url.path} from cache for logged out ${ip} (${userAgent})`);
+      console.log(`Served ${url} from cache for logged out ${ip} (${userAgent})`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+      console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     }
     
     Vulcan.captureEvent("ssr", {
@@ -117,6 +113,11 @@ const makePageRenderer = async sink => {
       abTestGroups: rendered.abTestGroups,
       cached: rendered.cached,
     });
+    
+    return {
+      ...rendered,
+      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+    };
   }
 };
 
@@ -206,26 +207,6 @@ export const renderRequest = async ({req, user, startTime, res}: {
   };
 }
 
-const sendToSink = (sink, {
-  ssrBody, headers, serializedApolloState, jssSheets,
-  status, redirectUrl
-}: RenderResult) => {
-  if (status) {
-    sink.setStatusCode(status);
-  }
-  if (redirectUrl) {
-    sink.redirect(redirectUrl, status||301);
-  }
-  
-  sink.appendToBody(ssrBody);
-  for (let head of headers)
-    sink.appendToHead(head);
-  sink.appendToBody(serializedApolloState);
-  sink.appendToHead(jssSheets);
-}
-
 const printTimings = (timings: RenderTimings): string => {
   return `${timings.totalTime}ms (prerender: ${timings.prerenderTime}ms, render: ${timings.renderTime}ms)`;
 }
-
-export default makePageRenderer;

@@ -21,7 +21,7 @@ import { createVoteableUnionType } from '../../../server/votingGraphQL';
 // excepts it is tailored to handle Meteor server side rendering
 import { onPageLoad } from 'meteor/server-render';
 
-import makePageRenderer from '../../../server/vulcan-lib/apollo-ssr/renderPage';
+import { renderWithCache } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -123,3 +123,26 @@ onStartup(() => {
   // render the page
   onPageLoad(makePageRenderer);
 });
+
+const makePageRenderer = async (sink) => {
+  const renderResult = await renderWithCache(sink.request, sink.response);
+  sendToSink(sink, renderResult);
+}
+
+const sendToSink = (sink, {
+  ssrBody, headers, serializedApolloState, jssSheets,
+  status, redirectUrl
+}: RenderResult) => {
+  if (status) {
+    sink.setStatusCode(status);
+  }
+  if (redirectUrl) {
+    sink.redirect(redirectUrl, status||301);
+  }
+  
+  sink.appendToBody(ssrBody);
+  for (let head of headers)
+    sink.appendToHead(head);
+  sink.appendToBody(serializedApolloState);
+  sink.appendToHead(jssSheets);
+}
