@@ -83,14 +83,6 @@
     }
 }
 
-// TODO: Consider taking ownership of the CSS of these draft-js plugins
-@import '../../node_modules/draft-js/dist/Draft.css';
-@import '../../node_modules/draft-js-inline-toolbar-plugin/lib/plugin.css';
-@import '../../node_modules/draft-js-image-plugin/lib/plugin.css';
-@import '../../node_modules/draft-js-alignment-plugin/lib/plugin.css';
-@import '../../node_modules/draft-js-focus-plugin/lib/plugin.css';
-@import '../../node_modules/draft-js-divider-plugin/lib/plugin.css';
-
 
 // TODO: These classes are used by 248 posts in the database that were authored
 // while LW2 was using ory-editor, which we have since migrated away from.

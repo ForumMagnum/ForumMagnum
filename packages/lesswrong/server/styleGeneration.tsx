@@ -8,6 +8,7 @@ import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
 import datetimeStyles from '../styles/datetimeStyles';
+import draftjsStyles from '../styles/draftjsStyles';
 
 const generateMergedStylesheet = (): string => {
   importAllComponents();
@@ -35,6 +36,7 @@ const generateMergedStylesheet = (): string => {
   
   return [
     datetimeStyles,
+    draftjsStyles,
     jssStylesheet
   ].join("\n");
 }
