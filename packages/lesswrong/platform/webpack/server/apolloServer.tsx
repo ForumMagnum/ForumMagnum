@@ -104,15 +104,26 @@ onStartup(() => {
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
 
-    const clientScript = `<script type="text/javascript" src="/js/bundle.js?hash=${clientBundleHash}"></script>`
+    const clientScript = `<script defer type="text/javascript" src="/js/bundle.js?hash=${clientBundleHash}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings());
     
-    const doctypeHeader = "<!doctype html>\n"
-
     // Finally send generated HTML with initial data to the client
-    return response.status(status||200).send(doctypeHeader + publicSettingsHeader + jssSheets + ssrBody + serializedApolloState + clientScript)
+    if (redirectUrl) {
+      console.log(`Redirecting to ${redirectUrl}`);
+      response.status(status||301).redirect(redirectUrl);
+    } else {
+      return response.status(status||200).send(
+        '<!doctype html>\n'
+        + '<head>\n'
+          + clientScript
+          + headers.join('\n')
+        + '</head>\n'
+        + jssSheets
+        + '<body>\n'+ssrBody+'</body>\n'
+        + serializedApolloState)
+    }
   })
 
   // Start Server
@@ -122,3 +133,4 @@ onStartup(() => {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
 })
+
