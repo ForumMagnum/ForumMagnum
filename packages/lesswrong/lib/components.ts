@@ -126,7 +126,6 @@ importComponent("HoverPreviewLink", () => require('../components/linkPreview/Hov
 importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
-importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
@@ -148,7 +147,6 @@ importComponent("LoginPopupButton", () => require('../components/users/LoginPopu
 importComponent("LoginPopup", () => require('../components/users/LoginPopup'));
 importComponent("KarmaChangeNotifier", () => require('../components/users/KarmaChangeNotifier'));
 importComponent("KarmaChangeNotifierSettings", () => require('../components/users/KarmaChangeNotifierSettings'));
-importComponent("AccountsResetPassword", () => require('../components/users/AccountsResetPassword'));
 importComponent("EmailTokenPage", () => require('../components/users/EmailTokenPage'));
 importComponent("EmailTokenResult", () => require('../components/users/EmailTokenResult'));
 importComponent("SignupSubscribeToCurated", () => require('../components/users/SignupSubscribeToCurated'));
@@ -156,6 +154,7 @@ importComponent("UserNameDeleted", () => require('../components/users/UserNameDe
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
+importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
