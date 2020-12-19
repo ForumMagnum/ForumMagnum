@@ -5,5 +5,7 @@ tmp
 .eslintrc.js
 platform/meteor
 platform/webpack
+platform/express
 webpack
+express
 node_modules.*

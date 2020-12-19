@@ -8,3 +8,4 @@
 --ignore-dir=.vulcan
 --ignore-file=is:.eslintcache
 --ignore-dir=webpack/src
+--ignore-dir=express/src

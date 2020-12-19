@@ -8,7 +8,7 @@ import Cookies from 'universal-cookie';
 // and unnecessary wrappers.
 
 // Given an HTTP request, get a cookie. Exists mainly to cover up a difference
-// between the Meteor and Webpack server middleware setups.
+// between the Meteor and Express server middleware setups.
 export function getCookieFromReq(req: Request, cookieName: string) {
   const untypedReq: any = req;
   if (untypedReq.universalCookies)
@@ -20,7 +20,7 @@ export function getCookieFromReq(req: Request, cookieName: string) {
 }
 
 // Given an HTTP request, clear a named cookie. Handles the difference between
-// the Meteor and Webpack server middleware setups. Works by setting an
+// the Meteor and Express server middleware setups. Works by setting an
 // expiration date in the past, which apparently is the recommended way to
 // remove cookies.
 export function clearCookie(req, res, cookieName) {
