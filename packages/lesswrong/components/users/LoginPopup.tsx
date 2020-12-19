@@ -27,10 +27,7 @@ const LoginPopup = ({onClose, classes}) => {
         paper: classes.paper
       }}
     >
-      <Components.WrappedLoginForm
-        onSignedInHook={() => onClose()}
-        onPostSignUpHook={() => onClose()}
-      />
+      <Components.WrappedLoginForm />
     </LWDialog>
   );
 }
