@@ -2,7 +2,7 @@
 // Styles used by DraftJS and its plugins. It's unclear which of these are
 // actually in use.
 //
-export const draftJsStyles = `
+export default `
 /**
  * Draft v0.10.5
  *
