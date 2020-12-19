@@ -3,7 +3,7 @@ import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
-import { Vulcan } from './vulcan-lib';
+import { Vulcan } from '../lib/vulcan-lib/config';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any,any>>> = {};
 

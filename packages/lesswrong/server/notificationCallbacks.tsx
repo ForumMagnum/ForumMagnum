@@ -12,19 +12,19 @@ import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
 import { commentGetPageUrl } from '../lib/collections/comments/helpers'
-import { reasonUserCantReceiveEmails } from './emails/renderEmail';
+import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PrivateMessagesEmail';
 import { EventDebouncer, DebouncerTiming } from './debouncer';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
 import { notificationDebouncers } from './notificationBatching';
-import { wrapAndSendEmail } from './emails/renderEmail';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
 import { isServer } from '../lib/executionEnvironment';
-import { Components, createMutator, updateMutator } from './vulcan-lib';
+import { Components } from '../lib/vulcan-lib/components';
+import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 

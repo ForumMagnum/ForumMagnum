@@ -7,7 +7,8 @@ import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { getUser } from '../lib/vulcan-users/helpers';
 import { Posts } from '../lib/collections/posts';
-import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from './vulcan-lib';
+import { Components } from '../lib/vulcan-lib/components';
+import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { generateEmail, sendEmail, logSentEmail, wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 
 // string (notification type name) => Debouncer

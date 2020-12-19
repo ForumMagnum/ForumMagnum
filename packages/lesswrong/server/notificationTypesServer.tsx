@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components } from './vulcan-lib';
+import { Components } from '../lib/vulcan-lib/components';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';

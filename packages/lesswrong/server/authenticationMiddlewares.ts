@@ -8,7 +8,8 @@ import { Strategy as GoogleOAuthStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookOAuthStrategy } from 'passport-facebook';
 import { Strategy as GithubOAuthStrategy } from 'passport-github2';
 import { DatabaseServerSetting } from './databaseSettings';
-import { createMutator, getSiteUrl, slugify, Utils } from './vulcan-lib';
+import { createMutator } from './vulcan-lib/mutators';
+import { getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 
 const googleClientIdSetting = new DatabaseServerSetting('oAuth.google.clientId', null)
 const googleOAuthSecretSetting = new DatabaseServerSetting('oAuth.google.secret', null)

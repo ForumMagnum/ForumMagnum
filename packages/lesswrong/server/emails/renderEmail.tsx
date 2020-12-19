@@ -17,7 +17,10 @@ import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
-import { Components, computeContextFromUser, createClient, EmailRenderContext, createMutator } from '../vulcan-lib';
+import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
+import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 

@@ -1,6 +1,6 @@
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
-import { updateMutator } from '../vulcan-lib';
+import { updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
