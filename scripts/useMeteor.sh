@@ -6,7 +6,7 @@ REPO_DIR="$SCRIPTS_DIR/.."
 cd "$REPO_DIR"
 
 rm -f packages/lesswrong/platform/current
-ln -s ./meteor packages/lesswrong/platform/current
+(cd packages/lesswrong/platform; ln -s -T ./meteor current)
 
 if [ -d node_modules.meteor ]; then
   echo "Switching to Meteor version"

@@ -6,7 +6,7 @@ REPO_DIR="$SCRIPTS_DIR/.."
 cd "$REPO_DIR"
 
 rm -f packages/lesswrong/platform/current
-ln -s ./webpack packages/lesswrong/platform/current
+(cd packages/lesswrong/platform; ln -s -T ./webpack current)
 
 if [ -d node_modules ] && [ ! -d node_modules/webpack ]; then
   # If node_modules exists but belongs to Meteor, move it to
