@@ -1,10 +1,4 @@
 
-.sequences-list-editor-item {
-  list-style:none;
-  position: relative;
-  padding: 5px;
-}
-
 .input-bannerImageId .image-upload-button {
   position:absolute !important;
   left:15px;
@@ -113,85 +107,4 @@
     width:200px;
     margin:0 auto;
   }
-}
-
-.sequences-editor-title-wrapper {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  z-index: 1;
-  width:0;
-}
-
-.sequences-title, .sequences-editor-title {
-  position: relative;
-  line-height: 1.1;
-  left: -275px;
-  width: 650px;
-  font-size: 36px;
-  color: white;
-  font-variant: small-caps;
-  z-index: 2;
-}
-
-.sequences-editor-title {
-  height:1em;
-  resize:none;
-  background-color: transparent;
-  box-shadow: none;
-  overflow:hidden;
-  &::placeholder {
-    color:rgba(255,255,255,.5);
-  }
-}
-@include mui-breakpoint-down-sm {
-  .sequences-editor-title-wrapper {
-    left:0;
-    width:100%;
-  }
-  .sequences-title, .sequences-editor-title {
-    left: 0;
-    width:100%;
-    text-align:center;
-  }
-}
-
-.chapters-edit-form {
-    width: 700px;
-    margin-left: auto;
-    margin-right: 75px;
-}
-
-.chapters-edit-form, .chapters-new-form {
-  padding:1em;
-  max-width:695px;
-  margin-left: auto;
-  margin-right: 90px;
-  padding:15px;
-  border-radius:2px;
-  margin-bottom: 2em;
-
-  form {
-    clear:both;
-    overflow:auto;
-  }
-  .form-submit {
-    float:right;
-  }
-  h3 {
-    font-size:2em;
-    margin-bottom:1em;
-  }
-  label.control-label {
-    display:none;
-  }
-  .col-sm-9 {
-    padding:0;
-  }
-  .input-title input {
-    font-size:2em;
-  }
-}
-.chapters-new-form {
-  border:solid 1px rgba(0,0,0,.2);
 }
