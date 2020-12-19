@@ -31,12 +31,12 @@ const styles = theme => ({
 })
 
 const PasswordResetPage = ({classes}) => {
-  const { mutate: useEmailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
+  const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
   const [ password, setPassword ] = useState("")
   const submitFunction = async () => {
-    const result = await useEmailTokenMutation({token, args: { password }})
+    const result = await emailTokenMutation({token, args: { password }})
     setUseTokenResult(result?.data?.useEmailToken)
   }
   const { SingleColumnSection } = Components;

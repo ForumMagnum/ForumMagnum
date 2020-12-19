@@ -2,8 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { gql, useMutation } from '@apollo/client';
-import { DocumentNode } from '@apollo/client';
+import { gql, useMutation, DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 
@@ -107,7 +106,7 @@ const currentActionToButtonText : Record<possibleActions, string> = {
 }
 
 const WrappedLoginForm = ({ startingState = "login", classes }: {
-  startingState: possibleActions,
+  startingState?: possibleActions,
   classes: ClassesType
 }) => {
   const { SignupSubscribeToCurated } = Components;

@@ -45,7 +45,7 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
       && (!user.whenConfirmationEmailSent
           || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
-    sendVerificationEmail(user);
+    void sendVerificationEmail(user);
   }
 });
 
@@ -128,7 +128,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
   if (!isAnyTest) {
-    sendVerificationEmail(user);
+    void sendVerificationEmail(user);
     
     if (user.emailSubscribedToCurated) {
       await bellNotifyEmailVerificationRequired(user);

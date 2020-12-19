@@ -7,17 +7,18 @@ const EmailTokenPage = () => {
   const { Loading, SingleColumnSection } = Components
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
-  const { mutate: useEmailTokenMutation, loading: useEmailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
+  const { mutate: emailTokenMutation, loading: emailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
 
   useEffect(() => {
-    useEmailTokenMutation({token}).then(mutationResult => {
+    void emailTokenMutation({token}).then(mutationResult => {
       setUseTokenResult(mutationResult.data.useEmailToken)
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
   const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName]
   return <SingleColumnSection>
-    {(useEmailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...useTokenResult.props}/>}
+    {(emailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...useTokenResult.props}/>}
   </SingleColumnSection>
 }
 

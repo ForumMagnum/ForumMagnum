@@ -83,9 +83,8 @@ addGraphQLResolvers({
   Mutation: {
     async useEmailToken(root, {token, args}, context: ResolverContext) {
       try {
-        console.log(token, args)
         const { tokenObj, tokenType } = await getAndValidateToken(token)
-        
+
         const resultProps = await tokenType.handleToken(tokenObj, args);
         await updateMutator({
           collection: EmailTokens,
