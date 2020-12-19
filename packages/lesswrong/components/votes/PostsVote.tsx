@@ -67,8 +67,8 @@ const PostsVote = ({ post, classes }: {
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
-            {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
             <div> 
+              {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
               <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
             </div>
           </Tooltip>
