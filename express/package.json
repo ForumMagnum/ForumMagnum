@@ -2,10 +2,9 @@
   "name": "LessWrong",
   "version": "2.1.0",
   "scripts": {
-    "build": "../scripts/useExpress.sh && node build.js",
-    "start": "../scripts/useExpress.sh && export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/serverBundle.js --settings ../settings.json'",
-    "start-dev-db": "../scripts/useExpress.sh && export NODE_ENV=development MONGO_URL=\"$(cat ../../LessWrong-Credentials/connectionStrings/dev-db.txt)\" && nodemon --ignore './build/' --exec 'yarn run build && node -r source-map-support/register -- build/server/js/serverBundle.js --settings ../../LessWrong-Credentials/settings-local-dev-devdb.json'",
-    "debug": "../scripts/useExpress.sh && export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node inspect --trace-warnings -r source-map-support/register -- build/server/js/serverBundle.js --settings ../settings.json'",
+    "build": "../scripts/useExpress.sh && ./build.js",
+    "start": "../scripts/useExpress.sh && ./build.js -run -watch --settings ../settings.json",
+    "start-dev-db": "../scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../../LessWrong-Credentials/settings-local-dev-devdb.json",
     "build:prod": "export NODE_ENV=development && webpack -p",
     "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/serverBundle.js'"
   },
@@ -13,8 +12,8 @@
     "@apollo/client": "^3.2.0",
     "@babel/runtime": "^7.12.1",
     "@google/maps": "^0.5.5",
-    "@lesswrong/lesswrong-editor": "../public/lesswrong-editor",
     "@googlemaps/google-maps-services-js": "^3.1.13",
+    "@lesswrong/lesswrong-editor": "../public/lesswrong-editor",
     "@material-ui/core": "3.1.2",
     "@material-ui/icons": "^3.0.0",
     "@material-ui/lab": "^3.0.0-alpha.30",
@@ -100,6 +99,7 @@
     "enzyme": "3.1.0",
     "enzyme-adapter-react-16": "1.0.1",
     "escape-string-regexp": "^1.0.5",
+    "estrella": "^1.2.10",
     "express": "5.0.0-alpha.8",
     "feedparser-promised": "^1.2.2",
     "graphql": "^14.0.0",
@@ -202,9 +202,9 @@
     "@graphql-codegen/introspection": "^1.9.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
+    "chai-as-promised": "^7.1.1",
     "esbuild": "^0.8.21",
     "esbuild-loader": "^2.6.1",
-    "chai-as-promised": "^7.1.1",
     "eslint": "^7.14.0",
     "eslint-config-ckeditor5": "^3.1.0",
     "eslint-config-meteor": "^0.1.1",
@@ -223,6 +223,7 @@
   },
   "resolutions": {
     "graphql": "^14.0.0",
-    "graphql-tools": "4.0.7"
+    "graphql-tools": "4.0.7",
+    "esbuild": "0.8.22"
   }
 }
