@@ -1,10 +1,10 @@
 
 declare global {
-  var webpackIsServer: boolean
+  var bundleIsServer: boolean
 }
 
-export const isClient = !webpackIsServer
-export const isServer = webpackIsServer
+export const isClient = !bundleIsServer
+export const isServer = bundleIsServer
 export const isDevelopment = true
 export const isProduction = false
 export const isAnyTest = false
@@ -18,7 +18,7 @@ export const onStartup = (fn: ()=>void) => {
 let instanceSettings: any = null;
 export const getInstanceSettings = (): any => {
   if (!instanceSettings) {
-    if (webpackIsServer) {
+    if (bundleIsServer) {
       const { loadInstanceSettings } = require('../server/commandLine.ts');
       instanceSettings = loadInstanceSettings();
     } else {

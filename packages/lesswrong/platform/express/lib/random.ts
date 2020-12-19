@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 const unmistakableChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTWXYZ23456789";
 
 export const randomId = () => {
-  if (webpackIsServer) {
+  if (bundleIsServer) {
     const crypto = require('crypto');
     const bytes = crypto.randomBytes(17);
     const result: Array<string> = [];
@@ -26,7 +26,7 @@ export const randomId = () => {
 }
 
 export const randomSecret = () => {
-  if (webpackIsServer) {
+  if (bundleIsServer) {
     const crypto = require('crypto');
     return crypto.randomBytes(15).toString('base64');
   } else {

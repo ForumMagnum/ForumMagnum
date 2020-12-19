@@ -1,4 +1,4 @@
-const ckEditor = webpackIsServer ? {} : require('@lesswrong/lesswrong-editor');
+const ckEditor = bundleIsServer ? {} : require('@lesswrong/lesswrong-editor');
 
 const { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration } = ckEditor;
 export { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration };

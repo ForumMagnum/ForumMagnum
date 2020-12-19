@@ -21,7 +21,7 @@ export class MongoCollection<T extends DbObject> {
   }
   
   getTable = () => {
-    if (webpackIsServer) { 
+    if (bundleIsServer) { 
       return db.collection(this.tableName);
     } else {
       throw new Error("Attempted to run mongodb query on the client");

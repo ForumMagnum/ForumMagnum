@@ -21,7 +21,7 @@ esbuild.buildSync({
   minify: false,
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
-    "webpackIsServer": true,
+    "bundleIsServer": true,
   },
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
@@ -42,7 +42,7 @@ esbuild.buildSync({
   treeShaking: "ignore-annotations",
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
-    "webpackIsServer": false,
+    "bundleIsServer": false,
     "global": "window",
   },
 });
