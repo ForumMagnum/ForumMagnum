@@ -16,8 +16,9 @@ import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpers';
-import { getCaptchaRating } from '../../callbacks/userCallbacks';
 import { clearCookie } from '../../utils/httpUtil';
+import { DatabaseServerSetting } from "../../databaseSettings";
+import request from 'request';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -303,4 +304,22 @@ function registerLoginEvent(user, req) {
     currentUser: user,
     validate: false,
   })
+}
+
+const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
+export const getCaptchaRating = async (token): Promise<string> => {
+  // Make an HTTP POST request to get reply text
+  return new Promise((resolve, reject) => {
+    request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
+        form: {
+          secret: reCaptchaSecretSetting.get(),
+          response: token
+        }
+      },
+      function(err, httpResponse, body) {
+        if (err) reject(err);
+        return resolve(body);
+      }
+    );
+  });
 }

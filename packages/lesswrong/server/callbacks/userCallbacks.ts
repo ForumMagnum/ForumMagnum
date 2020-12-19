@@ -3,7 +3,6 @@ import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
-import request from 'request';
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { randomId } from '../../lib/random';
@@ -14,7 +13,6 @@ const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
-import { DatabaseServerSetting } from "../databaseSettings";
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
@@ -104,24 +102,6 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
     }
   }
 });
-
-const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
-export const getCaptchaRating = async (token): Promise<string> => {
-  // Make an HTTP POST request to get reply text
-  return new Promise((resolve, reject) => {
-    request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
-        form: {
-          secret: reCaptchaSecretSetting.get(),
-          response: token
-        }
-      },
-      function(err, httpResponse, body) {
-        if (err) reject(err);
-        return resolve(body);
-      }
-    );
-  });
-}
 
 getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
   // Regardless of the config setting, try to confirm the user's email address
