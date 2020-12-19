@@ -181,7 +181,7 @@ const GatherTown = ({classes}: {
           {tooltip}
         </div>}
         <div className={classes.gardenCodesList}>
-          <GardenCodesList limit={2}/>
+          <GardenCodesList terms={{view: "semipublicGardenCodes", types:  currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']}} limit={2}/>
         </div>
       </div>
     </div>
