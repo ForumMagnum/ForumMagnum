@@ -17,7 +17,9 @@ import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
-import { computeContextFromUser, createClient, EmailRenderContext, createMutator } from '../vulcan-lib';
+import { Components, computeContextFromUser, createClient, EmailRenderContext, createMutator } from '../vulcan-lib';
+import { UnsubscribeAllToken } from '../emails/emailTokens';
+import { captureException } from '@sentry/core';
 
 
 // How many characters to wrap the plain-text version of the email to
@@ -188,6 +190,29 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     subject: taggedSubject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
+  }
+}
+
+export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
+  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+  return await generateEmail({
+    user,
+    subject: subject,
+    bodyComponent: <Components.EmailWrapper
+      user={user} unsubscribeAllLink={unsubscribeAllLink}
+    >
+      {body}
+    </Components.EmailWrapper>
+  });
+}
+
+export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
+  try {
+    const email = await wrapAndRenderEmail({ user, subject, body });
+    await sendEmail(email);
+    await logSentEmail(email, user);
+  } catch(e) {
+    captureException(e);
   }
 }
 

@@ -8,9 +8,7 @@ import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { getUser } from '../lib/vulcan-users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from './vulcan-lib';
-import { UnsubscribeAllToken } from './emails/emailTokens';
-import { generateEmail, sendEmail, logSentEmail } from './emails/renderEmail';
-import { captureException } from '@sentry/core';
+import { generateEmail, sendEmail, logSentEmail, wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -75,28 +73,6 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   }
 }
 
-export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
-  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
-  return await generateEmail({
-    user,
-    subject: subject,
-    bodyComponent: <Components.EmailWrapper
-      user={user} unsubscribeAllLink={unsubscribeAllLink}
-    >
-      {body}
-    </Components.EmailWrapper>
-  });
-}
-
-export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
-  try {
-    const email = await wrapAndRenderEmail({ user, subject, body });
-    await sendEmail(email);
-    await logSentEmail(email, user);
-  } catch(e) {
-    captureException(e);
-  }
-}
 
 addGraphQLResolvers({
   Query: {

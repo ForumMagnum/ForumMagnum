@@ -13,7 +13,7 @@ import { hashLoginToken } from "../../loginTokens";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
-import { wrapAndSendEmail } from '../../notificationBatching';
+import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpers';
 import { getCaptchaRating } from '../../callbacks/userCallbacks';
