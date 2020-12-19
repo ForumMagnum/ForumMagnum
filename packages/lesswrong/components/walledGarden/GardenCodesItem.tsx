@@ -80,6 +80,9 @@ const styles = theme => ({
   },
 })
 
+
+export const checkFBLink = (linkString: string) => {return linkString.startsWith('http') ? linkString : `https://${linkString}`}
+
 export const GardenCodesItem = ({classes, gardenCode}:{
   classes:ClassesType,
   gardenCode: GardenCodeFragment
@@ -126,7 +129,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
       <div className={classes.fbIconContainer}> {/*container for fb icon to maintain spacing*/} 
         {gardenCode.fbLink && (gardenCode.type=="public" || currentUser?.walledGardenInvite) &&
         <LWTooltip title="Link to the FB version of this event" placement="right">
-          <a href={gardenCode.fbLink} target="_blank" rel="noopener noreferrer">
+          <a href={checkFBLink(gardenCode.fbLink)} target="_blank" rel="noopener noreferrer">
             <FacebookIcon className={classes.fbIcon}/>
           </a>
         </LWTooltip>}
