@@ -197,6 +197,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16,
     color: 'rgba(0,0,0,0.6)'
   },
+  shippingNotice: {
+    ...theme.typography.commentStyle,
+    height: 36,
+    fontSize: '0.83rem',
+    marginTop: 7,
+    marginRight: 16,
+    color: 'rgba(0,0,0,0.6)'
+  },
   [theme.breakpoints.down('xs')]: {
     bookContentContainer: {
       display: 'none'
@@ -360,15 +368,19 @@ const BookLanding = ({classes}: {
               This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
               packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
             </p>
-            <div className={classes.buyButton}>
-              <BookCheckout />
-              <Link className={classes.faqLink} to="/posts/TTPux7QFBpKxZtMKE/the-lesswrong-book-is-available-for-pre-order">
-                Read the FAQ
-              </Link>
+            <div>
+              <div className={classes.buyButton}>
+                <BookCheckout />
+                <Link className={classes.faqLink} to="/posts/TTPux7QFBpKxZtMKE/the-lesswrong-book-is-available-for-pre-order">
+                  Read the FAQ
+                </Link>
+              </div>
+              <div className={classes.shippingNotice}>
+                (Orders placed today arrive after Christmas)
+              </div>
             </div>
-          </div>          
+          </div>
         </div>
-        
       </div>
 
       <div className={classes.mobileParagraph}>
@@ -482,7 +494,7 @@ const BookLanding = ({classes}: {
           Read a sample chapter
         </button>
       </div>
-      
+
     </div>
   )
 }

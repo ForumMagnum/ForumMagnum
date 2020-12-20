@@ -99,6 +99,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: 'rgba(0,0,0,0.4)',
     marginTop: 4,
     lineHeight: '1.3'
+  },
+  shippingNotice: {
+    ...theme.typography.commentStyle,
+    height: 36,
+    fontSize: '0.83rem',
+    color: 'rgba(0,0,0,0.6)'
   }
 })
 
@@ -145,6 +151,9 @@ const BookFrontpageWidget = ({ classes }: {
       </p>
       <div className={classes.buttonRow}>
         {buttons}
+      </div>
+      <div className={classes.shippingNotice}>
+        (Orders placed today arrive after Christmas)
       </div>
     </div>
   }
