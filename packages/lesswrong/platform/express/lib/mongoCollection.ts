@@ -10,6 +10,7 @@ export const setDatabaseConnection = (_client, _db) => {
 export const getDatabase = () => db;
 
 const disableAllWrites = false;
+const logQueries = false;
 
 export class MongoCollection<T extends DbObject> {
   tableName: string
@@ -32,30 +33,39 @@ export class MongoCollection<T extends DbObject> {
     return {
       fetch: async () => {
         const table = this.getTable();
+        if (logQueries) console.log(`Starting ${this.tableName}.find(${JSON.stringify(selector)}).fetch`)
         const result = await table.find(selector, {
           ...options,
         }).toArray()
+        if (logQueries) console.log(`Finished ${this.tableName}.find(${JSON.stringify(selector)}).fetch`)
         return result;
       },
       count: async () => {
         const table = this.getTable();
-        return await table.countDocuments(selector, {
+        if (logQueries) console.log(`Starting ${this.tableName}.find(${JSON.stringify(selector)}).count`)
+        const result = await table.countDocuments(selector, {
           ...options,
         });
+        if (logQueries) console.log(`Finished ${this.tableName}.find(${JSON.stringify(selector)}).count`)
+        return result;
       }
     };
   }
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
     const table = this.getTable();
+    let result;
+    if (logQueries) console.log(`Starting ${this.tableName}.findOne(${JSON.stringify(selector)})`);
     if (typeof selector === "string") {
-      return await table.findOne({_id: selector}, {
+      result = await table.findOne({_id: selector}, {
         ...options,
       });
     } else {
-      return await table.findOne(selector, {
+      result = await table.findOne(selector, {
         ...options,
       });
     }
+    if (logQueries) console.log(`Finished ${this.tableName}.findOne(${JSON.stringify(selector)})`);
+    return result;
   }
   insert = async (doc, options) => {
     if (disableAllWrites) return;
