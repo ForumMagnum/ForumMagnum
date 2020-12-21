@@ -5,6 +5,7 @@ import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import process from 'process';
+import readline from 'readline';
 
 const dbName = 'lesswrong2';
 
@@ -46,6 +47,14 @@ async function serverStartup() {
   console.log("Running onStartup functions");
   for (let startupFunction of onStartupFunctions)
     await startupFunction();
+  
+  /*if (process.stdout.isTTY) {
+    console.log("Output is a TTY");
+    initShell();
+    
+    const origConsoleLog = console.log;
+    console.log = (message) => wrappedConsoleLog(origConsoleLog, message);
+  }*/
 }
 
 function wrapConsoleLogFunctions(wrapper: (originalFn: any, ...message: any[])=>void) {
@@ -55,6 +64,34 @@ function wrapConsoleLogFunctions(wrapper: (originalFn: any, ...message: any[])=>
       wrapper(originalFn, ...message);
     }
   }
+}
+
+function wrappedConsoleLog(unwrappedConsoleLog, message)
+{
+  const screenHeight = process.stdout.rows;
+  const ESC = '\x1b';
+  const CSI = ESC+'[';
+  
+  process.stdout.write(`${CSI}s`); // Save cursor
+  process.stdout.write(`${CSI}1;${screenHeight-2}r`); // Set scroll region
+  process.stdout.write(`${CSI}${screenHeight-2};1H`); // Move cursor to insertion point
+  process.stdout.write(message+"\n"); // Write the output
+  process.stdout.write(`${CSI}r`); // Clear scroll region
+  process.stdout.write(`${CSI}u`); // Restore cursor
+}
+
+function initShell()
+{
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: "> ",
+  });
+  rl.on('line', line => {
+    console.log(`Got input: ${line}`);
+    rl.prompt();
+  });
+  rl.prompt();
 }
 
 serverStartup();

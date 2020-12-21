@@ -14,7 +14,8 @@ export const commentMutationOptions: MutationOptions<DbComment> = {
     const post = await mongoFindOne("Posts", document.postId)
     if (!post) return true
 
-    if (!userIsAllowedToComment(user, post)) {
+    const author = await mongoFindOne("Users", post.userId);
+    if (!userIsAllowedToComment(user, post, author)) {
       return userCanDo(user, `posts.moderate.all`)
     }
 

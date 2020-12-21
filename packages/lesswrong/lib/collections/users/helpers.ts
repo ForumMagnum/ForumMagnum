@@ -115,41 +115,40 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-const getUserFromPost = (post: PostsDetails|DbPost): UsersProfile|DbUser => {
+const getUserFromPost = (post: PostsDetails|DbPost): PostsAuthors_user|DbUser => {
   // @ts-ignore Hackily handling the dual cases of "a fragment with a post subfragment" and "a DbPost with a postId"
   return post.user || mongoFindOneSync("Users", post.userId);
 }
 
-export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost): boolean => {
+export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   if (!post) return false;
-  const postAuthor = getUserFromPost(post);
   return !!(
     post.bannedUserIds?.includes(user._id) &&
-    userOwns(postAuthor, post)
+    postAuthor && userOwns(postAuthor, post)
   )
 }
 
-export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost): boolean => {
-  const postAuthor = getUserFromPost(post);
+export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
+    // @ts-ignore FIXME: Not enforcing that the fragment includes user.groups
     userCanDo(postAuthor, 'posts.moderate.own') &&
-    userOwns(postAuthor, post)
+    postAuthor && userOwns(postAuthor, post)
   )
 }
 
-export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost): boolean => {
-  const postAuthor = getUserFromPost(post);
+export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   return !!(
-    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedPersonalUserIds
+    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
+    // @ts-ignore FIXME: Not enforcing that the fragment includes user.groups
     userCanDo(postAuthor, 'posts.moderate.own.personal') &&
-    userOwns(postAuthor, post)
+    postAuthor && userOwns(postAuthor, post)
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost): boolean => {
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   if (!user) {
     return false
   }
@@ -157,16 +156,18 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   if (!post) {
     return true
   }
+  
+  //const postAuthor = getUserFromPost(post);
 
-  if (userIsBannedFromPost(user, post)) {
+  if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
   }
 
-  if (userIsBannedFromAllPosts(user, post)) {
+  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
     return false
   }
 
-  if (userIsBannedFromAllPersonalPosts(user, post) && !post.frontpageDate) {
+  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
     return false
   }
 
@@ -183,12 +184,12 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   return true
 }
 
-export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost): string => {
+export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): string => {
   if (!user) {
     return "Can't recognize user"
   }
 
-  if (userIsBannedFromPost(user, post)) {
+  if (userIsBannedFromPost(user, post, postAuthor)) {
     return "This post's author has blocked you from commenting."
   }
 
@@ -197,11 +198,11 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
       return "You must be approved by an admin to comment on the AI Alignment Forum"
     }
   }
-  if (userIsBannedFromAllPosts(user, post)) {
+  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
     return "This post's author has blocked you from commenting."
   }
 
-  if (userIsBannedFromAllPersonalPosts(user, post)) {
+  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor)) {
     return "This post's author has blocked you from commenting on any of their personal blog posts."
   }
 
