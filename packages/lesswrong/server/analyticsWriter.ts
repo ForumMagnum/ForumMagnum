@@ -1,4 +1,4 @@
-import { isDevelopment } from '../lib/executionEnvironment';
+import { isDevelopment, onStartup } from '../lib/executionEnvironment';
 import { randomId } from '../lib/random';
 import { Pool } from 'pg';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
@@ -98,4 +98,12 @@ function serverWriteEvent({type, timestamp, props}) {
   });
 }
 
-AnalyticsUtil.serverWriteEvent = serverWriteEvent;
+onStartup(() => {
+  AnalyticsUtil.serverWriteEvent = serverWriteEvent;
+  
+  const deferredEvents = AnalyticsUtil.serverPendingEvents;
+  AnalyticsUtil.serverPendingEvents = [];
+  for (let event of deferredEvents) {
+    serverWriteEvent(event);
+  }
+});

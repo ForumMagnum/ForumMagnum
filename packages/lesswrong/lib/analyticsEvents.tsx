@@ -31,20 +31,29 @@ export const AnalyticsUtil: any = {
   // side only, filled in in analyticsWriter.js; null on the client. If no
   // analytics database is configured, does nothing.
   serverWriteEvent: null,
+  
+  // serverPendingEvents: Analytics events that were recorded during startup
+  // before we were ready to write them to the analytics DB.
+  serverPendingEvents: [],
 };
 
 export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
   try {
     if (isServer) {
-      // If run from the server, put this directly into the server's write-to-SQL
-      // queue.
-      AnalyticsUtil.serverWriteEvent({
+      // If run from the server, we can run this immediately except for a few
+      // events during startup.
+      const event = {
         type: eventType,
         timestamp: new Date(),
         props: {
           ...eventProps
-        },
-      });
+        }
+      }
+      if (AnalyticsUtil.serverWriteEvent) {
+        AnalyticsUtil.serverWriteEvent(event);
+      } else {
+        AnalyticsUtil.serverPendingEvents.push(event);
+      }
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {
