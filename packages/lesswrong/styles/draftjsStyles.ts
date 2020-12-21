@@ -234,7 +234,7 @@ export default `
   color: rgba(0, 0, 0, 0.26); /* pick a color */
   font-size: 2.125rem;
   letter-spacing: 48px; /* increase space between dots */
-  content: '\2022\2022\2022';
+  content: '\u2022\u2022\u2022';
 }
 `;
 
