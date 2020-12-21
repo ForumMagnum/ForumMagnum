@@ -85,6 +85,8 @@ onStartup(() => {
     context: ({ req, res }) => computeContextFromReq(req, res),
   });
 
+  app.use('/graphql', bodyParser.json({ limit: '50mb' }));
+  app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
   // Static files folder
