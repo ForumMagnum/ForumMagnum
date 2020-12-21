@@ -3,12 +3,22 @@ import PropTypes from 'prop-types';
 import { registerComponent, instantiateComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 
+const styles = (theme: ThemeType): JssStyles => ({
+  formComponentClear: {
+    "& span": {
+      position:relative;
+      top:20px;
+      padding: 10px;
+    },
+  },
+});
+
 class FormComponentInner extends PureComponent<any> {
   renderClear = () => {
     if (['datetime', 'time', 'select', 'radiogroup'].includes(this.props.input)) {
       return (
         <a
-          className="form-component-clear"
+          className={classes.formComponentClear}
           title="Clear field"
           onClick={this.props.clearField}
         >
@@ -103,9 +113,10 @@ class FormComponentInner extends PureComponent<any> {
   charsCount: PropTypes.number,
   charsMax: PropTypes.number,
   inputComponent: PropTypes.func,
+  classes: PropTypes.any,
 };
 
-const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner);
+const FormComponentInnerComponent = registerComponent('FormComponentInner', FormComponentInner, {styles});
 
 declare global {
   interface ComponentTypes {

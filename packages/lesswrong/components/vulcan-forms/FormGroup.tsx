@@ -16,11 +16,15 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*2,
   },
+  formSectionHeadingTitle: {
+    marginBottom: 5,
+    fontSize: "1.25rem",
+  },
 });
 
 const FormGroupHeader = ({ toggle, collapsed, label, classes }) => (
   <div className={classes.formSectionHeading} onClick={toggle}>
-    <h3 className="form-section-heading-title">{label}</h3>
+    <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
     <span className="form-section-heading-toggle">
       {collapsed ? (
         <Components.IconRight height={16} width={16} />
@@ -59,6 +63,9 @@ const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
       paddingRight: theme.spacing.unit/2,
     },
   },
+  formSectionCollapsed: {
+    display: "none",
+  },
   flex: {
     display: "flex",
     alignItems: "flex-start",
@@ -76,7 +83,7 @@ const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors, group
     <div
       className={classNames(
         {
-          'form-section-collapsed': collapsed && !hasErrors,
+          [classes.formSectionCollapsed]: collapsed && !hasErrors,
           [classes.formSectionBody]: groupStyling,
           [classes.flex]: flexStyle,
           [classes.formSectionPadding]: groupStyling,
