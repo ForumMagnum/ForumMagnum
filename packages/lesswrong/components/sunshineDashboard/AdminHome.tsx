@@ -9,7 +9,34 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+// Also used in ModerationLog
+export const styles = (theme: ThemeType): JssStyles => ({
+  adminHomeLayout: {
+    width: 920,
+    margin: "auto",
+  },
+  adminHomeOrModerationLogPage: {
+    fontFamily: theme.typography.fontFamily,
+  
+    "& h3": {
+      fontSize: 20,
+      fontWeight: 600,
+    },
+  
+    "& h2": {
+      margin: "1%",
+    }
+  },
+  adminLogGroup: {
+    border: "solid 1px rgba(0,0,0,.2)",
+    padding: 10,
+    margin: "1%",
+    borderRadius: 2,
+  },
+  floatLeft: {
+    width: "48%",
+    float: "left",
+  },
   recentLogins: {
     backgroundColor: "rgba(50,100,50,.1)",
   },
@@ -144,22 +171,22 @@ const AdminHome = ({ classes }: {
   
   if (!userIsAdmin(currentUser)) {
     return (
-      <div className="admin-home page">
+      <div className={classes.adminHomeOrModerationLogPage}>
         <p className="admin-home-message">Sorry, you do not have permission to do this at this time.</p>
       </div>
     );
   }
   
   return (
-    <div className="admin-home page">
-      <div className="admin-home-layout">
+    <div className={classes.adminHomeOrModerationLogPage}>
+      <div className={classes.adminHomeLayout}>
         <h2>Admin Console</h2>
         <div>
           <div>
             <h3>Server Information</h3>
             <Components.AdminMetadata/>
           </div>
-          <div className={classNames("admin-recent-logins", classes.recentLogins)}>
+          <div className={classNames(classes.adminLogGroup, classes.recentLogins)}>
             <h3>Recent Logins</h3>
             <Components.Datatable
               collection={LWEvents}
@@ -171,7 +198,7 @@ const AdminHome = ({ classes }: {
               }}
             />
           </div>
-          <div className={classNames("admin-all-users", classes.allUsers)}>
+          <div className={classNames(classes.adminLogGroup, classes.allUsers)}>
             <h3>All Users</h3>
             <Select
               value={allUsersValue}
@@ -200,13 +227,13 @@ const AdminHome = ({ classes }: {
               showNew={false}
             />
           </div>
-          <div className="admin-new-ip-bans">
+          <div className={classes.adminLogGroup}>
             <h3>New IP Bans</h3>
             <Components.WrappedSmartForm
               collection={Bans}
             />
           </div>
-          <div className="admin-current-ip-bans">
+          <div className={classes.adminLogGroup}>
             <h3>Current IP Bans</h3>
             <Components.Datatable
               collection={Bans}

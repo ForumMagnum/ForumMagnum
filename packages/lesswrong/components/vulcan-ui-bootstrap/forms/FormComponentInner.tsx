@@ -6,15 +6,16 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   formComponentClear: {
     "& span": {
-      position:relative;
-      top:20px;
-      padding: 10px;
+      position: "relative",
+      top: 20,
+      padding: 10,
     },
   },
 });
 
 class FormComponentInner extends PureComponent<any> {
   renderClear = () => {
+    const { classes } = this.props;
     if (['datetime', 'time', 'select', 'radiogroup'].includes(this.props.input)) {
       return (
         <a
