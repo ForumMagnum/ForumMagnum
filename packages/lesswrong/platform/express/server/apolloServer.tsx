@@ -32,13 +32,17 @@ import { addStripeMiddleware } from '../../../server/stripeMiddleware';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
 import { addClientIdMiddleware } from '../../../server/clientIdMiddleware';
+import { addStaticRoute } from '../../../server/vulcan-lib/staticRoutes';
 import fs from 'fs';
 import crypto from 'crypto';
 
-const getClientBundleHash = () => {
+const getClientBundle= () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
-  return crypto.createHash('sha256').update(bundleText, 'utf8').digest('hex');
+  return {
+    bundleHash: crypto.createHash('sha256').update(bundleText, 'utf8').digest('hex'),
+    bundleText,
+  };
 }
 
 onStartup(() => {
@@ -84,13 +88,19 @@ onStartup(() => {
   apolloServer.applyMiddleware({ app })
 
   // Static files folder
-  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
-  app.use(express.static(path.join(__dirname, '../../client')))
   console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../../public')))
   
-  const clientBundleHash = getClientBundleHash();
+  const {bundleHash, bundleText } = getClientBundle();
 
+  addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
+    res.writeHead(200, {
+      "Cache-Control": "public, max-age=604800, immutable",
+      "Content-Type": "text/javascript; charset=utf-8"
+    });
+    res.end(bundleText);
+  });
+  
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
   // Setup GraphiQL
@@ -104,7 +114,7 @@ onStartup(() => {
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
 
-    const clientScript = `<script defer type="text/javascript" src="/js/bundle.js?hash=${clientBundleHash}"></script>`
+    const clientScript = `<script defer type="text/javascript" src="/js/bundle.js?hash=${bundleHash}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings());
