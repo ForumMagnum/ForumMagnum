@@ -117,10 +117,6 @@ export const cachedPageRender = async (req: Request, abTestGroups, renderFn) => 
   
   clearExpiredCacheEntries();
   
-  // eslint-disable-next-line no-console
-  console.log("New cache state after finishing in-progress render:");
-  printCacheState();
-  
   return {
     ...rendered,
     cached: false
