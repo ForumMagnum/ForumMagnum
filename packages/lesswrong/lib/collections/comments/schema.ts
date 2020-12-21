@@ -1,7 +1,7 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
-import { commentGetPageUrl } from './helpers';
+import { commentGetPageUrlFromDB } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
@@ -151,16 +151,16 @@ const schema: SchemaType<DbComment> = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      return commentGetPageUrl(comment, true)
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      return await commentGetPageUrlFromDB(comment, true)
     },
   }),
 
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      return commentGetPageUrl(comment, false)
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      return await commentGetPageUrlFromDB(comment, false)
     },
   }),
 

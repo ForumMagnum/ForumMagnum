@@ -11,7 +11,7 @@ import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
-import { commentGetPageUrl } from '../lib/collections/comments/helpers'
+import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
@@ -218,7 +218,7 @@ const getLink = async (notificationType: string, documentType: string|null, docu
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return commentGetPageUrl(document as DbComment);
+      return await commentGetPageUrlFromDB(document as DbComment);
     case "user":
       return userGetProfileUrl(document as DbUser);
     case "message":

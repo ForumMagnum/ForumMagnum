@@ -1,6 +1,6 @@
 import { faviconUrlSetting } from '../../components/common/HeadTags';
 import { Comments } from '../../lib/collections/comments';
-import { commentGetPageUrl, commentGetRSSUrl } from '../../lib/collections/comments/helpers';
+import { commentGetPageUrlFromDB, commentGetRSSUrl } from '../../lib/collections/comments/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
@@ -90,7 +90,7 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
       const post = await findPostByLegacyId(params.id);
       const comment = await findCommentByLegacyId(params.commentId);
       if (post && comment) {
-        return makeRedirect(res, commentGetPageUrl(comment));
+        return makeRedirect(res, await commentGetPageUrlFromDB(comment));
       } else if (post) {
         return makeRedirect(res, postGetPageUrl(post));
       } else {
@@ -143,7 +143,7 @@ addStaticRoute('/posts/:_id/:slug/:commentId', async (params, req, res, next) =>
     try {
       const comment = await Comments.findOne({_id: params.commentId});
       if (comment) {
-        return makeRedirect(res, commentGetPageUrl(comment));
+        return makeRedirect(res, await commentGetPageUrlFromDB(comment));
       } else {
         // don't redirect if we can't find a post for that link
         //eslint-disable-next-line no-console
@@ -262,7 +262,7 @@ addStaticRoute('/item', async (params, req, res, next) => {
       } else {
         const comment = await findCommentByLegacyAFId(id);
         if (comment) {
-          return makeRedirect(res, commentGetPageUrl(comment))
+          return makeRedirect(res, await commentGetPageUrlFromDB(comment))
         } else {
           // don't redirect if we can't find a post for that link
           //eslint-disable-next-line no-console
