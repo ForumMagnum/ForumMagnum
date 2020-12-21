@@ -990,7 +990,7 @@ class SmartForm extends Component<any,any> {
   // --------------------------------------------------------------------- //
 
   getFormProps = () => ({
-    className: 'document-' + this.getFormType(),
+    className: 'vulcan-form document-' + this.getFormType(),
     id: this.props.id,
     onSubmit: this.submitForm,
     onKeyDown: this.formKeyDown,
