@@ -22,7 +22,9 @@ export const getInstanceSettings = (): any => {
       const { loadInstanceSettings } = require('../server/commandLine.ts');
       instanceSettings = loadInstanceSettings();
     } else {
-      instanceSettings = (window as any).publicSettings;
+      instanceSettings = {
+        public: (window as any).publicInstanceSettings;
+      };
     }
   }
   return instanceSettings;

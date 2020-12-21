@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { onStartup, isDevelopment } from '../../../lib/executionEnvironment';
+import { onStartup, isDevelopment, getInstanceSettings } from '../../../lib/executionEnvironment';
 import { renderWithCache } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
@@ -88,6 +88,8 @@ onStartup(() => {
   apolloServer.applyMiddleware({ app })
 
   // Static files folder
+  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
+  app.use(express.static(path.join(__dirname, '../../client')))
   console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../../public')))
   
@@ -117,7 +119,8 @@ onStartup(() => {
     const clientScript = `<script defer type="text/javascript" src="/js/bundle.js?hash=${bundleHash}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings());
+    
+    const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
     
     // Finally send generated HTML with initial data to the client
     if (redirectUrl) {
@@ -129,6 +132,7 @@ onStartup(() => {
         + '<head>\n'
           + clientScript
           + headers.join('\n')
+          + instanceSettingsHeader
         + '</head>\n'
         + jssSheets
         + '<body>\n'+ssrBody+'</body>\n'
