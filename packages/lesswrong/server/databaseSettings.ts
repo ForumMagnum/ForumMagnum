@@ -51,6 +51,8 @@ export class DatabaseServerSetting<SettingValueType> {
     initializeSetting(settingName, "server")
   }
   get(): SettingValueType {
+    if (!getServerSettingsLoaded())
+      throw new Error("Requested database setting before settings loaded");
     // eslint-disable-next-line no-console
     const cacheValue = get(getServerSettingsCache(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
