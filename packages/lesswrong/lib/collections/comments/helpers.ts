@@ -35,7 +35,7 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
   } else if (comment.tag) {
     return `${prefix}/tag/${comment.tag.slug}/discussion#${comment._id}`;
   } else {
-    throw new Error("Unable to find document for comment: ${comment._id}");
+    throw new Error(`Unable to find document for comment: ${comment._id}`);
   }
 }
 

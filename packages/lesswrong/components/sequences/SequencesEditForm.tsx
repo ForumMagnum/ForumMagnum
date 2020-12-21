@@ -3,11 +3,12 @@ import React from 'react';
 import Sequences from '../../lib/collections/sequences/collection';
 import { styles } from './SequencesNewForm';
 
-const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback }: {
+const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback, classes }: {
   documentId: string,
   successCallback?: ()=>void,
   cancelCallback?: ()=>void,
   removeSuccessCallback?: any,
+  classes: ClassesType,
 }) => {
   return (
     <div className={classes.sequencesForm}>

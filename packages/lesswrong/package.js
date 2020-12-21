@@ -12,10 +12,10 @@ Package.onUse( function(api) {
     'ecmascript',
     'typescript',
     'promise',
-    'fourseven:scss@4.12.0',
     
     // dependencies of vulcan-accounts
     'tracker',
+    'accounts-base',
     'check',
     'random',
     'email',
@@ -35,14 +35,13 @@ Package.onUse( function(api) {
     'http',
     'meteorhacks:picker@1.0.3',
   ]);
-
+  
+  // dependencies of vulcan-accounts
+  api.use('accounts-oauth', { weak: true });
+  api.use('accounts-password', { weak: true });
 
   api.mainModule('client.js', 'client');
   api.mainModule('server.js', 'server');
-
-  api.addFiles([
-    'styles/main.scss',
-  ], ['client']);
 
   Npm.depends({
     "@babel/core": "7.7.7",
@@ -54,7 +53,6 @@ Package.onTest(function(api) {
 
   api.use([
     'typescript',
-    'fourseven:scss',
     'practicalmeteor:sinon',
     'meteortesting:mocha',
   ]);
