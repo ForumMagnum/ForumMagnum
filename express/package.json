@@ -99,7 +99,7 @@
     "enzyme": "3.1.0",
     "enzyme-adapter-react-16": "1.0.1",
     "escape-string-regexp": "^1.0.5",
-    "estrella": "^1.2.10",
+    "estrella": "https://github.com/jimrandomh/estrella",
     "express": "5.0.0-alpha.8",
     "feedparser-promised": "^1.2.2",
     "graphql": "^14.0.0",

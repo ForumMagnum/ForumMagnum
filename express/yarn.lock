@@ -5326,7 +5326,7 @@ esbuild-loader@^2.6.1:
     type-fest "^0.20.2"
     webpack-sources "^2.2.0"
 
-esbuild@0.8.22, "esbuild@>=0.6.0 <0.8.0", esbuild@^0.8.17:
+esbuild@0.8.22, "esbuild@>=0.6.0 <1.0.0", esbuild@^0.8.17:
   version "0.8.22"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.22.tgz#d558dd8579eb824a10ca04daa7be712379cae759"
   integrity sha512-7cgcJwjff5pw6JLTpUyN3QZ6raOYamfvBt7ry0tyGZwZJ/W8mJrHuv+VC5rbNEO4Mz8s8ElmcavKc7R2g1HWow==
@@ -5594,12 +5594,11 @@ estraverse@^5.1.0, estraverse@^5.2.0:
   resolved "https://registry.yarnpkg.com/estraverse/-/estraverse-5.2.0.tgz#307df42547e6cc7324d3cf03c155d5cdb8c53880"
   integrity sha512-BxbNGGNm0RyRYvUdHpIwv9IWzeM9XClbOxwoATuFdOE7ZE6wHL+HQ5T8hoPM+zHvmKzzsEqhgy0GrQ5X13afiQ==
 
-estrella@^1.2.10:
-  version "1.2.10"
-  resolved "https://registry.yarnpkg.com/estrella/-/estrella-1.2.10.tgz#c9ea8ca37949983ebc5b530ab2c1eff2bff647d5"
-  integrity sha512-JSpZX+MrQcPWZ7IVjFZZD8IE/oaK+OChFGRs4Vu+HMDUICA514a95osvGUOrbPxaKQqoQs3uwmDqTpoKglTXJA==
+"estrella@https://github.com/jimrandomh/estrella":
+  version "1.3.0"
+  resolved "https://github.com/jimrandomh/estrella#ba8c2c146e0c531cb31b78492a25bce3e433d14a"
   dependencies:
-    esbuild ">=0.6.0 <0.8.0"
+    esbuild ">=0.6.0 <1.0.0"
   optionalDependencies:
     fsevents "~2.1.2"
 
