@@ -89,7 +89,7 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
   ".comments-edit-form": {
     position: "relative",
     paddingBottom: 12,
-    ".form-submit": {
+    "& .form-submit": {
       textAlign: "right",
       marginRight: 10,
     },
