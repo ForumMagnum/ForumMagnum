@@ -1,4 +1,4 @@
-import { chai } from 'meteor/practicalmeteor:chai';
+import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from '../../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'

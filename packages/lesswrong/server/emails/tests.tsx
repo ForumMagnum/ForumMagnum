@@ -1,6 +1,6 @@
 import React from 'react';
 import { withSingle, useSingle } from '../../lib/crud/withSingle';
-import { chai } from 'meteor/practicalmeteor:chai';
+import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost } from '../../testing/utils'
 import { emailDoctype, generateEmail } from './renderEmail';

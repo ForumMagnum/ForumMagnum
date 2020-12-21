@@ -1,4 +1,4 @@
-// import { chai } from 'meteor/practicalmeteor:chai';
+// import { chai } from 'chai';
 // import chaiAsPromised from 'chai-as-promised';
 // import { createDummyUser, createDummyPost, createDummyConversation, createDummyMessage } from '../../../testing/utils'
 // import { performSubscriptionAction } from '../subscriptions/mutations';

@@ -1,4 +1,4 @@
-import { chai } from 'meteor/practicalmeteor:chai';
+import chai from 'chai';
 import { subBatchArray } from './utils'
 
 chai.should();

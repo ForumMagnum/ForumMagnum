@@ -1,4 +1,4 @@
-import { chai, expect } from 'meteor/practicalmeteor:chai';
+import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from '../../server/vulcan-lib';
 
