@@ -12,8 +12,15 @@ export const getDatabase = () => db;
 const disableAllWrites = false;
 const logQueries = false;
 
+function timeSince(startTime: Date): string {
+  const now = new Date();
+  const msElapsed = now.getTime() - startTime.getTime();
+  return `${msElapsed}ms`;
+}
+
 export class MongoCollection<T extends DbObject> {
   tableName: string
+  table: any
   
   constructor(tableName: string, options?: {
     _suppressSameNameError?: boolean // Used only by Meteor; disables warning about name conflict over users collection
@@ -23,7 +30,9 @@ export class MongoCollection<T extends DbObject> {
   
   getTable = () => {
     if (bundleIsServer) { 
-      return db.collection(this.tableName);
+      if (!this.table)
+        this.table = db.collection(this.tableName);
+      return this.table;
     } else {
       throw new Error("Attempted to run mongodb query on the client");
     }
@@ -33,20 +42,22 @@ export class MongoCollection<T extends DbObject> {
     return {
       fetch: async () => {
         const table = this.getTable();
+        const startTime = new Date();
         if (logQueries) console.log(`Starting ${this.tableName}.find(${JSON.stringify(selector)}).fetch`)
         const result = await table.find(selector, {
           ...options,
         }).toArray()
-        if (logQueries) console.log(`Finished ${this.tableName}.find(${JSON.stringify(selector)}).fetch`)
+        if (logQueries) console.log(`Finished (${timeSince(startTime)}) ${this.tableName}.find(${JSON.stringify(selector)}).fetch`)
         return result;
       },
       count: async () => {
         const table = this.getTable();
+        const startTime = new Date();
         if (logQueries) console.log(`Starting ${this.tableName}.find(${JSON.stringify(selector)}).count`)
         const result = await table.countDocuments(selector, {
           ...options,
         });
-        if (logQueries) console.log(`Finished ${this.tableName}.find(${JSON.stringify(selector)}).count`)
+        if (logQueries) console.log(`Finished (${timeSince(startTime)}) ${this.tableName}.find(${JSON.stringify(selector)}).count`)
         return result;
       }
     };
@@ -54,6 +65,7 @@ export class MongoCollection<T extends DbObject> {
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
     const table = this.getTable();
     let result;
+    const startTime = new Date();
     if (logQueries) console.log(`Starting ${this.tableName}.findOne(${JSON.stringify(selector)})`);
     if (typeof selector === "string") {
       result = await table.findOne({_id: selector}, {
@@ -64,7 +76,7 @@ export class MongoCollection<T extends DbObject> {
         ...options,
       });
     }
-    if (logQueries) console.log(`Finished ${this.tableName}.findOne(${JSON.stringify(selector)})`);
+    if (logQueries) console.log(`Finished (${timeSince(startTime)}) ${this.tableName}.findOne(${JSON.stringify(selector)})`);
     return result;
   }
   insert = async (doc, options) => {
