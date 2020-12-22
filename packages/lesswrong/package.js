@@ -41,7 +41,7 @@ Package.onUse( function(api) {
   api.use('accounts-password', { weak: true });
 
   api.mainModule('client.js', 'client');
-  api.mainModule('server.js', 'server');
+  api.mainModule('server.ts', 'server');
 
   Npm.depends({
     "@babel/core": "7.7.7",
