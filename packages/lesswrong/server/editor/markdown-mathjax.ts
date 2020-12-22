@@ -104,7 +104,7 @@ var mapping = {
   'display_math': 'DisplayMath'
 }
 
-export default function (options) {
+export default function (options?: any) {
   var defaults = {
     beforeMath: '',
     afterMath: '',
