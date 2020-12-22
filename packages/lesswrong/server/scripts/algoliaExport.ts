@@ -39,10 +39,10 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   
   if (totalErrors.length) {
     // eslint-disable-next-line no-console
-    console.log(`${collection._name} indexing encountered the following errors:`, totalErrors)
+    console.log(`${collection.collectionName} indexing encountered the following errors:`, totalErrors)
   } else {
     // eslint-disable-next-line no-console
-    console.log('No errors found when indexing', collection._name)
+    console.log('No errors found when indexing', collection.collectionName)
   }
 }
 

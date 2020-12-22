@@ -70,7 +70,7 @@ export const nullifyVotesForUser = async (user: DbUser) => {
 }
 
 const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
-  const collectionName = capitalize(collection._name);
+  const collectionName = capitalize(collection.collectionName);
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,

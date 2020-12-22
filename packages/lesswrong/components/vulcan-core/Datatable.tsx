@@ -195,7 +195,7 @@ const DatatableHeader = ({ collection, column, toggleSort, currentSort }, { intl
     3. the raw column name.
 
     */
-    const formattedLabel = intl.formatLabel({fieldName: columnName, collectionName: collection._name, schema: schema});
+    const formattedLabel = intl.formatLabel({fieldName: columnName, collectionName: collection.collectionName, schema: schema});
 
     // if sortable is a string, use it as the name of the property to sort by. If it's just `true`, use column.name
     const sortPropertyName = typeof column.sortable === 'string' ? column.sortable : column.name;

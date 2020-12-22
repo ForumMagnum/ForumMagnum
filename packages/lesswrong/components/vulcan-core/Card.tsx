@@ -10,7 +10,7 @@ import without from 'lodash/without';
 
 const getLabel = (fieldName, collection, intl) => {
   const schema = collection && getSchema(collection);
-  return intl.formatLabel ? intl.formatLabel({ fieldName: fieldName, collectionName: collection && collection._name, schema: schema }): fieldName;
+  return intl.formatLabel ? intl.formatLabel({ fieldName: fieldName, collectionName: collection?.collectionName, schema: schema }): fieldName;
 };
 
 const getTypeName = (field, fieldName, collection) => {
@@ -161,7 +161,7 @@ const Card = ({ title, className, collection, document, currentUser, fields, sho
   const canEdit = showEdit && currentUser && collection && collection.options.mutations.update.check(currentUser, document);
 
   return (
-    <div className={classNames(className, 'datacard', collection && `datacard-${collection._name}`)}>
+    <div className={classNames(className, 'datacard', collection && `datacard-${collection.collectionName}`)}>
       {title && <div className="datacard-title">{title}</div>}
       <table className="table table-bordered" style={{ maxWidth: '100%' }}>
         <tbody>
