@@ -5,6 +5,7 @@ import { onStartupFunctions } from '../platform/current/lib/executionEnvironment
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../platform/current/lib/mongoCollection';
+import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import jestMongoSetup from '@shelf/jest-mongodb/setup';
 
@@ -60,5 +61,8 @@ export function testStartup() {
   
   beforeAll(async () => {
     await oneTimeSetup();
+  });
+  afterAll(async () => {
+    await waitUntilCallbacksFinished();
   });
 }
