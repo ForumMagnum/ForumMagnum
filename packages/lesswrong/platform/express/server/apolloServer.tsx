@@ -66,6 +66,9 @@ onStartup(() => {
     // Don't set up a webserver if this is a unit test
     return;
   }
+
+  //eslint-disable-next-line no-console
+  console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
   
   // create server
   // given options contains the schema

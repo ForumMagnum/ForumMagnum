@@ -127,6 +127,3 @@ import './server/styleGeneration';
 import './server/search/utils';
 import './server/search/callbacks';
 import './server/search/algoliaCron';
-
-//eslint-disable-next-line no-console
-console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
