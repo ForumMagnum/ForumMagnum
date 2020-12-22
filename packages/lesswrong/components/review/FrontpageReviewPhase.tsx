@@ -85,7 +85,7 @@ export const reviewAlgorithm = {
   method: "sample",
   count: 3,
   scoreOffset: 0,
-  scoreExponent: 3,
+  scoreExponent: 0,
   personalBlogpostModifier: 0,
   frontpageModifier: 0,
   curatedModifier: 0,
