@@ -2,7 +2,7 @@ import { LWEvents } from '../lib/collections/lwevents/collection';
 import { createMutator } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { onServerConnect } from '../platform/current/server/meteorServerSideFns';
-import { onStartup } from '../platform/current/lib/executionEnvironment';
+import { onStartup, isAnyTest } from '../platform/current/lib/executionEnvironment';
 
 let dummyUser: DbUser|null = null;
 async function getDummyUser(): Promise<DbUser> {
@@ -11,7 +11,8 @@ async function getDummyUser(): Promise<DbUser> {
   return dummyUser;
 }
 onStartup(() => {
-  void getDummyUser();
+  if (!isAnyTest)
+    void getDummyUser();
 });
 
 onServerConnect(async (connection) => {

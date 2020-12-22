@@ -1,13 +1,11 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { testStartup } from '../../../testing/testMain';
 import { runQuery } from '../../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
 import * as _ from 'underscore';
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
-describe('PostsEdit', async () => {
+describe('PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();
   
   it("succeeds when owner of post edits title", async () => {
@@ -51,7 +49,7 @@ describe('PostsEdit', async () => {
   });
 });
 
-describe('Posts RSS Views', async () => {
+describe('Posts RSS Views', () => {
   it("only shows curated posts in curated-rss view", async () => {
     const user = await createDummyUser();
     const frontpagePost1 = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});

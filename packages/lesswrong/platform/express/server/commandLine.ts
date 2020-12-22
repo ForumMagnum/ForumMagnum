@@ -1,3 +1,4 @@
+import { isAnyTest } from '../lib/executionEnvironment';
 import process from 'process';
 import fs from 'fs';
 
@@ -37,7 +38,9 @@ export const loadInstanceSettings = () => {
 }
 
 function loadSettingsFile(filename: string) {
-  console.log(`Loading settings from ${filename}`);
+  if (!isAnyTest) {
+    console.log(`Loading settings from ${filename}`);
+  }
   const settingsFileText = readTextFile(filename);
   if (!settingsFileText)
     throw new Error(`Settings file ${filename} not found.`);

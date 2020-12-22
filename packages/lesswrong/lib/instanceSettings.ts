@@ -1,5 +1,5 @@
 import { initializeSetting } from './publicSettings'
-import { isServer, isDevelopment, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -83,8 +83,10 @@ export class PublicInstanceSetting<SettingValueType> {
       const settingValue = getSetting(settingName)
       if (typeof settingValue === 'undefined') {
         if (settingType === "warning") {
-          // eslint-disable-next-line no-console
-          console.log(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as warning`)
+          if (!isAnyTest) {
+            // eslint-disable-next-line no-console
+            console.log(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as warning`)
+          }
         }
         if (settingType === "required") {
           throw Error(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as required`)

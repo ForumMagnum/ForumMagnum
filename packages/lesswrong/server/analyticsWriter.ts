@@ -1,4 +1,4 @@
-import { isDevelopment, onStartup } from '../lib/executionEnvironment';
+import { isDevelopment, isAnyTest, onStartup } from '../lib/executionEnvironment';
 import { randomId } from '../lib/random';
 import { Pool } from 'pg';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
@@ -51,8 +51,12 @@ let missingConnectionStringWarned = false;
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
 const getAnalyticsConnection = (): Pool|null => {
-  const connectionString = connectionStringSetting.get()
   // We make sure that the settingsCache is initialized before we access the connection strings
+  const connectionString = connectionStringSetting.get()
+  
+  if (isAnyTest) {
+    return null;
+  }
   if (!connectionString) {
     if (!missingConnectionStringWarned) {
       missingConnectionStringWarned = true;

@@ -1,15 +1,13 @@
+import { testStartup } from '../../../testing/testMain';
 import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from '../../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
 
+testStartup();
 const { assert } = chai
-chai.should();
-chai.use(chaiAsPromised);
 
 
-describe('createComment – ', async function() {
-  this.timeout(10000)
+describe('createComment – ', function() {
   it('should return data if a user is provided', async function() {
     const user = await createDummyUser()
     const post = await createDummyPost()
@@ -34,7 +32,7 @@ describe('createComment – ', async function() {
     return (response as any).should.eventually.deep.equal(expectedOutput);
   });
 });
-describe('updateComment – ', async () => {
+describe('updateComment – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("fails when user updates another user's body", async () => {
     const user = await createDummyUser()
@@ -78,7 +76,7 @@ describe('updateComment – ', async () => {
   });
 });
 
-describe('attempts to read hideKarma comment', async () => {
+describe('attempts to read hideKarma comment', () => {
   const query = `
     query ($id: String) {
       comment(input: {selector: {_id: $id}}) {

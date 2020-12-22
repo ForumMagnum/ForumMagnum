@@ -1,5 +1,4 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { testStartup } from './testMain';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
@@ -10,12 +9,10 @@ import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
 import lolex from 'lolex';
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
-describe('Voting', async function() {
-  describe('batchUpdating', async function() {
-    this.timeout(20000)
+describe('Voting', function() {
+  describe('batchUpdating', function() {
     it('does not update if post is inactive', async () => {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
@@ -66,7 +63,7 @@ describe('Voting', async function() {
       (updatedCuratedPost[0].score as any).should.be.closeTo(recalculateScore(curatedPost), 0.001);
     });
   });
-  describe('performVoteServer', async () => {
+  describe('performVoteServer', () => {
     it('sets post to active after voting', async () => {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
@@ -127,7 +124,7 @@ describe('Voting', async function() {
       (updatedPost[0].baseScore as any).should.be.equal(2);
     });
   })
-  describe('getKarmaChanges', async () => {
+  describe('getKarmaChanges', () => {
     it('includes posts in the selected date range', async () => {
       let clock = lolex.install({
         now: new Date("1980-01-01"),
@@ -175,7 +172,7 @@ describe('Voting', async function() {
       // TODO
     });*/
   });
-  describe('getKarmaChangeDateRange', async () => {
+  describe('getKarmaChangeDateRange', () => {
     it('computes daily update times correctly', async () => {
       const updateAt5AMSettings = {
         updateFrequency: "daily",

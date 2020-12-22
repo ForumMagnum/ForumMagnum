@@ -6,7 +6,8 @@
     "start": "../scripts/useExpress.sh && ./build.js -run -watch --settings ../settings.json",
     "start-dev-db": "../scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../../LessWrong-Credentials/settings-local-dev-devdb.json",
     "build:prod": "export NODE_ENV=development && webpack -p",
-    "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/serverBundle.js'"
+    "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/serverBundle.js'",
+    "test": "jest"
   },
   "dependencies": {
     "@apollo/client": "^3.2.0",
@@ -34,6 +35,7 @@
     "@types/gapi": "0.0.39",
     "@types/html-to-text": "^5.1.0",
     "@types/htmlparser2": "^3.10.1",
+    "@types/jest": "^26.0.19",
     "@types/jsdom": "^16.2.1",
     "@types/jsonwebtoken": "^8.3.9",
     "@types/lodash": "^4.14.150",
@@ -69,7 +71,6 @@
     "bcrypt": "^5.0.0",
     "body-parser": "^1.18.3",
     "bowser": "^1.9.4",
-    "bson-ext": "^2.0.3",
     "cheerio": "^0.22",
     "classnames": "^2.2.6",
     "cloudinary-core": "2.5.0",
@@ -200,8 +201,10 @@
     "@graphql-codegen/cli": "^1.9.1",
     "@graphql-codegen/fragment-matcher": "^1.9.0",
     "@graphql-codegen/introspection": "^1.9.0",
+    "@shelf/jest-mongodb": "^1.2.3",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
+    "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "esbuild": "^0.8.21",
     "esbuild-loader": "^2.6.1",
@@ -215,8 +218,10 @@
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
     "fork-ts-checker-webpack-plugin": "^5.2.0",
+    "jest": "^26.6.3",
     "nodemon": "2.0.4",
     "speed-measure-webpack-plugin": "^1.3.3",
+    "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.5",
     "webpack": "^5.1.3",
     "webpack-cli": "^4.0.0"

@@ -1,13 +1,13 @@
+import { testStartup } from './testMain';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import lolex from 'lolex';
 import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
-describe('EventDebouncer', async () => {
+describe('EventDebouncer', () => {
   it('groups events correctly', async () => {
     let clock = lolex.install({
       now: new Date("1980-01-01"),

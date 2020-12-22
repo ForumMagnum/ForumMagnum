@@ -74,7 +74,7 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
 
 export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
-  if (isServer) {
+  if (isServer && !isAnyTest) {
     const buildIndex = async () => {
       try {
         if (options.name && await conflictingIndexExists(collection, index, options)) {

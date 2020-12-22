@@ -7,7 +7,6 @@ import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
 
-
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
 // (b) assert that particular errors are present in unit tests, and (c) if no
@@ -16,7 +15,7 @@ import { randomId } from '../lib/random';
 // This should be called in unit tests from inside describe() but outside of
 // it(). For example:
 //
-//   describe('Thing that uses GraphQL', async () => {
+//   describe('Thing that uses GraphQL', () => {
 //     let graphQLErrorCatcher = catchGraphQLErrors();
 //
 //     it('produces a permission-denied error', async () => {
@@ -323,4 +322,12 @@ export const userUpdateFieldSucceeds = async ({user, document, fieldName, collec
   const response = runQuery(query,{},{currentUser:user})
   const expectedOutput = { data: { [`update${collectionType}`]: { data: { [fieldName]: comparedValue} }}}
   return (response as any).should.eventually.deep.equal(expectedOutput);
+}
+
+
+export const stubbedTests = () => {
+  describe("Stubbed unit test file", () => {
+    it("Has a placeholder", () => {
+    });
+  });
 }

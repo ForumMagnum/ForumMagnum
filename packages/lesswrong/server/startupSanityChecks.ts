@@ -1,4 +1,4 @@
-import { onStartup } from '../lib/executionEnvironment';
+import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 import process from 'process';
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
@@ -7,6 +7,7 @@ import { PublicInstanceSetting } from '../lib/instanceSettings';
 const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning")
 
 onStartup(async () => {
+  if (isAnyTest) return;
   const expectedDatabaseId = expectedDatabaseIdSetting.get();
   const databaseIdObject = await DatabaseMetadata.findOne({ name: "databaseId" });
   const databaseId = databaseIdObject?.value || null;

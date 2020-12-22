@@ -1,7 +1,7 @@
-import chai from 'chai';
+import { testStartup } from '../../testing/testMain';
 import { subBatchArray } from './utils'
 
-chai.should();
+testStartup();
 
 describe('subBatchArray', () => {
   it('divides a large array', () => {

@@ -1,14 +1,15 @@
 
 declare global {
   var bundleIsServer: boolean
+  var bundleIsTest: boolean
 }
 
 export const isClient = !bundleIsServer
 export const isServer = bundleIsServer
 export const isDevelopment = true
 export const isProduction = false
-export const isAnyTest = false
-export const isPackageTest = false
+export const isAnyTest = bundleIsTest
+export const isPackageTest = bundleIsTest
 
 export const onStartupFunctions: Array<()=>void> = [];
 export const onStartup = (fn: ()=>void) => {

@@ -70,4 +70,6 @@ packages/lesswrong/platform/current/
 express/build
 express/yarn-error.log
 
+# Created by @shelf/jest-mongodb
+express/globalConfig.json
 

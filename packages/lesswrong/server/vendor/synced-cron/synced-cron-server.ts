@@ -1,6 +1,6 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
+import { isAnyTest, onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
 import { MongoCollection } from '../../../platform/current/lib/mongoCollection';
 
 // A package for running jobs synchronized across multiple processes
@@ -70,6 +70,7 @@ function createLogger(prefix: string) {
 var log;
 
 onStartup(function() {
+  if (isAnyTest) return;
   var options = SyncedCron.options;
 
   log = createLogger('SyncedCron');

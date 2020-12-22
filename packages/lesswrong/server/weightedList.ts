@@ -10,6 +10,11 @@
 
 export class WeightedList
 {
+  weights: any
+  data: any
+  length: any
+  hasData: any
+  
   constructor(initial) {
     this.weights = {};
     this.data = {};
@@ -114,7 +119,7 @@ export class WeightedList
    * If andRemove is true (default false), remove the elements
    * from the list.  (This is what the pop() method does.)
    */
-  peek(n, andRemove) {
+  peek(n, andRemove?: any) {
     if (typeof n === 'undefined') {
       n = 1;
     }
@@ -128,7 +133,7 @@ export class WeightedList
 
     var heap = this._buildWeightedHeap();
     //console.debug('heap:', heap);
-    var result = [];
+    var result: any = [];
     
     for (var i = 0; i < n; i++) {
       var key = heap.pop();
@@ -165,7 +170,7 @@ export class WeightedList
    * Build a WeightedHeap instance based on the data we've got
    */
   _buildWeightedHeap() {
-    var items = [];
+    var items: any = [];
     for (var key in this.weights) if (this.weights.hasOwnProperty(key)) {
       items.push([key, this.weights[key]]);
     }
@@ -178,7 +183,7 @@ export class WeightedList
  * This is a javascript implementation of the algorithm described by 
  * Jason Orendorff here: http://stackoverflow.com/a/2149533/87990
  */
-function _HeapNode(weight, value, total) {
+function _HeapNode(this: any, weight, value, total) {
   this.weight = weight;
   this.value = value;
   this.total = total;  // Total weight of this node and its children
@@ -188,7 +193,7 @@ function _HeapNode(weight, value, total) {
  * classic binary heap. A node heap[i] has children at heap[i<<1] and at 
  * heap[(i<<1)+1]. Its parent is at h[i>>1]. Heap[0] is vacant.
  */
-function _WeightedHeap(items) {
+function _WeightedHeap(this: any, items) {
   this.heap = [null];   // Math is easier to read if we index array from 1
   
   // First put everything on the heap 

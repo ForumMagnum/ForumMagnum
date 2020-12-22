@@ -1,5 +1,8 @@
-import { diffHtml, trimHtmlDiff } from '../server/resolvers/diffResolvers';
+import { testStartup } from './testMain';
 import chai from 'chai';
+import { diffHtml, trimHtmlDiff } from '../server/resolvers/diffResolvers';
+
+testStartup();
 
 describe('diffHtml', () => {
   it('passes unchanged HTML through', () => {

@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
-import { onStartup } from '../platform/current/lib/executionEnvironment';
+import { onStartup, isAnyTest } from '../platform/current/lib/executionEnvironment';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
@@ -40,8 +40,10 @@ onStartup(() => {
       ],
     });
   } else {
-    // eslint-disable-next-line no-console
-    console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
+    if (!isAnyTest) {
+      // eslint-disable-next-line no-console
+      console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
+    }
   }
 });
 

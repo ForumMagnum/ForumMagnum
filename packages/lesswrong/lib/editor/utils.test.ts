@@ -1,6 +1,9 @@
+import { testStartup } from '../../testing/testMain';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../server/draftConvert'
 import { htmlToDraftServer } from '../../server/resolvers/revisionResolvers'
+
+testStartup();
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {

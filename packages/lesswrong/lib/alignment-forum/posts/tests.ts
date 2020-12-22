@@ -1,12 +1,10 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { testStartup } from '../../../testing/testMain';
 import { runQuery } from '../../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
-describe('AlignmentForum PostsEdit', async () => {
+describe('AlignmentForum PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();
   
   it("fails when an alignmentForum user edits a post title", async () => {

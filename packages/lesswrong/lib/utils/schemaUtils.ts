@@ -271,7 +271,6 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
       
       return newDoc;
     }
-    (createCallback as any).name = `${collectionName}_${fieldName}_countNew`;
     addCallback(`${foreignCollectionCallbackPrefix}.create.after`, createCallback);
     
     // When updating a document, we may need to decrement a count, we may

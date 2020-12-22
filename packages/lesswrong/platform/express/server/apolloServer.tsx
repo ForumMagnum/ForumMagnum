@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { onStartup, isDevelopment, getInstanceSettings } from '../../../lib/executionEnvironment';
+import { onStartup, isDevelopment, isAnyTest, getInstanceSettings } from '../../../lib/executionEnvironment';
 import { renderWithCache } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
@@ -61,6 +61,11 @@ onStartup(() => {
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
+  
+  if (isAnyTest) {
+    // Don't set up a webserver if this is a unit test
+    return;
+  }
   
   // create server
   // given options contains the schema

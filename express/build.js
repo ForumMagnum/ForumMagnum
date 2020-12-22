@@ -52,6 +52,7 @@ build({
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
     "bundleIsServer": false,
+    "bundleIsTest": false,
     "global": "window",
   },
 });
@@ -67,6 +68,7 @@ build({
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
     "bundleIsServer": true,
+    "bundleIsTest": false,
   },
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",

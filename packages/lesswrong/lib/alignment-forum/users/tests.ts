@@ -1,11 +1,9 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { testStartup } from '../../../testing/testMain';
 import { createDummyUser, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
-describe('alignment updateUser – ', async () => {
+describe('alignment updateUser – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("fails when alignmentForumAdmin updates another user's bio", async () => {
     const user = await createDummyUser()
