@@ -44,7 +44,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
   const hintText = <div className={classes.hintText}>
     <p>How has this post been useful to you over the past year or two?</p> 
     <p>Has it influenced your overall thinking, or been useful for particular projects or decisions?</p>
-    <p>(The more specific and concrete, the more helpful!</p>
+    <p>(The more specific and concrete, the more helpful!)</p>
   </div>
 
   return (
