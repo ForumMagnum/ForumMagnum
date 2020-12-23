@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import classNames from 'classnames';
-import { eligibleToNominate } from './NominatePostMenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -23,9 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 6,
     marginTop: -8
   },
-  nominationBlock: {flexGrow: 1, marginRight: 2},
-  reviewBlock: {flexGrow: 2, marginRight: 2},
-  votingBlock: {flexGrow: 1},
+  nominationBlock: {flexGrow: 1, marginRight: 2, flexBasis: 0},
+  reviewBlock: {flexGrow: 2, marginRight: 2, flexBasis: 0},
+  votingBlock: {flexGrow: 1, flexBasis: 0},
   blockText: {color: 'white', zIndex: 1},
   progress: {
     position: 'relative',
@@ -86,13 +85,13 @@ export const reviewAlgorithm = {
   method: "sample",
   count: 3,
   scoreOffset: 0,
-  scoreExponent: 3,
+  scoreExponent: 0,
   personalBlogpostModifier: 0,
   frontpageModifier: 0,
   curatedModifier: 0,
   includePersonal: true,
   includeMeta: true,
-  reviewNominations: 2019, 
+  reviewReviews: 2019, 
   onlyUnread: false,
   excludeDefaultRecommendations: true
 }
