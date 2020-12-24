@@ -11,6 +11,10 @@ export const getDatabase = () => db;
 
 const disableAllWrites = false;
 const logQueries = false;
+const debugQueryBatches = false;
+let inProgressQueries = 0;
+let onBatchFinished: Promise<void>|null = null;
+let finishBatch: any = null;
 
 function timeSince(startTime: Date): string {
   const now = new Date();
@@ -22,13 +26,36 @@ async function wrapQuery(description, queryFn) {
   const startTime = new Date();
   if (logQueries) {
     console.log(`Starting ${description}`);
+    
+    if (inProgressQueries == 0) {
+      onBatchFinished = new Promise((resolve, reject) => {
+        finishBatch = resolve;
+      });
+    }
+    inProgressQueries++;
   }
   const result = await queryFn();
   if (logQueries) {
     const resultSize = JSON.stringify(result).length;
     console.log(`Finished  ${description} (${timeSince(startTime)}, ${resultSize}b)`);
+    
+    if (debugQueryBatches) {
+      await waitForBatchFinished();
+    }
   }
   return result;
+}
+async function waitForBatchFinished() {
+  inProgressQueries--;
+  if (inProgressQueries === 0) {
+    let finish = finishBatch;
+    onBatchFinished = null;
+    finishBatch = null;
+    console.log('================================');
+    finish();
+  } else {
+    await onBatchFinished;
+  }
 }
 
 export class MongoCollection<T extends DbObject> {
