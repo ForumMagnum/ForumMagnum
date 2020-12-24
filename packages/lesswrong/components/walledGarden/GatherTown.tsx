@@ -172,7 +172,7 @@ const GatherTown = ({classes}: {
           <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
         </AnalyticsTracker>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
-            {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
+            {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user} {users[user]?.status && `(${users[user].status})`}</span>)}
             {tooltip}
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>

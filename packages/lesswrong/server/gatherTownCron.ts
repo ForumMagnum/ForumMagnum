@@ -158,7 +158,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
       const parsedMessage = interpretBinaryMessage(data)
       if (parsedMessage?.players) {
         for (let player of parsedMessage.players) {
-          playerNamesById[player.playerId] = player.name;
+          playerNamesById[player.id] = player.name;
           playerInfoByName[player.name] = player;
         }
       }
@@ -171,7 +171,6 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   await wait(3000);
 
   socket.close();
-
   const playerNames = _.values(playerNamesById);
   return toDictionary(playerNames, name=>name, name=>playerInfoByName[name]);
 }
@@ -217,7 +216,7 @@ const playerIdOffset = 27;
 
 // Decoded using echo AS...<rest of base64 message> | base64 -d | hexdump -C
 
-function interpretBinaryMessage(data: any): any {
+function interpretBinaryMessage(data: any): {players: {map: string, name: string, id: string, status: string}[]} | null { 
   const buf = Buffer.from(data);
   // First byte is 1 to indicate it's a binary message
   if (buf.readUInt8(0) !== 1) {
