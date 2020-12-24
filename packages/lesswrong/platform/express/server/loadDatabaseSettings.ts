@@ -5,9 +5,10 @@ export async function refreshSettingsCaches() {
   const db = getDatabase();
   if (db) {
     const table = db.collection("databasemetadata");
-    // TODO: Do these two parallel to save a roundtrip
-    const serverSettingsObject = await table.findOne({name: "serverSettings"})
-    const publicSettingsObject  = await table.findOne({name: "publicSettings"})
+    const [serverSettingsObject, publicSettingsObject] = await Promise.all([
+      await table.findOne({name: "serverSettings"}),
+      await table.findOne({name: "publicSettings"})
+    ]);
     
     setServerSettingsCache(serverSettingsObject?.value || {__initialized: true});
     // We modify the publicSettings object that is made available in lib to allow both the client and the server to access it
