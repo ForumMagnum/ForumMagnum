@@ -18,7 +18,7 @@ module.exports = {
     "allowImportExportEverywhere": true,
     "ecmaVersion": 6,
     "sourceType": "module",
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
   },
   "rules": {
     "babel/generator-star-spacing": 0,
@@ -244,5 +244,14 @@ module.exports = {
     "after": true,
     "beforeEach": true,
     "afterEach": true
-  }
+  },
+  "ignorePatterns": [
+    // Don't complain about having files in platform-specific directories which
+    // are "not part of the project" (according to tsconfig.json). This is
+    // necessary because eslint gets confused by the packages/lesswrong/platform/current
+    // symlink.
+    "packages/lesswrong/platform/express/package.js",
+    "packages/lesswrong/platform/express/**/*.ts",
+    "packages/lesswrong/platform/express/**/*.tsx",
+  ]
 }

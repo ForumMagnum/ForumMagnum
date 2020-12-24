@@ -25,6 +25,8 @@ async function serverStartup() {
   const commandLineArguments = getCommandLineArguments();
   
   try {
+    // eslint-disable-next-line no-console
+    console.log("Connecting to mongodb");
     const client = new MongoClient(commandLineArguments.mongoUrl, {
       // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
       // for various options that could be tuned here
@@ -36,17 +38,18 @@ async function serverStartup() {
     const db = client.db(dbName);
     setDatabaseConnection(client, db);
   } catch(err) {
-    console.log("Failed to connect to mongodb");
-    console.log(err);
+    // eslint-disable-next-line no-console
+    console.log("Failed to connect to mongodb: ", err);
     return;
   }
   
+  // eslint-disable-next-line no-console
   console.log("Loading settings");
   await refreshSettingsCaches();
   
-  console.log("Importing everything");
   require('../../../server.js');
   
+  // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
   for (let startupFunction of onStartupFunctions)
     await startupFunction();

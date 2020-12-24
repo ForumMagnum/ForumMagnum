@@ -36,8 +36,8 @@ async function ensureDbConnection() {
     const db = client.db();
     setDatabaseConnection(client, db);
   } catch(err) {
-    console.log("Failed to connect to mongodb");
-    console.log(err);
+    // eslint-disable-next-line no-console
+    console.log("Failed to connect to mongodb: ", err);
     return;
   }
   
