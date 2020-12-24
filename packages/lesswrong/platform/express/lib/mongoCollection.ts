@@ -18,6 +18,19 @@ function timeSince(startTime: Date): string {
   return `${msElapsed}ms`;
 }
 
+async function wrapQuery(description, queryFn) {
+  const startTime = new Date();
+  if (logQueries) {
+    console.log(`Starting ${description}`);
+  }
+  const result = await queryFn();
+  if (logQueries) {
+    const resultSize = JSON.stringify(result).length;
+    console.log(`Finished  ${description} (${timeSince(startTime)}, ${resultSize}b)`);
+  }
+  return result;
+}
+
 export class MongoCollection<T extends DbObject> {
   tableName: string
   table: any
@@ -42,42 +55,36 @@ export class MongoCollection<T extends DbObject> {
     return {
       fetch: async () => {
         const table = this.getTable();
-        const startTime = new Date();
-        if (logQueries) console.log(`Starting ${this.tableName}.find(${JSON.stringify(selector)}).fetch`)
-        const result = await table.find(selector, {
-          ...options,
-        }).toArray()
-        if (logQueries) console.log(`Finished (${timeSince(startTime)}) ${this.tableName}.find(${JSON.stringify(selector)}).fetch`)
-        return result;
+        return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).fetch`, async () => {
+          return await table.find(selector, {
+            ...options,
+          }).toArray()
+        });
       },
       count: async () => {
         const table = this.getTable();
-        const startTime = new Date();
-        if (logQueries) console.log(`Starting ${this.tableName}.find(${JSON.stringify(selector)}).count`)
-        const result = await table.countDocuments(selector, {
-          ...options,
+        return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).count`, async () => {
+          return await table.countDocuments(selector, {
+            ...options,
+          });
         });
-        if (logQueries) console.log(`Finished (${timeSince(startTime)}) ${this.tableName}.find(${JSON.stringify(selector)}).count`)
-        return result;
       }
     };
   }
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
     const table = this.getTable();
-    let result;
-    const startTime = new Date();
-    if (logQueries) console.log(`Starting ${this.tableName}.findOne(${JSON.stringify(selector)})`);
-    if (typeof selector === "string") {
-      result = await table.findOne({_id: selector}, {
-        ...options,
-      });
-    } else {
-      result = await table.findOne(selector, {
-        ...options,
-      });
-    }
-    if (logQueries) console.log(`Finished (${timeSince(startTime)}) ${this.tableName}.findOne(${JSON.stringify(selector)})`);
-    return result;
+    return await wrapQuery(`${this.tableName}.findOne(${JSON.stringify(selector)})`, async () => {
+      let result;
+      if (typeof selector === "string") {
+        return await table.findOne({_id: selector}, {
+          ...options,
+        });
+      } else {
+        return await table.findOne(selector, {
+          ...options,
+        });
+      }
+    });
   }
   insert = async (doc, options) => {
     if (disableAllWrites) return;
@@ -90,13 +97,19 @@ export class MongoCollection<T extends DbObject> {
   }
   update = async (selector, update, options) => {
     if (disableAllWrites) return;
-    const table = this.getTable();
-    if (typeof selector === 'string') {
-      const updateResult = await table.update({_id: selector}, update, options);
-      return updateResult.matchedCount;
-    } else {
-      const updateResult = await table.update(selector, update, options);
-      return updateResult.matchedCount;
+    try {
+      const table = this.getTable();
+      if (typeof selector === 'string') {
+        const updateResult = await table.update({_id: selector}, update, options);
+        return updateResult.matchedCount;
+      } else {
+        const updateResult = await table.update(selector, update, options);
+        return updateResult.matchedCount;
+      }
+    } catch(e) {
+      console.error(e)
+      console.log(`Selector was: ${selector}`);
+      throw e;
     }
   }
   remove = async (selector, options)=>{
