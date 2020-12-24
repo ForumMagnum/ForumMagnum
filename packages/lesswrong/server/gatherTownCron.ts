@@ -129,7 +129,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     sendMessageOnSocket(socket, {
       event: "init",
       token: token,
-      version: 2,
+      version: 3,
     });
   });
 
@@ -158,7 +158,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
       const parsedMessage = interpretBinaryMessage(data)
       if (parsedMessage?.players) {
         for (let player of parsedMessage.players) {
-          playerNamesById[player.playerId] = player.name;
+          playerNamesById[player.id] = player.name;
           playerInfoByName[player.name] = player;
         }
       }
@@ -171,7 +171,6 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   await wait(3000);
 
   socket.close();
-
   const playerNames = _.values(playerNamesById);
   return toDictionary(playerNames, name=>name, name=>playerInfoByName[name]);
 }
@@ -209,13 +208,15 @@ function isJson(str: string): boolean {
   return true;
 }
 
-const playerMessageHeaderLen = 23;
-const mapNameOffset = 15
-const playerNameOffset = 17
-const unknownStringFieldOffset = 19;
-const playerIdOffset = 21;
+const playerMessageHeaderLen = 29;
+const mapNameOffset = 17
+const playerNameOffset = 19
+const playerStatusOffset = 23
+const playerIdOffset = 27;
 
-function interpretBinaryMessage(data: any): any {
+// Decoded using echo AS...<rest of base64 message> | base64 -d | hexdump -C
+
+function interpretBinaryMessage(data: any): {players: {map: string, name: string, id: string, status: string}[]} | null { 
   const buf = Buffer.from(data);
   // First byte is 1 to indicate it's a binary message
   if (buf.readUInt8(0) !== 1) {
@@ -236,22 +237,24 @@ function interpretBinaryMessage(data: any): any {
     if (messageType === 0) {
       const mapNameLen = buf.readUInt8(pos+mapNameOffset);
       const playerNameLen = buf.readUInt8(pos+playerNameOffset);
-      const unknownStringFieldLen = buf.readUInt8(pos+unknownStringFieldOffset);
+      const playerStatusLen = buf.readUInt8(pos+playerStatusOffset)
       const playerIdLen = buf.readUInt8(pos+playerIdOffset);
       
       const mapNameStart = pos+playerMessageHeaderLen;
       const playerNameStart = mapNameStart+mapNameLen;
-      const unknownStringFieldStart = playerNameStart+unknownStringFieldLen;
-      const playerIdStart = unknownStringFieldStart+playerNameLen;
+      const playerStatusStart = playerNameStart+playerNameLen;
+      const playerIdStart = playerStatusStart+playerStatusLen;
       
       const mapName = buf.slice(mapNameStart, mapNameStart+mapNameLen).toString("utf8");
       const playerName = buf.slice(playerNameStart, playerNameStart+playerNameLen).toString("utf8");
+      const playerstatus = buf.slice(playerStatusStart, playerStatusStart+playerStatusLen).toString("utf8");
       const playerId = buf.slice(playerIdStart, playerIdStart+playerIdLen).toString("utf8");
       
       players.push({
         map: mapName,
         name: playerName,
-        playerId: playerId,
+        id: playerId,
+        status: playerstatus
       });
       
       pos = playerIdStart+playerIdLen;
