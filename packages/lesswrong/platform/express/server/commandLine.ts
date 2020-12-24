@@ -13,6 +13,11 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
     settingsFileName: "settings.json",
   }
   
+  // Don't parse command-line arguments during unit testing (because jest passes
+  // its command line arguments through).
+  if (isAnyTest)
+    return commandLine;
+  
   for (let i=2; i<argv.length; i++) {
     const arg = argv[i];
     switch(arg) {
