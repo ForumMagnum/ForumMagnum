@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
-import { eligibleToNominate } from './NominatePostMenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -24,9 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 6,
     marginTop: -8
   },
-  nominationBlock: {flexGrow: 1, marginRight: 2},
-  reviewBlock: {flexGrow: 2, marginRight: 2},
-  votingBlock: {flexGrow: 1},
+  nominationBlock: {flexGrow: 1, marginRight: 2, flexBasis: 0},
+  reviewBlock: {flexGrow: 2, marginRight: 2, flexBasis: 0},
+  votingBlock: {flexGrow: 1, flexBasis: 0},
   blockText: {color: 'white', zIndex: 1},
   progress: {
     position: 'relative',
@@ -87,13 +86,13 @@ export const reviewAlgorithm: RecommendationsAlgorithm = {
   method: "sample",
   count: 3,
   scoreOffset: 0,
-  scoreExponent: 3,
+  scoreExponent: 0,
   personalBlogpostModifier: 0,
   frontpageModifier: 0,
   curatedModifier: 0,
   includePersonal: true,
   includeMeta: true,
-  reviewNominations: 2019, 
+  reviewReviews: 2019, 
   onlyUnread: false,
   excludeDefaultRecommendations: true
 }
@@ -181,7 +180,7 @@ const FrontpageReviewPhase = ({classes}) => {
             <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "nominations"})}>
               <div className={classes.blockText}>Nominations</div>
               <div className={classes.blockText}>Dec 14</div>
-              <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}/>
+              {activeRange === "nominations" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}/>}
             </LWTooltip>
           </Link>
         </div>
@@ -190,7 +189,7 @@ const FrontpageReviewPhase = ({classes}) => {
             <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "review"})}>
               <div className={classes.blockText}>Reviews</div>
               <div className={classes.blockText}>Jan 11</div>
-              <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>
+              {activeRange === "review" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
             </LWTooltip>
           </Link>    
         </div>
@@ -199,7 +198,7 @@ const FrontpageReviewPhase = ({classes}) => {
             <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "votes"})}>
               <div className={classes.blockText}>Votes</div>
               <div className={classes.blockText}>Jan 26</div>
-              <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>
+              {activeRange === "votes" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
             </LWTooltip>
           </Link>
         </div>
@@ -208,7 +207,16 @@ const FrontpageReviewPhase = ({classes}) => {
       <AnalyticsContext listContext={"LessWrong 2019 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} />
       </AnalyticsContext>
-        {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+      <div className={classes.actionButtonRow}>
+        <LWTooltip title={<div>
+          <div>Review posts with at least two nominations</div>
+          </div>}>
+          <Link to={"/reviews"} className={classes.actionButtonCTA}>
+            Review 2019 Posts
+          </Link>
+        </LWTooltip>
+      </div>
+        {/* {eligibleToNominate(currentUser) && 
           <LWTooltip title={<div>
               <div>View posts with at least 1 nomination</div>
               <div><em>(Posts need at least 2 nominations)</em></div>
@@ -217,15 +225,8 @@ const FrontpageReviewPhase = ({classes}) => {
               View Nominated Posts
             </Link>
           </LWTooltip>
-          <LWTooltip title={<div>
-              <div>View posts that have not yet been nominated</div>
-              <div><em>(Posts need at least 2 nominations)</em></div>
-            </div>}>
-            <Link to={all2019Url} className={classes.actionButtonCTA}>
-              Nominate 2019 Posts
-            </Link>
-          </LWTooltip>
-        </div>}
+          
+        </div>} */}
     </SingleColumnSection>
   )
 }
