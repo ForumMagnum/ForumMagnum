@@ -281,23 +281,31 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
         const countingCollection: any = getCollection(collectionName);
         if (filter(newDoc) && !filter(oldDocument)) {
           // The old doc didn't count, but the new doc does. Increment on the new doc.
-          await countingCollection.update(newDoc[foreignFieldName], {
-            $inc: { [fieldName]: 1 }
-          });
+          if (newDoc[foreignFieldName]) {
+            await countingCollection.update(newDoc[foreignFieldName], {
+              $inc: { [fieldName]: 1 }
+            });
+          }
         } else if (!filter(newDoc) && filter(oldDocument)) {
           // The old doc counted, but the new doc doesn't. Decrement on the old doc.
-          await countingCollection.update(oldDocument[foreignFieldName], {
-            $inc: { [fieldName]: -1 }
-          });
+          if (oldDocument[foreignFieldName]) {
+            await countingCollection.update(oldDocument[foreignFieldName], {
+              $inc: { [fieldName]: -1 }
+            });
+          }
         } else if(filter(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
           // The old and new doc both count, but the reference target has changed.
           // Decrement on one doc and increment on the other.
-          await countingCollection.update(oldDocument[foreignFieldName], {
-            $inc: { [fieldName]: -1 }
-          });
-          await countingCollection.update(newDoc[foreignFieldName], {
-            $inc: { [fieldName]: 1 }
-          });
+          if (oldDocument[foreignFieldName]) {
+            await countingCollection.update(oldDocument[foreignFieldName], {
+              $inc: { [fieldName]: -1 }
+            });
+          }
+          if (newDoc[foreignFieldName]) {
+            await countingCollection.update(newDoc[foreignFieldName], {
+              $inc: { [fieldName]: 1 }
+            });
+          }
         }
         return newDoc;
       }
