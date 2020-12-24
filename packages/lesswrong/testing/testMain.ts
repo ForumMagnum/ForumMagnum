@@ -28,6 +28,9 @@ async function ensureDbConnection() {
     const client = new MongoClient(connectionString, {
       // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
       // for various options that could be tuned here
+      
+      // A deprecation warning says to use this option 
+      useUnifiedTopology: true,
     });
     await client.connect();
     const db = client.db();
