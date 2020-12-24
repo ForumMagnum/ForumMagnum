@@ -2,6 +2,11 @@ import { isDevelopment } from '../lib/executionEnvironment';
 import { setPublicSettings, getServerSettingsCache, setServerSettingsCache, registeredSettings } from '../../../lib/settingsCache';
 import { DatabaseMetadata } from '../../../lib/collections/databaseMetadata/collection';
 
+export const getPreloadedDatabaseId = () => ({
+  preloaded: false,
+  databaseId: null
+});
+
 export async function refreshSettingsCaches() {
   // Note: This is using Fibers to make this database call synchronous. This is kind of bad, but I don't know how to avoid it 
   // without doing tons of work to make everything work properly in an asynchronous context

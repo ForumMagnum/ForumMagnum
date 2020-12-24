@@ -2,15 +2,21 @@ import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 import process from 'process';
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
+import { getPreloadedDatabaseId } from '../platform/current/server/loadDatabaseSettings';
 
 // Database ID string that this config file should match with
 const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning")
 
+const loadDatabaseId = async () => {
+  const databaseIdObject = await DatabaseMetadata.findOne({ name: "databaseId" });
+  return databaseIdObject?.value || null;
+}
+
 onStartup(async () => {
   if (isAnyTest) return;
   const expectedDatabaseId = expectedDatabaseIdSetting.get();
-  const databaseIdObject = await DatabaseMetadata.findOne({ name: "databaseId" });
-  const databaseId = databaseIdObject?.value || null;
+  const preload = getPreloadedDatabaseId();
+  const databaseId = preload.preloaded ? preload.databaseId : await loadDatabaseId();
   
   // If either the database or the settings config file contains an ID, then
   // both must contain IDs and they must match.
