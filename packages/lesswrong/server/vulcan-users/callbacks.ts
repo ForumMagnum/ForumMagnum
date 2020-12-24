@@ -2,8 +2,10 @@ import Users from '../../lib/collections/users/collection';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
+import { isAnyTest } from '../../platform/current/lib/executionEnvironment';
 
 getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbUser) {
+    if (isAnyTest) return user;
     // if this is not a dummy account, and is the first user ever, make them an admin
     // TODO: should use await Connectors.count() instead, but cannot await inside Accounts.onCreateUser. Fix later. 
     if (typeof user.isAdmin === 'undefined') {

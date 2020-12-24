@@ -81,6 +81,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
 getCollectionHooks("Users").newSync.add(async function makeFirstUserAdminAndApproved (user: DbUser) {
+  if (isAnyTest) return user;
   const realUsersCount = await Users.find({}).count();
   if (realUsersCount === 0) {
     user.reviewedByUserId = "firstAccount"; //HACK
