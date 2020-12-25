@@ -58,6 +58,16 @@ async function waitForBatchFinished() {
   }
 }
 
+function removeUndefinedFields(selector: any) {
+  const filtered: any = {};
+  for (let key in selector) {
+    if (typeof selector[key] !== "undefined") {
+      filtered[key] = selector[key];
+    }
+  }
+  return filtered;
+}
+
 export class MongoCollection<T extends DbObject> {
   tableName: string
   table: any
@@ -83,7 +93,7 @@ export class MongoCollection<T extends DbObject> {
       fetch: async () => {
         const table = this.getTable();
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).fetch`, async () => {
-          return await table.find(selector, {
+          return await table.find(removeUndefinedFields(selector), {
             ...options,
           }).toArray()
         });
@@ -91,7 +101,7 @@ export class MongoCollection<T extends DbObject> {
       count: async () => {
         const table = this.getTable();
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).count`, async () => {
-          return await table.countDocuments(selector, {
+          return await table.countDocuments(removeUndefinedFields(selector), {
             ...options,
           });
         });
@@ -107,7 +117,7 @@ export class MongoCollection<T extends DbObject> {
           ...options,
         });
       } else {
-        return await table.findOne(selector, {
+        return await table.findOne(removeUndefinedFields(selector), {
           ...options,
         });
       }
@@ -130,7 +140,7 @@ export class MongoCollection<T extends DbObject> {
         const updateResult = await table.update({_id: selector}, update, options);
         return updateResult.matchedCount;
       } else {
-        const updateResult = await table.update(selector, update, options);
+        const updateResult = await table.update(removeUndefinedFields(selector), update, options);
         return updateResult.matchedCount;
       }
     } catch(e) {
@@ -142,7 +152,7 @@ export class MongoCollection<T extends DbObject> {
   remove = async (selector, options)=>{
     if (disableAllWrites) return;
     const table = this.getTable();
-    return await table.remove(selector, options);
+    return await table.remove(removeUndefinedFields(selector), options);
   }
   _ensureIndex = async (fieldOrSpec, options)=>{
     if (disableAllWrites) return;
