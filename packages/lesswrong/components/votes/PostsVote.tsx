@@ -67,7 +67,10 @@ const PostsVote = ({ post, classes }: {
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
-            <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
+            <div> 
+              {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
+              <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
+            </div>
           </Tooltip>
 
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
