@@ -23,7 +23,7 @@ const SequencesGridWrapper = ({
     terms,
     collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
-    enableTotal: true,
+    enableTotal: showLoadMore,
   });
   
   if (results && results.length) {
