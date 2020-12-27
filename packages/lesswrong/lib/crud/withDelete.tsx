@@ -27,11 +27,11 @@ Child Props:
 */
 
 import React from 'react';
-import gql from 'graphql-tag';
 import { deleteClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
 import { updateCacheAfterDelete } from './cacheUpdates';
 import { getExtraVariables } from './utils'
+import { gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 
 export const withDelete = options => {

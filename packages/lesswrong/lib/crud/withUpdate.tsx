@@ -28,11 +28,10 @@ Child Props:
 */
 
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
-import gql from 'graphql-tag';
 import { updateClientTemplate, getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { updateCacheAfterUpdate } from './cacheUpdates';

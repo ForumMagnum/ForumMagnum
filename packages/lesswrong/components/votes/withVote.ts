@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useMessages } from '../common/withMessages';
-import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';

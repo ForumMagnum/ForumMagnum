@@ -9,8 +9,7 @@ import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useMutation, gql } from '@apollo/client';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
