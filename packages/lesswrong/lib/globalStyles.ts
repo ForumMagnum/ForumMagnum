@@ -5,6 +5,20 @@ const maxTiny = "@media screen and (max-width: 400px)";
 const clearStyle = (theme: ThemeType): JssStyles => ({
   html: {
     fontSize: 13,
+    boxSizing: "border-box",
+    "-webkit-font-smoothing": "antialiased",
+    "-moz-osx-font-smoothing": "grayscale",
+  },
+  "*, *::before, *::after": {
+    boxSizing: "inherit",
+  },
+  body: {
+    margin: 0,
+    backgroundColor: "#f8f8f8",
+    
+    "@media print": {
+      backgroundColor: "white",
+    },
   },
   
   "h1, h2, h3, h4": {
