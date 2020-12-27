@@ -1,11 +1,12 @@
 import * as _ from 'underscore';
 
+const crypto = bundleIsServer ? require('crypto') : null;
+
 // Excludes 0O1lIUV
 const unmistakableChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTWXYZ23456789";
 
 export const randomId = () => {
   if (bundleIsServer) {
-    const crypto = require('crypto');
     const bytes = crypto.randomBytes(17);
     const result: Array<string> = [];
     for (let byte of bytes) {
@@ -27,7 +28,6 @@ export const randomId = () => {
 
 export const randomSecret = () => {
   if (bundleIsServer) {
-    const crypto = require('crypto');
     return crypto.randomBytes(15).toString('base64');
   } else {
     throw new Error("No CSPRNG available on the client");
