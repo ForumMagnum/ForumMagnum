@@ -97,12 +97,6 @@ onStartup(() => {
   app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
-  // Static files folder
-  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
-  app.use(express.static(path.join(__dirname, '../../client')))
-  console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
-  app.use(express.static(path.join(__dirname, '../../../../public')))
-  
   const {bundleHash, bundleText } = getClientBundle();
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
@@ -112,6 +106,12 @@ onStartup(() => {
     });
     res.end(bundleText);
   });
+  
+  // Static files folder
+  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
+  app.use(express.static(path.join(__dirname, '../../client')))
+  console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
+  app.use(express.static(path.join(__dirname, '../../../../public')))
   
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
