@@ -5,6 +5,7 @@
     "build": "../scripts/useExpress.sh && ./build.js",
     "start": "../scripts/useExpress.sh && ./build.js -run -watch --settings ../settings.json",
     "start-dev-db": "../scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../../LessWrong-Credentials/settings-local-dev-devdb.json",
+    "start-prod-db": "../scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../../LessWrong-Credentials/settings-local-dev-proddb.json",
     "build:prod": "export NODE_ENV=development && webpack -p",
     "start:prod": "export NODE_ENV=development && nodemon --ignore './build/' --exec 'yarn run build && node -- build/server/js/serverBundle.js'",
     "test": "jest"
