@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
@@ -75,38 +75,75 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
   const { GardenCodeWidget, GardenCodesList, PomodoroWidget, } = Components
 
+  const radio = useRef(null)
   const currentUser =  useCurrentUser()
 
   const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
-      {currentUser?.walledGardenInvite && <div className={classes.events}>
-        <Typography variant="title">Garden Events</Typography>
-        <div className={classes.calendarLinks}>
-          <div><GardenCodeWidget type="friend"/></div>
-          <div><GardenCodeWidget type="event"/></div>
-        </div>
-      </div>}
-      <div className={classes.eventWidget}>
-        <GardenCodesList terms={{view: "semipublicGardenCodes", types:  currentUser?.walledGardenInvite ? ['public', 'semi-public'] : ['public']}}/>
-        {currentUser?.walledGardenInvite &&   <GardenCodesList terms={{view: "usersPrivateGardenCodes"}}/>}
+      <div className={classes.partyResources}>
       </div>
-      {currentUser?.walledGardenInvite && <div className={classes.calendars}>
-        <div className={classes.textButton}>
-          <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
-            Facebook Group
-          </a>
+      <div className={classes.radio}>
+        <audio controls ref={radio} autoPlay muted >
+          <source src="https://us10a.serverse.com/proxy/wqpanlfq?mp=/stream" type="audio/mpeg" />
+            Your browser does not support the audio element.
+        </audio>
+        {radio.current && <div className={classes.playTime}>
+          {`Current Time: ${radio.current.currentTime}`}
+        </div>}
+        <div 
+          className={classes.playButton} 
+          onClick={()=> {if (radio.current) radio.current.play()}}
+        >
+          PLAY BUTTON
         </div>
-        <div className={classes.link}>
-          <a href={gatherTownURL} rel="noopener noreferrer">
-            Backup GatherTown Link
-          </a>
+        <div
+          className={classes.pauseButton}
+          onClick={()=> {if (radio.current) radio.current.pause()}}
+        >
+          PAUSE BUTTON
         </div>
-      </div>}
-      <div className={classes.pomodoroTimerWidget} onClick={() => refocusOnIframe()}>
-        <PomodoroWidget />
+        <div
+          className={classes.pauseButton}
+          onClick={()=> {if (radio.current) radio.current.muted = true }}
+        >
+         MUTE 
+        </div>
+        <div
+          className={classes.pauseButton}
+          onClick={()=> {if (radio.current) radio.current.muted = false}}
+        >
+          UNMUTE
+        </div>
       </div>
+      
+      {/*{currentUser?.walledGardenInvite && <div className={classes.events}>*/}
+      {/*  <Typography variant="title">Garden Events</Typography>*/}
+      {/*  <div className={classes.calendarLinks}>*/}
+      {/*    <div><GardenCodeWidget type="friend"/></div>*/}
+      {/*    <div><GardenCodeWidget type="event"/></div>*/}
+      {/*  </div>*/}
+      {/*</div>}*/}
+      {/*<div className={classes.eventWidget}>*/}
+      {/*  <GardenCodesList terms={{view: "semipublicGardenCodes", types:  currentUser?.walledGardenInvite ? ['public', 'semi-public'] : ['public']}}/>*/}
+      {/*  {currentUser?.walledGardenInvite &&   <GardenCodesList terms={{view: "usersPrivateGardenCodes"}}/>}*/}
+      {/*</div>*/}
+      {/*{currentUser?.walledGardenInvite && <div className={classes.calendars}>*/}
+      {/*  <div className={classes.textButton}>*/}
+      {/*    <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">*/}
+      {/*      Facebook Group*/}
+      {/*    </a>*/}
+      {/*  </div>*/}
+      {/*  <div className={classes.link}>*/}
+      {/*    <a href={gatherTownURL} rel="noopener noreferrer">*/}
+      {/*      Backup GatherTown Link*/}
+      {/*    </a>*/}
+      {/*  </div>*/}
+      {/*</div>}*/}
+      {/*<div className={classes.pomodoroTimerWidget} onClick={() => refocusOnIframe()}>*/}
+      {/*  <PomodoroWidget />*/}
+      {/*</div>*/}
     </div>
   </div>
 }

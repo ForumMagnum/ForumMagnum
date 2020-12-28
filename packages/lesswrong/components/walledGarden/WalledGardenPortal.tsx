@@ -227,7 +227,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
           Hide Footer
         </div>
       }
-      <GatherTownIframeWrapper  iframeRef={iframeRef}/>
+      {/*<GatherTownIframeWrapper  iframeRef={iframeRef}/>*/}
     </div>
     {!hideBar && <div className={classes.portalBarPositioning}>
       <WalledGardenPortalBar iframeRef={iframeRef}/>
