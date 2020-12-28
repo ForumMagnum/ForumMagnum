@@ -61,7 +61,7 @@ Convert a nested SimpleSchema schema into a JSON object
 If flatten = true, will create a flat object instead of nested tree
 
 */
-export const convertSchema = <T extends DbObject>(schema: SchemaType<T>, flatten = false) => {
+export const convertSchema = <T extends DbObject>(schema: SimpleSchemaType<T>, flatten = false) => {
   if (schema._schema) {
     let jsonSchema = {};
 
@@ -106,7 +106,7 @@ export const convertSchema = <T extends DbObject>(schema: SchemaType<T>, flatten
 Get a JSON object representing a field's schema
 
 */
-export const getFieldSchema = <T extends DbObject>(fieldName: string, schema: SchemaType<T>) => {
+export const getFieldSchema = <T extends DbObject>(fieldName: string, schema: SimpleSchemaType<T>) => {
   let fieldSchema = {};
   schemaProperties.forEach(property => {
     const propertyValue = schema.get(fieldName, property);

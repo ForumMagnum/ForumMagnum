@@ -24,7 +24,9 @@ interface CollectionBase<
   defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
   views: Record<string, ViewFunction<N>>
   getParameters: (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext) => MergedViewQueryAndOptions<N,T>
-  simpleSchema: ()=>any
+  
+  _schemaFields: SchemaType<T>
+  _simpleSchema: any
   
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, update: any}
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>

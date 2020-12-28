@@ -177,7 +177,17 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
 // (in particular, resolvers, onCreate callbacks, etc) specific to server-side
 // code.
 export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
-  const schema = collection.simpleSchema()._schema;
+  collection._simpleSchema = null;
+  
+  for (let key in fieldsDict) {
+    if (key in collection._schemaFields) {
+      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
+    } else {
+      collection._schemaFields[key] = fieldsDict[key];
+    }
+  }
+  
+  /*const schema = collection.simpleSchema()._schema;
   const mergedSchema = {};
   
   // loop over fields and add them to schema (or extend existing fields)
@@ -191,7 +201,7 @@ export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>,
 
   // add field schema to collection schema
   const newSchema = collection.simpleSchema().extend(mergedSchema);
-  collection.simpleSchema = () => newSchema;
+  collection.simpleSchema = () => newSchema;*/
 }
 
 // For auto-generated database type definitions, provides a (string) definition

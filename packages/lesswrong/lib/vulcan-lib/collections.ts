@@ -89,8 +89,14 @@ export const createCollection = <
   // add views
   collection.views = {};
 
-  // attach schema to collection
-  collection.simpleSchema = () => new SimpleSchema(schema);
+  // Schema fields, passed as the schema option to createCollection or added
+  // later with addFieldsDict. Do not access directly; use getSchema.
+  collection._schemaFields = schema;
+  // Schema fields, but converted into the format used by the simple-schema
+  // library. This is a cache of the conversion; when _schemaFields changes it
+  // should be invalidated by setting it to null. Do not access directly; use
+  // getSimpleSchema.
+  collection._simpleSchema = null;
 
   if (generateGraphQLSchema) {
     // add collection to list of dynamically generated GraphQL schemas
@@ -99,7 +105,7 @@ export const createCollection = <
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
-  const defaultFragment = getDefaultFragmentText(collection, collection.simpleSchema()._schema);
+  const defaultFragment = getDefaultFragmentText(collection, schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
   // ------------------------------------- Parameters -------------------------------- //

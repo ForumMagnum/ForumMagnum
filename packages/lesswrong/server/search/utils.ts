@@ -504,8 +504,13 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   
   let totalErrors = [];
   
-  await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
-    errors: totalErrors, updateFunction });
+  await algoliaIndexDocumentBatch({
+    documents,
+    collection: collection as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
+    algoliaIndex,
+    errors: totalErrors,
+    updateFunction
+  });
   
   if (totalErrors.length > 0) {
     //eslint-disable-next-line no-console

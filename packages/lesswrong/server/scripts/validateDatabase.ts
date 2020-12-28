@@ -51,7 +51,7 @@ export async function validateCollection(collection)
     return;
   }
   
-  const validationContext = getSimpleSchema(collection);
+  const validationContext = getSimpleSchema(collection).newContext();
   
   // Dictionary field=>type=>count
   const errorsByField = {};
