@@ -41,7 +41,7 @@ function asyncWrapper(func) {
 
 //   const hooks = getCollectionHooks("Users");
 //   const context = createAnonymousContext();
-//   const schema = Users.simpleSchema()._schema;
+//   const schema = getSimpleSchema(Users)._schema;
 
 //   delete options.password; // we don't need to store the password digest
 //   delete options.username; // username is already in user object
@@ -54,7 +54,7 @@ function asyncWrapper(func) {
 //   });
 
 //   // validate options since they can't be trusted
-//   Users.simpleSchema().validate(options);
+//   getSimpleSchema(Users).validate(options);
 
 //   // check that the current user has permission to insert each option field
 //   _.keys(options).forEach(fieldName => {

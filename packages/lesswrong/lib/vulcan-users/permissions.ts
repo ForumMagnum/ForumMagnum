@@ -169,7 +169,7 @@ export const restrictViewableFields = function <T extends DbObject>(user: UsersC
 };
 
 // Check if a user can submit a field
-export const userCanCreateField = <T extends DbObject>(user: DbUser|null, field: CollectionFieldSpecification<T>) => {
+export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>) => {
   const canCreate = field.canCreate || field.insertableBy; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
@@ -188,7 +188,7 @@ export const userCanCreateField = <T extends DbObject>(user: DbUser|null, field:
 };
 
 // Check if a user can edit a field
-export const userCanUpdateField = <T extends DbObject>(user: DbUser|null, field: CollectionFieldSpecification<T>, document: Partial<T>) => {
+export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: Partial<T>) => {
   const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
 
   if (canUpdate) {

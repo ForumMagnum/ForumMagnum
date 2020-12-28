@@ -8,3 +8,7 @@ export function getSchema<T extends DbObject>(collection: CollectionBase<T>): Sc
     throw new Error("Missing schema on collection "+collection.collectionName);
   return collection.simpleSchema()._schema;
 }
+
+export function getSimpleSchema<T extends DbObject>(collection: CollectionBase<T>) {
+  return collection.simpleSchema();
+}

@@ -90,7 +90,6 @@ export const createCollection = <
   collection.views = {};
 
   // attach schema to collection
-  //collection.simpleSchema = () => new SimpleSchema(schema);
   collection.simpleSchema = () => new SimpleSchema(schema);
 
   if (generateGraphQLSchema) {
