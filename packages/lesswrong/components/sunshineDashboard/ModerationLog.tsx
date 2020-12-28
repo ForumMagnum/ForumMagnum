@@ -5,7 +5,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments'
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
-import { styles } from './AdminHome';
+import { styles } from '../admin/AdminHome';
 import classNames from 'classnames';
 
 const DateDisplay = ({column, document}) => {

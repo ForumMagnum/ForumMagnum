@@ -351,8 +351,8 @@ importComponent("SearchPage", () => require('../components/search/SearchPage'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
-importComponent("AdminHome", () => require('../components/sunshineDashboard/AdminHome'));
-importComponent("AdminMetadata", () => require('../components/sunshineDashboard/AdminMetadata'));
+importComponent("AdminHome", () => require('../components/admin/AdminHome'));
+importComponent("AdminMetadata", () => require('../components/admin/AdminMetadata'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog'));
 importComponent("ReportForm", () => require('../components/sunshineDashboard/ReportForm'));
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
