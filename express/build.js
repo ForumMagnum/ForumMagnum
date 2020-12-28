@@ -51,6 +51,7 @@ build({
   run: false,
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
+    "bundleIsProduction": isProduction,
     "bundleIsServer": false,
     "bundleIsTest": false,
     "global": "window",
@@ -67,6 +68,7 @@ build({
   run: cliopts.run && ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile],
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
+    "bundleIsProduction": isProduction,
     "bundleIsServer": true,
     "bundleIsTest": false,
   },

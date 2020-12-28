@@ -2,12 +2,13 @@
 declare global {
   var bundleIsServer: boolean
   var bundleIsTest: boolean
+  var bundleIsProduction: boolean
 }
 
 export const isClient = !bundleIsServer
 export const isServer = bundleIsServer
-export const isDevelopment = true
-export const isProduction = false
+export const isDevelopment = !bundleIsProduction
+export const isProduction = bundleIsProduction
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
 
