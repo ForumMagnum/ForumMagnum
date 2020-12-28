@@ -557,8 +557,6 @@ importComponent("FormComponentTextarea", () => require('../components/vulcan-ui-
 importComponent("FormComponentUrl", () => require('../components/vulcan-ui-bootstrap/forms/Url'));
 importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Alert'));
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
-importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
-importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
 
 // Review Book related components
 importComponent("BookLanding", () => require('../components/books/BookLanding'));

@@ -69,7 +69,7 @@ class Datatable extends PureComponent<any,any> {
   render() {
     if (this.props.data) { // static JSON datatable
 
-      return <Components.DatatableContents columns={Object.keys(this.props.data[0])} {...this.props} results={this.props.data} showEdit={false} showNew={false} />;
+      return <Components.DatatableContents columns={Object.keys(this.props.data[0])} {...this.props} results={this.props.data} />;
             
     } else { // dynamic datatable with data loading
       
@@ -90,7 +90,6 @@ class Datatable extends PureComponent<any,any> {
 
       return (
         <Components.DatatableLayout collectionName={collection.options.collectionName}>
-          <Components.DatatableAbove {...this.props} collection={collection} canInsert={canInsert} value={this.state.value} updateQuery={this.updateQuery} />
           <DatatableWithMulti {...this.props} collection={collection} terms={{ query: this.state.query, orderBy: orderBy }} currentUser={this.props.currentUser} toggleSort={this.toggleSort} currentSort={this.state.currentSort}/>
         </Components.DatatableLayout>
       );
@@ -104,18 +103,7 @@ class Datatable extends PureComponent<any,any> {
   columns: PropTypes.array,
   data: PropTypes.array,
   options: PropTypes.object,
-  showEdit: PropTypes.bool,
-  showNew: PropTypes.bool,
-  showSearch: PropTypes.bool,
-  newFormOptions: PropTypes.object,
-  editFormOptions: PropTypes.object,
   emptyState: PropTypes.object,
-};
-
-(Datatable as any).defaultProps = {
-  showNew: true,
-  showEdit: true,
-  showSearch: true,
 };
 const DatatableComponent = registerComponent('Datatable', Datatable, {
   hocs: [withUser]
@@ -130,50 +118,6 @@ const DatatableLayout = ({ collectionName, children }) => (
 );
 const DatatableLayoutComponent = registerComponent('DatatableLayout', DatatableLayout);
 
-/*
-
-DatatableAbove Component
-
-*/
-const DatatableAbove = (props) => {
-  const { collection, currentUser, showSearch, showNew, canInsert,
-     value, updateQuery, options, newFormOptions } = props;
-
-  return (
-    <Components.DatatableAboveLayout>
-      {showSearch && (
-        <Components.DatatableAboveSearchInput
-          className="datatable-search form-control"
-          placeholder="Search…"
-          type="text"
-          name="datatableSearchQuery"
-          value={value}
-          onChange={updateQuery}
-        />
-      )}
-      {showNew && canInsert && <Components.NewButton collection={collection} currentUser={currentUser} mutationFragmentName={options && options.fragmentName} {...newFormOptions}/>}
-    </Components.DatatableAboveLayout>
-  );
-};
-DatatableAbove.propTypes = {
-};
-const DatatableAboveComponent = registerComponent('DatatableAbove', DatatableAbove);
-
-const DatatableAboveSearchInput = (props) => (
-  <input
-    {...props}
-  />
-);
-const DatatableAboveSearchInputComponent = registerComponent('DatatableAboveSearchInput', DatatableAboveSearchInput);
-
-const DatatableAboveLayout = ({ children }) => (
-  <div className="datatable-above">
-    {children}
-  </div>
-);
-const DatatableAboveLayoutComponent = registerComponent('DatatableAboveLayout', DatatableAboveLayout);
-
-  
 /*
 
 DatatableHeader Component
@@ -273,7 +217,7 @@ const DatatableContents = (props) => {
 
   // if no columns are provided, default to using keys of first array item
   const { title, collection, results, columns, loading, loadMore, 
-    count, totalCount, networkStatus, showEdit, currentUser, emptyState, 
+    count, totalCount, networkStatus, currentUser, emptyState, 
     toggleSort, currentSort } = props;
 
   if (loading) {
@@ -298,10 +242,9 @@ const DatatableContents = (props) => {
                   toggleSort={toggleSort} currentSort={currentSort} />)
               )
           }
-          {showEdit ? <th>Edit</th> : null}
         </Components.DatatableContentsHeadLayout>
         <Components.DatatableContentsBodyLayout>
-          {results.map((document, index) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} showEdit={showEdit} currentUser={currentUser} />)}
+          {results.map((document, index) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} currentUser={currentUser} />)}
         </Components.DatatableContentsBodyLayout>
       </Components.DatatableContentsInnerLayout>
       {hasMore &&
@@ -375,8 +318,8 @@ DatatableRow Component
 */
 const DatatableRow = (props) => {
 
-  const { collection, columns, document, showEdit, 
-    currentUser, options, editFormOptions, rowClass } = props;
+  const { collection, columns, document,
+    currentUser, options, rowClass } = props;
   const canEdit = collection && collection.options && collection.options.mutations && collection.options.mutations.edit && collection.options.mutations.edit.check(currentUser, document);
 
   const row = typeof rowClass === 'function' ? rowClass(document) : rowClass || '';
@@ -393,11 +336,6 @@ const DatatableRow = (props) => {
         column={column} document={document} 
         currentUser={currentUser} />
       ))}
-    {showEdit && canEdit ?
-      <Components.DatatableCellLayout>
-        <Components.EditButton collection={collection} documentId={document._id} currentUser={currentUser} mutationFragmentName={options && options.fragmentName} modalProps={modalProps} {...editFormOptions}/>
-      </Components.DatatableCellLayout>
-    : null}
   </Components.DatatableRowLayout>
   );
 };
@@ -452,9 +390,6 @@ declare global {
   interface ComponentTypes {
     Datatable: typeof DatatableComponent,
     DatatableLayout: typeof DatatableLayoutComponent,
-    DatatableAbove: typeof DatatableAboveComponent,
-    DatatableAboveSearchInput: typeof DatatableAboveSearchInputComponent,
-    DatatableAboveLayout: typeof DatatableAboveLayoutComponent,
     DatatableHeader: typeof DatatableHeaderComponent,
     DatatableHeaderCellLayout: typeof DatatableHeaderCellLayoutComponent,
     DatatableSorter: typeof DatatableSorterComponent,
