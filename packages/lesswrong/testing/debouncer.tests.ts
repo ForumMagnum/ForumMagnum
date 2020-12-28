@@ -1,6 +1,4 @@
 import { testStartup } from './testMain';
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import lolex from 'lolex';
 import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';

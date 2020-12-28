@@ -1,7 +1,4 @@
-import { app } from './expressServer';
-import { parseQuery } from '../../../lib/routeUtil';
 import { Picker } from './picker';
-import URL from 'url';
 
 export const addLoginAttemptValidation = (validationFn: (attempt: {allowed: boolean, user: DbUser, methodArguments: any, ip: string}) => boolean) => {
   // TODO

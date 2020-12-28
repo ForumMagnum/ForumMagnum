@@ -1,5 +1,5 @@
 import { testStartup } from '../testMain';
-import chai, {expect} from 'chai';
+import {expect} from 'chai';
 import { runQuery } from '../../server/vulcan-lib';
 
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils'

@@ -1,5 +1,4 @@
 import dns from 'dns';
-import process from 'process';
 import { DatabaseServerSetting } from './databaseSettings';
 
 const forwardedWhitelistSetting = new DatabaseServerSetting<Array<string>>('forwardedWhitelist', [])

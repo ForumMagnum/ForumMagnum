@@ -111,7 +111,6 @@ export class MongoCollection<T extends DbObject> {
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
     const table = this.getTable();
     return await wrapQuery(`${this.tableName}.findOne(${JSON.stringify(selector)})`, async () => {
-      let result;
       if (typeof selector === "string") {
         return await table.findOne({_id: selector}, {
           ...options,

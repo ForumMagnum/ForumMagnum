@@ -1,4 +1,3 @@
-import { isDevelopment } from '../lib/executionEnvironment';
 import { setPublicSettings, getServerSettingsCache, setServerSettingsCache, registeredSettings } from '../../../lib/settingsCache';
 import { DatabaseMetadata } from '../../../lib/collections/databaseMetadata/collection';
 

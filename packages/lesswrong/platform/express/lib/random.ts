@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 const crypto = bundleIsServer ? require('crypto') : null;
 
 // Excludes 0O1lIUV

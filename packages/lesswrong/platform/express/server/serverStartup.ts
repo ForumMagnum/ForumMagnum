@@ -3,7 +3,6 @@ import { setDatabaseConnection } from '../lib/mongoCollection';
 import { onStartupFunctions } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 import process from 'process';
 import readline from 'readline';
 

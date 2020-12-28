@@ -12,7 +12,6 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import Cookies from 'universal-cookie';
 import { userIdentifiedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';

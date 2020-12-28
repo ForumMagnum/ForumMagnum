@@ -14,8 +14,6 @@ import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playgr
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 import { computeContextFromReq, getUserFromReq } from '../../../server/vulcan-lib/apollo-server/context';
 
-import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
-
 import universalCookiesMiddleware from 'universal-cookie-express';
 
 import { formatError } from 'apollo-errors';
@@ -25,7 +23,7 @@ import express from 'express'
 import { app } from './expressServer';
 import React from 'react';
 import path from 'path'
-import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache';
+import { getPublicSettingsLoaded } from '../../../lib/settingsCache';
 import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
 import { addStripeMiddleware } from '../../../server/stripeMiddleware';
@@ -119,8 +117,6 @@ onStartup(() => {
   app.use("/graphiql", graphiqlMiddleware(getGraphiqlConfig(config)));
 
   app.get('*', async (request, response) => {
-    const context: any = {};
-
     const user = await getUserFromReq(request);
     const renderResult = await renderWithCache(request, response);
     

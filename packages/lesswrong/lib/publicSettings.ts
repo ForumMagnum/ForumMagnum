@@ -1,4 +1,3 @@
-import isEmpty from 'lodash/isEmpty';
 import type { FilterTag } from './filterSettings';
 import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
 
