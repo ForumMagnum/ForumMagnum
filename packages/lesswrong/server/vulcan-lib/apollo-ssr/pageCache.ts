@@ -33,6 +33,21 @@ const pageCache = new LRU<string,RenderResult>({
   },
 });
 
+const jsonSerializableEstimateSize = (obj: any) => {
+  if (typeof obj === "object") {
+    let result = 0;
+    for (let key of Object.keys(obj)) {
+      result += jsonSerializableEstimateSize(key);
+      result += jsonSerializableEstimateSize(obj[key]);
+    }
+    return result;
+  } else if (typeof obj === "string") {
+    return obj.length;
+  } else {
+    return 8;
+  }
+}
+
 // FIXME: This doesn't get updated correctly. Previous iteration had entries
 // removed when they should still be in cachedABtestsIndex; current iteration
 // has duplicate entries accumulate over time.
