@@ -1,2 +1,5 @@
 import { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
-export { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration };
+
+export const getCkEditor = () => {
+  return { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration };
+}
