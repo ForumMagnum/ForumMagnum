@@ -718,7 +718,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     return <div>
         { this.renderPlaceholder(showPlaceholder, false) }
         {draftJSValue && <EditorForm
-          isClient={isClient}
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}

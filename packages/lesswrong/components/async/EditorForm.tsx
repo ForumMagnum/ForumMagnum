@@ -19,6 +19,7 @@ import ImageButton from './editor-plugins/image/ImageButton';
 import { Map } from 'immutable';
 import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
 import NoSsr from '@material-ui/core/NoSsr';
+import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 
 const styleMap = (theme: ThemeType) => ({
@@ -32,7 +33,7 @@ function customBlockStyleFn(contentBlock) {
   }
 }
 
-const initializePlugins = (isClient, commentEditor) => {
+const initializePlugins = (commentEditor) => {
   const HeadlineOneButton = createBlockStyleButton({
     blockType: 'header-one',
     children: (
@@ -129,7 +130,6 @@ const initializePlugins = (isClient, commentEditor) => {
 }
 
 interface EditorFormProps {
-  isClient: boolean,
   theme: ThemeType,
   editorState: any,
   onChange: any,
@@ -143,7 +143,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
   
   constructor(props: EditorFormProps) {
     super(props);
-    this.plugins = initializePlugins(props.isClient, props.commentEditor);
+    this.plugins = initializePlugins(props.commentEditor);
   }
 
   focus = () => {
