@@ -213,7 +213,7 @@ export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, sub
   try {
     const email = await wrapAndRenderEmail({ user, subject, body });
     await sendEmail(email);
-    await logSentEmail(email, user);
+    void logSentEmail(email, user);
   } catch(e) {
     captureException(e);
   }
@@ -253,14 +253,14 @@ export async function sendEmail(renderedEmail)
   }
 }
 
-export function logSentEmail(renderedEmail, user) {
+export async function logSentEmail(renderedEmail, user) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,
     user: user._id,
   };
   // Log in LWEvents table
-  void createMutator({
+  await createMutator({
     collection: LWEvents,
     currentUser: user,
     document: {

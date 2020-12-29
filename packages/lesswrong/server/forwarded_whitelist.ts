@@ -1,7 +1,7 @@
 import dns from 'dns';
 import { DatabaseServerSetting } from './databaseSettings';
 
-const forwardedWhitelistSetting = new DatabaseServerSetting<Array<string>>('forwardedWhitelist', [])
+/*const forwardedWhitelistSetting = new DatabaseServerSetting<Array<string>>('forwardedWhitelist', [])
 
 const computeForwardedWhitelist = () => {
   var whitelist: Partial<Record<string,boolean>> = {};
@@ -20,7 +20,7 @@ const computeForwardedWhitelist = () => {
       });
     });
   }
-}
+}*/
 
 export const getForwardedWhitelist = () => ({
   getClientIP: (req) => {

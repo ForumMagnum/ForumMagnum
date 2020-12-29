@@ -117,7 +117,6 @@ onStartup(() => {
   app.use("/graphiql", graphiqlMiddleware(getGraphiqlConfig(config)));
 
   app.get('*', async (request, response) => {
-    const user = await getUserFromReq(request);
     const renderResult = await renderWithCache(request, response);
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;

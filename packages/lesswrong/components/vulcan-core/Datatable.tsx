@@ -318,7 +318,6 @@ const DatatableRow = (props) => {
 
   const { collection, columns, document,
     currentUser, options, rowClass } = props;
-  const canEdit = collection && collection.options && collection.options.mutations && collection.options.mutations.edit && collection.options.mutations.edit.check(currentUser, document);
 
   const row = typeof rowClass === 'function' ? rowClass(document) : rowClass || '';
   const sortedColumns = _sortBy(columns, column => column.order);
