@@ -14,11 +14,11 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   limit?: number,
   personal?: boolean
 }) => {
-  const { GardenCodesItem } = Components
+  const { GardenCodesItem, Loading, LoadMore } = Components
   const currentUser = useCurrentUser()
   
   const terms: GardenCodesViewTerms = personal ?
-    {view:"userGardenCodes"} : 
+    {view:"usersPrivateGardenCodes"} :
     {view:"semipublicGardenCodes", types: currentUser?.walledGardenInvite ? ['public', 'semi-public'] : ['public']}
   
   const { results, loading, loadMoreProps } = useMulti({
