@@ -29,8 +29,6 @@ export const runAtInterval = Meteor.setInterval;
 
 export const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;
 
-export const meteorLocalStorageWrapper = Meteor._localStorage;
-
 export const throwMeteorError = (messageId: string, message: string, messageOptions?: any) => {
   throw new Meteor.Error(messageId, message);
 }
