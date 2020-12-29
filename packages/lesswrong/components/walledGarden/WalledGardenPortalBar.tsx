@@ -25,7 +25,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   widgetsContainer: {
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    justifyContent: "flex-end"
   },
   portalBarButton: {
     position: "relative",
@@ -77,7 +78,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   radio: {
     display: "flex",
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    marginRight: 20
   },
   muteUnmuteButton: {
     height:60,
@@ -120,33 +122,33 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
   const [playing, setPlaying]  = useState(false)
   const [volumeLevel, setVolumeLevel] = useState(1)
   
-  // const originalSourceUrl = "https://us10a.serverse.com/proxy/wqpanlfq?mp=/stream"
-  // const sourceElement = document.querySelector("source");
-  // const audioElement = document.querySelector("audio");
+  const originalSourceUrl = "https://us10a.serverse.com/proxy/wqpanlfq?mp=/stream"
+  const sourceElement = document.querySelector("source");
+  const audioElement = document.querySelector("audio");
   
   const playHandler = () => {
-    if (radio?.current) {
-      radio.current.play();
-      radio.current.muted = false
-      }
-    // if (!sourceElement?.getAttribute("src")) {
-    //   sourceElement?.setAttribute("src", originalSourceUrl);
-    //   audioElement?.load(); // This restarts the stream download
-    // }
-    // audioElement?.play();
+    // if (radio?.current) {
+    //   radio.current.play();
+    //   radio.current.muted = false
+    //   }
+    if (!sourceElement?.getAttribute("src")) {
+      sourceElement?.setAttribute("src", originalSourceUrl);
+      audioElement?.load(); // This restarts the stream download
+    }
+    audioElement?.play();
     setPlaying(true);
   }
   
   const pauseHandler = () => {
-    if (radio?.current) {
-      radio.current.muted = true
-    }
-    // sourceElement?.setAttribute("src", "");
-    // audioElement?.pause();
-    // // settimeout, otherwise pause event is not raised normally
-    // setTimeout(function () {
-    //   audioElement?.load(); // This stops the stream from downloading
-    // });
+    // if (radio?.current) {
+    //   radio.current.muted = true
+    // }
+    sourceElement?.setAttribute("src", "");
+    audioElement?.pause();
+    // settimeout, otherwise pause event is not raised normally
+    setTimeout(function () {
+      audioElement?.load(); // This stops the stream from downloading
+    });
     setPlaying(false);
   }
   
