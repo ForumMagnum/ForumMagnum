@@ -3,6 +3,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
+const styles = (theme: ThemeType): JssStyles => ({
+  loadMore: {
+    fontSize: "1rem"
+  }
+})
+
 export const GardenCodesList = ({classes, limit, personal=false}: {
   classes:ClassesType,
   limit?: number,
@@ -13,32 +19,29 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   
   const terms: GardenCodesViewTerms = personal ?
     {view:"userGardenCodes"} : 
-    {view:"semipublicGardenCodes", types: ['public', 'semi-public']}
+    {view:"semipublicGardenCodes", types: currentUser?.walledGardenInvite ? ['public', 'semi-public'] : ['public']}
   
-  const { results } = useMulti({
+  const { results, loading, loadMoreProps } = useMulti({
     terms: {
       userId: currentUser?._id,
       ...terms
     },
-    enableTotal: false,
+    enableTotal: true,
     fetchPolicy: 'cache-and-network',
     collectionName: "GardenCodes",
     fragmentName: 'GardenCodeFragment',
-    limit: limit || 8
+    limit: limit || 5,
+    itemsPerPage: 10
   });
   
   
   return <div>
-    {results
-      ?.filter(code => personal ?
-        code.type=='private' : 
-        (currentUser?.walledGardenInvite || code.type=='public')
-      ) //for personal list, only show private events; for public list, show all public/semipublic events depending on membership
-      .map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
+    {results?.map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
+    {loading ? <Loading/> : <LoadMore className={classes.loadMore} {...loadMoreProps}/>}
   </div>
 }
 
-const GardenCodesListComponent = registerComponent('GardenCodesList', GardenCodesList);
+const GardenCodesListComponent = registerComponent('GardenCodesList', GardenCodesList, {styles});
 
 declare global {
   interface ComponentTypes {

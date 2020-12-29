@@ -77,23 +77,22 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
 
   const currentUser =  useCurrentUser()
 
-  if (!currentUser) return null
   const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
-      {currentUser.walledGardenInvite && <div className={classes.events}>
+      {currentUser?.walledGardenInvite && <div className={classes.events}>
         <Typography variant="title">Garden Events</Typography>
         <div className={classes.calendarLinks}>
           <div><GardenCodeWidget type="friend"/></div>
           <div><GardenCodeWidget type="event"/></div>
         </div>
       </div>}
-      {currentUser.walledGardenInvite && <div className={classes.eventWidget}>
-        <GardenCodesList/>
-        <GardenCodesList personal/>
-      </div>}
-      {currentUser.walledGardenInvite && <div className={classes.calendars}>
+      <div className={classes.eventWidget}>
+        <GardenCodesList personal={false} />
+        {currentUser?.walledGardenInvite && <GardenCodesList personal={true} />}
+      </div>
+      {currentUser?.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
             Facebook Group

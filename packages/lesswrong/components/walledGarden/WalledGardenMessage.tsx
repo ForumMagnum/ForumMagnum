@@ -5,7 +5,8 @@ import {postBodyStyles} from "../../themes/stylePiping";
 const styles = (theme: ThemeType): JssStyles => ({
   messageStyling: {
     ...postBodyStyles(theme),
-    marginTop: "100px"
+    marginTop: "100px",
+    maxWidth: 620
   },
 })
 
