@@ -1,5 +1,4 @@
 import { MongoCollection } from '../../platform/current/lib/mongoCollection';
-import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';

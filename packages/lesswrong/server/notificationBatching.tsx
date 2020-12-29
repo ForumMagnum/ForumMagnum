@@ -9,7 +9,7 @@ import { getUser } from '../lib/vulcan-users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import { generateEmail, sendEmail, logSentEmail, wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
+import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),

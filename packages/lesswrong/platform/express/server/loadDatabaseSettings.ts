@@ -1,4 +1,4 @@
-import { setPublicSettings, getServerSettingsCache, setServerSettingsCache, registeredSettings } from '../../../lib/settingsCache';
+import { setPublicSettings, setServerSettingsCache } from '../../../lib/settingsCache';
 import { getDatabase } from '../lib/mongoCollection';
 
 let databaseIdPreloaded = false;

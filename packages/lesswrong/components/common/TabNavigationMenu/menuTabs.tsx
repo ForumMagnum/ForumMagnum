@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components } from '../../../lib/vulcan-lib';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -14,7 +13,6 @@ import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in

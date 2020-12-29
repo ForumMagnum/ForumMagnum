@@ -3,7 +3,7 @@ import { isClient, isServer } from '../../executionEnvironment';
 import { userHasCkEditor } from "../../betas";
 import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFind, mongoFindOne, mongoFindOneSync, mongoAggregate } from '../../mongoQueries';
+import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 
 // Get a user's display name (not unique, can take special characters and spaces)
@@ -115,11 +115,6 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-const getUserFromPost = (post: PostsDetails|DbPost): PostsAuthors_user|DbUser => {
-  // @ts-ignore Hackily handling the dual cases of "a fragment with a post subfragment" and "a DbPost with a postId"
-  return post.user || mongoFindOneSync("Users", post.userId);
-}
-
 export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   if (!post) return false;
   return !!(
@@ -156,8 +151,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   if (!post) {
     return true
   }
-  
-  //const postAuthor = getUserFromPost(post);
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false

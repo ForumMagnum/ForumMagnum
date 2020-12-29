@@ -1,4 +1,3 @@
-import { MongoClient } from 'mongodb';
 import { randomId } from './random';
 
 let client: any = null;

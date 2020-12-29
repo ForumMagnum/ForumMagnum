@@ -7,7 +7,6 @@ import { ApolloProvider } from '@apollo/client';
 import { StaticRouter } from 'react-router';
 import { Components } from '../../../../lib/vulcan-lib/components';
 import { CookiesProvider } from 'react-cookie';
-import Cookies from 'universal-cookie';
 import { ABTestGroupsContext } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import type { CompleteTestGroupAllocation } from '../../../../lib/abTestImpl';

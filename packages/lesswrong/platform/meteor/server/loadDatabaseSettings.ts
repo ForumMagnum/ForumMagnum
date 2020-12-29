@@ -1,4 +1,4 @@
-import { setPublicSettings, getServerSettingsCache, setServerSettingsCache, registeredSettings } from '../../../lib/settingsCache';
+import { setPublicSettings, setServerSettingsCache } from '../../../lib/settingsCache';
 import { DatabaseMetadata } from '../../../lib/collections/databaseMetadata/collection';
 
 export const getPreloadedDatabaseId = () => ({
