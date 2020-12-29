@@ -43,14 +43,15 @@ export const loadInstanceSettings = () => {
 }
 
 function loadSettingsFile(filename: string) {
-  if (!isAnyTest) {
-    console.log(`Loading settings from ${filename}`);
+  if (isAnyTest) {
+    return {};
+  } else {
+    const settingsFileText = readTextFile(filename);
+    if (!settingsFileText)
+      throw new Error(`Settings file ${filename} not found.`);
+    
+    return JSON.parse(settingsFileText);
   }
-  const settingsFileText = readTextFile(filename);
-  if (!settingsFileText)
-    throw new Error(`Settings file ${filename} not found.`);
-  
-  return JSON.parse(settingsFileText);
 }
 
 const readTextFile = (filename: string): string|null => {
