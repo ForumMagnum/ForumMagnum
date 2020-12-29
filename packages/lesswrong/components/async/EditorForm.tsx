@@ -17,33 +17,9 @@ import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton';
 import { Map } from 'immutable';
-import {
-  createBlockStyleButton,
-  ItalicButton,
-  BoldButton,
-  UnderlineButton,
-  BlockquoteButton,
-} from 'draft-js-buttons';
+import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
 import NoSsr from '@material-ui/core/NoSsr';
 import * as _ from 'underscore';
-
-const HeadlineOneButton = createBlockStyleButton({
-  blockType: 'header-one',
-  children: (
-    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5 4v3h5.5v12h3V7H19V4z"/>
-      <path d="M0 0h24v24H0V0z" fill="none"/>
-    </svg>),
-});
-
-const HeadlineTwoButton = createBlockStyleButton({
-  blockType: 'header-two',
-  children: (
-    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5 4v3h5.5v12h3V7H19V4z"/>
-      <path d="M0 0h24v24H0V0z" fill="none"/>
-    </svg>),
-});
 
 const styleMap = (theme: ThemeType) => ({
   'CODE': theme.typography.code
@@ -54,6 +30,102 @@ function customBlockStyleFn(contentBlock) {
   if (type === 'spoiler') {
     return 'spoiler';
   }
+}
+
+const initializePlugins = (isClient, commentEditor) => {
+  const HeadlineOneButton = createBlockStyleButton({
+    blockType: 'header-one',
+    children: (
+      <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 4v3h5.5v12h3V7H19V4z"/>
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+      </svg>),
+  });
+  
+  const HeadlineTwoButton = createBlockStyleButton({
+    blockType: 'header-two',
+    children: (
+      <svg fill="#000000" height="24" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 4v3h5.5v12h3V7H19V4z"/>
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+      </svg>),
+  });
+  
+  const linkPlugin = createLinkPlugin({});
+  const alignmentPlugin = createAlignmentPlugin();
+  const focusPlugin = createFocusPlugin();
+  const resizeablePlugin = createResizeablePlugin();
+  const decorator = composeDecorators(
+    resizeablePlugin.decorator,
+    alignmentPlugin.decorator,
+    focusPlugin.decorator,
+  );
+
+  const dividerPlugin = createDividerPlugin({decorator});
+
+  const toolbarButtons = [
+    { button: BoldButton,                    commentEditor: true   },
+    { button: ItalicButton,                  commentEditor: true   },
+    { button: UnderlineButton,               commentEditor: true   },
+    { button: LinkButton,                    commentEditor: true   },
+    { button: Separator,                     commentEditor: true   },
+    { button: HeadlineOneButton,             commentEditor: false  },
+    { button: HeadlineTwoButton,             commentEditor: true   },
+    { button: BlockquoteButton,              commentEditor: true   },
+    { button: dividerPlugin.DividerButton,   commentEditor: false  },
+    { button: ImageButton,                   commentEditor: false  },
+  ]
+
+  const inlineToolbarPlugin = createInlineToolbarPlugin({
+    structure: _.chain(toolbarButtons)
+                .filter(b => commentEditor ? b.commentEditor : true)
+                .pluck('button')
+                .value()
+  });
+
+  const richButtonsPlugin = createRichButtonsPlugin();
+  const blockBreakoutPlugin = createBlockBreakoutPlugin()
+  const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
+
+  const linkifyPlugin = createLinkifyPlugin();
+
+  const imagePlugin = createImagePlugin({ decorator });
+  let plugins = [
+    inlineToolbarPlugin,
+    alignmentPlugin,
+    focusPlugin,
+    resizeablePlugin,
+    imagePlugin,
+    linkPlugin,
+    richButtonsPlugin,
+    blockBreakoutPlugin,
+    markdownShortcutsPlugin,
+    dividerPlugin,
+    linkifyPlugin
+  ];
+
+  if (isClient) {
+    const mathjaxPlugin = createMathjaxPlugin(
+      {
+        completion: 'manual',
+        mathjaxConfig: {
+          jax: ['input/TeX', 'output/CommonHTML'],
+          TeX: {
+            extensions: ['autoload-all.js', 'Safe.js'],
+          },
+          messageStyle: 'none',
+          showProcessingMessages: false,
+          showMathMenu: false,
+          showMathMenuMSIE: false,
+          preview: 'none',
+          delayStartupTypeset: true,
+        }
+      }
+    )
+    plugins.push(mathjaxPlugin);
+  }
+
+  return plugins;
 }
 
 interface EditorFormProps {
@@ -71,85 +143,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
   
   constructor(props: EditorFormProps) {
     super(props);
-    this.plugins = this.initializePlugins(props.isClient, props.commentEditor);
-  }
-
-  initializePlugins = (isClient, commentEditor) => {
-    const linkPlugin = createLinkPlugin({});
-    const alignmentPlugin = createAlignmentPlugin();
-    const focusPlugin = createFocusPlugin();
-    const resizeablePlugin = createResizeablePlugin();
-    const decorator = composeDecorators(
-      resizeablePlugin.decorator,
-      alignmentPlugin.decorator,
-      focusPlugin.decorator,
-    );
-
-    const dividerPlugin = createDividerPlugin({decorator});
-
-    const toolbarButtons = [
-      { button: BoldButton,                    commentEditor: true   },
-      { button: ItalicButton,                  commentEditor: true   },
-      { button: UnderlineButton,               commentEditor: true   },
-      { button: LinkButton,                    commentEditor: true   },
-      { button: Separator,                     commentEditor: true   },
-      { button: HeadlineOneButton,             commentEditor: false  },
-      { button: HeadlineTwoButton,             commentEditor: true   },
-      { button: BlockquoteButton,              commentEditor: true   },
-      { button: dividerPlugin.DividerButton,   commentEditor: false  },
-      { button: ImageButton,                   commentEditor: false  },
-    ]
-
-    const inlineToolbarPlugin = createInlineToolbarPlugin({
-      structure: _.chain(toolbarButtons)
-                  .filter(b => commentEditor ? b.commentEditor : true)
-                  .pluck('button')
-                  .value()
-    });
-
-    const richButtonsPlugin = createRichButtonsPlugin();
-    const blockBreakoutPlugin = createBlockBreakoutPlugin()
-    const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
-
-    const linkifyPlugin = createLinkifyPlugin();
-
-    const imagePlugin = createImagePlugin({ decorator });
-    let plugins = [
-      inlineToolbarPlugin,
-      alignmentPlugin,
-      focusPlugin,
-      resizeablePlugin,
-      imagePlugin,
-      linkPlugin,
-      richButtonsPlugin,
-      blockBreakoutPlugin,
-      markdownShortcutsPlugin,
-      dividerPlugin,
-      linkifyPlugin
-    ];
-
-    if (isClient) {
-      const mathjaxPlugin = createMathjaxPlugin(
-        {
-          completion: 'manual',
-          mathjaxConfig: {
-            jax: ['input/TeX', 'output/CommonHTML'],
-            TeX: {
-              extensions: ['autoload-all.js', 'Safe.js'],
-            },
-            messageStyle: 'none',
-            showProcessingMessages: false,
-            showMathMenu: false,
-            showMathMenuMSIE: false,
-            preview: 'none',
-            delayStartupTypeset: true,
-          }
-        }
-      )
-      plugins.push(mathjaxPlugin);
-    }
-
-    return plugins;
+    this.plugins = initializePlugins(props.isClient, props.commentEditor);
   }
 
   focus = () => {
