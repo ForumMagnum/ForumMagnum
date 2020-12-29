@@ -34,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   portalBarPositioning: {
     width: "100%",
-    flex: 1
   },
   toggleEvents: {
     position: "absolute",
@@ -87,8 +86,6 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const { history } = useNavigation();
   const { code: inviteCodeQuery, entered } = query;
   const enteredQuery = entered === "true"
-
-  const [ hideBar, setHideBar ] = useState(false);
 
   const { results } = useMulti({
     terms: {
@@ -216,22 +213,11 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   return <div className={classes.innerPortalPositioning}>
     <div className={classes.iframeWrapper}>
-      {hideBar ?
-        <div className={classes.toggleEvents} onClick={() => setHideBar(false)}>
-          <ExpandLessIcon className={classes.closeIcon}/>
-          Show Footer
-        </div>
-        :
-        <div className={classes.toggleEvents} onClick={() => setHideBar(true)}>
-          <ExpandMoreIcon className={classes.closeIcon}/>
-          Hide Footer
-        </div>
-      }
       {/*<GatherTownIframeWrapper  iframeRef={iframeRef}/>*/}
     </div>
-    {!hideBar && <div className={classes.portalBarPositioning}>
+    <div className={classes.portalBarPositioning}>
       <WalledGardenPortalBar iframeRef={iframeRef}/>
-    </div>}
+    </div>
   </div>
 }
 
