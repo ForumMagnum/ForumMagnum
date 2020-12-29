@@ -6210,10 +6210,10 @@ esbuild@0.8.22, "esbuild@>=0.6.0 <1.0.0", esbuild@^0.8.17:
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.22.tgz#d558dd8579eb824a10ca04daa7be712379cae759"
   integrity sha512-7cgcJwjff5pw6JLTpUyN3QZ6raOYamfvBt7ry0tyGZwZJ/W8mJrHuv+VC5rbNEO4Mz8s8ElmcavKc7R2g1HWow==
 
-esbuild@^0.8.21:
-  version "0.8.21"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.21.tgz#c431f8af457795c2fecb1b2873cb8eaef4e5b53c"
-  integrity sha512-vRRx5MZmiekw2R7jK5BppvBUFCJA0Zkl0wYxrDmyUvMPBcQC/xJvxJUM4R+Hgjgb3gp5P1W655AsuoqDeQQDVw==
+esbuild@^0.8.27:
+  version "0.8.27"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.27.tgz#8f7aa7d65229856c6ad11961b01b3e302fcb5e84"
+  integrity sha512-cY2i08EHYHNg0o748J+X0yBTcCO7DIZSxLWJ/6OymmML0Y2X6qkINfZcoiq5GE6EcLIfwyaZpI60JY6iBJWj5w==
 
 escalade@^3.1.1:
   version "3.1.1"
