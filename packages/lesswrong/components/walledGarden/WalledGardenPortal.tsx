@@ -213,7 +213,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   return <div className={classes.innerPortalPositioning}>
     <div className={classes.iframeWrapper}>
-      {/*<GatherTownIframeWrapper  iframeRef={iframeRef}/>*/}
+      <GatherTownIframeWrapper  iframeRef={iframeRef}/>
     </div>
     <div className={classes.portalBarPositioning}>
       <WalledGardenPortalBar iframeRef={iframeRef}/>
