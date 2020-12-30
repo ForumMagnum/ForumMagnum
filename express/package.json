@@ -2,12 +2,24 @@
   "name": "LessWrong",
   "version": "2.1.0",
   "scripts": {
+    "checktypes": "scripts/lint_and_checktypes.sh",
+    "lint": "scripts/lint_and_checktypes.sh",
+    "tsc": "tsc --noEmit --skipLibCheck",
+    "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "build": "../scripts/useExpress.sh && ./build.js",
     "start": "../scripts/useExpress.sh && ./build.js -run -watch --settings ../settings.json",
     "start-dev-db": "../scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../../LessWrong-Credentials/settings-local-dev-devdb.json",
     "start-prod-db": "../scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../../LessWrong-Credentials/settings-local-dev-proddb.json",
+    "start-af": "scripts/useExpress.sh && ./build.js -run --watch --settings settings-af.json",
+    "start-af-dev-db": "scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../../LesWrong-Credentials/settings-local-dev-af-devdb.json",
+    "start-af-prod-db": "scripts/useExpress.sh && ./build.js -run --watch --mongoUrlFile ../../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../../LesWrong-Credentials/settings-local-dev-af-proddb.json",
     "test": "jest",
-    "test-watch": "jest --watchAll"
+    "test-watch": "jest --watchAll",
+    "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
+    "generate": "scripts/generateTypes.sh",
+    "rebuild-reinstall-ckeditor": "cd ./public/lesswrong-editor && yarn install && yarn run build && cd ../.. && yarn add ./public/lesswrong-editor",
+    "reinstall-ckeditor-after-git-checkout": "yarn add ./public/lesswrong-editor",
+    "reinstall-ckeditor": "yarn add ./public/lesswrong-editor"
   },
   "dependencies": {
     "@apollo/client": "^3.2.0",
