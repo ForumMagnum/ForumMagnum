@@ -103,6 +103,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: "all-petite-caps",
     fontSize: "1.4rem"
   },
+  sliderTrack: {
+    backgroundColor: 'black'
+  },
+  sliderThumb: {
+    backgroundColor: 'black'
+  }
 })
 
 
@@ -113,8 +119,9 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
   const sourceElement = useRef<HTMLSourceElement>(null)
   const audioElement = useRef<HTMLAudioElement>(null)
 
-  const querySongTitle = async  () => {
-    const songTitleResponse = await fetch("https://us10a.serverse.com:2199/external/rpc.php?m=streaminfo.get&username=wqpanlfq&rid=wqpanlfq&_=1609289394268", {
+  const queryRecentTracks = async  () => {
+    const truncatedTimestamp = `${new Date().getTime()}`.slice(-6)
+    const songTitleResponse = await fetch(`https://us10a.serverse.com:2199/external/rpc.php?m=recenttracks.get&username=wqpanlfq&rid=wqpanlfq&_=1609325202167&cab=${truncatedTimestamp}`, {
       "headers": {
         "accept": "*/*",
       },
@@ -123,12 +130,14 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
       "mode": "cors",
     });
     const json = await songTitleResponse.json()
-    const songData = json?.data || []
-    setSongTitle(songData[0]?.song)
+    const recentTracksData = json?.data || []
+    const songData = recentTracksData[0][0]
+    const songDetails = `${songData['artist']} – ${songData['title']}` //JSON has these fields swapped
+    setSongTitle(songDetails)
   }
 
   useEffect(() => {
-    const interval = setInterval(querySongTitle, 1000)
+    const interval = setInterval(queryRecentTracks, 1000)
     return () => clearInterval(interval)
   } ,[])
   
@@ -183,6 +192,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
         </div>
         <div className={classes.volumeSlider}>
           <Slider
+            classes={{track: classes.sliderTrack, thumb: classes.sliderThumb}}
             value={volumeLevel || 0}
             step={0.05}
             min={0}
