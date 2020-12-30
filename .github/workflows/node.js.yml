@@ -25,4 +25,4 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn
-    - run: export NODE_OPTIONS=--max_old_space_size=4096; npx jest -i --forceExit
+    - run: node --max_old_space_size=4096 ./node_modules/.bin/jest --forceExit
