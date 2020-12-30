@@ -37,7 +37,6 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId }: {
 
   // create vote and insert it
   const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
-  delete partialVote.__typename;
   const {data: vote} = await createMutator({
     collection: Votes,
     document: partialVote,

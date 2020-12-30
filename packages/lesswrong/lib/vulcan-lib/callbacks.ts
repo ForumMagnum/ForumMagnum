@@ -325,7 +325,7 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 // should have been await'ed without the await, effectively spawning a new
 // thread which isn't tracked.
 export const waitUntilCallbacksFinished = () => {
-  return new Promise(resolve => {
+  return new Promise<void>(resolve => {
     function finishOrWait() {
       if (callbacksArePending()) {
         runAfterDelay(finishOrWait, 20);
