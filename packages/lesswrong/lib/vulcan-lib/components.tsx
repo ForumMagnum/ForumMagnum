@@ -158,6 +158,7 @@ export function importComponent(componentName, importFn) {
 
 export function importAllComponents() {
   for (let componentName of Object.keys(DeferredComponentsTable)) {
+    console.log("Preparing component: ", componentName)
     prepareComponent(componentName);
   }
 }
