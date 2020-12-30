@@ -1,4 +1,4 @@
-
+import * as _ from 'underscore';
 
 /// Like _.filter, but with an async filter function. Given an array and an async function, return
 /// an array containing the subset of the original array for which the filter returns true, in the
@@ -15,6 +15,21 @@ export const asyncFilter = async <T>(list: Array<T>, filter: (x:T)=>Promise<bool
       result.push(list[i]);
   }
   return result;
+}
+
+// Like _.map, but with a mapping function that is async. Runs the mapping
+// functions sequentially.
+export const asyncMapSequential = async <T,U>(list: Array<T>, fn: (x:T)=>Promise<U>): Promise<Array<U>> => {
+  const result: Array<U> = [];
+  for (const item of list)
+    result.push(await fn(item));
+  return result;
+}
+
+// Like _.map, but with a mapping function that is async. Runs the mapping
+// functions in parallel, and returns when they have all finished.
+export const asyncMapParallel = async <T,U>(list: Array<T>, fn: (x:T)=>Promise<U>): Promise<Array<U>> => {
+  return await Promise.all(_.map(list, i=>fn(i)));
 }
 
 /// Like Array.forEach, but with an async function. Runs the function on elements
