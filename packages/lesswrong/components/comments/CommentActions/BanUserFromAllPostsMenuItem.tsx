@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
-import { withUpdate } from '../../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../../hooks/useUpdateCurrentUser';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
@@ -12,12 +12,12 @@ interface ExternalProps {
   comment: CommentsList,
   post: PostsBase,
 }
-interface BanUserFromAllPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateUserProps {
+interface BanUserFromAllPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateCurrentUserProps {
 }
 
 class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuItemProps,{}> {
   handleBanUserFromAllPosts = (event: React.MouseEvent) => {
-    const { comment, currentUser, updateUser, flash } = this.props;
+    const { comment, currentUser, updateCurrentUser, flash } = this.props;
     event.preventDefault();
     if (!currentUser) return;
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
@@ -26,9 +26,8 @@ class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuI
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }
-      void updateUser({
-        selector: { _id: currentUser._id },
-        data: {bannedUserIds:bannedUserIds}
+      void updateCurrentUser({
+        bannedUserIds:bannedUserIds
       }).then(()=>flash({messageString: `User ${comment?.user?.displayName} is now banned from commenting on any of your posts`}))
     }
   }
@@ -49,10 +48,7 @@ const BanUserFromAllPostsMenuItemComponent = registerComponent<ExternalProps>(
   'BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, {
     hocs: [
       withMessages,
-      withUpdate({
-        collectionName: "Users",
-        fragmentName: 'UsersProfile',
-      }),
+      withUpdateCurrentUser,
       withUser
     ]
   }

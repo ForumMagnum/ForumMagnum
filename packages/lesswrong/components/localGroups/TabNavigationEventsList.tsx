@@ -79,7 +79,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 const TabNavigationEventsList = ({ terms, onClick, classes }: {
-  terms: any,
+  terms: PostsViewTerms,
   onClick: ()=>void,
   classes: ClassesType,
 }) => {

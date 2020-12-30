@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 

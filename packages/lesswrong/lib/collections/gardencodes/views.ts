@@ -1,9 +1,18 @@
 import { eventTypes, GardenCodes } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
+declare global {
+  interface GardenCodesViewTerms extends ViewTermsBase {
+    view?: GardenCodesViewName //Allow useMulti with no view
+    types?: Array<string>
+    userId?: string
+    code?: string
+  }
+}
 
-GardenCodes.addDefaultView(terms => {
-  let selector 
+
+GardenCodes.addDefaultView((terms: GardenCodesViewTerms) => {
+  let selector: any
   if (terms?.types) {
     const eventTypeStrings = eventTypes.map(type=>type.value)
     const types = terms.types?.filter(type => eventTypeStrings.includes(type))
@@ -53,7 +62,7 @@ GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
 
 ensureIndex(GardenCodes, {code: 1, deleted: 1, userId: 1, });
 
-GardenCodes.addView("semipublicGardenCodes", function (terms) {
+GardenCodes.addView("semipublicGardenCodes", function (terms: GardenCodesViewTerms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {
     selector: { 
@@ -64,3 +73,4 @@ GardenCodes.addView("semipublicGardenCodes", function (terms) {
 
 ensureIndex(GardenCodes, {code: 1, deleted: 1, userId: 1, });
 
+GardenCodes.addView("gardenCodeByCode", (terms: GardenCodesViewTerms) => ({}));

@@ -11,7 +11,6 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
@@ -36,7 +35,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
       postId: post._id, 
       userId: currentUser?._id
     },
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: "CommentsList"
   });
 

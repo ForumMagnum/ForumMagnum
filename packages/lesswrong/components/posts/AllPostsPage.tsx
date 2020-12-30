@@ -1,10 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import React, { Component } from 'react';
 import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from '../../lib/collections/users/collection';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
@@ -44,8 +43,7 @@ export const sortings = {
   top: 'Top',
 }
 
-interface AllPostsPageProps extends WithUserProps, WithStylesProps, WithTimezoneProps, WithLocationProps {
-  updateUser: WithUpdateFunction<UsersCollection>,
+interface AllPostsPageProps extends WithUserProps, WithStylesProps, WithTimezoneProps, WithLocationProps, WithUpdateCurrentUserProps {
 }
 interface AllPostsPageState {
   showSettings: boolean,
@@ -57,15 +55,12 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
   };
 
   toggleSettings = () => {
-    const { currentUser, updateUser } = this.props
+    const { currentUser, updateCurrentUser } = this.props
 
     this.setState((prevState) => ({showSettings: !prevState.showSettings}), () => {
       if (currentUser) {
-        void updateUser({
-          selector: { _id: currentUser._id},
-          data: {
-            allPostsOpenSettings: this.state.showSettings,
-          },
+        void updateCurrentUser({
+          allPostsOpenSettings: this.state.showSettings,
         })
       }
     })
@@ -175,10 +170,7 @@ const AllPostsPageComponent = registerComponent(
     styles,
     hocs: [
       withLocation, withUser, withTimezone,
-      withUpdate({
-        collection: Users,
-        fragmentName: 'UsersCurrent',
-      })
+      withUpdateCurrentUser
     ]
   }
 );

@@ -278,7 +278,7 @@ const dismissRecommendationTooltip = "Don't remind me to finish reading this seq
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const isSticky = (post: PostsList, terms: any) => {
+const isSticky = (post: PostsList, terms: PostsViewTerms) => {
   if (post && terms && terms.forum) {
     return (
       post.sticky ||
@@ -411,7 +411,7 @@ const PostsItem2 = ({
     </LWTooltip>
   )
 
-  const commentTerms = {
+  const commentTerms: CommentsViewTerms = {
     view:"postsItemComments", 
     limit:7, 
     postId: post._id, 
@@ -548,11 +548,13 @@ const PostsItem2 = ({
 
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
-              highlightDate={markedVisitedAt || post.lastVisitedAt}
               terms={commentTerms}
               post={post}
-              condensed={condensedAndHiddenComments}
-              markAsRead={markAsRead}
+              treeOptions={{
+                highlightDate: markedVisitedAt || post.lastVisitedAt,
+                condensed: condensedAndHiddenComments,
+                markAsRead: markAsRead,
+              }}
             />
           </div>}
         </div>

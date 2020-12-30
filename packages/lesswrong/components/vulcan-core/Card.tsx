@@ -1,5 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { intlShape } from '../../lib/vulcan-i18n';
+import { getSchema } from '../../lib/utils/getSchema';
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -8,12 +9,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import without from 'lodash/without';
 
 const getLabel = (fieldName, collection, intl) => {
-  const schema = collection && collection.simpleSchema()._schema;
+  const schema = collection && getSchema(collection);
   return intl.formatLabel ? intl.formatLabel({ fieldName: fieldName, collectionName: collection && collection._name, schema: schema }): fieldName;
 };
 
 const getTypeName = (field, fieldName, collection) => {
-  const schema = collection && collection.simpleSchema()._schema;
+  const schema = collection && getSchema(collection);
   const fieldSchema = schema && schema[fieldName];
   if (fieldSchema) {
     const type = fieldSchema.type.singleType;

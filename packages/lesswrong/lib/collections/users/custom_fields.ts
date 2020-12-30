@@ -6,7 +6,7 @@ import { defaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
-import { Posts } from '../posts/collection';
+import { postStatuses } from '../posts/constants';
 import Users from "./collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
@@ -1300,7 +1300,7 @@ addFieldsDict(Users, {
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
     order: 40,
-    onInsert: user => {
+    onInsert: (user: DbInsertion<DbUser>) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
@@ -1346,7 +1346,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
+      filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
     }),
     viewableBy: ['guests'],
   },
@@ -1479,7 +1479,7 @@ makeEditable({
 addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
-const createDisplayName = (user: DbUser): string=> {
+const createDisplayName = (user: DbInsertion<DbUser>): string=> {
   const profileName = getNestedProperty(user, 'profile.name');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;

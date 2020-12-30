@@ -1,5 +1,6 @@
 import { wrapVulcanAsyncScript } from './utils'
-import { Vulcan, runCallbacksAsync } from '../vulcan-lib';
+import { Vulcan } from '../vulcan-lib';
+import { userIPBanAndResetLoginTokens, userDeleteContent } from '../callbacks';
 import Users from '../../lib/collections/users/collection'
 import moment from 'moment'
 
@@ -17,14 +18,8 @@ const banUser = async (user: DbUser) => {
       },
     }
   }])
-  runCallbacksAsync({
-    name: 'users.ban.async',
-    properties: [user]
-  });
-  runCallbacksAsync({
-    name: 'users.deleteContent.async',
-    properties: [user]
-  });
+  void userIPBanAndResetLoginTokens(user);
+  void userDeleteContent(user);
 }
 
 Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(

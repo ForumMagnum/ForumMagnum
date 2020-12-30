@@ -59,9 +59,8 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
 };
 
 // Create default "dumb" gql fragment object for a given collection
-export const getDefaultFragmentText = <T extends DbObject>(collection: CollectionBase<T>, options={onlyViewable: true}): string|null => {
-  const schema = collection.simpleSchema()._schema;
-  const fieldNames = _.reject(_.keys(schema), fieldName => {
+export const getDefaultFragmentText = <T extends DbObject>(collection: CollectionBase<T>, schema: SchemaType<T>, options={onlyViewable: true}): string|null => {
+  const fieldNames = _.reject(_.keys(schema), (fieldName: string) => {
     /*
 
     Exclude a field from the default fragment if
@@ -70,7 +69,7 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     3. it's not viewable (if onlyViewable option is true)
 
     */
-    const field = schema[fieldName];
+    const field: CollectionFieldSpecification<T> = schema[fieldName];
     // OpenCRUD backwards compatibility
     return (field.resolveAs && !field.resolveAs.addOriginalField) || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
   });

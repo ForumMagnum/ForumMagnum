@@ -1,4 +1,4 @@
-import { addCallback, runCallbacks, runCallbacksAsync, createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -11,44 +11,28 @@ import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
 import { getCollectionHooks } from '../mutationCallbacks';
+import { postsUndraftNotification } from '../notificationCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
-    data = runCallbacks({
-      name: "post.undraft.before",
-      iterator: data,
-      properties: [post]
-    });
+    data = postsSetPostedAt(data);
   }
   return data;
 });
 
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    runCallbacksAsync({
-      name: "posts.undraft.async",
-      properties: [newPost, oldPost]
-    })
-  }
-});
-
-getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostDraftedAsyncCallbacks (newPost, oldPost) {
-  if (newPost.draft && !oldPost.draft) {
-    runCallbacksAsync({
-      name: "posts.draft.async",
-      properties: [newPost, oldPost]
-    })
+    void postsUndraftNotification(newPost);
   }
 });
 
 // set postedAt when a post is moved out of drafts
-function PostsSetPostedAt (data, oldPost) {
+function postsSetPostedAt (data: Partial<DbPost>) {
   data.postedAt = new Date();
   return data;
 }
-addCallback("post.undraft.before", PostsSetPostedAt);
 
 voteCallbacks.castVoteAsync.add(function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   if (vote.collectionName === "Posts") {
@@ -90,7 +74,7 @@ getCollectionHooks("Posts").newSync.add(function PostsNewDefaultTypes(post: DbPo
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
- return {...post, ...votedPost};
+ return {...post, ...votedPost} as DbPost;
 });
 
 getCollectionHooks("Posts").newSync.add(function PostsNewUserApprovedStatus (post) {

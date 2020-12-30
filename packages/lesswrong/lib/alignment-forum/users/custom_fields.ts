@@ -2,7 +2,7 @@ import { Users } from '../../collections/users/collection';
 import { userOwns } from '../../vulcan-users/permissions';
 import { formGroups } from "../../collections/users/custom_fields"
 import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
-import { Posts } from '../../collections/posts';
+import { postStatuses } from '../../collections/posts/constants';
 
 addFieldsDict(Users, {
   afKarma: {
@@ -19,7 +19,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post: DbPost) => (post.af && !post.draft && post.status===Posts.config.STATUS_APPROVED),
+      filterFn: (post: DbPost) => (post.af && !post.draft && post.status===postStatuses.STATUS_APPROVED),
     }),
     canRead: ['guests'],
   },

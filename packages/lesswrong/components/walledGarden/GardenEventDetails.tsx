@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import Typography from "@material-ui/core/Typography";
 import { useMessages } from "../common/withMessages";
 import moment from "../../lib/moment-timezone";
 import {useTimezone} from "../common/withTimezone";
@@ -38,7 +37,7 @@ export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCod
   const { timezone } = useTimezone();
   
   const { flash } = useMessages();
-  const { ContentItemBody, LWTooltip } = Components
+  const { ContentItemBody, LWTooltip, Typography } = Components
   const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
   
   return <div className={classes.root}>

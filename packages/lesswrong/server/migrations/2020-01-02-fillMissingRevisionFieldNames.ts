@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import Revisions from '../../lib/collections/revisions/collection'
 
 registerMigration({
@@ -26,9 +26,9 @@ registerMigration({
   }
 });
 
-function collectionsWithExactlyOneEditableField(): Array<{collectionName:string, fieldName:string}>
+function collectionsWithExactlyOneEditableField(): Array<{collectionName:CollectionNameString, fieldName:string}>
 {
-  let result: Array<{collectionName:string, fieldName:string}> = [];
+  let result: Array<{collectionName:CollectionNameString, fieldName:string}> = [];
   for (let collectionName of editableCollections) {
     if (editableCollectionsFields[collectionName].length === 1) {
       result.push({

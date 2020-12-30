@@ -4,15 +4,20 @@ Default mutations
 
 */
 
-import {
-  registerCallback,
-  Utils,
-  getTypeName,
-  getCollectionName
-} from '../vulcan-lib';
+import { Utils, getTypeName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 
+export interface MutationOptions<T extends DbObject> {
+  create?: boolean
+  update?: boolean
+  upsert?: boolean
+  delete?: boolean
+  
+  newCheck?: (user: DbUser|null, docment: T|null) => boolean|Promise<boolean>
+  editCheck?: (user: DbUser|null, docment: T|null) => boolean|Promise<boolean>
+  removeCheck?: (user: DbUser|null, docment: T|null) => boolean|Promise<boolean>
+}
 const defaultOptions = { create: true, update: true, upsert: true, delete: true };
 
 /**
@@ -28,23 +33,10 @@ const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
 const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 
-export function getDefaultMutations(options:any, moreOptions?:any) {
-  let typeName, collectionName, mutationOptions;
-
-  if (typeof arguments[0] === 'object') {
-    // new single-argument API
-    typeName = arguments[0].typeName;
-    collectionName = arguments[0].collectionName || getCollectionName(typeName);
-    mutationOptions = { ...defaultOptions, ...arguments[0].options };
-  } else {
-    // OpenCRUD backwards compatibility
-    collectionName = arguments[0];
-    typeName = getTypeName(collectionName);
-    mutationOptions = { ...defaultOptions, ...arguments[1] };
-  }
-
-  // register callbacks for documentation purposes
-  registerCollectionCallbacks(typeName, mutationOptions);
+export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
+  type T = ObjectsByCollectionName[N];
+  const typeName = getTypeName(collectionName);
+  const mutationOptions: MutationOptions<T> = { ...defaultOptions, ...options };
 
   const mutations: any = {};
 
@@ -58,11 +50,11 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
       name: mutationName,
 
       // check function called on a user to see if they can perform the operation
-      check(user, document) {
+      async check(user: DbUser|null, document: T|null) {
         // OpenCRUD backwards compatibility
-        const check = mutationOptions.createCheck || mutationOptions.newCheck;
+        const check = mutationOptions.newCheck;
         if (check) {
-          return check(user, document);
+          return await check(user, document);
         }
         // check if they can perform "foo.new" operation (e.g. "movie.new")
         // OpenCRUD backwards compatibility
@@ -112,11 +104,11 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
       name: mutationName,
 
       // check function called on a user and document to see if they can perform the operation
-      check(user, document) {
+      async check(user: DbUser|null, document: T|null) {
         // OpenCRUD backwards compatibility
-        const check = mutationOptions.updateCheck || mutationOptions.editCheck;
+        const check = mutationOptions.editCheck;
         if (check) {
-          return check(user, document);
+          return await check(user, document);
         }
 
         if (!user || !document) return false;
@@ -124,7 +116,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
         // if they do, check if they can perform "foo.edit.own" action
         // if they don't, check if they can perform "foo.edit.all" action
         // OpenCRUD backwards compatibility
-        return userOwns(user, document)
+        return userOwns(user, document as HasUserIdType)
           ? userCanDo(user, [
             `${typeName.toLowerCase()}.update.own`,
             `${collectionName.toLowerCase()}.edit.own`,
@@ -217,16 +209,16 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
       description: `Mutation for deleting a ${typeName} document`,
       name: mutationName,
 
-      check(user, document) {
+      async check(user: DbUser|null, document: T|null) {
         // OpenCRUD backwards compatibility
-        const check = mutationOptions.deleteCheck || mutationOptions.removeCheck;
+        const check = mutationOptions.removeCheck;
         if (check) {
-          return check(user, document);
+          return await check(user, document);
         }
 
         if (!user || !document) return false;
         // OpenCRUD backwards compatibility
-        return userOwns(user, document)
+        return userOwns(user, document as HasUserIdType)
           ? userCanDo(user, [
             `${typeName.toLowerCase()}.delete.own`,
             `${collectionName.toLowerCase()}.remove.own`,
@@ -237,7 +229,7 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
           ]);
       },
 
-      async mutation(root, { selector }, context) {
+      async mutation(root, { selector }, context: ResolverContext) {
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {
@@ -281,136 +273,3 @@ export function getDefaultMutations(options:any, moreOptions?:any) {
 
   return mutations;
 }
-
-const registerCollectionCallbacks = (typeName, options) => {
-  typeName = typeName.toLowerCase();
-
-  if (options.create) {
-    registerCallback({
-      name: `${typeName}.create.validate`,
-      iterator: { validationErrors: 'An array that can be used to accumulate validation errors' },
-      properties: [
-        { document: 'The document being inserted' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of the mutation' },
-      ],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        'Validate a document before insertion (can be skipped when inserting directly on server).',
-    });
-    registerCallback({
-      name: `${typeName}.create.before`,
-      iterator: { document: 'The document being inserted' },
-      properties: [{ currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'document',
-      description: "Perform operations on a new document before it's inserted in the database.",
-    });
-    registerCallback({
-      name: `${typeName}.create.after`,
-      iterator: { document: 'The document being inserted' },
-      properties: [{ currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        "Perform operations on a new document after it's inserted in the database but *before* the mutation returns it.",
-    });
-    registerCallback({
-      name: `${typeName}.create.async`,
-      iterator: { document: 'The document being inserted' },
-      properties: [
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-      ],
-      runs: 'async',
-      returns: null,
-      description:
-        "Perform operations on a new document after it's inserted in the database asynchronously.",
-    });
-  }
-  if (options.update) {
-    registerCallback({
-      name: `${typeName}.update.validate`,
-      iterator: { validationErrors: 'An object that can be used to accumulate validation errors' },
-      properties: [
-        { document: 'The document being edited' },
-        { data: 'The client data' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of the mutation' },
-      ],
-      runs: 'sync',
-      returns: 'modifier',
-      description:
-        'Validate a document before update (can be skipped when updating directly on server).',
-    });
-    registerCallback({
-      name: `${typeName}.update.before`,
-      iterator: { data: 'The client data' },
-      properties: [{ document: 'The document being edited' }, { currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'modifier',
-      description: "Perform operations on a document before it's updated in the database.",
-    });
-    registerCallback({
-      name: `${typeName}.update.after`,
-      iterator: { newDocument: 'The document after the update' },
-      properties: [{ document: 'The document being edited' }, { currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        "Perform operations on a document after it's updated in the database but *before* the mutation returns it.",
-    });
-    registerCallback({
-      name: `${typeName}.update.async`,
-      iterator: { newDocument: 'The document after the edit' },
-      properties: [
-        { document: 'The document before the edit' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-      ],
-      runs: 'async',
-      returns: null,
-      description:
-        "Perform operations on a document after it's updated in the database asynchronously.",
-    });
-  }
-  if (options.delete) {
-    registerCallback({
-      name: `${typeName}.delete.validate`,
-      iterator: { validationErrors: 'An object that can be used to accumulate validation errors' },
-      properties: [
-        { currentUser: 'The current user' },
-        { document: 'The document being removed' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of this mutation' },
-      ],
-      runs: 'sync',
-      returns: 'document',
-      description:
-        'Validate a document before removal (can be skipped when removing directly on server).',
-    });
-    registerCallback({
-      name: `${typeName}.delete.before`,
-      iterator: { document: 'The document being removed' },
-      properties: [{ currentUser: 'The current user' }],
-      runs: 'sync',
-      returns: null,
-      description: "Perform operations on a document before it's removed from the database.",
-    });
-    registerCallback({
-      name: `${typeName}.delete.async`,
-      properties: [
-        { document: 'The document being removed' },
-        { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-      ],
-      runs: 'async',
-      returns: null,
-      description:
-        "Perform operations on a document after it's removed from the database asynchronously.",
-    });
-  }
-};

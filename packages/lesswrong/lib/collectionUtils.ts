@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { isServer, isAnyTest, runAfterDelay } from './executionEnvironment';
 import * as _ from 'underscore';
-import { addFieldsDict, CollectionFieldSpecification } from './utils/schemaUtils';
+import { addFieldsDict } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
 

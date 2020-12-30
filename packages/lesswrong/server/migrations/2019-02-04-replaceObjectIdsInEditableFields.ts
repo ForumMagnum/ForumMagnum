@@ -8,7 +8,8 @@ registerMigration({
   dateWritten: "2019-02-04",
   idempotent: true,
   action: async () => {
-    for (let collectionName of [...editableCollections, "Revisions", "Votes"]) {
+    const collectionNames: Array<CollectionNameString> = [...editableCollections, "Revisions", "Votes"]
+    for (let collectionName of collectionNames) {
       const collection = getCollection(collectionName)
       await migrateDocuments({
         description: `Replace object ids with strings in ${collectionName}`,

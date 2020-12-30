@@ -1,9 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import React, { Component } from 'react';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
-import Users from '../../lib/collections/users/collection';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -186,19 +185,16 @@ interface ExternalProps {
   sortings?: any,
   showTimeframe?: boolean,
 }
-interface PostsListSettingsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps {
+interface PostsListSettingsProps extends ExternalProps, WithUserProps, WithUpdateCurrentUserProps, WithStylesProps {
 }
 
 class PostsListSettings extends Component<PostsListSettingsProps> {
 
   setSetting = (type, newSetting) => {
-    const { updateUser, currentUser, persistentSettings } = this.props
+    const { updateCurrentUser, currentUser, persistentSettings } = this.props
     if (currentUser && persistentSettings) {
-      void updateUser({
-        selector: { _id: currentUser._id},
-        data: {
-          [USER_SETTING_NAMES[type]]: newSetting,
-        },
+      void updateCurrentUser({
+        [USER_SETTING_NAMES[type]]: newSetting,
       })
     }
   }
@@ -263,10 +259,7 @@ const PostsListSettingsComponent = registerComponent<ExternalProps>(
     styles,
     hocs: [
       withUser,
-      withUpdate({
-        collection: Users,
-        fragmentName: 'UsersCurrent',
-      })
+      withUpdateCurrentUser
     ]
   }
 );

@@ -47,13 +47,6 @@ export const removeGraphQLResolver = (typeName, resolverName) => {
   delete resolvers[typeName][resolverName];
 }
 
-// add objects to context
-let context: any = {};
-export const addToGraphQLContext = (object) => {
-  context = deepmerge(context, object);
-}
-export const getContext = () => context;
-
 let directives: any = {};
 export const addGraphQLDirective = (directive) => {
   directives = deepmerge(directives, directive);

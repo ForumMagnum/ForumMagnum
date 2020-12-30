@@ -3,12 +3,11 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
-import Typography from '@material-ui/core/Typography';
 import qs from 'qs'
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({terms, currentUser}: {
-  terms: any,
+  terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
 }) => {
   const location = useLocation();
@@ -28,7 +27,7 @@ const InboxNavigation = ({terms, currentUser}: {
     fragmentName: 'conversationsListFragment',
   });
   
-  const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox } = Components
+  const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox, Typography } = Components
   const showArchive = query?.showArchive === "true"
   const checkboxClick = () => {
     history.push({...location, search: `?${qs.stringify({showArchive: !showArchive})}`})

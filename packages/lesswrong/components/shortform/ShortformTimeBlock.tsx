@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformGroup: {
@@ -18,14 +17,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
   reportEmpty: ()=>void,
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {
   const { CommentsNode, LoadMore, ContentType } = Components
   
   const { totalCount, loadMore, loading, results:comments } = useMulti({
     terms,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'ShortformComments',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
@@ -40,6 +39,7 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
   }, [loading, comments, reportEmpty]);
   
   if (!comments?.length) return null
+  
   return <div>
     <div className={classes.shortformGroup}>
       <div className={classes.subtitle}>
@@ -47,7 +47,10 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
       </div>
       {comments?.map((comment, i) =>
         <CommentsNode
-          comment={comment} post={comment.post || undefined}
+          treeOptions={{
+            post: comment.post || undefined,
+          }}
+          comment={comment}
           key={comment._id}
           forceSingleLine loadChildrenSeparately
         />)}

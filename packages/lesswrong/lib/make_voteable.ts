@@ -126,7 +126,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: customBaseScoreReadAccess || ['guests'],
-      onInsert: (document: T): number => {
+      onInsert: (document: DbInsertion<T>): number => {
         // default to 0 if empty
         return document.baseScore || 0;
       }
@@ -137,7 +137,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: ['guests'],
-      onInsert: (document: T): number => {
+      onInsert: (document: DbInsertion<T>): number => {
         // default to 0 if empty
         return document.score || 0;
       }

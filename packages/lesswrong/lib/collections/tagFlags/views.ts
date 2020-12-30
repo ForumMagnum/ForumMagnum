@@ -1,7 +1,14 @@
 import { TagFlags } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
-TagFlags.addView('allTagFlags', terms => {
+declare global {
+  interface TagFlagsViewTerms extends ViewTermsBase {
+    view?: TagFlagsViewName
+    userId?: string
+  }
+}
+
+TagFlags.addView('allTagFlags', (terms: TagFlagsViewTerms) => {
   return {
     selector: {
       deleted: false,
