@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Typography } from "@material-ui/core";
+import { registerComponent } from '../../lib/vulcan-lib';
+// import { Typography } from "@material-ui/core";
 import {commentBodyStyles, postBodyStyles } from "../../themes/stylePiping";
-import { useCurrentUser } from '../common/withUser';
-import { gatherTownURL } from "./GatherTownIframeWrapper";
-import VolumeOffIcon from '@material-ui/icons/VolumeOff';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+// import { useCurrentUser } from '../common/withUser';
+// import { gatherTownURL } from "./GatherTownIframeWrapper";
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import StopIcon from '@material-ui/icons/Stop';
 import Slider from '@material-ui/lab/Slider';
-import {MAX_NOTIFICATION_RADIUS} from "../../lib/collections/users/custom_fields";
+// import {MAX_NOTIFICATION_RADIUS} from "../../lib/collections/users/custom_fields";
 
 const widgetStyling = {
   marginLeft: 30,
@@ -88,7 +88,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.9
   },
   volumeSlider: {
-    marginRight: 20
+    marginRight: 20,
+    height: '100%'
   },
   radioText: {
     display: "flex",
@@ -104,82 +105,85 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
-  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, } = Components
 
-  useEffect( function(){ var centovacast = (window.centovacast||(window.centovacast={}));
-      (centovacast.streaminfo||(centovacast.streaminfo={})).config = {
-        poll_limit: 10000,        // specify how many times to poll the server
-        poll_frequency: 3000  // specify the poll frequency in milliseconds
-        };
+
+export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
+  // const { GardenCodeWidget, GardenCodesList, PomodoroWidget, } = Components
+  const [songTitle, setSongTitle] = useState("Loading...")
+  const sourceElement = useRef<HTMLSourceElement>(null)
+  const audioElement = useRef<HTMLAudioElement>(null)
+
+  const querySongTitle = async  () => {
+    const songTitleResponse = await fetch("https://us10a.serverse.com:2199/external/rpc.php?m=streaminfo.get&username=wqpanlfq&rid=wqpanlfq&_=1609289394268", {
+      "headers": {
+        "accept": "*/*",
       },
-    [])
+      "body": null,
+      "method": "GET",
+      "mode": "cors",
+    });
+    const json = await songTitleResponse.json()
+    const songData = json?.data || []
+    setSongTitle(songData[0]?.song)
+  }
+
+  useEffect(() => {
+    const interval = setInterval(querySongTitle, 1000)
+    return () => clearInterval(interval)
+  } ,[])
   
-  const currentUser =  useCurrentUser()
-  const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
+  // const currentUser =  useCurrentUser()
+  // const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
   
-  const radio = useRef(null)
   const [playing, setPlaying]  = useState(false)
   const [volumeLevel, setVolumeLevel] = useState(1)
   
   const originalSourceUrl = "https://us10a.serverse.com/proxy/wqpanlfq?mp=/stream"
-  const sourceElement = document.querySelector("source");
-  const audioElement = document.querySelector("audio");
-  
+
   const playHandler = () => {
-    // if (radio?.current) {
-    //   radio.current.play();
-    //   radio.current.muted = false
-    //   }
-    if (!sourceElement?.getAttribute("src")) {
-      sourceElement?.setAttribute("src", originalSourceUrl);
-      audioElement?.load(); // This restarts the stream download
+    if (!sourceElement.current?.getAttribute("src")) {
+      sourceElement.current?.setAttribute("src", originalSourceUrl);
+      audioElement.current?.load(); // This restarts the stream download
     }
-    audioElement?.play();
+    audioElement.current?.play();
     setPlaying(true);
   }
   
   const pauseHandler = () => {
-    // if (radio?.current) {
-    //   radio.current.muted = true
-    // }
-    sourceElement?.setAttribute("src", "");
-    audioElement?.pause();
+    sourceElement.current?.setAttribute("src", "");
+    audioElement.current?.pause();
     // settimeout, otherwise pause event is not raised normally
     setTimeout(function () {
-      audioElement?.load(); // This stops the stream from downloading
+      audioElement.current?.load(); // This stops the stream from downloading
     });
     setPlaying(false);
   }
   
   const volumeChangeHandler = (event, newValue ) => {
     setVolumeLevel(newValue)
-    if (radio?.current) {
-      // radio.current.volume = newValue
+    if (audioElement?.current) {
+      audioElement.current.volume = newValue
     }
-  }
-    
+  }  
   
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
       <div className={classes.partyResources}>
       </div>
       <div className={classes.radio}>
-        <audio ref={radio} muted={!playing}>
-          <source src="https://us10a.serverse.com/proxy/wqpanlfq?mp=/stream" type="audio/mpeg" />
+        <audio ref={audioElement} muted={!playing} id="walledGardenAudio">
+          <source src="https://us10a.serverse.com/proxy/wqpanlfq?mp=/stream" type="audio/mpeg" id="walledGardenSource" ref={sourceElement} />
             Your browser does not support the audio element.
         </audio>
-        
         <div 
           className={classes.muteUnmuteButton} 
           onClick={ ()=> { playing ? pauseHandler() : playHandler() }}
         >
-          { playing ? <VolumeUpIcon className={classes.muteUnmuteButton}/> : <VolumeOffIcon className={classes.muteUnmuteButton}/>}
+          { playing ? <StopIcon className={classes.muteUnmuteButton}/> : <PlayArrowIcon className={classes.muteUnmuteButton}/>}
         </div>
         <div className={classes.volumeSlider}>
           <Slider
-            // aria-orientation="vertical"
-            value={volumeLevel}
+            value={volumeLevel || 0}
             step={0.05}
             min={0}
             max={1}
@@ -193,36 +197,9 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
             <span className={classes.radioTitle}>NYE Ultra Party Radio</span>
           </div>
           <div className={classes.nowPlaying}>
-            <span className="cc_streaminfo" data-type="song" data-username="wqpanlfq">Loading song name...</span>
+            {songTitle}
           </div>
         </div>
-        
-  
-        {/*<div*/}
-        {/*  className={classes.pauseButton}*/}
-        {/*  onClick={()=> {if (radio.current) radio.current.play()}}*/}
-        {/*>*/}
-        {/*  PLAY BUTTON*/}
-        {/*</div>*/}
-        
-        {/*<div*/}
-        {/*  className={classes.pauseButton}*/}
-        {/*  onClick={()=> {if (radio.current) radio.current.pause()}}*/}
-        {/*>*/}
-        {/*  PAUSE BUTTON*/}
-        {/*</div>*/}
-        {/*<div*/}
-        {/*  className={classes.pauseButton}*/}
-        {/*  onClick={()=> {if (radio.current) radio.current.muted = true }}*/}
-        {/*>*/}
-        {/* MUTE */}
-        {/*</div>*/}
-        {/*<div*/}
-        {/*  className={classes.pauseButton}*/}
-        {/*  onClick={()=> {if (radio.current) radio.current.muted = false}}*/}
-        {/*>*/}
-        {/*  UNMUTE*/}
-        {/*</div>*/}
       </div>
       {/*{currentUser?.walledGardenInvite && <div className={classes.events}>*/}
       {/*  <Typography variant="title">Garden Events</Typography>*/}
@@ -251,7 +228,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
       {/*  <PomodoroWidget />*/}
       {/*</div>*/}
     </div>
-    <script language="javascript" type="text/javascript" src="https://us10a.serverse.com:2199/system/streaminfo.js"></script>
+    
   </div>
 }
 
