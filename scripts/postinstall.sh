@@ -5,8 +5,12 @@
 
 echo -n "Checking for node... "
 if which node >/dev/null; then
-  NODE_VERSION=$(node --version 2>&1)
-  echo "$NODE_VERSION"
+  node --version 2>&1
+  NODE_MAJOR_VERSION=$(node -p 'process.version.match(/^v(\d+)/)[1]')
+  if [ "$NODE_MAJOR_VERSION" -lt 14 ]; then
+    echo "Your version of nodejs is too old (we require 14+)."
+    exit 1
+  fi
 else
   echo "not found"
   echo "Install node.js 14 or later to continue. https://nodejs.org/"
@@ -19,31 +23,17 @@ if which yarn >/dev/null; then
 else
   echo not found
   echo "Install yarn.js to continue. https://yarnpkg.com/getting-started/install"
+  exit 1
 fi
 
 echo -n "Checking for mongodb... "
 if which mongod >/dev/null; then
-  mongod --version |head -1 >/dev/null
+  mongod --version |head -1
 else
   echo "not found"
   echo '`mongod` is not installed. You can run LessWrong by connecting to a remote'
   echo 'database, but you probably want a local server for testing.'
   echo "See https://docs.mongodb.com/manual/installation/"
-  echo
-fi
-
-# Check for an acceptable version of `ln`. Linux has an acceptable version of
-# ln by default; MacOS doesn't, it needs the GNU version from brew. The scripts
-# we use for switching between meteor and express versions rely on a few flags
-# that MacOS lacks.
-echo -n "Checking for a working ln... "
-if ln --version >/dev/null 2>/dev/null ; then
-  echo "yes"
-else
-  echo "no"
-  echo "You are using MacOS coreutils that lack some required options. To get a suitable"
-  echo "version, first install Homebrew (https://brew.sh/) then run:"
-  echo "  brew install coreutils"
   echo
 fi
 
@@ -57,4 +47,13 @@ else
   echo
 fi
 
+if [ ! -f settings.json ]; then
+  echo "Creating settings.json"
+  cp sample_settings.json settings.json
+fi
+
+if [ ! -f settings-dev.json ]; then
+  echo "Creating settings-dev.json"
+  cp sample_settings.json settings-dev.json
+fi
 
