@@ -5,6 +5,7 @@ export const setDatabaseConnection = (_client, _db) => {
   db = _db;
 }
 export const getDatabase = () => db;
+export const databaseIsConnected = () => (db !== null);
 
 const disableAllWrites = false;
 const logQueries = false;

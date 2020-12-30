@@ -6,8 +6,6 @@ import { getCommandLineArguments } from './commandLine';
 import process from 'process';
 import readline from 'readline';
 
-const dbName = 'lesswrong2';
-
 async function serverStartup() {
   console.log("Starting server");
   
@@ -34,11 +32,12 @@ async function serverStartup() {
       useUnifiedTopology: true,
     });
     await client.connect();
-    const db = client.db(dbName);
+    const db = client.db();
     setDatabaseConnection(client, db);
   } catch(err) {
     // eslint-disable-next-line no-console
-    console.log("Failed to connect to mongodb: ", err);
+    console.error("Failed to connect to mongodb: ", err);
+    process.exit(1);
     return;
   }
   
