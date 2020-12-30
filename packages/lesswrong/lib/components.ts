@@ -333,10 +333,10 @@ importComponent("CommentsNewForm", () => require('../components/comments/Comment
 importComponent("SingleLineComment", () => require('../components/comments/SingleLineComment'));
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 
-importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
-importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));
-importComponent("SearchAutoComplete", () => require('../components/search/SearchAutoComplete'));
-importComponent("PostsSearchAutoComplete", () => require('../components/search/PostsSearchAutoComplete'));
+// importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
+// importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));
+// importComponent("SearchAutoComplete", () => require('../components/search/SearchAutoComplete'));
+// importComponent("PostsSearchAutoComplete", () => require('../components/search/PostsSearchAutoComplete'));
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
