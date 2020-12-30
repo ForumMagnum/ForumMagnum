@@ -14,7 +14,7 @@
     "start-af": "./build.js -run --watch --settings settings-af.json",
     "start-af-dev-db": "./build.js -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LesWrong-Credentials/settings-local-dev-af-devdb.json",
     "start-af-prod-db": "./build.js -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LesWrong-Credentials/settings-local-dev-af-proddb.json",
-    "test": "jest --forceExit --maxWorkers=2",
+    "test": "export NODE_OPTIONS=--max_old_space_size=1024; jest --forceExit --maxWorkers=2",
     "test-watch": "jest --watchAll",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
     "generate": "scripts/generateTypes.sh",
