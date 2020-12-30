@@ -6,31 +6,21 @@
     "strictNullChecks": true,
     "jsx": "react",
     "esModuleInterop": true,
+    "rootDir": ".",
     "module": "commonjs",
+    "target": "es5",
+    "sourceMap": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": [
-    "packages/lesswrong/meteor-imports.d.ts",
-    "packages/lesswrong/client/**/*.ts",
-    "packages/lesswrong/client/**/*.tsx",
-    "packages/lesswrong/components/**/*.ts",
-    "packages/lesswrong/components/**/*.tsx",
-    "packages/lesswrong/lib/**/*.ts",
-    "packages/lesswrong/lib/**/*.tsx",
-    "packages/lesswrong/platform/current/**/*.ts",
-    "packages/lesswrong/platform/current/**/*.tsx",
-    "packages/lesswrong/server/**/*.ts",
-    "packages/lesswrong/server/**/*.tsx",
-    "packages/lesswrong/testing/**/*.ts",
-    "packages/lesswrong/testing/**/*.tsx",
-    "packages/lesswrong/themes/**/*.ts",
-    "packages/lesswrong/themes/**/*.tsx",
-    "packages/**/*.js",
-    "packages/**/*.jsx"
+    "packages/lesswrong"
   ],
-  "types": [
-      "meteor-typings"
+  "exclude": [
+    "node_modules",
+    "build",
+    "src/platform/meteor"
   ]
 }

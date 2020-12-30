@@ -11,7 +11,6 @@ const [opts, args] = cliopts.parse(
 
 const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
-//"../../LessWrong-Credentials/settings-local-dev-devdb.json";
 
 if (isProduction) {
   process.env.NODE_ENV="production";
@@ -40,7 +39,7 @@ const clientBundleBanner = `/*
  */`
 
 build({
-  entryPoints: ['./src/platform/current/client/clientStartup.ts'],
+  entryPoints: ['./packages/lesswrong/platform/current/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
   sourcemap: true,
@@ -59,7 +58,7 @@ build({
 });
 
 build({
-  entryPoints: ['./src/platform/current/server/serverStartup.ts'],
+  entryPoints: ['./packages/lesswrong/platform/current/server/serverStartup.ts'],
   bundle: true,
   outfile: './build/server/js/serverBundle.js',
   platform: "node",

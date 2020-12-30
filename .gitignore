@@ -66,10 +66,9 @@ typings
 
 *.secret
 
-packages/lesswrong/platform/current/
-express/build
-express/yarn-error.log
+build
+yarn-error.log
 
 # Created by @shelf/jest-mongodb
-express/globalConfig.json
+globalConfig.json
 
