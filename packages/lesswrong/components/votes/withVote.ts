@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useMessages } from '../common/withMessages';
-import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
@@ -21,9 +20,9 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   `
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: CollectionNameString): {
+export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): {
   vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
-  collectionName: CollectionNameString,
+  collectionName: VoteableCollectionName,
   document: T,
   baseScore: number,
   voteCount: number,
@@ -39,7 +38,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   });
   
   const vote = useCallback(async ({document, voteType, collectionName, currentUser}: {
-    document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent
+    document: T, voteType: string|null, collectionName: VoteableCollectionName, currentUser: UsersCurrent
   }) => {
     const newDocument = await setVoteClient({collection, document, user: currentUser, voteType });
 

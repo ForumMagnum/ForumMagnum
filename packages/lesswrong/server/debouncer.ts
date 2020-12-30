@@ -1,9 +1,9 @@
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
-import { Vulcan } from './vulcan-lib';
+import { Vulcan } from '../lib/vulcan-lib/config';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any,any>>> = {};
 
@@ -243,13 +243,13 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
-        DebouncerEvents.update({
+        await DebouncerEvents.update({
           _id: eventToHandle._id
         }, {
           $set: { failed: true }
         });
-        Sentry.captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
-        Sentry.captureException(e);
+        captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
+        captureException(e);
       }
     }
     

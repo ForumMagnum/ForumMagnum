@@ -5,7 +5,7 @@ Vulcan.logMongoQueries = () => {
   
   for(let i=0; i<Collections.length; i++)
   {
-    let collection = Collections[i] as any;
+    let collection = Collections[i] as any; //Cast to any to account for monkeypatching
     
     // `collection.before` may or may not be present. It is absent if either
     // this is a Vulcan special non-mongo collection (there are a couple of

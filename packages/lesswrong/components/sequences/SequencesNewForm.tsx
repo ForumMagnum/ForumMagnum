@@ -4,11 +4,135 @@ import React from 'react';
 import { useNavigation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection';
 import { useCurrentUser } from '../common/withUser';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 
-const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback}: {
+// Also used by SequencesEditForm
+export const styles = (theme: ThemeType): JssStyles => ({
+  sequencesForm: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+  
+    "& .input-title .form-input-errors": {
+      backgroundColor: "rgba(0,0,0,0.25)",
+      width: "100%",
+      textAlign: "center",
+      margin: "0 !important",
+  
+      "& li": {
+        position: "relative",
+        left: -230,
+        top: 3,
+        zIndex: 3,
+        [theme.breakpoints.down('sm')]: {
+          left: 0,
+        }
+      }
+    },
+  
+    "& .editor-form-component": {
+      maxWidth: 650,
+      margin: "auto",
+      position: "relative",
+      padding: 10,
+    },
+  
+    "& .form-input-errors": {
+      fontSize: "1em",
+      zIndex: 2,
+      textAlign: "left",
+    },
+  
+    "& .vulcan-form": {
+      position: "absolute",
+      width: "100%",
+      paddingBottom: 50,
+      overflow: "hidden",
+  
+      "& .form-input": {
+        maxWidth: 640,
+        position: "relative !important",
+        left: 45,
+        margin: "auto",
+        [theme.breakpoints.down('sm')]: {
+          left: 0,
+          padding: "0 10px",
+        }
+      },
+      "& .form-input label": {
+        position: "relative",
+        top: 5,
+      },
+      "& .form-input.input-title, &.input-bannerImageId": {
+        maxWidth: "100%",
+        width: "100%",
+        margin: 0,
+        left: 0,
+        padding: 0,
+      },
+      "& > form > .form-errors": {
+        display: "none",
+      },
+      "& .form-input.form-component-checkbox > .form-group > label": {
+        display: "none",
+      },
+      "& .editor.content-body": {
+        marginBottom: "0em",
+      },
+      "& .form-input.input-bannerImageId": {
+        marginTop: 65,
+        position: "absolute !important",
+        left: 0,
+        maxWidth: "100%",
+  
+        [theme.breakpoints.down('sm')]: {
+          marginTop: 40,
+          padding: 0,
+        },
+        "& .form-input-errors": {
+          position: "absolute",
+          top: 45,
+          left: 7,
+          textAlign: "left",
+        }
+      }
+    },
+  
+    "& .form-submit": {
+      width: 200,
+      margin: "0 auto",
+    },
+    
+    
+    "& .input-bannerImageId": {
+      "& .image-upload-button": {
+        position: "absolute !important",
+        left: 15,
+        top: 15,
+        [theme.breakpoints.down('sm')]: {
+          left: 15,
+          top: 40,
+        },
+        [legacyBreakpoints.maxTiny]: {
+          left: 12,
+          top: 15,
+        }
+      },
+    
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+    }
+  },
+});
+
+const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, classes }: {
   redirect: any,
   cancelCallback: any,
   removeSuccessCallback: any,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -16,7 +140,7 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback}: {
   
   if (currentUser) {
     return (
-      <div className="sequences-new-form">
+      <div className={classes.sequencesForm}>
         <Components.WrappedSmartForm
           collection={Sequences}
           successCallback={(sequence) => {
@@ -36,7 +160,7 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback}: {
   }
 }
 
-const SequencesNewFormComponent = registerComponent('SequencesNewForm', SequencesNewForm);
+const SequencesNewFormComponent = registerComponent('SequencesNewForm', SequencesNewForm, {styles});
 
 declare global {
   interface ComponentTypes {

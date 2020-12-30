@@ -1,3 +1,9 @@
+import { testStartup } from '../testMain';
+import { stubbedTests } from '../utils';
+
+testStartup();
+stubbedTests();
+
 // Commented out because these unit tests were based on a very brittle hack:
 // mocking Apollo with no backend. Under Apollo 2, you can't create an
 // ApolloClient without a link, so that doesn't work at all.
@@ -27,7 +33,7 @@ const commentListMockProps = {
 }
 */
 
-describe('Commenting while banned from post --', async () => {
+describe('Commenting while banned from post --', () => {
   /*
   it('CommentsItem does NOT render reply-button when user is in a Post bannedUserIds list', async () => {
     const user = await createDummyUser()

@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
+import React, {useState} from 'react';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 
@@ -44,6 +44,13 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, op
   clickable?: boolean
 }) => {
   const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
+  const [everOpened, setEverOpened] = useState(open);
+  
+  if (open && !everOpened)
+    setEverOpened(true);
+  if (!open && !everOpened)
+    return null;
+  
   return (
     <Popper 
       className={classNames(classes.popper, {[classes.noMouseEvents]: !clickable})} 

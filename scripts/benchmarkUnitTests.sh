@@ -6,8 +6,8 @@
 scripts/clean.sh
 mkdir -p tmp
 /usr/bin/time -o tmp/yarnInstallTime yarn install
-/usr/bin/time -o tmp/firstTestTime npm run test |tee tmp/firstTestOutput
-/usr/bin/time -o tmp/secondTestTime npm run test |tee tmp/secondTestOutput
+/usr/bin/time -o tmp/firstTestTime yarn run test |tee tmp/firstTestOutput
+/usr/bin/time -o tmp/secondTestTime yarn run test |tee tmp/secondTestOutput
 
 echo "Yarn install"
 cat tmp/yarnInstallTime

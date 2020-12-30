@@ -5,11 +5,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import gql from 'graphql-tag';
 import { postHighlightStyles, metaculusBackground } from '../../themes/stylePiping';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {

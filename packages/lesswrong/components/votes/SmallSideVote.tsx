@@ -69,7 +69,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
   return (
     <span className={classes.vote} {...eventHandlers}>
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!document.af) &&
-        <span>
+        <>
           <Tooltip
             title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
@@ -105,7 +105,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
               />
             </span>
           </Tooltip>
-        </span>
+        </>
       }
       {!!document.af && forumTypeSetting.get() !== 'AlignmentForum' &&
         <Tooltip placement="bottom" title={

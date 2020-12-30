@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, {useState} from 'react';
-import { meteorLogout } from '../../lib/meteorAccounts';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
@@ -21,7 +20,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
-import {captureEvent} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -169,10 +167,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", client, classes}: {
               </Link>
             }
             <Divider/>
-            <MenuItem onClick={() => {
-              captureEvent("logOutClicked")
-              meteorLogout(() => client.resetStore())
-            }}>
+            <MenuItem component="a" href="/logout">
               Log Out
             </MenuItem>
           </Paper>

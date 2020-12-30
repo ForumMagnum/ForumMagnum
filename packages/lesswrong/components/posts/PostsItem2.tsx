@@ -431,13 +431,16 @@ const PostsItem2 = ({
             [classes.isRead]: isRead
           })}
         >
-          <PostsItemTooltipWrapper post={post}>
-            <div className={classes.withGrayHover}>
-
-              <div className={classNames(classes.postsItem, {
+          <PostsItemTooltipWrapper
+            post={post}
+            className={classNames(
+              classes.postsItem,
+              classes.withGrayHover, {
                 [classes.dense]: dense,
                 [classes.withRelevanceVoting]: !!tagRel
-              })}>
+              }
+            )}
+          >
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classes.karma}>
                   <PostsItemKarma post={post} />
@@ -496,14 +499,13 @@ const PostsItem2 = ({
                   <PostsItemIcons post={post}/>
                 </div>}
 
-                {!resumeReading && <div className={classes.commentsIcon}>
-                  <PostsItemComments
-                    post={post}
-                    onClick={toggleComments}
-                    unreadComments={hasUnreadComments()}
-                    newPromotedComments={hasNewPromotedComments()}
-                  />
-                </div>}
+                {!resumeReading && <PostsItemComments
+                  post={post}
+                  onClick={toggleComments}
+                  unreadComments={hasUnreadComments()}
+                  newPromotedComments={hasNewPromotedComments()}
+                  className={classes.commentsIcon}
+                />}
 
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
@@ -535,10 +537,8 @@ const PostsItem2 = ({
                           || "sequences/vnyzzznenju0hzdv6pqb.jpg"
                       }`}
                     />
-                  </div>}
-
-              </div>
-            </div>
+                  </div>
+                }
           </PostsItemTooltipWrapper>
 
           {<div className={classes.actions}>

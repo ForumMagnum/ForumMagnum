@@ -9,7 +9,7 @@ import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collec
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
-import Sentry from '@sentry/node';
+import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
@@ -56,9 +56,11 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
     setTimeout(() => {
       if (!finished) {
         const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-        Sentry.captureException(new Error(errorMessage));
+        captureException(new Error(errorMessage));
         // eslint-disable-next-line no-console
         console.error(errorMessage);
+        finished = true;
+        resolve(html);
       }
     }, 10000);
     
@@ -435,7 +437,7 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
         // FIXME: See comment on the other Connectors.create call in this file.
         // Missing _id and schemaVersion.
         // @ts-ignore
-        const newRevision = await Connectors.create(Revisions, {
+        newRevisionId = await Connectors.create(Revisions, {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -448,7 +450,6 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
           commitMessage,
           changeMetrics,
         });
-        newRevisionId = newRevision._id;
       } else {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }

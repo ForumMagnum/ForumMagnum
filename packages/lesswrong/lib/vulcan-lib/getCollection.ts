@@ -1,7 +1,6 @@
 import sortBy from 'lodash/sortBy';
 
 export const Collections: Array<CollectionBase<any>> = [];
-
 const collectionsByName: Partial<Record<CollectionNameString,CollectionBase<any>>> = {};
 
 export const getCollection = (name: CollectionNameString): CollectionBase<any> => {

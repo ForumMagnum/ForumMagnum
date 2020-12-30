@@ -4,6 +4,7 @@ import { Sequences } from '../../lib/collections/sequences/collection';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
 import { Posts } from '../../lib/collections/posts/collection'
 import { getCollectionHooks } from '../mutationCallbacks';
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
 addEditableCallbacks({collection: Chapters, options: makeEditableOptions})
@@ -12,18 +13,18 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   const posts = await sequenceGetAllPosts(chapter.sequenceId)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
-  const postsWithCanonicalSequenceId = Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()
+  const postsWithCanonicalSequenceId = await Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()
   const removedPosts = _.difference(_.pluck(postsWithCanonicalSequenceId, '_id'), _.pluck(posts, '_id'))
 
-  removedPosts.forEach((postId) => {
-    Posts.update({_id: postId}, {$unset: {
+  await asyncForeachSequential(removedPosts, async (postId) => {
+    await Posts.update({_id: postId}, {$unset: {
       canonicalPrevPostSlug: true,
       canonicalNextPostSlug: true,
       canonicalSequenceId: true,
     }});
   })
 
-  posts.forEach((currentPost, i) => {
+  await asyncForeachSequential(posts, async (currentPost, i) => {
     const validSequenceId = (currentPost, sequence) => {
       // Only update a post if it either doesn't have a canonicalSequence, or if we're editing
       // chapters *from* its canonicalSequence
@@ -39,7 +40,7 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
       if (i+1<posts.length) {
         nextPost = posts[i+1]
       }
-      Posts.update({slug: currentPost.slug}, {$set: {
+      await Posts.update({slug: currentPost.slug}, {$set: {
         canonicalPrevPostSlug: prevPost.slug,
         canonicalNextPostSlug: nextPost.slug,
         canonicalSequenceId: chapter.sequenceId,

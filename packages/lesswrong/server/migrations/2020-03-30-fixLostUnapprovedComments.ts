@@ -15,10 +15,10 @@ registerMigration({
   dateWritten: "2020-03-30",
   idempotent: true,
   action: async () => {
-    const unreviewedComments = Comments.find({authorIsUnreviewed: true, deleted: false}).fetch();
+    const unreviewedComments = await Comments.find({authorIsUnreviewed: true, deleted: false}).fetch();
     const authorIds = _.uniq(unreviewedComments.map(comment => comment.userId));
     
-    const authors = Users.find({_id: {$in: authorIds}}).fetch();
+    const authors = await Users.find({_id: {$in: authorIds}}).fetch();
     const authorsById = {};
     for (let author of authors)
       authorsById[author._id] = author;
@@ -29,6 +29,6 @@ registerMigration({
     
     // eslint-disable-next-line no-console
     console.log(commentsToMarkReviewed.length+" comments to mark as reviewed");
-    Comments.update({_id: {$in: commentsToMarkReviewed}}, {$set: {authorIsUnreviewed: false}}, {multi: true});
+    await Comments.update({_id: {$in: commentsToMarkReviewed}}, {$set: {authorIsUnreviewed: false}}, {multi: true});
   }
 });

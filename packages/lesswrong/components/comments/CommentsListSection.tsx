@@ -142,12 +142,13 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
 
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
+  const postAuthor = post?.user || null;
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       { totalComments ? renderTitleComponent() : null }
       <div id="comments"/>
 
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post)) && !post?.draft &&
+      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
           <Components.CommentsNewForm
@@ -158,7 +159,7 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
           />
         </div>
       }
-      {currentUser && post && !userIsAllowedToComment(currentUser, post) &&
+      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
         <Components.CantCommentExplanation post={post}/>
       }
       <Components.CommentsList

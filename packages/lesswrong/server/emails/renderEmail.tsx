@@ -1,7 +1,7 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
 import Juice from 'juice';
-import { Email } from 'meteor/email';
+import { meteorSendEmail } from '../../platform/current/server/meteorServerSideFns';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
@@ -17,7 +17,12 @@ import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
-import { computeContextFromUser, createClient, EmailRenderContext, createMutator } from '../vulcan-lib';
+import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
+import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createMutator } from '../vulcan-lib/mutators';
+import { UnsubscribeAllToken } from '../emails/emailTokens';
+import { captureException } from '@sentry/core';
 
 
 // How many characters to wrap the plain-text version of the email to
@@ -119,8 +124,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
   // Set up Apollo
-  const headers = {};
-  const apolloClient = await createClient(await computeContextFromUser(user, headers));
+  const apolloClient = await createClient(await computeContextFromUser(user));
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const sheetsRegistry = new SheetsRegistry();
@@ -192,6 +196,29 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   }
 }
 
+export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
+  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+  return await generateEmail({
+    user,
+    subject: subject,
+    bodyComponent: <Components.EmailWrapper
+      user={user} unsubscribeAllLink={unsubscribeAllLink}
+    >
+      {body}
+    </Components.EmailWrapper>
+  });
+}
+
+export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
+  try {
+    const email = await wrapAndRenderEmail({ user, subject, body });
+    await sendEmail(email);
+    void logSentEmail(email, user);
+  } catch(e) {
+    captureException(e);
+  }
+}
+
 function validateSheets(sheetsRegistry)
 {
   let styleValidator = new StyleValidator();
@@ -214,7 +241,7 @@ export async function sendEmail(renderedEmail)
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     
-    Email.send(renderedEmail); // From meteor's 'email' package
+    meteorSendEmail(renderedEmail); // From meteor's 'email' package
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
@@ -226,14 +253,14 @@ export async function sendEmail(renderedEmail)
   }
 }
 
-export function logSentEmail(renderedEmail, user) {
+export async function logSentEmail(renderedEmail, user) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,
     user: user._id,
   };
   // Log in LWEvents table
-  void createMutator({
+  await createMutator({
     collection: LWEvents,
     currentUser: user,
     document: {

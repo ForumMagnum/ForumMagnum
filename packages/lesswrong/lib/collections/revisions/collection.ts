@@ -33,7 +33,8 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // case, this will hit in the cache 100% of the time. If we don't have a
   // ResolverContext, use a findOne query; this is slow, but doesn't come up
   // in any contexts where speed matters.
-  const { collectionName, documentId } = revision;
+  const collectionName= revision.collectionName as CollectionNameString;
+  const documentId = revision.documentId;
   const collection = getCollection(collectionName);
   const document = context
     ? await context.loaders[collectionName].load(documentId)

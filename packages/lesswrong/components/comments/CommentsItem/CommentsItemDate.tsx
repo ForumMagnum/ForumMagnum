@@ -58,10 +58,10 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
 
   const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, permalink})
 
-  const date = <span>
+  const date = <>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
     <LinkIcon className={classes.icon}/>
-  </span>
+  </>
 
   return (
     <span className={classNames(classes.root, {

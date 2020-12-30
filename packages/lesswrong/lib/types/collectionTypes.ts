@@ -6,6 +6,7 @@
  * --skipLibCheck just ignores all .d.ts files.
  */
 import type DataLoader from 'dataloader';
+import type { Request, Response } from 'express';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -23,21 +24,23 @@ interface CollectionBase<
   defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
   views: Record<string, ViewFunction<N>>
   getParameters: (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext) => MergedViewQueryAndOptions<N,T>
-  simpleSchema: ()=>any
   
-  rawCollection: any
+  _schemaFields: SchemaType<T>
+  _simpleSchema: any
+  
+  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, update: any}
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
-  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => T | null
+  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
   // Return result is number of documents **matched** not affected
   //
   // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
-  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => number
-  remove: any
-  insert: any
-  aggregate: any
+  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => void
+  insert: (data: any, options?: any) => string
+  aggregate: (aggregationPipeline: MongoAggregationPipeline<T>) => any
   _ensureIndex: any
 }
 
@@ -53,8 +56,8 @@ interface CollectionOptions {
 }
 
 interface FindResult<T> {
-  fetch: ()=>Array<T>
-  count: ()=>number
+  fetch: ()=>Promise<Array<T>>
+  count: ()=>Promise<number>
 }
 
 type ViewFunction<N extends CollectionNameString> = (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext)=>ViewQueryAndOptions<N>
@@ -93,6 +96,7 @@ type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
+type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
 
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
@@ -159,10 +163,13 @@ interface ResolverContext extends CollectionsByName {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
   extraLoaders: Record<string,any>
+  req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
+  res?: Response
 }
 
 type FragmentName = keyof FragmentTypes;
 
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels";
 interface EditableFieldContents {
   html: string
   wordCount: number

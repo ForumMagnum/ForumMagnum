@@ -16,7 +16,7 @@ import { getCollectionHooks } from './mutationCallbacks';
 // a partially-read sequence, and update their user object to reflect this
 // status.
 const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string) => {
-  const user = getUser(userId);
+  const user = await getUser(userId);
   if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
   const postIDs = await sequenceGetAllPostIDs(sequenceId);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);

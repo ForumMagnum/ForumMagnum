@@ -19,7 +19,7 @@ registerMigration({
       migrate: async (documents: Array<DbVote>) => {
         // Get the set of collections that at least one vote in the batch
         // is voting on
-        const collectionNames = _.uniq(_.pluck(documents, "collectionName"))
+        const collectionNames = _.uniq(_.pluck(documents, "collectionName")) as Array<CollectionNameString>
         
         for(let collectionName of collectionNames) {
           const collection = getCollection(collectionName);

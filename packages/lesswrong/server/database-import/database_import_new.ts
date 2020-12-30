@@ -49,13 +49,13 @@ Vulcan.postgresImport = async () => {
   const processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
 
   // Construct user lookup table to avoid repeated querying
-  let legacyIdToUserMap = new Map(await Users.find().fetch().map((user) => [user.legacyId, user]));
+  let legacyIdToUserMap = new Map((await Users.find().fetch()).map((user) => [user.legacyId, user]));
 
   // Upsert Users
   await upsertProcessedUsers(processedUsers, legacyIdToUserMap);
 
   // Construct user lookup table to avoid repeated querying
-  legacyIdToUserMap = new Map(Users.find().fetch().map((user) => [user.legacyId, user]));
+  legacyIdToUserMap = new Map((await Users.find().fetch()).map((user) => [user.legacyId, user]));
 
   /*
     POST DATA IMPORT
@@ -79,12 +79,12 @@ Vulcan.postgresImport = async () => {
   const processedPosts = mapValues(mergedGroupedPostData, (post, id) => legacyPostToNewPost(post, id, legacyIdToUserMap.get(post.author_id)));
 
   // Construct post lookup table to avoid repeated querying
-  let legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
+  let legacyIdToPostMap = new Map((await Posts.find().fetch()).map((post) => [post.legacyId, post]));
 
   // Upsert Posts
   await upsertProcessedPosts(processedPosts, legacyIdToPostMap);
   // Construct post lookup table to avoid repeated querying
-  legacyIdToPostMap = new Map(Posts.find().fetch().map((post) => [post.legacyId, post]));
+  legacyIdToPostMap = new Map((await Posts.find().fetch()).map((post) => [post.legacyId, post]));
 
   /*
     COMMENT DATA IMPORT
@@ -110,7 +110,7 @@ Vulcan.postgresImport = async () => {
     (comment, id) => legacyCommentToNewComment(comment, id, legacyIdToUserMap.get(comment.author_id), legacyIdToPostMap.get(comment.link_id))
   ));
 
-  let legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
+  let legacyIdToCommentMap = new Map((await Comments.find().fetch()).map((comment) => [comment.legacyId, comment]));
 
   commentData = _.map(commentData, (comment: any, id: any) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
 
@@ -123,7 +123,7 @@ Vulcan.postgresImport = async () => {
   console.log("Finished Upserting comments");
 
   // construct comment lookup table to avoid repeated querying
-  legacyIdToCommentMap = new Map(Comments.find().fetch().map((comment) => [comment.legacyId, comment]));
+  legacyIdToCommentMap = new Map((await Comments.find().fetch()).map((comment) => [comment.legacyId, comment]));
 
   //eslint-disable-next-line no-console
   console.log("Finished comment data import");
@@ -138,7 +138,7 @@ const addParentCommentId = (comment, parentComment) => {
 }
 
 Vulcan.syncUserPostCount = async () => {
-  const postCounters = await Posts.rawCollection().aggregate([
+  const postCounters = await Posts.aggregate([
     {"$group" : {_id:"$userId", count:{$sum:1}}}
   ])
   //eslint-disable-next-line no-console

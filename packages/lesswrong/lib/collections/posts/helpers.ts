@@ -29,8 +29,8 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = function (post: DbPost) {
-  var user = mongoFindOne("Users", post.userId);
+export const postGetAuthorName = async function (post: DbPost) {
+  var user = await mongoFindOne("Users", post.userId);
   if (user) {
     return userGetDisplayName(user);
   } else {

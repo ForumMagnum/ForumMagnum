@@ -142,10 +142,7 @@ class App extends PureComponent<AppProps,any> {
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
           <Components.Layout currentUser={currentUser} messages={messages}>
-            {this.props.currentUserLoading
-              ? <Components.Loading />
-              : <RouteComponent />
-            }
+            <RouteComponent />
           </Components.Layout>
         </MessageContext.Provider>
       </IntlProvider>

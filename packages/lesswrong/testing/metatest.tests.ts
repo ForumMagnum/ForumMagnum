@@ -1,21 +1,18 @@
-import { chai } from 'meteor/practicalmeteor:chai';
-import chaiAsPromised from 'chai-as-promised';
+import { testStartup } from './testMain';
 
 import {
   createDummyUser,
   createDummyPost,
 } from './utils'
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-describe('Utils', async () => {
-  before(async function(done) {
-    this.timeout(20000)
+describe('Utils', () => {
+  beforeEach(async function(done) {
     let vulcanLoaded = false;
     //eslint-disable-next-line no-console
     console.log("Holding off tests until startup")
@@ -35,7 +32,7 @@ describe('Utils', async () => {
     }
     done()
   })
-  describe('createDummyUser', async () => {
+  describe('createDummyUser', () => {
     it('generates appropriate email', async () => {
       const user = await createDummyUser();
       (user.email as any).should.equal(user.username + "@test.lesserwrong.com")
@@ -54,14 +51,14 @@ describe('Utils', async () => {
       (user.groups as any).should.deep.equal(testGroups)
     });
   });
-  describe('createDummyPost', async () => {
+  describe('createDummyPost', () => {
     it('generates a default title and slug', async () => {
       const post = await createDummyPost();
       (post.title.toLowerCase() as any).should.equal(post.slug)
     });
   });
 
-  // describe('clearDatabase', async () => {
+  // describe('clearDatabase', () => {
   //   it('clears database', async () => {
   //     await clearDatabase()
   //     const user = await createDummyUser()

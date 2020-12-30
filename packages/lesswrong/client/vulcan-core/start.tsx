@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { onPageLoad } from 'meteor/server-render';
 import AppGenerator from './AppGenerator';
 import { onStartup } from '../../lib/executionEnvironment';
 
@@ -25,13 +24,11 @@ onStartup(() => {
     <AppGenerator apolloClient={apolloClient} abTestGroups={abTestGroups} />
   );
 
-  onPageLoad(() => {
-    ReactDOM.hydrate(
-      <Main />,
-      document.getElementById('react-app'),
-      () => {
-        apolloClient.disableNetworkFetches = false;
-      }
-    );
-  });
+  ReactDOM.hydrate(
+    <Main />,
+    document.getElementById('react-app'),
+    () => {
+      apolloClient.disableNetworkFetches = false;
+    }
+  );
 });

@@ -42,6 +42,7 @@ packages_update.py
 publish_packages.sh
 
 node_modules
+node_modules.meteor
 
 bundle.tar.gz
 
@@ -64,3 +65,10 @@ typings
 .elasticbeanstalk/*
 
 *.secret
+
+build
+yarn-error.log
+
+# Created by @shelf/jest-mongodb
+globalConfig.json
+

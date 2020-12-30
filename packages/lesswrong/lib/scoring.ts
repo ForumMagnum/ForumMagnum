@@ -5,14 +5,14 @@ const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFacto
 const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10)
 const curatedBonusSetting = new DatabasePublicSetting<number>('curatedScoreBonus', 10)
 
-export const TIME_DECAY_FACTOR = timeDecayFactorSetting.get();
+export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
-export const FRONTPAGE_BONUS = frontpageBonusSetting.get();
-export const CURATED_BONUS = curatedBonusSetting.get();
+export const FRONTPAGE_BONUS = frontpageBonusSetting;
+export const CURATED_BONUS = curatedBonusSetting;
 
 
-export const recalculateBaseScore = (document: VoteableType) => {
-  const votes = Votes.find(
+export const recalculateBaseScore = async (document: VoteableType) => {
+  const votes = await Votes.find(
     {
       documentId: document._id,
       cancelled: false
@@ -32,10 +32,10 @@ export const recalculateScore = (item: VoteableType) => {
     // use baseScore if defined, if not just use 0
     let baseScore = item.baseScore || 0;
 
-    baseScore = baseScore + (((item as any).frontpageDate ? FRONTPAGE_BONUS : 0) + ((item as any).curatedDate ? CURATED_BONUS : 0));
+    baseScore = baseScore + (((item as any).frontpageDate ? FRONTPAGE_BONUS.get() : 0) + ((item as any).curatedDate ? CURATED_BONUS.get() : 0));
 
     // HN algorithm
-    const newScore = Math.round((baseScore / Math.pow(ageInHours + 2, TIME_DECAY_FACTOR))*1000000)/1000000;
+    const newScore = Math.round((baseScore / Math.pow(ageInHours + 2, TIME_DECAY_FACTOR.get()))*1000000)/1000000;
 
     return newScore;
   } else {
@@ -54,14 +54,14 @@ export const timeDecayExpr = () => {
       ] }, // Age in hours
       2
     ]},
-    TIME_DECAY_FACTOR
+    TIME_DECAY_FACTOR.get()
   ]}
 }
 
 export const defaultScoreModifiers = () => {
   return [
-    {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}},
-    {$cond: {if: "$curatedDate", then: CURATED_BONUS, else: 0}}
+    {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS.get(), else: 0}},
+    {$cond: {if: "$curatedDate", then: CURATED_BONUS.get(), else: 0}}
   ];
 };
 

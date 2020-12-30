@@ -15,6 +15,11 @@ interface ComponentOptions {
   // be passed as an extra prop named "classes".
   styles?: any
   
+  // Default is 0. If classes with overlapping attributes from two different
+  // components' styles wind up applied to the same node, the one with higher
+  // priority wins.
+  stylePriority?: number,
+  
   // Array of higher-order components that this component should be wrapped
   // with.
   hocs?: Array<any>

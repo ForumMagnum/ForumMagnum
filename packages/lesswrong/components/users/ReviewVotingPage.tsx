@@ -7,12 +7,11 @@ import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { Paper } from '@material-ui/core';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import gql from 'graphql-tag';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';

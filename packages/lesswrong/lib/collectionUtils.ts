@@ -4,6 +4,7 @@ import * as _ from 'underscore';
 import { addFieldsDict } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
+import { databaseIsConnected } from '../platform/current/lib/mongoCollection';
 
 // canAutofillDefault: Marks a field where, if its value is null, it should
 // be auto-replaced with defaultValue in migration scripts.
@@ -74,8 +75,10 @@ export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, i
 
 export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={})
 {
-  if (isServer) {
+  if (isServer && !isAnyTest) {
     const buildIndex = async () => {
+      if (!databaseIsConnected())
+        return;
       try {
         if (options.name && await conflictingIndexExists(collection, index, options)) {
           //eslint-disable-next-line no-console

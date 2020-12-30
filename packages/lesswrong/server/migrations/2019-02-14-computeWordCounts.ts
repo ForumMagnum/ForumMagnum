@@ -43,8 +43,8 @@ registerMigration({
     
     // Fill in wordCount in the denormalized latest revs on posts/comments/etc
     for (let collectionName of editableCollections) {
-      for (let fieldName of editableCollectionsFields[collectionName]) {
-        const collection = getCollection(collectionName)
+      for (let fieldName of editableCollectionsFields[collectionName]!) {
+        const collection: CollectionBase<any> = getCollection(collectionName)
         await migrateDocuments({
           description: `Compute word counts for ${collectionName}.${fieldName}`,
           collection,

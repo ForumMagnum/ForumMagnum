@@ -1,6 +1,6 @@
 import React from 'react'
 import CKEditor from '../editor/ReactCKEditor';
-import { CommentEditor } from '@lesswrong/lesswrong-editor';
+import { getCkEditor } from '../../platform/current/lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 
@@ -9,6 +9,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 
 const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
   const ckEditorCloudConfigured = !!ckEditorWebsocketUrlSetting.get()
+  const { CommentEditor } = getCkEditor();
   
   return <div>
       <CKEditor

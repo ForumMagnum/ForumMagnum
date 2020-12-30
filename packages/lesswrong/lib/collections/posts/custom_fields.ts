@@ -13,7 +13,7 @@ import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 
 const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
 
@@ -385,9 +385,9 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post: DbPost, args: void, context: ResolverContext): DbCollection|null => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
     },
   },
@@ -974,7 +974,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
@@ -991,7 +991,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },

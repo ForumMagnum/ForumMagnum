@@ -16,7 +16,7 @@ Vulcan.validateMakeEditableDenormalization = async () => {
   }
   
   for (let collectionName of editableCollections) {
-    for (let editableField of editableCollectionsFields[collectionName]) {
+    for (let editableField of editableCollectionsFields[collectionName]!) {
       // eslint-disable-next-line no-console
       console.log(`Checking ${collectionName}.${editableField}...`);
       

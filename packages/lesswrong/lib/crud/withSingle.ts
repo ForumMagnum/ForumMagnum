@@ -1,9 +1,8 @@
 import { graphql } from '@apollo/client/react/hoc';
-import gql from 'graphql-tag';
 import { singleClientTemplate, extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
 import * as _ from 'underscore';
-import { WatchQueryFetchPolicy, useQuery } from '@apollo/client';
+import { WatchQueryFetchPolicy, useQuery, gql } from '@apollo/client';
 
 function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
   const collectionName = collection.collectionName;

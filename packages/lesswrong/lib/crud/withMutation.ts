@@ -12,8 +12,7 @@ export default withMutation({
 */
 
 import { graphql } from '@apollo/client/react/hoc';
-import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useMutation, gql } from '@apollo/client';
 import { getFragment } from '../vulcan-lib';
 import * as _ from 'underscore';
 
@@ -89,10 +88,10 @@ export function useNamedMutation<ArgsType=any>({name, graphqlArgs, fragmentName}
     `;
   }
   
-  const [mutate] = useMutation(gql`${mutation}${fragmentName ? fragment : ''}`);
+  const [mutate, { loading }] = useMutation(gql`${mutation}${fragmentName ? fragment : ''}`);
   return {mutate: async (variables: ArgsType) => {
     return await mutate({ variables });
-  }};
+  }, loading};
 }
 
 export default withMutation;

@@ -83,7 +83,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
@@ -179,7 +179,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     if (parameters.options.limit) {
       pipeline.push({ $limit: parameters.options.limit });
     }
-    return await collection.rawCollection().aggregate(pipeline).toArray();
+    return await collection.aggregate(pipeline).toArray();
   } else {
     return await Utils.Connectors.find(collection, selector, options);
   }

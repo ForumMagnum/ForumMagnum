@@ -35,9 +35,9 @@ export const schema: SchemaType<DbTag> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
-    onInsert: tag => {
+    onInsert: async (tag) => {
       const basicSlug = slugify(tag.name);
-      return Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
+      return await Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
@@ -46,7 +46,7 @@ export const schema: SchemaType<DbTag> = {
           throw Error(`Specified slug is already used: ${data.slug}`)
         }
       } else if (data.name && data.name !== oldDocument.name) {
-        return Utils.getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
+        return await Utils.getUnusedSlugByCollectionName("Tags", slugify(data.name), true, oldDocument._id)
       }
     }
   },

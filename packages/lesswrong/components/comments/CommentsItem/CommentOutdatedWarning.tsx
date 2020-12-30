@@ -5,6 +5,15 @@ import HistoryIcon from '@material-ui/icons/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  outdatedWarning: {
+    float: "right",
+    position: 'relative',
+    [theme.breakpoints.down('xs')]: {
+      float: "none",
+      marginTop: 7,
+      display: 'block'
+    }
+  },
   icon: {
     fontSize: 'inherit',
     position: 'relative',
@@ -37,11 +46,11 @@ const CommentOutdatedWarning = ({comment, post, classes}: {
 
   const { LWTooltip } = Components
 
-  return (
+  return <span className={classes.outdatedWarning}>
     <LWTooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
       <QueryLink query={{revision: comment.postVersion}} merge><HistoryIcon className={classes.icon}/> Response to previous version </QueryLink>
     </LWTooltip>
-  );
+  </span>;
 };
 
 const CommentOutdatedWarningComponent = registerComponent(

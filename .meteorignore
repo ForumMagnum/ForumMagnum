@@ -3,3 +3,9 @@ tmp
 *.d.ts
 ./LessWrong-Credentials/*
 .eslintrc.js
+platform/meteor
+platform/webpack
+platform/express
+webpack
+express
+node_modules.*

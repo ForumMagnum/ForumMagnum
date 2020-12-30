@@ -1,10 +1,9 @@
 import React, {useCallback, useEffect} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { AnalyticsUtil } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import { useCookies } from 'react-cookie'
-import gql from 'graphql-tag';
 import withErrorBoundary from './withErrorBoundary';
 
 export const AnalyticsClient = () => {

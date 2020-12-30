@@ -2,6 +2,7 @@ import { Posts } from './collections/posts/collection';
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
+import { onStartup } from '../platform/current/lib/executionEnvironment';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -33,13 +34,13 @@ function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Pi
 
 async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string) {
   const parsedId = parseInt(legacyId, 36);
-  const post = Posts.findOne({"legacyId": parsedId.toString()});
+  const post = await Posts.findOne({"legacyId": parsedId.toString()});
   if (!post) return null;
   return getPostPingbackById(parsedUrl, post._id);
 }
 
 async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
-  const post = Posts.findOne({slug: slug});
+  const post = await Posts.findOne({slug: slug});
   if (!post) return null;
   return getPostPingbackById(parsedUrl, post._id);
 }
@@ -343,29 +344,28 @@ addRoute(
   }
 );
 
-
-
-const legacyRouteAcronym = legacyRouteAcronymSetting.get()
-
-addRoute(
-  // Legacy (old-LW, also old-EAF) routes
-  // Note that there are also server-side-only routes in server/legacy-redirects/routes.js.
-  {
-    name: 'post.legacy',
-    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
-    componentName: "LegacyPostRedirect",
-    previewComponentName: "PostLinkPreviewLegacy",
-    getPingback: (parsedUrl) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id),
-  },
-  {
-    name: 'comment.legacy',
-    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
-    componentName: "LegacyCommentRedirect",
-    previewComponentName: "CommentLinkPreviewLegacy",
-    noIndex: true,
-    // TODO: Pingback comment
-  }
-);
+onStartup(() => {
+  const legacyRouteAcronym = legacyRouteAcronymSetting.get()
+  addRoute(
+    // Legacy (old-LW, also old-EAF) routes
+    // Note that there are also server-side-only routes in server/legacy-redirects/routes.js.
+    {
+      name: 'post.legacy',
+      path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
+      componentName: "LegacyPostRedirect",
+      previewComponentName: "PostLinkPreviewLegacy",
+      getPingback: (parsedUrl) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id),
+    },
+    {
+      name: 'comment.legacy',
+      path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
+      componentName: "LegacyCommentRedirect",
+      previewComponentName: "CommentLinkPreviewLegacy",
+      noIndex: true,
+      // TODO: Pingback comment
+    }
+  );
+});
 
 if (forumTypeSetting.get() !== 'EAForum') {
   addRoute(
@@ -799,6 +799,11 @@ addRoute(
     name: 'emailToken',
     path: '/emailToken/:token',
     componentName: 'EmailTokenPage',
+  },
+  {
+    name: 'password-reset',
+    path: '/resetPassword/:token',
+    componentName: 'PasswordResetPage',
   },
   {
     name: 'nominations2018',

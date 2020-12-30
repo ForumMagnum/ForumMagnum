@@ -1,5 +1,5 @@
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
-import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
 import { Vulcan } from '../../lib/vulcan-lib';
 
 export const algoliaConfigureIndexes = async () => {
@@ -11,11 +11,11 @@ export const algoliaConfigureIndexes = async () => {
   
   console.log("Configuring Algolia indexes"); //eslint-disable-line no-console
   
-  let commentsIndex = client.initIndex(algoliaIndexNames.Comments);
-  let postsIndex = client.initIndex(algoliaIndexNames.Posts);
-  let usersIndex = client.initIndex(algoliaIndexNames.Users);
-  let sequencesIndex = client.initIndex(algoliaIndexNames.Sequences);
-  let tagsIndex = client.initIndex(algoliaIndexNames.Tags);
+  let commentsIndex = client.initIndex(getAlgoliaIndexName("Comments"));
+  let postsIndex = client.initIndex(getAlgoliaIndexName("Posts"));
+  let usersIndex = client.initIndex(getAlgoliaIndexName("Users"));
+  let sequencesIndex = client.initIndex(getAlgoliaIndexName("Sequences"));
+  let tagsIndex = client.initIndex(getAlgoliaIndexName("Tags"));
   
   await algoliaSetIndexSettingsAndWait(commentsIndex, {
     searchableAttributes: [
