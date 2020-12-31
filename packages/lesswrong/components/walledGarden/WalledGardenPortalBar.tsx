@@ -146,12 +146,14 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
     const json = await songTitleResponse.json()
     const recentTracksData = json?.data || []
     const songData = recentTracksData[0][0]
-    const songDetails = `${songData['artist']} – ${songData['title']}` //JSON has these fields swapped
-    setSongTitle(songDetails)
+    if (songData && songData?.artist && songData?.title) {
+      const songDetails = `${songData.artist} – ${songData.title}` //JSON has these fields swapped
+      setSongTitle(songDetails)
+    }
   }
 
   useEffect(() => {
-    const interval = setInterval(queryRecentTracks, 1000)
+    const interval = setInterval(queryRecentTracks, 7000)
     return () => clearInterval(interval)
   } ,[])
   
