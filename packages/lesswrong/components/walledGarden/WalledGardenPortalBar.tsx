@@ -168,7 +168,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
       sourceElement.current?.setAttribute("src", originalSourceUrl);
       audioElement.current?.load(); // This restarts the stream download
     }
-    audioElement.current?.play();
+    void audioElement.current?.play();
     setPlaying(true);
   }
   
