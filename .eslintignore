@@ -2,5 +2,4 @@ packages/_*
 packages/vulcan-*/**/*.test.js
 packages/ddp-server
 packages/webapp
-packages/lesswrong/platform/meteor
 packages/lesswrong/platform/webpack
