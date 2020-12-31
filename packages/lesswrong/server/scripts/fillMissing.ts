@@ -1,6 +1,7 @@
 import { Vulcan, Collections } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../migrations/migrationUtils'
+import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
 registerMigration({
@@ -9,8 +10,8 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for(let collection of Collections) {
-      if (!collection.simpleSchema) continue;
-      const schema = collection.simpleSchema()._schema
+      const schema = getSchema(collection);
+      if (!schema) continue;
       
       const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
       if (fieldsWithAutofill.length == 0) continue;
@@ -51,8 +52,8 @@ registerMigration({
 
 Vulcan.checkForMissingValues = async () => {
   for(let collection of Collections) {
-    if (!collection.simpleSchema) continue;
-    const schema = collection.simpleSchema()._schema;
+    const schema = getSchema(collection);
+    if (!schema) continue;
     
     const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
     if (fieldsWithAutofill.length == 0) continue;

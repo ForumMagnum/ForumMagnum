@@ -16,9 +16,7 @@ const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownW
 if (isProduction && forumTypeSetting.get() === "LessWrong") {
   addCronJob({
     name: 'gatherTownGetUsers',
-    schedule(parser) {
-      return parser.text(`every 3 minutes`);
-    },
+    interval: "every 3 minutes",
     job() {
       void pollGatherTownUsers();
     }
@@ -30,6 +28,8 @@ const pollGatherTownUsers = async () => {
   const roomId = gatherTownRoomId.get();
   if (!roomName || !roomId) return;
   const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
+  // eslint-disable-next-line no-console
+  console.log(gatherTownUsers);
   void createMutator({
     collection: LWEvents,
     document: {
@@ -212,6 +212,7 @@ const playerMessageHeaderLen = 29;
 const mapNameOffset = 17
 const playerNameOffset = 19
 const playerStatusOffset = 23
+const playerIconOffset = 25
 const playerIdOffset = 27;
 
 // Decoded using echo AS...<rest of base64 message> | base64 -d | hexdump -C
@@ -238,12 +239,14 @@ function interpretBinaryMessage(data: any): {players: {map: string, name: string
       const mapNameLen = buf.readUInt8(pos+mapNameOffset);
       const playerNameLen = buf.readUInt8(pos+playerNameOffset);
       const playerStatusLen = buf.readUInt8(pos+playerStatusOffset)
+      const playerIconLen = buf.readUInt8(pos+playerIconOffset);
       const playerIdLen = buf.readUInt8(pos+playerIdOffset);
       
       const mapNameStart = pos+playerMessageHeaderLen;
       const playerNameStart = mapNameStart+mapNameLen;
       const playerStatusStart = playerNameStart+playerNameLen;
-      const playerIdStart = playerStatusStart+playerStatusLen;
+      const playerIconStart = playerStatusStart+playerIconLen;
+      const playerIdStart = playerIconStart+playerStatusLen;
       
       const mapName = buf.slice(mapNameStart, mapNameStart+mapNameLen).toString("utf8");
       const playerName = buf.slice(playerNameStart, playerNameStart+playerNameLen).toString("utf8");

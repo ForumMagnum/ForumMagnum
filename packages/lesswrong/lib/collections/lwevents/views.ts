@@ -1,7 +1,17 @@
 import { LWEvents } from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
-LWEvents.addView("adminView", function (terms) {
+declare global {
+  interface LWEventsViewTerms extends ViewTermsBase {
+    view?: LWEventsViewName
+    name?: string,
+    postId?: string,
+    userId?: string,
+  }
+}
+
+
+LWEvents.addView("adminView", (terms: LWEventsViewTerms) => {
   return {
     selector: {name: terms.name || null},
     options: {sort: {createdAt: -1}}
@@ -9,7 +19,7 @@ LWEvents.addView("adminView", function (terms) {
 });
 ensureIndex(LWEvents, {name:1, createdAt:-1});
 
-LWEvents.addView("postVisits", function (terms) {
+LWEvents.addView("postVisits", (terms: LWEventsViewTerms) => {
   return {
     selector: {
       documentId: terms.postId,
@@ -21,7 +31,7 @@ LWEvents.addView("postVisits", function (terms) {
   };
 });
 
-LWEvents.addView("emailHistory", function (terms) {
+LWEvents.addView("emailHistory", (terms: LWEventsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
@@ -38,7 +48,7 @@ ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
 // Used in constructAkismetReport
 ensureIndex(LWEvents, {name:1, userId:1, createdAt:-1})
 
-LWEvents.addView("gatherTownUsers", function (terms) {
+LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
   return {
     selector: {
       name: "gatherTownUsersCheck"

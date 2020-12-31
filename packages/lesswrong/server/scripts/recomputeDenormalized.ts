@@ -2,6 +2,7 @@ import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments } from '../migrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/query';
+import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
 
@@ -29,7 +30,7 @@ Vulcan.validateAllDenormalizedValues = validateAllDenormalizedValues;
 // report how many differ; otherwise update them to the correct values. If fieldName
 // is given, recompute a single field; otherwise recompute all fields on the collection.
 export const recomputeDenormalizedValues = async ({collectionName, fieldName=null, validateOnly=false}: {
-  collectionName: string,
+  collectionName: CollectionNameString,
   fieldName?: string|null,
   validateOnly?: boolean,
 }) => {
@@ -37,13 +38,13 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
   console.log(`Recomputing denormalize values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
 
   const collection = getCollection(collectionName)
-  if (!collection.simpleSchema) {
+  const schema: any = getSchema(collection);
+  if (!schema) {
     // eslint-disable-next-line no-console
     console.log(`${collectionName} does not have a schema defined, not computing denormalized values`)
     return
   }
-  
-  const schema: any = collection.simpleSchema()._schema
+
   if (fieldName) {
     if (!schema[fieldName]) {
       // eslint-disable-next-line no-console

@@ -3,9 +3,10 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import './permissions';
 import { makeEditable } from '../../editor/make_editable'
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
-const options = {
+const options: MutationOptions<DbLocalgroup> = {
   newCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
     return document.organizerIds.includes(user._id) ? userCanDo(user, 'localgroups.new.own')

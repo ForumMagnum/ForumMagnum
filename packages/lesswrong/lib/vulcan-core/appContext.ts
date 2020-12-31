@@ -5,11 +5,17 @@ import { matchPath } from 'react-router';
 import qs from 'qs'
 import Sentry from '@sentry/core';
 import { isClient } from '../executionEnvironment';
+import type { RouterLocation } from '../vulcan-lib/routes';
 
-export const LocationContext = React.createContext<any>(null);
-export const SubscribeLocationContext = React.createContext<any>(null);
+export interface ServerRequestStatusContextType {
+  status?: number
+  redirectUrl?: string
+};
+
+export const LocationContext = React.createContext<RouterLocation|null>(null);
+export const SubscribeLocationContext = React.createContext<RouterLocation|null>(null);
 export const NavigationContext = React.createContext<any>(null);
-export const ServerRequestStatusContext = React.createContext<any>(null);
+export const ServerRequestStatusContext = React.createContext<ServerRequestStatusContextType|null>(null);
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
@@ -57,7 +63,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   location: any,
   followRedirects?: boolean,
   onError?: null|((err: string)=>void),
-}) {
+}): RouterLocation {
   const routeNames = Object.keys(Routes);
   let currentRoute: any = null;
   let params={};

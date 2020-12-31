@@ -1,10 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentsList: {
@@ -45,19 +43,22 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const ABRIDGE_COMMENT_COUNT = 500;
 
-const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
-  terms: any,
+const AnswerCommentsList = ({lastEvent, classes, post, parentAnswer}: {
   lastEvent?: any,
   classes: ClassesType,
   post: PostsList,
-  parentAnswer: any,
+  parentAnswer: CommentsList,
 }) => {
   const [commenting, setCommenting] = React.useState(false);
   const [loadedMore, setLoadedMore] = React.useState(false);
   
   const { loadMore, results, loading, loadingMore, totalCount } = useMulti({
-    terms,
-    collection: Comments,
+    terms: {
+      view: "repliesToAnswer",
+      parentAnswerId: parentAnswer._id,
+      limit: ABRIDGE_COMMENT_COUNT,
+    },
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
@@ -86,7 +87,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
     [totalCount, setLoadedMore, loadMore]
   );
 
-  const { CommentsList, Loading, CommentsNewForm } = Components
+  const { CommentsList, Loading, CommentsNewForm, Typography } = Components
   const noComments = (!results || !results.length) && !commenting
 
   if (loading || !results)
@@ -122,14 +123,16 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
       )}>
         { loadingMore && <Loading /> }
         <CommentsList
+          treeOptions={{
+            postPage: true,
+            post: post,
+            highlightDate: highlightDate,
+          }}
           totalComments={totalCount}
           comments={nestedComments}
-          highlightDate={highlightDate}
-          post={post}
           parentCommentId={parentAnswer._id}
           parentAnswerId={parentAnswer._id}
           defaultNestingLevel={2}
-          postPage
           startThreadTruncated
         />
       </div>
@@ -141,12 +144,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   );
 }
 
-const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {
-  styles,
-  areEqual: {
-    terms: "deep",
-  }
-});
+const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
 
 declare global {
   interface ComponentTypes {

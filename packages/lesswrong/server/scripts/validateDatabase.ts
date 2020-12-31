@@ -1,5 +1,6 @@
 import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
+import { getSchema } from '../../lib/utils/getSchema';
 
 // customValidators: Mapping from collection name to array of
 // {validatorName,validateBatch} tuples.
@@ -44,13 +45,13 @@ export async function validateCollection(collection)
   }
   
   // Validate rows
-  const schema = collection.simpleSchema();
+  const schema = getSchema(collection);
   if (!schema) {
     console.log(`    Collection does not have a schema`); // eslint-disable-line no-console
     return;
   }
   
-  const validationContext = schema.newContext();
+  const validationContext = collection.simpleSchema();
   
   // Dictionary field=>type=>count
   const errorsByField = {};
@@ -135,7 +136,7 @@ export async function validateCollection(collection)
           }
           
           // Get reduced versions of rows that the foreign-key field refers to
-          const foreignRows = await foreignCollection.find({ [foreignField]: {$in: foreignValues} }, { [foreignField]:1 })
+          const foreignRows = await foreignCollection.find({ [foreignField]: {$in: foreignValues} }, { [foreignField]:1 }).fetch()
           
           // Collect a list of values present
           const foreignValuesFound = {};

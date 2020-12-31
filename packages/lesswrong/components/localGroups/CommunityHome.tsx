@@ -6,7 +6,6 @@ import { userGetLocation } from '../../lib/collections/users/helpers';
 import withUser from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../../lib/routeUtil';
-import Typography from '@material-ui/core/Typography';
 import withDialog from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
@@ -59,7 +58,7 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
     const { classes, currentUser } = this.props;
     const { query } = this.props.location; // From withLocation
     const filters = query?.filters || [];
-    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography } = Components
 
     const eventsListTerms = {
       view: 'nearbyEvents',
@@ -73,14 +72,14 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
       view: 'onlineEvents',
       limit: 10
     }
-    const groupsListTerms = {
+    const groupsListTerms: LocalgroupsViewTerms = {
       view: 'nearby',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,
       limit: 4,
       filters: filters,
     }
-    const mapEventTerms = {
+    const mapEventTerms: PostsViewTerms = {
       view: 'nearbyEvents',
       lat: this.state.currentUserLocation.lat,
       lng: this.state.currentUserLocation.lng,

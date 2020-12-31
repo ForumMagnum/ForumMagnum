@@ -35,7 +35,6 @@ Package.onUse( function(api) {
     'mongo',
     'http',
     'meteorhacks:picker@1.0.3',
-    'littledata:synced-cron@1.1.0',
   ]);
   
   // dependencies of vulcan-accounts

@@ -40,6 +40,7 @@ import { withCreate } from '../../lib/crud/withCreate';
 import { withSingle } from '../../lib/crud/withSingle';
 import { withDelete } from '../../lib/crud/withDelete';
 import { withUpdate } from '../../lib/crud/withUpdate';
+import { getSchema } from '../../lib/utils/getSchema';
 import withUser from '../common/withUser';
 import gql from 'graphql-tag';
 import {
@@ -67,7 +68,7 @@ class FormWrapper extends PureComponent<any> {
   getSchema() {
     return this.props.schema
       ? this.props.schema
-      : this.props.collection.simpleSchema()._schema;
+      : getSchema(this.props.collection);
   }
 
   // if a document is being passed, this is an edit form
@@ -212,7 +213,7 @@ class FormWrapper extends PureComponent<any> {
 
     // options for withCreate, withUpdate, and withDelete HoCs
     const mutationOptions = {
-      collection: this.props.collection,
+      collectionName: this.props.collection.collectionName,
       fragment: mutationFragment,
       extraVariables
     };

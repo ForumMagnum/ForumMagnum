@@ -1,6 +1,5 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,9 +17,9 @@ const SunshineListTitle = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
-  return <Typography variant="body2" className={classes.root}>
+  return <Components.Typography variant="body2" className={classes.root}>
     { children }
-  </Typography>
+  </Components.Typography>
 };
 
 const SunshineListTitleComponent = registerComponent('SunshineListTitle', SunshineListTitle, {styles});

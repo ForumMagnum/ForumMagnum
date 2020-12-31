@@ -3,7 +3,6 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
@@ -67,7 +66,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
       view: "tagsOnPost",
       postId: post._id,
     },
-    collection: TagRels,
+    collectionName: "TagRels",
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
   });

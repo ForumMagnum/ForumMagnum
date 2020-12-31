@@ -2,10 +2,9 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 import { gatherIcon } from '../icons/gatherIcon';
-import { LWEvents } from '../../lib/collections/lwevents';
 import { useMulti } from '../../lib/crud/withMulti';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
@@ -111,7 +110,7 @@ const GatherTown = ({classes}: {
       view: "gatherTownUsers",
       limit: 1,
     },
-    collection: LWEvents,
+    collectionName: "LWEvents",
     fragmentName: 'lastEventFragment',
     enableTotal: false,
   });
@@ -120,10 +119,7 @@ const GatherTown = ({classes}: {
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
 
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const { LWTooltip, AnalyticsTracker, GardenCodesList } = Components
 
@@ -133,20 +129,14 @@ const GatherTown = ({classes}: {
   if (currentUser.hideWalledGardenUI) return null
 
   const hideClickHandler = async () => {
-    await updateUser({
-      selector: { _id: currentUser._id },
-      data: {
-        hideWalledGardenUI: true
-      },
+    await updateCurrentUser({
+      hideWalledGardenUI: true
     })
     flash({
       messageString: "Hide Walled Garden from frontpage",
       type: "success",
-      action: () => void updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          hideWalledGardenUI: false
-        },
+      action: () => void updateCurrentUser({
+        hideWalledGardenUI: false
       })
     })
   }
@@ -181,7 +171,7 @@ const GatherTown = ({classes}: {
           {tooltip}
         </div>}
         <div className={classes.gardenCodesList}>
-          <GardenCodesList terms={{view: "semipublicGardenCodes", types:  currentUser.walledGardenInvite ? ['public', 'semi-public'] : ['public']}} limit={2}/>
+          <GardenCodesList personal={false} limit={2}/>
         </div>
       </div>
     </div>

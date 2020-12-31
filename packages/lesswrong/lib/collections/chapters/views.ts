@@ -1,7 +1,14 @@
 import Chapters from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
-Chapters.addView("SequenceChapters", function (terms) {
+declare global {
+  interface ChaptersViewTerms extends ViewTermsBase {
+    view?: ChaptersViewName
+    sequenceId?: string
+  }
+}
+
+Chapters.addView("SequenceChapters", function (terms: ChaptersViewTerms) {
   return {
     selector: {sequenceId: terms.sequenceId},
     options: {sort: {number: 1}, limit: terms.limit || 20},

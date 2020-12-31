@@ -1,7 +1,6 @@
 import React from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Typography from '@material-ui/core/Typography';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -39,7 +38,7 @@ const NominatePostDialog = ({classes, post, onClose}: {
   post: PostsBase,
   onClose: ()=>void,
 }) => {
-  const { CommentsNewForm, LWDialog } = Components;
+  const { CommentsNewForm, Typography, LWDialog } = Components;
 
   const hintText = <div className={classes.hintText}>
     <p>How has this post been useful to you over the past year or two?</p> 
