@@ -203,14 +203,14 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
           <a className={classes.buttonStyling} onClick={ async () => {
             setOnboarded(true)
             history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
-            if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-              void updateUser({
-                selector: {_id: currentUser._id},
-                data: {
-                  walledGardenPortalOnboarded: true
-                }
-              })
-            }
+            // if (currentUser && !currentUser.walledGardenPortalOnboarded) {
+            //   void updateUser({
+            //     selector: {_id: currentUser._id},
+            //     data: {
+            //       walledGardenPortalOnboarded: true
+            //     }
+            //   })
+            // }
           }}>
             <b>ENTER THE GARDEN</b>
           </a>

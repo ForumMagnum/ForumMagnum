@@ -159,7 +159,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
   // const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
   
   const [playing, setPlaying]  = useState(false)
-  const [volumeLevel, setVolumeLevel] = useState(1)
+  const [volumeLevel, setVolumeLevel] = useState(0.75)
   
   const originalSourceUrl = "https://us10a.serverse.com/proxy/wqpanlfq?mp=/stream"
 
