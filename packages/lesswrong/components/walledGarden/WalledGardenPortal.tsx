@@ -8,8 +8,6 @@ import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { isMobile } from "../../lib/utils/isMobile";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
 import {useTagBySlug} from "../tagging/useTag";
 
