@@ -75,6 +75,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[500]
     }
   },
+  partyResources: {
+    ...postBodyStyles(theme),
+    marginRight: 15,
+    display: "flex",
+    flexDirection: "column",
+    fontSize: "1.4rem",
+    justifyContent: "space-between",
+    alignItems: "flexend",
+    fontWeight: 600
+  },
   radio: {
     display: "flex",
     flexDirection: "row",
@@ -93,7 +103,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   radioText: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    width: 300,
+    flexWrap: "wrap"
   },
   radioTitle: {
     ...postBodyStyles(theme),
@@ -104,11 +116,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.4rem"
   },
   sliderTrack: {
-    backgroundColor: 'black'
+    backgroundColor: '#545454',
+    // opacity: 0.9
   },
   sliderThumb: {
-    backgroundColor: 'black'
-  }
+    backgroundColor: '#545454',
+    // opacity: 0.9
+  },
 })
 
 
@@ -178,6 +192,15 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
       <div className={classes.partyResources}>
+        <a href="https://docs.google.com/spreadsheets/d/1xUToQ-Wu6w-Uaow7q8Bo5s61beWWRJhIh9P-DNAvx4Q/edit#gid=0" target="_blank" rel="noopener noreferrer">
+          Party Schedule
+        </a>
+        <a href="https://www.lesswrong.com/tag/garden-onboarding" target="_blank" rel="noopener noreferrer">
+          Party Guide
+        </a>
+        <a href="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1609371501/garden_map_nye_akhmig.jpg" target="_blank" rel="noopener noreferrer">
+          Party Map
+        </a>
       </div>
       <div className={classes.radio}>
         <audio ref={audioElement} muted={!playing} id="walledGardenAudio">
@@ -195,7 +218,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
             classes={{track: classes.sliderTrack, thumb: classes.sliderThumb}}
             value={volumeLevel || 0}
             step={0.05}
-            min={0}
+            min={0.05}
             max={1}
             onChange={volumeChangeHandler}
             vertical
