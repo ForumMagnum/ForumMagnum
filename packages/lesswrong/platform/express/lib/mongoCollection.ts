@@ -15,6 +15,7 @@ export const closeDatabaseConnection = () => {
     db = null;
   }
 }
+export const isAnyQueryPending = () => (inProgressQueries > 0);
 
 const disableAllWrites = false;
 const logQueries = false;
@@ -39,9 +40,12 @@ async function wrapQuery(description, queryFn) {
         finishBatch = resolve;
       });
     }
-    inProgressQueries++;
   }
+  
+  inProgressQueries++;
   const result = await queryFn();
+  inProgressQueries--;
+  
   if (logQueries) {
     const resultSize = JSON.stringify(result).length;
     console.log(`Finished  ${description} (${timeSince(startTime)}, ${resultSize}b)`);
@@ -53,7 +57,6 @@ async function wrapQuery(description, queryFn) {
   return result;
 }
 async function waitForBatchFinished() {
-  inProgressQueries--;
   if (inProgressQueries === 0) {
     let finish = finishBatch;
     onBatchFinished = null;
@@ -135,30 +138,36 @@ export class MongoCollection<T extends DbObject> {
       doc._id = randomId();
     }
     const table = this.getTable();
-    const insertResult = await table.insertOne(doc, options);
-    return insertResult.insertedId;
+    return await wrapQuery(`${this.tableName}.insert`, async () => {
+      const insertResult = await table.insertOne(doc, options);
+      return insertResult.insertedId;
+    });
   }
   update = async (selector, update, options) => {
     if (disableAllWrites) return;
     try {
       const table = this.getTable();
-      if (typeof selector === 'string') {
-        const updateResult = await table.update({_id: selector}, update, options);
-        return updateResult.matchedCount;
-      } else {
-        const updateResult = await table.update(removeUndefinedFields(selector), update, options);
-        return updateResult.matchedCount;
-      }
+      return await wrapQuery(`${this.tableName}.update`, async () => {
+        if (typeof selector === 'string') {
+          const updateResult = await table.update({_id: selector}, update, options);
+          return updateResult.matchedCount;
+        } else {
+          const updateResult = await table.update(removeUndefinedFields(selector), update, options);
+          return updateResult.matchedCount;
+        }
+      });
     } catch(e) {
       console.error(e)
       console.log(`Selector was: ${selector}`);
       throw e;
     }
   }
-  remove = async (selector, options)=>{
+  remove = async (selector, options) => {
     if (disableAllWrites) return;
     const table = this.getTable();
-    return await table.remove(removeUndefinedFields(selector), options);
+    return await wrapQuery(`${this.tableName}.remove`, async () => {
+      return await table.remove(removeUndefinedFields(selector), options);
+    });
   }
   _ensureIndex = async (fieldOrSpec, options)=>{
     if (disableAllWrites) return;

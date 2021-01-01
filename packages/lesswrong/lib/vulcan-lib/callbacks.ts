@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 
 import { debug } from './debug';
 import { isPromise } from './utils';
+import { isAnyQueryPending } from '../../platform/current/lib/mongoCollection';
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -327,7 +328,7 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending()) {
+      if (callbacksArePending() || isAnyQueryPending()) {
         runAfterDelay(finishOrWait, 20);
       } else {
         resolve();
