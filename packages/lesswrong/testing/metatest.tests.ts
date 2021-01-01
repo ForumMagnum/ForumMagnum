@@ -12,26 +12,6 @@ function sleep(ms: number) {
 }
 
 describe('Utils', () => {
-  beforeEach(async function(done) {
-    let vulcanLoaded = false;
-    //eslint-disable-next-line no-console
-    console.log("Holding off tests until startup")
-    while (!vulcanLoaded) {
-      await sleep(1000)
-      try {
-        let user = await createDummyUser();
-        //eslint-disable-next-line no-console
-        console.log("Holding off tests until startup", user)
-        if(user._id) {
-          vulcanLoaded = true;
-        }
-      } catch(e) {
-        //eslint-disable-next-line no-console
-        console.error(e)
-      }
-    }
-    done()
-  })
   describe('createDummyUser', () => {
     it('generates appropriate email', async () => {
       const user = await createDummyUser();
