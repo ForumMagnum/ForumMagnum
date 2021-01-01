@@ -1,11 +1,20 @@
 import { randomId } from './random';
 
+let client: any = null;
 let db: any = null;
 export const setDatabaseConnection = (_client, _db) => {
+  client = _client;
   db = _db;
 }
 export const getDatabase = () => db;
 export const databaseIsConnected = () => (db !== null);
+export const closeDatabaseConnection = () => {
+  if (client) {
+    client.close();
+    client = null;
+    db = null;
+  }
+}
 
 const disableAllWrites = false;
 const logQueries = false;
