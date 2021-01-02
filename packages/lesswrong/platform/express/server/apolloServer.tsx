@@ -108,8 +108,8 @@ onStartup(() => {
   // Static files folder
   console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
   app.use(express.static(path.join(__dirname, '../../client')))
-  console.log(`Serving static files from ${path.join(__dirname, '../../../../public')}`);
-  app.use(express.static(path.join(__dirname, '../../../../public')))
+  console.log(`Serving static files from ${path.join(__dirname, '../../../public')}`);
+  app.use(express.static(path.join(__dirname, '../../../public')))
   
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
