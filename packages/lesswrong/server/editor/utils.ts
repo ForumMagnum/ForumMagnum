@@ -1,8 +1,5 @@
-const mjAPI = {
-  config: (conf) => console.log("Called mjAPI.config"),
-  start: () => console.log("Called mjAPI.start"),
-  typeset: (conf) => ({html: "", css: ""})
-}
+import mjAPI from 'mathjax-node'
+// let mjAPI = require('mathjax-node')
 
 export const trimLatexAndAddCSS = (dom, css) => {
   // Remove empty paragraphs
