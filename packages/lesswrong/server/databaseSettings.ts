@@ -1,5 +1,5 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
-import { isDevelopment, runAtInterval } from '../lib/executionEnvironment';
+import { isDevelopment, isAnyTest, runAtInterval } from '../lib/executionEnvironment';
 import { initializeSetting } from '../lib/publicSettings'
 import { getPublicSettings, getServerSettingsCache, getServerSettingsLoaded, registeredSettings } from '../lib/settingsCache';
 import groupBy from 'lodash/groupBy';
@@ -24,7 +24,9 @@ if (isDevelopment && runValidateSettings) {
 }
 
 // We use Meteor.setInterval to make sure the code runs in a Fiber
-runAtInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+if (!isAnyTest) {
+  runAtInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+}
 
 /* 
   A setting which is stored in the database in the "databasemetadata" collection, with the key "serverSettings"

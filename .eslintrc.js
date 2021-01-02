@@ -3,7 +3,6 @@ module.exports = {
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:meteor/recommended",
     "plugin:react/recommended",
 
     // Uncomment to enable cycle-detection. Note that caching doesn't seem to
@@ -62,7 +61,6 @@ module.exports = {
     "react/jsx-equals-spacing": 1,
     "react/jsx-pascal-case": 1,
     "react/jsx-child-element-spacing": 1,
-    "meteor/audit-argument-checks": 0,
     "no-case-declarations": 0,
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
@@ -206,29 +204,20 @@ module.exports = {
     "browser": true,
     "commonjs": true,
     "es6": true,
-    "meteor": true,
     "node": true
   },
   "plugins": [
     "@typescript-eslint",
     "babel",
-    "meteor",
     "react",
     "react-hooks",
     "import"
   ],
   "settings": {
-    "import/resolver": {
-      "meteor": {
-        "extensions": [ ".js", ".jsx", ".ts", ".tsx" ]
-      }
-    },
     "import/core-modules": [
-      "meteor/practicalmeteor:chai",
       "sinon",
       "sinon-chai",
       "chai-enzyme",
-      "meteor/meteorhacks:picker"
     ],
     "react": {
       "version": "16.4.1"
@@ -250,7 +239,6 @@ module.exports = {
     // are "not part of the project" (according to tsconfig.json). This is
     // necessary because eslint gets confused by the packages/lesswrong/platform/current
     // symlink.
-    "packages/lesswrong/platform/express/package.js",
     "packages/lesswrong/platform/express/**/*.ts",
     "packages/lesswrong/platform/express/**/*.tsx",
   ]

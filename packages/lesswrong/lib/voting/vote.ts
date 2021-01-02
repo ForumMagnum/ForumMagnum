@@ -94,11 +94,10 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
   user: DbUser|UsersCurrent,
   voteId?: string,
 }) => {
-
   if (!document.userId)
     throw new Error("Voted-on document does not have an author userId?");
   
-  const vote = {
+  return {
     // when creating a vote from the server, voteId can sometimes be undefined
     ...(voteId ? {_id:voteId} : undefined),
     
@@ -110,11 +109,7 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
     votedAt: new Date(),
     authorId: document.userId,
     cancelled: false,
-    __typename: 'Vote'
   }
-
-  return vote;
-
 };
 
 // Optimistic response for votes

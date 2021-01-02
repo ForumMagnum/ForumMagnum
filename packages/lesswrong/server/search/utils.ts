@@ -216,7 +216,7 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
 // Do algoliaIndex.waitTask as an async function rather than a
 // callback-accepting function.
 async function algoliaWaitForTask(algoliaIndex: algoliasearch.Index, taskID: number) {
-  return new Promise((resolve,reject) => {
+  return new Promise<void>((resolve,reject) => {
     algoliaIndex.waitTask(taskID, (err) => {
       if (err) reject(err);
       else resolve();

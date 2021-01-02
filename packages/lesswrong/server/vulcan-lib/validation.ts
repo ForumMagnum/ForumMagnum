@@ -4,7 +4,7 @@ import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/p
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
-export const dataToModifier = data => ({ 
+export const dataToModifier = (data): {$set?: any, $unset?: any} => ({ 
   $set: pickBy(data, f => f !== null), 
   $unset: mapValues(pickBy(data, f => f === null), () => true),
 });

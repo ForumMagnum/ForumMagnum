@@ -7,8 +7,6 @@ export const meteorSendEmail: any = (email)=>{
   console.log(email);
 }
 
-export function initMeteorhacksPickerMiddleware() {}
-
 export function addPickerRoute(url: string, handler: any) {
   Picker.route(url, handler);
 }

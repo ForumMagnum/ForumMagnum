@@ -1,8 +1,6 @@
 import type { NextFunction } from 'express';
 import type { IncomingMessage, ServerResponse } from 'http';
-import { addPickerRoute, initMeteorhacksPickerMiddleware } from '../../platform/current/server/meteorServerSideFns';
-
-initMeteorhacksPickerMiddleware();
+import { addPickerRoute } from '../../platform/current/server/meteorServerSideFns';
 
 /// Add a route which renders by putting things into the http response body
 /// directly, rather than using all the Meteor/Apollo/etc stuff.
