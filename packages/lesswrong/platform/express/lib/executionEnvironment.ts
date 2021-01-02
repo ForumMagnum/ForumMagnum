@@ -36,7 +36,12 @@ export const setInstanceSettings = (settings: any) => {
 }
 
 export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
-  return "http://localhost:3000/" // TODO
+  const rootUrlEnv = process.env.ROOT_URL;
+  if (rootUrlEnv) {
+    return rootUrlEnv;
+  } else {
+    return "http://localhost:3000/"
+  }
 }
 
 // Like setTimeout, but with fiber handling
