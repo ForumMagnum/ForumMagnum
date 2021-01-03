@@ -1,0 +1,8 @@
+files:
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/00_set_tmp_permissions.sh":
+    mode: "000755"
+    owner: root
+    group: root
+    content: |
+      #!/usr/bin/env bash
+      chown -R nodejs:nodejs /tmp/.npm
