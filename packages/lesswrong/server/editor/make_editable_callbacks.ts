@@ -46,6 +46,7 @@ mdi.use(markdownItSub)
 mdi.use(markdownItSup)
 
 import { mjpage }  from 'mathjax-node-page'
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
@@ -53,16 +54,18 @@ function mjPagePromise(html: string, beforeSerializationCallback): Promise<strin
   return new Promise((resolve, reject) => {
     let finished = false;
     
-    setTimeout(() => {
-      if (!finished) {
-        const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-        captureException(new Error(errorMessage));
-        // eslint-disable-next-line no-console
-        console.error(errorMessage);
-        finished = true;
-        resolve(html);
-      }
-    }, 10000);
+    if (!isAnyTest) {
+      setTimeout(() => {
+        if (!finished) {
+          const errorMessage = `Timed out in mjpage when processing html: ${html}`;
+          captureException(new Error(errorMessage));
+          // eslint-disable-next-line no-console
+          console.error(errorMessage);
+          finished = true;
+          resolve(html);
+        }
+      }, 10000);
+    } 
     
     const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
       // eslint-disable-next-line no-console
