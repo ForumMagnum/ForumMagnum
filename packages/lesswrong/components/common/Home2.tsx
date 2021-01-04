@@ -8,7 +8,7 @@ const Home2 = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          {/* <BookFrontpageWidget /> */}
+          <BookFrontpageWidget />
           <FrontpageReviewPhase />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
