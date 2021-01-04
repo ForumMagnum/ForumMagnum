@@ -3,6 +3,7 @@ declare global {
   var bundleIsServer: boolean
   var bundleIsTest: boolean
   var bundleIsProduction: boolean
+  var defaultSiteAbsoluteUrl: string
 }
 
 export const isClient = !bundleIsServer
@@ -36,9 +37,8 @@ export const setInstanceSettings = (settings: any) => {
 }
 
 export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
-  const rootUrlEnv = process.env.ROOT_URL;
-  if (rootUrlEnv) {
-    return rootUrlEnv;
+  if (defaultSiteAbsoluteUrl?.length>0) {
+    return defaultSiteAbsoluteUrl;
   } else {
     return "http://localhost:3000/"
   }

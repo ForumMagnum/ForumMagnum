@@ -43,6 +43,13 @@ const clientBundleBanner = `/*
  * For licensing, see https://github.com/ckeditor/ckeditor5/blob/master/LICENSE.md
  */`
 
+const bundleDefinitions = {
+  "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
+  "bundleIsProduction": isProduction,
+  "bundleIsTest": false,
+  "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
+};
+
 build({
   entryPoints: ['./packages/lesswrong/platform/current/client/clientStartup.ts'],
   bundle: true,
@@ -54,10 +61,8 @@ build({
   treeShaking: "ignore-annotations",
   run: false,
   define: {
-    "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
-    "bundleIsProduction": isProduction,
+    ...bundleDefinitions,
     "bundleIsServer": false,
-    "bundleIsTest": false,
     "global": "window",
   },
 });
@@ -74,10 +79,8 @@ build({
     initiateRefresh();
   },
   define: {
-    "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
-    "bundleIsProduction": isProduction,
+    ...bundleDefinitions,
     "bundleIsServer": true,
-    "bundleIsTest": false,
   },
   external: [
     "akismet-api", "mongodb", "canvas", "express", "mz", "pg", "pg-promise",
