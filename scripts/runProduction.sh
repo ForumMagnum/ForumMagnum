@@ -2,4 +2,4 @@ echo "Running Production Site"
 sudo chmod 755 ./
 nvm use
 yarn
-yarn start
+./build.js -run --settings settings.json
