@@ -9,6 +9,11 @@ const [opts, args] = cliopts.parse(
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
 );
 
+// Two things this script should do, that it currently doesn't:
+//  * Provide a websocket server for signaling autorefresh
+//  * Start a local mongodb server, if no mongo URL was provided
+//      https://github.com/shelfio/jest-mongodb
+
 const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
 
@@ -65,6 +70,9 @@ build({
   sourcemap: true,
   minify: false,
   run: cliopts.run && ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile],
+  onEnd: () => {
+    initiateRefresh();
+  },
   define: {
     "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
     "bundleIsProduction": isProduction,
@@ -78,4 +86,21 @@ build({
     "bcrypt", "node-pre-gyp", "@lesswrong", "intercom-client",
   ],
 })
+
+async function isServerReady() {
+  // TODO
+}
+
+async function waitForServerReady() {
+  // TODO
+}
+
+function initiateRefresh() {
+  // TODO
+}
+
+function startWebsocketServer() {
+  // TODO
+}
+
 
