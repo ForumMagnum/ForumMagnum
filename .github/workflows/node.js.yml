@@ -35,7 +35,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: hmanzur/actions-aws-eb@v1.0.0
       with:
-        command: 'deploy ${{ secrets.ENVIRONMENT_NAME }}'
+        command: 'deploy ${{ secrets.ENVIRONMENT_NAME }} --debug'
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
