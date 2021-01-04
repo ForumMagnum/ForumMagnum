@@ -1,16 +1,8 @@
 branch-defaults:
-  fixedGithubActions:
+  tryDeploying: 
     environment: LessWrong2Express-dev
-    group_suffix: null
-  tryDeploying:
+  expressNotMeteor:
     environment: LessWrong2Express-dev
-environment-defaults:
-  LessWrong2Express-dev2:
-    branch: null
-    repository: null
-  LessWrong2Express-dev3:
-    branch: null
-    repository: null
 global:
   application_name: LessWrong2Express
   branch: null
