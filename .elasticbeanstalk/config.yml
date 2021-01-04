@@ -1,8 +1,12 @@
 branch-defaults:
-  tryDeploying: 
-    environment: LessWrong2Express-dev
   expressNotMeteor:
     environment: LessWrong2Express-dev
+  tryDeploying:
+    environment: LessWrong2Express-dev
+environment-defaults:
+  LessWrong2Express-dev:
+    branch: null
+    repository: null
 global:
   application_name: LessWrong2Express
   branch: null
