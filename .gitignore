@@ -62,8 +62,6 @@ typings
 *.un~
 .vscode/launch.json
 
-.elasticbeanstalk/*
-
 *.secret
 
 build
@@ -71,9 +69,3 @@ yarn-error.log
 
 # Created by @shelf/jest-mongodb
 globalConfig.json
-
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
