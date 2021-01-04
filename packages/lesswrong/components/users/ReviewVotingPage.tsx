@@ -20,6 +20,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
+const YEAR = "2019"
+const REVIEWS_VIEW = "reviews2019" // unfortunately this can't just inhereit from YEAR so that the type-check of the view can pass.
+
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
@@ -99,19 +102,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   comments: {
   },
-  reason: {
-    position: "relative",
-    border: "solid 1px rgba(0,0,0,.3)",
-    padding: theme.spacing.unit*1.5,
-    paddingLeft: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit
-  },
-  reasonTitle: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    fontWeight: 600,
-    marginBottom: theme.spacing.unit
-  },
   voteTotal: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -175,14 +165,14 @@ const ReviewVotingPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
-    terms: {view:"reviews2018", limit: 100},
+    terms: {view: REVIEWS_VIEW, limit: 200},
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
+    terms: {view: "reviewVotesFromUser", limit: 200, userId: currentUser?._id},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
@@ -231,13 +221,13 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = async ({postId, score}: {postId: string, score: number}) => await submitVote({variables: {postId, qualitativeScore: score, year: "2018", dummy: true}})
+  const dispatchQualitativeVote = async ({postId, score}: {postId: string, score: number}) => await submitVote({variables: {postId, qualitativeScore: score, year: YEAR, dummy: true}})
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
   const dispatchQuadraticVote = async ({_id, postId, change, set}) => {
     const existingVote = _id && dbVotes.find(vote => vote._id === _id)
     await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: "2018", dummy: true},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR, dummy: true},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
@@ -264,10 +254,10 @@ const ReviewVotingPage = ({classes}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
-  if (!currentUser || currentUser.createdAt > new Date("2019-01-01")) {
+  if (!currentUser || currentUser.createdAt > new Date(`${YEAR}-01-01`)) {
     return (
       <div className={classes.message}>
-        Only users registered before 2019 can vote in the 2019 LessWrong Review
+        Only users registered before {YEAR} can vote in the {YEAR} LessWrong Review
       </div>
     )
   }
@@ -340,9 +330,9 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <h1 className={classes.header}>Try out the vote on nominated and reviewed posts from 2018</h1>
+              <h1 className={classes.header}>Try out the vote on nominated and reviewed posts from {YEAR}</h1>
               <div className={classes.instructions}>
-                <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the 2019 Review on January 12th.</p>
+                <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p>
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
                 <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
                 <ul>
@@ -350,7 +340,7 @@ const ReviewVotingPage = ({classes}: {
                   <li><b>Neutral</b> – You wouldn't personally recommend it, but seems fine if others do. <em>(If you don’t have strong opinions about a post, leaving it ‘neutral’ is fine)</em></li>
                   <li><b>Good</b> – Useful ideas that I still think about sometimes.</li>
                   <li><b>Important</b> – A key insight or excellent distillation.</li>
-                  <li><b>Crucial</b> – One of the most significant posts of 2018, for LessWrong to discuss and build upon over the coming years.</li>
+                  <li><b>Crucial</b> – One of the most significant posts of {YEAR}, for LessWrong to discuss and build upon over the coming years.</li>
                 </ul>
                 <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details.)</p>
                 <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/zLhSjwXHnTg9QBzqH/the-final-vote-for-lw-2018-review">this post</Link>.</p>
@@ -361,7 +351,7 @@ const ReviewVotingPage = ({classes}: {
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
               <div className={classes.writeAReview}>
-                <ReviewPostButton post={expandedPost} year="2018" reviewMessage={<div>
+                <ReviewPostButton post={expandedPost} year={YEAR} reviewMessage={<div>
                   <div>Write a public review for "{expandedPost.title}"</div>
                   <TextField
                     placeholder="Any thoughts about this post you want to share with other voters?"
@@ -370,24 +360,16 @@ const ReviewVotingPage = ({classes}: {
                   />
                 </div>}/>
               </div>
-              <div className={classes.reason}>
-                <div className={classes.reasonTitle}>Comment anonymously (optional)</div>
-                <CommentTextField
-                  startValue={getVoteForPost(dbVotes, expandedPost._id)?.comment}
-                  updateValue={(value) => submitVote({variables: {comment: value, postId: expandedPost._id}})}
-                  postId={expandedPost._id}
-                />
-              </div>
               <div className={classes.comments}>
                 <PostReviewsAndNominations
                   title="nomination"
                   singleLine
-                  terms={{view:"nominations2018", postId: expandedPost._id}}
+                  terms={{view:`nominations${YEAR}`, postId: expandedPost._id}}
                   post={expandedPost}
                 />
                 <PostReviewsAndNominations
                   title="review"
-                  terms={{view:"reviews2018", postId: expandedPost._id}}
+                  terms={{view:`reviews${YEAR}`, postId: expandedPost._id}}
                   post={expandedPost}
                 />
               </div>
@@ -400,40 +382,6 @@ const ReviewVotingPage = ({classes}: {
   );
 }
 
-function getVoteForPost(votes: Array<reviewVoteFragment>, postId: string) {
-  return votes.find((vote: reviewVoteFragment) => vote.postId === postId)
-}
-
-function CommentTextField({startValue, updateValue, postId}: {
-  startValue: string|undefined,
-  updateValue: (value: any)=>void,
-  postId: string,
-}) {
-  const [text, setText] = useState(startValue)
-  // Reset text when postId changes
-  useEffect(() => {
-    setText(startValue)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId])
-  // Spurious warning because eslint doesn't know what _.debounce does
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedUpdateValue = useCallback(_.debounce((value: any) => {
-    updateValue(value)
-  }, 500), [updateValue])
-  return <TextField
-    id="standard-multiline-static"
-    placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for final decisions of what posts to include in the Best of 2018."
-    defaultValue={startValue}
-    onChange={(event) => {
-      setText(event.target.value)
-      debouncedUpdateValue(event.target.value)
-    }}
-    value={text || ""}
-    fullWidth
-    multiline
-    rows="2"
-  />
-}
 function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
   const randomPermutation = generatePermutation(posts.length, currentUser);
   const result = posts.map(
