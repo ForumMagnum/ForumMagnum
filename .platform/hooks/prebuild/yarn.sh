@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # need to install node first to be able to install yarn (as at prebuild no node is present yet)
-curl --silent --location https://rpm.nodesource.com/setup_15.x | sudo bash -
-yum -y install nodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+nvm install 15
 
 # install
 cd /var/app/staging/
