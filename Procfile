@@ -1,0 +1,1 @@
+web: yarn run production
