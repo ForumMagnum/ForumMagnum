@@ -4,10 +4,7 @@ branch-defaults:
   tryDeploying:
     environment: LessWrong2Express-dev3
 environment-defaults:
-  LessWrong2Express-dev:
-    branch: null
-    repository: null
-  LessWrong2Express-dev2:
+  LessWrong2Express-dev3:
     branch: null
     repository: null
 global:
