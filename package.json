@@ -21,7 +21,8 @@
     "generate": "scripts/generateTypes.sh",
     "rebuild-reinstall-ckeditor": "cd ./public/lesswrong-editor && yarn install && yarn run build && cd ../.. && yarn add ./public/lesswrong-editor",
     "reinstall-ckeditor-after-git-checkout": "yarn add ./public/lesswrong-editor",
-    "reinstall-ckeditor": "yarn add ./public/lesswrong-editor"
+    "reinstall-ckeditor": "yarn add ./public/lesswrong-editor",
+    "production": "scripts/runProduction.sh"
   },
   "dependencies": {
     "@apollo/client": "^3.2.0",
