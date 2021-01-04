@@ -21,6 +21,7 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
 const YEAR = "2019"
+const NOMINATIONS_VIEW = "nominations2019"
 const REVIEWS_VIEW = "reviews2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -364,12 +365,12 @@ const ReviewVotingPage = ({classes}: {
                 <PostReviewsAndNominations
                   title="nomination"
                   singleLine
-                  terms={{view:`nominations${YEAR}`, postId: expandedPost._id}}
+                  terms={{view: NOMINATIONS_VIEW, postId: expandedPost._id}}
                   post={expandedPost}
                 />
                 <PostReviewsAndNominations
                   title="review"
-                  terms={{view:`reviews${YEAR}`, postId: expandedPost._id}}
+                  terms={{view: REVIEWS_VIEW, postId: expandedPost._id}}
                   post={expandedPost}
                 />
               </div>
