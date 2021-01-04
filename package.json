@@ -241,8 +241,5 @@
   "resolutions": {
     "graphql": "^15.4.0",
     "graphql-tools": "^4.0.7"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   }
 }
