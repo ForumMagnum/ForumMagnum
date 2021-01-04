@@ -57,3 +57,19 @@ if [ ! -f settings-dev.json ]; then
   cp sample_settings.json settings-dev.json
 fi
 
+echo -n "Checking system file-watchers limit... "
+# Check that the sysctl setting exists (it does on Linux, but not MacOS)
+if [ -e /proc/sys/fs/inotify/max_user_watches ]; then
+  MAX_WATCHES="$(cat /proc/sys/fs/inotify/max_user_watches)"
+  echo "$MAX_WATCHES"
+  if [ "$MAX_WATCHES" -lt 32768 ]; then
+    echo "For automatic rebuilds to work, you may need to increase the system maximum number"
+    echo "of files watched for changes. You can do this temporarily (until next reboot) with:"
+    echo "    sudo sysctl -w fs.inotify.max_user_watches=100000"
+    echo "and make this permanent with:"
+    echo "    sudo bash -c 'echo "fs.inotify.max_user_watches=100000" >>/etc/sysctl.d/10-user-watches.conf'"
+  fi
+else
+  echo 'N/A'
+fi
+
