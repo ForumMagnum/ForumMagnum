@@ -29,7 +29,8 @@ jobs:
   deploy: 
     runs-on: ubuntu-latest
     strategy:
-      node-version: [15.x]
+      matrix: 
+        node-version: [15.x]
     steps:
     - uses: hmanzur/actions-aws-eb@v1
       with:
