@@ -5,6 +5,8 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 nvm install 15
 
+echo "installed node 15"
+
 # install
 cd /var/app/staging/
 
