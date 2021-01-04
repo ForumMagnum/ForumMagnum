@@ -5,15 +5,36 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ expressNotMeteor, tryDeploying ]
+    branches: [ expressNotMeteor ]
   pull_request:
     branches: [ expressNotMeteor ]
 
-- name: AWS Elastic Beanstalk cli
-  uses: hmanzur/actions-aws-eb@v1
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [15.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: yarn
+    - run: yarn run test-ci
+  deploy: 
+    runs-on: ubuntu-latest
+    strategy:
+      node-version: [15.x]
+    steps:
+      uses: hmanzur/actions-aws-eb@v1
     with:
       command: 'deploy ${{ secrets.ENVIRONMENT_NAME }}'
-  env:
-    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    AWS_DEFAULT_REGION: "us-east-1"
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: "us-east-1"
