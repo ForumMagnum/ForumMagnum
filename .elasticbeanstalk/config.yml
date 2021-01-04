@@ -2,22 +2,22 @@ branch-defaults:
   expressNotMeteor:
     environment: LessWrong2Express-dev
   tryDeploying:
-    environment: LessWrong2Express-dev
+    environment: LessWrong2Express-dev2
 environment-defaults:
   LessWrong2Express-dev:
     branch: null
     repository: null
 global:
-  application_name: LessWrong2Express
+  application_name: Lesswrong2
   branch: null
   default_ec2_keyname: LessWrong-Express-SSH
-  default_platform: Node.js 12 running on 64bit Amazon Linux 2
+  default_platform: Docker
   default_region: us-east-1
   include_git_submodules: true
   instance_profile: null
   platform_name: null
   platform_version: null
-  profile: null
+  profile: eb-cli
   repository: null
   sc: git
   workspace_type: Application
