@@ -1,17 +1,9 @@
 branch-defaults:
-  expressNotMeteor:
-    environment: LessWrong2Express-dev3
   tryDeploying:
-    environment: LessWrong2Express-dev3
-environment-defaults:
-  LessWrong2Express-dev:
-    branch: null
-    repository: null
-  LessWrong2Express-dev3:
-    branch: null
-    repository: null
+    environment: LessWrong2Express-dev4
+    group_suffix: null
 global:
-  application_name: Lesswrong2
+  application_name: LessWrongExpress
   branch: null
   default_ec2_keyname: LessWrong-Express-SSH
   default_platform: Docker
@@ -20,7 +12,7 @@ global:
   instance_profile: null
   platform_name: null
   platform_version: null
-  profile: null
+  profile: eb-cli
   repository: null
   sc: git
   workspace_type: Application
