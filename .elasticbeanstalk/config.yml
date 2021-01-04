@@ -7,6 +7,9 @@ environment-defaults:
   LessWrong2Express-dev:
     branch: null
     repository: null
+  LessWrong2Express-dev2:
+    branch: null
+    repository: null
 global:
   application_name: Lesswrong2
   branch: null
