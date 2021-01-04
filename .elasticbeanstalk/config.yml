@@ -1,8 +1,8 @@
 branch-defaults:
   expressNotMeteor:
-    environment: LessWrong2Express-dev
+    environment: LessWrong2Express-dev3
   tryDeploying:
-    environment: LessWrong2Express-dev2
+    environment: LessWrong2Express-dev3
 environment-defaults:
   LessWrong2Express-dev:
     branch: null
