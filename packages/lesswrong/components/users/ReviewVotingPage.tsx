@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -125,16 +124,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   writeAReview: {
     paddingTop: 12,
     paddingLeft: 12,
+    paddingRight: 12,
     paddingBottom: 8,
     border: "solid 1px rgba(0,0,0,.3)",
     marginBottom: 8,
-    '& span': {
-      fontWeight: 600,
-      fontSize: "1.2rem",
-      color: "rgba(0,0,0,.87)",
-      width: "100%",
-      display: "block"
-    }
+  },
+  reviewPrompt: {
+    fontWeight: 600,
+    fontSize: "1.2rem",
+    color: "rgba(0,0,0,.87)",
+    width: "100%",
+    display: "block"
+  },
+  fakeTextfield: {
+    marginTop: 5,
+    width: "100%",
+    borderBottom: "dashed 1px rgba(0,0,0,.25)",
+    color: theme.palette.grey[400]
   },
   warning: {
     color: theme.palette.error.main
@@ -351,16 +357,13 @@ const ReviewVotingPage = ({classes}: {
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <div className={classes.writeAReview}>
                 <ReviewPostButton post={expandedPost} year={YEAR} reviewMessage={<div>
-                  <div>Write a public review for "{expandedPost.title}"</div>
-                  <TextField
-                    placeholder="Any thoughts about this post you want to share with other voters?"
-                    fullWidth
-                    disabled
-                  />
+                  <div className={classes.writeAReview}>
+                    <div className={classes.reviewPrompt}>Write a review for "{expandedPost.title}"</div>
+                    <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
+                  </div>
                 </div>}/>
-              </div>
+
               <div className={classes.comments}>
                 <PostReviewsAndNominations
                   title="nomination"
