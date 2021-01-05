@@ -34,13 +34,31 @@ import { addStaticRoute } from '../../../server/vulcan-lib/staticRoutes';
 import fs from 'fs';
 import crypto from 'crypto';
 
-const getClientBundle= () => {
+const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
+  const lastModified = fs.statSync(bundlePath).mtimeMs;
   return {
+    bundlePath,
     bundleHash: crypto.createHash('sha256').update(bundleText, 'utf8').digest('hex'),
+    lastModified,
     bundleText,
   };
+}
+let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleText: string}|null = null;
+const getClientBundle = () => {
+  if (!clientBundle) {
+    clientBundle = loadClientBundle();
+    return clientBundle;
+  }
+  
+  const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
+  if (clientBundle.lastModified !== lastModified) {
+    clientBundle = loadClientBundle();
+    return clientBundle;
+  }
+  
+  return clientBundle;
 }
 
 onStartup(() => {
@@ -95,14 +113,26 @@ onStartup(() => {
   app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
-  const {bundleHash, bundleText } = getClientBundle();
-
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    res.writeHead(200, {
-      "Cache-Control": "public, max-age=604800, immutable",
-      "Content-Type": "text/javascript; charset=utf-8"
-    });
-    res.end(bundleText);
+    const {bundleHash, bundleText} = getClientBundle();
+    if (query.hash && query.hash !== bundleHash) {
+      // If the query specifies a hash, but it's wrong, this probably means there's a
+      // version upgrade in progress, and the SSR and the bundle were handled by servers
+      // on different versions. Serve whatever bundle we have (there's really not much
+      // else to do), but set the Cache-Control header differently so that it will be
+      // fixed on the next refresh.
+      res.writeHead(200, {
+        "Cache-Control": "public, max-age=60",
+        "Content-Type": "text/javascript; charset=utf-8"
+      });
+      res.end(bundleText);
+    } else {
+      res.writeHead(200, {
+        "Cache-Control": "public, max-age=604800, immutable",
+        "Content-Type": "text/javascript; charset=utf-8"
+      });
+      res.end(bundleText);
+    }
   });
   
   // Static files folder
@@ -120,6 +150,7 @@ onStartup(() => {
     const renderResult = await renderWithCache(request, response);
     
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
+    const {bundleHash} = getClientBundle();
 
     const clientScript = `<script defer type="text/javascript" src="/js/bundle.js?hash=${bundleHash}"></script>`
 

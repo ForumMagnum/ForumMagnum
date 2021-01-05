@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
+const WebSocket = require('ws');
+const fetch = require("node-fetch");
+const crypto = require('crypto');
+
+let buildId = generateBuildId();
+let clientRebuildInProgress = false;
+let serverRebuildInProgress = false;
+const serverPort = 3000;
+const websocketPort = 3001;
 
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
@@ -25,7 +34,7 @@ if (isProduction) {
 if (opts.mongoUrl) {
   process.env.MONGO_URL = opts.mongoUrl;
 } else if (opts.mongoUrlFile) {
-  try { 
+  try {
     process.env.MONGO_URL = fs.readFileSync(opts.mongoUrlFile, 'utf8').trim();
   } catch(e) {
     console.log(e);
@@ -48,6 +57,7 @@ const bundleDefinitions = {
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
+  "buildId": `"${buildId}"`,
 };
 
 build({
@@ -60,6 +70,16 @@ build({
   banner: clientBundleBanner,
   treeShaking: "ignore-annotations",
   run: false,
+  onStart: (config, changedFiles, ctx, esbuildOptions) => {
+    clientRebuildInProgress = true;
+    buildId = generateBuildId();
+    esbuildOptions.define.buildId = `"${buildId}"`;
+    console.log(`Starting a build with buildId=${buildId}`);
+  },
+  onEnd: () => {
+    clientRebuildInProgress = false;
+    initiateRefresh();
+  },
   define: {
     ...bundleDefinitions,
     "bundleIsServer": false,
@@ -75,7 +95,11 @@ build({
   sourcemap: true,
   minify: false,
   run: cliopts.run && ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile],
+  onStart: (config, changedFiles, ctx, esbuildOptions) => {
+    serverRebuildInProgress = true;
+  },
   onEnd: () => {
+    serverRebuildInProgress = false;
     initiateRefresh();
   },
   define: {
@@ -90,20 +114,70 @@ build({
   ],
 })
 
+const openWebsocketConnections = [];
+
 async function isServerReady() {
-  // TODO
+  try {
+    const response = await fetch(`http://localhost:${serverPort}/robots.txt`);
+    return response.ok;
+  } catch(e) {
+    return false;
+  }
 }
 
 async function waitForServerReady() {
-  // TODO
+  while (!(await isServerReady())) {
+    await asyncSleep(100);
+  }
 }
 
-function initiateRefresh() {
-  // TODO
+async function asyncSleep(durationMs) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), durationMs);
+  });
+}
+
+function generateBuildId() {
+  return crypto.randomBytes(12).toString('base64');
+}
+
+let refreshIsPending = false;
+async function initiateRefresh() {
+  if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
+    return;
+  }
+  refreshIsPending = true;
+  
+  console.log("Initiated refresh; waiting for server to be ready");
+  await waitForServerReady();
+  console.log("Notifying connected browser windows to refresh");
+  for (let connection of openWebsocketConnections) {
+    connection.send(`{"latestBuildId": "${buildId}"}`);
+  }
+  
+  refreshIsPending = false;
 }
 
 function startWebsocketServer() {
-  // TODO
+  const server = new WebSocket.Server({
+    port: websocketPort,
+  });
+  server.on('connection', (ws) => {
+    openWebsocketConnections.push(ws);
+    
+    ws.on('message', (data) => {
+    });
+    ws.on('close', function close() {
+      const connectionIndex = openWebsocketConnections.indexOf(ws);
+      if (connectionIndex >= 0) {
+        openWebsocketConnections.splice(connectionIndex, 1);
+      }
+    });
+    ws.send(`{"latestBuildId": "${buildId}"}`);
+  });
 }
 
+if (cliopts.watch && cliopts.run && !isProduction) {
+  startWebsocketServer();
+}
 

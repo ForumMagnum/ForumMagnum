@@ -117,7 +117,7 @@
     "enzyme": "3.1.0",
     "enzyme-adapter-react-16": "1.0.1",
     "escape-string-regexp": "^1.0.5",
-    "estrella": "https://github.com/jimrandomh/estrella",
+    "estrella": "https://github.com/jimrandomh/estrella#ca97d0c9c72d739dc13d802fd25fa11a670d3b9e",
     "express": "5.0.0-alpha.8",
     "feedparser-promised": "^1.2.2",
     "graphql": "^15.4.0",
@@ -204,7 +204,8 @@
     "underscore": "^1.9.1",
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "ws": "^7.4.2"
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
