@@ -1,4 +1,4 @@
-import { onStartup, isServer } from './executionEnvironment';
+import { onStartup } from '../lib/executionEnvironment';
 
 /* When refreshing the page, tell the browser to remember the scroll position.
  * Otherwise, users get scrolled to the top of the page.
@@ -18,7 +18,5 @@ function rememberScrollPositionOnPageReload() {
 }
 
 onStartup(() => {
-  if (!isServer) {
-    rememberScrollPositionOnPageReload();
-  }
+  rememberScrollPositionOnPageReload();
 });

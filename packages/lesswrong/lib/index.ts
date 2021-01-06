@@ -157,7 +157,6 @@ import './i18n-en-us/en_US';
 // Misc.
 import './helpers'
 import './routes';
-import './scrollRestoration';
 
 import './components';
 

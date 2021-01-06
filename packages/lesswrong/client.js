@@ -13,6 +13,7 @@ import './client/reCaptcha'
 
 // Then do the rest
 import './client/autoRefresh';
+import './client/scrollRestoration';
 import './client/themeProvider';
 import './client/logging';
 export * from './lib/index';
