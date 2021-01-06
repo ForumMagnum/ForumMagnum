@@ -61,7 +61,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   enterButton: {
     display: "flex",
     justifyContent: "flex-end",
-    fontSize: "1.6rem"
+    fontSize: "1.6rem",
+    padding: 20
   },
   buttonStyling: {
     paddingTop: 8,
@@ -165,6 +166,21 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </SingleColumnSection>
   }
 
+  const enterGardenButton = <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
+      <div className={classes.enterButton}>
+        <a className={classes.buttonStyling} onClick={ async () => {
+          setOnboarded(true)
+          history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
+          if (currentUser && !currentUser.walledGardenPortalOnboarded) {
+            void updateCurrentUser({
+              walledGardenPortalOnboarded: true
+            })
+          }
+        }}>
+          <b>ENTER THE GARDEN</b>
+        </a>
+      </div>
+    </AnalyticsTracker>
   
   if ((!!gardenCode && !enteredQuery) || (!!currentUser && !onboarded)){
     return <SingleColumnSection className={classes.root}>
@@ -176,33 +192,19 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
         }
         {currentUser?.walledGardenInvite && <p>Of course, as a Walled Garden member, you may enter anytime. :)</p>}
         {!currentUser?.walledGardenInvite && isOpenToPublic && <p>However, the Garden is currently to the public, so you may enter anyway! :)</p>}
-      </div>
-      }
-      <ContentItemBody
-        className={classes.body}
-        dangerouslySetInnerHTML={{__html: onboardingText?.description?.html || ""}}
-        description={`tag ${onboardingText?.name}`}
-      />
-      <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
-        <div className={classes.enterButton}>
-          <a className={classes.buttonStyling} onClick={ async () => {
-            setOnboarded(true)
-            history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
-            if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-              void updateCurrentUser({
-                walledGardenPortalOnboarded: true
-              })
-            }
-          }}>
-            <b>ENTER THE GARDEN</b>
-          </a>
-        </div>
-      </AnalyticsTracker>
+      </div>}
       {!!gardenCode && <div className={classes.eventDetails}>
         <p><strong>EVENT DETAILS</strong> <em>May contain important instructions</em></p>
         <GardenEventDetails gardenCode={gardenCode}/>
       </div>
       }
+      {enterGardenButton}
+      <ContentItemBody
+        className={classes.body}
+        dangerouslySetInnerHTML={{__html: onboardingText?.description?.html || ""}}
+        description={`tag ${onboardingText?.name}`}
+      />
+      {enterGardenButton}
     </SingleColumnSection>
   }
 
