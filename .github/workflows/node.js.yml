@@ -6,8 +6,6 @@ name: Node.js CI
 on:
   push:
     branches: [ expressNotMeteor, tryDeploying ]
-  pull_request:
-    branches: [ expressNotMeteor ]
 
 jobs:
   build:

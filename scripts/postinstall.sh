@@ -7,14 +7,14 @@ echo -n "Checking for node... "
 if which node >/dev/null; then
   node --version 2>&1
   NODE_MAJOR_VERSION=$(node -p 'process.version.match(/^v(\d+)/)[1]')
-  # if [ "$NODE_MAJOR_VERSION" -lt 14 ]; then
-  #   echo "Your version of nodejs is too old (we require 14+). You might want to use"
-  #   echo "Node Version Manager (nvm). For install instructions, see"
-  #   echo "    https://github.com/nvm-sh/nvm#installing-and-updating"
-  #   echo "And then run:"
-  #   echo "    nvm use 14"
-  #   exit 1
-  # fi
+  if [ "$NODE_MAJOR_VERSION" -lt 14 ]; then
+    echo "Your version of nodejs is too old (we require 14+). You might want to use"
+    echo "Node Version Manager (nvm). For install instructions, see"
+    echo "    https://github.com/nvm-sh/nvm#installing-and-updating"
+    echo "And then run:"
+    echo "    nvm use 14"
+    exit 1
+  fi
 else
   echo "not found"
   echo "Install node.js 14 or later to continue. https://nodejs.org/"
