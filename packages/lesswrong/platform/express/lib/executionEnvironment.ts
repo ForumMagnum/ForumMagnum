@@ -3,6 +3,7 @@ declare global {
   var bundleIsServer: boolean
   var bundleIsTest: boolean
   var bundleIsProduction: boolean
+  var defaultSiteAbsoluteUrl: string
 }
 
 export const isClient = !bundleIsServer
@@ -36,7 +37,11 @@ export const setInstanceSettings = (settings: any) => {
 }
 
 export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
-  return "http://localhost:3000/" // TODO
+  if (defaultSiteAbsoluteUrl?.length>0) {
+    return defaultSiteAbsoluteUrl;
+  } else {
+    return "http://localhost:3000/"
+  }
 }
 
 // Like setTimeout, but with fiber handling
