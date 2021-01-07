@@ -18,41 +18,40 @@ env:
 jobs:
   include:
   - stage: everything
-    name: Tests
+    name: "Tests"
     script: yarn run test && yarn run lint
   - script: skip
-    name: Deploy LessestWrong
+    name: "Deploy LessestWrong"
     if: branch = devel AND type != pull_request
-    deploy:
+    deploy: &lessestwrong
       provider: script
-      script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-lessestwrong.json
-        ./LessWrong-Credentials/mup-lessestwrong.secret
+      script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-lessestwrong.json ./LessWrong-Credentials/mup-lessestwrong.secret
       on:
         branch: devel
   - script: skip
-    name: Deploy Baserates
+    name: "Deploy Baserates"
     if: branch = devel AND type != pull_request
-    deploy:
+    deploy: &baserates
       provider: script
-      script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json
-        ./LessWrong-Credentials/mup-baserates.secret
+      script: 
+        bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json ./LessWrong-Credentials/mup-baserates.secret
       on:
         branch: devel
   - script: skip
-    name: Deploy LessWrong
+    name: "Deploy LessWrong"
     if: branch = master AND type != pull_request
-    deploy:
+    deploy: &lesswrong
       provider: script
-      script: bash ./deploy.sh ./LessWrong-Credentials/settings-production-lesswrong.json
-        ./LessWrong-Credentials/mup-production.secret
+      script: 
+        bash ./deploy.sh ./LessWrong-Credentials/settings-production-lesswrong.json ./LessWrong-Credentials/mup-production.secret
       on:
         branch: master
   - script: skip
-    name: Deploy AIAF
+    name: "Deploy AIAF"
     if: branch = master AND type != pull_request
-    deploy:
+    deploy: &AIAF
       provider: script
-      script: bash ./deploy.sh ./LessWrong-Credentials/settings-production-alignmentforum.json
-        ./LessWrong-Credentials/mup-af.secret
+      script: 
+        bash ./deploy.sh ./LessWrong-Credentials/settings-production-alignmentforum.json ./LessWrong-Credentials/mup-af.secret
       on:
         branch: master
