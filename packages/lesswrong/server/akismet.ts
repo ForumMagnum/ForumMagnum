@@ -142,7 +142,7 @@ async function akismetReportSpamHam(report: DbReport) {
     let comment
     const post = await Posts.findOne(report.postId)
     if (report.commentId) {
-      comment = Comments.findOne(report.commentId)
+      comment = await Comments.findOne(report.commentId)
     }
     if (!report.markedAsSpam) {
       const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}

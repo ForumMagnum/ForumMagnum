@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 addGraphQLMutation('setIsBookmarked(postId: String!, isBookmarked: Boolean!): User!');
 addGraphQLResolvers({
   Mutation: {
-    async setIsBookmarked(root: void, {postId,isBookmarked}: {postId: string, isBookmarked: boolean}, context: ResolverContext) {
+    async setIsBookmarked(root: void, {postId,isBookmarked}: {postId: string, isBookmarked: boolean}, context: ResolverContext): Promise<DbUser> {
       const {currentUser} = context;
       if (!currentUser)
         throw new Error("Log in to use bookmarks");
@@ -26,8 +26,7 @@ addGraphQLResolvers({
         validate: false,
       });
       
-      const updatedUser = Users.findOne(currentUser._id);
-      return updatedUser;
+      return await Users.findOne(currentUser._id);
     }
   }
 });
