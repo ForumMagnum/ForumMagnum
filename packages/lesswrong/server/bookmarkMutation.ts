@@ -26,7 +26,7 @@ addGraphQLResolvers({
         validate: false,
       });
       
-      return await Users.findOne(currentUser._id);
+      return (await Users.findOne(currentUser._id))!;
     }
   }
 });
