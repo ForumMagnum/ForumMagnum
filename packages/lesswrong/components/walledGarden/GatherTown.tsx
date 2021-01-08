@@ -172,6 +172,7 @@ const GatherTown = ({classes}: {
         </div>}
         <div className={classes.gardenCodesList}>
           <GardenCodesList personal={false} limit={2}/>
+          {currentUser?.walledGardenInvite && <GardenCodesList personal={true} limit={2}/>}
         </div>
       </div>
     </div>

@@ -161,8 +161,8 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
     //Default Access Denied Message
     return <SingleColumnSection className={classes.root}>
-      <p>The Walled Garden is a private virtual space managed by the LessWrong team.</p>
-      <p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
+      <p>The Walled Garden is a virtual space managed by the LessWrong team.</p>
+      <p>If you have an event invite link, please use that to enter. If you have been granted full-access, to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
     </SingleColumnSection>
   }
 
