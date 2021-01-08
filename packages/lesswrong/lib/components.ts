@@ -155,7 +155,6 @@ importComponent("SignupSubscribeToCurated", () => require('../components/users/S
 importComponent("UserNameDeleted", () => require('../components/users/UserNameDeleted'));
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
-importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
@@ -541,6 +540,7 @@ importComponent("NominatePostDialog", () => require('../components/review/Nomina
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
 importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
 importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
+importComponent("ReviewVotingPage", () => require('../components/review/ReviewVotingPage.tsx'))
 
 
 // Analytics Tracking
