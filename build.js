@@ -16,6 +16,7 @@ const [opts, args] = cliopts.parse(
   ["settings", "A JSON config file for the server", "<file>"],
   ["mongoUrl", "A mongoDB connection connection string", "<url>"],
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
+  ["shell", "Open an interactive shell instead of running a webserve"],
 );
 
 // Two things this script should do, that it currently doesn't:
@@ -64,7 +65,7 @@ build({
   entryPoints: ['./packages/lesswrong/platform/current/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
-  sourcemap: true,
+  sourcemap: "inline",
   outfile: "./build/client/js/bundle.js",
   minify: isProduction,
   banner: clientBundleBanner,
@@ -74,7 +75,6 @@ build({
     clientRebuildInProgress = true;
     buildId = generateBuildId();
     esbuildOptions.define.buildId = `"${buildId}"`;
-    console.log(`Starting a build with buildId=${buildId}`);
   },
   onEnd: () => {
     clientRebuildInProgress = false;
@@ -92,7 +92,7 @@ build({
   bundle: true,
   outfile: './build/server/js/serverBundle.js',
   platform: "node",
-  sourcemap: true,
+  sourcemap: "inline",
   minify: false,
   run: cliopts.run && ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile],
   onStart: (config, changedFiles, ctx, esbuildOptions) => {
@@ -143,6 +143,9 @@ function generateBuildId() {
 
 let refreshIsPending = false;
 async function initiateRefresh() {
+  if (!cliopts.watch) {
+    return;
+  }
   if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
     return;
   }

@@ -3,6 +3,7 @@ import { setDatabaseConnection } from '../lib/mongoCollection';
 import { onStartupFunctions } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
+import { startWebserver } from './apolloServer';
 import process from 'process';
 import readline from 'readline';
 
@@ -52,6 +53,13 @@ async function serverStartup() {
   for (let startupFunction of onStartupFunctions)
     await startupFunction();
   
+  if (commandLineArguments.shellMode) {
+    initShell();
+  } else {
+    console.log("Starting webserver");
+    startWebserver();
+  }
+  
   /*if (process.stdout.isTTY) {
     console.log("Output is a TTY");
     initShell();
@@ -86,7 +94,8 @@ function wrappedConsoleLog(unwrappedConsoleLog, message)
 
 function initShell()
 {
-  const rl = readline.createInterface({
+  const repl = require('repl');
+  /*const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
     prompt: "> ",
@@ -95,7 +104,15 @@ function initShell()
     console.log(`Got input: ${line}`);
     rl.prompt();
   });
-  rl.prompt();
+  rl.prompt();*/
+  
+  repl.start({
+    prompt: "> ",
+    terminal: true,
+    preview: true,
+    breakEvalOnSigint: true,
+    useGlobal: true,
+  });
 }
 
 serverStartup();

@@ -5,12 +5,14 @@ import fs from 'fs';
 interface CommandLineArguments {
   mongoUrl: string
   settingsFileName: string
+  shellMode: boolean,
 }
 
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
     mongoUrl: process.env.MONGO_URL || "mongodb://localhost:27017",
     settingsFileName: "settings.json",
+    shellMode: false,
   }
   
   // Don't parse command-line arguments during unit testing (because jest passes
@@ -23,6 +25,9 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
     switch(arg) {
       case "--settings":
         commandLine.settingsFileName = argv[++i];
+        break;
+      case "--shell":
+        commandLine.shellMode = true;
         break;
       default:
         throw new Error(`Unrecognized command line argument: ${arg}`);

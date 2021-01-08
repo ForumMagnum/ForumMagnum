@@ -12,7 +12,7 @@ import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-li
 import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
 
 import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq, getUserFromReq } from '../../../server/vulcan-lib/apollo-server/context';
+import { computeContextFromReq } from '../../../server/vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -62,6 +62,17 @@ const getClientBundle = () => {
 }
 
 onStartup(() => {
+  // define executableSchema
+  createVoteableUnionType();
+  initGraphQL();
+});
+
+export function startWebserver() {
+  if (isAnyTest) {
+    // Don't set up a webserver if this is a unit test
+    return;
+  }
+
   const addMiddleware = (...args) => app.use(...args);
   const config = { path: '/graphql' };
 
@@ -73,16 +84,7 @@ onStartup(() => {
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
-
-  // define executableSchema
-  createVoteableUnionType();
-  initGraphQL();
   
-  if (isAnyTest) {
-    // Don't set up a webserver if this is a unit test
-    return;
-  }
-
   //eslint-disable-next-line no-console
   console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
   
@@ -182,5 +184,5 @@ onStartup(() => {
   app.listen({ port }, () => {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
-})
+}
 
