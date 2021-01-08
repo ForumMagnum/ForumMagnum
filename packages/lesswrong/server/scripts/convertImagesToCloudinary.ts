@@ -7,6 +7,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
 import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
+import { URL } from 'url';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -39,13 +40,31 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
   return result.url;
 }
 
-async function convertImagesInHTML(html: string, originDocumentId: string) {
+// Images on domains not in this list will be mirrored on Cloudinary and have
+// their lines updated. (If you run the script. This doesn't (yet) auto-apply
+// to all posts.)
+// ea-forum-lookhere
+const imageUrlWhitelist = [
+  "cloudinary.com",
+  "res.cloudinary.com",
+  "www.lesswrong.com",
+  "www.alignmentforum.org",
+];
+
+function urlNeedsMirroring(url: string) {
+  const parsedUrl = new URL(url);
+  if (imageUrlWhitelist.indexOf(parsedUrl.hostname) !== -1)
+    return false;
+  return true;
+}
+
+async function convertImagesInHTML(html: string, originDocumentId: string): Promise<string> {
   const parsedHtml = cheerio.load(html);
   const imgTags = parsedHtml("img");
   
   for (let i=0; i<imgTags.length; i++) {
     const src = cheerio(imgTags[i]).attr("src");
-    if (src) {
+    if (src && urlNeedsMirroring(src)) {
       const newUrl = await moveImageToCloudinary(src, originDocumentId);
       if (newUrl) {
         cheerio(imgTags[i]).attr("src", newUrl);
