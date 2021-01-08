@@ -7,7 +7,6 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
 import cloudinary from 'cloudinary';
 import cheerio from 'cheerio';
-import fetch from 'node-fetch'
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
