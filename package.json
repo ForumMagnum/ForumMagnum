@@ -120,7 +120,7 @@
     "estrella": "https://github.com/jimrandomh/estrella#ca97d0c9c72d739dc13d802fd25fa11a670d3b9e",
     "express": "5.0.0-alpha.8",
     "feedparser-promised": "^1.2.2",
-    "graphql": "^15.4.0",
+    "graphql": "^14.5.8",
     "graphql-date": "^1.0.2",
     "graphql-server-express": "^0.6.0",
     "graphql-tag": "^2.9.2",
@@ -241,7 +241,7 @@
     "ts-loader": "^8.0.5"
   },
   "resolutions": {
-    "graphql": "^15.4.0",
+    "graphql": "^14.5.8",
     "graphql-tools": "^4.0.7"
   }
 }
