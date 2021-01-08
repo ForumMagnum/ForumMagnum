@@ -5,9 +5,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ expressNotMeteor ]
-  pull_request:
-    branches: [ expressNotMeteor ]
+    branches: [ expressNotMeteor, tryDeploying ]
 
 jobs:
   build:
@@ -26,3 +24,20 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn
     - run: yarn run test-ci
+  deploy: 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        node-version: [15.x]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    - run: pip3 install --upgrade pip awsebcli
+    - name: Run EB Deploy
+      run: eb deploy ${{ secrets.ENVIRONMENT_NAME }}
+      env: 
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: "us-east-1"
