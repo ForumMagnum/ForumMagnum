@@ -483,20 +483,20 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const { currentUser, classes } = this.props
     const type = this.getInitialEditorType();
     const defaultType = this.getUserDefaultEditor(currentUser)
-    return <div className={classes.lastEditedWarning}>
-        <Components.Typography variant="body2">
-          This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
-          {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
-          <a
-            className={classes.clickHereColor}
-            onClick={() => this.setEditorType(defaultType)}
-          >
-            Click here
-          </a>
-          {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
-        </Components.Typography>
-        <br/>
-      </div>
+    return <div>
+      <Components.Typography variant="body2" className={classes.lastEditedWarning}>
+        This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
+        {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
+        <a
+          className={classes.clickHereColor}
+          onClick={() => this.setEditorType(defaultType)}
+        >
+          Click here
+        </a>
+        {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
+      </Components.Typography>
+      <br/>
+    </div>
   }
 
 
