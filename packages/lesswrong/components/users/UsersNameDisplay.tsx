@@ -69,7 +69,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   </span>
 
   if (simple) {
-    return <span {...eventHandlers} className={classes.userName}>{userGetDisplayName(user)}</span>
+    return <span {...eventHandlers} className={classNames(classes.userName, className)}>{userGetDisplayName(user)}</span>
   }
 
   return <span {...eventHandlers} className={className}>
