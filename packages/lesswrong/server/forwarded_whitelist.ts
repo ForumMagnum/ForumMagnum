@@ -1,5 +1,5 @@
-import dns from 'dns';
-import { DatabaseServerSetting } from './databaseSettings';
+//import dns from 'dns';
+//import { DatabaseServerSetting } from './databaseSettings';
 
 /*const forwardedWhitelistSetting = new DatabaseServerSetting<Array<string>>('forwardedWhitelist', [])
 

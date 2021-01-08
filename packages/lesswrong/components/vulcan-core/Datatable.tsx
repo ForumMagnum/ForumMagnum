@@ -316,8 +316,7 @@ DatatableRow Component
 */
 const DatatableRow = (props) => {
 
-  const { collection, columns, document,
-    currentUser, options, rowClass } = props;
+  const { columns, document, currentUser, rowClass } = props;
 
   const row = typeof rowClass === 'function' ? rowClass(document) : rowClass || '';
   const sortedColumns = _sortBy(columns, column => column.order);
