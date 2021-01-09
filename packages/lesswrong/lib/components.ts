@@ -541,7 +541,9 @@ importComponent("UserReviews", () => require('../components/review/UserReviews')
 importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
 importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
 importComponent("ReviewVotingPage", () => require('../components/review/ReviewVotingPage.tsx'))
-
+importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons.tsx'))
+importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow.tsx'))
+importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons.tsx'))
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker'));

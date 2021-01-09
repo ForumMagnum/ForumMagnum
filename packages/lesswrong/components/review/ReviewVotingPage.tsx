@@ -147,7 +147,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-type vote = {_id: string, postId: string, score: number, type?: string}
+export type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
 type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
@@ -246,7 +246,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { PostReviewsAndNominations, LWTooltip, Loading, ReviewPostButton } = Components
+  const { PostReviewsAndNominations, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -321,7 +321,7 @@ const ReviewVotingPage = ({classes}: {
                   setExpandedPost(post)
                   captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
                 >
-                  <VoteTableRow
+                  <ReviewVoteTableRow
                     post={post}
                     dispatch={dispatchQualitativeVote}
                     votes={votes}
@@ -462,154 +462,6 @@ function createPostVoteTuples<K extends HasIdType,T extends vote> (posts: K[], v
     return [post, voteForPost]
   })
 }
-
-const voteRowStyles = createStyles((theme: ThemeType) => ({
-  root: {
-    padding: theme.spacing.unit*1.5,
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderBottom: "solid 1px rgba(0,0,0,.15)",
-    position: "relative",
-    '&:hover': {
-      '& $expand': {
-        display: "block"
-      }
-    }
-  },
-  voteIcon: {
-      padding: 0
-  },
-  postVote: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-  post: {
-    paddingRight: theme.spacing.unit*2,
-    maxWidth: "calc(100% - 100px)"
-  },
-  expand: {
-    display:"none",
-    position: "absolute",
-    bottom: 2,
-    fontSize: 10,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[400],
-    paddingBottom: 35
-  },
-  expanded: {
-    background: "#eee"
-  }
-}));
-
-const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
-  {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
-  {post: PostsList, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:ClassesType, expandedPostId: string, votes: vote[] }
-) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo } = Components
-
-  const currentUser = useCurrentUser()
-  if (!currentUser) return null;
-
-  return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
-      <div>
-        <div className={classes.postVote} >
-          <div className={classes.post}>
-            <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-              <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
-            </LWTooltip>
-          </div>
-          {post.userId !== currentUser._id && <div>
-              {useQuadratic ?
-                <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
-                <VotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
-              }
-          </div>}
-          {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
-        </div>
-      </div>
-    </div>
-  </AnalyticsContext>
-})
-
-const votingButtonStyles = (theme: ThemeType) => ({
-  button: {
-    padding: theme.spacing.unit,
-    ...theme.typography.smallText,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    cursor: "pointer"
-  },
-  selectionHighlight: {
-    backgroundColor: "rgba(0,0,0,.5)",
-    color: "white",
-    borderRadius: 3
-  },
-  defaultHighlight: {
-    backgroundColor: "rgba(0,0,0,.075)",
-    borderRadius: 3
-  },
-})
-
-const indexToTermsLookup = {
-  0: "No",
-  1: "Neutral",
-  2: "Good",
-  3: "Important",
-  4: "Crucial"
-}
-
-const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: ClassesType, postId: string, dispatch: any, votes: vote[]}) => {
-  const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const score = voteForCurrentPost?.score
-  const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
-  const createClickHandler = (index:number) => {
-    return () => {
-      setSelection(index)
-      dispatch({postId, score: index})
-    }
-  }
-
-  return <div>
-      {[0,1,2,3,4].map((i) => {
-        return <span className={classNames(classes.button, {[classes.selectionHighlight]:selection === i && score, [classes.defaultHighlight]: selection === i && !score})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
-      })}
-  </div>
-})
-
-const quadraticVotingButtonStyles = (theme: ThemeType) => ({
-  root: {
-    display: "flex",
-    alignItems: "center"
-  },
-  vote: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    fontWeight: 600,
-    paddingLeft: 10,
-    paddingRight: 10,
-    cursor: "pointer"
-  },
-  score: {
-    ...theme.typography.body1,
-    ...theme.typography.commentStyle
-  }
-})
-
-const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, postId, vote, votes }: {classes: ClassesType, postId: string, vote: any, votes: vote[]}) => {
-  const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const createClickHandler = (postId: string, type: 'buy' | 'sell', voteId: string | undefined, score: number | undefined) => {
-      return () => {
-        vote({postId, change: (type === 'buy' ? 1 : -1), _id: voteId, previousValue: score})
-      }
-  }
-  return <div className={classes.root}>
-    <span className={classes.vote} onClick={createClickHandler(postId, 'sell', voteForCurrentPost?._id, voteForCurrentPost?.score)}>–</span>
-    <span className={classes.score}>{voteForCurrentPost?.score || 0}</span>
-    <span className={classes.vote} onClick={createClickHandler(postId, 'buy', voteForCurrentPost?._id, voteForCurrentPost?.score)}>+</span>
-  </div>
-})
 
 const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
 
