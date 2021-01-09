@@ -1054,7 +1054,7 @@ ensureIndex(Posts,
 Posts.addView("nominations2018", (terms: PostsViewTerms) => {
   return {
     selector: {
-      nominationCount2018: { $gt: 0 }
+      nominationCount2018: { $gte: 2 }
     },
     options: {
       sort: {
@@ -1071,7 +1071,7 @@ ensureIndex(Posts,
 Posts.addView("nominations2019", (terms: PostsViewTerms) => {
   return {
     selector: {
-      nominationCount2019: { $gt: 0 }
+      nominationCount2019: { $gte: 2 }
     },
     options: {
       sort: {
@@ -1094,7 +1094,8 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
 
   return {
     selector: {
-      nominationCount2018: { $gte: 2 }
+      nominationCount2018: { $gte: 2 },
+      reviewCount2018: { $gte: 1 }
     },
     options: {
       sort: { ...(terms.sortBy ? sortings[terms.sortBy] : undefined), nominationCount2018: -1 }
@@ -1111,7 +1112,8 @@ Posts.addView("reviews2019", (terms: PostsViewTerms) => {
 
   return {
     selector: {
-      nominationCount2019: { $gte: 2 }
+      nominationCount2019: { $gte: 2 },
+      reviewCount2019: { $gte: 1 }
     },
     options: {
       sort: { ...(terms.sortBy && sortings[terms.sortBy]), nominationCount2019: -1 }

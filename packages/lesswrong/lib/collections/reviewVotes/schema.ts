@@ -58,6 +58,14 @@ const schema: SchemaType<DbReviewVote> = {
     type: Boolean,
     viewableBy: ['guests'],
     ...schemaDefaultValue(false)
+  },
+  reactions: {
+    type: Array,
+    viewableBy: ['guests'],
+  },
+  'reactions.$': {
+    type: String,
+    optional: true
   }
 };
 
