@@ -1,4 +1,4 @@
-import { camelCaseify, pluralize } from './utils';
+import { camelCaseify, pluralize } from '../../../lib/vulcan-lib/utils';
 
 const convertToGraphQL = (fields, indentation) => {
   return fields.length > 0 ? fields.map(f => fieldTemplate(f, indentation)).join('\n') : '';
@@ -228,67 +228,6 @@ export const multiOutputTemplate = ({ typeName }) =>
   totalCount: Int
 }`;
 
-/* ------------------------------------- Query Queries ------------------------------------- */
-
-
-/*
-
-Single query used on the client
-
-query singleMovieQuery($input: SingleMovieInput) {
-  movie(input: $input) {
-    result {
-      _id
-      name
-      __typename
-    }
-    __typename
-  }
-}
-
-*/
-// LESSWRONG: Add extraVariables String
-export const singleClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
-`query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
-  ${camelCaseify(typeName)}(input: $input) {
-    result {
-      ...${fragmentName}
-    }
-    __typename
-  }
-  ${extraQueries ? extraQueries : ''}
-}`;
-
-
-/*
-
-Multi query used on the client
-
-mutation multiMovieQuery($input: MultiMovieInput) {
-  movies(input: $input) {
-    results {
-      _id
-      name
-      __typename
-    }
-    totalCount
-    __typename
-  }
-}
-
-*/
-export const multiClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
-`query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
-  ${camelCaseify(pluralize(typeName))}(input: $input) {
-    results {
-      ...${fragmentName}
-    }
-    totalCount
-    __typename
-  }
-  ${extraQueries ? extraQueries : ''}
-}`;
-
 /* ------------------------------------- Mutation Types ------------------------------------- */
 
 /*
@@ -447,64 +386,6 @@ export const mutationOutputTemplate = ({ typeName }) =>
 
 /*
 
-Create mutation query used on the client
-
-mutation createMovie($data: CreateMovieDataInput!) {
-  createMovie(data: $data) {
-    data {
-      _id
-      name
-      __typename
-    }
-    __typename
-  }
-}
-
-*/
-export const createClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: string,
-  extraVariablesString?: string,
-}) =>
-`mutation create${typeName}($data: Create${typeName}DataInput!, ${extraVariablesString || ''}) {
-  create${typeName}(data: $data) {
-    data {
-      ...${fragmentName}
-    }
-  }
-}`;
-
-/*
-
-Update mutation query used on the client
-
-mutation updateMovie($selector: MovieSelectorUniqueInput!, $data: UpdateMovieDataInput!) {
-  updateMovie(selector: $selector, data: $data) {
-    data {
-      _id
-      name
-      __typename
-    }
-    __typename
-  }
-}
-
-*/
-export const updateClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: string,
-  extraVariablesString?: string,
-}) =>
-`mutation update${typeName}($selector: ${typeName}SelectorUniqueInput!, $data: Update${typeName}DataInput!, ${extraVariablesString || ''}) {
-  update${typeName}(selector: $selector, data: $data) {
-    data {
-      ...${fragmentName}
-    }
-  }
-}`;
-
-/*
-
 Upsert mutation query used on the client
 
 mutation upsertMovie($selector: MovieSelectorUniqueInput!, $data: UpdateMovieDataInput!) {
@@ -526,35 +407,6 @@ export const upsertClientTemplate = ({ typeName, fragmentName, extraVariablesStr
 }) =>
 `mutation upsert${typeName}($selector: ${typeName}SelectorUniqueInput!, $data: Update${typeName}DataInput!, ${extraVariablesString || ''}) {
   upsert${typeName}(selector: $selector, data: $data) {
-    data {
-      ...${fragmentName}
-    }
-  }
-}`;
-
-/*
-
-Delete mutation query used on the client
-
-mutation deleteMovie($selector: MovieSelectorUniqueInput!) {
-  deleteMovie(selector: $selector) {
-    data {
-      _id
-      name
-      __typename
-    }
-    __typename
-  }
-}
-
-*/
-export const deleteClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: string,
-  extraVariablesString?: string,
-}) =>
-`mutation delete${typeName}($selector: ${typeName}SelectorUniqueInput!, ${extraVariablesString || ''}) {
-  delete${typeName}(selector: $selector) {
     data {
       ...${fragmentName}
     }

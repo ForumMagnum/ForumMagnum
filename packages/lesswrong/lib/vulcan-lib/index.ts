@@ -10,5 +10,4 @@ export * from './admin';
 export * from './debug';
 export * from './errors';
 export * from './intl';
-export * from './graphql_templates';
 export * from './handleOptions';

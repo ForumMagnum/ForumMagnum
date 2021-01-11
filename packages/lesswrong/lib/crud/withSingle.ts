@@ -1,8 +1,32 @@
 import { graphql } from '@apollo/client/react/hoc';
-import { singleClientTemplate, extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
 import * as _ from 'underscore';
 import { WatchQueryFetchPolicy, useQuery, gql } from '@apollo/client';
+
+// Single query used on the client
+//
+// query singleMovieQuery($input: SingleMovieInput) {
+//   movie(input: $input) {
+//     result {
+//       _id
+//       name
+//       __typename
+//     }
+//     __typename
+//   }
+// }
+// LESSWRONG: Add extraVariables String
+const singleClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
+`query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
+  ${camelCaseify(typeName)}(input: $input) {
+    result {
+      ...${fragmentName}
+    }
+    __typename
+  }
+  ${extraQueries ? extraQueries : ''}
+}`;
 
 function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
   const collectionName = collection.collectionName;

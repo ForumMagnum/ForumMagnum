@@ -9,5 +9,4 @@ export * from '../vulcan-lib/admin';
 export * from '../vulcan-lib/debug';
 export * from '../vulcan-lib/errors';
 export * from '../vulcan-lib/intl';
-export * from '../vulcan-lib/graphql_templates';
 export * from '../vulcan-lib/handleOptions';
