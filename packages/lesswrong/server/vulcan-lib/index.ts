@@ -6,7 +6,6 @@ export * from '../../lib/vulcan-lib/index';
 export * from './mutators';
 export * from './errors';
 export * from './intl';
-export * from './accounts_helpers';
 export * from './staticRoutes';
 
 export * from './apollo-server/context';
