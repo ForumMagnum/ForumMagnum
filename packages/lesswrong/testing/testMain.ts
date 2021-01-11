@@ -8,6 +8,8 @@ import { setDatabaseConnection, closeDatabaseConnection } from '../platform/curr
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import jestMongoSetup from '@shelf/jest-mongodb/setup';
+import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
+import { createVoteableUnionType } from '../server/votingGraphQL';
 
 
 
@@ -54,6 +56,10 @@ async function oneTimeSetup() {
   await ensureDbConnection();
   for (let startupFunction of onStartupFunctions)
     await startupFunction();
+  
+  // define executableSchema
+  createVoteableUnionType();
+  initGraphQL();
   
   setupRun = true;
 }

@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { onStartup, isDevelopment, isAnyTest, getInstanceSettings } from '../../../lib/executionEnvironment';
+import { isDevelopment, isAnyTest, getInstanceSettings } from '../../../lib/executionEnvironment';
 import { renderWithCache } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
@@ -25,7 +25,6 @@ import React from 'react';
 import path from 'path'
 import { getPublicSettingsLoaded } from '../../../lib/settingsCache';
 import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
-import { createVoteableUnionType } from '../../../server/votingGraphQL';
 import { addStripeMiddleware } from '../../../server/stripeMiddleware';
 import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
 import { addSentryMiddlewares } from '../../../server/logging';
@@ -61,18 +60,7 @@ const getClientBundle = () => {
   return clientBundle;
 }
 
-onStartup(() => {
-  // define executableSchema
-  createVoteableUnionType();
-  initGraphQL();
-});
-
 export function startWebserver() {
-  if (isAnyTest) {
-    // Don't set up a webserver if this is a unit test
-    return;
-  }
-
   const addMiddleware = (...args) => app.use(...args);
   const config = { path: '/graphql' };
 
@@ -100,7 +88,7 @@ export function startWebserver() {
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
       // eslint-disable-next-line no-console
-      console.error(e?.extensions?.exception)
+      console.error(e);
       // TODO: Replace sketchy apollo-errors package with something first-party
       // and that doesn't require a cast here
       return formatError(e) as any;

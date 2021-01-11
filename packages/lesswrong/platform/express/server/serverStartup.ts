@@ -1,9 +1,11 @@
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
-import { onStartupFunctions } from '../../../lib/executionEnvironment';
+import { onStartupFunctions, isAnyTest } from '../../../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
+import { initGraphQL } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
+import { createVoteableUnionType } from '../../../server/votingGraphQL';
 import process from 'process';
 import readline from 'readline';
 
@@ -53,11 +55,17 @@ async function serverStartup() {
   for (let startupFunction of onStartupFunctions)
     await startupFunction();
   
+  // define executableSchema
+  createVoteableUnionType();
+  initGraphQL();
+  
   if (commandLineArguments.shellMode) {
     initShell();
   } else {
-    console.log("Starting webserver");
-    startWebserver();
+    if (!isAnyTest) {
+      console.log("Starting webserver");
+      startWebserver();
+    }
   }
   
   /*if (process.stdout.isTTY) {
