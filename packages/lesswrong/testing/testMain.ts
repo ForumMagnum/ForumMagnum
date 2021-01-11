@@ -1,7 +1,7 @@
 import '../server';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { onStartupFunctions } from '../platform/current/lib/executionEnvironment';
+import { onStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection, closeDatabaseConnection } from '../platform/current/lib/mongoCollection';

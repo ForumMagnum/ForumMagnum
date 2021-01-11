@@ -1,4 +1,4 @@
-import { isAnyTest } from '../lib/executionEnvironment';
+import { isAnyTest } from '../../../lib/executionEnvironment';
 import process from 'process';
 import fs from 'fs';
 

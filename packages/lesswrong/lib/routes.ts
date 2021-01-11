@@ -2,7 +2,7 @@ import { Posts } from './collections/posts/collection';
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
-import { onStartup } from '../platform/current/lib/executionEnvironment';
+import { onStartup } from './executionEnvironment';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };

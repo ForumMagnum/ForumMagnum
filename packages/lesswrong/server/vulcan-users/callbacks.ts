@@ -2,7 +2,7 @@ import Users from '../../lib/collections/users/collection';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
-import { isAnyTest } from '../../platform/current/lib/executionEnvironment';
+import { isAnyTest } from '../../lib/executionEnvironment';
 
 getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbUser) {
     if (isAnyTest) return user;

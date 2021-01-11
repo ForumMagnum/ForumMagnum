@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
-import { onStartupFunctions } from '../lib/executionEnvironment';
+import { onStartupFunctions } from '../../../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';

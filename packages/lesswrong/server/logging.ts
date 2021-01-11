@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
-import { onStartup, isAnyTest } from '../platform/current/lib/executionEnvironment';
+import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';

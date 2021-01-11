@@ -7,7 +7,7 @@ import Users from '../../lib/collections/users/collection';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
-import { onStartup } from '../../platform/current/lib/executionEnvironment';
+import { onStartup } from '../../lib/executionEnvironment';
 import { addStaticRoute } from '../vulcan-lib';
 
 // Some legacy routes have an optional subreddit prefix, which is either

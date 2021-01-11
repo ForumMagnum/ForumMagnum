@@ -4,7 +4,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
 import { encode } from 'querystring'
-import { onStartup } from '../../platform/current/lib/executionEnvironment';
+import { onStartup } from '../../lib/executionEnvironment';
 
 const ElicitUserType = `type ElicitUser {
   isQuestionCreator: Boolean
