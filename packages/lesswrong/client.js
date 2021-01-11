@@ -16,7 +16,7 @@ import './client/autoRefresh';
 import './client/scrollRestoration';
 import './client/themeProvider';
 import './client/logging';
-export * from './lib/index';
+import './lib/index';
 
 // Polyfills:
 import 'element-closest'

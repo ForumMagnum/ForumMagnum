@@ -5,7 +5,6 @@ export * from './query';
 export * from '../../lib/vulcan-lib/index';
 export * from './mutators';
 export * from './errors';
-//export * from './render_context';
 export * from './intl';
 export * from './accounts_helpers';
 export * from './staticRoutes';

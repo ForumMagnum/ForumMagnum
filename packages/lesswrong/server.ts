@@ -5,8 +5,6 @@ import './server/vulcan-lib/index';
 import './server/vulcan-users/main';
 import './server/vulcan-core/start';
 
-export * from './lib/index';
-
 import './server/startupSanityChecks';
 
 import './server/database-import/database_import_new';
