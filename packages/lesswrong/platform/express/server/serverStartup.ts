@@ -20,6 +20,11 @@ async function serverStartup() {
   wrapConsoleLogFunctions((log, ...message) => {
     process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
     log(...message);
+    
+    // Uncomment to add stacktraces to every console.log, for debugging where
+    // mysterious output came from.
+    //var stack = new Error().stack
+    //log(stack)
   });
   
   const commandLineArguments = getCommandLineArguments();

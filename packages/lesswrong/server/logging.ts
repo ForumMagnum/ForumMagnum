@@ -13,6 +13,8 @@ process.on("unhandledRejection", (r: any) => {
   captureException(r);
   
   //eslint-disable-next-line no-console
+  console.log("Unhandled rejection");
+  //eslint-disable-next-line no-console
   console.log(r);
   
   if (r.stack) {

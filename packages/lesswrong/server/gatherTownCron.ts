@@ -29,7 +29,7 @@ const pollGatherTownUsers = async () => {
   if (!roomName || !roomId) return;
   const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
   // eslint-disable-next-line no-console
-  console.log(gatherTownUsers);
+  console.log(`GatherTown users: ${JSON.stringify(gatherTownUsers)}`);
   void createMutator({
     collection: LWEvents,
     document: {
