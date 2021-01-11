@@ -5,7 +5,7 @@ import { onStartup, isDevelopment, isAnyTest, getInstanceSettings } from '../../
 import { renderWithCache } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
-import { pickerMiddleware } from './picker';
+import { pickerMiddleware } from '../../../server/vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
 import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-server/graphiql';
