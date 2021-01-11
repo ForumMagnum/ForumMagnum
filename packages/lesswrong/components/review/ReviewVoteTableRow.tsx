@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { vote } from './ReviewVotingPage';
+import type { vote, quadraticVote } from './ReviewVotingPage';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,15 +45,15 @@ const styles = (theme: ThemeType) => ({
 });
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }: {
+  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote }: {
     post: PostsList,
     dispatch: React.Dispatch<vote>,
-    quadraticVotes: vote[],
     dispatchQuadraticVote: any,
     useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId: string,
-    votes: vote[]
+    currentQualitativeVote: vote|null,
+    currentQuadraticVote: quadraticVote|null,
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons } = Components
@@ -72,8 +72,8 @@ const ReviewVoteTableRow = (
           </div>
           {post.userId !== currentUser._id && <div>
               {useQuadratic ?
-                <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
-                <ReviewVotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
+                <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
+                <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
               }
           </div>}
           {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
@@ -83,7 +83,10 @@ const ReviewVoteTableRow = (
   </AnalyticsContext>
 }
 
-const ReviewVoteTableRowComponent = registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {styles});
+const ReviewVoteTableRowComponent = registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {
+  styles,
+  //areEqual: "auto"
+});
 
 declare global {
   interface ComponentTypes {

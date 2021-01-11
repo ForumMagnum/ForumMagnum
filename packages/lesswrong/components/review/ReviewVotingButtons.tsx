@@ -31,8 +31,7 @@ const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, votes}: {classes: ClassesType, postId: string, dispatch: any, votes: vote[]}) => {
-  const voteForCurrentPost = votes.find(vote => vote.postId === postId)
+const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: vote|null}) => {
   const score = voteForCurrentPost?.score
   const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
   const createClickHandler = (index:number) => {
@@ -44,7 +43,16 @@ const ReviewVotingButtons = ({classes, postId, dispatch, votes}: {classes: Class
 
   return <div>
       {[0,1,2,3,4].map((i) => {
-        return <span className={classNames(classes.button, {[classes.selectionHighlight]:selection === i && score, [classes.defaultHighlight]: selection === i && !score})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
+        return <span
+          className={classNames(classes.button, {
+            [classes.selectionHighlight]:selection === i && score,
+            [classes.defaultHighlight]: selection === i && !score
+          })}
+          onClick={createClickHandler(i)}
+          key={`${indexToTermsLookup[i]}-${i}`}
+        >
+          {indexToTermsLookup[i]}
+        </span>
       })}
   </div>
 }

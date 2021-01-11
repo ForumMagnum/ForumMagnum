@@ -22,17 +22,19 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const QuadraticVotingButtons = ({classes, postId, vote, votes }: {classes: ClassesType, postId: string, vote: any, votes: vote[]}) => {
-  const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const createClickHandler = (postId: string, type: 'buy' | 'sell', voteId: string | undefined, score: number | undefined) => {
-      return () => {
-        vote({postId, change: (type === 'buy' ? 1 : -1), _id: voteId, previousValue: score})
-      }
+const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType, postId: string, vote: any, voteForCurrentPost: vote|null}) => {
+  const clickHandler = (type: 'buy' | 'sell') => {
+    vote({
+      postId,
+      change: (type === 'buy' ? 1 : -1),
+      _id: voteForCurrentPost?._id,
+      previousValue: voteForCurrentPost?.score,
+    })
   }
   return <div className={classes.root}>
-    <span className={classes.vote} onClick={createClickHandler(postId, 'sell', voteForCurrentPost?._id, voteForCurrentPost?.score)}>–</span>
+    <span className={classes.vote} onClick={() => clickHandler('sell')}>–</span>
     <span className={classes.score}>{voteForCurrentPost?.score || 0}</span>
-    <span className={classes.vote} onClick={createClickHandler(postId, 'buy', voteForCurrentPost?._id, voteForCurrentPost?.score)}>+</span>
+    <span className={classes.vote} onClick={() => clickHandler('buy')}>+</span>
   </div>
 }
 

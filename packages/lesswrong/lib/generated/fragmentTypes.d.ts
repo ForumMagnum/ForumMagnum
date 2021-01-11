@@ -1009,6 +1009,7 @@ interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
   readonly comment: string,
   readonly year: string,
   readonly dummy: boolean,
+  readonly reactions: Array<string>,
 }
 
 interface reviewVoteFragment { // fragment on ReviewVotes
@@ -1021,6 +1022,7 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly comment: string,
   readonly year: string,
   readonly dummy: boolean,
+  readonly reactions: Array<string>,
 }
 
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
@@ -1443,6 +1445,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
+  readonly reviewVotesQuadratic2019: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly abTestKey: string,

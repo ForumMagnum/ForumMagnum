@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import sumBy from 'lodash/sumBy'
@@ -19,9 +19,15 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
-const YEAR = "2019"
+const YEAR = 2019
 const NOMINATIONS_VIEW = "nominations2019"
 const REVIEWS_VIEW = "reviews2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
+
+//const YEAR = 2018
+//const NOMINATIONS_VIEW = "nominations2018"
+//const REVIEWS_VIEW = "reviews2018"
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -144,12 +150,49 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   warning: {
     color: theme.palette.error.main
-  }
+  },
+  
+  averageVoteInstructions: {
+    padding: 12,
+    ...theme.typography.body2,
+    ...commentBodyStyles(theme),
+  },
+  averageVoteRow: {
+    padding: 12,
+    display: "flex",
+  },
+  averageVoteLabel: {
+    marginTop: 8,
+    flexGrow: 1,
+    
+    fontSize: "1.3rem",
+    fontFamily: theme.typography.postStyle.fontFamily,
+  },
+  averageVote: {
+    ...theme.typography.body1,
+    ...theme.typography.commentStyle
+  },
+  averageVoteButton: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    fontWeight: 600,
+    paddingLeft: 10,
+    paddingRight: 10,
+    cursor: "pointer"
+  },
+  
+  voteAverage: {
+    cursor: 'pointer',
+  },
+  
+  leaveReactions: {},
+  reaction: {
+  },
 });
 
-export type vote = {_id: string, postId: string, score: number, type?: string}
-type quadraticVote = vote & {type: "quadratic"}
-type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
+export type vote = {_id: string, postId: string, score: number, type?: string, reactions: string[]}
+export type quadraticVote = vote & {type: "quadratic"}
+export type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 
 const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
@@ -179,7 +222,7 @@ const ReviewVotingPage = ({classes}: {
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 200, userId: currentUser?._id},
+    terms: {view: "reviewVotesFromUser", limit: 200, userId: currentUser?._id, year: YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
@@ -191,8 +234,8 @@ const ReviewVotingPage = ({classes}: {
   });
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean, $reactions: [String]) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy, reactions: $reactions) {
         ...reviewVoteFragment
       }
     }
@@ -207,11 +250,11 @@ const ReviewVotingPage = ({classes}: {
     }
   });
 
-  const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser.reviewVotesQuadratic : false)
+  const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
-  const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
+  const votes = dbVotes?.map(({_id, qualitativeScore, postId, reactions}) => ({_id, postId, score: qualitativeScore, type: "qualitative", reactions})) as qualitativeVote[]
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
       if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
@@ -223,30 +266,44 @@ const ReviewVotingPage = ({classes}: {
     void updateUser({
       selector: {_id: currentUser?._id},
       data: {
-        reviewVotesQuadratic: newUseQuadratic,
+        [userVotesAreQuadraticField]: newUseQuadratic,
       }
     });
   }
 
-  const dispatchQualitativeVote = async ({postId, score}: {postId: string, score: number}) => await submitVote({variables: {postId, qualitativeScore: score, year: YEAR, dummy: true}})
+  const dispatchQualitativeVote = useCallback(async ({postId, score, reactions}: {
+    postId: string,
+    score: number,
+    reactions: string[],
+  }) => {
+    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: true}})
+  }, [submitVote]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
-  const dispatchQuadraticVote = async ({_id, postId, change, set}) => {
-    const existingVote = _id && dbVotes.find(vote => vote._id === _id)
+  const dispatchQuadraticVote = async ({_id, postId, change, set, reactions}: {
+    _id?: string|null,
+    postId: string,
+    change?: number,
+    set?: number,
+    reactions?: string[],
+  }) => {
+    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+    const newReactions = reactions || existingVote?.reactions || []
     await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR, dummy: true},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", dummy: true, reactions: newReactions},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
           __typename: "ReviewVote",
           ...existingVote,
-          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
+          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0)),
+          reactions: newReactions
         }
       }
     })
   }
 
-  const { PostReviewsAndNominations, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow } = Components
+  const { PostReviewsAndNominations, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -270,6 +327,29 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
+  const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
+  const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
+  
+  const adjustAllQuadratic = (delta: number) => {
+    for (let post of posts) {
+      const existingVote = votes.find(vote => vote.postId === post._id);
+      void dispatchQuadraticVote({
+        _id: existingVote?._id || null,
+        postId: post._id,
+        change: delta,
+      });
+    }
+  }
+  
+  // TODO: Redundancy here due to merge
+  const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0
+  const voteAverage = posts?.length > 0 ? voteSum/posts?.length : 0
+
+  const renormalizeVotes = (quadraticVotes:quadraticVote[], voteAverage: number) => {
+    const voteAdjustment = -Math.trunc(voteAverage)
+    quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
+  }
+
 
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
@@ -310,6 +390,11 @@ const ReviewVotingPage = ({classes}: {
                   {voteTotal}/500
                 </div>
             </LWTooltip>}
+            {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details. Click to renormalize your votes to get closer to an optimal allocation.</div>}>
+                <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
+                  Avg: {(voteSum / posts.length).toFixed(2)}
+                </div>
+            </LWTooltip>}
             <Button disabled={!expandedPost} onClick={()=>{
               setExpandedPost(null)
               captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
@@ -317,6 +402,9 @@ const ReviewVotingPage = ({classes}: {
           </div>
           <Paper>
             {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
+                const currentQualitativeVote = votes.find(vote => vote.postId === post._id)
+                const currentQuadraticVote = quadraticVotes.find(vote => vote.postId === post._id)
+  
                 return <div key={post._id} onClick={()=>{
                   setExpandedPost(post)
                   captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
@@ -324,8 +412,8 @@ const ReviewVotingPage = ({classes}: {
                   <ReviewVoteTableRow
                     post={post}
                     dispatch={dispatchQualitativeVote}
-                    votes={votes}
-                    quadraticVotes={quadraticVotes}
+                    currentQualitativeVote={currentQualitativeVote||null}
+                    currentQuadraticVote={currentQuadraticVote||null}
                     dispatchQuadraticVote={dispatchQuadraticVote}
                     useQuadratic={useQuadratic}
                     expandedPostId={expandedPost?._id}
@@ -333,6 +421,17 @@ const ReviewVotingPage = ({classes}: {
                 </div>
               })}
           </Paper>
+          {!!posts && !dbVotesLoading && useQuadratic && <Paper>
+            <div className={classes.averageVoteInstructions}>
+              The impact of your quadratic-vote ballot is maximized if your average vote is close to 0. If your average score is more than a full point above or below 0, then you can use the buttons below to add or subtract 1 from your score on every post at once. This frees up vote points without changing the effect of your ballot.
+            </div>
+            <div className={classes.averageVoteRow}>
+              <span className={classes.averageVoteLabel}>Average Vote</span>
+              <span className={classes.averageVoteButton} onClick={() => adjustAllQuadratic(-1)}>-</span>
+              <span className={classes.averageVote}>{averageQuadraticVoteStr}</span>
+              <span className={classes.averageVoteButton} onClick={() => adjustAllQuadratic(+1)}>+</span>
+            </div>
+          </Paper>}
         </div>
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
@@ -349,20 +448,35 @@ const ReviewVotingPage = ({classes}: {
                   <li><b>Important</b> – A key insight or excellent distillation.</li>
                   <li><b>Crucial</b> – One of the most significant posts of {YEAR}, for LessWrong to discuss and build upon over the coming years.</li>
                 </ul>
-                <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details.)</p>
-                <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/zLhSjwXHnTg9QBzqH/the-final-vote-for-lw-2018-review">this post</Link>.</p>
-                {/* <p>The vote closes on Jan 19th. If you leave this page and come back, your votes will be saved.</p> */}
+                <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details. Also note that your vote allocation is not optimal if the average of your votes is above 1 or below -1, see <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results?commentId=HL9cPrFqMexGn4jmZ">this comment</Link> for details..)</p>
+                <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review">this post</Link>.</p>
+                <p>The vote closes on Jan 26th. If you leave this page and come back, your votes will be saved.</p>
               </div>
             </div>
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-                <ReviewPostButton post={expandedPost} year={YEAR} reviewMessage={<div>
-                  <div className={classes.writeAReview}>
-                    <div className={classes.reviewPrompt}>Write a review for "{expandedPost.title}"</div>
-                    <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
-                  </div>
-                </div>}/>
+              <div className={classes.leaveReactions}>
+                <ReactionsButton 
+                  postId={expandedPost._id} 
+                  vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
+                  votes={votes} 
+                  reaction={"I have personally benefited from this post"} 
+                />
+                <ReactionsButton 
+                  postId={expandedPost._id} 
+                  vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
+                  votes={votes} 
+                  reaction={"I don't like this post"} 
+                />
+                <span className={classes.reaction}> Other...</span>
+              </div>
+              <ReviewPostButton post={expandedPost} year={YEAR+""} reviewMessage={<div>
+                <div className={classes.writeAReview}>
+                  <div className={classes.reviewPrompt}>Write a review for "{expandedPost.title}"</div>
+                  <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
+                </div>
+              </div>}/>
 
               <div className={classes.comments}>
                 <PostReviewsAndNominations
@@ -389,16 +503,16 @@ const ReviewVotingPage = ({classes}: {
 function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
   const randomPermutation = generatePermutation(posts.length, currentUser);
   const result = posts.map(
-    (post: PostsList, i: number) => {
+    (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
       const voteForPost = votes.find(vote => vote.postId === post._id)
       const  voteScore = voteForPost ? voteForPost.score : 1;
       return [post, voteForPost, voteScore, i, randomPermutation[i]]
     })
     .sort(([post1, vote1, voteScore1, i1, permuted1], [post2, vote2, voteScore2, i2, permuted2]) => {
-      const sortCriteria1 = [voteScore1, permuted1];
-      const sortCriteria2 = [voteScore2, permuted2];
-      if (sortCriteria1<sortCriteria2) return -1;
-      else if (sortCriteria1>sortCriteria2) return 1;
+      if (voteScore1 < voteScore2) return -1;
+      if (voteScore1 > voteScore2) return 1;
+      if (permuted1 < permuted2) return -1;
+      if (permuted1 > permuted2) return 1;
       else return 0;
     })
     .reverse()
@@ -454,6 +568,10 @@ const sumOf1ToN = (x:number) => {
 
 const computeTotalCost = (votes: vote[]) => {
   return sumBy(votes, ({score}) => sumOf1ToN(score))
+}
+
+const computeTotalVote = (votes: vote[]) => {
+  return sumBy(votes, ({score}) => score)
 }
 
 function createPostVoteTuples<K extends HasIdType,T extends vote> (posts: K[], votes: T[]):[K, T | undefined][] {
