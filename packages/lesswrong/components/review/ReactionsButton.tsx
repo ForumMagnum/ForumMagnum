@@ -11,13 +11,13 @@ import CheckIcon from '@material-ui/icons/Check';
 const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
-    padding: 8,
-    borderRadius: 8,
+    padding: '5px  8px',
+    borderRadius: 3,
     backgroundColor: 'white',
     marginRight: 4,
     marginLeft: 4,
     marginBottom: 4,
-    boxShadow: '0px 1px 5px 0px rgba(0, 0, 0, 0.2)',
+    border: 'solid 1px rgba(72,94,144,0.16)',
     cursor: 'pointer',
     display: 'inline-block',
     '&:hover': {
@@ -58,7 +58,9 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
   const submitFreeEntryText = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    vote({postId, reactions: [...currentReactions, freeEntryText], _id: voteForCurrentPost?._id, previousValue: voteForCurrentPost?.score})
+    if (freeEntryText.length > 0) {
+      vote({postId, reactions: [...currentReactions, freeEntryText], _id: voteForCurrentPost?._id, previousValue: voteForCurrentPost?.score})
+    }
     setTextFieldOpen(false)
     setFreeEntryText("")
   }
@@ -81,6 +83,8 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
       }}
       disableUnderline={true}
       onKeyDown={handleEnter}
+      onBlur={e => submitFreeEntryText(e)}
+      
       endAdornment={
         <InputAdornment position="end">
           <IconButton
@@ -91,8 +95,8 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
           </IconButton>
         </InputAdornment>
       }
-      /> : <span>{reaction}</span>
-    }
+      autoFocus
+    /> : <span>{reaction}</span>}
   </span>
 }
 

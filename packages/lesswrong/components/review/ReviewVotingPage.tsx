@@ -29,10 +29,11 @@ const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 //const REVIEWS_VIEW = "reviews2018"
 
 const defaultReactions = [
-  "I have personally benefited from this post",
-  "Deserves followup work based on it",
+  "I personally benefited from this post",
+  "Deserves followup work",
   "Should be edited/improved",
-  "Important but shouldn't be included in the book"
+  "Important but shouldn't be in book",
+  "I spent 30+ minutes reviewing this in-depth"
 ]
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -278,12 +279,15 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = useCallback(async ({postId, score, reactions}: {
+  const dispatchQualitativeVote = useCallback(async ({_id, postId, score, reactions}: {
+    _id: string|null,
     postId: string,
     score: number,
     reactions: string[],
   }) => {
-    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false}})
+    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+    const newReactions = reactions || existingVote?.reactions || []
+    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false, reactions: newReactions}})
   }, [submitVote]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
