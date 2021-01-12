@@ -22,6 +22,7 @@ export const sanitize = function(s: string): string {
       tr: ['style'],
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
+      ol: ['start', 'reversed', 'type'],
       span: ['style'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
       a: ['href', 'name', 'target', 'rel'],
