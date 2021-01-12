@@ -67,7 +67,7 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
   
   const handleEnter = e => {
     if (e.keyCode == 13) {
-      submitFreeEntryText(e)
+      void submitFreeEntryText(e)
     }
   }
 
