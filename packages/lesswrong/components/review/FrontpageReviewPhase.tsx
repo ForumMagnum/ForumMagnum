@@ -212,7 +212,7 @@ const FrontpageReviewPhase = ({classes}) => {
         <LWTooltip title={<div>
           <div>Review posts with at least two nominations</div>
           </div>}>
-          <Link to={"/reviews"} className={classes.actionButtonCTA}>
+          <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
             Vote on 2019 Posts
           </Link>
         </LWTooltip>
