@@ -121,6 +121,7 @@ registerFragment(`
     bookmarkedPostsMetadata
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
+    reviewVotesQuadratic2019
     hideTaggingProgressBar
     hideFrontpageBookAd
 
