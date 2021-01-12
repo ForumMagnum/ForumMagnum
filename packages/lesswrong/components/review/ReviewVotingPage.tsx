@@ -24,6 +24,8 @@ const NOMINATIONS_VIEW = "nominations2019"
 const REVIEWS_VIEW = "reviews2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 
+export const currentUserCanVote = (currentUser) => new Date(currentUser?.createdAt) < new Date(`${YEAR}-01-01`)
+
 //const YEAR = 2018
 //const NOMINATIONS_VIEW = "nominations2018"
 //const REVIEWS_VIEW = "reviews2018"
@@ -108,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   header: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
-    marginTop: 0,
+    marginTop: 6,
   },
   postHeader: {
     ...theme.typography.display1,
@@ -329,7 +331,7 @@ const ReviewVotingPage = ({classes}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
-  if (!currentUser || currentUser.createdAt > new Date(`${YEAR}-01-01`)) {
+  if (!currentUserCanVote(currentUser)) {
     return (
       <div className={classes.message}>
         Only users registered before {YEAR} can vote in the {YEAR} LessWrong Review
