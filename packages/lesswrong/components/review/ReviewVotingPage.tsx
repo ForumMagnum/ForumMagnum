@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import sumBy from 'lodash/sumBy'
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
@@ -341,18 +340,18 @@ const ReviewVotingPage = ({classes}: {
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
   const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
-  const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
+  // const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
   
-  const adjustAllQuadratic = (delta: number) => {
-    for (let post of posts) {
-      const existingVote = votes.find(vote => vote.postId === post._id);
-      void dispatchQuadraticVote({
-        _id: existingVote?._id || null,
-        postId: post._id,
-        change: delta,
-      });
-    }
-  }
+  // const adjustAllQuadratic = (delta: number) => {
+  //   for (let post of posts) {
+  //     const existingVote = votes.find(vote => vote.postId === post._id);
+  //     void dispatchQuadraticVote({
+  //       _id: existingVote?._id || null,
+  //       postId: post._id,
+  //       change: delta,
+  //     });
+  //   }
+  // }
 
   const currentReactions = expandedPost ? [...(votes.find(vote => vote.postId === expandedPost._id)?.reactions || [])] : []
   
