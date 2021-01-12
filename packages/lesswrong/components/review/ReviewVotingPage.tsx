@@ -327,21 +327,6 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
-  const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
-  const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
-  
-  const adjustAllQuadratic = (delta: number) => {
-    for (let post of posts) {
-      const existingVote = votes.find(vote => vote.postId === post._id);
-      void dispatchQuadraticVote({
-        _id: existingVote?._id || null,
-        postId: post._id,
-        change: delta,
-      });
-    }
-  }
-  
-  // TODO: Redundancy here due to merge
   const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0
   const voteAverage = posts?.length > 0 ? voteSum/posts?.length : 0
 
@@ -421,17 +406,6 @@ const ReviewVotingPage = ({classes}: {
                 </div>
               })}
           </Paper>
-          {!!posts && !dbVotesLoading && useQuadratic && <Paper>
-            <div className={classes.averageVoteInstructions}>
-              The impact of your quadratic-vote ballot is maximized if your average vote is close to 0. If your average score is more than a full point above or below 0, then you can use the buttons below to add or subtract 1 from your score on every post at once. This frees up vote points without changing the effect of your ballot.
-            </div>
-            <div className={classes.averageVoteRow}>
-              <span className={classes.averageVoteLabel}>Average Vote</span>
-              <span className={classes.averageVoteButton} onClick={() => adjustAllQuadratic(-1)}>-</span>
-              <span className={classes.averageVote}>{averageQuadraticVoteStr}</span>
-              <span className={classes.averageVoteButton} onClick={() => adjustAllQuadratic(+1)}>+</span>
-            </div>
-          </Paper>}
         </div>
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
