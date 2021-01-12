@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { vote, quadraticVote } from './ReviewVotingPage';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,14 +42,23 @@ const styles = (theme: ThemeType) => ({
   },
   expanded: {
     background: "#eee"
+  },
+  highlight: {
+    paddingTop: 16,
+    paddingRight: 16,
+  },
+  backIcon: {
+    position: "stick",
+    left:-50,
   }
 });
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote }: {
+  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, setExpandedPost }: {
     post: PostsList,
     dispatch: React.Dispatch<vote>,
     dispatchQuadraticVote: any,
+    setExpandedPost: any,
     useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId: string,
@@ -56,12 +66,14 @@ const ReviewVoteTableRow = (
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
 
   const currentUser = useCurrentUser()
   if (!currentUser) return null;
+  const expanded = expandedPostId == post._id
 
   return <AnalyticsContext pageElementContext="voteTableRow">
+    {/* <ArrowBackIosIcon className={classes.backIcon} onClick={setExpandedPost(null)}/> */}
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
       <div>
         <div className={classes.postVote} >
@@ -79,6 +91,10 @@ const ReviewVoteTableRow = (
           {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
       </div>
+      {expanded && <div className={classes.highlight}>
+          <PostsHighlight post={post} maxLengthWords={100} forceSeeMore /> 
+        </div>
+      }
     </div>
   </AnalyticsContext>
 }

@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr) minmax(100px, 600px) minmax(30px, 0.5fr)
+      minmax(60px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr) minmax(100px, 600px) minmax(30px, 0.5fr)
     `,
     gridTemplateAreas: `
     "... leftColumn ... rightColumn ..."
@@ -419,6 +419,7 @@ const ReviewVotingPage = ({classes}: {
                 >
                   <ReviewVoteTableRow
                     post={post}
+                    setExpandedPost={setExpandedPost}
                     dispatch={dispatchQualitativeVote}
                     currentQualitativeVote={currentQualitativeVote||null}
                     currentQuadraticVote={currentQuadraticVote||null}
