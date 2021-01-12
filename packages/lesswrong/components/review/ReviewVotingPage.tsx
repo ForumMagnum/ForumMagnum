@@ -20,7 +20,7 @@ import seedrandom from '../../lib/seedrandom';
 
 const YEAR = 2019
 const NOMINATIONS_VIEW = "nominations2019"
-const REVIEWS_VIEW = "reviews2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const REVIEWS_VIEW = "voting2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 
 export const currentUserCanVote = (currentUser) => new Date(currentUser?.createdAt) < new Date(`${YEAR}-01-01`)
@@ -224,14 +224,14 @@ const ReviewVotingPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
-    terms: {view: REVIEWS_VIEW, limit: 200},
+    terms: {view: REVIEWS_VIEW, limit: 300},
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 200, userId: currentUser?._id, year: YEAR+""},
+    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
@@ -567,7 +567,8 @@ const inverseSumOf1ToN = (x:number) => {
 }
 
 const sumOf1ToN = (x:number) => {
-  return x*(x+1)/2
+  const absX = Math.abs(x)
+  return absX*(absX+1)/2
 }
 
 const computeTotalCost = (votes: vote[]) => {
