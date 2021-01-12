@@ -20,7 +20,8 @@ import seedrandom from '../../lib/seedrandom';
 
 const YEAR = 2019
 const NOMINATIONS_VIEW = "nominations2019"
-const REVIEWS_VIEW = "voting2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const VOTING_VIEW = "voting2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const REVIEW_COMMENTS_VIEW = "reviews2019"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 
 export const currentUserCanVote = (currentUser) => new Date(currentUser?.createdAt) < new Date(`${YEAR}-01-01`)
@@ -224,7 +225,7 @@ const ReviewVotingPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
-    terms: {view: REVIEWS_VIEW, limit: 300},
+    terms: {view: VOTING_VIEW, limit: 300},
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
@@ -491,7 +492,7 @@ const ReviewVotingPage = ({classes}: {
                 />
                 <PostReviewsAndNominations
                   title="review"
-                  terms={{view: REVIEWS_VIEW, postId: expandedPost._id}}
+                  terms={{view: REVIEW_COMMENTS_VIEW, postId: expandedPost._id}}
                   post={expandedPost}
                 />
               </div>
