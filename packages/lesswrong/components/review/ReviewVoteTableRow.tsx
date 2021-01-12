@@ -48,8 +48,9 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 16,
   },
   backIcon: {
-    position: "stick",
-    left:-50,
+    position: "absolute",
+    left:-40,
+    color: theme.palette.grey[400]
   }
 });
 
@@ -73,8 +74,8 @@ const ReviewVoteTableRow = (
   const expanded = expandedPostId == post._id
 
   return <AnalyticsContext pageElementContext="voteTableRow">
-    {/* <ArrowBackIosIcon className={classes.backIcon} onClick={setExpandedPost(null)}/> */}
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
+      {expanded && <ArrowBackIosIcon className={classes.backIcon} onClick={() => setExpandedPost(null)}/>}
       <div>
         <div className={classes.postVote} >
           <div className={classes.post}>
