@@ -1119,12 +1119,6 @@ Posts.addView("reviews2019", (terms: PostsViewTerms) => {
 })
 
 Posts.addView("voting2019", (terms: PostsViewTerms) => {
-  const sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
-    "fewestReviews" : {reviewCount2019: 1},
-    "mostReviews" : {reviewCount2019: -1},
-    "lastCommentedAt" :  {lastCommentedAt: -1}
-  }
-
   return {
     selector: {
       nominationCount2019: { $gte: 2 },
@@ -1132,7 +1126,7 @@ Posts.addView("voting2019", (terms: PostsViewTerms) => {
       reviewCount2019: { $gte: 1 }
     },
     options: {
-      sort: { ...(terms.sortBy && sortings[terms.sortBy]), nominationCount2019: -1 }
+      sort: { ...(terms.sortBy && reviewSortings[terms.sortBy]), nominationCount2019: -1 }
     }
   }
 })
