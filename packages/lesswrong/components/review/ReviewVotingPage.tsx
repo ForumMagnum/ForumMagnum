@@ -77,7 +77,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   expandedInfo: {
     maxWidth: 600,
-    marginTop: 130,
     marginBottom: 175,
   },
   menu: {
@@ -101,9 +100,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   expandedInfoWrapper: {
     position: "fixed",
-    top: 0,
+    top: 100,
     overflowY: "auto",
     height: "100vh",
+    paddingRight: 8
   },
   header: {
     ...theme.typography.display3,
@@ -437,7 +437,7 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <h1 className={classes.header}>Try out the vote on nominated and reviewed posts from {YEAR}</h1>
+              <h1 className={classes.header}>Vote on nominated and reviewed posts from {YEAR}</h1>
               <div className={classes.instructions}>
                 {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p> */}
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
