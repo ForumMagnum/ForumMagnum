@@ -160,34 +160,34 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.error.main
   },
   
-  averageVoteInstructions: {
-    padding: 12,
-    ...theme.typography.body2,
-    ...commentBodyStyles(theme),
-  },
-  averageVoteRow: {
-    padding: 12,
-    display: "flex",
-  },
-  averageVoteLabel: {
-    marginTop: 8,
-    flexGrow: 1,
+  // averageVoteInstructions: {
+  //   padding: 12,
+  //   ...theme.typography.body2,
+  //   ...commentBodyStyles(theme),
+  // },
+  // averageVoteRow: {
+  //   padding: 12,
+  //   display: "flex",
+  // },
+  // averageVoteLabel: {
+  //   marginTop: 8,
+  //   flexGrow: 1,
     
-    fontSize: "1.3rem",
-    fontFamily: theme.typography.postStyle.fontFamily,
-  },
-  averageVote: {
-    ...theme.typography.body1,
-    ...theme.typography.commentStyle
-  },
-  averageVoteButton: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    fontWeight: 600,
-    paddingLeft: 10,
-    paddingRight: 10,
-    cursor: "pointer"
-  },
+  //   fontSize: "1.3rem",
+  //   fontFamily: theme.typography.postStyle.fontFamily,
+  // },
+  // averageVote: {
+  //   ...theme.typography.body1,
+  //   ...theme.typography.commentStyle
+  // },
+  // averageVoteButton: {
+  //   ...theme.typography.body2,
+  //   ...theme.typography.commentStyle,
+  //   fontWeight: 600,
+  //   paddingLeft: 10,
+  //   paddingRight: 10,
+  //   cursor: "pointer"
+  // },
   
   voteAverage: {
     cursor: 'pointer',
