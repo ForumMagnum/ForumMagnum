@@ -69,9 +69,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 700
   },
   expandedInfo: {
-    height: "calc(100vh - 80px)",
     maxWidth: 600,
-    overflowY: "scroll",
+    marginTop: 130,
+    marginBottom: 175,
   },
   menu: {
     position: "sticky",
@@ -93,8 +93,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: theme.spacing.unit
   },
   expandedInfoWrapper: {
-    position: "sticky",
-    top: 0
+    position: "fixed",
+    top: 0,
+    overflowY: "auto",
+    height: "100vh",
   },
   header: {
     ...theme.typography.display3,
