@@ -155,7 +155,6 @@ importComponent("SignupSubscribeToCurated", () => require('../components/users/S
 importComponent("UserNameDeleted", () => require('../components/users/UserNameDeleted'));
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
-importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
@@ -541,7 +540,11 @@ importComponent("NominatePostDialog", () => require('../components/review/Nomina
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
 importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
 importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
-
+importComponent("ReviewVotingPage", () => require('../components/review/ReviewVotingPage'))
+importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
+importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
+importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
+importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker'));

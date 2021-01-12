@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
+import { currentUserCanVote } from './ReviewVotingPage';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -207,15 +208,15 @@ const FrontpageReviewPhase = ({classes}) => {
       <AnalyticsContext listContext={"LessWrong 2019 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} />
       </AnalyticsContext>
-      <div className={classes.actionButtonRow}>
+      {currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
         <LWTooltip title={<div>
           <div>Review posts with at least two nominations</div>
           </div>}>
           <Link to={"/reviews"} className={classes.actionButtonCTA}>
-            Review 2019 Posts
+            Vote on 2019 Posts
           </Link>
         </LWTooltip>
-      </div>
+      </div>}
         {/* {eligibleToNominate(currentUser) && 
           <LWTooltip title={<div>
               <div>View posts with at least 1 nomination</div>

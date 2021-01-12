@@ -11,5 +11,6 @@ registerFragment(`
     comment
     year
     dummy
+    reactions
   }
 `)

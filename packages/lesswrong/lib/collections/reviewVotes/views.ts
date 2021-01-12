@@ -6,16 +6,18 @@ declare global {
     view?: ReviewVotesViewName
     postId?: string
     userId?: string
+    year?: string,
   }
 }
 
 
 //Messages for a specific conversation
-ReviewVotes.addView("reviewVotesFromUser", function ({userId}: ReviewVotesViewTerms) {
+ReviewVotes.addView("reviewVotesFromUser", (terms: ReviewVotesViewTerms) => {
   return {
     selector: {
-      userId,
-      dummy: true // Filter and submit dummy votes until 2019 review goes properly live
+      userId: terms.userId,
+      year: terms.year,
+      dummy: false
     }
   };
 });
