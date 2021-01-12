@@ -1258,6 +1258,13 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVotesQuadratic2019: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
   petrovPressedButtonDate: {
     type: Date,
     optional: true,

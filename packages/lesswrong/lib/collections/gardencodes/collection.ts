@@ -21,15 +21,11 @@ function generateCode(length) {
 export const eventTypes = [
   {
     value: "private",
-    label: "Private (only visible to you)",
-  },
-  {
-    value: "semi-public",
-    label: "Semi-Public (visible to Garden members)",
+    label: "Displayed only to you",
   },
   {
     value: "public",
-    label: "Public (visible to all LessWrong users)",
+    label: "Displayed on the public Garden Calendar",
   }
 ]
 
@@ -106,7 +102,7 @@ const schema: SchemaType<DbGardenCode> = {
     optional: true,
     order: 25,
     onInsert: (gardenCode) => {
-      return moment(gardenCode.startTime).add(4, 'hours').toDate()
+      return moment(gardenCode.startTime).add(12, 'hours').toDate()
     }
   },
   fbLink: {
@@ -123,7 +119,7 @@ const schema: SchemaType<DbGardenCode> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    label: "Type:",
+    label: "Event Visibility:",
     optional: true,
     control: "radiogroup",
     ...schemaDefaultValue(eventTypes[0].value),

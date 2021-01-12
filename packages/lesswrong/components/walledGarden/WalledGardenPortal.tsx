@@ -11,6 +11,7 @@ import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
+import {useTagBySlug} from "../tagging/useTag";
 
 const toggleEventsOffset = "330px"
 
@@ -60,20 +61,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   enterButton: {
     display: "flex",
     justifyContent: "flex-end",
-    fontSize: "1.6rem"
+    fontSize: "1.6rem",
+    padding: 20
   },
   buttonStyling: {
     paddingTop: 8,
     paddingBottom: 8,
     paddingLeft: 16,
     paddingRight: 16
+  },
+  body: {
+    marginTop: 20
   }
 })
 
 
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails } = Components
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody } = Components
   
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()
@@ -96,7 +101,9 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   });
 
   const gardenCode = (results && results.length > 0 && (results[0] as HasIdType)._id) ? results[0] as FragmentTypes["GardenCodeFragment"] | null : null
-
+  
+  const { tag: onboardingText } = useTagBySlug("garden-onboarding", "TagFragment")
+  
   const validateGardenCode = (gardenCode: GardenCodeFragment | null) => {
     return !gardenCode?.deleted && moment().isBetween(gardenCode?.startTime, gardenCode?.endTime)
   }
@@ -154,11 +161,26 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
     //Default Access Denied Message
     return <SingleColumnSection className={classes.root}>
-      <p>The Walled Garden is a private virtual space managed by the LessWrong team.</p>
-      <p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
+      <p>The Walled Garden is a virtual space managed by the LessWrong team.</p>
+      <p>If you have an event invite link, please use that to enter. If you have been granted full-access, to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
     </SingleColumnSection>
   }
 
+  const enterGardenButton = <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
+      <div className={classes.enterButton}>
+        <a className={classes.buttonStyling} onClick={ async () => {
+          setOnboarded(true)
+          history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
+          if (currentUser && !currentUser.walledGardenPortalOnboarded) {
+            void updateCurrentUser({
+              walledGardenPortalOnboarded: true
+            })
+          }
+        }}>
+          <b>ENTER THE GARDEN</b>
+        </a>
+      </div>
+    </AnalyticsTracker>
   
   if ((!!gardenCode && !enteredQuery) || (!!currentUser && !onboarded)){
     return <SingleColumnSection className={classes.root}>
@@ -170,39 +192,19 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
         }
         {currentUser?.walledGardenInvite && <p>Of course, as a Walled Garden member, you may enter anytime. :)</p>}
         {!currentUser?.walledGardenInvite && isOpenToPublic && <p>However, the Garden is currently to the public, so you may enter anyway! :)</p>}
-      </div>
-      }
-      <p><strong>IMPORTANT TECHNICAL INFORMATION</strong></p>
-      <ul>
-        <li>Please wear headphones! Try to be in a low-background noise environment.</li>
-        <li>Make sure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
-        <li>The Garden will not load from an incognito window or if 3rd-party cookies are blocked.</li>
-        <li>Technical Problems once you're in the Garden? Refresh the tab.</li>
-        <li>Lost or stuck? Message a host using chat (left sidebar)</li>
-        <li>Interactions are voluntary. It's okay to leave conversations.</li>
-        <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right on most pages) or
-          email (team@lesswrong.com).</li>
-      </ul>
-      <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
-        <div className={classes.enterButton}>
-          <a className={classes.buttonStyling} onClick={ async () => {
-            setOnboarded(true)
-            history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
-            if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-              void updateCurrentUser({
-                walledGardenPortalOnboarded: true
-              })
-            }
-          }}>
-            <b>Enter the Garden</b>
-          </a>
-        </div>
-      </AnalyticsTracker>
+      </div>}
       {!!gardenCode && <div className={classes.eventDetails}>
         <p><strong>EVENT DETAILS</strong> <em>May contain important instructions</em></p>
         <GardenEventDetails gardenCode={gardenCode}/>
       </div>
       }
+      {enterGardenButton}
+      <ContentItemBody
+        className={classes.body}
+        dangerouslySetInnerHTML={{__html: onboardingText?.description?.html || ""}}
+        description={`tag ${onboardingText?.name}`}
+      />
+      {enterGardenButton}
     </SingleColumnSection>
   }
 
