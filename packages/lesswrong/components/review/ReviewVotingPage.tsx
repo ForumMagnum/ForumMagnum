@@ -28,6 +28,12 @@ const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 //const NOMINATIONS_VIEW = "nominations2018"
 //const REVIEWS_VIEW = "reviews2018"
 
+const defaultReactions = [
+  "I have personally benefited from this post",
+  "Deserves followup work based on it",
+  "Should be edited/improved",
+  "Important but shouldn't be included in the book"
+]
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -186,10 +192,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteAverage: {
     cursor: 'pointer',
   },
-  
-  leaveReactions: {},
-  reaction: {
-  },
+  leaveReactions: {
+    marginTop: 16,
+  }
 });
 
 export type vote = {_id: string, postId: string, score: number, type?: string, reactions: string[]}
@@ -278,7 +283,7 @@ const ReviewVotingPage = ({classes}: {
     score: number,
     reactions: string[],
   }) => {
-    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+""}})
+    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false}})
   }, [submitVote]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
@@ -292,7 +297,7 @@ const ReviewVotingPage = ({classes}: {
     const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
     await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions, dummy: false},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
@@ -329,6 +334,23 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
+  const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
+  const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
+  
+  const adjustAllQuadratic = (delta: number) => {
+    for (let post of posts) {
+      const existingVote = votes.find(vote => vote.postId === post._id);
+      void dispatchQuadraticVote({
+        _id: existingVote?._id || null,
+        postId: post._id,
+        change: delta,
+      });
+    }
+  }
+
+  const currentReactions = expandedPost ? [...(votes.find(vote => vote.postId === expandedPost._id)?.reactions || [])] : []
+  
+  // TODO: Redundancy here due to merge
   const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0
   const voteAverage = posts?.length > 0 ? voteSum/posts?.length : 0
 
@@ -336,7 +358,6 @@ const ReviewVotingPage = ({classes}: {
     const voteAdjustment = -Math.trunc(voteAverage)
     quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
   }
-
 
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
@@ -414,7 +435,7 @@ const ReviewVotingPage = ({classes}: {
             <div className={classes.expandedInfo}>
               <h1 className={classes.header}>Try out the vote on nominated and reviewed posts from {YEAR}</h1>
               <div className={classes.instructions}>
-                <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p>
+                {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p> */}
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
                 <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
                 <ul>
@@ -433,19 +454,21 @@ const ReviewVotingPage = ({classes}: {
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
               <div className={classes.leaveReactions}>
+                {[...new Set([...defaultReactions, ...currentReactions])].map(reaction =>  <ReactionsButton 
+                  postId={expandedPost._id} 
+                  key={reaction}
+                  vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
+                  votes={votes} 
+                  reaction={reaction} 
+                  freeEntry={false}
+                />)}
                 <ReactionsButton 
                   postId={expandedPost._id} 
                   vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
                   votes={votes} 
-                  reaction={"I have personally benefited from this post"} 
+                  reaction={"Other..."} 
+                  freeEntry={true}
                 />
-                <ReactionsButton 
-                  postId={expandedPost._id} 
-                  vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
-                  votes={votes} 
-                  reaction={"I don't like this post"} 
-                />
-                <span className={classes.reaction}> Other...</span>
               </div>
               <ReviewPostButton post={expandedPost} year={YEAR+""} reviewMessage={<div>
                 <div className={classes.writeAReview}>

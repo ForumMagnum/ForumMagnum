@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { vote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import * as _ from "underscore"
+import Input from '@material-ui/core/Input';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import CheckIcon from '@material-ui/icons/Check';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,33 +19,80 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     boxShadow: '0px 1px 5px 0px rgba(0, 0, 0, 0.2)',
     cursor: 'pointer',
+    display: 'inline-block',
     '&:hover': {
       backgroundColor: 'rgba(240,240,240,1)'
     }
   },
   active: {
     color: 'white',
-    backgroundColor: 'rgba(50, 50, 50, 1)',
+    backgroundColor: theme.palette.primary.dark,
     '&:hover': {
-      backgroundColor: 'rgba(100,100,100,1)'
+      backgroundColor: theme.palette.primary.main
     }
+  },
+  textEntryOpen: {
+    padding: 0,
+    paddingLeft: 4
   }
 })
 
 
-const ReactionsButton = ({classes, postId, vote, votes, reaction }: {classes: ClassesType, postId: string, vote: any, votes: vote[], reaction: string}) => {
+const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType, postId: string, vote: any, votes: vote[], reaction: string, freeEntry: boolean}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   const currentReactions = voteForCurrentPost?.reactions || []
+  const [freeEntryText, setFreeEntryText] = useState("")
+  const [textFieldOpen, setTextFieldOpen] = useState(false)
   const createClickHandler = (postId: string, reactions: string[], voteId: string | undefined, score: number | undefined) => {
+    if (freeEntry) {
+      return () => {
+        setTextFieldOpen(true)
+      }
+    } else {
       return () => {
         vote({postId, reactions, _id: voteId, previousValue: score})
       }
+    }
   }
+
+  const submitFreeEntryText = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    vote({postId, reactions: [...currentReactions, freeEntryText], _id: voteForCurrentPost?._id, previousValue: voteForCurrentPost?.score})
+    setTextFieldOpen(false)
+    setFreeEntryText("")
+  }
+  
+  const handleEnter = e => {
+    if (e.keyCode == 13) {
+      submitFreeEntryText(e)
+    }
+  }
+
   return <span 
-    className={classNames(classes.root, {[classes.active]: currentReactions.includes(reaction)})}
+    className={classNames(classes.root, {[classes.active]: currentReactions.includes(reaction), [classes.textEntryOpen]: textFieldOpen })}
     onClick={createClickHandler(postId, currentReactions.includes(reaction) ? _.without(currentReactions, reaction) : [...currentReactions, reaction], voteForCurrentPost?._id, voteForCurrentPost?.score)}
   >
-    <span>{reaction}</span>
+    {textFieldOpen ? <Input
+      placeholder={reaction}
+      value={freeEntryText}
+      onChange={(event) => {
+        setFreeEntryText(event.target.value)
+      }}
+      disableUnderline={true}
+      onKeyDown={handleEnter}
+      endAdornment={
+        <InputAdornment position="end">
+          <IconButton
+            aria-label="Toggle password visibility"
+            onClick={submitFreeEntryText}
+          >
+            <CheckIcon />
+          </IconButton>
+        </InputAdornment>
+      }
+      /> : <span>{reaction}</span>
+    }
   </span>
 }
 
