@@ -339,7 +339,7 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
-  const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
+  // const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
   // const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
   
   // const adjustAllQuadratic = (delta: number) => {
