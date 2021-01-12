@@ -276,7 +276,7 @@ const ReviewVotingPage = ({classes}: {
     score: number,
     reactions: string[],
   }) => {
-    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: true}})
+    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+""}})
   }, [submitVote]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
@@ -290,7 +290,7 @@ const ReviewVotingPage = ({classes}: {
     const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
     await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", dummy: true, reactions: newReactions},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
