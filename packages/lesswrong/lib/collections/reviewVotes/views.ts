@@ -17,7 +17,7 @@ ReviewVotes.addView("reviewVotesFromUser", (terms: ReviewVotesViewTerms) => {
     selector: {
       userId: terms.userId,
       year: terms.year,
-      dummy: true // Filter and submit dummy votes until 2019 review goes properly live
+      dummy: false
     }
   };
 });
