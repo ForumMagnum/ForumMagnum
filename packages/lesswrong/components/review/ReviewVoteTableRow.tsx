@@ -77,7 +77,7 @@ const ReviewVoteTableRow = (
 
   const currentUser = useCurrentUser()
   if (!currentUser) return null;
-  const expanded = expandedPostId == post._id
+  const expanded = expandedPostId === post._id
 
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
 
