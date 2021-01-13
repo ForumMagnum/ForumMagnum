@@ -41,6 +41,7 @@ const Nominations2019 = ({classes}: {
         <PostsList2 
           terms={{view:"nominations2019", sortByMost: sortByMost, limit: 50}} 
           showNominationCount
+          showReviewCount
           enableTotal
         />
       </SingleColumnSection>

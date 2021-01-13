@@ -397,7 +397,6 @@ Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTer
 });
 
 Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
-  
   return {
     selector: { 
       userId, 

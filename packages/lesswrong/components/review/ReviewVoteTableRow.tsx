@@ -74,6 +74,8 @@ const ReviewVoteTableRow = (
   if (!currentUser) return null;
   const expanded = expandedPostId == post._id
 
+  const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
+
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
       {expanded && <ArrowBackIosIcon className={classes.backIcon} onClick={() => setExpandedPost(null)}/>}
@@ -84,13 +86,13 @@ const ReviewVoteTableRow = (
               <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
             </LWTooltip>
           </div>
-          {post.userId !== currentUser._id && <div>
+          {!currentUserIsAuthor && <div>
               {useQuadratic ?
                 <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
                 <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
               }
           </div>}
-          {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
+          {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
       </div>
       {expanded && <div className={classes.highlight}>

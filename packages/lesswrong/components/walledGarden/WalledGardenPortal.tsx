@@ -8,6 +8,8 @@ import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { isMobile } from "../../lib/utils/isMobile";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
 import {useTagBySlug} from "../tagging/useTag";
 
@@ -32,6 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   portalBarPositioning: {
     width: "100%",
+    flex: 1
   },
   toggleEvents: {
     position: "absolute",
@@ -58,7 +61,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   enterButton: {
     display: "flex",
     justifyContent: "flex-end",
-    fontSize: "1.6rem"
+    fontSize: "1.6rem",
+    padding: 20
   },
   buttonStyling: {
     paddingTop: 8,
@@ -68,9 +72,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   body: {
     marginTop: 20
-  },
-  mapImage: {
-    
   }
 })
 
@@ -88,6 +89,8 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const { code: inviteCodeQuery, entered } = query;
   const enteredQuery = entered === "true"
 
+  const [ hideBar, setHideBar ] = useState(false);
+
   const { results } = useMulti({
     terms: {
       code: inviteCodeQuery
@@ -99,7 +102,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const gardenCode = (results && results.length > 0 && (results[0] as HasIdType)._id) ? results[0] as FragmentTypes["GardenCodeFragment"] | null : null
   
-  const { tag } = useTagBySlug("garden-onboarding", "TagFragment")
+  const { tag: onboardingText } = useTagBySlug("garden-onboarding", "TagFragment")
   
   const validateGardenCode = (gardenCode: GardenCodeFragment | null) => {
     return !gardenCode?.deleted && moment().isBetween(gardenCode?.startTime, gardenCode?.endTime)
@@ -126,7 +129,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
   const codeIsValid = validateGardenCode(gardenCode)
   const userIsAllowed = currentUser?.walledGardenInvite || isOpenToPublic || codeIsValid
-  
+
 
   if (!userIsAllowed) {
     const codeExpiredDuringSession = onboarded && expiredGardenCode
@@ -158,11 +161,26 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
     //Default Access Denied Message
     return <SingleColumnSection className={classes.root}>
-      <p>The Walled Garden is a private virtual space managed by the LessWrong team.</p>
-      <p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
+      <p>The Walled Garden is a virtual space managed by the LessWrong team.</p>
+      <p>If you have an event invite link, please use that to enter. If you have been granted full-access, to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
     </SingleColumnSection>
   }
 
+  const enterGardenButton = <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
+      <div className={classes.enterButton}>
+        <a className={classes.buttonStyling} onClick={ async () => {
+          setOnboarded(true)
+          history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
+          if (currentUser && !currentUser.walledGardenPortalOnboarded) {
+            void updateCurrentUser({
+              walledGardenPortalOnboarded: true
+            })
+          }
+        }}>
+          <b>ENTER THE GARDEN</b>
+        </a>
+      </div>
+    </AnalyticsTracker>
   
   if ((!!gardenCode && !enteredQuery) || (!!currentUser && !onboarded)){
     return <SingleColumnSection className={classes.root}>
@@ -174,64 +192,41 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
         }
         {currentUser?.walledGardenInvite && <p>Of course, as a Walled Garden member, you may enter anytime. :)</p>}
         {!currentUser?.walledGardenInvite && isOpenToPublic && <p>However, the Garden is currently to the public, so you may enter anyway! :)</p>}
+      </div>}
+      {!!gardenCode && <div className={classes.eventDetails}>
+        <p><strong>EVENT DETAILS</strong> <em>May contain important instructions</em></p>
+        <GardenEventDetails gardenCode={gardenCode}/>
       </div>
       }
-      <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
-        <div className={classes.enterButton}>
-          <a className={classes.buttonStyling} onClick={ async () => {
-            setOnboarded(true)
-            history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
-            if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-              void updateCurrentUser({
-                walledGardenPortalOnboarded: true
-              })
-            }
-          }}>
-            <b>ENTER THE GARDEN</b>
-          </a>
-        </div>
-      </AnalyticsTracker>
+      {enterGardenButton}
       <ContentItemBody
         className={classes.body}
-        dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
-        description={`tag ${tag?.name}`}
+        dangerouslySetInnerHTML={{__html: onboardingText?.description?.html || ""}}
+        description={`tag ${onboardingText?.name}`}
       />
-      <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
-        <div className={classes.enterButton}>
-          <a className={classes.buttonStyling} onClick={ async () => {
-            setOnboarded(true)
-            history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
-            // if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-            //   void updateUser({
-            //     selector: {_id: currentUser._id},
-            //     data: {
-            //       walledGardenPortalOnboarded: true
-            //     }
-            //   })
-            // }
-          }}>
-            <b>ENTER THE GARDEN</b>
-          </a>
-        </div>
-      </AnalyticsTracker>
-      <h2>Also, here's this random map we found of the party venue.</h2>
-      <img className={classes.mapImage} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1609371501/garden_map_nye_akhmig.jpg"/>
-        {/*{!!gardenCode && <div className={classes.eventDetails}>*/}
-      {/*  <p><strong>EVENT DETAILS</strong> <em>May contain important instructions</em></p>*/}
-      {/*  <GardenEventDetails gardenCode={gardenCode}/>*/}
-      {/*</div>*/}
-      {/*}*/}
+      {enterGardenButton}
     </SingleColumnSection>
   }
 
 
   return <div className={classes.innerPortalPositioning}>
     <div className={classes.iframeWrapper}>
+      {hideBar ?
+        <div className={classes.toggleEvents} onClick={() => setHideBar(false)}>
+          <ExpandLessIcon className={classes.closeIcon}/>
+          Show Footer
+        </div>
+        :
+        <div className={classes.toggleEvents} onClick={() => setHideBar(true)}>
+          <ExpandMoreIcon className={classes.closeIcon}/>
+          Hide Footer
+        </div>
+      }
       <GatherTownIframeWrapper  iframeRef={iframeRef}/>
     </div>
-    <div className={classes.portalBarPositioning}>
+    {!hideBar && <div className={classes.portalBarPositioning}>
       <WalledGardenPortalBar iframeRef={iframeRef}/>
-    </div>
+    </div>}
   </div>
 }
 

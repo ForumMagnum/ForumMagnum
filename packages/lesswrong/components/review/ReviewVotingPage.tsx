@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import sumBy from 'lodash/sumBy'
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
@@ -21,18 +20,22 @@ import seedrandom from '../../lib/seedrandom';
 
 const YEAR = 2019
 const NOMINATIONS_VIEW = "nominations2019"
-const REVIEWS_VIEW = "reviews2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const VOTING_VIEW = "voting2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const REVIEW_COMMENTS_VIEW = "reviews2019"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
+
+export const currentUserCanVote = (currentUser) => new Date(currentUser?.createdAt) < new Date(`${YEAR}-01-01`)
 
 //const YEAR = 2018
 //const NOMINATIONS_VIEW = "nominations2018"
 //const REVIEWS_VIEW = "reviews2018"
 
 const defaultReactions = [
-  "I have personally benefited from this post",
-  "Deserves followup work based on it",
+  "I personally benefited from this post",
+  "Deserves followup work",
   "Should be edited/improved",
-  "Important but shouldn't be included in the book"
+  "Important but shouldn't be in book",
+  "I spent 30+ minutes reviewing this in-depth"
 ]
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -76,7 +79,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   expandedInfo: {
     maxWidth: 600,
-    marginTop: 130,
     marginBottom: 175,
   },
   menu: {
@@ -100,14 +102,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   expandedInfoWrapper: {
     position: "fixed",
-    top: 0,
+    top: 100,
     overflowY: "auto",
     height: "100vh",
+    paddingRight: 8
   },
   header: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
-    marginTop: 0,
+    marginTop: 6,
   },
   postHeader: {
     ...theme.typography.display1,
@@ -222,14 +225,14 @@ const ReviewVotingPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
-    terms: {view: REVIEWS_VIEW, limit: 200},
+    terms: {view: VOTING_VIEW, limit: 300},
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 200, userId: currentUser?._id, year: YEAR+""},
+    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
@@ -278,13 +281,16 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = useCallback(async ({postId, score, reactions}: {
+  const dispatchQualitativeVote = useCallback(async ({_id, postId, score, reactions}: {
+    _id: string|null,
     postId: string,
     score: number,
     reactions: string[],
   }) => {
-    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false}})
-  }, [submitVote]);
+    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+    const newReactions = reactions || existingVote?.reactions || []
+    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false, reactions: newReactions}})
+  }, [submitVote, dbVotes]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
   const dispatchQuadraticVote = async ({_id, postId, change, set, reactions}: {
@@ -325,7 +331,7 @@ const ReviewVotingPage = ({classes}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
-  if (!currentUser || currentUser.createdAt > new Date(`${YEAR}-01-01`)) {
+  if (!currentUserCanVote(currentUser)) {
     return (
       <div className={classes.message}>
         Only users registered before {YEAR} can vote in the {YEAR} LessWrong Review
@@ -334,19 +340,19 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
-  const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
-  const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
+  // const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
+  // const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
   
-  const adjustAllQuadratic = (delta: number) => {
-    for (let post of posts) {
-      const existingVote = votes.find(vote => vote.postId === post._id);
-      void dispatchQuadraticVote({
-        _id: existingVote?._id || null,
-        postId: post._id,
-        change: delta,
-      });
-    }
-  }
+  // const adjustAllQuadratic = (delta: number) => {
+  //   for (let post of posts) {
+  //     const existingVote = votes.find(vote => vote.postId === post._id);
+  //     void dispatchQuadraticVote({
+  //       _id: existingVote?._id || null,
+  //       postId: post._id,
+  //       change: delta,
+  //     });
+  //   }
+  // }
 
   const currentReactions = expandedPost ? [...(votes.find(vote => vote.postId === expandedPost._id)?.reactions || [])] : []
   
@@ -434,7 +440,7 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <h1 className={classes.header}>Try out the vote on nominated and reviewed posts from {YEAR}</h1>
+              <h1 className={classes.header}>Vote on nominated and reviewed posts from {YEAR}</h1>
               <div className={classes.instructions}>
                 {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p> */}
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
@@ -487,7 +493,7 @@ const ReviewVotingPage = ({classes}: {
                 />
                 <PostReviewsAndNominations
                   title="review"
-                  terms={{view: REVIEWS_VIEW, postId: expandedPost._id}}
+                  terms={{view: REVIEW_COMMENTS_VIEW, postId: expandedPost._id}}
                   post={expandedPost}
                 />
               </div>
@@ -563,7 +569,8 @@ const inverseSumOf1ToN = (x:number) => {
 }
 
 const sumOf1ToN = (x:number) => {
-  return x*(x+1)/2
+  const absX = Math.abs(x)
+  return absX*(absX+1)/2
 }
 
 const computeTotalCost = (votes: vote[]) => {

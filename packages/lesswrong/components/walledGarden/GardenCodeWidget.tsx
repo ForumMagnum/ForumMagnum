@@ -123,13 +123,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
             </a></div>} */}
           </div>
       : <div>
-          {type === "friend" && <div>
-            <p>Use invite links to set up co-working, general hangouts, and other events.</p>
-            <p>
-              Feel free to invite anyone who is considerate of those around them.
-              Invite codes are valid for 4 hours from start time.
-            </p>
-          </div>}
+          <p>Invite codes are valid for 12 hours from start time.</p>
           <Components.WrappedSmartForm
             collection={GardenCodes}
             fields={fields}

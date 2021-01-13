@@ -19,7 +19,7 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   
   const terms: GardenCodesViewTerms = personal ?
     {view:"usersPrivateGardenCodes"} :
-    {view:"semipublicGardenCodes", types: currentUser?.walledGardenInvite ? ['public', 'semi-public'] : ['public']}
+    {view:"publicGardenCodes"}
   
   const { results, loading, loadMoreProps } = useMulti({
     terms: {
