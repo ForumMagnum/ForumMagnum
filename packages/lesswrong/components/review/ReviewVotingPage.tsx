@@ -124,7 +124,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
   },
   excessVotes: {
-    color: theme.palette.error.main
+    color: theme.palette.error.main,
+    border: `solid 1px ${theme.palette.error.light}`,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 6,
+    paddingBottom: 6,
+    borderRadius: 3,
+    '&:hover': {
+      opacity: .5
+    }
   },
   message: {
     width: "100%",
@@ -404,7 +413,9 @@ const ReviewVotingPage = ({classes}: {
                   {voteTotal}/500
                 </div>
             </LWTooltip>}
-            {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details. Click to renormalize your votes to get closer to an optimal allocation.</div>}>
+            {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
+                <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
+                <p>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details.</p></div>}>
                 <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
                   Avg: {(voteSum / posts.length).toFixed(2)}
                 </div>
@@ -425,6 +436,7 @@ const ReviewVotingPage = ({classes}: {
                 >
                   <ReviewVoteTableRow
                     post={post}
+                    setExpandedPost={setExpandedPost}
                     dispatch={dispatchQualitativeVote}
                     currentQualitativeVote={currentQualitativeVote||null}
                     currentQuadraticVote={currentQuadraticVote||null}

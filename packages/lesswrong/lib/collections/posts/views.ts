@@ -1087,14 +1087,13 @@ ensureIndex(Posts,
   { name: "posts.nominations2019", }
 );
 
-
-const reviewSortings = {
-  "fewestReviews" : {reviewCount2018: 1},
-  "mostReviews" : {reviewCount2018: -1},
-  "lastCommentedAt" :  {lastCommentedAt: -1}
-}
-
 Posts.addView("reviews2018", (terms: PostsViewTerms) => {
+  const sortings = {
+    "fewestReviews" : {reviewCount2018: 1},
+    "mostReviews" : {reviewCount2018: -1},
+    "lastCommentedAt" :  {lastCommentedAt: -1}
+  }
+
   return {
     selector: {
       nominationCount2018: { $gte: 2 },
@@ -1102,10 +1101,16 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
       reviewCount2018: { $gte: 1 }
     },
     options: {
-      sort: { ...(terms.sortBy ? reviewSortings[terms.sortBy] : undefined), nominationCount2018: -1 }
+      sort: { ...(terms.sortBy ? sortings[terms.sortBy] : undefined), nominationCount2018: -1 }
     }
   }
 })
+
+const reviews2019Sortings : Record<ReviewSortings, MongoSort<DbPost>> = {
+  "fewestReviews" : {reviewCount2019: 1},
+  "mostReviews" : {reviewCount2019: -1},
+  "lastCommentedAt" :  {lastCommentedAt: -1}
+}
 
 Posts.addView("reviews2019", (terms: PostsViewTerms) => {
   return {
@@ -1113,7 +1118,7 @@ Posts.addView("reviews2019", (terms: PostsViewTerms) => {
       nominationCount2019: { $gte: 2 }
     },
     options: {
-      sort: { ...(terms.sortBy && reviewSortings[terms.sortBy]), nominationCount2019: -1 }
+      sort: { ...(terms.sortBy && reviews2019Sortings[terms.sortBy]), nominationCount2019: -1 }
     }
   }
 })
@@ -1126,7 +1131,7 @@ Posts.addView("voting2019", (terms: PostsViewTerms) => {
       reviewCount2019: { $gte: 1 }
     },
     options: {
-      sort: { ...(terms.sortBy && reviewSortings[terms.sortBy]), nominationCount2019: -1 }
+      sort: { ...(terms.sortBy && reviews2019Sortings[terms.sortBy]), nominationCount2019: -1 }
     }
   }
 })
