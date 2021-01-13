@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { vote, quadraticVote } from './ReviewVotingPage';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -84,7 +84,7 @@ const ReviewVoteTableRow = (
 
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
-      {expanded && <ArrowBackIosIcon className={classes.backIcon} onClick={clickHandler}/>}
+      {expanded && <ExpandLessIcon className={classes.backIcon} onClick={clickHandler}/>}
       <div>
         <div className={classes.postVote} >
           <div className={classes.post}>
