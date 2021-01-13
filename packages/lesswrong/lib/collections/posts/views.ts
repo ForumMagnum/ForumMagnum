@@ -1073,7 +1073,7 @@ Posts.addView("nominations2019", (terms: PostsViewTerms) => {
   return {
     selector: {
       // FIXME: Should only apply during voting
-      nominationCount2019: { $gt: 2 }
+      nominationCount2019: { $gt: 0 }
     },
     options: {
       sort: {
@@ -1087,13 +1087,14 @@ ensureIndex(Posts,
   { name: "posts.nominations2019", }
 );
 
-Posts.addView("reviews2018", (terms: PostsViewTerms) => {
-  const sortings = {
-    "fewestReviews" : {reviewCount2018: 1},
-    "mostReviews" : {reviewCount2018: -1},
-    "lastCommentedAt" :  {lastCommentedAt: -1}
-  }
 
+const reviewSortings = {
+  "fewestReviews" : {reviewCount2018: 1},
+  "mostReviews" : {reviewCount2018: -1},
+  "lastCommentedAt" :  {lastCommentedAt: -1}
+}
+
+Posts.addView("reviews2018", (terms: PostsViewTerms) => {
   return {
     selector: {
       nominationCount2018: { $gte: 2 },
@@ -1101,18 +1102,23 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
       reviewCount2018: { $gte: 1 }
     },
     options: {
-      sort: { ...(terms.sortBy ? sortings[terms.sortBy] : undefined), nominationCount2018: -1 }
+      sort: { ...(terms.sortBy ? reviewSortings[terms.sortBy] : undefined), nominationCount2018: -1 }
     }
   }
 })
 
 Posts.addView("reviews2019", (terms: PostsViewTerms) => {
-  const sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
-    "fewestReviews" : {reviewCount2019: 1},
-    "mostReviews" : {reviewCount2019: -1},
-    "lastCommentedAt" :  {lastCommentedAt: -1}
+  return {
+    selector: {
+      nominationCount2019: { $gte: 2 }
+    },
+    options: {
+      sort: { ...(terms.sortBy && reviewSortings[terms.sortBy]), nominationCount2019: -1 }
+    }
   }
+})
 
+Posts.addView("voting2019", (terms: PostsViewTerms) => {
   return {
     selector: {
       nominationCount2019: { $gte: 2 },
@@ -1120,7 +1126,7 @@ Posts.addView("reviews2019", (terms: PostsViewTerms) => {
       reviewCount2019: { $gte: 1 }
     },
     options: {
-      sort: { ...(terms.sortBy && sortings[terms.sortBy]), nominationCount2019: -1 }
+      sort: { ...(terms.sortBy && reviewSortings[terms.sortBy]), nominationCount2019: -1 }
     }
   }
 })
