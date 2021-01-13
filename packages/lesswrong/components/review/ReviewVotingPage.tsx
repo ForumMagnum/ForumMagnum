@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
-      minmax(60px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr) minmax(100px, 600px) minmax(30px, 0.5fr)
+      minmax(10px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr) minmax(100px, 600px) minmax(30px, 0.5fr)
     `,
     gridTemplateAreas: `
     "... leftColumn ... rightColumn ..."

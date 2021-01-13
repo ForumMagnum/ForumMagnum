@@ -51,12 +51,6 @@ const styles = (theme: ThemeType) => ({
     padding: 16,
     background: "#f9f9f9",
     borderTop: "solid 1px rgba(0,0,0,.1)"
-  },
-  backIcon: {
-    position: "absolute",
-    left:-40,
-    color: theme.palette.grey[400],
-    cursor: "pointer"
   }
 });
 
