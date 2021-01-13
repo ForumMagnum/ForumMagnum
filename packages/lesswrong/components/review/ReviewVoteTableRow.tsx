@@ -50,7 +50,8 @@ const styles = (theme: ThemeType) => ({
   backIcon: {
     position: "absolute",
     left:-40,
-    color: theme.palette.grey[400]
+    color: theme.palette.grey[400],
+    cursor: "pointer"
   }
 });
 
