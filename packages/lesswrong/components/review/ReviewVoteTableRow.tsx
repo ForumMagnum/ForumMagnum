@@ -76,9 +76,15 @@ const ReviewVoteTableRow = (
 
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
 
+  const clickHandler= (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedPost(null)
+  }
+
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
-      {expanded && <ArrowBackIosIcon className={classes.backIcon} onClick={() => setExpandedPost(null)}/>}
+      {expanded && <ArrowBackIosIcon className={classes.backIcon} onClick={clickHandler}/>}
       <div>
         <div className={classes.postVote} >
           <div className={classes.post}>
