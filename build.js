@@ -65,7 +65,7 @@ build({
   entryPoints: ['./packages/lesswrong/platform/current/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
-  sourcemap: "inline",
+  sourcemap: true,
   outfile: "./build/client/js/bundle.js",
   minify: isProduction,
   banner: clientBundleBanner,
@@ -92,7 +92,7 @@ build({
   bundle: true,
   outfile: './build/server/js/serverBundle.js',
   platform: "node",
-  sourcemap: "inline",
+  sourcemap: true,
   minify: false,
   run: cliopts.run && ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile],
   onStart: (config, changedFiles, ctx, esbuildOptions) => {
