@@ -5,6 +5,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
+import { useCurrentUser } from '../common/withUser';
+import { tagStyle } from './FooterTag';
+import { filteringStyles } from './FilterMode';
+import { commentBodyStyles } from '../../themes/stylePiping';
+import { Card } from '@material-ui/core';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,6 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexWrap: "wrap",
     alignItems: "flex-start",
     paddingBottom: 4
+  },
+  showPersonalBlogposts: {
+    ...tagStyle(theme),
+    display: "inline-block",
+    marginBottom: 4,
+    marginRight: 4,
+    border: `solid 1px rgba(0,0,0,.25)`,
+    backgroundColor: "white"
   },
   addButton: {
     backgroundColor: theme.palette.grey[300],
@@ -25,6 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 700,
     marginBottom: 4,
     cursor: "pointer"
+  },
+  personalTooltip: {
+    ...filteringStyles(theme),
+    ...commentBodyStyles(theme)
   }
 });
 
@@ -77,6 +94,8 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     setAddedSuggestedTags(true);
   }
 
+  const currentUser = useCurrentUser()
+
   const { results: suggestedTags, loading: loadingSuggestedTags } = useMulti({
     terms: {
       view: "suggestedFilterTags",
@@ -92,6 +111,13 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   if (suggestedTags && !addedSuggestedTags) {
     filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags);
   }
+
+  const personalBlogpostCard = <Card><div className={classes.personalTooltip}>
+    <p><em>Click to show personal blogposts</em></p>
+    <div>{personalBlogpostTooltip}</div>
+  </div></Card>
+
+  const showPersonalBlogpostsButton = (currentUser && (filterSettingsWithSuggestedTags.personalBlog === "Hidden"))
 
   return <span>
     {loadingSuggestedTags && !filterSettingsWithSuggestedTags.tags.length && <Loading/>}
@@ -129,18 +155,31 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       />
     )}
 
-    <FilterMode
-      label={personalBlogpostName}
-      description={personalBlogpostTooltip}
-      mode={filterSettingsWithSuggestedTags.personalBlog}
-      canRemove={false}
-      onChangeMode={(mode: FilterMode) => {
-        changeFilterSettings({
-          personalBlog: mode,
-          tags: filterSettingsWithSuggestedTags.tags,
-        });
-      }}
-    />
+
+
+    {showPersonalBlogpostsButton ?
+      <LWTooltip title={personalBlogpostCard} tooltip={false}>
+        <div className={classes.showPersonalBlogposts} onClick={() => changeFilterSettings({
+            personalBlog: 0,
+            tags: filterSettingsWithSuggestedTags.tags,
+          })}>
+          Show Personal Blogposts
+        </div>
+      </LWTooltip>
+      : 
+      <FilterMode
+        label={personalBlogpostName}
+        description={personalBlogpostTooltip}
+        mode={filterSettingsWithSuggestedTags.personalBlog}
+        canRemove={false}
+        onChangeMode={(mode: FilterMode) => {
+          changeFilterSettings({
+            personalBlog: mode,
+            tags: filterSettingsWithSuggestedTags.tags,
+          });
+        }}
+      />
+    }
 
     {<LWTooltip title="Add Tag Filter">
         <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
