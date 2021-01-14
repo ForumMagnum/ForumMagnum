@@ -5924,10 +5924,10 @@ esbuild-loader@^2.6.1:
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.22.tgz"
   integrity sha512-7cgcJwjff5pw6JLTpUyN3QZ6raOYamfvBt7ry0tyGZwZJ/W8mJrHuv+VC5rbNEO4Mz8s8ElmcavKc7R2g1HWow==
 
-esbuild@^0.8.27:
-  version "0.8.27"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.27.tgz"
-  integrity sha512-cY2i08EHYHNg0o748J+X0yBTcCO7DIZSxLWJ/6OymmML0Y2X6qkINfZcoiq5GE6EcLIfwyaZpI60JY6iBJWj5w==
+esbuild@^0.8.31:
+  version "0.8.31"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.31.tgz#c21e7adb3ad283c951a53de7ad64a5ae2df2ed34"
+  integrity sha512-7EIU0VdUxltwivjVezX3HgeNzeIVR1snkrAo57WdUnuBMykdzin5rTrxwCDM6xQqj0RL/HjOEm3wFr2ijHKeaA==
 
 escalade@^3.1.1:
   version "3.1.1"
@@ -6187,9 +6187,9 @@ estraverse@^5.1.0, estraverse@^5.2.0:
   resolved "https://registry.yarnpkg.com/estraverse/-/estraverse-5.2.0.tgz"
   integrity sha512-BxbNGGNm0RyRYvUdHpIwv9IWzeM9XClbOxwoATuFdOE7ZE6wHL+HQ5T8hoPM+zHvmKzzsEqhgy0GrQ5X13afiQ==
 
-"estrella@https://github.com/jimrandomh/estrella#ca97d0c9c72d739dc13d802fd25fa11a670d3b9e":
+"estrella@https://github.com/jimrandomh/estrella#987656e624f6216d2596953f282beee7b6523d2d":
   version "1.3.0"
-  resolved "https://github.com/jimrandomh/estrella#ca97d0c9c72d739dc13d802fd25fa11a670d3b9e"
+  resolved "https://github.com/jimrandomh/estrella#987656e624f6216d2596953f282beee7b6523d2d"
   dependencies:
     esbuild ">=0.6.0 <1.0.0"
   optionalDependencies:
