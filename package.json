@@ -229,7 +229,7 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "esbuild": "^0.8.27",
+    "esbuild": "^0.8.31",
     "esbuild-loader": "^2.6.1",
     "eslint": "^7.14.0",
     "eslint-config-ckeditor5": "^3.1.0",
