@@ -26,13 +26,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   mainHeading: {
     [theme.breakpoints.down('xs')]: {
-      fontSize: '2.3rem'
+      fontSize: '2.3rem !important',
+      paddingLeft: 170,
     }
   },
   secondaryHeading: {
     marginTop: '-16px',
     fontStyle: 'italic',
-    fontWeight: 'normal'
+    fontWeight: 'normal',
+    [theme.breakpoints.down('xs')]: {
+      paddingLeft: 170,
+    },
+    [theme.breakpoints.down(340)]: {
+      display: "none",
+    },
   },
   bookExplanation: {
     ...postBodyStyles(theme),
@@ -45,7 +52,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 16,
       width: '100%',
       textAlign: 'left',
-      paddingLeft: 8
     }
   },
   learnMore: {
@@ -62,7 +68,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     [theme.breakpoints.down('xs')]: {
-      flexDirection: 'row-reverse'
+      position: "absolute",
+      left: 0, right: 0,
+      top: 220,
+      flexDirection: 'row-reverse',
+      paddingLeft: 25,
+      paddingRight: 10,
     }
   },
   closeButton: {
@@ -91,7 +102,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   descriptionText: {
-    fontSize: '0.96em'
+    fontSize: '0.96em',
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
   disclaimerRow: {
     ...theme.typography.commentStyle,
