@@ -104,17 +104,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('xs')]: {
       '& .parent-container': {
-        paddingLeft: 16,
-        paddingTop: 395,  
-        overflow: 'hidden'
+        paddingLeft: 0,
+        paddingTop: 15,
+        overflow: 'hidden',
+        minHeight: 310,
       },
       '& .book-container': {
-        left: 'calc(var(--collapsed-position) + 12vw)',
+        transform: "scale(0.6, 0.6)",
+        left: 'calc(var(--collapsed-position) / 2)',
+        height: 150,
+        width: 100,
+        top: 60
       },
       '& .parent-container::after': {
-        left: '30vw',
+        left: 85,
+        top: 60,
+        height: 140,
+        boxShadow: "5px 23px 130px 15px #666",
       },
-      
+      '& .book': {
+        transition: 'transform 0.0s ease',
+        transform: "rotateY(60deg)",
+      },
     },
     '& .book > .cover': {
       position: 'absolute',
