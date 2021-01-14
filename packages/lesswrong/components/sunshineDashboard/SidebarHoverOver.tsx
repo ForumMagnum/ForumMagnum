@@ -16,7 +16,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}) => {
+const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
+  children: React.ReactNode,
+  classes: ClassesType,
+  hover: boolean,
+  anchorEl: HTMLElement|null,
+  width?: number,
+}) => {
   return <Popper className={classes.root} open={hover} anchorEl={anchorEl} placement="left-start">
     <div className={classes.hoverInfo} style={{width:width}}>
       { children }

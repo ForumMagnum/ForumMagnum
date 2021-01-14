@@ -2,7 +2,6 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Posts } from '../../../lib/collections/posts/collection'
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 import { useNavigation } from '../../../lib/routeUtil';
 
@@ -20,7 +19,7 @@ const PostsRevisionsList = ({post, classes}: {
   const { history } = useNavigation();
   const { document, loading } = useSingle({
     documentId: post._id,
-    collection: Posts,
+    collectionName: "Posts",
     fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
     fragmentName: 'PostsRevisionsList'
   });

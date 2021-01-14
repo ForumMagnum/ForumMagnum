@@ -1,6 +1,4 @@
 import React from "react"
-import { TagFlags } from "../../lib";
-import { Tags } from "../../lib/collections/tags/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
@@ -9,8 +7,9 @@ import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
 import { commentBodyStyles } from "../../themes/stylePiping";
+import { useCurrentUser } from "../common/withUser";
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 4,
@@ -18,7 +17,7 @@ const styles = theme => ({
     borderRadius: 5,
     backgroundColor: 'rgba(0,0,0,0.1)',
     display: 'inline-block'
-  }, 
+  },
   black: {
     color: 'white',
     backgroundColor: 'rgba(0,0,0,0.8)'
@@ -35,52 +34,79 @@ const styles = theme => ({
   }
 })
 
-const TagFlagItem = ({documentId, showNumber = true, style = "grey", classes }: {
-  documentId: string,
+type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
+
+const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
+  documentId?: string,
+  itemType?: ItemTypeName,
   showNumber?: boolean,
   style?: "white"|"grey"|"black",
   classes: ClassesType,
 }) => {
   const { LWPopper, ContentItemBody } = Components;
   const {eventHandlers, hover, anchorEl, stopHover } = useHover();
+  const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
     documentId,
-    collection: TagFlags,
+    collectionName: "TagFlags",
     fetchPolicy: "cache-first",
     fragmentName: "TagFlagFragment",
   })
-  const { totalCount } = useMulti({
-    terms: {
-      view: "tagsByTagFlag",
-      tagFlagId: tagFlag?._id
-    },
-    collection: Tags,
+  
+  
+  const TagFlagItemTerms: Record<ItemTypeName,TagsViewTerms> = {
+    allPages: {view: "allPagesByNewest"},
+    userPages: {view: "userTags", userId: currentUser?._id},
+    tagFlagId: {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
+  }
+  
+  const { totalCount, loading } = useMulti({
+    terms: TagFlagItemTerms[itemType],
+    collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
-    ssr: true,
-    skip: !tagFlag || !showNumber,
+    skip: !showNumber,
     enableTotal: true
   });
+  
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
-
+  
+  
+  
+  const tagFlagDescription = {
+    tagFlagId:`tagFlag ${tagFlag?._id}`,
+    allPages:"All Pages",
+    userPages: "User Wiki-Tags"
+  }
+  const tagFlagText = {
+    tagFlagId: tagFlag?.name,
+    allPages: "All Wiki-Tags",
+    userPages: "My Wiki-Tags"
+  }
+  const hoverText = {
+    tagFlagId: tagFlag?.contents?.html || "",
+    allPages: "All Wiki-Tags sorted by most recently created, including those with no flags set.",
+    userPages: "Wiki-Tags you created, including those with no flags set."
+  } 
+    
   return <span {...eventHandlers} className={rootStyles}>
-    <LWPopper 
-        open={hover} 
-        anchorEl={anchorEl} 
+    <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
         onMouseEnter={stopHover}
         placement="bottom-start"
       >
-        {tagFlag && <AnalyticsContext pageElementContext="hoverPreview">
+        {(["allPages", "userPages"].includes(itemType) || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">
           <Card className={classes.hoverCard}>
             <ContentItemBody
               className={classes.highlight}
-              dangerouslySetInnerHTML={{__html: tagFlag.contents?.html || "" }}
-              description={`tagFlag ${tagFlag._id}`}
+              dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
+              description={tagFlagDescription[itemType]}
             />
           </Card>
         </AnalyticsContext>}
     </LWPopper>
-    {tagFlag?.name}{showNumber ? `: ${totalCount}` : ``}
+    {tagFlagText[itemType]}{(!loading && showNumber)? `: ${totalCount}` : ``}
   </span>
 }
 

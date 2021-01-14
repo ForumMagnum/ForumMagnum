@@ -1,8 +1,10 @@
-import { Connectors, runCallbacks, runCallbacksAsync, createMutator, updateMutator } from './vulcan-lib';
+import { Connectors } from './vulcan-lib/connectors';
+import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
-import { voteTypes, createVote } from '../lib/voting/vote';
+import { voteTypes } from '../lib/voting/voteTypes';
+import { createVote, voteCallbacks, VoteDocTuple } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
 import moment from 'moment';
 import { randomId } from '../lib/random';
@@ -11,7 +13,7 @@ import * as _ from 'underscore';
 
 // Test if a user has voted on the server
 const hasVotedServer = async ({ document, voteType, user }: {
-  document: any,
+  document: DbVoteableType,
   voteType: string,
   user: DbUser,
 }) => {
@@ -24,22 +26,21 @@ const hasVotedServer = async ({ document, voteType, user }: {
 }
 
 // Add a vote of a specific type on the server
-const addVoteServer = async ({ document, collection, voteType, user, voteId, updateDocument }: {
-  document: any,
-  collection: any,
+const addVoteServer = async ({ document, collection, voteType, user, voteId }: {
+  document: DbVoteableType,
+  collection: CollectionBase<DbVoteableType>,
   voteType: string,
   user: DbUser,
   voteId: string,
-  updateDocument: boolean
-}) => {
+}): Promise<VoteDocTuple> => {
   const newDocument = _.clone(document);
 
   // create vote and insert it
-  const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
-  delete vote.__typename;
-  await createMutator({
+  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
+  delete partialVote.__typename;
+  const {data: vote} = await createMutator({
     collection: Votes,
-    document: vote,
+    document: partialVote,
     validate: false,
   });
 
@@ -48,30 +49,27 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId, upd
   newDocument.score = recalculateScore(newDocument);
   newDocument.voteCount++;
 
-  if (updateDocument) {
-    // update document score & set item as active
-    await Connectors.update(collection,
-      {_id: document._id},
-      {
-        $set: {
-          inactive: false,
-          baseScore: newDocument.baseScore,
-          score: newDocument.score
-        },
+  // update document score & set item as active
+  await Connectors.update(collection,
+    {_id: document._id},
+    {
+      $set: {
+        inactive: false,
+        baseScore: newDocument.baseScore,
+        score: newDocument.score
       },
-      {}, true
-    );
-    void algoliaExportById(collection, newDocument._id);
-  }
+    },
+    {}, true
+  );
+  void algoliaExportById(collection as any, newDocument._id);
   return {newDocument, vote};
 }
 
 // Clear all votes for a given document and user (server)
-const clearVotesServer = async ({ document, user, collection, updateDocument }: {
-  document: any,
+export const clearVotesServer = async ({ document, user, collection }: {
+  document: DbVoteableType,
   user: DbUser,
-  collection: any,
-  updateDocument: boolean,
+  collection: CollectionBase<DbVoteableType>
 }) => {
   const newDocument = _.clone(document);
   const votes = await Connectors.find(Votes, {
@@ -106,121 +104,48 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }: 
         validate: false,
       });
 
-      runCallbacks({
-        name: `votes.cancel.sync`,
+      await voteCallbacks.cancelSync.runCallbacks({
         iterator: {newDocument, vote},
         properties: [collection, user]
       });
-      runCallbacksAsync({
-        name: `votes.cancel.async`,
-        properties: [{newDocument, vote}, collection, user]
-      });
-    }
-    if (updateDocument) {
-      await Connectors.update(collection,
-        {_id: document._id},
-        {
-          $set: {baseScore: recalculateBaseScore(document) },
-        },
-        {}, true
+      await voteCallbacks.cancelAsync.runCallbacksAsync(
+        [{newDocument, vote}, collection, user]
       );
     }
+    await Connectors.update(collection,
+      {_id: document._id},
+      {
+        $set: {baseScore: recalculateBaseScore(document) },
+      },
+      {}, true
+    );
     newDocument.baseScore = recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
-    void algoliaExportById(collection, newDocument._id);
+    void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
 }
 
-// Cancel votes of a specific type on a given document (server)
-export const cancelVoteServer = async ({ document, voteType, collection, user, updateDocument }: {
-  document: any,
-  voteType: string,
-  collection: any,
-  user: DbUser,
-  updateDocument: boolean
-}) => {
-  const newDocument = _.clone(document);
-  const vote = Votes.findOne({
-    documentId: document._id,
-    userId: user._id,
-    voteType,
-    cancelled: false,
-  })
-
-  if (!vote) throw Error(`Can't find vote to cancel: ${document._id}, ${user._id}, ${voteType}`)
-
-  //eslint-disable-next-line no-unused-vars
-  const {_id, ...otherVoteFields} = vote;
-  const unvote = {
-    ...otherVoteFields,
-    cancelled: true,
-    isUnvote: true,
-    power: -vote.power,
-    votedAt: new Date(),
-  };
-  await createMutator({
-    collection: Votes,
-    document: unvote,
-    validate: false,
-  });
-
-  // Set the cancelled field on the vote object to true
-  await updateMutator({
-    collection: Votes,
-    documentId: vote._id,
-    set: { cancelled: true },
-    unset: {},
-    validate: false,
-  });
-  newDocument.baseScore = recalculateBaseScore(newDocument);
-  newDocument.score = recalculateScore(newDocument);
-  newDocument.voteCount--;
-
-  if (updateDocument) {
-    // update document score
-    await Connectors.update(
-      collection,
-      {_id: document._id},
-      {
-        $set: {
-          inactive: false,
-          score: newDocument.score,
-          baseScore: newDocument.baseScore
-        },
-      },
-      {},
-      true
-    );
-    void algoliaExportById(collection, newDocument._id);
-  }
-  return {newDocument, vote};
-}
-
 // Server-side database operation
-//
-// ### updateDocument
-// if set to true, this will perform its own database updates. If false, will only
-// return an updated document without performing any database operations on it.
-export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = randomId(), user, updateDocument = true, toggleIfAlreadyVoted = true }: {
+export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = randomId(), user, toggleIfAlreadyVoted = true }: {
   documentId?: string,
-  document?: any,
+  document?: DbVoteableType|null,
   voteType: string,
-  collection: any,
+  collection: CollectionBase<DbVoteableType>,
   voteId?: string,
   user: DbUser,
-  updateDocument?: boolean,
   toggleIfAlreadyVoted?: boolean,
 }) => {
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
 
-  const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
+  if (!document) throw new Error("Error casting vote: Document not found.");
+  
+  const voteOptions = {document, collection, voteType, user, voteId };
 
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
-  if (!document) throw new Error("Error casting vote: Document not found.");
   if (!user) throw new Error("Error casting vote: Not logged in.");
   if (!userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
@@ -231,39 +156,25 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   if (existingVote) {
     if (toggleIfAlreadyVoted) {
-      let voteDocTuple = await cancelVoteServer(voteOptions);
-      voteDocTuple = await runCallbacks({
-        name: `votes.cancel.sync`,
-        iterator: voteDocTuple,
-        properties: [collection, user]
-      });
-      document = voteDocTuple.newDocument;
-      runCallbacksAsync({
-        name: `votes.cancel.async`,
-        properties: [voteDocTuple, collection, user]
-      });
+      document = await clearVotesServer(voteOptions)
     }
   } else {
     await checkRateLimit({ document, collection, voteType, user });
 
-    if (voteTypes[voteType]?.exclusive) {
-      document = await clearVotesServer(voteOptions)
-    }
+    document = await clearVotesServer(voteOptions)
 
-    let voteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
-    voteDocTuple = await runCallbacks({
-      name: `votes.${voteType}.sync`,
+    let voteDocTuple: VoteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
+    voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
       iterator: voteDocTuple,
       properties: [collection, user]
     });
     document = voteDocTuple.newDocument;
-    runCallbacksAsync({
-      name: `votes.${voteType}.async`,
-      properties: [voteDocTuple, collection, user]
-    });
+    void voteCallbacks.castVoteAsync.runCallbacksAsync(
+      [voteDocTuple, collection, user]
+    );
   }
 
-  document.__typename = collection.options.typeName;
+  (document as any).__typename = collection.options.typeName;
   return document;
 }
 
@@ -286,8 +197,8 @@ const getVotingRateLimits = async (user: DbUser|null) => {
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
 const checkRateLimit = async ({ document, collection, voteType, user }: {
-  document: any,
-  collection: any,
+  document: DbVoteableType,
+  collection: CollectionBase<DbVoteableType>,
   voteType: string,
   user: DbUser
 }): Promise<void> => {

@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts';
 import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -46,7 +45,7 @@ const PostCollaborationEditor = ({ classes }: {
   const { query: { postId } } = useLocation();
 
   const { document: post } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsPage',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postId,

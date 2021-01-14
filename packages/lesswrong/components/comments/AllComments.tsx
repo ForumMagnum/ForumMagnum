@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 const AllComments = () => {
   const { query } = useLocation();
   const { SingleColumnSection, RecentComments, SectionTitle } = Components
-  const terms = _.isEmpty(query) ? {view: 'recentComments', limit: 100} : query;
+  const terms: CommentsViewTerms = _.isEmpty(query) ? {view: 'recentComments', limit: 100} : query;
   
   return (
     <SingleColumnSection>

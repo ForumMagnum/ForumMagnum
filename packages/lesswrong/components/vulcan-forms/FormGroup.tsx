@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 
-const headerStyles = theme => ({
+const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
     cursor: "pointer",
     display:"flex",
@@ -39,7 +39,7 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-const groupLayoutStyles = theme => ({
+const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: `solid 1px ${theme.palette.grey[400]}`,

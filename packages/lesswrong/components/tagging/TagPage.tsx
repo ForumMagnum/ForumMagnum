@@ -6,16 +6,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { tagBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import Typography from '@material-ui/core/Typography';
-import CommentOutlinedIcon from '@material-ui/icons/ModeCommentOutlined';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import { userCanViewRevisionHistory } from '../../lib/betas';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HistoryIcon from '@material-ui/icons/History';
 import { useDialog } from '../common/withDialog';
-import { useHover } from '../common/withHover';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
 
@@ -73,6 +69,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16,
     color: theme.palette.grey[700],
     display: "flex",
+    flexWrap: "wrap",
     '& svg': {
       height: 20,
       width: 20,
@@ -86,10 +83,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginRight: 16
   },
-  discussionButton: {
+  buttonLabel: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
+  ctaPositioning: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16,
     marginLeft: "auto"
   },
   subscribeToWrapper: {
@@ -105,13 +106,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  importNotice: {
-    ...theme.typography.commentStyle,
-    marginTop: 8,
-    marginBottom: 8,
-    '& a': {
-      color: theme.palette.primary.main
+  callToAction: {
+    display: "flex",
+    alignItems: "center",
+    marginLeft: "auto",
+    fontStyle: 'italic',
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
     }
+  },
+  callToActionFlagCount: {
+    position: "relative",
+    marginLeft: 4,
+    marginRight: 0
   }
 });
 
@@ -128,35 +135,36 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip, PopperCard, TagDiscussion, UsersNameDisplay, TagFlagItem, TagDiscussionSection, SeparatorBullet } = Components;
+  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, TagDiscussionButton, Typography } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagRevisionFragment" : "TagFragment", {
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagWithFlagsAndRevisionFragment" : "TagWithFlagsFragment", {
     extraVariables: revision ? {version: 'String'} : {},
     extraVariablesValues: revision ? {version: revision} : {},
   });
+  
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
   const { captureEvent } =  useTracking()
   const { openDialog } = useDialog();
-  
-  const { hover, anchorEl, eventHandlers} = useHover()
 
-  const { results: otherTagsWithFlag } = useMulti({
-    terms: {
-      view: "tagsByTagFlag",
-      tagFlagId: query.flagId,
-    },
+  const multiTerms = {
+    allPages: {view: "allPagesByNewest"},
+    myPages: {view: "userTags", userId: currentUser?._id},
+    //tagFlagId handled as default case below
+  }
+
+  const { results: otherTagsWithNavigation } = useMulti({
+    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
     collectionName: "Tags",
     fragmentName: 'TagWithFlagsFragment',
-    limit: 500,
-    ssr: true,
+    limit: 1500,
     skip: !query.flagId
   })
-
   
-  const tagPositionInList = otherTagsWithFlag?.findIndex(tagInList => tag?._id === tagInList._id);
+
+  const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
   // 1. Initially the listPosition is -1 because we don't have a list at all yet
   // 2. Then we have the real position
@@ -168,13 +176,13 @@ const TagPage = ({classes}: {
       setNextTagPosition(tagPositionInList + 1)
     }
     if (nextTagPosition !== null && tagPositionInList < 0) {
-      // Here we want to decrement the list positions by one, because we removed the original tag and so 
-      // all the indices are moved to the next 
+      // Here we want to decrement the list positions by one, because we removed the original tag and so
+      // all the indices are moved to the next
       setNextTagPosition(nextTagPosition => (nextTagPosition || 1) - 1)
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagPositionInList])
-  const nextTag = otherTagsWithFlag && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithFlag[nextTagPosition]
+  const nextTag = otherTagsWithNavigation && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithNavigation[nextTagPosition]
 
   if (loadingTag)
     return <Loading/>
@@ -197,7 +205,14 @@ const TagPage = ({classes}: {
 
   const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
-
+  
+  const tagFlagItemType = {
+    allPages: "allPages",
+    myPages: "userPages"
+  }
+  
+  const numFlags = tag.tagFlagsIds?.length
+  
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}
@@ -213,72 +228,87 @@ const TagPage = ({classes}: {
         <AnalyticsContext pageSectionContext="wikiSection">
           <div>
             {query.flagId && <span>
-              <Link to={`/tags/dashboard?focus=${query.flagId}`}> <TagFlagItem documentId={query.flagId}/> </Link>
-                {nextTag && <span onClick={() => setEditing(true)}><Link 
-                  className={classes.nextLink} 
-                  to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}> 
-                    Next Tag ({nextTag.name}) 
-                </Link></span>}
-              </span>}
+              <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+                  <TagFlagItem 
+                    itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+                    documentId={query.flagId}
+                  />
+              </Link>
+              {nextTag && <span onClick={() => setEditing(true)}><Link
+                className={classes.nextLink}
+                to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+                  Next Tag ({nextTag.name})
+              </Link></span>}
+            </span>}
             <Typography variant="display3" className={classes.title}>
               {tag.name}
             </Typography>
-            {editing && tag.lesswrongWikiImportSlug && <div className={classes.importNotice}>
-              <a target="_blank" rel="noopener noreferrer" href={`http://wiki.lesswrong.com/wiki/${tag.lesswrongWikiImportSlug}`}>See page on old Wiki</a>
-              <SeparatorBullet/>
-              {tag.lesswrongWikiImportRevision && 
-                <span>
-                  <a target="_blank" rel="noopener noreferrer" href={`${tagGetUrl(tag)}?revision=${tag.lesswrongWikiImportRevision}`}>
-                    See latest import revision
-                  </a>
-                </span>
-              }
-            </div>}
           </div>
           <div className={classes.buttonsRow}>
-            {currentUser ? 
-              <a className={classes.button} onClick={() => setEditing(true)}>
-                <EditOutlinedIcon /> Edit Wiki
-              </a> : 
-              <a className={classes.button} onClick={(ev) => {
+            {!editing && <a className={classes.button} onClick={(ev) => {
+              if (currentUser) {
+                setEditing(true)
+              } else {
                 openDialog({
                   componentName: "LoginPopup",
                   componentProps: {}
                 });
                 ev.preventDefault();
-              }}>
-                <EditOutlinedIcon /> Edit Wiki
-              </a>
-            }
-            {userCanViewRevisionHistory(currentUser) && <Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
-              <HistoryIcon /> History
+              }
+            } }>
+              <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
+            </a>} 
+            {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
+              <HistoryIcon /><span className={classes.buttonLabel}>History</span>
             </Link>}
-            <LWTooltip title="Get notifications when posts are added to this tag" className={classes.subscribeToWrapper}>
-              <SubscribeTo 
-                document={tag} 
+            {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+              <SubscribeTo
+                document={tag}
                 className={classes.subscribeTo}
-                showIcon 
+                showIcon
+                hideLabelOnMobile
                 subscribeMessage="Subscribe"
                 unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
-            </LWTooltip>
-
-            <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-              <CommentOutlinedIcon/> Discussion
-              <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
-                <TagDiscussion tag={tag}/>
-              </PopperCard>    
-            </Link>   
+            </LWTooltip>}
+            <div className={classes.button}>
+              <TagDiscussionButton tag={tag} hideLabelOnMobile />
+            </div>
+            <div className={classes.callToAction}>
+              <LWTooltip
+                title={ tag.tagFlagsIds?.length > 0 ? 
+                  <div>
+                    {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
+                  </div> :
+                  <span>
+                    This tag does not currently have any improvement flags set.
+                  </span>
+                }
+                >
+                <a onClick={(ev) => {
+                  if (currentUser) setEditing(true);
+                  openDialog({
+                    componentName: currentUser ? "TagCTAPopup" : "LoginPopup",
+                    componentProps: {}
+                  })
+                  ev.preventDefault();
+                }}>
+                  <span className={classes.callToAction}> Help improve this page{/*
+                  */}<span className={classes.callToActionFlagCount}>{!!numFlags&&`(${numFlags} flags)`}</span>
+                  </span>
+                </a> 
+              </LWTooltip>
+            </div>
           </div>
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
-          {editing ? <EditTagForm 
-            tag={tag} 
+          {editing ? <EditTagForm
+            tag={tag}
             successCallback={() => setEditing(false)}
             cancelCallback={() => setEditing(false)}
-          /> : 
+          /> :
           <div onClick={clickReadMore}>
             <ContentItemBody
               dangerouslySetInnerHTML={{__html: description||""}}

@@ -3,7 +3,7 @@
 import { registerMigration } from './migrationUtils';
 import { Votes } from '../../lib/collections/votes';
 import Users from '../../lib/vulcan-users';
-import { getVotePower } from '../../lib/voting/new_vote_types';
+import { calculateVotePower } from '../../lib/voting/voteTypes';
 
 
 registerMigration({
@@ -81,8 +81,8 @@ registerMigration({
         continue
       } 
 
-      const votePower = getVotePower(votingUserKarma, voteType)
-      const afVotePower = votingUserAfKarma > 0 ? getVotePower(votingUserAfKarma, voteType) : 0
+      const votePower = calculateVotePower(votingUserKarma, voteType)
+      const afVotePower = votingUserAfKarma > 0 ? calculateVotePower(votingUserAfKarma, voteType) : 0
 
       const authorKarma = userKarmaMap.get(authorId)
       const authorAfKarma = userAfKarmaMap.get(authorId)

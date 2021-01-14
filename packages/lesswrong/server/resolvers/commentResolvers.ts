@@ -1,11 +1,14 @@
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from '../../lib/vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { moderateCommentsPostUpdate } from '../callbacks/commentCallbacks';
 
 const specificResolvers = {
   Mutation: {
-    async moderateComment(root, { commentId, deleted, deletedPublic, deletedReason}, context: ResolverContext) {
+    async moderateComment(root: void, { commentId, deleted, deletedPublic, deletedReason}: {
+      commentId: string, deleted: boolean, deletedPublic: boolean, deletedReason: string
+    }, context: ResolverContext) {
       const {currentUser} = context;
       const comment = context.Comments.findOne(commentId)
       if (!comment) throw new Error("Invalid commentId");
@@ -27,16 +30,9 @@ const specificResolvers = {
           set.deletedByUserId = null;
         }
         let modifier = { $set: set };
-        modifier = runCallbacks({
-          name: 'comments.moderate.sync',
-          iterator: modifier
-        });
         context.Comments.update({_id: commentId}, modifier);
         const updatedComment = await context.Comments.findOne(commentId)
-        runCallbacksAsync({
-          name: 'comments.moderate.async',
-          properties: [updatedComment, comment, context]
-        });
+        moderateCommentsPostUpdate(updatedComment!, currentUser);
         return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
       } else {
         throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));

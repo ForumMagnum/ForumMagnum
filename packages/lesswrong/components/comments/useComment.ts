@@ -1,5 +1,4 @@
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments/collection';
 
 export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
   comment: CommentsList|null,
@@ -12,11 +11,10 @@ export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
       legacyId: legacyId,
     },
     
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     limit: 1,
     enableTotal: false,
-    ssr: true,
   });
   
   if (results && results.length>0 && results[0]._id) {

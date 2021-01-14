@@ -1,6 +1,5 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
@@ -143,7 +142,6 @@ export const contentTypes = {
       </React.Fragment>,
       Icon: PersonIcon
     },
-    // ea-forum-look-here: customize curated tooltip body according to your local practices
     curated: {
       tooltiptitle: 'Curated Post',
       tooltipBody: <div>
@@ -171,7 +169,7 @@ const ContentType = ({classes, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const { LWTooltip } = Components
+  const { LWTooltip, Typography } = Components
 
   const contentData = contentTypes[forumTypeSetting.get()][type]
   return <Typography variant="body1" component="span" className={classes.root}>
@@ -179,7 +177,7 @@ const ContentType = ({classes, type, label}: {
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
       {contentData.tooltipBody}
     </React.Fragment>}>
-      <span><contentData.Icon className={classes.icon} /> {label}</span>
+      <span><contentData.Icon className={classes.icon} />{label ? " "+label : ""}</span>
     </LWTooltip>
   </Typography>
 }

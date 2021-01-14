@@ -1,10 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import withHover from '../common/withHover'
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import withUser from '../common/withUser'
@@ -13,7 +11,7 @@ import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 
 interface ExternalProps {
-  comment: any,
+  comment: CommentsListWithParentMetadata,
 }
 interface SunshineNewCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
   updateComment: any,
@@ -49,12 +47,12 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
     return (
         <Components.SunshineListItem hover={hover}>
           <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-            <Typography variant="body2">
-              <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
-                Commented on post: <strong>{ comment.post.title }</strong>
+            <Components.Typography variant="body2">
+              <Link to={commentGetPageUrl(comment)}>
+                Commented on post: <strong>{ comment.post?.title }</strong>
               </Link>
               <Components.CommentBody comment={comment}/>
-            </Typography>
+            </Components.Typography>
           </Components.SidebarHoverOver>
           <Components.SunshineCommentsItemOverview comment={comment}/>
             {hover && <Components.SidebarActionMenu>
@@ -73,7 +71,7 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
 const SunshineNewCommentsItemComponent = registerComponent<ExternalProps>('SunshineNewCommentsItem', SunshineNewCommentsItem, {
   hocs: [
     withUpdate({
-      collection: Comments,
+      collectionName: 'Comments',
       fragmentName: 'CommentsListWithParentMetadata',
     }),
     withUser, withHover(), withErrorBoundary

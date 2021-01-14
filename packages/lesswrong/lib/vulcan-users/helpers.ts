@@ -19,16 +19,6 @@ export const getUser = function(userOrUserId: DbUser|string|undefined): DbUser|n
   }
 };
 
-// Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
-  try {
-    if (user?.username) return user.username;
-  } catch (error) {
-    console.log(error); // eslint-disable-line
-  }
-  return null;
-};
-
 export const userGetDisplayNameById = function(userId: string): string {
   return userGetDisplayName(mongoFindOne("Users", userId));
 };

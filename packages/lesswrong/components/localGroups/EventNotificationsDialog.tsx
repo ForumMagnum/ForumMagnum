@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
-import Users from "../../lib/collections/users/collection";
-import Dialog from '@material-ui/core/Dialog';
 import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/lab/Slider';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -111,7 +108,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading } = Components
+  const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
   const [ mapsLoaded ] = useGoogleMaps("EventNotificationsDialog")
@@ -121,10 +118,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   const [ notifyPeopleThreshold, setNotifyPeopleThreshold ] = useState(nearbyPeopleNotificationThreshold || 10)
   const [ notifyPeopleCheckboxState, setNotifyPeopleCheckboxState ] = useState(!!nearbyPeopleNotificationThreshold)
   
-  const { mutate } = useUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
+  const updateCurrentUser = useUpdateCurrentUser()
 
   const peopleThresholdInput = <Input
     className={classes.peopleInput}
@@ -134,7 +128,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   />
 
   return (
-    <Dialog
+    <LWDialog
       open={true}
       onClose={onClose}
     >
@@ -199,30 +193,30 @@ const EventNotificationsDialog = ({ onClose, classes }: {
         </div>
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{
-            void mutate({selector: {_id: currentUser._id}, data: {
+            void updateCurrentUser({
               nearbyEventsNotifications: false,
               nearbyEventsNotificationsLocation: null, 
               nearbyEventsNotificationsRadius: null, 
               nearbyPeopleNotificationThreshold: null,
-            }})
+            })
             onClose()
           }}>
             Stop notifying me
           </a>}
           <a className={classes.submitButton} onClick={()=>{
-            void mutate({selector: {_id: currentUser!._id}, data: {
+            void updateCurrentUser({
               nearbyEventsNotifications: true,
               nearbyEventsNotificationsLocation: location, 
               nearbyEventsNotificationsRadius: distance, 
               nearbyPeopleNotificationThreshold: notifyPeopleCheckboxState ? notifyPeopleThreshold : null,
-            }})
+            })
             onClose()
           }}>
             Submit
           </a>
         </DialogActions>
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   )
 }
 

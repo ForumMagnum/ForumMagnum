@@ -1,18 +1,16 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
-import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import Users from '../../lib/collections/users/collection';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 // import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
@@ -123,18 +121,14 @@ const PetrovDayButton = ({classes, refetch}: {
   `
   );
   
-  const { LWTooltip, LoginPopupButton } = Components
+  const { LWTooltip, LoginPopupButton, Typography } = Components
 
-  const {mutate: updateUser} = useUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
   
   const pressButton = () => {
     setPressed(true)
-    void updateUser({
-      selector: {_id: currentUser!._id},
-      data: { petrovPressedButtonDate: new Date() }
+    void updateCurrentUser({
+      petrovPressedButtonDate: new Date()
     });
   }
 

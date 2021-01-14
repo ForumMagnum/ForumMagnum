@@ -1,6 +1,5 @@
 import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts';
-import { ApolloError } from 'apollo-client';
+import { ApolloError } from '@apollo/client';
 
 export const usePostBySlug = ({slug}: {slug: string}):
   {
@@ -18,11 +17,10 @@ export const usePostBySlug = ({slug}: {slug: string}):
       slug: slug,
     },
     
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,
-    ssr: true,
   });
   
   if (results && results.length>0 && results[0]._id) {
@@ -56,11 +54,10 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
       legacyId: legacyId,
     },
     
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,
-    ssr: true,
   });
   
   if (results && results.length>0 && results[0]._id) {

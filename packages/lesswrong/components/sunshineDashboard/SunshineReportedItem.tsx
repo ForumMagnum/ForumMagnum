@@ -1,10 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
-import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -14,16 +11,16 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 interface ExternalProps {
   report: any,
-  updateReport: any,
+  updateReport: WithUpdateFunction<ReportsCollection>,
 }
 interface SunshineReportedItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updateComment: any,
-  updatePost: any,
+  updateComment: WithUpdateFunction<CommentsCollection>,
+  updatePost: WithUpdateFunction<PostsCollection>,
 }
 class SunshineReportedItem extends Component<SunshineReportedItemProps> {
   handleReview = () => {
     const { currentUser, report, updateReport } = this.props
-    updateReport({
+    void updateReport({
       selector: {_id: report._id},
       data: {
         closedAt: new Date(),
@@ -43,7 +40,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     } = this.props
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
-        updateComment({
+        void updateComment({
           selector: {_id: report.comment._id},
           data: {
             deleted: true,
@@ -53,12 +50,12 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
           }
         })
       } else if (report.post) {
-        updatePost({
+        void updatePost({
           selector: {_id: report.post._id},
           data: { status: report.reportedAsSpam ? 4 : 5 }
         })
       }
-      updateReport({
+      void updateReport({
         selector: {_id: report._id},
         data: {
           closedAt: new Date(),
@@ -73,7 +70,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     const { report, hover, anchorEl } = this.props
     const comment = report.comment
     const post = report.post
-    const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview  } = Components
+    const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview, Typography } = Components
 
     if (!post) return null;
 
@@ -88,7 +85,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
               <MetaInfo>Comment:</MetaInfo>
               <div><CommentBody comment={comment}/></div>
             </div>}
-            {!comment && <PostsHighlight post={post}/>}
+            {!comment && <PostsHighlight post={post} maxLengthWords={600}/>}
           </Typography>
         </SidebarHoverOver>
         {comment && <SunshineCommentsItemOverview comment={comment}/>}
@@ -113,11 +110,11 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
 const SunshineReportedItemComponent = registerComponent<ExternalProps>('SunshineReportedItem', SunshineReportedItem, {
   hocs: [
     withUpdate({
-      collection: Comments,
+      collectionName: "Comments",
       fragmentName: 'CommentsListWithParentMetadata',
     }),
     withUpdate({
-      collection: Posts,
+      collectionName: "Posts",
       fragmentName: 'PostsList',
     }),
     withUser,

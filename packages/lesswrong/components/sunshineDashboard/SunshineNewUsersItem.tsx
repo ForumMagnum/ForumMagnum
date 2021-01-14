@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
-import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -14,12 +13,11 @@ import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import { Comments } from '../../lib/collections/comments';
 import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
-import { Posts } from '../../lib/collections/posts';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
+import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -145,7 +143,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
 
   const { results: posts, loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
     limit: 50
@@ -153,16 +151,16 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
 
   const { results: comments, loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
     limit: 50
   });
 
-  const commentKarmaPreviews = comments ? comments.sort((c1, c2) => c2.baseScore - c1.baseScore) : []
-  const postKarmaPreviews = posts ? posts.sort((p1, p2) => p2.baseScore - p1.baseScore) : []
+  const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
+  const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
 
-  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
 
   if (hidden) { return null }
 

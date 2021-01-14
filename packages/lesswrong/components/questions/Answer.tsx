@@ -1,10 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, useCallback } from 'react';
 import { answerStyles } from '../../themes/stylePiping'
-import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
@@ -125,7 +123,7 @@ const Answer = ({ comment, post, classes }: {
     setShowEdit(false)
   }, [setShowEdit]);
 
-  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats } = Components
+  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats, Typography } = Components
   const { html = "" } = comment.contents || {}
 
   return (
@@ -147,9 +145,9 @@ const Answer = ({ comment, post, classes }: {
         :
         <div>
           <AnalyticsContext pageElementContext="answerItem">
-            <div className={classes.answer}>
+            <div className={classes.answer} id={comment._id}>
               <div className={classes.answerHeader}>
-                {comment.user && <Typography variant="body1" id={comment._id} className={classes.author}>
+                {comment.user && <Typography variant="body1" className={classes.author}>
                   { <UsersName user={comment.user} />}
                 </Typography >}
                 <Typography variant="subheading" className={classes.date}>
@@ -190,10 +188,9 @@ const Answer = ({ comment, post, classes }: {
             </div>
           </AnalyticsContext>
           <AnswerCommentsList
-            terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: ABRIDGE_COMMENT_COUNT}}
             post={post}
             parentAnswer={comment}
-            />
+          />
         </div>
       }
     </div>

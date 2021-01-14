@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
-  terms: any,
+  terms: UsersViewTerms,
   classes: ClassesType,
   allowContentPreview?: boolean,
 }) => {
@@ -24,7 +24,6 @@ const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    ssr: true,
     itemsPerPage: 60
   });
   const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem, LoadMore } = Components

@@ -11,10 +11,11 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
-import { Sequences } from '../sequences/collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
 import Sentry from '@sentry/core';
+
+const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
 
 export const formGroups = {
   default: {
@@ -64,7 +65,6 @@ export const formGroups = {
     name: "advancedOptions",
     label: "Options",
     startCollapsed: true,
-    flexStyle: true
   },
   highlight: {
     order: 21,
@@ -274,6 +274,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],
+    onInsert: frontpageDefault,
     optional: true,
     hidden: true,
   },
@@ -323,6 +324,29 @@ addFieldsDict(Posts, {
     type: String,
     foreignKey: 'Users',
     optional: true
+  },
+  
+  // Cloudinary image id for an image that will be used as the OpenGraph image
+  socialPreviewImageId: {
+    type: String,
+    optional: true,
+    label: "Social Preview Image",
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: "ImageUpload",
+    group: formGroups.advancedOptions,
+  },
+  
+  // Autoset OpenGraph image, derived from the first post image in a callback
+  socialPreviewImageAutoUrl: {
+    type: String,
+    optional: true,
+    hidden: true,
+    label: "Social Preview Image Auto-generated URL",
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
   },
 
   canonicalSequenceId: {
@@ -501,7 +525,7 @@ addFieldsDict(Posts, {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
       }
 
-      return await accessFilterSingle(currentUser, Sequences, sequence, context);
+      return await accessFilterSingle(currentUser, context.Sequences, sequence, context);
     }
   }),
 
@@ -630,11 +654,11 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
     insertableBy: [userCanModeratePost],
-    editableBy: [userCanModeratePost],
+    editableBy: ['sunshines', 'admins'],
     hidden: true,
     optional: true,
-    label: "Users banned from commenting on this post",
-    control: "UsersListEditor",
+    // label: "Users banned from commenting on this post",
+    // control: "UsersListEditor",
   },
   'bannedUserIds.$': {
     type: String,
@@ -1013,7 +1037,7 @@ addFieldsDict(Posts, {
     label: "Style",
     viewableBy: ['guests'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userHasModerationGuidelines],
+    insertableBy: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {

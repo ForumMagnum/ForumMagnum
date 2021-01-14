@@ -4,8 +4,7 @@ import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { truncatise } from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
-import Users from '../../../lib/collections/users/collection';
-import { Posts } from '../../../lib/collections/posts/collection';
+import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
@@ -96,7 +95,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
   const { document: postWithDetails, loading } = useSingle({
     skip: !post,
     documentId: post?._id,
-    collection: Posts,
+    collectionName: "Posts",
     fetchPolicy: "cache-first",
     fragmentName: "PostsList",
   });
@@ -144,7 +143,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
         // reasonable to include in fragments, so on non-post pages the edit button
         // may be missing from moderation guidelines.
         // @ts-ignore
-        Users.canModeratePost(currentUser, post) &&
+        userCanModeratePost(currentUser, post) &&
         <span onClick={openEditDialog}>
           <Tooltip title="Edit moderation guidelines">
             <Edit className={classes.editButton} />
@@ -159,7 +158,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
   )
 }
 
-const moderationStyleLookup = {
+const moderationStyleLookup: Partial<Record<string,string>> = {
   'norm-enforcing': "Norm Enforcing - I try to enforce particular rules",
   'reign-of-terror': "Reign of Terror - I delete anything I judge to be counterproductive",
   'easy-going': "Easy Going - I just delete obvious spam and trolling."

@@ -9,7 +9,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
+    position: "relative",
     display:"none",
+    background: "white",
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
@@ -32,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSidebar = ({classes}) => {
+const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();

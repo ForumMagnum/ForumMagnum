@@ -1,5 +1,5 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { getWithLoader } from '../../loaders';
@@ -72,6 +72,7 @@ export const schema: SchemaType<DbTag> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
+    optional: true,
     ...schemaDefaultValue(false),
   },
   suggestedAsFilter: {
@@ -81,6 +82,7 @@ export const schema: SchemaType<DbTag> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
+    optional: true,
     ...schemaDefaultValue(false),
   },
   defaultOrder: {
@@ -89,6 +91,7 @@ export const schema: SchemaType<DbTag> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
+    optional: true,
     ...schemaDefaultValue(0),
   },
   descriptionTruncationCount: {
@@ -98,6 +101,7 @@ export const schema: SchemaType<DbTag> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
+    optional: true,
     ...schemaDefaultValue(0),
   },
   postCount: {
@@ -119,7 +123,7 @@ export const schema: SchemaType<DbTag> = {
       type: "User",
       nullable: true,
     }),
-    onCreate: ({currentUser}) => currentUser._id,
+    onCreate: ({currentUser}) => currentUser!._id,
     viewableBy: ['guests'],
     optional: true
   },
@@ -130,14 +134,17 @@ export const schema: SchemaType<DbTag> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
+    optional: true,
     ...schemaDefaultValue(false),
   },
   charsAdded: {
     type: Number,
+    optional: true,
     viewableBy: ['guests'],
   },
   charsRemoved: {
     type: Number,
+    optional: true,
     viewableBy: ['guests'],
   },
   deleted: {
@@ -182,12 +189,13 @@ export const schema: SchemaType<DbTag> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     control: 'select',
-    ...schemaDefaultValue(2),
     options: () => Object.entries(wikiGradeDefinitions).map(([grade, name]) => ({
       value: parseInt(grade),
       label: name
     })),
     group: formGroups.advancedOptions,
+    optional: true,
+    ...schemaDefaultValue(2),
   },
   
   recentComments: resolverOnlyField({
@@ -222,8 +230,9 @@ export const schema: SchemaType<DbTag> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
     ...schemaDefaultValue(false),
-    group: formGroups.advancedOptions
   },
 
   tagFlagsIds: {
@@ -235,8 +244,8 @@ export const schema: SchemaType<DbTag> = {
     }),
     control: 'TagFlagToggleList',
     label: "Flags: ",
-    optional: true,
     order: 30,
+    optional: true,
     viewableBy: ['guests'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins']
@@ -269,6 +278,7 @@ export const schema: SchemaType<DbTag> = {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
+    optional: true,
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
@@ -286,6 +296,7 @@ export const schema: SchemaType<DbTag> = {
   isRead: resolverOnlyField({
     type: Boolean,
     viewableBy: ['guests'],
+    optional: true,
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;

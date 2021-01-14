@@ -28,16 +28,23 @@ Child Props:
 */
 
 import React from 'react';
-import { Mutation, useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
+import { Mutation } from '@apollo/client/react/components';
+import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
-import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import { updateClientTemplate, getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
-import { cacheUpdateGenerator } from './cacheUpdates';
+import { updateCacheAfterUpdate } from './cacheUpdates';
 
-export const withUpdate = options => {
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
+export const withUpdate = (options: {
+  collectionName: CollectionNameString,
+  fragmentName?: FragmentName,
+  fragment?: any,
+  extraVariables?: any, //TODO: Unused?
+}) => {
+  const collection = getCollection(options.collectionName);
+  const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
@@ -64,7 +71,7 @@ export const withUpdate = options => {
         const extraVariables = getExtraVariables(ownProps, options.extraVariables)
         return mutate({
           variables: { selector, data, ...extraVariables },
-          update: cacheUpdateGenerator(typeName, 'update')
+          update: updateCacheAfterUpdate(typeName)
         });
       },
     })
@@ -73,17 +80,18 @@ export const withUpdate = options => {
 
 export default withUpdate;
 
-export const useUpdate = ({
-  collectionName, collection,
-  fragmentName: fragmentNameArg, fragment: fragmentArg,
-}: {
-  collectionName?: CollectionNameString,
-  collection?: any,
-  fragmentName?: string,
-  fragment?: any,
-}) => {
-  ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
-  const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
+export const useUpdate = <CollectionName extends CollectionNameString>({ collectionName, fragmentName }: {
+  collectionName: CollectionName,
+  fragmentName: FragmentName,
+}): {
+  mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
+  loading: boolean,
+  error: ApolloError|undefined,
+  called: boolean,
+  data: ObjectsByCollectionName[CollectionName],
+}=> {
+  const collection = getCollection(collectionName);
+  const fragment = getFragment(fragmentName);
 
   const typeName = collection.options.typeName;
   const query = gql`
@@ -92,10 +100,14 @@ export const useUpdate = ({
   `;
 
   const [mutate, {loading, error, called, data}] = useMutation(query);
-  const wrappedMutate = ({selector, data, ...extraVariables}) => {
+  const wrappedMutate = ({selector, data, ...extraVariables}: {
+    selector: MongoSelector<ObjectsByCollectionName[CollectionName]>,
+    data: Partial<ObjectsByCollectionName[CollectionName]>,
+    extraVariables?: any,
+  }) => {
     return mutate({
       variables: { selector, data, ...extraVariables },
-      update: cacheUpdateGenerator(typeName, 'update')
+      update: updateCacheAfterUpdate(typeName)
     })
   }
   return {mutate: wrappedMutate, loading, error, called, data};

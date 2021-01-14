@@ -2,18 +2,15 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 import { gatherIcon } from '../icons/gatherIcon';
-import { LWEvents } from '../../lib/collections/lwevents';
 import { useMulti } from '../../lib/crud/withMulti';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import Users from '../../lib/vulcan-users';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames'
 import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { CAL_ID } from '../walledGarden/gardenCalendar';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
 
@@ -46,7 +43,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: 'flex-start',
     flexWrap: "wrap",
-    marginTop: 0
+    marginTop: 0,
+    marginBottom: 4
   },
   noUsers: {
     fontSize: '0.8rem',
@@ -55,6 +53,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     marginRight: 24,
     marginLeft: 6,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   },
   hide: {
     position: 'absolute',
@@ -93,6 +94,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   allEvents: {
     fontSize: ".8em",
     fontStyle: "italic"
+  },
+  gardenCodesList: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   }
 })
 
@@ -104,7 +110,7 @@ const GatherTown = ({classes}: {
       view: "gatherTownUsers",
       limit: 1,
     },
-    collection: LWEvents,
+    collectionName: "LWEvents",
     fragmentName: 'lastEventFragment',
     enableTotal: false,
   });
@@ -113,12 +119,9 @@ const GatherTown = ({classes}: {
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
 
-  const { mutate: updateUser } = useUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
 
-  const { LWTooltip, AnalyticsTracker, WalledGardenEvents } = Components
+  const { LWTooltip, AnalyticsTracker, GardenCodesList } = Components
 
   if (!currentUser) return null
   if (!gardenOpenToPublic.get() && !currentUser.walledGardenInvite) return null
@@ -126,20 +129,14 @@ const GatherTown = ({classes}: {
   if (currentUser.hideWalledGardenUI) return null
 
   const hideClickHandler = async () => {
-    await updateUser({
-      selector: { _id: currentUser._id },
-      data: {
-        hideWalledGardenUI: true
-      },
+    await updateCurrentUser({
+      hideWalledGardenUI: true
     })
     flash({
-      messageString: "Hid Walled Garden from frontpage",
+      messageString: "Hide Walled Garden from frontpage",
       type: "success",
-      action: () => void updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          hideWalledGardenUI: false
-        },
+      action: () => void updateCurrentUser({
+        hideWalledGardenUI: false
       })
     })
   }
@@ -165,15 +162,18 @@ const GatherTown = ({classes}: {
           <div><Link to={gatherTownURL}>Walled Garden Beta</Link></div>
         </AnalyticsTracker>
         {userList && userList.length > 0 && <div className={classes.usersOnlineList}>
-            {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user}</span>)}
+            {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user} {users[user]?.status && `(${users[user].status})`}</span>)}
             {tooltip}
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
-          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/> No users currently online. Check back later or be the first to join!
+          <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
+          No users currently online. Check back later or be the first to join!
           {tooltip}
         </div>}
-        <WalledGardenEvents />
-        <a className={classes.allEvents} href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`}>View All Events</a>
+        <div className={classes.gardenCodesList}>
+          <GardenCodesList personal={false} limit={2}/>
+          {currentUser.walledGardenInvite && <GardenCodesList personal={true} limit={2}/>}
+        </div>
       </div>
     </div>
   )

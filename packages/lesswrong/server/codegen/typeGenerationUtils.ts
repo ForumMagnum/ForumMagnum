@@ -1,4 +1,4 @@
-import { getCollectionName, getCollection } from '../../lib/vulcan-lib';
+import { getCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
@@ -68,9 +68,9 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
     case "Float": return "number";
     default:
       if (typeof graphqlType=="string") {
-        if (graphqlType.endsWith("!") && getCollection(getCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
+        if (graphqlType.endsWith("!") && isValidCollectionName(getCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
           return graphqlType;
-        } else if (getCollection(getCollectionName(graphqlType))) {
+        } else if (isValidCollectionName(getCollectionName(graphqlType))) {
           if (nonnull) return graphqlType;
           else return `${graphqlType}|null`;
         }

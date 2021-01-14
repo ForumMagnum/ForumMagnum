@@ -21,9 +21,7 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
-    currentUserVotes {
-      ...VoteFragment
-    }
+    currentUserVote
     baseScore
     score
     voteCount
@@ -44,20 +42,10 @@ registerFragment(`
     nominatedForReview
     reviewingForReview
     promoted
-    promotedByUserId
     promotedByUser {
       ...UsersMinimumInfo
     }
     directChildrenCount
-  }
-`);
-
-registerFragment(`
-  fragment CommentPermalink on Comment {
-    ...CommentsList
-    parentComment {
-      ...CommentsList
-    }
   }
 `);
 
@@ -136,11 +124,7 @@ registerFragment(`
   fragment WithVoteComment on Comment {
     __typename
     _id
-    currentUserVotes{
-      _id
-      voteType
-      power
-    }
+    currentUserVote
     baseScore
     score
     afBaseScore

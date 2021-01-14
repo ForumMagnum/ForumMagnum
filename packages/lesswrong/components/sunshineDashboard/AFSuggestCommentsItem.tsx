@@ -2,10 +2,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Comments } from '../../lib/collections/comments';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../lib/alignment-forum/comments/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
@@ -17,7 +15,7 @@ interface ExternalProps {
   comment: SuggestAlignmentComment,
 }
 interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updateComment: any,
+  updateComment: WithUpdateFunction<CommentsCollection>,
 }
 
 class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
@@ -46,18 +44,19 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 
   render () {
     const { comment, currentUser, hover, anchorEl, updateComment } = this.props
+    if (!currentUser) return null;
 
-    const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser!._id)
+    const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
 
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          <Typography variant="body2">
+          <Components.Typography variant="body2">
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>
             </Link>}
             <Components.CommentBody comment={comment}/>
-          </Typography>
+          </Components.Typography>
         </Components.SidebarHoverOver>
         <Components.SunshineCommentsItemOverview comment={comment}/>
         <Components.SidebarInfo>
@@ -88,7 +87,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 const AFSuggestCommentsItemComponent = registerComponent<ExternalProps>('AFSuggestCommentsItem', AFSuggestCommentsItem, {
   hocs: [
     withUpdate({
-      collection: Comments,
+      collectionName: "Comments",
       fragmentName: 'SuggestAlignmentComment',
     }),
     withUser,

@@ -5,7 +5,7 @@ import { Accounts, Session, meteorLogout, meteorLoginWithPassword, meteorLoginWi
 import { KEY_PREFIX } from '../../lib/vulcan-accounts/login_session';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 import { intlShape } from '../../lib/vulcan-i18n';
-import { withApollo } from 'react-apollo';
+import { withApollo } from '@apollo/client/react/hoc';
 import TrackerComponent from './TrackerComponent';
 import sha1 from 'crypto-js/sha1';
 import { isClient, runAfterDelay } from '../../lib/executionEnvironment';
@@ -165,7 +165,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   getErrorId(error) {
-    return `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_').replace(/[.]/g,'').replace(/[,]/g,'')}`;
+    if (error?.reason) {
+      return `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_').replace(/[.]/g,'').replace(/[,]/g,'')}`;
+    }
+    return error
   }
 
   validateField(field, value) {
@@ -1057,4 +1060,3 @@ declare global {
     AccountsLoginFormInner: typeof AccountsLoginFormInnerComponent
   }
 }
-

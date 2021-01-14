@@ -45,7 +45,7 @@ describe('getDateRange', () => {
 
   it('handles malformed timeBlock', () => {
     ((
-      () => getDateRange('2019-01-01', '2019-01-03', 'asdf')
+      () => getDateRange('2019-01-01', '2019-01-03', 'asdf' as any)
     ) as any).should.throw(Error, /Invalid timeBlock/)
   })
 

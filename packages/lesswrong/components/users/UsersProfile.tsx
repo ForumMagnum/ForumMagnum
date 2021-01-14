@@ -1,8 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withMulti } from '../../lib/crud/withMulti';
-import React, { Component } from 'react';
+import { useMulti } from '../../lib/crud/withMulti';
+import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withLocation, withNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
@@ -11,12 +11,11 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import classNames from 'classnames';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import Typography from '@material-ui/core/Typography';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 
@@ -98,24 +97,22 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-interface ExternalProps {
-  terms: any,
+const UsersProfileFn = ({terms, slug, classes}: {
+  terms: UsersViewTerms,
   slug: string,
-}
-interface UsersProfileProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
-  loading: boolean,
-  results: Array<UsersProfile>|null,
-}
-interface UsersProfileState {
-  showSettings: boolean,
-}
+  classes: ClassesType,
+}) => {
+  const [showSettings, setShowSettings] = useState(false);
+  
+  const currentUser = useCurrentUser();
+  const {loading, results} = useMulti({
+    terms,
+    collectionName: "Users",
+    fragmentName: 'UsersProfile',
+    enableTotal: false,
+  });
 
-class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
-  state: UsersProfileState = {
-    showSettings: false
-  }
-
-  displaySequenceSection = (canEdit: boolean, user: UsersProfile)  => {
+  const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
@@ -123,8 +120,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     }
   }
 
-  renderMeta = () => {
-    const { classes, results } = this.props
+  const renderMeta = () => {
     const document = getUserFromResults(results)
     if (!document) return null
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
@@ -174,11 +170,11 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       </div>
   }
 
-  render() {
-    const { slug, classes, currentUser, loading, results, location } = this.props;
-    const { query } = location;
+  const { query } = useLocation();
+  
+  const render = () => {
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -210,13 +206,12 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     }
 
 
-    const draftTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
-    const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
-    const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
-    const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
-    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:9}
+    const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+    const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
+    const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
+    const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
+    const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
-    const { showSettings } = this.state
     // maintain backward compatibility with bookmarks
     const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
@@ -236,13 +231,14 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           <SingleColumnSection>
             <div className={classes.usernameTitle}>{username}</div>
             <Typography variant="body2" className={classes.userInfo}>
-              { this.renderMeta() }
+              { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
                     actions={[]}
                     trigger={<span>Register RSS</span>}
                   >
+                    { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
@@ -267,7 +263,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           </SingleColumnSection>
 
           {/* Sequences Section */}
-          { this.displaySequenceSection(ownPage, user) && <SingleColumnSection>
+          { displaySequenceSection(ownPage, user) && <SingleColumnSection>
             <SectionTitle title="Sequences">
               {ownPage && <SequencesNewButton />}
             </SectionTitle>
@@ -293,7 +289,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
-            <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
+            <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
                 <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
@@ -321,22 +317,12 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
       </div>
     )
   }
+  
+  return render();
 }
 
-const UsersProfileComponent = registerComponent<ExternalProps>(
-  'UsersProfile', UsersProfileClass, {
-    styles,
-    hocs: [
-      withUser,
-      withMulti({
-        collectionName: "Users",
-        fragmentName: 'UsersProfile',
-        enableTotal: false,
-        ssr: true
-      }),
-      withLocation, withNavigation,
-    ]
-  }
+const UsersProfileComponent = registerComponent(
+  'UsersProfile', UsersProfileFn, {styles}
 );
 
 declare global {

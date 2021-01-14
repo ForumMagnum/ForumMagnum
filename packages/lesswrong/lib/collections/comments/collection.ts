@@ -3,9 +3,10 @@ import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
-export const commentMutationOptions = {
+export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user) return false;
 
@@ -37,7 +38,7 @@ export const commentMutationOptions = {
 
 interface ExtendedCommentsCollection extends CommentsCollection {
   // Functions in server/search/utils.ts
-  toAlgolia: (comment: DbComment) => Promise<Array<Record<string,any>>|null>
+  toAlgolia: (comment: DbComment) => Promise<Array<AlgoliaDocument>|null>
 }
 
 export const Comments: ExtendedCommentsCollection = createCollection({

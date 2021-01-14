@@ -7,31 +7,44 @@ import {commentBodyStyles} from "../../themes/stylePiping";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import moment from 'moment';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import classNames from 'classnames';
 
-const styles = (theme) => ({
+export const gardenForm = theme => ({
+  ...commentBodyStyles(theme, true),
+  border: "solid 1px rgba(0,0,0,.2)",
+  borderRadius: 3,
+  padding: 8,
+  backgroundColor: "white",
+  maxWidth: 400,
+  '& .MuiInput-formControl': {
+    width: 320
+  }
+})
+
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     marginTop: 8,
     marginBottom: 8,
     width: 135
   },
   root: {
-    ...commentBodyStyles(theme),
-    border: "solid 1px rgba(0,0,0,.2)",
-    borderRadius: 3,
-    padding: 12,
-    backgroundColor: "white",
-    maxWidth: 378
+    ...gardenForm(theme)
   },
   row: {
     display: "flex",
     justifyContent: "space-between"
   },
-  inviteCode: {
-
+  formSubmitRow: {
+    display: "flex",
+    justifyContent: "flex-end"
+  },
+  submitButton: {
+    color: theme.palette.primary.main
   }
 })
 
-export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
+export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: string}) => {
 
   const { captureEvent } = useTracking()
   const currentUser =  useCurrentUser()
@@ -44,17 +57,41 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
     event.target.select()
   }
 
+  const keyDown = useGlobalKeydown((event: KeyboardEvent) => {
+    const Return_KeyCode = 13
+    const ReturnKey = "Enter"
+    if (event.key === ReturnKey || event.keyCode === Return_KeyCode) {
+      event.preventDefault()
+    }
+  });
+
+  const SubmitComponent = () => <div className={classNames("form-submit", classes.formSubmitRow)}>
+      <Button onClick={()=>setOpen(false)}>
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        className={classes.submitButton}
+        onClick={(ev) => {
+          if (!currentUser) {
+            ev.preventDefault();
+          }
+        }}
+      >
+        Submit
+      </Button>
+    </div>
+
   const generatedLink = `http://garden.lesswrong.com?code=${currentCode?.code}&event=${currentCode?.slug}`
 
   if (!currentUser) return null
+  const label = type === "friend" ? "Invite a Friend" : "Host Event"
 
-  if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>MAKE INVITE LINKS</Button>
+  if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>{label}</Button>
 
-  return <div className={classes.root}>
-    <div className={classes.row}>
-      <h3>Generate Invite Links</h3>
-      <a className={classes.hide} onClick={()=>setOpen(false)}>X</a>
-    </div>
+  const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type"]
+
+  return <div className={classes.root} {...keyDown}>
     {!!currentCode
       ? <div>
             Here is your code! It is valid from <strong>{moment(new Date(currentCode.startTime)).format("dddd, MMMM Do, h:mma")}</strong> until <strong>{moment(new Date(currentCode.endTime)).format("h:mma")}</strong>.
@@ -81,19 +118,21 @@ export const GardenCodeWidget = ({classes}:{classes:ClassesType}) => {
             }}>
               Generate New Code
             </Button>
+            {/* {type === "event" && <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank" rel="noopener noreferrer">
+              <Button variant="outlined" className={classes.fbEventButton}>Create FB Event</Button>
+            </a></div>} */}
           </div>
       : <div>
-          <div>
-            <p>Use invite links to set up co-working, general hangouts, and other events.</p>
-            <p>
-              Feel free to invite anyone who is considerate of those around them.
-              Invite codes are valid for 4 hours from start time.
-            </p>
-          </div>
+          <p>Invite codes are valid for 12 hours from start time.</p>
           <Components.WrappedSmartForm
             collection={GardenCodes}
+            fields={fields}
             mutationFragment={getFragment("GardenCodeFragment")}
             queryFragment={getFragment("GardenCodeFragment")}
+            formComponents={{
+              FormSubmit: SubmitComponent,
+              FormGroupLayout: Components.DefaultStyleFormGroup
+            }}
             successCallback={code => setCurrentCode(code)}/>
       </div>
     }

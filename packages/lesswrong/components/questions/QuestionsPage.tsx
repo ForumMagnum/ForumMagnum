@@ -1,14 +1,15 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withLocation } from '../../lib/routeUtil';
-import withDialog from '../common/withDialog'
+import { useLocation } from '../../lib/routeUtil';
+import { useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 
-const QuestionsPage = ({ openDialog, location }) => {
+const QuestionsPage = () => {
   const currentUser = useCurrentUser();
-  const { query } = location;
+  const { query } = useLocation();
+  const { openDialog } = useDialog();
   const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton, LWTooltip } = Components
 
   const topQuestionsTerms = {
@@ -51,9 +52,7 @@ const QuestionsPage = ({ openDialog, location }) => {
   )
 }
 
-const QuestionsPageComponent = registerComponent('QuestionsPage', QuestionsPage, {
-  hocs: [withDialog, withLocation]
-});
+const QuestionsPageComponent = registerComponent('QuestionsPage', QuestionsPage);
 
 declare global {
   interface ComponentTypes {

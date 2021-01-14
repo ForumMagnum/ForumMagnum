@@ -1,6 +1,12 @@
 import { Votes } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
+declare global {
+  interface VotesViewTerms extends ViewTermsBase {
+    view?: VotesViewName
+  }
+}
+
 ensureIndex(Votes, {cancelled:1, userId:1, documentId:1});
 ensureIndex(Votes, {cancelled:1, documentId:1});
 ensureIndex(Votes, {cancelled:1, userId:1, votedAt:-1});

@@ -28,7 +28,7 @@ export const sequenceGetAllPosts = async (sequenceId: string): Promise<Array<DbP
   
   // Sort the posts retrieved back into reading order and return them
   const postsById = keyBy(posts, post=>post._id);
-  return _.map(allPostIds, id=>postsById[id]);
+  return _.map(allPostIds, id=>postsById[id]).filter(post => !!post);
 }
 
 // Given a post ID and the ID of a sequence which contains that post, return the

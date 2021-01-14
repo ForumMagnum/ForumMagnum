@@ -1,7 +1,7 @@
 import { registerComponent, Components} from '../../lib/vulcan-lib';
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)

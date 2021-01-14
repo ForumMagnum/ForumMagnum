@@ -3,6 +3,7 @@ import { withMulti } from '../../lib/crud/withMulti';
 import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { getSchema } from '../../lib/utils/getSchema';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
@@ -183,7 +184,7 @@ const DatatableHeader = ({ collection, column, toggleSort, currentSort }, { intl
   const columnName = getColumnName(column);
   
   if (collection) {
-    const schema = collection.simpleSchema()._schema;
+    const schema = getSchema(collection);
 
     /*
 

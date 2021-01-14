@@ -288,10 +288,8 @@ const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false
 if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
-    schedule(parser: any) {
-      // Once per minute, on the minute
-      return parser.cron('* * * * * *');
-    },
+    // Once per minute, on the minute
+    cronStyleSchedule: '* * * * * *',
     job() {
       void dispatchPendingEvents();
     }

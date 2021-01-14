@@ -11,7 +11,6 @@ import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { commentBodyStyles, } from '../../themes/stylePiping'
 import { useMulti } from '../../lib/crud/withMulti';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   tagInfo: {
@@ -77,7 +76,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
       view: "postsWithTag",
       tagId: tag._id,
     },
-    collection: TagRels,
+    collectionName: "TagRels",
     fragmentName: "TagRelFragment",
     limit: 20,
   });

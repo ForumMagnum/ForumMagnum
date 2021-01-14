@@ -3,8 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withApollo } from 'react-apollo'
-import { Comments } from "../../../lib/collections/comments";
+import { withApollo } from '@apollo/client/react/hoc';
 import withUser from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -113,7 +112,7 @@ const MoveToAlignmentMenuItemComponent = registerComponent<ExternalProps>(
     styles,
     hocs: [
       withUpdate({
-        collection: Comments,
+        collectionName: "Comments",
         fragmentName: 'CommentsList',
       }),
       withMessages, withApollo, withUser
