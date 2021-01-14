@@ -152,9 +152,6 @@ const BookFrontpageWidget = ({ classes }: {
       <div className={classes.buttonRow}>
         {buttons}
       </div>
-      <div className={classes.shippingNotice}>
-        (Orders placed today arrive after Christmas)
-      </div>
     </div>
   }
 
