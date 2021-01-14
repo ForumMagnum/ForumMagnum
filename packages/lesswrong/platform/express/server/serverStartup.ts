@@ -6,6 +6,7 @@ import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../../../server/votingGraphQL';
+import { Globals } from '../../../lib/vulcan-lib/config';
 import process from 'process';
 import readline from 'readline';
 
@@ -119,13 +120,15 @@ function initShell()
   });
   rl.prompt();*/
   
-  repl.start({
+  const r = repl.start({
     prompt: "> ",
     terminal: true,
     preview: true,
     breakEvalOnSigint: true,
     useGlobal: true,
   });
+  r.context.Globals = Globals;
+  r.context.Vulcan = Globals;
 }
 
 serverStartup();
