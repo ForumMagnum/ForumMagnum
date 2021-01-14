@@ -4,19 +4,7 @@ import Users from '../lib/collections/users/collection';
 import { onServerConnect } from '../platform/current/server/meteorServerSideFns';
 import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 
-let dummyUser: DbUser|null = null;
-async function getDummyUser(): Promise<DbUser> {
-  if (!dummyUser) dummyUser = await Users.findOne();
-  if (!dummyUser) throw Error("No users in the database, can't get dummy user")
-  return dummyUser;
-}
-onStartup(() => {
-  if (!isAnyTest)
-    void getDummyUser();
-});
-
 onServerConnect(async (connection) => {
-  let currentUser = await getDummyUser();
   const ip = (connection.httpHeaders && connection.httpHeaders["x-real-ip"]) || connection.clientAddress;
   
   void createMutator({
@@ -29,7 +17,7 @@ onServerConnect(async (connection) => {
         id: connection.id,
       }
     },
-    currentUser: currentUser,
+    currentUser: null,
     validate: false,
   })
   //eslint-disable-next-line no-console
@@ -48,7 +36,7 @@ onServerConnect(async (connection) => {
           id: connection.id,
         }
       },
-      currentUser: currentUser,
+      currentUser: null,
       validate: false,
     })
   })
