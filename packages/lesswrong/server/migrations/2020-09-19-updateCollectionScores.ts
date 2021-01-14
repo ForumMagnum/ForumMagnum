@@ -18,7 +18,7 @@ registerMigration({
   }
 })
 
-const recomputeCollectionScores = async (collectionName:string, includeAf = false) => {
+const recomputeCollectionScores = async (collectionName:CollectionNameString, includeAf = false) => {
   const collection = getCollection(collectionName);
   const newScores = await Votes.rawCollection().aggregate([
     {
@@ -102,7 +102,18 @@ const recomputeUserKarma = async () => {
   console.log(`Finished generating updates for ${newScores.length} users.`)
 
   for (const chunk of chunkArray(newScores, 1000)) {
-    await Users.rawCollection().bulkWrite(chunk.map(({_id, karmaTotal, afKarmaTotal}) => ({
+    await Users.rawCollection().bulkWrite(chunk.map(({ _id }) => ({
+      updateOne: {
+        filter: { _id },
+        update: {
+          $rename: {
+            karma: 'oldKarma'
+          },
+        }
+      }
+    })),
+    { ordered: false });
+    await Users.rawCollection().bulkWrite(chunk.map(({_id, karmaTotal, afKarmaTotal }) => ({
       updateOne: {
         filter: { _id },
         update: {
