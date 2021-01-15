@@ -399,6 +399,10 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserVote: string,
 }
 
+interface PostsListWithVotes extends PostsList { // fragment on Posts
+  readonly currentUserVote: string,
+}
+
 interface PostsAuthors { // fragment on Posts
   readonly user: PostsAuthors_user|null,
   readonly coauthors: Array<UsersMinimumInfo>,
@@ -1647,6 +1651,7 @@ interface FragmentTypes {
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
+  PostsListWithVotes: PostsListWithVotes
   PostsAuthors: PostsAuthors
   PostsListBase: PostsListBase
   PostsList: PostsList
@@ -1777,6 +1782,7 @@ interface CollectionNamesByFragmentName {
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
+  PostsListWithVotes: "Posts"
   PostsAuthors: "Posts"
   PostsListBase: "Posts"
   PostsList: "Posts"
