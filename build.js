@@ -16,7 +16,7 @@ const [opts, args] = cliopts.parse(
   ["settings", "A JSON config file for the server", "<file>"],
   ["mongoUrl", "A mongoDB connection connection string", "<url>"],
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
-  ["shell", "Open an interactive shell instead of running a webserve"],
+  ["shell", "Open an interactive shell instead of running a webserver"],
 );
 
 // Two things this script should do, that it currently doesn't:
@@ -62,7 +62,7 @@ const bundleDefinitions = {
 };
 
 build({
-  entryPoints: ['./packages/lesswrong/platform/current/client/clientStartup.ts'],
+  entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   bundle: true,
   target: "es6",
   sourcemap: true,
@@ -87,14 +87,18 @@ build({
   },
 });
 
+let serverCli = ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile]
+if (opts.shell)
+  serverCli.push("--shell");
+
 build({
-  entryPoints: ['./packages/lesswrong/platform/current/server/serverStartup.ts'],
+  entryPoints: ['./packages/lesswrong/server/serverStartup.ts'],
   bundle: true,
   outfile: './build/server/js/serverBundle.js',
   platform: "node",
   sourcemap: true,
   minify: false,
-  run: cliopts.run && ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile],
+  run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx, esbuildOptions) => {
     serverRebuildInProgress = true;
   },
