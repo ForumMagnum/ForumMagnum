@@ -9,6 +9,8 @@ import { createVoteableUnionType } from '../../../server/votingGraphQL';
 import { Globals } from '../../../lib/vulcan-lib/config';
 import process from 'process';
 import readline from 'readline';
+import chokidar from 'chokidar';
+import fs from 'fs';
 
 async function serverStartup() {
   console.log("Starting server");
@@ -69,6 +71,7 @@ async function serverStartup() {
     initShell();
   } else {
     if (!isAnyTest) {
+      watchForShellCommands();
       console.log("Starting webserver");
       startWebserver();
     }
@@ -129,6 +132,20 @@ function initShell()
   });
   r.context.Globals = Globals;
   r.context.Vulcan = Globals;
+}
+
+// Monitor ./tmp/pendingShellCommands for shell commands. If a JS file is
+// written there, run it then delete it. Security-wise this is okay because
+// write-access inside the repo directory is already equivalent to script
+// execution.
+const watchForShellCommands = () => {
+  const watcher = chokidar.watch('./tmp/pendingShellCommands');
+  watcher.on('add', (path) => {
+    const fileContents = fs.readFileSync(path, 'utf8');
+    console.log(`Running shell command: ${fileContents}`);
+    eval(fileContents);
+    fs.unlinkSync(path);
+  });
 }
 
 serverStartup();
