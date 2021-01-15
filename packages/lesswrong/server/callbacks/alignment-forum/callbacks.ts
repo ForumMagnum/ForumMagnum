@@ -98,6 +98,9 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
       $inc: {afKarma: document.afBaseScore || 0},
       $addToSet: {groups: 'alignmentVoters'}
     })
+    await Votes.update({documentId: document._id}, {
+      $set: {documentIsAf: true}
+    }, {multi: true})
   } else if (!document.af && oldDocument.af) {
     const documentUser = await Users.findOne({_id:document.userId})
     if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
@@ -110,6 +113,9 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
         $pull: {groups: 'alignmentVoters'}
       })
     }
+    await Votes.update({documentId: document._id}, {
+      $set: {documentIsAf: false}
+    }, {multi: true})
   }
 }
 

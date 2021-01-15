@@ -77,7 +77,7 @@ const cancelVoteClient = ({document, collection, user}: {
 
 // Determine a user's voting power for a given operation.
 // If power is a function, call it on user
-const getVotePower = ({ user, voteType, document }: {
+export const getVotePower = ({ user, voteType, document }: {
   user: DbUser|UsersCurrent,
   voteType: string,
   document: VoteableType,
@@ -109,6 +109,7 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
     votedAt: new Date(),
     authorId: document.userId,
     cancelled: false,
+    documentIsAf: !!(document.af),
   }
 };
 

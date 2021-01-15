@@ -18,9 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsHighlight = ({post, maxLengthWords, classes}: {
+const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
   post: PostsList,
   maxLengthWords: number,
+  forceSeeMore?: boolean,
   classes: ClassesType,
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {}
@@ -46,12 +47,12 @@ const PostsHighlight = ({post, maxLengthWords, classes}: {
       rawWordCount={wordCount}
       expanded={expanded}
       getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
-        {wordsLeft > 1000
-          ? <Link to={postGetPageUrl(post)}>
-              (Continue Reading – {wordsLeft} more words)
-            </Link>
-          : <Link to={postGetPageUrl(post)} onClick={clickExpand}>
+        {(forceSeeMore || wordsLeft > 1000)
+          ? <Link to={postGetPageUrl(post)} onClick={clickExpand}>
               (See More – {wordsLeft} more words)
+            </Link>
+          : <Link to={postGetPageUrl(post)}>
+              (Continue Reading – {wordsLeft} more words)
             </Link>
         }
       </div>}

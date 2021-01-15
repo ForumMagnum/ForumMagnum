@@ -19,7 +19,8 @@ import seedrandom from '../../lib/seedrandom';
 
 const YEAR = 2019
 const NOMINATIONS_VIEW = "nominations2019"
-const REVIEWS_VIEW = "reviews2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const VOTING_VIEW = "voting2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const REVIEW_COMMENTS_VIEW = "reviews2019"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 
 export const currentUserCanVote = (currentUser) => new Date(currentUser?.createdAt) < new Date(`${YEAR}-01-01`)
@@ -122,7 +123,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
   },
   excessVotes: {
-    color: theme.palette.error.main
+    color: theme.palette.error.main,
+    border: `solid 1px ${theme.palette.error.light}`,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 6,
+    paddingBottom: 6,
+    borderRadius: 3,
+    '&:hover': {
+      opacity: .5
+    }
   },
   message: {
     width: "100%",
@@ -223,14 +233,14 @@ const ReviewVotingPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
-    terms: {view: REVIEWS_VIEW, limit: 200},
+    terms: {view: VOTING_VIEW, limit: 300},
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 200, userId: currentUser?._id, year: YEAR+""},
+    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
@@ -402,7 +412,9 @@ const ReviewVotingPage = ({classes}: {
                   {voteTotal}/500
                 </div>
             </LWTooltip>}
-            {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details. Click to renormalize your votes to get closer to an optimal allocation.</div>}>
+            {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
+                <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
+                <p>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details.</p></div>}>
                 <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
                   Avg: {(voteSum / posts.length).toFixed(2)}
                 </div>
@@ -423,6 +435,7 @@ const ReviewVotingPage = ({classes}: {
                 >
                   <ReviewVoteTableRow
                     post={post}
+                    setExpandedPost={setExpandedPost}
                     dispatch={dispatchQualitativeVote}
                     currentQualitativeVote={currentQualitativeVote||null}
                     currentQuadraticVote={currentQuadraticVote||null}
@@ -490,7 +503,7 @@ const ReviewVotingPage = ({classes}: {
                 />
                 <PostReviewsAndNominations
                   title="review"
-                  terms={{view: REVIEWS_VIEW, postId: expandedPost._id}}
+                  terms={{view: REVIEW_COMMENTS_VIEW, postId: expandedPost._id}}
                   post={expandedPost}
                 />
               </div>
@@ -566,7 +579,8 @@ const inverseSumOf1ToN = (x:number) => {
 }
 
 const sumOf1ToN = (x:number) => {
-  return x*(x+1)/2
+  const absX = Math.abs(x)
+  return absX*(absX+1)/2
 }
 
 const computeTotalCost = (votes: vote[]) => {

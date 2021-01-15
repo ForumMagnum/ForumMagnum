@@ -27,7 +27,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   nominationBlock: {flexGrow: 1, marginRight: 2, flexBasis: 0},
   reviewBlock: {flexGrow: 2, marginRight: 2, flexBasis: 0},
   votingBlock: {flexGrow: 1, flexBasis: 0},
-  blockText: {color: 'white', zIndex: 1},
+  blockText: {
+    color: 'white',
+    zIndex: 1,
+    whiteSpace: "nowrap",
+  },
+  blockLabel: {
+    marginRight: 10,
+  },
   progress: {
     position: 'relative',
     marginBottom: 2,
@@ -179,7 +186,7 @@ const FrontpageReviewPhase = ({classes}) => {
         <div className={classes.nominationBlock}>
           <Link to={"/nominations"}>
             <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "nominations"})}>
-              <div className={classes.blockText}>Nominations</div>
+              <div className={classNames(classes.blockText, classes.blockLabel)}>Nominations</div>
               <div className={classes.blockText}>Dec 14</div>
               {activeRange === "nominations" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}/>}
             </LWTooltip>
@@ -188,7 +195,7 @@ const FrontpageReviewPhase = ({classes}) => {
         <div className={classes.reviewBlock}>  
           <Link to={"/reviews"}>    
             <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "review"})}>
-              <div className={classes.blockText}>Reviews</div>
+              <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
               <div className={classes.blockText}>Jan 11</div>
               {activeRange === "review" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
             </LWTooltip>
@@ -197,7 +204,7 @@ const FrontpageReviewPhase = ({classes}) => {
         <div className={classes.votingBlock}>
           <Link to={"/reviewVoting"}>
             <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "votes"})}>
-              <div className={classes.blockText}>Votes</div>
+              <div className={classNames(classes.blockText, classes.blockLabel)}>Votes</div>
               <div className={classes.blockText}>Jan 26</div>
               {activeRange === "votes" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
             </LWTooltip>
@@ -212,7 +219,7 @@ const FrontpageReviewPhase = ({classes}) => {
         <LWTooltip title={<div>
           <div>Review posts with at least two nominations</div>
           </div>}>
-          <Link to={"/reviews"} className={classes.actionButtonCTA}>
+          <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
             Vote on 2019 Posts
           </Link>
         </LWTooltip>

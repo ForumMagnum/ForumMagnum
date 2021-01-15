@@ -81,6 +81,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly cancelled: boolean,
   readonly isUnvote: boolean,
   readonly votedAt: Date,
+  readonly documentIsAf: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments

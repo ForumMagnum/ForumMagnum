@@ -95,6 +95,7 @@
     "cheerio": "^0.22",
     "chokidar": "^3.5.0",
     "classnames": "^2.2.6",
+    "cloudinary": "^1.23.0",
     "cloudinary-core": "2.5.0",
     "cloudinary-react": "1.0.6",
     "compression": "^1.7.3",

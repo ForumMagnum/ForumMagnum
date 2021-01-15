@@ -738,6 +738,7 @@ interface DbVote extends DbObject {
   cancelled: boolean
   isUnvote: boolean
   votedAt: Date
+  documentIsAf: boolean
 }
 
 interface CollectionsByName {

@@ -49,7 +49,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
       }}
       clickable={clickable}
     >
-      <div className={classes.tooltip}>{title}</div>
+      <div className={tooltip ? classes.tooltip : null}>{title}</div>
     </LWPopper>}
     
     {children}
