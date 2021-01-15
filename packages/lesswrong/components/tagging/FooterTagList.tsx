@@ -109,23 +109,30 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   
   const contentTypeInfo = contentTypes[forumTypeSetting.get()];
 
+  // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
+  // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
+  // have reviewedByUserId set to anything.
   let postType = post.curatedDate
     ? <Link to={contentTypeInfo.curated.linkTarget}>
         <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.curated.tooltipBody}</Card>} tooltip={false}>
           <div className={classes.frontpageOrPersonal}>Curated</div>
         </LWTooltip>
       </Link>
-    : post.frontpageDate
+    : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
           <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.frontpage.tooltipBody}</Card>} tooltip={false}>
             <div className={classes.frontpageOrPersonal}>Frontpage</div>
           </LWTooltip>
         </MaybeLink>
-      : <MaybeLink to={contentTypeInfo.personal.linkTarget}>
-          <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.personal.tooltipBody}</Card>} tooltip={false}>
-            <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
-          </LWTooltip>
-        </MaybeLink>
+      : (post.reviewedByUserId
+        ? <MaybeLink to={contentTypeInfo.personal.linkTarget}>
+            <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.personal.tooltipBody}</Card>} tooltip={false}>
+              <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
+            </LWTooltip>
+          </MaybeLink>
+        : null
+      )
+    )
 
   if (loading || !results) {
     return <div className={classes.root}>

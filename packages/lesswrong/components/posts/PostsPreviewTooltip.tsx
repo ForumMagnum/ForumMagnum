@@ -131,8 +131,12 @@ const getPostCategory = (post: PostsBase) => {
 
   if (categories.length > 0)
     return categories.join(', ');
+  else if (post.question)
+    return "Question";
+  else if (post.reviewdByUserId)
+    return `Personal Blogpost`
   else
-    return post.question ? `Question` : `Personal Blogpost`
+    return null;
 }
 
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
@@ -156,6 +160,8 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   const renderedComment = comment || post.bestAnswer
 
   const tags = sortTags(post.tags, t=>t)
+  
+  const postCategory: string|null = getPostCategory(post);
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
@@ -166,8 +172,8 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             </div>
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
-                {getPostCategory(post)}
-                {(tags?.length > 0) && " – "}
+                {postCategory}
+                {postCategory && (tags?.length > 0) && " – "}
                 {tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
