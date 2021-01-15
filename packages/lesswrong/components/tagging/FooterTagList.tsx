@@ -46,12 +46,11 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
-  hidePersonalOrFrontpage?: boolean,
   smallText?: boolean
 
 }) => {
@@ -110,26 +109,23 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
   
   const contentTypeInfo = contentTypes[forumTypeSetting.get()];
 
-  let postType = <></>
-  if (!hidePersonalOrFrontpage) {
-    postType = post.curatedDate
-      ? <Link to={contentTypeInfo.curated.linkTarget}>
-          <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.curated.tooltipBody}</Card>} tooltip={false}>
-            <div className={classes.frontpageOrPersonal}>Curated</div>
+  let postType = post.curatedDate
+    ? <Link to={contentTypeInfo.curated.linkTarget}>
+        <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.curated.tooltipBody}</Card>} tooltip={false}>
+          <div className={classes.frontpageOrPersonal}>Curated</div>
+        </LWTooltip>
+      </Link>
+    : post.frontpageDate
+      ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
+          <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.frontpage.tooltipBody}</Card>} tooltip={false}>
+            <div className={classes.frontpageOrPersonal}>Frontpage</div>
           </LWTooltip>
-        </Link>
-      : post.frontpageDate
-        ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
-            <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.frontpage.tooltipBody}</Card>} tooltip={false}>
-              <div className={classes.frontpageOrPersonal}>Frontpage</div>
-            </LWTooltip>
-          </MaybeLink>
-        : <MaybeLink to={contentTypeInfo.personal.linkTarget}>
-            <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.personal.tooltipBody}</Card>} tooltip={false}>
-              <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
-            </LWTooltip>
-          </MaybeLink>
-  }
+        </MaybeLink>
+      : <MaybeLink to={contentTypeInfo.personal.linkTarget}>
+          <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.personal.tooltipBody}</Card>} tooltip={false}>
+            <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
+          </LWTooltip>
+        </MaybeLink>
 
   if (loading || !results) {
     return <div className={classes.root}>
