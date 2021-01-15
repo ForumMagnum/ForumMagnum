@@ -4,6 +4,7 @@ import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagBySlug } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
+import { removeUrlParameters } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   link: {
@@ -22,6 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+function normalizeTagLink(link: string) {
+  return removeUrlParameters(link, ["showPostCount", "useTagName"]);
+}
 
 const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}: {
   href: string,
@@ -37,6 +41,9 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
   const useTagName = tag && tag.name && useTagNameQuery === "true" // query parameters are strings
+  
+  // Remove showPostCount and useTagName query parameters from the link, if present
+  const linkTarget = normalizeTagLink(href);
 
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
@@ -46,7 +53,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6}
     </PopperCard>
     <Link
       className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link}
-      to={href}
+      to={linkTarget}
       dangerouslySetInnerHTML={{__html: useTagName ? tag?.name : innerHTML}}
     />
     {!!(showPostCount && tag?.postCount) && <span className={classes.count}>({tag?.postCount})</span>}
