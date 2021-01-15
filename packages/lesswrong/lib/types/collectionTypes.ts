@@ -40,7 +40,7 @@ interface CollectionBase<
   update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
   remove: (idOrSelector: string|MongoSelector<T>, options?: any) => void
   insert: (data: any, options?: any) => string
-  aggregate: (aggregationPipeline: MongoAggregationPipeline<T>) => any
+  aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
 }
 
