@@ -1,6 +1,6 @@
 import { isAnyTest, onStartup, runAfterDelay } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
-import { getCommandLineArguments } from '../platform/express/server/commandLine';
+import { getCommandLineArguments } from './commandLine';
 
 SyncedCron.options = {
   log: true,

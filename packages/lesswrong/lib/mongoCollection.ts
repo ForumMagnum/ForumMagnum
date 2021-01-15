@@ -1,4 +1,4 @@
-import { randomId } from '../../../lib/random';
+import { randomId } from './random';
 
 let client: any = null;
 let db: any = null;

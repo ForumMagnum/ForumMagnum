@@ -1,7 +1,7 @@
-import { onStartupFunctions } from '../../../lib/executionEnvironment';
+import { onStartupFunctions } from '../lib/executionEnvironment';
 
 async function clientStartup() {
-  require('../../../client.js');
+  require('../client.js');
   for (let startupFunction of onStartupFunctions)
     await startupFunction();
 }

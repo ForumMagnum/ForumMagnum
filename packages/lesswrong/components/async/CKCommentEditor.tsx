@@ -1,6 +1,6 @@
 import React from 'react'
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor } from '../../platform/current/lib/wrapCkEditor';
+import { getCkEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 

@@ -235,11 +235,5 @@ module.exports = {
     "afterEach": true
   },
   "ignorePatterns": [
-    // Don't complain about having files in platform-specific directories which
-    // are "not part of the project" (according to tsconfig.json). This is
-    // necessary because eslint gets confused by the packages/lesswrong/platform/current
-    // symlink.
-    "packages/lesswrong/platform/express/**/*.ts",
-    "packages/lesswrong/platform/express/**/*.tsx",
   ]
 }

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor } from '../../platform/current/lib/wrapCkEditor';
+import { getCkEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings';

@@ -22,7 +22,7 @@ let instanceSettings: any = null;
 export const getInstanceSettings = (): any => {
   if (!instanceSettings) {
     if (bundleIsServer) {
-      const { loadInstanceSettings } = require('../platform/current/server/commandLine.ts');
+      const { loadInstanceSettings } = require('../server/commandLine.ts');
       instanceSettings = loadInstanceSettings();
     } else {
       instanceSettings = {

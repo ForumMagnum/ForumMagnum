@@ -13,4 +13,4 @@ export * from './apollo-ssr/apolloClient';
 
 import './utils';
 import './apollo-server/authentication';
-import '../../platform/current/server/apolloServer';
+import '../apolloServer';

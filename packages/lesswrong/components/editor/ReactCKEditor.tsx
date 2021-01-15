@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getCkEditor } from '../../platform/current/lib/wrapCkEditor';
+import { getCkEditor } from '../../lib/wrapCkEditor';
 
 interface CKEditorProps {
   data?: any,

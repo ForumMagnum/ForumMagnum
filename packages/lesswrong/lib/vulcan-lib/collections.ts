@@ -1,4 +1,4 @@
-import { MongoCollection } from '../../platform/current/lib/mongoCollection';
+import { MongoCollection } from '../../lib/mongoCollection';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';

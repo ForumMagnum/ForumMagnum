@@ -1,18 +1,18 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, isAnyTest, getInstanceSettings } from '../../../lib/executionEnvironment';
-import { renderWithCache } from '../../../server/vulcan-lib/apollo-ssr/renderPage';
+import { isDevelopment, isAnyTest, getInstanceSettings } from '../lib/executionEnvironment';
+import { renderWithCache } from './vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
-import { pickerMiddleware } from '../../../server/vendor/picker';
+import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import getVoyagerConfig from '../../../server/vulcan-lib/apollo-server/voyager';
-import { graphiqlMiddleware, getGraphiqlConfig } from '../../../server/vulcan-lib/apollo-server/graphiql';
-import getPlaygroundConfig from '../../../server/vulcan-lib/apollo-server/playground';
+import getVoyagerConfig from './vulcan-lib/apollo-server/voyager';
+import { graphiqlMiddleware, getGraphiqlConfig } from './vulcan-lib/apollo-server/graphiql';
+import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
-import { initGraphQL, getExecutableSchema } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq } from '../../../server/vulcan-lib/apollo-server/context';
+import { initGraphQL, getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
+import { computeContextFromReq } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -23,13 +23,13 @@ import express from 'express'
 import { app } from './expressServer';
 import React from 'react';
 import path from 'path'
-import { getPublicSettingsLoaded } from '../../../lib/settingsCache';
-import { embedAsGlobalVar } from '../../../server/vulcan-lib/apollo-ssr/renderUtil';
-import { addStripeMiddleware } from '../../../server/stripeMiddleware';
-import { addAuthMiddlewares } from '../../../server/authenticationMiddlewares';
-import { addSentryMiddlewares } from '../../../server/logging';
-import { addClientIdMiddleware } from '../../../server/clientIdMiddleware';
-import { addStaticRoute } from '../../../server/vulcan-lib/staticRoutes';
+import { getPublicSettingsLoaded } from '../lib/settingsCache';
+import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
+import { addStripeMiddleware } from './stripeMiddleware';
+import { addAuthMiddlewares } from './authenticationMiddlewares';
+import { addSentryMiddlewares } from './logging';
+import { addClientIdMiddleware } from './clientIdMiddleware';
+import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import fs from 'fs';
 import crypto from 'crypto';
 

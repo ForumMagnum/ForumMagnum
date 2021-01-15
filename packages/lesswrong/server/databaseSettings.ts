@@ -5,7 +5,7 @@ import { getPublicSettings, getServerSettingsCache, getServerSettingsLoaded, reg
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
 import { ensureIndex } from '../lib/collectionUtils';
-import { refreshSettingsCaches } from '../platform/current/server/loadDatabaseSettings';
+import { refreshSettingsCaches } from './loadDatabaseSettings';
 
 const runValidateSettings = false
 

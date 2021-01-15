@@ -4,7 +4,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { onStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
 import { MongoClient } from 'mongodb';
-import { setDatabaseConnection, closeDatabaseConnection } from '../platform/current/lib/mongoCollection';
+import { setDatabaseConnection, closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import jestMongoSetup from '@shelf/jest-mongodb/setup';

@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 import { addFieldsDict } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
-import { databaseIsConnected } from '../platform/current/lib/mongoCollection';
+import { databaseIsConnected } from './mongoCollection';
 
 // canAutofillDefault: Marks a field where, if its value is null, it should
 // be auto-replaced with defaultValue in migration scripts.

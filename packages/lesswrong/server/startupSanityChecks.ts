@@ -2,7 +2,7 @@ import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 import process from 'process';
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
-import { getPreloadedDatabaseId } from '../platform/current/server/loadDatabaseSettings';
+import { getPreloadedDatabaseId } from './loadDatabaseSettings';
 
 // Database ID string that this config file should match with
 const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning")

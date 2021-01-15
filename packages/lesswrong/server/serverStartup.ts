@@ -1,12 +1,12 @@
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
-import { onStartupFunctions, isAnyTest } from '../../../lib/executionEnvironment';
+import { onStartupFunctions, isAnyTest } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
-import { initGraphQL } from '../../../server/vulcan-lib/apollo-server/initGraphQL';
-import { createVoteableUnionType } from '../../../server/votingGraphQL';
-import { Globals } from '../../../lib/vulcan-lib/config';
+import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
+import { createVoteableUnionType } from './votingGraphQL';
+import { Globals } from '../lib/vulcan-lib/config';
 import process from 'process';
 import readline from 'readline';
 import chokidar from 'chokidar';

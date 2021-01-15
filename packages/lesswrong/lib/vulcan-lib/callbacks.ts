@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 
 import { debug } from './debug';
 import { isPromise } from './utils';
-import { isAnyQueryPending } from '../../platform/current/lib/mongoCollection';
+import { isAnyQueryPending } from '../mongoCollection';
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string

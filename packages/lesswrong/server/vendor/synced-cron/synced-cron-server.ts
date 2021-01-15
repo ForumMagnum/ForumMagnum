@@ -1,7 +1,7 @@
 import later from 'later';
 import * as _ from 'underscore';
 import { isAnyTest, onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
-import { MongoCollection } from '../../../platform/current/lib/mongoCollection';
+import { MongoCollection } from '../../../lib/mongoCollection';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {
