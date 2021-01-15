@@ -114,12 +114,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 4,
     lineHeight: '1.3'
   },
-  shippingNotice: {
-    ...theme.typography.commentStyle,
-    height: 36,
-    fontSize: '0.83rem',
-    color: 'rgba(0,0,0,0.6)'
-  }
 })
 
 const BookFrontpageWidget = ({ classes }: {
