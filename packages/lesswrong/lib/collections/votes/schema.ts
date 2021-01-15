@@ -116,6 +116,13 @@ const schema: SchemaType<DbVote> = {
     }
   }),
 
+  // This flag allows us to calculate the baseScore/karma of documents and users using nothing but the votes
+  // collection. Otherwise doing that calculation would require a lookup, which is pretty expensive
+  documentIsAf: {
+    type: Boolean,
+    canRead: ['guests'],
+    ...schemaDefaultValue(false)
+  }
 };
 
 export default schema;

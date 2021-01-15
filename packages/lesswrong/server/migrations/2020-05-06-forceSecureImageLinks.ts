@@ -89,6 +89,7 @@ registerMigration({
   action: async () => {
     await forEachDocumentBatchInCollection({
       collection: Posts,
+      batchSize: 500,
       filter: {
         status: 2,
         draft: {$ne: true},
