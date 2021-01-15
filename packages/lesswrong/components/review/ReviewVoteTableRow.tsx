@@ -87,7 +87,7 @@ const ReviewVoteTableRow = (
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, PostsItemKarma, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
 
   const currentUser = useCurrentUser()
   if (!currentUser) return null;
