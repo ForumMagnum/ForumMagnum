@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   voteIcon: {
-      padding: 0
+    padding: 0
   },
   postVote: {
     display: "flex",
@@ -51,15 +51,35 @@ const styles = (theme: ThemeType) => ({
     padding: 16,
     background: "#f9f9f9",
     borderTop: "solid 1px rgba(0,0,0,.1)"
-  }
+  },
+  userVote: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    height: "100%",
+    width: 6
+  },
+  bigUpvote: {
+    background: theme.palette.primary.dark
+  },
+  smallUpvote: {
+    background: theme.palette.primary.light
+  },
+  bigDownvote: {
+    background: theme.palette.error.dark
+  },
+  smallDownvote: {
+    background: theme.palette.error.light
+  },
 });
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, setExpandedPost }: {
-    post: PostsList,
+  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, setExpandedPost, showKarmaVotes }: {
+    post: PostsListWithVotes,
     dispatch: React.Dispatch<vote>,
     dispatchQuadraticVote: any,
     setExpandedPost: any,
+    showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId: string,
@@ -67,7 +87,7 @@ const ReviewVoteTableRow = (
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
+  const { PostsTitle, PostsItemKarma, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
 
   const currentUser = useCurrentUser()
   if (!currentUser) return null;
@@ -85,8 +105,11 @@ const ReviewVoteTableRow = (
 
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
+      {showKarmaVotes && post.currentUserVote && <LWTooltip title={post.currentUserVote} placement="left" inlineBlock={false}>
+          <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
+        </LWTooltip>}
       <div className={classes.topRow} onClick={clickHandler}>
-        <div className={classes.postVote} >
+        <div className={classes.postVote}>
           <div className={classes.post}>
             <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
               <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
