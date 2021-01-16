@@ -56,7 +56,7 @@ async function serverStartup() {
   console.log("Loading settings");
   await refreshSettingsCaches();
   
-  require('../../../server.js');
+  require('../server.ts');
   
   // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
