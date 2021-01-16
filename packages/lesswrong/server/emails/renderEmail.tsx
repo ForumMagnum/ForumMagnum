@@ -24,6 +24,14 @@ import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 
+interface RenderedEmail {
+  user: DbUser,
+  to: string,
+  from: string,
+  subject: string,
+  html: string,
+  text: string,
+}
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -75,7 +83,11 @@ const emailGlobalCss = `
   }
 `;
 
-function addEmailBoilerplate({ css, title, body })
+function addEmailBoilerplate({ css, title, body }: {
+  css: string,
+  title: string,
+  body: string
+}): string
 {
   return `
     <html lang="en">
@@ -117,7 +129,12 @@ function addEmailBoilerplate({ css, title, body })
 //
 
 const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
-export async function generateEmail({user, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate})
+export async function generateEmail({user, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
+  user: DbUser,
+  subject: string,
+  bodyComponent: React.ReactNode,
+  boilerplateGenerator?: (props: {css:string, title: string, body: string})=>string,
+}): Promise<RenderedEmail>
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!subject) throw new Error("Missing required argument: subject");
@@ -141,7 +158,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
-    <UserContext.Provider value={user}>
+    <UserContext.Provider value={user as unknown as UsersCurrent /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
     </TimezoneContext.Provider>
@@ -196,7 +213,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   }
 }
 
-export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
+export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
   const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
   return await generateEmail({
     user,
@@ -234,7 +251,7 @@ function validateSheets(sheetsRegistry)
 
 
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
-export async function sendEmail(renderedEmail)
+export async function sendEmail(renderedEmail: RenderedEmail): Promise<void>
 {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
@@ -253,7 +270,7 @@ export async function sendEmail(renderedEmail)
   }
 }
 
-export async function logSentEmail(renderedEmail, user) {
+export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,
@@ -275,7 +292,7 @@ export async function logSentEmail(renderedEmail, user) {
 
 // Returns a string explanation of why we can't send emails to a given user, or
 // null if there is no such reason and we can email them.
-export function reasonUserCantReceiveEmails(user)
+export function reasonUserCantReceiveEmails(user: DbUser): string|null
 {
   if (!user.email)
     return "No email address";
