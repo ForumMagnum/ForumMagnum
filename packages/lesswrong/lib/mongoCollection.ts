@@ -33,6 +33,7 @@ function timeSince(startTime: Date): string {
 async function wrapQuery(description, queryFn) {
   const startTime = new Date();
   if (logQueries) {
+    // eslint-disable-next-line no-console
     console.log(`Starting ${description}`);
     
     if (inProgressQueries == 0) {
@@ -48,6 +49,7 @@ async function wrapQuery(description, queryFn) {
   
   if (logQueries) {
     const resultSize = JSON.stringify(result).length;
+    // eslint-disable-next-line no-console
     console.log(`Finished  ${description} (${timeSince(startTime)}, ${resultSize}b)`);
     
     if (debugQueryBatches) {
@@ -61,6 +63,7 @@ async function waitForBatchFinished() {
     let finish = finishBatch;
     onBatchFinished = null;
     finishBatch = null;
+    // eslint-disable-next-line no-console
     console.log('================================');
     finish();
   } else {
@@ -157,7 +160,9 @@ export class MongoCollection<T extends DbObject> {
         }
       });
     } catch(e) {
+      // eslint-disable-next-line no-console
       console.error(e)
+      // eslint-disable-next-line no-console
       console.log(`Selector was: ${selector}`);
       throw e;
     }
@@ -175,6 +180,7 @@ export class MongoCollection<T extends DbObject> {
     try {
       return await table.ensureIndex(fieldOrSpec, options);
     } catch(e) {
+      // eslint-disable-next-line no-console
       console.error(`Error creating index ${JSON.stringify(fieldOrSpec)} on ${this.tableName}: ${e}`);
     }
   }

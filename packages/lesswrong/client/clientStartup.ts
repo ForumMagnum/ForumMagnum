@@ -6,4 +6,4 @@ async function clientStartup() {
     await startupFunction();
 }
 
-clientStartup();
+void clientStartup();

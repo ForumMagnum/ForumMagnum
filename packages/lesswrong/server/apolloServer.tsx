@@ -126,8 +126,10 @@ export function startWebserver() {
   });
   
   // Static files folder
+  // eslint-disable-next-line no-console
   console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
   app.use(express.static(path.join(__dirname, '../../client')))
+  // eslint-disable-next-line no-console
   console.log(`Serving static files from ${path.join(__dirname, '../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../public')))
   
@@ -150,6 +152,7 @@ export function startWebserver() {
     
     // Finally send generated HTML with initial data to the client
     if (redirectUrl) {
+      // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
       response.status(status||301).redirect(redirectUrl);
     } else {
@@ -170,6 +173,7 @@ export function startWebserver() {
   const port = process.env.PORT || 3000
   const env = process.env.NODE_ENV || 'production'
   app.listen({ port }, () => {
+    // eslint-disable-next-line no-console
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
 }

@@ -111,7 +111,7 @@ async function convertImagesInPost(postId: string) {
     changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
   };
   const insertedRevisionId: string = await Revisions.insert(newRevision);
-  Posts.update({_id: postId}, {
+  await Posts.update({_id: postId}, {
     $set: {
       contents_latest: insertedRevisionId,
       contents: {

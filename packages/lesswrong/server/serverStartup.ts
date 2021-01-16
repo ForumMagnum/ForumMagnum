@@ -13,6 +13,7 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 
 async function serverStartup() {
+  // eslint-disable-next-line no-console
   console.log("Starting server");
   
   const isTTY = process.stdout.isTTY;
@@ -72,6 +73,7 @@ async function serverStartup() {
   } else {
     if (!isAnyTest) {
       watchForShellCommands();
+      // eslint-disable-next-line no-console
       console.log("Starting webserver");
       startWebserver();
     }
@@ -88,7 +90,9 @@ async function serverStartup() {
 
 function wrapConsoleLogFunctions(wrapper: (originalFn: any, ...message: any[])=>void) {
   for (let functionName of ["log", "info", "warn", "error", "trace"]) {
+    // eslint-disable-next-line no-console
     const originalFn = console[functionName];
+    // eslint-disable-next-line no-console
     console[functionName] = (...message: any[]) => {
       wrapper(originalFn, ...message);
     }
@@ -142,10 +146,11 @@ const watchForShellCommands = () => {
   const watcher = chokidar.watch('./tmp/pendingShellCommands');
   watcher.on('add', (path) => {
     const fileContents = fs.readFileSync(path, 'utf8');
+    // eslint-disable-next-line no-console
     console.log(`Running shell command: ${fileContents}`);
     eval(fileContents);
     fs.unlinkSync(path);
   });
 }
 
-serverStartup();
+void serverStartup();
