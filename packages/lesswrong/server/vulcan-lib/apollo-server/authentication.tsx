@@ -241,7 +241,7 @@ const authenticationResolvers = {
       const user = await Users.findOne({'emails.address': email})
       if (!user) throw Error("Can't find user with given email address")
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
-      await wrapAndSendEmail({
+      const emailSucceeded = await wrapAndSendEmail({
         user,
         subject: "Password Reset Request",
         body: <div>
@@ -253,7 +253,10 @@ const authenticationResolvers = {
           </p>
         </div>
       });  
-      return `Successfully sent password reset email to ${email}`;
+      if (emailSucceeded)
+        return `Successfully sent password reset email to ${email}`; //FIXME: Is this revealing user emails that would otherwise be hidden?
+      else
+        return `Failed to send password reset email. The account might not have a valid email address configured.`;
     },
     async verifyEmail(root, { userId }, context: ResolverContext) {
       if (!userId) throw Error("User ID is required for validating your email")

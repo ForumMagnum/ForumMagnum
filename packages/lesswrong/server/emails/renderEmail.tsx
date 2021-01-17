@@ -1,7 +1,7 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
 import Juice from 'juice';
-import { meteorSendEmail } from '../meteorServerSideFns';
+import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
@@ -24,7 +24,7 @@ import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 
-interface RenderedEmail {
+export interface RenderedEmail {
   user: DbUser,
   to: string,
   from: string,
@@ -226,13 +226,17 @@ export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, s
   });
 }
 
-export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
+export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}): Promise<boolean> => {
   try {
     const email = await wrapAndRenderEmail({ user, subject, body });
-    await sendEmail(email);
-    void logSentEmail(email, user);
+    const succeeded = await sendEmail(email);
+    void logSentEmail(email, user, {succeeded});
+    return succeeded;
   } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
     captureException(e);
+    return false;
   }
 }
 
@@ -251,14 +255,14 @@ function validateSheets(sheetsRegistry)
 
 
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
-export async function sendEmail(renderedEmail: RenderedEmail): Promise<void>
+export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     
-    meteorSendEmail(renderedEmail); // From meteor's 'email' package
+    return sendEmailSmtp(renderedEmail); // From meteor's 'email' package
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
@@ -267,10 +271,11 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<void>
     console.log(renderedEmail.html); //eslint-disable-line
     console.log("//////// Plain-text version"); //eslint-disable-line
     console.log(renderedEmail.text); //eslint-disable-line
+    return false;
   }
 }
 
-export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser) {
+export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser, additionalFields: any) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,
@@ -283,7 +288,10 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser) {
     document: {
       userId: user._id,
       name: "emailSent",
-      properties: emailJson,
+      properties: {
+        ...emailJson,
+        ...additionalFields,
+      },
       intercom: false,
     },
     validate: false,

@@ -160,6 +160,7 @@
     "moment": "^2.22.2",
     "mongodb": "^3.6.3",
     "mz": "^2.7.0",
+    "nodemailer": "^6.4.17",
     "papaparse": "^4.6.2",
     "passport": "^0.4.1",
     "passport-custom": "^1.1.1",
