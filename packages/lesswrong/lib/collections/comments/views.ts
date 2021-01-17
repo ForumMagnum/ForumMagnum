@@ -118,6 +118,22 @@ ensureIndex(Comments,
   { name: "comments.top_comments" }
 );
 
+Comments.addView("afPostCommentsTop", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      parentAnswerId: viewFieldNullOrMissing,
+      answer: false,
+    },
+    options: {sort: {promoted: -1, deleted: 1, afBaseScore: -1, postedAt: -1}},
+
+  };
+});
+ensureIndex(Comments,
+  augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, afBaseScore:-1, postedAt:-1 }),
+  { name: "comments.af_top_comments" }
+);
+
 Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
   return {
     selector: {
