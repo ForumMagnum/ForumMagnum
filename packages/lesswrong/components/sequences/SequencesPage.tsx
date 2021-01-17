@@ -122,7 +122,7 @@ const SequencesPage = ({ documentId, classes }: {
   const { html = "" } = document.contents || {}
 
   return <div className={classes.root}>
-    <HeadTags url={sequenceGetPageUrl(document, true)} title={document.title}/>
+    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title}/>
     <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>

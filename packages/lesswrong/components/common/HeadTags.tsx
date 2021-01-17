@@ -11,19 +11,26 @@ export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl',
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 
 
-const HeadTags = (props) => {
+const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, noIndex}: {
+  ogUrl?: string,
+  canonicalUrl?: string,
+  description?: string|null,
+  title?: string,
+  image?: string|null,
+  noIndex?: boolean,
+}) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     const client = useApolloClient();
     // The default url we want to use for our cannonical and og:url tags uses
     // the "base" path, site url and path without query or hash
     const url = combineUrls(getSiteUrl(), getBasePath(pathname))
-    const ogUrl = props.ogUrl || url
-    const canonicalUrl = props.canonicalUrl || url
-    const description = props.description || taglineSetting.get()
+    const ogUrl = ogUrlProp || url
+    const canonicalUrl = canonicalUrlProp || url
+    const description = descriptionProp || taglineSetting.get()
     const siteName = tabTitleSetting.get()
     
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
-    const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
+    const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
     
     const rssUrl = `${getSiteUrl()}feed.xml`
     
@@ -46,17 +53,17 @@ const HeadTags = (props) => {
           {/* facebook */}
           <meta property='og:type' content='article'/>
           <meta property='og:url' content={ogUrl}/>
-          {props.image && <meta property='og:image' content={props.image}/>}
+          {image && <meta property='og:image' content={image}/>}
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
 
           {/* twitter */}
           <meta name='twitter:card' content='summary'/>
-          {props.image && <meta name='twitter:image:src' content={props.image}/>}
+          {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
 
-          {(props.noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
+          {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
