@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { withApollo } from '@apollo/client/react/hoc';
+import { useApolloClient } from '@apollo/client/react/hooks';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
@@ -13,6 +13,7 @@ const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitl
 
 const HeadTags = (props) => {
     const { currentRoute, pathname } = useSubscribedLocation();
+    const client = useApolloClient();
     // The default url we want to use for our cannonical and og:url tags uses
     // the "base" path, site url and path without query or hash
     const url = combineUrls(getSiteUrl(), getBasePath(pathname))
@@ -65,9 +66,7 @@ const HeadTags = (props) => {
     );
 }
 
-const HeadTagsComponent = registerComponent('HeadTags', HeadTags, {
-  hocs: [withApollo]
-});
+const HeadTagsComponent = registerComponent('HeadTags', HeadTags);
 
 declare global {
   interface ComponentTypes {

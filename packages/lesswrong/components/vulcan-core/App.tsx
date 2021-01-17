@@ -163,7 +163,7 @@ class App extends PureComponent<AppProps,any> {
   getLocale: PropTypes.func,
 };
 
-//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
+//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent('App', App, {
   hocs: [

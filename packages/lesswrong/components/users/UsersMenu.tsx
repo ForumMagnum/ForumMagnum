@@ -3,7 +3,6 @@ import React, {useState} from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
-import { withApollo } from '@apollo/client/react/hoc';
 
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -55,9 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", client, classes}: {
+const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   color?: string,
-  client?: any,
   classes: ClassesType
 }) => {
   const [open,setOpen] = useState(false);
@@ -176,10 +174,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", client, classes}: {
   )
 }
 
-const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {
-  styles,
-  hocs: [withApollo]
-});
+const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {styles});
 
 declare global {
   interface ComponentTypes {

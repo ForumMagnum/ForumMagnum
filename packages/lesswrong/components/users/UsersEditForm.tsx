@@ -5,9 +5,8 @@ import Users from '../../lib/collections/users/collection';
 import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
-import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useApolloClient } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,14 +37,14 @@ const passwordResetMutation = gql`
   }
 `
 
-const UsersEditForm = ({terms, client, classes}: {
+const UsersEditForm = ({terms, classes}: {
   terms: {slug?: string, documentId?: string},
-  client?: any,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
+  const client = useApolloClient();
   const { Typography } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
 
@@ -90,9 +89,9 @@ const UsersEditForm = ({terms, client, classes}: {
       <Components.WrappedSmartForm
         collection={Users}
         {...terms}
-        successCallback={user => {
+        successCallback={async (user) => {
           flash({ id: 'users.edit_success', properties: {name: userGetDisplayName(user)}, type: 'success'})
-          client.resetStore()
+          await client.resetStore()
           history.push(userGetProfileUrl(user));
         }}
         queryFragment={getFragment('UsersEdit')}
@@ -104,10 +103,7 @@ const UsersEditForm = ({terms, client, classes}: {
 };
 
 
-const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {
-  styles,
-  hocs: [withApollo]
-});
+const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {styles});
 
 declare global {
   interface ComponentTypes {
