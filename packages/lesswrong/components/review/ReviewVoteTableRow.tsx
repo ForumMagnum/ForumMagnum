@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { vote, quadraticVote } from './ReviewVotingPage';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,6 +16,9 @@ const styles = (theme: ThemeType) => ({
       '& $expand': {
         display: "block"
       }
+    },
+    '&:hover $expandIcon': {
+      display: "block"
     }
   },
   voteIcon: {
@@ -37,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 35
   },
   expanded: {
-    boxShadow: "0 0 5px rgba(0,0,0,.3)",
+    backgroundColor: "#f0f0f0",
   },
   topRow: {
     padding: 16,
@@ -71,6 +77,15 @@ const styles = (theme: ThemeType) => ({
   smallDownvote: {
     background: theme.palette.error.light
   },
+  expandIcon: {
+    position: "absolute",
+    left: -44,
+    width: 44,
+    height: 44,
+    display: "none",
+    cursor: "pointer",
+    color: theme.palette.grey[500]
+  }
 });
 
 const ReviewVoteTableRow = (
@@ -92,23 +107,21 @@ const ReviewVoteTableRow = (
   const currentUser = useCurrentUser()
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
+  const [showPost, setShowPost] = useState(false)
 
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
 
-  const clickHandler= (e) => {
-    if (expanded) {
-      e.preventDefault();
-      e.stopPropagation();
-      setExpandedPost(null)
-    }
-  }
-
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
+      {showPost ? 
+        <ExpandLessIcon className={classes.expandIcon} onClick={() => setShowPost(false)}/>
+        :
+        <ExpandMoreIcon className={classes.expandIcon} onClick={() => setShowPost(true)}/>
+      }
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={post.currentUserVote} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
-      <div className={classes.topRow} onClick={clickHandler}>
+      <div className={classes.topRow}>
         <div className={classes.postVote}>
           <div className={classes.post}>
             <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
@@ -124,8 +137,8 @@ const ReviewVoteTableRow = (
           {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
       </div>
-      {expanded && <div className={classes.highlight}>
-          <PostsHighlight post={post} maxLengthWords={100} forceSeeMore /> 
+      {showPost && <div className={classes.highlight}>
+        <PostsHighlight post={post} maxLengthWords={800} forceSeeMore /> 
         </div>
       }
     </div>
