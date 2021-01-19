@@ -102,9 +102,9 @@ const ReviewVoteTableRow = (
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
 
   const currentUser = useCurrentUser()
+  const [showPost, setShowPost] = useState(false)
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
-  const [showPost, setShowPost] = useState(false)
 
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
 
