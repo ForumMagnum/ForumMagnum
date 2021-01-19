@@ -6,7 +6,6 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { vote, quadraticVote } from './ReviewVotingPage';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -110,7 +109,7 @@ const ReviewVoteTableRow = (
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
 
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
+    <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
       {showPost ? 
         <div className={classes.expandButtonWrapper}>
           <LWTooltip title="Click to hide post" placement="top">
