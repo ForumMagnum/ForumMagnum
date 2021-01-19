@@ -113,13 +113,13 @@ const ReviewVoteTableRow = (
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
       {showPost ? 
         <div className={classes.expandButtonWrapper}>
-          <LWTooltip title="Click to hide post">
+          <LWTooltip title="Click to hide post" placement="top">
             <ExpandLessIcon className={classes.expandIcon} onClick={() => setShowPost(false)}/>
           </LWTooltip>
         </div>
         :
         <div className={classes.expandButtonWrapper}>
-          <LWTooltip title="Click to expand post">
+          <LWTooltip title="Click to expand post" placement="top">
             <ExpandMoreIcon className={classes.expandIcon} onClick={() => setShowPost(true)}/>
           </LWTooltip>
         </div>
