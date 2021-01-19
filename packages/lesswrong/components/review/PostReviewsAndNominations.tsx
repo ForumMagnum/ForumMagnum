@@ -21,16 +21,15 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
   singleLine?: boolean,
 }) => {
 
-  const { loading, results } = useMulti({
+  const { loading, results, loadMoreProps } = useMulti({
     terms,
     collectionName: "Comments",
-    fragmentName: 'CommentsList',
+    fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 5,
-    // enableTotal: false,
+    limit: 5
   });
   
-  const { Loading, CommentsList, SubSection } = Components
+  const { Loading, CommentsList, SubSection, CommentWithReplies, LoadMore } = Components
 
   if (!loading && results && !results.length) {
     return null
@@ -47,18 +46,21 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
         {(results && results.length > 1) && "s"}
       </div>}
       <SubSection>
-        <CommentsList
+        {singleLine ? <CommentsList
           treeOptions={{
             lastCommentId: lastCommentId,
-            hideSingleLineMeta: singleLine,
+            hideSingleLineMeta: true,
             enableHoverPreview: false,
             post: post,
           }}
           comments={nestedComments}
           startThreadTruncated={true}
-          forceSingleLine={singleLine}
-          forceNotSingleLine={!singleLine}
+          forceSingleLine
         />
+        : <div>
+          {results && results.map((comment) => <CommentWithReplies comment={comment} post={comment.post}/>)}
+          <LoadMore {...loadMoreProps} />
+        </div>}
       </SubSection>
     </div>
   );
