@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
         display: "block"
       }
     },
-    '&:hover $expandIcon': {
+    '&:hover $expandButtonWrapper': {
       display: "block"
     }
   },
@@ -48,10 +48,7 @@ const styles = (theme: ThemeType) => ({
   topRow: {
     padding: 16,
     paddingTop: 10,
-    paddingBottom: 10,
-    '&:hover': {
-      background: "#fafafa"
-    }
+    paddingBottom: 10
   },
   highlight: {
     padding: 16,
@@ -77,23 +74,24 @@ const styles = (theme: ThemeType) => ({
   smallDownvote: {
     background: theme.palette.error.light
   },
-  expandIcon: {
+  expandButtonWrapper: {
     position: "absolute",
-    left: -44,
-    width: 44,
-    height: 44,
+    left: -40,
+    padding: 8,
     display: "none",
-    cursor: "pointer",
-    color: theme.palette.grey[500]
+    cursor: "pointer"
+  },
+  expandIcon: {
+    color: theme.palette.grey[500],
+    width: 24,
   }
 });
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, setExpandedPost, showKarmaVotes }: {
+  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, showKarmaVotes }: {
     post: PostsListWithVotes,
     dispatch: React.Dispatch<vote>,
     dispatchQuadraticVote: any,
-    setExpandedPost: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
@@ -114,9 +112,17 @@ const ReviewVoteTableRow = (
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
       {showPost ? 
-        <ExpandLessIcon className={classes.expandIcon} onClick={() => setShowPost(false)}/>
+        <div className={classes.expandButtonWrapper}>
+          <LWTooltip title="Click to hide post">
+            <ExpandLessIcon className={classes.expandIcon} onClick={() => setShowPost(false)}/>
+          </LWTooltip>
+        </div>
         :
-        <ExpandMoreIcon className={classes.expandIcon} onClick={() => setShowPost(true)}/>
+        <div className={classes.expandButtonWrapper}>
+          <LWTooltip title="Click to expand post">
+            <ExpandMoreIcon className={classes.expandIcon} onClick={() => setShowPost(true)}/>
+          </LWTooltip>
+        </div>
       }
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={post.currentUserVote} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>

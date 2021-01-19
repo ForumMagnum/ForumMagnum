@@ -443,7 +443,6 @@ const ReviewVotingPage = ({classes}: {
                   <ReviewVoteTableRow
                     post={post}
                     showKarmaVotes={showKarmaVotes}
-                    setExpandedPost={setExpandedPost}
                     dispatch={dispatchQualitativeVote}
                     currentQualitativeVote={currentQualitativeVote||null}
                     currentQuadraticVote={currentQuadraticVote||null}
