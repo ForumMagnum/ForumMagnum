@@ -76,14 +76,14 @@ const styles = (theme: ThemeType) => ({
   },
   expandButtonWrapper: {
     position: "absolute",
-    left: -40,
+    left: -52,
     padding: 8,
     display: "none",
     cursor: "pointer"
   },
   expandIcon: {
     color: theme.palette.grey[500],
-    width: 24,
+    width: 36,
   }
 });
 
@@ -144,7 +144,7 @@ const ReviewVoteTableRow = (
         </div>
       </div>
       {showPost && <div className={classes.highlight}>
-        <PostsHighlight post={post} maxLengthWords={800} forceSeeMore /> 
+        <PostsHighlight post={post} maxLengthWords={300} forceSeeMore /> 
         </div>
       }
     </div>
