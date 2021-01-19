@@ -58,7 +58,7 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
           forceSingleLine
         />
         : <div>
-          {results && results.map((comment) => <CommentWithReplies comment={comment} post={comment.post}/>)}
+          {results && results.map((comment) => <CommentWithReplies key={comment._id} comment={comment} post={post}/>)}
           <LoadMore {...loadMoreProps} />
         </div>}
       </SubSection>
