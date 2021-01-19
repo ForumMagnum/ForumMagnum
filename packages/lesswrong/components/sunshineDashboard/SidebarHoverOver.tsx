@@ -13,6 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit*2,
     border: "solid 1px rgba(0,0,0,.1)",
     boxShadow: "-3px 0 5px 0px rgba(0,0,0,.1)",
+    overflow: "hidden",
   }
 })
 
