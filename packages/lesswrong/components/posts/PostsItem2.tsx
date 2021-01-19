@@ -278,7 +278,7 @@ const dismissRecommendationTooltip = "Don't remind me to finish reading this seq
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const isSticky = (post: PostsList, terms: any) => {
+const isSticky = (post: PostsList, terms: PostsViewTerms) => {
   if (post && terms && terms.forum) {
     return (
       post.sticky ||
@@ -398,7 +398,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -411,14 +411,14 @@ const PostsItem2 = ({
     </LWTooltip>
   )
 
-  const commentTerms = {
+  const commentTerms: CommentsViewTerms = {
     view:"postsItemComments", 
     limit:7, 
     postId: post._id, 
     after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
   }
 
-  const reviewCountsTooltip = `${post.nominationCount2018 || 0} nomination${(post.nominationCount2018 === 1) ? "" :"s"} / ${post.reviewCount2018 || 0} review${(post.nominationCount2018 === 1) ? "" :"s"}`
+  const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   return (
       <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
@@ -508,15 +508,15 @@ const PostsItem2 = ({
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
-                    {showNominationCount && <span>{post.nominationCount2018 || 0}</span>}
-                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2018 || <span className={classes.noReviews}>0</span>}</span>}
+                    {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
 
-                {/* {(post.nominationCount2018 >= 2) && <Link to={postGetPageUrl(post)}>
-                  <ReviewPostButton post={post}/>
-                </Link>} */}
+                {(post.nominationCount2019 >= 2) && (new Date() > new Date("2020-12-14")) && <Link to={postGetPageUrl(post)}>
+                  <ReviewPostButton post={post} year="2019"/>
+                </Link>}
 
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
@@ -548,11 +548,13 @@ const PostsItem2 = ({
 
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
-              highlightDate={markedVisitedAt || post.lastVisitedAt}
               terms={commentTerms}
               post={post}
-              condensed={condensedAndHiddenComments}
-              markAsRead={markAsRead}
+              treeOptions={{
+                highlightDate: markedVisitedAt || post.lastVisitedAt,
+                condensed: condensedAndHiddenComments,
+                markAsRead: markAsRead,
+              }}
             />
           </div>}
         </div>

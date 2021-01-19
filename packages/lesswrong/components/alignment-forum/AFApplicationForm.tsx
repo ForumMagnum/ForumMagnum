@@ -1,10 +1,7 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
-import withUser from '../common/withUser'
-import Users from '../../lib/collections/users/collection';
-import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -17,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps, WithUpdateUserProps {
+interface AFApplicationFormProps extends WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
   onClose: any,
 }
 interface AFApplicationFormState {
@@ -28,14 +25,11 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
   state: AFApplicationFormState = { applicationText: "" }
 
   handleSubmission = (event) => {
-    const { currentUser, updateUser, flash, onClose } = this.props
+    const { updateCurrentUser, flash, onClose } = this.props
     event.preventDefault();
-    void updateUser({
-      selector: { _id: currentUser?._id },
-      data: {
-        afSubmittedApplication: true,
-        afApplicationText: this.state.applicationText,
-      }
+    void updateCurrentUser({
+      afSubmittedApplication: true,
+      afApplicationText: this.state.applicationText,
     }).then(()=>{
       flash({messageString: "Successfully submitted application", type: "success"})
       onClose()
@@ -44,8 +38,9 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 
   render() {
     const { onClose, classes } = this.props
+    const { LWDialog } = Components;
     return (
-      <Dialog open={true} onClose={onClose}>
+      <LWDialog open={true} onClose={onClose}>
         <DialogTitle>
           AI Alignment Forum Membership Application
         </DialogTitle>
@@ -80,7 +75,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
             Submit Application
           </Button>
         </DialogActions>
-      </Dialog>
+      </LWDialog>
     )
   }
 }
@@ -88,11 +83,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 const AFApplicationFormComponent = registerComponent(
   'AFApplicationForm', AFApplicationForm, { styles, hocs: [
     withMessages,
-    withUpdate({
-      collection: Users,
-      fragmentName: 'SuggestAlignmentUser',
-    }),
-    withUser,
+    withUpdateCurrentUser,
   ]}
 );
 

@@ -11,7 +11,6 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
-import { Sequences } from '../sequences/collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
 import Sentry from '@sentry/core';
@@ -526,7 +525,7 @@ addFieldsDict(Posts, {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
       }
 
-      return await accessFilterSingle(currentUser, Sequences, sequence, context);
+      return await accessFilterSingle(currentUser, context.Sequences, sequence, context);
     }
   }),
 

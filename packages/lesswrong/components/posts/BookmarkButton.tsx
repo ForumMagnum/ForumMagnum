@@ -1,5 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -8,8 +7,10 @@ import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
-import {TooltipProps} from '@material-ui/core/Tooltip';
+import type {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
+import { useMutation } from '@apollo/client';
+import gql from 'graphql-tag';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -27,16 +28,25 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
-  const { captureEvent } = useTracking({eventType: "bookmarkToggle", eventProps: {"postId": post._id, "bookmarked": !bookmarked}})
+  const [bookmarked, setBookmarkedState] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
+  const { captureEvent } = useTracking()
 
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UserBookmarks',
-  });
+  const [setIsBookmarkedMutation] = useMutation(gql`
+    mutation setIsBookmarked($postId: String!, $isBookmarked: Boolean!) {
+      setIsBookmarked(postId: $postId, isBookmarked: $isBookmarked) {
+        ...UsersCurrent
+      }
+    }
+    ${fragmentTextForQuery("UsersCurrent")}
+  `);
+  const setBookmarked = (isBookmarked: boolean) => {
+    setBookmarkedState(isBookmarked)
+    void setIsBookmarkedMutation({
+      variables: {postId: post._id, isBookmarked}
+    });
+  };
 
   const { LWTooltip } = Components
-
 
   const toggleBookmark = (event: React.MouseEvent) => {
     if (!currentUser) {
@@ -48,24 +58,8 @@ const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
       return
     }
 
-    if (bookmarked) {
-      setBookmarked(false)
-      const bookmarks = currentUser.bookmarkedPostsMetadata || []
-      const newBookmarks = _.without(bookmarks, _.findWhere(bookmarks, {postId: post._id}))
-
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: { bookmarkedPostsMetadata: newBookmarks }
-      });
-    } else {
-      setBookmarked(true)
-      const bookmarks = currentUser.bookmarkedPostsMetadata || []
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
-      });
-    }
-    captureEvent()
+    setBookmarked(!bookmarked);
+    captureEvent("bookmarkToggle", {"postId": post._id, "bookmarked": !bookmarked})
   }
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>

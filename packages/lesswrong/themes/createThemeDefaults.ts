@@ -18,6 +18,7 @@ const monoStack = [
 const titleDividerSpacing = 20
 
 export const zIndexes = {
+  frontpageBooks: 0,
   commentsMenu: 1,
   sequencesPageContent: 1,
   sequencesImageScrim: 1,
@@ -42,6 +43,7 @@ export const zIndexes = {
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
+  tagCTAPopup: 9999,
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,
@@ -239,6 +241,11 @@ const createLWTheme = (theme: ThemeType) => {
       MuiSelect: {
         selectMenu: {
           paddingLeft: spacingUnit
+        }
+      },
+      MuiFormControlLabel: {
+        label: {
+          ...typography.body2
         }
       },
       MuiTableCell: {

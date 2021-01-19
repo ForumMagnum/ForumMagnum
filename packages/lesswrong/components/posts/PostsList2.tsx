@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { postGetLastCommentedAt } from '../../lib/collections/posts/helpers';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
-import { useTracking } from "../../lib/analyticsEvents";
+import { useOnMountTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
 const Error = ({error}) => <div>
@@ -72,7 +72,8 @@ const PostsList2 = ({
   itemsPerPage=25,
   hideAuthor=false,
   boxShadow=true,
-  curatedIconLeft=false
+  curatedIconLeft=false,
+  showFinalBottomBorder=false
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -94,6 +95,7 @@ const PostsList2 = ({
   hideAuthor?: boolean,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
+  showFinalBottomBorder?: boolean
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -160,7 +162,7 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
+  useOnMountTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
 
@@ -180,7 +182,7 @@ const PostsList2 = ({
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",
-            showBottomBorder: (orderedResults.length > 1) && i < (orderedResults.length - 1)
+            showBottomBorder: showFinalBottomBorder || ((orderedResults.length > 1) && i < (orderedResults.length - 1))
           };
 
           if (!(hidePosts && hidePosts[i])) {

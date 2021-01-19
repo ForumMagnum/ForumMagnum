@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
-import Typography from '@material-ui/core/Typography';
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -86,7 +85,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
 
   render() {
     const { classes, closeSearch, currentQuery } = this.props
-    const { PostsSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
+    const { PostsSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit, Typography } = Components
 
     return <div className={classes.root}>
       <div className={classes.searchResults}>

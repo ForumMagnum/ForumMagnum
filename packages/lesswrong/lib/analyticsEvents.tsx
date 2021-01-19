@@ -1,4 +1,5 @@
 import { addGraphQLSchema, Vulcan } from './vulcan-lib';
+import { CallbackChainHook } from './vulcan-lib/callbacks';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
@@ -64,17 +65,51 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
 }
 
 
-export const ReactTrackingContext = React.createContext({});
+const ReactTrackingContext = React.createContext({});
 
 export const AnalyticsContext = ({children, ...props}) => {
   const existingContextData = useContext(ReactTrackingContext)
-  const newContextData = {...existingContextData, ...props};
-  return <ReactTrackingContext.Provider value={newContextData}>
+  
+  // Create a child context, which is the parent context plus the provided props
+  // merged on top of it. But create it in a referentially stable way: reuse
+  // the same object, so that changes never cause child components to rerender.
+  // (As long as they captured the context in the obvious way, they'll still get
+  // the newest values of these props when they actually log an event.)
+  const newContextData = useRef({...existingContextData});
+  for (let key of Object.keys(props))
+    newContextData.current[key] = props[key];
+  
+  return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}
   </ReactTrackingContext.Provider>
 }
 
-export function useTracking({eventType="unnamed", eventProps = {}, captureOnMount = false,  skip = false}: {
+// An empty object, used as an argument default value. If the argument default
+// value were set to {} in the usual way, it would be a new instance of {} each
+// time; this way, it's the same {}, which in turn matters for making
+// useCallback return the same thing each tie.
+const emptyEventProps = {};
+
+export function useTracking({eventType="unnamed", eventProps=emptyEventProps, skip=false}: {
+  eventType?: string,
+  eventProps?: any,
+  skip?: boolean
+}={}) {
+  const trackingContext = useContext(ReactTrackingContext)
+
+  const track = useCallback((type?: string|undefined, trackingData?: Record<string,any>) => {
+    captureEvent(type || eventType, {
+      ...trackingContext,
+      ...eventProps,
+      ...trackingData
+    })
+  }, [trackingContext, eventProps, eventType])
+  return {captureEvent: track}
+}
+
+export const withTracking = hookToHoc(useTracking)
+
+export function useOnMountTracking({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
   eventType?: string,
   eventProps?: any,
   captureOnMount?: any,
@@ -100,8 +135,6 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
   }, [trackingContext, eventProps, eventType])
   return {captureEvent: track}
 }
-
-export const withTracking = hookToHoc(useTracking)
 
 export function useIsInView({rootMargin='0px', threshold=0}={}) {
   const [entry, setEntry] = useState<any>(null)
@@ -208,3 +241,4 @@ function flushClientEvents() {
 }
 const throttledFlushClientEvents = _.throttle(flushClientEvents, 1000);
 
+export const userIdentifiedCallback = new CallbackChainHook<UsersCurrent|DbUser,[]>("events.identify");

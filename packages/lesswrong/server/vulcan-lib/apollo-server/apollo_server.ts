@@ -26,6 +26,8 @@ import { initGraphQL, getExecutableSchema } from './initGraphQL';
 import { computeContextFromReq } from './context';
 
 import { populateComponentsApp } from '../../../lib/vulcan-lib/components';
+import { createVoteableUnionType } from '../../votingGraphQL';
+
 // onPageLoad is mostly equivalent to an Express middleware
 // excepts it is tailored to handle Meteor server side rendering
 import { onPageLoad } from 'meteor/server-render';
@@ -36,13 +38,20 @@ import universalCookiesMiddleware from 'universal-cookie-express';
 
 import { formatError } from 'apollo-errors';
 
+import Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../../../lib/instanceSettings';
+import { DatabaseServerSetting } from '../../databaseSettings';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
 const sentryRelease = sentryReleaseSetting.get()
+
+const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
+const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
+const stripePrivateKey = stripePrivateKeySetting.get()
+const stripe = stripePrivateKey && new Stripe(stripePrivateKey, {apiVersion: '2020-08-27'})
 
 if (sentryUrl && sentryEnvironment && sentryRelease) {
   Sentry.init({
@@ -78,6 +87,47 @@ export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlew
     bodyParser.json({ limit: '50mb' })
   );
   WebApp.connectHandlers.use(config.path, bodyParser.text({ type: 'application/graphql' }));
+  if (stripePrivateKey && stripe) {
+    WebApp.connectHandlers.use('/create-session', async (req, res) => {
+      if (req.method === "POST") {
+        const redirectTarget = stripeURLRedirect.get()
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          shipping_address_collection: {
+            allowed_countries: [
+              // European Countries: https://www.europeancuisines.com/Europe-European-Two-Letter-Country-Code-Abbreviations
+              'AL', 'AD', 'AM', 'AT', 'BY', 'BE', 'BA', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GI', 'GR', 'HU', 'HR', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NO', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'TR', 'UA', 'VA', 'PL',
+              // North American Countries
+              'US', 'MX', 'CA',
+              // Oceania Countries
+              'AU', 'NZ',
+              // Israel (Maybe shippable via Amazon North America?)
+              'IL'
+            ]
+          },
+          line_items: [
+            {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: 'A Map That Reflects the Territory',
+                  images: ['https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606805322/w_1966_jahgq7.png'],
+                },
+                unit_amount: 2900,
+              },
+              quantity: 1,
+            },
+          ],
+          mode: 'payment',
+          success_url: `${redirectTarget}?success=true`,
+          cancel_url: `${redirectTarget}?canceled=true`,
+        });
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ id: session.id }));
+      }
+    })
+  }
+  
 
   // Provide the Meteor WebApp Connect server instance to Apollo
   // Apollo will use it instead of its own HTTP server when handling requests
@@ -123,6 +173,7 @@ onStartup(() => {
   };
 
   // define executableSchema
+  createVoteableUnionType();
   initGraphQL();
   
   // create server

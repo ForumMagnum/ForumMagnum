@@ -1,5 +1,3 @@
-import './deep_extend';
-
 export * from './config';
 export * from './components';
 export * from './collections';
@@ -13,5 +11,4 @@ export * from './debug';
 export * from './errors';
 export * from './intl';
 export * from './graphql_templates';
-export * from './validation';
 export * from './handleOptions';

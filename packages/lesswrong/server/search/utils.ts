@@ -7,6 +7,7 @@ import * as _ from 'underscore';
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import Sequences from '../../lib/collections/sequences/collection';
 import { Tags } from '../../lib/collections/tags/collection';
@@ -19,12 +20,7 @@ import { asyncFilter } from '../../lib/utils/asyncUtils';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
-export type AlgoliaDocument = {
-  _id: string,
-  [key: string]: any,
-}
-
-interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
+export interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
@@ -125,7 +121,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
 Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
-  if (post.status !== Posts.config.STATUS_APPROVED)
+  if (post.status !== postStatuses.STATUS_APPROVED)
     return null;
   if (post.authorIsUnreviewed)
     return null;

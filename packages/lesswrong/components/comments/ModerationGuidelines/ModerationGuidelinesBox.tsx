@@ -5,7 +5,6 @@ import { useCurrentUser } from '../../common/withUser';
 import { truncatise } from '../../../lib/truncatise';
 import Edit from '@material-ui/icons/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
-import { Posts } from '../../../lib/collections/posts/collection';
 import { useSingle } from '../../../lib/crud/withSingle';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
@@ -96,7 +95,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
   const { document: postWithDetails, loading } = useSingle({
     skip: !post,
     documentId: post?._id,
-    collection: Posts,
+    collectionName: "Posts",
     fetchPolicy: "cache-first",
     fragmentName: "PostsList",
   });

@@ -2,10 +2,10 @@ import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import type { AlgoliaDocument } from '../../../server/search/utils';
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
-const options = {
+const options: MutationOptions<DbSequence> = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
     if (!user || !document) return false;
     return userOwns(user, document) ? userCanDo(user, 'sequences.new.own') : userCanDo(user, `sequences.new.all`)

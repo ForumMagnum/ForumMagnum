@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
@@ -47,61 +47,45 @@ const styles = (theme: ThemeType): JssStyles => ({
 //
 // The reference is to a function setToC, which puts the ToC in the state of
 // Layout.
-export const TableOfContentsContext = React.createContext<any>(null);
+type setToCFn = (document: PostsBase|null, sectionData: any)=>void
+export const TableOfContentsContext = React.createContext<setToCFn|null>(null);
 
-function withToCContext(Component) {
-  return function WithToCContextComponent(props) {
-    return <TableOfContentsContext.Consumer>
-      { setToC => <Component {...props} setToC={setToC}/> }
-    </TableOfContentsContext.Consumer>
-  }
-}
-
-interface ExternalProps {
+const TableOfContents = ({sectionData, document, classes}: {
   sectionData: any,
   document: PostsBase,
-}
-interface TableOfContentsProps extends ExternalProps, WithStylesProps {
-  setToC: any,
-}
-interface TableOfContentsState {
-  drawerOpen: boolean,
-}
+  classes: ClassesType,
+}) => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const setToC = useContext(TableOfContentsContext);
 
-class TableOfContents extends Component<TableOfContentsProps,TableOfContentsState>
-{
-  state: TableOfContentsState = { drawerOpen: false }
+  useEffect(() => {
+    if (setToC)
+      setToC(document, sectionData);
+    
+    return () => {
+      if (setToC)
+        setToC(null, null);
+    }
+  }, [document, sectionData, setToC]);
 
-  componentDidMount() {
-    this.props.setToC(this.props.document, this.props.sectionData);
-  }
+  if (!sectionData || !document)
+    return <div/>
 
-  componentWillUnmount() {
-    this.props.setToC(null, null);
-  }
-
-  render() {
-    const { classes, sectionData, document } = this.props;
-
-    if (!sectionData || !document)
-      return <div/>
-
-    return (
-      <div className={classes.stickyBlock}>
-        <Components.TableOfContentsList
-          sectionData={sectionData}
-          document={document}
-          drawerStyle={false}
-        />
-      </div>
-    );
-  }
+  return (
+    <div className={classes.stickyBlock}>
+      <Components.TableOfContentsList
+        sectionData={sectionData}
+        document={document}
+        drawerStyle={false}
+      />
+    </div>
+  );
 }
 
-const TableOfContentsComponent = registerComponent<ExternalProps>(
+const TableOfContentsComponent = registerComponent(
   "TableOfContents", TableOfContents, {
     styles,
-    hocs: [withErrorBoundary, withToCContext]
+    hocs: [withErrorBoundary]
   }
 );
 

@@ -11,7 +11,8 @@ import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
-import { addCallback, updateMutator, createMutator, deleteMutator, runCallbacksAsync } from '../vulcan-lib';
+import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 
@@ -90,24 +91,6 @@ getCollectionHooks("Comments").newSync.add(function CommentsNewOperations (comme
 });
 
 //////////////////////////////////////////////////////
-// comments.new.async                               //
-//////////////////////////////////////////////////////
-
-
-/**
- * @summary Run the 'upvote.async' callbacks *once* the item exists in the database
- * @param {object} item - The item being operated on
- * @param {object} user - The user doing the operation
- * @param {object} collection - The collection the item belongs to
- */
-getCollectionHooks("Comments").newAsync.add(function UpvoteAsyncCallbacksAfterDocumentInsert(item, user, collection) {
-  runCallbacksAsync({
-    name: 'upvote.async',
-    properties: [item, user, collection, 'upvote']
-  });
-});
-
-//////////////////////////////////////////////////////
 // comments.remove.async                            //
 //////////////////////////////////////////////////////
 
@@ -179,14 +162,13 @@ getCollectionHooks("Comments").newValidate.add(function CommentsNewRateLimit (co
 
 getCollectionHooks("Comments").editAsync.add(function CommentsEditSoftDeleteCallback (comment: DbComment, oldComment: DbComment, currentUser: DbUser) {
   if (comment.deleted && !oldComment.deleted) {
-    runCallbacksAsync({
-      name: 'comments.moderate.async',
-      properties: [comment, oldComment, {currentUser}]
-    });
+    moderateCommentsPostUpdate(comment, currentUser);
   }
 });
 
-function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) {
+export function moderateCommentsPostUpdate (comment: DbComment, currentUser: DbUser) {
+  recalculateAFCommentMetadata(comment.postId)
+  
   if (comment.postId) {
     const comments = Comments.find({postId:comment.postId, deleted: false}).fetch()
   
@@ -203,8 +185,9 @@ function ModerateCommentsPostUpdate (comment: DbComment, oldComment: DbComment) 
       validate: false,
     })
   }
+  
+  void commentsDeleteSendPMAsync(comment, currentUser);
 }
-addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 
 getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (comment: DbComment) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
@@ -214,19 +197,19 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
   return comment;
 });
 
-export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComment: DbComment, {currentUser}: {currentUser: DbUser}) {
-  if (currentUser._id !== newComment.userId && newComment.deleted && newComment.contents && newComment.contents.html) {
-    const onWhat = newComment.tagId
-      ? await Tags.findOne(newComment.tagId)?.name
-      : (newComment.postId
-        ? await Posts.findOne(newComment.postId)?.title
+export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser) {
+  if (currentUser._id !== comment.userId && comment.deleted && comment.contents && comment.contents.html) {
+    const onWhat = comment.tagId
+      ? await Tags.findOne(comment.tagId)?.name
+      : (comment.postId
+        ? await Posts.findOne(comment.postId)?.title
         : null
       );
-    const moderatingUser = await Users.findOne(newComment.deletedByUserId);
+    const moderatingUser = await Users.findOne(comment.deletedByUserId);
     const lwAccount = await getLessWrongAccount();
 
     const conversationData = {
-      participantIds: [newComment.userId, lwAccount._id],
+      participantIds: [comment.userId, lwAccount._id],
       title: `Comment deleted on ${onWhat}`
     }
     const conversation = await createMutator({
@@ -238,8 +221,8 @@ export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComme
 
     let firstMessageContents =
         `One of your comments on "${onWhat}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
-    if (newComment.deletedReason) {
-      firstMessageContents += ` They gave the following reason: "${newComment.deletedReason}".`;
+    if (comment.deletedReason) {
+      firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 
     const firstMessageData = {
@@ -255,7 +238,7 @@ export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComme
 
     const secondMessageData = {
       userId: lwAccount._id,
-      contents: newComment.contents,
+      contents: comment.contents,
       conversationId: conversation.data._id
     }
 
@@ -274,10 +257,9 @@ export async function CommentsDeleteSendPMAsync (newComment: DbComment, oldComme
     })
 
     // eslint-disable-next-line no-console
-    console.log("Sent moderation messages for comment", newComment)
+    console.log("Sent moderation messages for comment", comment)
   }
 }
-addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
 
 // Duplicate of PostsNewUserApprovedStatus
 getCollectionHooks("Comments").newSync.add(function CommentsNewUserApprovedStatus (comment: DbComment) {
@@ -291,7 +273,7 @@ getCollectionHooks("Comments").newSync.add(function CommentsNewUserApprovedStatu
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
   var commentAuthor = Users.findOne(comment.userId);
   const votedComment = commentAuthor && await performVoteServer({ document: comment, voteType: 'smallUpvote', collection: Comments, user: commentAuthor })
-  return {...comment, ...votedComment};
+  return {...comment, ...votedComment} as DbComment;
 });
 
 getCollectionHooks("Comments").newAsync.add(function NewCommentNeedsReview (comment: DbComment) {

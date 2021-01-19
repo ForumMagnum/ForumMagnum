@@ -1,9 +1,10 @@
-import { userGroups } from '../../vulcan-users/permissions';
+import { guestsGroup, membersGroup, adminsGroup } from '../../vulcan-users/permissions';
+import { sunshineRegimentGroup } from '../../permissions';
 
 const guestsActions = [
   'comments.view'
 ];
-userGroups.guests.can(guestsActions);
+guestsGroup.can(guestsActions);
 
 const membersActions = [
   'comments.view',
@@ -15,13 +16,13 @@ const membersActions = [
   'comments.downvote',
   'comments.cancelDownvote'
 ];
-userGroups.members.can(membersActions);
+membersGroup.can(membersActions);
 
 const adminActions = [
   'comments.edit.all',
   'comments.remove.all'
 ];
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
 // LessWrong permissions
 
@@ -30,7 +31,7 @@ const sunshineRegimentActions = [
   'comments.replyOnBlocked.all',
   'comments.edit.all'
 ];
-userGroups.sunshineRegiment.can(sunshineRegimentActions);
+sunshineRegimentGroup.can(sunshineRegimentActions);
 
 const votingActions = [
   'comments.smallDownvote',
@@ -39,4 +40,4 @@ const votingActions = [
   'comments.bigUpvote',
 ]
 
-userGroups.members.can(votingActions);
+membersGroup.can(votingActions);

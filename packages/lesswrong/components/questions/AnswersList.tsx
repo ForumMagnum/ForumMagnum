@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,14 +27,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const AnswersList = ({terms, post, classes}: {
-  terms: any,
+const MAX_ANSWERS_QUERIED = 100
+
+const AnswersList = ({post, classes}: {
   post: PostsList,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
-    terms,
-    collection: Comments,
+    terms: {
+      view: "questionAnswers",
+      postId: post._id,
+      limit: MAX_ANSWERS_QUERIED
+    },
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
@@ -58,12 +62,7 @@ const AnswersList = ({terms, post, classes}: {
   }
 };
 
-const AnswersListComponent = registerComponent('AnswersList', AnswersList, {
-  styles,
-  areEqual: {
-    terms: "deep",
-  }
-});
+const AnswersListComponent = registerComponent('AnswersList', AnswersList, {styles});
 
 declare global {
   interface ComponentTypes {

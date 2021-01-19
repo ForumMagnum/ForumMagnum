@@ -5,7 +5,6 @@ import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost } from '../../testing/utils'
 import { emailDoctype, generateEmail } from './renderEmail';
 import { withStyles, createStyles } from '@material-ui/core/styles';
-import { Posts } from '../../lib/collections/posts';
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -71,7 +70,7 @@ describe('renderEmail', async () => {
     const post = await createDummyPost(user, { title: "Email unit test post" });
     
     const PostTitleComponent: any = withSingle({
-      collection: Posts,
+      collectionName: "Posts",
       fragmentName: 'PostsRevision',
       extraVariables: {
         version: 'String'
@@ -93,7 +92,7 @@ describe('renderEmail', async () => {
     const PostTitleComponent = ({documentId}) => {
       const { document } = useSingle({
         documentId,
-        collection: Posts,
+        collectionName: "Posts",
         fragmentName: 'PostsRevision',
         extraVariables: {
           version: 'String'

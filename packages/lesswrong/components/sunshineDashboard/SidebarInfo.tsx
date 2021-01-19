@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -18,13 +17,13 @@ const SidebarInfo = ({children, classes, className}: {
   classes: ClassesType,
   className?: string,
 }) => {
-  return <Typography
+  return <Components.Typography
     component='span'
     className={classNames(classes.root, className)}
     variant='body2'
   >
     {children}
-  </Typography>
+  </Components.Typography>
 }
 
 const SidebarInfoComponent = registerComponent('SidebarInfo', SidebarInfo, {styles});

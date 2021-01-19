@@ -2,11 +2,8 @@ import React, { PureComponent } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
-import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+import { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-
-export const archiveRecommendationsName = forumTypeSetting.get() === 'EAForum' ? 'Forum Favorites' : 'Archive Recommendations'
 
 interface ExternalProps {
   configName: string,

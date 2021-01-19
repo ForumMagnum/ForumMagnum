@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 export const separatorBulletStyles = (theme: ThemeType) => ({
   '& > *': {
@@ -39,9 +38,9 @@ const SectionFooter = ({ children, classes }: {
   classes: ClassesType,
 }) => {
   return (
-    <Typography variant="body2" className={classes.root}>
+    <Components.Typography variant="body2" className={classes.root}>
       { children }
-    </Typography>
+    </Components.Typography>
   )
 }
 const SectionFooterComponent = registerComponent('SectionFooter', SectionFooter, {styles})

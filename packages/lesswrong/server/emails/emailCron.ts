@@ -5,9 +5,7 @@ export const releaseEmailBatches = ({now}) => {
 
 addCronJob({
   name: "Hourly notification batch",
-  schedule(parser) {
-    return parser.cron('0 ? * * *');
-  },
+  cronStyleSchedule: '0 ? * * *',
   job() {
     releaseEmailBatches({ now: new Date() });
   }

@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 interface DialogGroupProps {
   title?: string,
@@ -36,6 +35,8 @@ class DialogGroup extends Component<DialogGroupProps,DialogGroupState> {
   };
 
   render() {
+    const { LWDialog } = Components;
+    
     //eslint-disable-next-line react/jsx-key
     const actions = this.props.actions.map(action =>
       <span key={action} onClick={this.handleClose}>{action}</span>
@@ -44,14 +45,14 @@ class DialogGroup extends Component<DialogGroupProps,DialogGroupState> {
     return (
       <span className="dialog-trigger-group">
         <span className="dialog-trigger" onClick={this.handleOpen}>{ this.props.trigger }</span>
-        <Dialog
+        <LWDialog
           open={this.state.open}
           onClose={this.handleClose}
         >
           {this.props.title && <DialogTitle>{this.props.title}</DialogTitle>}
           {this.props.children}
           <DialogActions>{actions}</DialogActions>
-        </Dialog>
+        </LWDialog>
       </span>
     );
   }

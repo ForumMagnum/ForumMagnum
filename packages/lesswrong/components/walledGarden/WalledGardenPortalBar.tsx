@@ -1,9 +1,8 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Button, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from '../common/withUser';
-import { CAL_ID } from "./gardenCalendar";
 import { gatherTownURL } from "./GatherTownIframeWrapper";
 
 const widgetStyling = {
@@ -14,11 +13,11 @@ const gatherTownRightSideBarWidth = 300
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme),
+    ...commentBodyStyles(theme, true),
     padding: 16,
     marginBottom: 0,
     marginTop: 0,
-    position: "relative"
+    position: "relative",
   },
   widgetsContainer: {
     display: "flex",
@@ -73,37 +72,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+
 export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
-  const { GardenCodeWidget, GardenCodesList, WalledGardenEvents, PomodoroWidget } = Components
+  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, } = Components
 
   const currentUser =  useCurrentUser()
 
-  if (!currentUser) return null
   const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
 
   return <div className={classes.root}>
     <div className={classes.widgetsContainer}>
-      {currentUser.walledGardenInvite && <div className={classes.events}>
+      {currentUser?.walledGardenInvite && <div className={classes.events}>
         <Typography variant="title">Garden Events</Typography>
         <div className={classes.calendarLinks}>
-          <GardenCodeWidget/>
-          <div><a href={"https://www.facebook.com/events/create/?group_id=356586692361618"} target="_blank" rel="noopener noreferrer">
-            <Button variant="outlined" className={classes.fbEventButton}>Create FB Event</Button>
-          </a></div>
+          <div><GardenCodeWidget type="friend"/></div>
+          <div><GardenCodeWidget type="event"/></div>
         </div>
       </div>}
-      {currentUser.walledGardenInvite && <div className={classes.eventWidget} onClick={() => refocusOnIframe()}>
-        <WalledGardenEvents frontpage={false}/>
-      </div>}
-      <div className={classes.codesList}>
-        <GardenCodesList />
+      <div className={classes.eventWidget}>
+        <GardenCodesList personal={false} />
+        {currentUser?.walledGardenInvite && <GardenCodesList personal={true} />}
       </div>
-      {currentUser.walledGardenInvite && <div className={classes.calendars}>
-        <div className={classes.textButton}>
-          <a href={`https://calendar.google.com/calendar/u/0?cid=${CAL_ID}`} target="_blank" rel="noopener noreferrer">
-            Google Calendar
-          </a>
-        </div>
+      {currentUser?.walledGardenInvite && <div className={classes.calendars}>
         <div className={classes.textButton}>
           <a href={"https://www.facebook.com/groups/356586692361618/events"} target="_blank" rel="noopener noreferrer">
             Facebook Group

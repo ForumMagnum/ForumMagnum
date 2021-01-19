@@ -7,7 +7,7 @@ import { addFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
-import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml, {IFrame} from 'sanitize-html';
 import * as _ from 'underscore';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
@@ -113,7 +113,11 @@ addFieldsDict(Revisions, {
         const mainTextHtml = sanitizeHtml(
           html, {
             allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
-            nonTextTags: ['blockquote', 'img', 'style']
+            nonTextTags: ['blockquote', 'img', 'style'],
+            
+            exclusiveFilter: function(element: IFrame) {
+              return (element.attribs?.class === 'spoilers');
+            }
           }
         )
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)

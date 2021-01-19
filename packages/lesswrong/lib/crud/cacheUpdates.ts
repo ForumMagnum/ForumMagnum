@@ -1,23 +1,29 @@
-import { Utils, Collections } from '../vulcan-lib';
+import { Utils } from '../vulcan-lib';
+import { getCollectionByTypeName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
+import type { ApolloClient, ApolloCache } from '@apollo/client';
 
-export const cacheUpdateGenerator = (typeName, mutationType: 'update' | 'create' | 'delete') => {
-  switch(mutationType) {
-    case('update'): {
-      return (store, { data: { [getUpdateMutationName(typeName)]: {data: document} } }: any) => {
-        updateEachQueryResultOfType({ func: handleUpdateMutation, store, typeName,  document })
-      }
-    }
-    case('create'): {
-      return (store, { data: { [getCreateMutationName(typeName)]: {data: document} } }: any) => {
-        updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName, document })
-      }
-    }
-    case('delete'): {
-      return (store, { data: { [getDeleteMutationName(typeName)]: {data: document} } }: any) => {
-        updateEachQueryResultOfType({ func: handleDeleteMutation, store, typeName, document })
-      }
-    }
+export const updateCacheAfterCreate = (typeName: string, client) => {
+  const mutationName = getCreateMutationName(typeName);
+  return (store, mutationResult) => {
+    const { data: { [mutationName]: {data: document} } } = mutationResult
+    //updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName,  document })
+    invalidateEachQueryThatWouldReturnDocument({client, store, typeName, document});;
+  }
+}
+
+export const updateCacheAfterUpdate = (typeName: string) => {
+  const mutationName = getUpdateMutationName(typeName);
+  return (store, mutationResult) => {
+    const { data: { [mutationName]: {data: document} } } = mutationResult
+    updateEachQueryResultOfType({ func: handleUpdateMutation, store, typeName,  document })
+  }
+}
+
+export const updateCacheAfterDelete = (typeName: string) => {
+  const mutationName = getDeleteMutationName(typeName);
+  return (store, { data: { [mutationName]: {data: document} } }: any) => {
+    updateEachQueryResultOfType({ func: handleDeleteMutation, store, typeName, document })
   }
 }
 
@@ -39,8 +45,35 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document })
   })
 }
 
+export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, typeName, document }: {
+  client: ApolloClient<any>
+  store: ApolloCache<any>
+  typeName: string
+  document: any
+}) => {
+  const watches = (store as any).watches; // Use a private variable on ApolloCache to cover an API hole (no good way to enumerate queries in the cache)
+  
+  const watchesToCheck = findWatchesByTypeName(Array.from(watches), typeName)
+  watchesToCheck.forEach(({query, variables }) => {
+    const { input: { terms } } = variables
+    const parameters = getParametersByTypeName(terms, typeName);
+    if (Utils.mingoBelongsToSet(document, parameters.selector)) {
+      invalidateQuery({client, query, variables});
+    }
+  });
+}
+
+const invalidateQuery = ({client, query, variables}: {
+  client: ApolloClient<any>
+  query: any
+  variables: any
+}) => {
+  const observableQuery = client.watchQuery({query, variables})
+  void observableQuery.refetch(variables);
+}
+
 const getParametersByTypeName = (terms, typeName) => {
-  const collection = Collections.find(c => c.typeName === typeName);
+  const collection = getCollectionByTypeName(typeName);
   return collection.getParameters(terms /* apolloClient */);
 }
 

@@ -32,6 +32,8 @@ export async function updatePostDenormalizedTags(postId: string) {
 }
 
 getCollectionHooks("Tags").createValidate.add((validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
+  if (!tag.name || !tag.name.length)
+    throw new Error("Name is required");
   if (!isValidTagName(tag.name))
     throw new Error("Invalid tag name (use only letters, digits and dash)");
   
@@ -82,7 +84,7 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   var tagCreator = Users.findOne(tagRel.userId);
   const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
   await updatePostDenormalizedTags(tagRel.postId);
-  return {...tagRel, ...votedTagRel};
+  return {...tagRel, ...votedTagRel} as DbTagRel;
 });
 
 function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {

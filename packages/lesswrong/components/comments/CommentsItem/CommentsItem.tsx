@@ -1,17 +1,16 @@
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { withMessages } from '../../common/withMessages';
-import React, { Component } from 'react';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
 import withErrorBoundary from '../../common/withErrorBoundary';
-import withUser from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import type { CommentTreeOptions } from '../commentTree';
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -106,7 +105,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     fontStyle: "italic",
     fontSize: "1rem",
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing.unit,
+    marginLeft: theme.spacing.unit/2
   },
   postTitle: {
     paddingTop: theme.spacing.unit,
@@ -116,14 +116,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
-  refetch?: any,
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, classes }: {
+  treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
-  postPage?: boolean,
   nestingLevel: number,
-  showPostTitle?: boolean,
-  post?: PostsMinimumInfo,
-  tag?: TagBasicInfo,
+  isChild?: boolean,
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
@@ -131,171 +128,52 @@ interface ExternalProps {
   toggleCollapse?: ()=>void,
   truncated: boolean,
   parentAnswerId?: string|undefined,
-  hideReply?: boolean,
-}
-interface CommentsItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
-}
-interface CommentsItemState {
-  showReply: boolean,
-  showEdit: boolean,
-  showParent: boolean,
-}
+  classes: ClassesType,
+}) => {
+  const [showReplyState, setShowReplyState] = useState(false);
+  const [showEditState, setShowEditState] = useState(false);
+  const [showParentState, setShowParentState] = useState(false);
+  
+  const currentUser = useCurrentUser();
 
-export class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
-  constructor(props: CommentsItemProps) {
-    super(props);
-    this.state = {
-      showReply: false,
-      showEdit: false,
-      showParent: false
-    };
-  }
+  const { postPage, tag, post, refetch, hideReply, showPostTitle } = treeOptions;
 
-  shouldComponentUpdate(nextProps: CommentsItemProps, nextState: CommentsItemState) {
-    if(!shallowEqual(this.state, nextState))
-      return true;
-    if(!shallowEqualExcept(this.props, nextProps, ["post"]))
-      return true;
-    if (((nextProps.post as any)?.contents?.version) !== ((this.props.post as any)?.contents?.version))
-      return true;
-    return false;
-  }
-
-  showReply = (event: React.MouseEvent) => {
+  const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
-    this.setState({showReply: true});
+    setShowReplyState(true);
   }
 
-  replyCancelCallback = () => {
-    this.setState({showReply: false});
-}
+  const replyCancelCallback = () => {
+    setShowReplyState(false);
+  }
 
-  replySuccessCallback = () => {
-    const { refetch } = this.props
+  const replySuccessCallback = () => {
     if (refetch) {
       refetch()
     }
-    this.setState({showReply: false});
+    setShowReplyState(false);
   }
 
-  setShowEdit = () => {
-    this.setState({showEdit: true});
+  const setShowEdit = () => {
+    setShowEditState(true);
   }
 
-  editCancelCallback = () => {
-    this.setState({showEdit: false});
+  const editCancelCallback = () => {
+    setShowEditState(false);
   }
 
-  editSuccessCallback = () => {
-    const { refetch } = this.props
+  const editSuccessCallback = () => {
     if (refetch) {
       refetch()
     }
-    this.setState({showEdit: false});
+    setShowEditState(false);
   }
 
-  removeSuccessCallback = () => {
-    this.props.flash({messageString: "Successfully deleted comment", type: "success"});
+  const toggleShowParent = () => {
+    setShowParentState(!showParentState);
   }
-
-  toggleShowParent = () => {
-    this.setState({showParent:!this.state.showParent})
-  }
-
-  render() {
-    const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView, tag } = this.props
-
-    const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
-
-    if (!comment) {
-      return null;
-    }
-
-    return (
-        <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
-          <div className={
-            classNames(
-              classes.root,
-              "recent-comments-node",
-              {
-                [classes.deleted]: comment.deleted && !comment.deletedPublic,
-              },
-            )}
-          >
-            { comment.parentCommentId && this.state.showParent && (
-              <div className={classes.firstParentComment}>
-                <Components.ParentCommentSingle
-                  post={post} tag={tag}
-                  documentId={comment.parentCommentId}
-                  nestingLevel={nestingLevel - 1}
-                  truncated={false}
-                  key={comment.parentCommentId}
-                />
-              </div>
-            )}
-
-            {showPostTitle && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
-            {showPostTitle && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
-
-            <div className={classes.body}>
-              <div className={classes.meta}>
-                { !parentCommentId && !comment.parentCommentId && isParentComment &&
-                  <div className={classes.usernameSpacing}>○</div>
-                }
-                {post && <CommentShortformIcon comment={comment} post={post} />}
-                { parentCommentId!=comment.parentCommentId &&
-                  <ShowParentComment
-                    comment={comment}
-                    active={this.state.showParent}
-                    onClick={this.toggleShowParent}
-                  />
-                }
-                { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
-                  [<span>{this.props.collapsed ? "+" : "-"}</span>]
-                </a>
-                }
-                <span className={classes.username}>
-                  <CommentUserName comment={comment}/>
-                </span>
-                <CommentsItemDate
-                  comment={comment} post={post} tag={tag}
-                  scrollIntoView={scrollIntoView}
-                  scrollOnClick={postPage && !isParentComment}
-                />
-                {comment.moderatorHat && <span className={classes.moderatorHat}>
-                  Moderator Comment
-                </span>}
-                <SmallSideVote
-                  document={comment}
-                  collection={Comments}
-                  hideKarma={post?.hideCommentKarma}
-                />
-
-                {!isParentComment && this.renderMenu()}
-                {post && <span className={classes.outdatedWarning}>
-                  <Components.CommentOutdatedWarning comment={comment} post={post} />
-                </span>}
-                {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
-                  {`Nomination for ${comment.nominatedForReview}`}
-                </Link>}
-                {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
-                {`Review for ${comment.reviewingForReview}`}
-              </Link>}
-              </div>
-              { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
-                Promoted by {comment.promotedByUser.displayName}
-              </div>}
-              {this.renderBodyOrEditor()}
-              {!comment.deleted && !collapsed && this.renderCommentBottom()}
-            </div>
-            { this.state.showReply && !this.props.collapsed && this.renderReply() }
-          </div>
-        </AnalyticsContext>
-    )
-  }
-
-  renderMenu = () => {
-    const { classes, comment, post } = this.props;
+  
+  const renderMenu = () => {
     const { CommentsMenu } = Components;
     return (
       <span className={classes.metaRight}>
@@ -304,23 +182,20 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
             <CommentsMenu
               comment={comment}
               post={post}
-              showEdit={this.setShowEdit}
+              showEdit={setShowEdit}
             />
           </AnalyticsContext>
         </span>
       </span>
     )
   }
-
-  renderBodyOrEditor = () => {
-    const { comment, truncated, collapsed, postPage } = this.props;
-    const { showEdit } = this.state;
-
-    if (showEdit) {
+  
+  const renderBodyOrEditor = () => {
+    if (showEditState) {
       return <Components.CommentsEditForm
         comment={comment}
-        successCallback={this.editSuccessCallback}
-        cancelCallback={this.editCancelCallback}
+        successCallback={editSuccessCallback}
+        cancelCallback={editCancelCallback}
       />
     } else {
       return <Components.CommentBody
@@ -332,49 +207,45 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
     }
   }
 
-  renderCommentBottom = () => {
-    const { comment, currentUser, collapsed, classes, hideReply } = this.props;
+  const renderCommentBottom = () => {
     const { CommentBottomCaveats } = Components
 
-    if (!collapsed) {
-      const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
-      const showReplyButton = (
-        !hideReply &&
-        !comment.deleted &&
-        (!blockedReplies || userCanDo(currentUser,'comments.replyOnBlocked.all')) &&
-        // FIXME userIsAllowedToComment depends on some post metadatadata that we
-        // often don't want to include in fragments, producing a type-check error
-        // here. We should do something more complicated to give client-side feedback
-        // if you're banned.
-        // @ts-ignore
-        (!currentUser || userIsAllowedToComment(currentUser, this.props.post))
-      )
+    const showReplyButton = (
+      !hideReply &&
+      !comment.deleted &&
+      (!blockedReplies || userCanDo(currentUser,'comments.replyOnBlocked.all')) &&
+      // FIXME userIsAllowedToComment depends on some post metadatadata that we
+      // often don't want to include in fragments, producing a type-check error
+      // here. We should do something more complicated to give client-side feedback
+      // if you're banned.
+      // @ts-ignore
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post))
+    )
 
-      return (
-        <div className={classes.bottom}>
-          <CommentBottomCaveats comment={comment}/>
-          { showReplyButton &&
-            <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
-              Reply
-            </a>
-          }
-        </div>
-      )
-    }
+    return (
+      <div className={classes.bottom}>
+        <CommentBottomCaveats comment={comment}/>
+        { showReplyButton &&
+          <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showReply}>
+            Reply
+          </a>
+        }
+      </div>
+    )
   }
 
-  renderReply = () => {
-    const { post, comment, classes, parentAnswerId, nestingLevel=1 } = this.props
+  const renderReply = () => {
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
       <div className={classNames(classes.replyForm, levelClass)}>
         <Components.CommentsNewForm
-          post={post}
+          post={treeOptions.post}
           parentComment={comment}
-          successCallback={this.replySuccessCallback}
-          cancelCallback={this.replyCancelCallback}
+          successCallback={replySuccessCallback}
+          cancelCallback={replyCancelCallback}
           prefilledProps={{
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
@@ -383,12 +254,100 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
       </div>
     )
   }
+  
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
+
+  if (!comment) {
+    return null;
+  }
+  
+  return (
+    <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+      <div className={classNames(
+        classes.root,
+        "recent-comments-node",
+        {
+          [classes.deleted]: comment.deleted && !comment.deletedPublic,
+        },
+      )}>
+        { comment.parentCommentId && showParentState && (
+          <div className={classes.firstParentComment}>
+            <Components.ParentCommentSingle
+              post={post} tag={tag}
+              documentId={comment.parentCommentId}
+              nestingLevel={nestingLevel - 1}
+              truncated={false}
+              key={comment.parentCommentId}
+            />
+          </div>
+        )}
+
+        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
+        {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
+
+        <div className={classes.body}>
+          <div className={classes.meta}>
+            { !parentCommentId && !comment.parentCommentId && isParentComment &&
+              <div className={classes.usernameSpacing}>○</div>
+            }
+            {post && <CommentShortformIcon comment={comment} post={post} />}
+            { parentCommentId!=comment.parentCommentId &&
+              <ShowParentComment
+                comment={comment}
+                active={showParentState}
+                onClick={toggleShowParent}
+              />
+            }
+            { (postPage || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
+              [<span>{collapsed ? "+" : "-"}</span>]
+            </a>
+            }
+            <span className={classes.username}>
+              <CommentUserName comment={comment}/>
+            </span>
+            <CommentsItemDate
+              comment={comment} post={post} tag={tag}
+              scrollIntoView={scrollIntoView}
+              scrollOnClick={postPage && !isParentComment}
+            />
+            {comment.moderatorHat && <span className={classes.moderatorHat}>
+              Moderator Comment
+            </span>}
+            <SmallSideVote
+              document={comment}
+              collection={Comments}
+              hideKarma={post?.hideCommentKarma}
+            />
+
+            {!isParentComment && renderMenu()}
+            {post && <span className={classes.outdatedWarning}>
+              <Components.CommentOutdatedWarning comment={comment} post={post} />
+            </span>}
+            {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
+              {`Nomination for ${comment.nominatedForReview} Review`}
+            </Link>}
+            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
+            {`Review for ${comment.reviewingForReview} Review`}
+          </Link>}
+          </div>
+          { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
+            Promoted by {comment.promotedByUser.displayName}
+          </div>}
+          {renderBodyOrEditor()}
+          {!comment.deleted && !collapsed && renderCommentBottom()}
+        </div>
+        { showReplyState && !collapsed && renderReply() }
+      </div>
+    </AnalyticsContext>
+  )
 }
 
-const CommentsItemComponent = registerComponent<ExternalProps>(
+const CommentsItemComponent = registerComponent(
   'CommentsItem', CommentsItem, {
-    styles,
-    hocs: [ withMessages, withUser, withErrorBoundary ]
+    styles, hocs: [withErrorBoundary],
+    areEqual: {
+      treeOptions: "shallow",
+    },
   }
 );
 

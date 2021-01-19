@@ -10,6 +10,15 @@ import { sortTags } from '../tagging/FooterTagList';
 
 export const POST_PREVIEW_WIDTH = 400
 
+export const highlightSimplifiedStyles = {
+  '& img': {
+    display:"none"
+  },
+  '& hr': {
+    display: "none"
+  }
+}
+
 export const highlightStyles = (theme: ThemeType) => ({
   ...postHighlightStyles(theme),
   marginTop: theme.spacing.unit*2.5,
@@ -17,10 +26,6 @@ export const highlightStyles = (theme: ThemeType) => ({
   marginRight: theme.spacing.unit/2,
   wordBreak: 'break-word',
   fontSize: "1.1rem",
-
-  '& img': {
-    display:"none"
-  },
   '& h1': {
     fontSize: "1.2rem"
   },
@@ -30,9 +35,7 @@ export const highlightStyles = (theme: ThemeType) => ({
   '& h3': {
     fontSize: "1.1rem"
   },
-  '& hr': {
-    display: "none"
-  }
+  ...highlightSimplifiedStyles
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -190,12 +193,14 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
         {renderedComment
           ? <div className={classes.comment}>
               <CommentsNode
+                treeOptions={{
+                  post,
+                  hideReply: true,
+                }}
                 truncated
                 comment={renderedComment}
-                post={post}
                 hoverPreview
                 forceNotSingleLine
-                hideReply
               />
             </div>
           : <div onClick={() => setExpanded(true)}>

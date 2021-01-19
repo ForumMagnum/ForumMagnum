@@ -11,7 +11,7 @@ const InboxWrapper = () => {
     return <div>Log in to access private messages.</div>
   }
   const showArchive = query.showArchive === "true"
-  const terms = {view: 'userConversations', userId: currentUser._id, showArchive};
+  const terms: ConversationsViewTerms = {view: 'userConversations', userId: currentUser._id, showArchive};
   return <div>
     <Components.InboxNavigation terms={terms} currentUser={currentUser}/>
   </div>

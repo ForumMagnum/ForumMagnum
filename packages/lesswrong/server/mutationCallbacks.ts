@@ -10,7 +10,7 @@ export interface CreateCallbackProperties<T extends DbObject> {
   context: ResolverContext
   document: T
   newDocument: T
-  schema: any
+  schema: SchemaType<T>
 }
 
 export interface UpdateCallbackProperties<T extends DbObject> {
@@ -21,7 +21,7 @@ export interface UpdateCallbackProperties<T extends DbObject> {
   currentUser: DbUser|null
   collection: CollectionBase<T>
   context: ResolverContext
-  schema: any
+  schema: SchemaType<T>
 }
 
 export interface DeleteCallbackProperties<T extends DbObject> {
@@ -29,12 +29,12 @@ export interface DeleteCallbackProperties<T extends DbObject> {
   currentUser: DbUser|null
   collection: CollectionBase<T>
   context: ResolverContext
-  schema: any
+  schema: SchemaType<T>
 }
 
 export class CollectionMutationCallbacks<T extends DbObject> {
   createValidate: CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<T>]>
-  newValidate: CallbackChainHook<T,[DbUser|null,CallbackValidationErrors]>
+  newValidate: CallbackChainHook<DbInsertion<T>,[DbUser|null,CallbackValidationErrors]>
   createBefore: CallbackChainHook<T,[CreateCallbackProperties<T>]>
   newBefore: CallbackChainHook<T,[DbUser|null]>
   newSync: CallbackChainHook<T,[DbUser|null]>
@@ -61,12 +61,12 @@ export class CollectionMutationCallbacks<T extends DbObject> {
   deleteAsync: CallbackHook<[DeleteCallbackProperties<T>]>
   removeAsync: CallbackHook<[T,DbUser|null,CollectionBase<T>]>
   
-  constructor(collectionName: string) {
+  constructor(collectionName: CollectionNameString) {
     const collection = getCollection(collectionName);
     const typeName = collection.options.typeName;
     
     this.createValidate = new CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<T>]>(`${typeName.toLowerCase()}.create.validate`);
-    this.newValidate = new CallbackChainHook<T,[DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.new.validate`);
+    this.newValidate = new CallbackChainHook<DbInsertion<T>,[DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.new.validate`);
     this.createBefore = new CallbackChainHook<T,[CreateCallbackProperties<T>]>(`${typeName.toLowerCase()}.create.before`);
     this.newBefore = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.new.before`);
     this.newSync = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.new.sync`);

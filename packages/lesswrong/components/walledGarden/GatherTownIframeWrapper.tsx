@@ -3,16 +3,13 @@ import { registerComponent} from '../../lib/vulcan-lib';
   import {gatherTownRoomId, gatherTownRoomName} from "../../lib/publicSettings";
 
 
-const gatherTownLeftMenuWidth = 65 // We want to hide this menu, so we apply a negative margin on the iframe
-
 export const gatherTownURL = `https://gather.town/app/${gatherTownRoomId.get()}/${gatherTownRoomName.get()}`
 
 const styles = (theme: ThemeType): JssStyles => ({
   iframePositioning: {
-    width: `calc(100% + ${gatherTownLeftMenuWidth}px)`,
+    width: "100%",
     height: "100%",
-    border: "none",
-    marginLeft: -gatherTownLeftMenuWidth,
+    border: "none"
   },
 })
 
@@ -25,7 +22,7 @@ const GatherTownIframeWrapper = ({iframeRef, classes}: {
     iframeRef?.current?.focus && iframeRef.current.focus()
   }, [iframeRef])
 
-  return <iframe className={classes.iframePositioning} ref={iframeRef} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}; display-capture ${gatherTownURL}`}></iframe>
+  return <iframe className={classes.iframePositioning} ref={iframeRef} src={gatherTownURL} allow={`camera ${gatherTownURL}; microphone ${gatherTownURL}; display-capture ${gatherTownURL}; transparency ${gatherTownURL}; encrypted-media ${gatherTownURL}`}></iframe>
 }
 
 const GatherTownIframeWrapperComponent = registerComponent('GatherTownIframeWrapper', GatherTownIframeWrapper, {styles});
