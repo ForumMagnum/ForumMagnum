@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop:theme.spacing.unit*2
   },
   maxHeight: {
-    maxHeight: 500,
+    maxHeight: 600,
   },
 })
 

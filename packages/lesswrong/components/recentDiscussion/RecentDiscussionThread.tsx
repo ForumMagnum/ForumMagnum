@@ -175,7 +175,7 @@ const RecentDiscussionThread = ({
             </div>
           </div>
           <div className={highlightClasses}>
-            <PostsHighlight post={post} maxLengthWords={lastVisitedAt ? 50 : 200} />
+            <PostsHighlight post={post} maxLengthWords={lastVisitedAt ? 50 : 170} />
           </div>
         </div>
         {nestedComments.length ? <div className={classes.content}>
