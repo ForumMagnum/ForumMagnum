@@ -19,7 +19,7 @@ export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
   
   if (!mailUrl) {
     // eslint-disable-next-line no-console
-    console.log("Enable to send email because no mailserver is configured");
+    console.log("Unable to send email because no mailserver is configured");
     return false;
   }
   
