@@ -65,10 +65,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
           padding: "0 10px",
         }
       },
-      "& .form-input label": {
-        position: "relative",
-        top: 5,
-      },
       "& .form-input.input-title, &.input-bannerImageId": {
         maxWidth: "100%",
         width: "100%",
