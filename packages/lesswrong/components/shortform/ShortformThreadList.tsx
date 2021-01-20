@@ -35,7 +35,6 @@ const ShortformThreadList = ({ classes }: {
         </div>
       })}
       <LoadMore {...loadMoreProps} />
-      {loading && <Loading/>}
     </div>
   )
 }

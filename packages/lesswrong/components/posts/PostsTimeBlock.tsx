@@ -165,8 +165,6 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               {...loadMoreProps}
             />
           </div>}
-
-          { loading && <Loading /> }
           
           {displayShortform && <ShortformTimeBlock
             reportEmpty={reportEmptyShortform}

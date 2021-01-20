@@ -13,7 +13,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   belowFold?: boolean,
   classes: ClassesType,
 }) => {
-  const { results, count, totalCount, loadMore, showLoadMore } = useMulti({
+  const { results, loadMoreProps, showLoadMore } = useMulti({
     terms,
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -48,13 +48,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
           </div>
         )}
         {showLoadMore && <div className={classes.loadMorePadding}>
-          <LoadMore
-            loadMore={() => {
-              loadMore();
-            }}
-            count={count}
-            totalCount={totalCount}
-          />
+          <LoadMore {...loadMoreProps}/>
         </div>}
       </div>
     )

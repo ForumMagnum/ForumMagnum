@@ -37,7 +37,7 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   
   return <div>
     {results?.map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
-    {loading ? <Loading/> : <LoadMore className={classes.loadMore} {...loadMoreProps}/>}
+    <LoadMore className={classes.loadMore} {...loadMoreProps}/>
   </div>
 }
 

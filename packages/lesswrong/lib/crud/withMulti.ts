@@ -365,7 +365,7 @@ export function useMulti<
   // A bundle of props that you can pass to Components.LoadMore, to make
   // everything just work.
   const loadMoreProps = {
-    loadMore, count, totalCount,
+    loadMore, count, totalCount, loading,
     hidden: !showLoadMore,
   };
   

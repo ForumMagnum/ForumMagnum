@@ -146,11 +146,7 @@ const AllTagsPage = ({classes}: {
             </div>}
           </div>
           <SectionFooter>
-            <LoadMore
-              {...loadMoreProps}
-              totalCount={totalCount}
-              count={count}
-            />
+            <LoadMore {...loadMoreProps} />
           </SectionFooter>
         </AnalyticsContext>
         <AnalyticsContext pageSectionContext="allTagsAlphabetical">

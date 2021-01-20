@@ -19,7 +19,7 @@ const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
   allowContentPreview?: boolean,
 }) => {
   const currentUser = useCurrentUser();
-  const { results, loadMore, count, totalCount, showLoadMore } = useMulti({
+  const { results, loadMore, count, totalCount, loadMoreProps } = useMulti({
     terms,
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -41,13 +41,7 @@ const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
           </div>
         )}
         <div className={classes.loadMore}>
-          {showLoadMore && <LoadMore
-            loadMore={() => {
-              loadMore();
-            }}
-            count={count}
-            totalCount={totalCount}
-          />}
+          <LoadMore {...loadMoreProps}/>
         </div>
       </div>
     )
