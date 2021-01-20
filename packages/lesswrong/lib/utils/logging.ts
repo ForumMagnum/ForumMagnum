@@ -10,6 +10,11 @@
  * Scoped logging can be turned on and off via your instance settings (so that
  * you can have local debug statements while you're connected to production) or
  * via database settings, so that you can turn on debugging without redeploying.
+ *
+ * Turn on logging by setting the database public setting `debuggers` to an
+ * array containing your desired debugger, like so `['views-posts',
+ * 'db-comments-find']`, or in your instance settings (settings-$env.json),
+ * setting `instanceDebuggers` to the same.
  */
 import util from 'util'
 import { PublicInstanceSetting } from '../instanceSettings'
