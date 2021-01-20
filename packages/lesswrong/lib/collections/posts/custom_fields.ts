@@ -2,7 +2,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
+import { makeEditable } from '../../editor/make_editable';
 import { forumTypeSetting } from '../../instanceSettings';
 import { getWithLoader } from '../../loaders';
 import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
@@ -1110,48 +1110,42 @@ addFieldsDict(Posts, {
   },
 });
 
-export const makeEditableOptions: MakeEditableOptions = {
-  formGroup: formGroups.content,
-  order: 25,
-  pingbacks: true,
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptions
+  options: {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+  }
 })
 
-export const makeEditableOptionsModeration: MakeEditableOptions = {
-  // Determines whether to use the comment editor configuration (e.g. Toolbars)
-  commentEditor: true,
-  // Determines whether to use the comment editor styles (e.g. Fonts)
-  commentStyles: true,
-  formGroup: formGroups.moderationGroup,
-  order: 50,
-  fieldName: "moderationGuidelines",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userHasModerationGuidelines]
-  },
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptionsModeration
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userHasModerationGuidelines]
+    },
+  }
 })
 
-export const makeEditableOptionsCustomHighlight = {
-  formGroup: formGroups.highlight,
-  fieldName: "customHighlight",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-  },
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptionsCustomHighlight
+  options: {
+    formGroup: formGroups.highlight,
+    fieldName: "customHighlight",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
+  }
 })

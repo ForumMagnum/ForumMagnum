@@ -1,7 +1,7 @@
 import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
+import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
@@ -35,13 +35,11 @@ export const Sequences: ExtendedSequencesCollection = createCollection({
   mutations: getDefaultMutations('Sequences', options)
 })
 
-export const makeEditableOptions: MakeEditableOptions = {
-  order: 20
-}
-
 makeEditable({
   collection: Sequences,
-  options: makeEditableOptions
+  options: {
+    order: 20,
+  }
 })
 addUniversalFields({collection: Sequences})
 

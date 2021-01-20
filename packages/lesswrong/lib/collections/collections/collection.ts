@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import schema from './schema';
-import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
+import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 export const Collections: CollectionsCollection = createCollection({
@@ -11,13 +11,11 @@ export const Collections: CollectionsCollection = createCollection({
   mutations: getDefaultMutations('Collections'),
 });
 
-export const makeEditableOptions: MakeEditableOptions = {
-  order: 20
-}
-
 makeEditable({
   collection: Collections,
-  options: makeEditableOptions
+  options: {
+    order: 20
+  }
 })
 addUniversalFields({collection: Collections})
 

@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
-import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
+import { makeEditable } from '../../editor/make_editable';
 import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
@@ -1462,24 +1462,22 @@ addFieldsDict(Users, {
   },
 });
 
-export const makeEditableOptionsModeration: MakeEditableOptions = {
-  // Determines whether to use the comment editor configuration (e.g. Toolbars)
-  commentEditor: true,
-  // Determines whether to use the comment editor styles (e.g. Fonts)
-  commentStyles: true,
-  formGroup: formGroups.moderationGroup,
-  order: 50,
-  fieldName: "moderationGuidelines",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userOwns, 'sunshineRegiment', 'admins']
-  }
-}
-
 makeEditable({
   collection: Users,
-  options: makeEditableOptionsModeration
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    }
+  }
 })
 
 addUniversalFields({collection: Users})
