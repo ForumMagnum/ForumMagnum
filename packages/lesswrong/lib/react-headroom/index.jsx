@@ -13,6 +13,7 @@ export default class Headroom extends Component {
     children: PropTypes.any.isRequired,
     disableInlineStyles: PropTypes.bool,
     disable: PropTypes.bool,
+    height: PropTypes.number,
     upTolerance: PropTypes.number,
     downTolerance: PropTypes.number,
     onPin: PropTypes.func,
@@ -280,6 +281,7 @@ export default class Headroom extends Component {
     delete divProps.disable
     delete divProps.parent
     delete divProps.children
+    delete divProps.height
     delete divProps.upTolerance
     delete divProps.downTolerance
     delete divProps.pinStart

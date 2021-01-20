@@ -182,7 +182,7 @@ export const renderRequest = async ({req, user, startTime, res}: {
   const sheetsRegistry = context.sheetsRegistry;
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}"></link>`
+    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}">`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {

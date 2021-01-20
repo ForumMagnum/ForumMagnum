@@ -144,7 +144,7 @@ export function startWebserver() {
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
     const {bundleHash} = getClientBundle();
 
-    const clientScript = `<script defer type="text/javascript" src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
@@ -162,8 +162,8 @@ export function startWebserver() {
           + clientScript
           + headers.join('\n')
           + instanceSettingsHeader
+          + jssSheets
         + '</head>\n'
-        + jssSheets
         + '<body>\n'+ssrBody+'</body>\n'
         + serializedApolloState)
     }
