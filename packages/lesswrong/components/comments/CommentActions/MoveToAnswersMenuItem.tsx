@@ -27,7 +27,7 @@ const MoveToAnswersMenuItem = ({comment, post}: {
       },
     })
     flash("Comment moved to the Answers section.")
-    client.resetStore()
+    await client.resetStore()
   }
 
   const handleMoveToComments = async () => {
@@ -38,7 +38,7 @@ const MoveToAnswersMenuItem = ({comment, post}: {
       },
     })
     flash("Answer moved to the Comments section.")
-    client.resetStore()
+    await client.resetStore()
   }
 
   if (!comment.topLevelCommentId && post.question &&
