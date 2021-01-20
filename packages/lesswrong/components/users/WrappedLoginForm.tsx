@@ -9,7 +9,7 @@ import { useMessages } from '../common/withMessages';
 
 const styles = theme => ({
   root: {
-    ...commentBodyStyles(theme),
+    ...commentBodyStyles(theme, true),
     padding: 16,
     marginTop: 0,
     marginBottom: 0,
@@ -144,7 +144,7 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
       <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
       
       {currentAction === "signup" && !['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get()) &&
-        <SignupSubscribeToCurated defaultValue={subscribeToCurated} onChange={(e) => setSubscribeToCurated(e.target.value)} />
+        <SignupSubscribeToCurated defaultValue={subscribeToCurated} onChange={(checked: boolean) => setSubscribeToCurated(checked)} />
       }
       <div className={classes.options}>
         { currentAction !== "login" && <span className={classes.toggle} onClick={() => setCurrentAction("login")}> Log In </span> }

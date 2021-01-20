@@ -30,17 +30,19 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,
-  onChange: any,
+  onChange: (checked: boolean)=>void,
   classes: ClassesType,
 }) => {
   const [checked, setChecked] = useState(defaultValue);
+  console.log("Rendering SignupSubscribeToCurated");
   return <div className={classes.root}>
     <Checkbox
       checked={checked}
       className={classes.checkbox}
       onChange={(ev, newChecked) => {
+        console.log("In Checkbox.onChange");
         setChecked(newChecked)
-        onChange({target: {value: newChecked}})
+        onChange(newChecked)
       }}
     />
     Subscribe to Curated posts
