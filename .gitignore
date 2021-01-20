@@ -64,3 +64,5 @@ typings
 .elasticbeanstalk/*
 
 *.secret
+build
+

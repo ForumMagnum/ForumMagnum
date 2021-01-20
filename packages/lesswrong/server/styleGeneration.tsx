@@ -50,7 +50,7 @@ addStaticRoute("/allStyles", ({query}, req, res, next) => {
   if (!expectedHash || expectedHash === stylesheetHash) {
     res.writeHead(200, {
       "Cache-Control": "public, max-age=604800, immutable",
-      "Content-Type": "text/css"
+      "Content-Type": "text/css; charset=utf-8"
     });
     res.end(css);
   } else {

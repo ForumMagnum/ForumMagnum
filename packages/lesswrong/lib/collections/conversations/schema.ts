@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField, denormalizedCountOfReferences, SchemaType } from '../../utils/schemaUtils'
+import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
 
 const schema: SchemaType<DbConversation> = {
@@ -79,7 +79,7 @@ const schema: SchemaType<DbConversation> = {
       if (data?.archivedByIds) {
         const changedIds = _.difference(oldDocument?.archivedByIds || [], data?.archivedByIds)
         changedIds.forEach((id => {
-          if (id !== currentUser._id) {
+          if (id !== currentUser!._id) {
             throw new Error(`You can't archive or unarchive a conversation for another user. Attempted update: ${JSON.stringify(data)}`)
           }
         }))

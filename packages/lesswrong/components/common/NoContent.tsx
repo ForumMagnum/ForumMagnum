@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,9 +12,9 @@ const NoContent = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
-  return <Typography variant='body2' className={classes.root}>
+  return <Components.Typography variant='body2' className={classes.root}>
     {children}
-  </Typography>
+  </Components.Typography>
 }
 
 const NoContentComponent = registerComponent('NoContent', NoContent, {styles});

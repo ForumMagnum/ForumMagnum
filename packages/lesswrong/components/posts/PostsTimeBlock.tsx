@@ -1,10 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import moment from '../../lib/moment-timezone';
-import { timeframeToTimeBlock } from './timeframeUtils'
+import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 
@@ -20,6 +18,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 4,
     paddingBottom: 4,
     zIndex: 1
+  },
+  smallScreenTitle: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
+  largeScreenTitle: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none",
+    },
   },
   loadMore: {
     marginTop: 6,
@@ -47,11 +55,11 @@ const postTypes = [
 ]
 
 const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, timeframe, displayShortform=true, classes }: {
-  terms: any,
-  timeBlockLoadComplete: any,
+  terms: PostsViewTerms,
+  timeBlockLoadComplete: ()=>void,
   startDate: any,
-  hideIfEmpty: any,
-  timeframe: any,
+  hideIfEmpty: boolean,
+  timeframe: TimeframeType,
   displayShortform: any,
   classes: ClassesType
 }) => {
@@ -63,14 +71,17 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
     collectionName: "Posts",
     fragmentName: 'PostsList',
     enableTotal: true,
+    itemsPerPage: 50,
   });
 
   useEffect(() => {
     if (!loading && timeBlockLoadComplete) {
       timeBlockLoadComplete();
     }
-  }, [loading, timeBlockLoadComplete]);
-  
+  // No dependency list because we want this to be called even when it looks
+  // like nothing has changed, to signal loading is complete
+  });
+
   // Child component needs a way to tell us about the presence of shortforms
   const reportEmptyShortform = useCallback(() => {
     setNoShortform(true);
@@ -85,7 +96,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   }
 
   const render = () => {
-    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider, Typography } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -113,12 +124,12 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               {getTitle(startDate, timeframe, null)}
             </div>}
             {['weekly', 'daily'].includes(timeframe) && <div>
-              <Hidden xsDown implementation="css">
+              <div className={classes.smallScreenTitle}>
                 {getTitle(startDate, timeframe, 'xsDown')}
-              </Hidden>
-              <Hidden smUp implementation="css">
+              </div>
+              <div className={classes.largeScreenTitle}>
                 {getTitle(startDate, timeframe, 'smUp')}
-              </Hidden>
+              </div>
             </div>}
           </Typography>
         </QueryLink>

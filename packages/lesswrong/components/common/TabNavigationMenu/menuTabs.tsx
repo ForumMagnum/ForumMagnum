@@ -25,22 +25,23 @@ const EventsList = ({currentUser, onClick}) => {
   const lng = currentUser &&
     currentUser.mongoLocation &&
     currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms: any = {
+  let eventsListTerms: PostsViewTerms = {
     view: 'events',
     onlineEvent: false,
     limit: 3,
   }
   if (lat && lng) {
     eventsListTerms = {
+      onlineEvent: false,
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: 2,
+      limit: 1,
     }
   }
-  const onlineTerms = {
+  const onlineTerms: PostsViewTerms = {
     view: 'onlineEvents',
-    limit: 2
+    limit: 4
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
@@ -265,7 +266,7 @@ export default {
       id: 'groups',
       title: 'EA Groups',
       mobileTitle: 'EA Groups',
-      link: 'https://www.eahub.org/groups',
+      link: 'https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage',
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups in your area',
       showOnMobileStandalone: true,

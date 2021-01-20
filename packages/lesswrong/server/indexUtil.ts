@@ -1,5 +1,5 @@
 import { expectedIndexes, isUnbackedCollection } from '../lib/collectionUtils';
-import { Collections } from './vulcan-lib';
+import { getCollection, getAllCollections } from '../lib/vulcan-lib/getCollection';
 import * as _ from 'underscore';
 
 function indexesMatch(indexA, indexB)
@@ -30,11 +30,9 @@ function isUnrecognizedIndex(collection, index)
 export async function getUnrecognizedIndexes()
 {
   let unrecognizedIndexes: Array<any> = [];
-  for(let i=0; i<Collections.length; i++)
+  for(let collection of getAllCollections())
   {
     try {
-      let collection = Collections[i];
-      
       if (isUnbackedCollection(collection))
         continue;
       
@@ -77,7 +75,7 @@ export async function getMissingIndexes()
   
   for (let collectionName in expectedIndexes)
   {
-    let collection = _.find(Collections, c => c.collectionName === collectionName);
+    let collection = getCollection(collectionName as CollectionNameString);
     
     if (!collection || isUnbackedCollection(collection))
       continue;

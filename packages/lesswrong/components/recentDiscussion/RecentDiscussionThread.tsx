@@ -9,11 +9,11 @@ import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useRecordPostView } from '../common/withRecordPostView';
 
-import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import type { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -48,8 +48,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postHighlight: {
     ...postHighlightStyles(theme),
-    maxWidth:600,
-    maxHeight: 1000,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
@@ -137,7 +135,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
 
-  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, LinkPostMessage } = Components
+  const { PostsItemMeta, CommentsNode, PostsHighlight } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -153,6 +151,16 @@ const RecentDiscussionThread = ({
   const highlightClasses = classNames(classes.highlight, classes.postHighlight, {
     [classes.noComments]: post.commentCount === null
   })
+  
+  const treeOptions: CommentTreeOptions = {
+    scrollOnExpand: true,
+    lastCommentId: lastCommentId,
+    markAsRead: markAsRead,
+    highlightDate: lastVisitedAt,
+    refetch: refetch,
+    condensed: true,
+    post: post,
+  };
 
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
@@ -160,48 +168,28 @@ const RecentDiscussionThread = ({
         <div className={classes.post}>
           <div className={classes.postItem}>
             <Link to={postGetPageUrl(post)} className={classes.title}>
-                {post.title}
+              {post.title}
             </Link>
             <div className={classes.threadMeta} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
-              <ShowOrHideHighlightButton
-                className={classes.showHighlight}
-                open={highlightVisible}/>
             </div>
           </div>
-          { post.contents?.htmlHighlight && highlightVisible ?
-            <div className={highlightClasses}>
-              <PostsHighlight post={post} />
-            </div>
-            : <div className={highlightClasses} onClick={showHighlight}>
-                { showSnippet && <>
-                  <LinkPostMessage post={post} noMargin />
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents?.htmlHighlight||null)}}
-                    description={`post ${post._id}`}
-                  /></>
-                }
-              </div>
-          }
+          <div className={highlightClasses}>
+            <PostsHighlight post={post} maxLengthWords={200} />
+          </div>
         </div>
         {nestedComments.length ? <div className={classes.content}>
           <div className={classes.commentsList}>
             {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
                 <CommentsNode
+                  treeOptions={treeOptions}
                   startThreadTruncated={true}
                   expandAllThreads={initialExpandAllThreads || expandAllThreads}
-                  scrollOnExpand
                   nestingLevel={1}
-                  lastCommentId={lastCommentId}
                   comment={comment.item}
-                  markAsRead={markAsRead}
-                  highlightDate={lastVisitedAt}
                   childComments={comment.children}
                   key={comment.item._id}
-                  post={post}
-                  refetch={refetch}
-                  condensed
                 />
               </div>
             )}

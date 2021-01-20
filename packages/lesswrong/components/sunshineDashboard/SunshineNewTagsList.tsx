@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import Tags from '../../lib/collections/tags/collection';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 
@@ -14,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
   const { results, totalCount } = useMulti({
     terms: {view:"unreviewedTags", limit: 30 },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
   });

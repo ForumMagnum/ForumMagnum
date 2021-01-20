@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -15,23 +14,22 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: {
-  terms: any,
+  terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
   post: PostsList,
   singleLine?: boolean,
 }) => {
 
-  const { loading, results } = useMulti({
+  const { loading, results, loadMoreProps } = useMulti({
     terms,
-    collection: Comments,
-    fragmentName: 'CommentsList',
+    collectionName: "Comments",
+    fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 5,
-    // enableTotal: false,
+    limit: 5
   });
   
-  const { Loading, CommentsList, SubSection } = Components
+  const { Loading, CommentsList, SubSection, CommentWithReplies, LoadMore } = Components
 
   if (!loading && results && !results.length) {
     return null
@@ -48,16 +46,21 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
         {(results && results.length > 1) && "s"}
       </div>}
       <SubSection>
-        <CommentsList
+        {singleLine ? <CommentsList
+          treeOptions={{
+            lastCommentId: lastCommentId,
+            hideSingleLineMeta: true,
+            enableHoverPreview: false,
+            post: post,
+          }}
           comments={nestedComments}
           startThreadTruncated={true}
-          post={post}
-          lastCommentId={lastCommentId}
-          forceSingleLine={singleLine}
-          forceNotSingleLine={!singleLine}
-          hideSingleLineMeta={singleLine}
-          enableHoverPreview={false}
+          forceSingleLine
         />
+        : <div>
+          {results && results.map((comment) => <CommentWithReplies key={comment._id} comment={comment} post={post}/>)}
+          <LoadMore {...loadMoreProps} />
+        </div>}
       </SubSection>
     </div>
   );

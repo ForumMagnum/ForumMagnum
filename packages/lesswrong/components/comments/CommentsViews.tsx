@@ -12,6 +12,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const viewNames: Partial<Record<string,string>> = {
   'postCommentsTop': 'top scoring',
+  'afPostCommentsTop': 'top scoring',
   'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
   'postCommentsBest': 'highest karma',
@@ -69,7 +70,8 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
     const { currentUser, classes, post } = this.props
     const { query } = this.props.location;
     const { anchorEl } = this.state
-    let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
+    const commentsTopView = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
+    let views = [commentsTopView, "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
     const afViews = ["postLWComments"]
     const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)

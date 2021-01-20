@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import Hidden from '@material-ui/core/Hidden';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
@@ -40,9 +39,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 450,
     marginLeft: "auto"
   },
-  sequenceGrid: {
+  largeScreenLoggedOutSequences: {
     marginTop: 2,
     marginBottom: 2,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  smallScreenLoggedOutSequences: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
   },
   loggedOutCustomizeLabel: {
     fontSize: "1rem",
@@ -83,7 +90,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, GatherTown } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings = {
@@ -116,9 +123,6 @@ const RecommendationsAndCurated = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {<AnalyticsContext pageSectionContext="gatherTownWelcome">
-        <GatherTown/>
-      </AnalyticsContext>}
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
         <Link to={"/recommendations"}>Recommendations</Link>
       </LWTooltip>}>
@@ -137,19 +141,17 @@ const RecommendationsAndCurated = ({
         /> }
 
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
-          <Hidden smDown implementation="css">
-            <div className={classes.sequenceGrid}>
-              <SequencesGridWrapper
-                terms={{'view':'curatedSequences', limit:3}}
-                showAuthor={true}
-                showLoadMore={false}
-              />
-            </div>
-          </Hidden>
-          <Hidden mdUp implementation="css">
-            <ContinueReadingList continueReading={continueReading} />
-          </Hidden>
-        </div>}
+        <div className={classes.largeScreenLoggedOutSequences}>
+          <SequencesGridWrapper
+            terms={{'view':'curatedSequences', limit:3}}
+            showAuthor={true}
+            showLoadMore={false}
+          />
+        </div>
+        <div className={classes.smallScreenLoggedOutSequences}>
+          <ContinueReadingList continueReading={continueReading} />
+        </div>
+      </div>}
 
       {/* Disabled during 2018 Review [and coronavirus season] */}
       <div className={classes.subsection}>
@@ -159,7 +161,7 @@ const RecommendationsAndCurated = ({
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
-          <AnalyticsContext listContext={"curatedPosts"}>
+          {/* <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
@@ -168,7 +170,7 @@ const RecommendationsAndCurated = ({
               boxShadow={false}
               curatedIconLeft={true}
             />
-          </AnalyticsContext>
+          </AnalyticsContext> */}
         </div>
       </div>
 

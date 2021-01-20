@@ -1,4 +1,4 @@
-import { foreignKeyField, arrayOfForeignKeysField, SchemaType } from '../../utils/schemaUtils'
+import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
 export const formGroups = {
   chapterDetails: {

@@ -1,4 +1,4 @@
-import { userGroups, userOwns, userCanDo } from '../../vulcan-users/permissions';
+import { membersGroup, adminsGroup, userOwns, userCanDo } from '../../vulcan-users/permissions';
 import Notifications from './collection';
 
 const membersActions = [
@@ -6,14 +6,14 @@ const membersActions = [
   'notifications.edit.own',
   'notifications.view.own',
 ];
-userGroups.members.can(membersActions);
+membersGroup.can(membersActions);
 
 const adminActions = [
   'notifications.new.all',
   'notifications.edit.all',
   'notifications.remove.all',
 ];
-userGroups.admins.can(adminActions);
+adminsGroup.can(adminActions);
 
 Notifications.checkAccess = async (user: DbUser|null, document: DbNotification, context: ResolverContext|null): Promise<boolean> => {
   if (!user || !document) return false;

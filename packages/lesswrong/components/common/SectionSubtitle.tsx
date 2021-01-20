@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -20,9 +19,9 @@ const SectionSubtitle = ({children, classes, className}: {
   classes: ClassesType,
   className?: string,
 }) => {
-  return <Typography component='span' variant='subheading' className={classNames(classes.root, className)}>
+  return <Components.Typography component='span' variant='subheading' className={classNames(classes.root, className)}>
     {children}
-  </Typography>
+  </Components.Typography>
 }
 
 const SectionSubtitleComponent = registerComponent('SectionSubtitle', SectionSubtitle, {styles})

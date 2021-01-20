@@ -1,12 +1,10 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
-import PropTypes from 'prop-types';
 import Users from '../../lib/collections/users/collection';
 import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { Accounts } from '../../lib/meteorAccounts';
-import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
@@ -35,13 +33,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const UsersEditForm = ({terms, client, classes}: {
-  terms: any,
+  terms: {slug?: string, documentId?: string},
   client?: any,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
+  const { Typography } = Components;
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -102,10 +101,6 @@ const UsersEditForm = ({terms, client, classes}: {
   );
 };
 
-
-UsersEditForm.propTypes = {
-  terms: PropTypes.object, // a user is defined by its unique _id or its unique slug
-};
 
 const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {
   styles,

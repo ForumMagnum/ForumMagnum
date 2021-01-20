@@ -79,7 +79,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 const TabNavigationEventsList = ({ terms, onClick, classes }: {
-  terms: any,
+  terms: PostsViewTerms,
   onClick: ()=>void,
   classes: ClassesType,
 }) => {
@@ -121,7 +121,9 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
         const tooltip = <div>
             <div className={classes.tooltipTitle}>{event.title}</div>
-            <div className={classes.tooltipLogisticsTitle}>Location</div>
+            <div className={classes.tooltipLogisticsTitle}>
+             {event.onlineEvent ? "Onlne Event" : "Location"}
+            </div>
             <div>{event.location}</div>
             <div className={classes.tooltipLogisticsTitle}>Time</div>
             <div>

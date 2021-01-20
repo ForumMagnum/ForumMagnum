@@ -221,7 +221,7 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
 async function dataToHTML(data, type, sanitizeData = false) {
   switch (type) {
     case "html":
-      return sanitizeData ? sanitize(data) : data
+      return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
     case "ckEditorMarkup":
       return await ckEditorMarkupToHtml(data)
     case "draftJS":
@@ -278,7 +278,7 @@ function getInitialVersion(document: DbPost|DbObject) {
   }
 }
 
-async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
+export async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
   return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
 }
 
@@ -291,7 +291,7 @@ export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null>
   );
 }
 
-async function getNextVersion(documentId: string, updateType = 'minor', fieldName: string, isDraft: boolean) {
+export async function getNextVersion(documentId: string, updateType = 'minor', fieldName: string, isDraft: boolean) {
   const lastRevision = await getLatestRev(documentId, fieldName);
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision?.version || "1.0.0")
   switch (updateType) {

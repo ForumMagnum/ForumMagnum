@@ -4,7 +4,6 @@ const highlightMaxChars = 2400;
 export const GTP2_TRUNCATION_CHAR_COUNT = 400;
 export const SMALL_TRUNCATION_CHAR_COUNT = 750;
 export const LARGE_TRUNCATION_CHAR_COUNT = 1600;
-export const postExcerptMaxChars = 600;
 export const TRUNCATION_KARMA_THRESHOLD = 10
 
 export const highlightFromMarkdown = (body, mdi) => {
@@ -38,18 +37,6 @@ export const truncate = (html: string|null|undefined, truncateLength: number, tr
     Suffix: `${newSuffix} ${styles}`,
   });
 }
-
-export const postExcerptFromHTML = (html: string|null, truncationCharCount?: number) => {
-  if(!html) return ""
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
-  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
-
-  return truncatise(htmlRemovedStyles, {
-    TruncateLength: truncationCharCount || postExcerptMaxChars,
-    TruncateBy: "characters",
-    Suffix: `... <a class="read-more-default">(Read more)</a>${styles}`,
-  });
-};
 
 export function getTruncationCharCount (comment, currentUser?: UsersCurrent|null, postPage?: boolean) {
   // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.

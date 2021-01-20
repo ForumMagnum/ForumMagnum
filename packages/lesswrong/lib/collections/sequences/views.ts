@@ -2,7 +2,14 @@ import { ensureIndex } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import Sequences from './collection';
 
-Sequences.addDefaultView(terms => {
+declare global {
+  interface SequencesViewTerms extends ViewTermsBase {
+    view?: SequencesViewName
+    userId?: string
+  }
+}
+
+Sequences.addDefaultView((terms: SequencesViewTerms) => {
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   let params = {
     selector: {
@@ -18,7 +25,7 @@ function augmentForDefaultView(indexFields)
   return { hidden:1, af:1, isDeleted:1, ...indexFields };
 }
 
-Sequences.addView("userProfile", function (terms) {
+Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -35,7 +42,7 @@ Sequences.addView("userProfile", function (terms) {
 });
 ensureIndex(Sequences, augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
 
-Sequences.addView("userProfileAll", function (terms) {
+Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -51,7 +58,7 @@ Sequences.addView("userProfileAll", function (terms) {
   };
 });
 
-Sequences.addView("curatedSequences", function (terms) {
+Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -70,7 +77,7 @@ Sequences.addView("curatedSequences", function (terms) {
 });
 ensureIndex(Sequences, augmentForDefaultView({ curatedOrder:-1 }));
 
-Sequences.addView("communitySequences", function (terms) {
+Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,

@@ -14,13 +14,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=true}: {
+const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=true, inlineBlock=true}: {
   children?: any,
   title?: any,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
   clickable?: boolean,
+  inlineBlock?: boolean,
   classes: ClassesType,
   className?: string
 }) => {
@@ -32,7 +33,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
   
   if (!title) return children
 
-  return <span className={classNames(classes.root, className)} {...eventHandlers}>
+  return <span className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
@@ -49,7 +50,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
       }}
       clickable={clickable}
     >
-      <div className={classes.tooltip}>{title}</div>
+      <div className={tooltip ? classes.tooltip : null}>{title}</div>
     </LWPopper>}
     
     {children}

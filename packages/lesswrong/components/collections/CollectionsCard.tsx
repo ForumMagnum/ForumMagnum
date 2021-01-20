@@ -1,8 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/CoreReading';
 
@@ -56,7 +54,11 @@ const styles = (theme: ThemeType): JssStyles => ({
         maxWidth:307,
         overflow: "hidden"
       },
-    }
+    },
+    
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
   thumbnailImage: { // Used only on XS screens
     float: "left",
@@ -66,7 +68,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& img': {
       width: 50,
       height: 41,
-    }
+    },
+    
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
   },
 })
 
@@ -76,21 +82,19 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   mergeTitle?: boolean,
   classes: ClassesType,
 }) => {
-  const { LinkCard, CloudinaryImage, UsersName } = Components;
+  const { LinkCard, CloudinaryImage, UsersName, Typography } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
       <div className={classes.content} style={cardContentStyle}>
-        <Hidden smUp implementation="css">
-          <div className={classes.thumbnailImage}>
-            <CloudinaryImage
-              publicId={collection.imageId}
-              width={50}
-              height={41}
-            />
-          </div>
-        </Hidden>
+        <div className={classes.thumbnailImage}>
+          <CloudinaryImage
+            publicId={collection.imageId}
+            width={50}
+            height={41}
+          />
+        </div>
         <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
           <Link to={url}>{collection.title}</Link>
         </Typography>
@@ -101,11 +105,9 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
           {collection.summary}
         </Typography>
       </div>
-      <Hidden xsDown implementation="css">
-        <div className={classes.media}>
-          <CloudinaryImage publicId={collection.imageId} />
-        </div>
-      </Hidden>
+      <div className={classes.media}>
+        <CloudinaryImage publicId={collection.imageId} />
+      </div>
     </div>
   </LinkCard>
 }

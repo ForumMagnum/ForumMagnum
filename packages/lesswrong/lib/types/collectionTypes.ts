@@ -5,24 +5,25 @@
  * was getting ignored by the type checker as an external library file, as
  * --skipLibCheck just ignores all .d.ts files.
  */
-import DataLoader from 'dataloader';
+import type DataLoader from 'dataloader';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-interface CollectionBase<T extends DbObject> {
-  collectionName: CollectionNameString
+interface CollectionBase<
+  T extends DbObject,
+  N extends CollectionNameString = CollectionNameString
+> {
+  collectionName: N
   typeName: string,
   options: CollectionOptions
-  addDefaultView: any
-  addView: any
-  defaultView: (terms: any) => any
-  views: any
-  getParameters: any
-  simpleSchema: any
-  addField: any
-  helpers: any
+  addDefaultView: (view: ViewFunction<N>) => void
+  addView: (viewName: string, view: ViewFunction<N>) => void
+  defaultView: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
+  views: Record<string, ViewFunction<N>>
+  getParameters: (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext) => MergedViewQueryAndOptions<N,T>
+  simpleSchema: ()=>any
   
   rawCollection: any
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
@@ -56,7 +57,34 @@ interface FindResult<T> {
   count: ()=>number
 }
 
-type MongoSelector<T extends DbObject> = Record<string,any>; //TODO
+type ViewFunction<N extends CollectionNameString> = (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext)=>ViewQueryAndOptions<N>
+
+
+type ViewQueryAndOptions<
+  N extends CollectionNameString,
+  T extends DbObject=ObjectsByCollectionName[N]
+> = {
+  selector?: Partial<Record<keyof T|"$or"|"$and", any>>
+  options?: {
+    sort?: MongoSort<T>
+    limit?: number
+    skip?: number
+  }
+}
+
+interface MergedViewQueryAndOptions<
+  N extends CollectionNameString,
+  T extends DbObject=ObjectsByCollectionName[N]
+> {
+  selector: Partial<Record<keyof T|"$or"|"$and", any>>
+  options: {
+    sort: MongoSort<T>
+    limit: number
+    skip?: number
+  }
+}
+
+type MongoSelector<T extends DbObject> = any; //TODO
 type MongoProjection<T extends DbObject> = Record<string,number>; //TODO
 type MongoModifier<T extends DbObject> = any; //TODO
 
@@ -65,6 +93,16 @@ type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
 type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
+type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
+
+type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
+
+interface ViewTermsBase {
+  view?: string
+  limit?: number
+  offset?: number
+  orderBy?: any //FIXME: unused Vulcan thing
+}
 
 // Common base type for everything that has an _id field (including both raw DB
 // objects and fragment-resolver results).
@@ -95,6 +133,7 @@ interface DbVoteableType extends VoteableType, DbObject {
 
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {
+  __collectionName?: CollectionNameString
   schemaVersion: number
 }
 
@@ -106,15 +145,41 @@ interface HasCreatedAtType extends DbObject {
   createdAt: Date
 }
 
+export type AlgoliaDocument = {
+  _id: string,
+  [key: string]: any,
+}
+
 interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,
   currentUser: DbUser|null,
   locale: string,
-  loaders: Record<CollectionNameString, DataLoader<string,any>>
+  loaders: {
+    [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
+  }
   extraLoaders: Record<string,any>
 }
 
 type FragmentName = keyof FragmentTypes;
+
+interface EditableFieldContents {
+  html: string
+  wordCount: number
+  originalContents: any
+  editedAt: Date
+  userId: string
+  version: string
+  commitMessage?: string
+}
+
+// The subset of EditableFieldContents that you provide when creating a new document
+// or revision, ie, the parts of a revision which are not auto-generated.
+type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage">
+
+// For a DbObject, gets the field-names of all the make_editable fields.
+type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
+
+type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
 
 }

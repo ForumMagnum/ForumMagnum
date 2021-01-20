@@ -60,7 +60,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
 
   const { document: group, loading } = useSingle({
-    collection: Localgroups,
+    collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     documentId: groupId
   })

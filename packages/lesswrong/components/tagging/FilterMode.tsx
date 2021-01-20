@@ -4,13 +4,24 @@ import type { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Tags } from '../../lib/collections/tags/collection';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+
+export const filteringStyles = theme => ({
+  paddingLeft: 16,
+  paddingTop: 12,
+  paddingRight: 16,
+  width: 500,
+  marginBottom: -4,
+  ...theme.typography.commentStyle,
+  [theme.breakpoints.down('xs')]: {
+    width: "calc(100% - 32px)",
+  }
+})
 
 const styles = (theme: ThemeType): JssStyles => ({
   tag: {
@@ -30,15 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
   },
   filtering: {
-    paddingLeft: 16,
-    paddingTop: 12,
-    paddingRight: 16,
-    width: 500,
-    marginBottom: -4,
-    ...theme.typography.commentStyle,
-    [theme.breakpoints.down('xs')]: {
-      width: "calc(100% - 32px)",
-    }
+    ...filteringStyles(theme)
   },
   filterRow: {
     display: "flex",
@@ -93,7 +96,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
   const { document: tag } = useSingle({
     documentId: tagId,
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
   })
 

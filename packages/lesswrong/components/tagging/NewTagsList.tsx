@@ -1,7 +1,6 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Tags from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,21 +27,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NewTagsList = ({classes}:{
-  classes: ClassesType
+const NewTagsList = ({classes, showHeaders = true}:{
+  classes: ClassesType,
+  showHeaders?: boolean
 }) => {
   const { LoadMore, TagsListItem, FormatDate, MetaInfo, UsersNameDisplay } = Components
 
   const { results, loadMoreProps } = useMulti({
     terms: {view:"newTags", limit: 4 },
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "SunshineTagFragment",
     enableTotal: true,
     itemsPerPage: 20,
   });
 
   return <div className={classes.root}>
-    <h2>New Tags</h2>
+    {showHeaders && <h2>New Tags</h2>}
     <table>
       <tbody>
         {results?.map(tag => <tr key={tag._id}>

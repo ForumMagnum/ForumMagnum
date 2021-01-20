@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -25,12 +24,12 @@ const MetaInfo = ({children, classes, button, className}: {
   className?: string
   title?: string,
 }) => {
-  return <Typography
+  return <Components.Typography
     component='span'
     className={classNames(classes.root, {[classes.button]: button}, className)}
     variant='body2'>
       {children}
-  </Typography>
+  </Components.Typography>
 }
 
 const MetaInfoComponent = registerComponent('MetaInfo', MetaInfo, {styles});

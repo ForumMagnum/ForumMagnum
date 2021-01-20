@@ -12,7 +12,7 @@ import './client/ga';
 import './client/reCaptcha'
 
 // Then do the rest
-import './client/disconnect_meteor';
+import './client/autoRefresh';
 import './client/themeProvider';
 import './client/logging';
 export * from './lib/index';

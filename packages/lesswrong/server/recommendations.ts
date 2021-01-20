@@ -69,14 +69,14 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       question: true
     }
   }
-  if (algorithm.review2018) {
-    return { 
-      nominationCount2018: {$gte: 2}
+  if (algorithm.reviewReviews) {
+    return {
+      [algorithm.reviewReviews === 2018 ? "nominationCount2018" : "nominationCount2019"]: {$gte: 2}
     }
   }
-  if (algorithm.nomination2018) {
-    return { 
-      postedAt: {$gt: new Date("2018-01-01"), $lt: new Date("2019-01-01")},
+  if ([2018, 2019].includes(algorithm.reviewNominations || 0)) {
+    return {
+      postedAt: {$gt: new Date(`${algorithm.reviewNominations}-01-01`), $lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)},
       meta: false
     }
   }

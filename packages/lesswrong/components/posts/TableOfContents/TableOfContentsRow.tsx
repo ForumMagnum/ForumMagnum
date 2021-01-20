@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -112,7 +111,7 @@ const TableOfContentsRow = ({
 }) => {
   if (divider) return <div className={classes.divider} />
 
-  return <Typography variant="body2"
+  return <Components.Typography variant="body2"
     className={classNames(
       classes.root,
       levelToClassName(indentLevel, classes),
@@ -122,7 +121,7 @@ const TableOfContentsRow = ({
     <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title, [classes.highlightDot]: !answer})}>
       {children}
     </a>
-  </Typography>
+  </Components.Typography>
 }
 
 const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow, {styles});

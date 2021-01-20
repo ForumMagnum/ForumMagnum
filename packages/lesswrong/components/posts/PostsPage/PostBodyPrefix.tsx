@@ -22,16 +22,16 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, LinkPostMessage, PostsRevisionMessage} = Components;
+  const { AlignmentCrosspostMessage, LinkPostMessage, PostsRevisionMessage, HoverPreviewLink, ReviewPostButton} = Components;
   
   return <>
     {/* disabled except during Review */}
-    {/* {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
+    {(post.nominationCount2019 >= 2) && <div className={classes.reviewInfo}>
       <div className={classes.reviewLabel}>
-        This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
+        This post has been nominated for the <HoverPreviewLink href={'/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review'} id="QFBEjjAvT6KbaA3dY" innerHTML={"2019 Review"}/>
       </div>
-      <ReviewPostButton post={post} reviewMessage="Write a Review"/>
-    </div>} */}
+      <ReviewPostButton post={post} reviewMessage="Write a Review" year="2019"/>
+    </div>}
 
     <AlignmentCrosspostMessage post={post} />
     { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}

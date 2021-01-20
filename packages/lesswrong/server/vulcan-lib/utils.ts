@@ -7,7 +7,7 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'span', 'sub', 'sup', 'ins', 'del',
+  'span', 'sub', 'sup', 'ins', 'del', 'iframe'
 ]
 
 export const sanitize = function(s: string): string {
@@ -22,12 +22,19 @@ export const sanitize = function(s: string): string {
       tr: ['style'],
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
+      ol: ['start', 'reversed', 'type'],
       span: ['style'],
-      div: ['class'],
-      a: ['href', 'name', 'target', 'rel']
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
+      a: ['href', 'name', 'target', 'rel'],
+      iframe: ['src', 'allowfullscreen', 'allow']
     },
+    allowedIframeHostnames: [
+      'www.youtube.com', 'youtube.com', 
+      'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
+      'metaculus.com'
+    ],
     allowedClasses: {
-      div: [ 'spoilers' ],
+      div: [ 'spoilers', 'metaculus-preview', 'elicit-binary-prediction' ],
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,

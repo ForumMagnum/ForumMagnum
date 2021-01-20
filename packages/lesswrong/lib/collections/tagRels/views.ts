@@ -1,7 +1,16 @@
 import { TagRels } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
-TagRels.addDefaultView(terms => {
+declare global {
+  interface TagRelsViewTerms extends ViewTermsBase {
+    view?: TagRelsViewName
+    tagId?: string
+    postId?: string
+  }
+}
+
+
+TagRels.addDefaultView((terms: TagRelsViewTerms) => {
   return {
     selector: {
       deleted: false,
@@ -12,7 +21,7 @@ TagRels.addDefaultView(terms => {
   };
 });
 
-TagRels.addView('postsWithTag', terms => {
+TagRels.addView('postsWithTag', (terms: TagRelsViewTerms) => {
   return {
     selector: {
       tagId: terms.tagId,
@@ -21,7 +30,7 @@ TagRels.addView('postsWithTag', terms => {
   }
 });
 
-TagRels.addView('tagsOnPost', terms => {
+TagRels.addView('tagsOnPost', (terms: TagRelsViewTerms) => {
   return {
     selector: {
       postId: terms.postId,
