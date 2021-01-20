@@ -42,6 +42,13 @@ const defaultOptions: MakeEditableOptions = {
   commentStyles: false,
   // Determines whether to use the comment local storage restoration system
   commentLocalStorage: false,
+  // Given a document and a field name, return:
+  // {
+  //   id: The name to use for storing drafts related to this document in
+  //     localStorage. This may be combined with an editor-type prefix.
+  //   verify: Whether to prompt before restoring a draft (as opposed to just
+  //     always restoring it).
+  // }
   getLocalStorageId: null,
   permissions: {
     viewableBy: ['guests'],
@@ -78,7 +85,6 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   const {
     commentEditor,
     commentStyles,
-    getLocalStorageId,
     formGroup,
     permissions,
     fieldName,
@@ -90,6 +96,17 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   } = options
 
   const collectionName = collection.options.collectionName;
+  const getLocalStorageId = options.getLocalStorageId || ((doc: any, name: string): {id: string, verify: boolean} => {
+    const { _id, conversationId } = doc
+    if (_id && name) { return {id: `${_id}${name}`, verify: true}}
+    if (_id) { return {id: _id, verify: true }}
+    if (conversationId) { return {id: conversationId, verify: true }}
+    if (name) { return {id: name, verify: true }}
+    else {
+      throw Error(`Can't get storage ID for this document: ${doc}`)
+    }
+  });
+  
   editableCollections.add(collectionName)
   editableCollectionsFields[collectionName] = [
     ...(editableCollectionsFields[collectionName] || []),
@@ -97,7 +114,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   ]
   editableCollectionsFieldOptions[collectionName] = {
     ...editableCollectionsFieldOptions[collectionName],
-    [fieldName || "contents"]: options,
+    [fieldName || "contents"]: {...options, getLocalStorageId},
   };
 
   addFieldsDict(collection, {
@@ -143,7 +160,6 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         commentEditor,
         commentStyles,
         hideControls,
-        getLocalStorageId
       },
     },
     

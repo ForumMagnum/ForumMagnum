@@ -299,8 +299,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
 
   getStorageHandlers = () => {
-    const { form } = this.props
-    return getLSHandlers(form?.getLocalStorageId)
+    const { fieldName, form } = this.props
+    const collectionName = form.collectionName;
+    
+    const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
+    return getLSHandlers(getLocalStorageId)
   }
 
   initializeDraftJS = (draftJS) => {
@@ -468,8 +471,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   // Get an editor-type-specific prefix to use on localStorage keys, to prevent
   // drafts written with different editors from having conflicting names.
-  getLSKeyPrefix = (editorType?: string) => {
+  getLSKeyPrefix = (editorType?: string): string => {
     switch(editorType || this.getCurrentEditorType()) {
+      default:
       case "draftJS":  return "";
       case "markdown": return "md_";
       case "html":     return "html_";

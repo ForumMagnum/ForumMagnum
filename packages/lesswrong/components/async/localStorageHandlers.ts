@@ -12,31 +12,12 @@ function getBrowserLocalStorage() {
 }
 
 
-// Given a document and a field name, return:
-// {
-//   id: The name to use for storing drafts related to this document in
-//     localStorage. This may be combined with an editor-type prefix.
-//   verify: Whether to prompt before restoring a draft (as opposed to just
-//     always restoring it).
-// }
-const defaultGetDocumentStorageId = (doc: any, name: string) => {
-  const { _id, conversationId } = doc
-  if (_id && name) { return {id: `${_id}${name}`, verify: true}}
-  if (_id) { return {id: _id, verify: true }}
-  if (conversationId) { return {id: conversationId, verify: true }}
-  if (name) { return {id: name, verify: true }}
-  else {
-    throw Error(`Can't get storage ID for this document: ${doc}`)
-  }
-}
-
 // Return a wrapper around localStorage, with get, set, and reset functions
 // which handle the (document, field-name, prefix) => key mapping.
-export const getLSHandlers = (getLocalStorageId = null) => {
-  const idGenerator = getLocalStorageId || defaultGetDocumentStorageId
+export const getLSHandlers = (getLocalStorageId) => {
   return {
     get: ({doc, name, prefix}: { doc: any, name: string, prefix: string }) => {
-      const { id, verify } = idGenerator(doc, name)
+      const { id, verify } = getLocalStorageId(doc, name)
       const ls = getBrowserLocalStorage();
       if (!ls) return null;
       
@@ -59,7 +40,7 @@ export const getLSHandlers = (getLocalStorageId = null) => {
     set: ({state, doc, name, prefix}: {state: any, doc: any, name: string, prefix: string}) => {
       const ls = getBrowserLocalStorage();
       if (!ls) return false;
-      const id = prefix+idGenerator(doc, name).id;
+      const id = prefix+getLocalStorageId(doc, name).id;
       
       try {
         ls.setItem(id, JSON.stringify(state))
@@ -75,7 +56,7 @@ export const getLSHandlers = (getLocalStorageId = null) => {
     reset: ({doc, name, prefix}: {doc: any, name: string, prefix: string}) => {
       const ls = getBrowserLocalStorage();
       if (!ls) return;
-      const id = prefix+idGenerator(doc, name).id;
+      const id = prefix+getLocalStorageId(doc, name).id;
       
       try {
         ls.removeItem(id)
