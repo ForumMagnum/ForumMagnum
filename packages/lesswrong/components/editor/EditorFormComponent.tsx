@@ -148,7 +148,6 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   name: any,
   fieldName: any,
   value: any,
-  commentStylse: boolean,
   hintText: string,
   placeholder: string,
   label: string,

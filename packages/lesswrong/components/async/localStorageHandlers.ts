@@ -19,7 +19,7 @@ function getBrowserLocalStorage() {
 //   verify: Whether to prompt before restoring a draft (as opposed to just
 //     always restoring it).
 // }
-export const defaulGetDocumentStorageId = (doc, name) => {
+const defaultGetDocumentStorageId = (doc: any, name: string) => {
   const { _id, conversationId } = doc
   if (_id && name) { return {id: `${_id}${name}`, verify: true}}
   if (_id) { return {id: _id, verify: true }}
@@ -33,9 +33,9 @@ export const defaulGetDocumentStorageId = (doc, name) => {
 // Return a wrapper around localStorage, with get, set, and reset functions
 // which handle the (document, field-name, prefix) => key mapping.
 export const getLSHandlers = (getLocalStorageId = null) => {
-  const idGenerator = getLocalStorageId || defaulGetDocumentStorageId
+  const idGenerator = getLocalStorageId || defaultGetDocumentStorageId
   return {
-    get: ({doc, name, prefix}) => {
+    get: ({doc, name, prefix}: { doc: any, name: string, prefix: string }) => {
       const { id, verify } = idGenerator(doc, name)
       const ls = getBrowserLocalStorage();
       if (!ls) return null;
@@ -56,7 +56,7 @@ export const getLSHandlers = (getLocalStorageId = null) => {
         return null;
       }
     },
-    set: ({state, doc, name, prefix}) => {
+    set: ({state, doc, name, prefix}: {state: any, doc: any, name: string, prefix: string}) => {
       const ls = getBrowserLocalStorage();
       if (!ls) return false;
       const id = prefix+idGenerator(doc, name).id;
@@ -72,7 +72,7 @@ export const getLSHandlers = (getLocalStorageId = null) => {
       }
       return true;
     },
-    reset: ({doc, name, prefix}) => {
+    reset: ({doc, name, prefix}: {doc: any, name: string, prefix: string}) => {
       const ls = getBrowserLocalStorage();
       if (!ls) return;
       const id = prefix+idGenerator(doc, name).id;

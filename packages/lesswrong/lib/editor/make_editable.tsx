@@ -20,7 +20,7 @@ export interface MakeEditableOptions {
   commentEditor?: boolean,
   commentStyles?: boolean,
   commentLocalStorage?: boolean,
-  getLocalStorageId?: any,
+  getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
   formGroup?: any,
   permissions?: {
     viewableBy?: any,
