@@ -105,7 +105,7 @@ const PostsList2 = ({
     },
     extraVariablesValues: { tagId }
   } : {}
-  const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
+  const { results, loading, error, loadMore, loadMoreProps, limit } = useMulti({
     terms: terms,
     collectionName: "Posts",
     fragmentName: !!tagId ? 'PostsListTag' : 'PostsList',
@@ -151,7 +151,7 @@ const PostsList2 = ({
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results && results.length && (results.length >= limit))
+  const maybeMorePosts = !!(results?.length && (results.length >= limit))
 
   let orderedResults = results
   if (defaultToShowUnreadComments) {
@@ -191,16 +191,15 @@ const PostsList2 = ({
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        { maybeMorePosts && <div className={classes.loadMore}>
+        { (maybeMorePosts||loading) && <div className={classes.loadMore}>
           <LoadMore
+            {...loadMoreProps}
             loadMore={() => {
               loadMore();
               setHaveLoadedMore(true);
             }}
-            count={count}
-            totalCount={totalCount}
+            hideLoading={dimWhenLoading || !showLoading}
           />
-          { !dimWhenLoading && showLoading && loading && <Loading />}
         </div>}
         { children }
       </SectionFooter>}

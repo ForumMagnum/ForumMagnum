@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Load More button. The simplest way to use this is to take `loadMoreProps`
 // from the return value of `useMulti` and spread it into this component's
 // props.
-const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hidden=false, classes }: {
+const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes }: {
   // loadMore: Callback when clicked.
   loadMore: any,
   // count/totalCount: If provided, looks like "Load More (10/25)"
@@ -40,13 +40,13 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   disabled?: boolean,
   networkStatus?: any,
   loading?: boolean,
+  // hideLoading: Reserve space for the load spinner as normal, but don't show it
+  hideLoading?: boolean,
   hidden?: boolean,
   classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking()
 
-  if (hidden) return null;
-  
   const { Loading } = Components
   const handleClickLoadMore = event => {
     event.preventDefault();
@@ -56,10 +56,12 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
 
   if (loading || (networkStatus && queryIsUpdating(networkStatus))) {
     return <div className={classes.loading}>
-      <Loading/>
+      {!hideLoading && <Loading/>}
     </div>
   }
 
+  if (hidden) return null;
+  
   return (
     <a
       className={classNames(className ? className : classes.root, {[classes.disabled]: disabled})}
