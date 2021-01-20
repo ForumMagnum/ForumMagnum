@@ -31,8 +31,6 @@ export const getString = ({id, values, defaultMessage, locale}) => {
     // if default locale hasn't got the message too
     if(!message && locale !== defaultLocale)
       debug(`\x1b[32m>> INTL: No string found for id "${id}" in the default locale ("${defaultLocale}").\x1b[0m`);
-    
-    return defaultMessage
   }
 
   if (message && values) {
@@ -40,7 +38,7 @@ export const getString = ({id, values, defaultMessage, locale}) => {
       message = replaceAll(message, `{${key}}`, values[key]);
     });
   }
-  return message;
+  return message || defaultMessage;
 };
 
 /*
