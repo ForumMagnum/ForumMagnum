@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const CommentWithReplies = ({comment, post, refetch, showTitle=true, expandByDefault, classes}: {
   comment: CommentWithRepliesFragment,
   post: PostsBase,
-  refetch: any,
+  refetch?: any,
   showTitle?: boolean,
   expandByDefault?: boolean,
   classes: ClassesType,
