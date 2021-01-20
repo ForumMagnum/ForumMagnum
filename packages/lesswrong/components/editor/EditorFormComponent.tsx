@@ -296,6 +296,34 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.setState(savedState);
     }
   }
+  
+  isEmpty = (): boolean => {
+    switch(this.getCurrentEditorType()) {
+      case "draftJS": {
+        const draftJSValue = this.state.draftJSValue;
+        if (!draftJSValue) return true;
+        const draftJScontent = draftJSValue.getCurrentContent()
+        return !draftJScontent.hasText();
+      }
+      case "markdown": {
+        const markdownValue = this.state.markdownValue;
+        if (!markdownValue) return true;
+        return markdownValue.trim() === "";
+      }
+      case "html": {
+        const htmlValue = this.state.htmlValue;
+        if (!htmlValue) return true;
+        return htmlValue.trim() === "";
+      }
+      case "ckEditorMarkup": {
+        const ckEditorValue = this.state.ckEditorValue;
+        if (!ckEditorValue) return true;
+        return ckEditorValue.trim() === "";
+      }
+      default:
+        throw new Error("Invalid editor type");
+    }
+  }
 
 
   getStorageHandlers = () => {
@@ -437,19 +465,27 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   saveBackup = () => {
     const { document, name } = this.props;
 
-    const serialized = this.editorContentsToJson();
-
-    const success = this.getStorageHandlers().set({
-      state: serialized,
-      doc: document,
-      name,
-      prefix: this.getLSKeyPrefix()
-    });
-
-    if (success) {
-      this.hasUnsavedData = false;
+    if (this.isEmpty()) {
+      this.getStorageHandlers().reset({
+        doc: document,
+        name,
+        prefix: this.getLSKeyPrefix()
+      });
+    } else {
+      const serialized = this.editorContentsToJson();
+  
+      const success = this.getStorageHandlers().set({
+        state: serialized,
+        doc: document,
+        name,
+        prefix: this.getLSKeyPrefix()
+      });
+  
+      if (success) {
+        this.hasUnsavedData = false;
+      }
+      return success;
     }
-    return success;
   }
 
   // Take the editor contents (whichever editor you're using), and return
