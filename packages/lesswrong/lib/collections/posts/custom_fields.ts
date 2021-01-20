@@ -203,7 +203,7 @@ addFieldsDict(Posts, {
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
-    onInsert: () => new Date(),
+    onInsert: (post: DbPost) => post.postedAt || new Date(),
   },
 
   // curatedDate: Date at which the post was promoted to curated (null or false
