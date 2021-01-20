@@ -5,8 +5,6 @@ import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks'
-import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
@@ -98,10 +96,6 @@ getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, pr
     };
   }
 });
-
-addEditableCallbacks({collection: Posts, options: makeEditableOptions})
-addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
-addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighlight})
 
 getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {

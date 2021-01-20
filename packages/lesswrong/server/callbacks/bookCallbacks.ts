@@ -1,9 +1,8 @@
 import Collections from "../../lib/collections/collections/collection";
 import Sequences from "../../lib/collections/sequences/collection";
-import { Books, makeEditableOptions } from '../../lib/collections/books/collection'
+import { Books } from '../../lib/collections/books/collection'
 import { Posts } from "../../lib/collections/posts";
 import { runQuery } from '../vulcan-lib';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
@@ -123,5 +122,3 @@ getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (
   //eslint-disable-next-line no-console
   console.log(`...finished Updating Collection Links for ${collectionId}`)
 });
-
-addEditableCallbacks({collection: Books, options: makeEditableOptions})

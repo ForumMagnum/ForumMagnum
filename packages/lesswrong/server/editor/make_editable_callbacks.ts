@@ -11,7 +11,8 @@ import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
 import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
-import type { MakeEditableOptions } from '../../lib/editor/make_editable';
+import { editableCollections, editableCollectionsFields, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
@@ -47,7 +48,7 @@ mdi.use(markdownItSub)
 mdi.use(markdownItSup)
 
 import { mjpage }  from 'mathjax-node-page'
-import { isAnyTest } from '../../lib/executionEnvironment';
+import { onStartup, isAnyTest } from '../../lib/executionEnvironment';
 
 function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
@@ -348,7 +349,7 @@ const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
   return false;
 }
 
-export function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
+function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
   options: MakeEditableOptions
 }) {
@@ -485,6 +486,19 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
   getCollectionHooks(collectionName).createAfter.add(editorSerializationAfterCreate)
   //getCollectionHooks(collectionName).updateAfter.add(editorSerializationAfterCreateOrUpdate)
 }
+
+export function addAllEditableCallbacks() {
+  sealEditableFields();
+  for (let collectionName of editableCollections) {
+    for (let fieldName of editableCollectionsFields[collectionName]) {
+      const collection = getCollection(collectionName);
+      const options = editableCollectionsFields[collectionName][fieldName];
+      addEditableCallbacks({collection, options});
+    }
+  }
+}
+
+onStartup(addAllEditableCallbacks);
 
 /// Given an HTML diff, where added sections are marked with <ins> and <del>
 /// tags, count the number of chars added and removed. This is used for providing

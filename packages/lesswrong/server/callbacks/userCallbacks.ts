@@ -11,8 +11,6 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
-import { addEditableCallbacks } from '../editor/make_editable_callbacks'
-import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
@@ -46,8 +44,6 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
     void sendVerificationEmail(user);
   }
 });
-
-addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
 getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
 {

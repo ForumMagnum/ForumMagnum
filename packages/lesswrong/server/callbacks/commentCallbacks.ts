@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 import { Comments } from '../../lib/collections/comments/collection';
-import { makeEditableOptions } from '../../lib/collections/comments/custom_fields';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts/collection";
@@ -9,7 +8,6 @@ import Users from "../../lib/collections/users/collection";
 import { userIsAdmin, userCanDo } from '../../lib/vulcan-users/permissions';
 import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
-import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
@@ -283,8 +281,6 @@ getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview
     await Comments.update({_id:comment._id}, {$set: {needsReview: true}});
   }
 });
-
-addEditableCallbacks({collection: Comments, options: makeEditableOptions})
 
 getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
   if (modifier.$set) {

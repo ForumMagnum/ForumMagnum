@@ -63,12 +63,17 @@ const defaultOptions: MakeEditableOptions = {
 
 export const editableCollections = new Set<CollectionNameString>()
 export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
-export const editableCollectionsFieldOptions: Record<CollectionNameString,any> = {} as any;
+export const editableCollectionsFieldOptions: Record<CollectionNameString,MakeEditableOptions> = {} as any;
+let editableFieldsSealed = false;
+export function sealEditableFields() { editableFieldsSealed=true }
 
 export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
   options: MakeEditableOptions,
 }) => {
+  if (editableFieldsSealed)
+    throw new Error("Called makeEditable after addAllEditableCallbacks already ran; this indicates a problem with import order");
+  
   options = {...defaultOptions, ...options}
   const {
     commentEditor,

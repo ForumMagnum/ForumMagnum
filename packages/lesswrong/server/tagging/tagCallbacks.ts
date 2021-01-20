@@ -1,7 +1,6 @@
-import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
+import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Users from '../../lib/collections/users/collection';
 import { voteCallbacks } from '../../lib/voting/vote';
 import { performVoteServer } from '../voteServer';
@@ -100,8 +99,3 @@ function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
 
 voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);
 voteCallbacks.castVoteAsync.add(voteUpdatePostDenormalizedTags);
-
-addEditableCallbacks({
-  collection: Tags,
-  options: tagDescriptionEditableOptions,
-});

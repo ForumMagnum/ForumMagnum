@@ -1,13 +1,9 @@
-import { makeEditableOptions, Chapters } from '../../lib/collections/chapters/collection'
-import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { Sequences } from '../../lib/collections/sequences/collection';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
 import { Posts } from '../../lib/collections/posts/collection'
 import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
-
-addEditableCallbacks({collection: Chapters, options: makeEditableOptions})
 
 async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   const posts = await sequenceGetAllPosts(chapter.sequenceId)
