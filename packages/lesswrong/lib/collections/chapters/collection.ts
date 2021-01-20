@@ -2,7 +2,7 @@ import { createCollection } from '../../vulcan-lib';
 import schema from './schema';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import Sequences from '../sequences/collection';
-import { makeEditable } from '../../editor/make_editable';
+import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
@@ -37,7 +37,7 @@ export const Chapters: ChaptersCollection = createCollection({
   mutations: getDefaultMutations('Chapters', options),
 })
 
-export const makeEditableOptions = {
+export const makeEditableOptions: MakeEditableOptions = {
   order: 30,
   getLocalStorageId: (chapter, name) => {
     if (chapter._id) { return {id: `${chapter._id}_${name}`, verify: true} }

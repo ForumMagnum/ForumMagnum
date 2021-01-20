@@ -11,6 +11,7 @@ import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
 import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
+import type { MakeEditableOptions } from '../../lib/editor/make_editable';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
@@ -349,7 +350,7 @@ const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
 
 export function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
-  options: any
+  options: MakeEditableOptions
 }) {
   const {
     fieldName = "contents",

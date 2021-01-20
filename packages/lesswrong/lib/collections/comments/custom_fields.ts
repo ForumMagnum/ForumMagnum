@@ -1,6 +1,6 @@
 import { Comments } from "./collection";
 import { userOwns } from '../../vulcan-users/permissions';
-import { makeEditable } from '../../editor/make_editable'
+import { makeEditable, MakeEditableOptions } from '../../editor/make_editable'
 import { foreignKeyField, addFieldsDict } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
@@ -203,7 +203,7 @@ addFieldsDict(Comments, {
   },
 });
 
-export const makeEditableOptions = {
+export const makeEditableOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: true,
   // Determines whether to use the comment editor styles (e.g. Fonts)

@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import { makeEditable } from '../../editor/make_editable'
+import { makeEditable, MakeEditableOptions } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import { schema } from './schema';
@@ -43,7 +43,7 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
 
 addUniversalFields({collection: Tags})
 
-export const tagDescriptionEditableOptions = {
+export const tagDescriptionEditableOptions: MakeEditableOptions = {
   commentStyles: true,
   fieldName: "description",
   getLocalStorageId: (tag, name) => {

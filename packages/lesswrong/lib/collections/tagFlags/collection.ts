@@ -2,7 +2,7 @@ import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, schemaDefaultValue } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { makeEditable } from '../../editor/make_editable';
+import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
@@ -88,7 +88,7 @@ export const TagFlags: TagFlagsCollection = createCollection({
 
 addUniversalFields({collection: TagFlags})
 
-export const makeEditableOptions = {
+export const makeEditableOptions: MakeEditableOptions = {
   order: 30,
   getLocalStorageId: (tagFlag, name) => {
     if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }

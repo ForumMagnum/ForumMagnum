@@ -2,7 +2,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { makeEditable } from '../../editor/make_editable';
+import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
 import { forumTypeSetting } from '../../instanceSettings';
 import { getWithLoader } from '../../loaders';
 import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
@@ -1110,7 +1110,7 @@ addFieldsDict(Posts, {
   },
 });
 
-export const makeEditableOptions = {
+export const makeEditableOptions: MakeEditableOptions = {
   formGroup: formGroups.content,
   adminFormGroup: formGroups.adminOptions,
   order: 25,
@@ -1122,7 +1122,7 @@ makeEditable({
   options: makeEditableOptions
 })
 
-export const makeEditableOptionsModeration = {
+export const makeEditableOptionsModeration: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: true,
   // Determines whether to use the comment editor styles (e.g. Fonts)

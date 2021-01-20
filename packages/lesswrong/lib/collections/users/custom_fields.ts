@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
-import { makeEditable } from '../../editor/make_editable';
+import { makeEditable, MakeEditableOptions } from '../../editor/make_editable';
 import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
@@ -1462,7 +1462,7 @@ addFieldsDict(Users, {
   },
 });
 
-export const makeEditableOptionsModeration = {
+export const makeEditableOptionsModeration: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: true,
   // Determines whether to use the comment editor styles (e.g. Fonts)

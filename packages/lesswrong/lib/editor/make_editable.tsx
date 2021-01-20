@@ -18,13 +18,33 @@ export const RevisionStorageType = new SimpleSchema({
 
 SimpleSchema.extendOptions([ 'inputType' ]);
 
-const defaultOptions = {
+export interface MakeEditableOptions {
+  commentEditor?: boolean,
+  commentStyles?: boolean,
+  commentLocalStorage?: boolean,
+  getLocalStorageId?: any,
+  formGroup?: any,
+  permissions?: {
+    viewableBy?: any,
+    editableBy?: any,
+    insertableBy?: any,
+  },
+  fieldName?: string,
+  order?: number,
+  hideControls?: boolean,
+  hintText?: any,
+  pingbacks?: boolean,
+  revisionsHaveCommitMessages?: boolean,
+}
+
+const defaultOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: false,
   // Determines whether to use the comment editor styles (e.g. Fonts)
   commentStyles: false,
   // Determines whether to use the comment local storage restoration system
   commentLocalStorage: false,
+  getLocalStorageId: null,
   permissions: {
     viewableBy: ['guests'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
@@ -49,7 +69,7 @@ export const editableCollectionsFieldOptions: Record<CollectionNameString,any> =
 
 export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
-  options: any,
+  options: MakeEditableOptions,
 }) => {
   options = {...defaultOptions, ...options}
   const {
