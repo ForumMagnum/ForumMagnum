@@ -4,7 +4,6 @@ import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useU
 import { withSingle } from '../../lib/crud/withSingle';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
-import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -242,6 +241,8 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
+    
+    const { LWPopper } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classes.root}>
@@ -253,27 +254,18 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
               </Badge>
           }
         </IconButton>
-        <Popper
+        <LWPopper
           open={open}
           anchorEl={anchorEl}
           placement="bottom-end"
           className={classes.karmaNotifierPopper}
-          popperOptions={{
-            // Don't use CSS transform3d to position the popper, because that
-            // causes blurry text under some circumstances
-            modifiers: {
-              computeStyle: {
-                gpuAcceleration: false,
-              }
-            }
-          }}
         >
           <ClickAwayListener onClickAway={this.handleClose}>
             <Paper className={classes.karmaNotifierPaper}>
               <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={this.handleClose} />
             </Paper>
           </ClickAwayListener>
-        </Popper>
+        </LWPopper>
       </div>
     </AnalyticsContext>
   }
