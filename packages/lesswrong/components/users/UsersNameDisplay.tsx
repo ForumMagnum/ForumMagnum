@@ -33,7 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     filter: "invert(100%)",
   },
   bio: {
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing.unit,
+    lineHeight: "1.3rem",
   }
 })
 
