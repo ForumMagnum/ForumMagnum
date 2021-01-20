@@ -79,7 +79,6 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
     _id: sequence._id,
     title: sequence.title,
     userId: sequence.userId,
-    baseScore: sequence.baseScore,
     createdAt: sequence.createdAt,
     af: sequence.af,
     plaintextDescription: "",

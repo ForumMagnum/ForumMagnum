@@ -40,22 +40,6 @@ const schema: SchemaType<DbSequence> = {
     control: 'EditSequenceTitle',
   },
 
-  baseScore: {
-    type: Number,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-  },
-
-  score: {
-    type: Number,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-  },
-
   color: {
     type: String,
     optional: true,

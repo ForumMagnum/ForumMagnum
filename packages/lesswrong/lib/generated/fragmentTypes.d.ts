@@ -182,8 +182,6 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly createdAt: Date,
   readonly userId: string,
   readonly title: string,
-  readonly baseScore: number,
-  readonly score: number,
   readonly color: string,
   readonly gridImageId: string,
   readonly bannerImageId: string,
