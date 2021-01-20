@@ -70,7 +70,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     const { report, hover, anchorEl } = this.props
     const comment = report.comment
     const post = report.post
-    const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography, SunshineCommentsItemOverview } = Components
+    const { SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography, SunshineCommentsItemOverview } = Components
 
     if (!post) return null;
 
@@ -78,9 +78,6 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            <Link to={postGetPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
-              Post: <strong>{ post.title }</strong>
-            </Link>
             {comment && <CommentsNode
               treeOptions={{
                 condensed: false,
@@ -89,7 +86,10 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
               }}
               comment={comment}
             />}
-            {!comment && <PostsHighlight post={post} maxLengthWords={600}/>}
+            {!comment && <div>
+              <PostsTitle post={post}/>
+              <PostsHighlight post={post} maxLengthWords={600}/>
+            </div>}
           </Typography>
         </SidebarHoverOver>
         {comment && <SunshineCommentsItemOverview comment={comment}/>}
