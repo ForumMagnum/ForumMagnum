@@ -105,7 +105,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
     selector: {
       needsReview: true,
       reviewedByUserId: null,
-      $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}} ]
+      $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
     },
     options: {
       sort: {
