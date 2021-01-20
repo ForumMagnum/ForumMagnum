@@ -16,8 +16,6 @@ export const RevisionStorageType = new SimpleSchema({
   wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true}
 })
 
-SimpleSchema.extendOptions([ 'inputType' ]);
-
 export interface MakeEditableOptions {
   commentEditor?: boolean,
   commentStyles?: boolean,
@@ -100,7 +98,6 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   addFieldsDict(collection, {
     [fieldName || "contents"]: {
       type: RevisionStorageType,
-      inputType: 'UpdateRevisionDataInput',
       optional: true,
       typescriptType: "EditableFieldContents",
       group: formGroup,

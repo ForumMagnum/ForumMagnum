@@ -1112,7 +1112,6 @@ addFieldsDict(Posts, {
 
 export const makeEditableOptions: MakeEditableOptions = {
   formGroup: formGroups.content,
-  adminFormGroup: formGroups.adminOptions,
   order: 25,
   pingbacks: true,
 }
@@ -1128,7 +1127,6 @@ export const makeEditableOptionsModeration: MakeEditableOptions = {
   // Determines whether to use the comment editor styles (e.g. Fonts)
   commentStyles: true,
   formGroup: formGroups.moderationGroup,
-  adminFormGroup: formGroups.adminOptions,
   order: 50,
   fieldName: "moderationGuidelines",
   permissions: {

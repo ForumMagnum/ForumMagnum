@@ -355,11 +355,6 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
   const {
     fieldName = "contents",
     pingbacks = false,
-    // Because of Meteor shenannigans we don't have access to the full user
-    // object when a new user is created, and this creates bugs when we register
-    // callbacks that trigger on new user creation. So we allow the deactivation
-    // of the new callbacks.
-    deactivateNewCallback,
   } = options
 
   const collectionName = collection.collectionName;
@@ -412,9 +407,7 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
     return doc
   }
   
-  if (!deactivateNewCallback) {
-    getCollectionHooks(collectionName).createBefore.add(editorSerializationBeforeCreate);
-  }
+  getCollectionHooks(collectionName).createBefore.add(editorSerializationBeforeCreate);
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
     if (docData[fieldName]?.originalContents) {
