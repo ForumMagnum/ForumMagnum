@@ -9,6 +9,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
+    display: "inline-block",
+    minHeight: 20,
+  },
+  loading: {
+    minHeight: 20,
   },
   disabled: {
     color: theme.palette.grey[400],
