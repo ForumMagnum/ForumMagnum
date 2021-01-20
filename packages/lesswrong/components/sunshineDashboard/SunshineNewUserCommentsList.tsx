@@ -1,9 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments/collection';
-import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -34,7 +31,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { FormatDate, MetaInfo, SmallSideVote } = Components
+  const { CommentsNode } = Components
 
   if (!comments) return null 
 
@@ -42,19 +39,14 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
 
   return (
     <div className={classes.root}>
-      {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={comment._id}>
-        <Link to={commentGetPageUrlFromIds({postId: comment.post?._id, postSlug: comment.post?.slug, tagSlug: comment.tag?.slug, commentId: comment._id})}>
-          <MetaInfo>
-            {comment.deleted && "[Deleted] "}Comment on '{comment.post?.title}'
-          </MetaInfo>
-          <span className={classes.meta}>
-            <MetaInfo><FormatDate date={comment.postedAt}/></MetaInfo>
-            <SmallSideVote document={comment} collection={Comments}/>
-          </span>
-        </Link>
-        {comment.deleted && <div><MetaInfo>{`[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
-        <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
-      </div>)}
+      {(newComments.length > 0) && newComments.map(comment=><CommentsNode
+              treeOptions={{
+                condensed: false,
+                post: comment.post || undefined,
+                showPostTitle: true,
+              }}
+              comment={comment}
+            />)}
     </div>
   )
 }

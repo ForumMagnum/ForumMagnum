@@ -1,8 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Link } from '../../lib/reactRouterWrapper'
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import withUser from '../common/withUser'
