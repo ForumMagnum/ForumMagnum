@@ -500,7 +500,6 @@ interface DbSequence extends DbObject {
   createdAt: Date
   userId: string
   title: string
-  color: string
   gridImageId: string
   bannerImageId: string
   curatedOrder: number

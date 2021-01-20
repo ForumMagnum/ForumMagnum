@@ -2,9 +2,6 @@ import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbSequence> = {
-
-  // default properties
-
   createdAt: {
     type: Date,
     optional: true,
@@ -27,8 +24,6 @@ const schema: SchemaType<DbSequence> = {
     hidden:  true,
   },
 
-  // Custom Properties
-
   title: {
     type: String,
     optional: false,
@@ -38,14 +33,6 @@ const schema: SchemaType<DbSequence> = {
     order: 10,
     placeholder: "Sequence Title",
     control: 'EditSequenceTitle',
-  },
-
-  color: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
   },
 
   chaptersDummy: {
