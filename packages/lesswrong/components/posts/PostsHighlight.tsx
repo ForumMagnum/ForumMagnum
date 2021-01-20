@@ -47,7 +47,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
       rawWordCount={wordCount}
       expanded={expanded}
       getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
-        {(forceSeeMore || wordsLeft > 1000)
+        {(forceSeeMore || wordsLeft < 1000)
           ? <Link to={postGetPageUrl(post)} onClick={clickExpand}>
               (See More – {wordsLeft} more words)
             </Link>

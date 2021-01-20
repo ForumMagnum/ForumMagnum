@@ -236,7 +236,7 @@ const ReviewVotingPage = ({classes}: {
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view: VOTING_VIEW, limit: 300},
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'PostsListWithVotes',
     fetchPolicy: 'cache-and-network',
   });
   
@@ -272,6 +272,7 @@ const ReviewVotingPage = ({classes}: {
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
+  const [showKarmaVotes, setShowKarmaVotes] = useState<any>(null)
 
   const votes = dbVotes?.map(({_id, qualitativeScore, postId, reactions}) => ({_id, postId, score: qualitativeScore, type: "qualitative", reactions})) as qualitativeVote[]
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
@@ -388,6 +389,11 @@ const ReviewVotingPage = ({classes}: {
                 Re-Sort <CachedIcon className={classes.menuIcon} />
               </Button>
             </LWTooltip>
+            <LWTooltip title="Show which posts you have upvoted or downvoted">
+              <Button onClick={() => setShowKarmaVotes(!showKarmaVotes)}>
+                {showKarmaVotes ? "Hide Karma Votes" : "Show Karma Votes"} 
+              </Button>
+            </LWTooltip>
             {(postsLoading || dbVotesLoading || loading) && <Loading/>}
             {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
               <Button className={classes.convert} onClick={async () => {
@@ -436,7 +442,7 @@ const ReviewVotingPage = ({classes}: {
                 >
                   <ReviewVoteTableRow
                     post={post}
-                    setExpandedPost={setExpandedPost}
+                    showKarmaVotes={showKarmaVotes}
                     dispatch={dispatchQualitativeVote}
                     currentQualitativeVote={currentQualitativeVote||null}
                     currentQuadraticVote={currentQuadraticVote||null}
