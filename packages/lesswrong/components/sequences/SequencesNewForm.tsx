@@ -78,9 +78,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       "& .form-input.form-component-checkbox > .form-group > label": {
         display: "none",
       },
-      "& .editor.content-body": {
-        marginBottom: "0em",
-      },
       "& .form-input.input-bannerImageId": {
         marginTop: 65,
         position: "absolute !important",
