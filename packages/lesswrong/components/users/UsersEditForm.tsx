@@ -90,7 +90,7 @@ const UsersEditForm = ({terms, classes}: {
         collection={Users}
         {...terms}
         successCallback={async (user) => {
-          flash({ id: 'users.edit_success', properties: {name: userGetDisplayName(user)}, type: 'success'})
+          flash(`User "${userGetDisplayName(user)}" edited`);
           await client.resetStore()
           history.push(userGetProfileUrl(user));
         }}
