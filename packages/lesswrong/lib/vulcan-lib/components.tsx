@@ -51,7 +51,9 @@ interface ComponentsTableEntry {
 
 const componentsProxyHandler = {
   get: function(obj, prop) {
-    if (prop in PreparedComponents) {
+    if (prop == "__isProxy") {
+      return true;
+    } else if (prop in PreparedComponents) {
       return PreparedComponents[prop];
     } else {
       return prepareComponent(prop);
@@ -323,9 +325,14 @@ export const instantiateComponent = (component, props) => {
 export const mergeWithComponents = myComponents => {
   if (!myComponents) return Components;
   
+  if (myComponents.__isProxy)
+    return myComponents;
+  
   const mergedComponentsProxyHandler = {
     get: function(obj, prop) {
-      if (prop in myComponents) {
+      if (prop === "__isProxy") {
+        return true;
+      } else if (prop in myComponents) {
         return myComponents[prop];
       } else if (prop in PreparedComponents) {
         return PreparedComponents[prop];
