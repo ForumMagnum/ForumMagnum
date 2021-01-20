@@ -30,6 +30,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
         }
       }
     },
+    
+    "& .input-contents": {
+      marginTop: 20,
+    },
   
     "& .editor-form-component": {
       maxWidth: 650,
@@ -54,7 +58,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
         maxWidth: 640,
         position: "relative !important",
         left: 45,
-        margin: "auto",
+        marginLeft: "auto",
+        marginRight: "auto",
         [theme.breakpoints.down('sm')]: {
           left: 0,
           padding: "0 10px",
