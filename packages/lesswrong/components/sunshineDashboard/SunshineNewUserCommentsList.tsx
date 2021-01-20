@@ -39,7 +39,8 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
 
   return (
     <div className={classes.root}>
-      {(newComments.length > 0) && newComments.map(comment=><CommentsNode
+      {(newComments.length > 0) && newComments.map(comment=><CommentsNode 
+              key={`sunshine-new-user-${comment._id}`}
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
