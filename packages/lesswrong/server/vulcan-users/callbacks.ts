@@ -26,7 +26,7 @@ getCollectionHooks("Users").editSync.add(function usersEditCheckEmail (modifier,
       }
 
       // if user.emails exists, change it too
-      if (!!user.emails) {
+      if (!!user.emails && user.emails.length) {
         if (user.emails[0].address !== newEmail) {
           user.emails[0].address = newEmail;
           user.emails[0].verified = false;
@@ -38,4 +38,3 @@ getCollectionHooks("Users").editSync.add(function usersEditCheckEmail (modifier,
     }
     return modifier;
 });
-
