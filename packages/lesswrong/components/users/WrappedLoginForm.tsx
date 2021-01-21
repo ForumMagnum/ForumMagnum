@@ -78,8 +78,8 @@ const loginMutation = gql`
 `
 
 const signupMutation = gql`
-  mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean) {
-    signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated) {
+  mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String) {
+    signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken) {
       token
     }
   }

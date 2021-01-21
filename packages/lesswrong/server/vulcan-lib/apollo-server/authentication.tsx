@@ -191,13 +191,14 @@ const authenticationResolvers = {
         token: null
       }
     },
-    async signup(root, { email, username, password, subscribeToCurated, recaptchaToken }, context: ResolverContext) {
+    async signup(root, args, context: ResolverContext) {
+      const { email, username, password, subscribeToCurated, reCaptchaToken } = args;
       if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
       if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
 
-      const reCaptchaResponse = await getCaptchaRating(recaptchaToken)
+      const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
       const reCaptchaData = JSON.parse(reCaptchaResponse)
       let recaptchaScore : number | undefined = undefined
       if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
@@ -270,7 +271,7 @@ const authenticationResolvers = {
 
 addGraphQLResolvers(authenticationResolvers);
 addGraphQLMutation('login(username: String, password: String): LoginReturnData');
-addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean, recaptchaToken: String): LoginReturnData');
+addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean, reCaptchaToken: String): LoginReturnData');
 addGraphQLMutation('logout: LoginReturnData');
 addGraphQLMutation('resetPassword(email: String): String');
 addGraphQLMutation('verifyEmail(userId: String): String');
