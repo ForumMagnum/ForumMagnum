@@ -10,7 +10,7 @@
     "tsc": "tsc --noEmit --skipLibCheck",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "prestart": "bash prestart_lesswrong.sh",
-    "start": "meteor --exclude-archs web.browser.legacy --settings settings-staging.json",
+    "start": "meteor --exclude-archs web.browser.legacy --settings settings-dev.json",
     "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
     "start-dev-db": "../LessWrong-Credentials/run-local-dev-devdb.sh",
     "debug": "meteor --settings settings-dev.json --inspect run",
