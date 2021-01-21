@@ -225,6 +225,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
           description={metaDescription}
+          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0}
         />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
