@@ -15,6 +15,7 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import type { ForumTypeString } from '../../../lib/instanceSettings';
 
 const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
@@ -75,7 +76,8 @@ const EventsList = ({currentUser, onClick}) => {
 //   customComponent: Component; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
-export default {
+type MenuTab = any;
+export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
   LessWrong: [
     {
       id: 'home',
@@ -303,3 +305,5 @@ export default {
     }
   ]
 }
+
+export default menuTabs;

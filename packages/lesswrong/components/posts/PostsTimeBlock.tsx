@@ -5,6 +5,7 @@ import moment from '../../lib/moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
+import type { ContentTypeString } from './PostsPage/ContentType';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -49,7 +50,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   divider: {/* Exists only to get overriden by the eaTheme */}
 })
 
-const postTypes = [
+interface PostTypeOptions {
+  name: ContentTypeString
+  postIsType: (post: PostsBase)=>boolean
+  label: string
+}
+
+const postTypes: PostTypeOptions[] = [
   {name: 'frontpage', postIsType: (post: PostsBase) => !!post.frontpageDate, label: 'Frontpage Posts'},
   {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
