@@ -12,10 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   highlightContinue: {
     marginTop:theme.spacing.unit*2
-  },
-  maxHeight: {
-    maxHeight: 600,
-  },
+  }
 })
 
 const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
@@ -39,10 +36,11 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
     ev.preventDefault();
   }, []);
   
-  return <div className={classNames(classes.root, {[classes.maxHeight]: !expanded})}>
+  return <div className={classes.root}>
     <Components.LinkPostMessage post={post} />
     <Components.ContentItemTruncated
       maxLengthWords={maxLengthWords}
+      maxHeight={!expanded}
       graceWords={20}
       rawWordCount={wordCount}
       expanded={expanded}

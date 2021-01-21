@@ -2,13 +2,22 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 
+const styles = theme => ({
+  maxHeight: {
+    maxHeight: 600,
+    overflow: "hidden"
+  }
+})
+
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
-const ContentItemTruncated = ({maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description}: {
+const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, maxHeight=false}: {
+  classes: ClassesType,
   maxLengthWords: number,
   graceWords?: number,
   expanded?: boolean,
   rawWordCount: number,
+  maxHeight?: boolean,
   
   // Suffix, shown only if truncated
   getTruncatedSuffix?: (props: {wordsLeft: number}) => React.ReactNode,
@@ -31,11 +40,13 @@ const ContentItemTruncated = ({maxLengthWords, graceWords=20, expanded=false, ra
     } : truncateWithGrace(html, maxLengthWords, graceWords, rawWordCount);
   
   return <>
-    <ContentItemBody
-      dangerouslySetInnerHTML={{__html: truncatedHtml}}
-      className={className}
-      description={description}
-    />
+    <div className={maxHeight ? classes.maxHeight : null}>
+      <ContentItemBody
+        dangerouslySetInnerHTML={{__html: truncatedHtml}}
+        className={className}
+        description={description}
+      />
+    </div>
     {wasTruncated && getTruncatedSuffix && getTruncatedSuffix({wordsLeft})}
     {!wasTruncated && nonTruncatedSuffix}
   </>
@@ -63,7 +74,7 @@ const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: num
   };
 }
 
-const ContentItemTruncatedComponent = registerComponent('ContentItemTruncated', ContentItemTruncated);
+const ContentItemTruncatedComponent = registerComponent('ContentItemTruncated', ContentItemTruncated, {styles});
 
 declare global {
   interface ComponentTypes {
