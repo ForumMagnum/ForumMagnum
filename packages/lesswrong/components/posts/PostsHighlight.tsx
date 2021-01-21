@@ -4,7 +4,6 @@ import React, {useState, useCallback} from 'react';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
-import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
