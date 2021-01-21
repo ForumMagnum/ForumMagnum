@@ -59,7 +59,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
       dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html || htmlHighlight}}
       description={`post ${post._id}`}
     />
-    {loading && <Components.Loading/>}
+    {!expandedDocument && loading && <Components.Loading/>}
   </div>
 };
 
