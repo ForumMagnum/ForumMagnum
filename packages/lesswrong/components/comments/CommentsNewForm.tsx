@@ -140,7 +140,14 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
 
   const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed
   return (
-    <div className={loading ? classes.loadingRoot : classes.root} onFocus={()=>setShowGuidelines(true)}>
+    <div className={loading ? classes.loadingRoot : classes.root} onFocus={()=>{
+      // On focus (this bubbles out from the text editor), show moderation guidelines.
+      // Defer this through a setTimeout, because otherwise clicking the Cancel button
+      // doesn't work (the focus event fires before the click event, the state change
+      // causes DOM nodes to get replaced, and replacing the DOM nodes prevents the
+      // rest of the click event handlers from firing.)
+      setTimeout(() => setShowGuidelines(true), 0);
+    }}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classes.form : null}>
         {commentWillBeHidden && <div className={classes.modNote}><em>
