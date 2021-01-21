@@ -41,7 +41,10 @@ const CommentUserName = ({comment, classes, simple = false, className}: {
   }
 }
 
-const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName, {styles});
+const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName, {
+  styles,
+  stylePriority: 100, //Higher than Components.UsersName, which gets a className from us
+});
 
 declare global {
   interface ComponentTypes {
