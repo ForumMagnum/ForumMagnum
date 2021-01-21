@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
+import classNames from 'classnames';
 
 const styles = theme => ({
   maxHeight: {
@@ -11,13 +12,12 @@ const styles = theme => ({
 
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
-const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, maxHeight=false}: {
+const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description}: {
   classes: ClassesType,
   maxLengthWords: number,
   graceWords?: number,
   expanded?: boolean,
-  rawWordCount: number,
-  maxHeight?: boolean,
+  rawWordCount: number
   
   // Suffix, shown only if truncated
   getTruncatedSuffix?: (props: {wordsLeft: number}) => React.ReactNode,
@@ -40,13 +40,11 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
     } : truncateWithGrace(html, maxLengthWords, graceWords, rawWordCount);
   
   return <>
-    <div className={maxHeight ? classes.maxHeight : null}>
-      <ContentItemBody
-        dangerouslySetInnerHTML={{__html: truncatedHtml}}
-        className={className}
-        description={description}
-      />
-    </div>
+    <ContentItemBody
+      dangerouslySetInnerHTML={{__html: truncatedHtml}}
+      className={classNames(className, {[classes.maxHeight]:!expanded})}
+      description={description}
+    />
     {wasTruncated && getTruncatedSuffix && getTruncatedSuffix({wordsLeft})}
     {!wasTruncated && nonTruncatedSuffix}
   </>

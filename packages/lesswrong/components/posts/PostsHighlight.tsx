@@ -39,7 +39,6 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
     <Components.LinkPostMessage post={post} />
     <Components.ContentItemTruncated
       maxLengthWords={maxLengthWords}
-      maxHeight={!expanded}
       graceWords={20}
       rawWordCount={wordCount}
       expanded={expanded}
