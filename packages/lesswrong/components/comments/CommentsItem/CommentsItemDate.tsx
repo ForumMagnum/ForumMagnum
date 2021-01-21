@@ -15,6 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
         color: "rgba(0,0,0,0.3) !important",
       },
     },
+    
+    // Create a stacking context and set z-index to be higher than the vote
+    // buttoms, which are to the right of this and have a click-target that
+    // partially overlaps.
+    position: "relative",
+    zIndex: 1000,
   },
   answerDate: {},
   date: {
