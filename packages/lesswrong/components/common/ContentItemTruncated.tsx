@@ -17,8 +17,7 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   maxLengthWords: number,
   graceWords?: number,
   expanded?: boolean,
-  rawWordCount: number
-  
+  rawWordCount: number,
   // Suffix, shown only if truncated
   getTruncatedSuffix?: (props: {wordsLeft: number}) => React.ReactNode,
   // Alternate suffix, shown if truncated didn't happen (because it wasn't long
