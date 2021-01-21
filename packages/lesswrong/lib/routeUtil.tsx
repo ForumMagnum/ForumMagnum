@@ -4,6 +4,7 @@ import React, { useContext } from 'react';
 import { forumTypeSetting } from './instanceSettings';
 import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
 import type { RouterLocation } from './vulcan-lib/routes';
+import * as _ from 'underscore';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -107,6 +108,24 @@ export const getUrlClass = (): typeof URL => {
   } else {
     return URL
   }
+}
+
+// Given a URL which might or might not have query parameters, return a URL in
+// which any query parameters found in queryParameterBlacklist are removed.
+export const removeUrlParameters = (url: string, queryParameterBlacklist: string[]): string => {
+  if (url.indexOf("?") < 0) return url;
+  const [baseUrl, queryAndHash] = url.split("?");
+  const [query, hash] = queryAndHash.split("#");
+  
+  const parsedQuery = qs.parse(query);
+  let filteredQuery = {};
+  for (let key of _.keys(parsedQuery)) {
+    if (_.indexOf(queryParameterBlacklist, key) < 0) {
+      filteredQuery[key] = parsedQuery[key];
+    }
+  }
+  
+  return baseUrl + (Object.keys(filteredQuery).length>0 ? '?'+qs.stringify(filteredQuery) : '') + (hash ? '#'+hash : '');
 }
 
 const LwAfDomainWhitelist: Array<string> = [
