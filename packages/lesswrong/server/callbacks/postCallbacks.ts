@@ -152,7 +152,7 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
 
 export async function newDocumentMaybeTriggerReview (document) {
   const author = await Users.findOne(document.userId);
-  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
+  if (author && (!author.reviewedByUserId || author.sunshineSnoozed) && !document.draft) {
     Users.update({_id:author._id}, {$set:{needsReview: true}})
   }
   return document
