@@ -191,3 +191,16 @@ async function extractSocialPreviewImage (post: DbPost) {
 
 getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
 getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
+
+// For posts without comments, update lastCommentedAt to match postedAt
+//
+// When the post is created, lastCommentedAt was set to the current date. If an
+// admin or site feature updates postedAt that should change the "newness" of
+// the post unless there's been active comments.
+async function oldPostsLastCommentedAt (post: DbPost) {
+  if (post.commentCount) return
+
+  Posts.update({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
+}
+
+getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
