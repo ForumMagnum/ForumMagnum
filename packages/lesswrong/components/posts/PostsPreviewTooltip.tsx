@@ -133,7 +133,7 @@ const getPostCategory = (post: PostsBase) => {
     return categories.join(', ');
   else if (post.question)
     return "Question";
-  else if (post.reviewdByUserId)
+  else if (post.reviewedByUserId)
     return `Personal Blogpost`
   else
     return null;
