@@ -31,6 +31,7 @@ import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
 import CodeBlock from '@ckeditor/ckeditor5-code-block/src/codeblock';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
+import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
@@ -110,6 +111,7 @@ const postEditorPlugins = [
 	Italic,
 	Link,
 	List,
+	ListStyle,
 	Code,
 	CodeBlock,
 	Subscript,
@@ -248,6 +250,7 @@ CommentEditor.builtinPlugins = [
 	Italic,
 	Link,
 	List,
+	ListStyle,
 	Paragraph,
 	Code,
 	CodeBlock,
