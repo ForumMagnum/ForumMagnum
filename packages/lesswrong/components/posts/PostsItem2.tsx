@@ -315,6 +315,7 @@ const PostsItem2 = ({
   dismissRecommendation,
   showBottomBorder=true,
   showQuestionTag=true,
+  showDraftTag=true,
   showIcons=true,
   showPostedAt=true,
   defaultToShowUnreadComments=false,
@@ -342,6 +343,7 @@ const PostsItem2 = ({
   dismissRecommendation?: any,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
+  showDraftTag?: boolean,
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -458,6 +460,7 @@ const PostsItem2 = ({
                       read={isRead}
                       sticky={isSticky(post, terms)}
                       showQuestionTag={showQuestionTag}
+                      showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}
                     />
                   </AnalyticsTracker>
