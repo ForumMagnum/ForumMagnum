@@ -14,19 +14,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=true, inlineBlock=true}: {
+const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, inlineBlock=true}: {
   children?: any,
   title?: any,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
-  clickable?: boolean,
   inlineBlock?: boolean,
   classes: ClassesType,
   className?: string
 }) => {
   const { LWPopper } = Components
-  const { hover, everHovered, anchorEl, stopHover, eventHandlers } = useHover({
+  const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tooltipHovered",
     title: typeof title=="string" ? title : undefined
   });
@@ -41,14 +40,13 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
       placement={placement}
       open={hover}
       anchorEl={anchorEl}
-      onMouseEnter={stopHover}
       tooltip={tooltip}
       modifiers={{
         flip: {
           enabled: flip
         }
       }}
-      clickable={clickable}
+      clickable={false}
     >
       <div className={tooltip ? classes.tooltip : null}>{title}</div>
     </LWPopper>}
