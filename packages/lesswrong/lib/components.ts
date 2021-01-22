@@ -77,7 +77,6 @@ importComponent("NoContent", () => require('../components/common/NoContent'));
 importComponent("SearchBar", () => require('../components/common/SearchBar'));
 importComponent("DialogGroup", () => require('../components/common/DialogGroup'));
 importComponent("Divider", () => require('../components/common/Divider'));
-importComponent("HoverOver", () => require('../components/common/HoverOver'));
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary'));
 importComponent("ErrorMessage", () => require('../components/common/ErrorMessage'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage'));
