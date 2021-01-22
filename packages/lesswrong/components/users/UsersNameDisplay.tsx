@@ -50,7 +50,9 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
 }) => {
   const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
 
-  if (!user) return <Components.UserNameDeleted/>
+  if (!user || user.deleted) {
+    return <Components.UserNameDeleted/>
+  }
   const { FormatDate, LWTooltip } = Components
   const { htmlBio } = user
 
