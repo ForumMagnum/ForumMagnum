@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
-import { useHover } from '../common/withHover';
 import moment from '../../lib/moment-timezone';
 
 export const POSTED_AT_WIDTH = 38
@@ -43,7 +42,6 @@ const PostsItemDate = ({post, classes}: {
   classes: ClassesType,
 }) => {
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
-  const {eventHandlers, hover, anchorEl} = useHover();
 
   if (post.isEvent && post.startTime) {
     return <LWTooltip
