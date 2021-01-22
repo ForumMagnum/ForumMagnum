@@ -195,7 +195,7 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 async function oldPostsLastCommentedAt (post: DbPost) {
   if (post.commentCount) return
 
-  Posts.update({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
+  await Posts.update({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
 }
 
 getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
