@@ -34,13 +34,11 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   classes: ClassesType,
 }) => {
   const [checked, setChecked] = useState(defaultValue);
-  console.log("Rendering SignupSubscribeToCurated");
   return <div className={classes.root}>
     <Checkbox
       checked={checked}
       className={classes.checkbox}
       onChange={(ev, newChecked) => {
-        console.log("In Checkbox.onChange");
         setChecked(newChecked)
         onChange(newChecked)
       }}
