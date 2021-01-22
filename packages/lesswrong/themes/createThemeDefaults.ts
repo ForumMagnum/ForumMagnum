@@ -127,8 +127,8 @@ const createLWTheme = (theme: ThemeType) => {
       },
       // used by h3
       display0: {
-        color: grey[800],
-        fontSize: '2rem',
+        color: grey[700],
+        fontSize: '1.6rem',
         marginTop: '1em',
         // added by MUI to display1, which we're imitating
         fontWeight: 400,
