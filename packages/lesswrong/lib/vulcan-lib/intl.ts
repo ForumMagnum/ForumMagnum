@@ -38,5 +38,5 @@ export const getString = ({id, values, defaultMessage, locale}) => {
       message = replaceAll(message, `{${key}}`, values[key]);
     });
   }
-  return message;
+  return message || defaultMessage;
 };

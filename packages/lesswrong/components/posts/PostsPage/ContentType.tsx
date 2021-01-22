@@ -4,7 +4,8 @@ import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTypeSetting, ForumTypeString } from '../../../lib/instanceSettings';
+import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,7 +27,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const contentTypes = {
+export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform";
+
+interface ContentTypeSettings {
+  tooltipTitle: string,
+  tooltipBody: React.ReactNode,
+  linkTarget: string|null,
+  Icon: any,
+}
+
+export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,ContentTypeSettings>> = {
   LessWrong: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
@@ -38,6 +48,7 @@ export const contentTypes = {
           <li>Aiming to explain, rather than persuade</li>
         </ul>
       </React.Fragment>,
+      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
       Icon: HomeIcon
     },
     personal: {
@@ -55,14 +66,16 @@ export const contentTypes = {
           <li>Personal ramblings</li>
         </ul>
       </React.Fragment>,
+      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
       Icon: PersonIcon
     },
     curated: {
-      tooltiptitle: 'Curated Post',
+      tooltipTitle: 'Curated Post',
       tooltipBody: <div>
         The best 2-3 posts each week, selected by the moderation team. Curated
         posts are featured at the top of the front page and emailed to subscribers.
       </div>,
+      linkTarget: curatedUrl,
       Icon: StarIcon,
     },
     shortform: {
@@ -71,6 +84,7 @@ export const contentTypes = {
         Writing that is short in length, or written in a short amount of time.
         Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
       </div>,
+      linkTarget: "/shortform",
       Icon: SubjectIcon
     }
   },
@@ -85,6 +99,7 @@ export const contentTypes = {
           <li>Aiming to explain, rather than persuade</li>
         </ul>
       </React.Fragment>,
+      linkTarget: null,
       Icon: HomeIcon
     },
     personal: {
@@ -101,13 +116,15 @@ export const contentTypes = {
           <li>Personal ramblings</li>
         </ul>
       </React.Fragment>,
+      linkTarget: null,
       Icon: PersonIcon
     },
     curated: {
-      tooltiptitle: 'Curated Post',
+      tooltipTitle: 'Curated Post',
       tooltipBody: <div>
         The best posts, selected by the moderation team.
       </div>,
+      linkTarget: curatedUrl,
       Icon: StarIcon,
     },
     shortform: {
@@ -116,6 +133,7 @@ export const contentTypes = {
         Writing that is short in length, or written in a short amount of time.
         Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
       </div>,
+      linkTarget: "/shortform",
       Icon: SubjectIcon
     }
   },
@@ -125,6 +143,10 @@ export const contentTypes = {
       tooltipBody: <div>
         Posts that are relevant to doing good effectively.
       </div>,
+      // ea-forum-lookhere: When "frontpage" or "personal blog" appear in a tags-list,
+      // it's a link to a post explaining the policies. This is my best guess at which
+      // post that would be on EA Forum, but there might be a better one. --Jim
+      linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
       Icon: HomeIcon
     },
     personal: {
@@ -140,14 +162,17 @@ export const contentTypes = {
           <li>Personal ramblings</li>
         </ul>
       </React.Fragment>,
+      // ea-forum-loohere see above
+      linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
       Icon: PersonIcon
     },
     curated: {
-      tooltiptitle: 'Curated Post',
+      tooltipTitle: 'Curated Post',
       tooltipBody: <div>
         The best 2-3 posts each week, selected by the moderation team. Curated
         posts are featured at the top of the front page and emailed to subscribers.
       </div>,
+      linkTarget: curatedUrl,
       Icon: StarIcon,
     },
     shortform: {
@@ -156,6 +181,7 @@ export const contentTypes = {
         Writing that is short in length, or written in a short amount of time.
         Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
       </div>,
+      linkTarget: "/shortform",
       Icon: SubjectIcon
     }
   }
@@ -163,7 +189,7 @@ export const contentTypes = {
 
 const ContentType = ({classes, type, label}: {
   classes: ClassesType,
-  type: string,
+  type: ContentTypeString,
   label?: string
 }) => {
   if (!type) {

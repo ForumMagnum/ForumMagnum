@@ -6,6 +6,7 @@ const locationsToStr = (locations: readonly SourceLocation[] = []) => locations.
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
     graphQLErrors.map(({ message, locations, path }) => {
+      const locationStr = locations && locationsToStr([...locations])
       // eslint-disable-next-line no-console
       console.log(`[GraphQL error]: Message: ${message}, Location: ${locationsToStr(locations)}, Path: ${path}`);
     });

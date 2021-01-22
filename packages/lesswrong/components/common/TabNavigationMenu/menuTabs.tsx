@@ -13,6 +13,7 @@ import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
+import type { ForumTypeString } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -38,7 +39,8 @@ import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 //   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
-export default {
+type MenuTab = any;
+export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
   LessWrong: [
     {
       id: 'home',
@@ -266,3 +268,5 @@ export default {
     }
   ]
 }
+
+export default menuTabs;

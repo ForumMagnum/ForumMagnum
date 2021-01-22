@@ -43,7 +43,7 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
 voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
   const voter = await Users.findOne(document.vote.userId);
   // voting should only be triggered once (after getting snoozed, they will not re-trigger for sunshine review)
-  if (voter && voter.voteCount >= 10 && !voter.reviewedByUserId) {
+  if (voter && voter.voteCount >= 20 && !voter.reviewedByUserId) {
     void Users.update({_id:voter._id}, {$set:{needsReview: true}})
   }
 });

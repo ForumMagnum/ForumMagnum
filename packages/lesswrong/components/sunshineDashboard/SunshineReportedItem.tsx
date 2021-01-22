@@ -1,8 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Link } from '../../lib/reactRouterWrapper'
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import withUser from '../common/withUser'
@@ -70,7 +68,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     const { report, hover, anchorEl } = this.props
     const comment = report.comment
     const post = report.post
-    const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview, Typography } = Components
+    const { SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography, SunshineCommentsItemOverview } = Components
 
     if (!post) return null;
 
@@ -78,14 +76,18 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            <Link to={postGetPageUrl(post) + (comment ? ("#" + comment._id) : (""))}>
-              Post: <strong>{ post.title }</strong>
-            </Link>
-            {comment && <div>
-              <MetaInfo>Comment:</MetaInfo>
-              <div><CommentBody comment={comment}/></div>
+            {comment && <CommentsNode
+              treeOptions={{
+                condensed: false,
+                post: comment.post || undefined,
+                showPostTitle: true,
+              }}
+              comment={comment}
+            />}
+            {!comment && <div>
+              <PostsTitle post={post}/>
+              <PostsHighlight post={post} maxLengthWords={600}/>
             </div>}
-            {!comment && <PostsHighlight post={post} maxLengthWords={600}/>}
           </Typography>
         </SidebarHoverOver>
         {comment && <SunshineCommentsItemOverview comment={comment}/>}
