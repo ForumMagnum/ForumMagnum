@@ -1,14 +1,15 @@
-import React, { PureComponent } from 'react'
+import React, { useState } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import withUser from '../../common/withUser';
-import { withTracking } from '../../../lib/analyticsEvents';
+import { useCurrentUser } from '../../common/withUser';
+import { useTracking } from '../../../lib/analyticsEvents';
 import ClickawayListener from '@material-ui/core/ClickAwayListener';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
+    cursor: "pointer",
   },
   popper: {
     position: "relative",
@@ -16,67 +17,51 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-interface ExternalProps {
+const PostsPageActions = ({post, vertical, classes}: {
   post: PostsList,
   vertical?: boolean,
-}
-interface PostsPageActionsProps extends ExternalProps, WithUserProps, WithTrackingProps, WithStylesProps {
-}
-interface PostsPageActionsState {
-  anchorEl: any,
-}
+  classes: ClassesType,
+}) => {
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const {captureEvent} = useTracking();
+  const currentUser = useCurrentUser();
 
-class PostsPageActions extends PureComponent<PostsPageActionsProps,PostsPageActionsState> {
-  state: PostsPageActionsState = { anchorEl: null }
-
-  handleClick = (e) => {
-    const { anchorEl } = this.state
-    const { captureEvent, post } = this.props
+  const handleClick = (e) => {
     captureEvent("tripleDotClick", {open: true, itemType: "post", postId: post._id})
-    this.setState({anchorEl: anchorEl ? null : e.target})
+    setAnchorEl(anchorEl ? null : e.target);
   }
 
-  handleClose = () => {
-    if (!this.state.anchorEl) return
-    this.props.captureEvent("tripleDotClick", {open: false, itemType: "post"})
-    this.setState({anchorEl: null})
+  const handleClose = () => {
+    captureEvent("tripleDotClick", {open: false, itemType: "post"})
+    setAnchorEl(null);
   }
 
-  render() {
-    const { classes, post, currentUser, vertical } = this.props 
-    const { anchorEl } = this.state 
-    const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-    const { PopperCard, PostActions } = Components
-    if (!currentUser) return null;
+  const Icon = vertical ? MoreVertIcon : MoreHorizIcon
+  const { PopperCard, PostActions } = Components
+  if (!currentUser) return null;
 
-    return (
-        <div>
-          <Icon className={classes.icon} onClick={this.handleClick}/> 
-          <PopperCard
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            placement="right-start"
-            modifiers={{
-              flip: {
-                boundariesElement: 'viewport',
-                behavior: ['right-start', 'bottom']
-              }
-            }}
-          >
-            <ClickawayListener onClickAway={this.handleClose}>
-              <PostActions post={post} closeMenu={this.handleClose}/>
-            </ClickawayListener>
-          </PopperCard>
-        </div>
-    )
-  }
+  return <div>
+    <Icon className={classes.icon} onClick={handleClick}/> 
+    <PopperCard
+      open={Boolean(anchorEl)}
+      anchorEl={anchorEl}
+      placement="right-start"
+      modifiers={{
+        flip: {
+          boundariesElement: 'viewport',
+          behavior: ['right-start', 'bottom']
+        }
+      }}
+    >
+      <ClickawayListener onClickAway={handleClose}>
+        <PostActions post={post} closeMenu={handleClose}/>
+      </ClickawayListener>
+    </PopperCard>
+  </div>
 }
 
 
-const PostsPageActionsComponent = registerComponent<ExternalProps>('PostsPageActions', PostsPageActions, {
-  styles,
-  hocs: [withUser, withTracking]
-});
+const PostsPageActionsComponent = registerComponent('PostsPageActions', PostsPageActions, {styles});
 
 declare global {
   interface ComponentTypes {
