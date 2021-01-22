@@ -8,7 +8,7 @@ const PostsItemTooltipWrapper = ({children, post, className}: {
   className?: string,
 }) => {
   const { LWPopper, PostsPreviewTooltip } = Components
-  const {eventHandlers, hover, stopHover, anchorEl} = useHover({
+  const {eventHandlers, hover, anchorEl} = useHover({
     pageElementContext: "postItemTooltip",
     postId: post?._id
   });
@@ -16,7 +16,7 @@ const PostsItemTooltipWrapper = ({children, post, className}: {
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
-        onMouseEnter={stopHover}
+        clickable={false}
         placement="bottom-end"
         modifiers={{
           flip: {

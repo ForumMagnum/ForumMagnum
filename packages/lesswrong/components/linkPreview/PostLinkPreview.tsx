@@ -290,7 +290,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   rel?: string
 }) => {
   const { LWPopper } = Components
-  const { eventHandlers, hover, anchorEl, stopHover } = useHover({
+  const { eventHandlers, hover, anchorEl } = useHover({
     pageElementContext: "linkPreview",
     hoverPreviewType: "DefaultPreview",
     href,
@@ -298,7 +298,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   });
   return (
     <span {...eventHandlers}>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" onMouseEnter={stopHover}>
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={false}>
         <Card>
           <div className={classes.hovercard}>
             {decodeURIComponent(href)}
