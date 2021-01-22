@@ -108,12 +108,6 @@ const schema: SchemaType<DbPost> = {
       }
     }
   },
-  // Post Excerpt
-  excerpt: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
   // Count of how many times the post's page was viewed
   viewCount: {
     type: Number,
@@ -261,13 +255,6 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
-  },
-
-  // Used to keep track of when a post has been included in a newsletter
-  scheduledAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['admins'],
   },
 
   // GraphQL-only fields

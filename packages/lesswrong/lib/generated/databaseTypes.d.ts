@@ -311,7 +311,6 @@ interface DbPost extends DbObject {
   url: string
   title: string
   slug: string
-  excerpt: string
   viewCount: number
   lastCommentedAt: Date
   clickCount: number
@@ -324,7 +323,6 @@ interface DbPost extends DbObject {
   referrer: string
   author: string
   userId: string
-  scheduledAt: Date
   question: boolean
   authorIsUnreviewed: boolean
   submitToFrontpage: boolean
