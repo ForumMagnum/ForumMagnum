@@ -18,6 +18,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
 import * as _ from 'underscore';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+
+export const defaultModeratorComments = new DatabasePublicSetting<Array<string>>('defaultModeratorComments', ["yMHoNoYZdk5cKa3wQ"])
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -167,6 +171,8 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
+  const templateId = defaultModeratorComments.get()[0]
+  console.log(defaultModeratorComments.get(), templateId)
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
@@ -177,7 +183,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div className={classes.row}>
                 <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-                {currentUser && <NewConversationButton user={user} currentUser={currentUser}>
+                {currentUser && <NewConversationButton user={user} currentUser={currentUser} templateCommentId={templateId}>
                   <Button variant="outlined">Message</Button>
                 </NewConversationButton>}
               </div>

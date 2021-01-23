@@ -4,11 +4,13 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
 import Conversations from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import qs from 'qs';
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children }: {
+const NewConversationButton = ({ user, currentUser, children, templateCommentId }: {
   user: UsersMinimumInfo,
   currentUser: UsersCurrent,
+  templateCommentId?: string,
   children: any
 }) => {
   const { create: createConversation } = useCreate({
@@ -23,7 +25,8 @@ const NewConversationButton = ({ user, currentUser, children }: {
       data: {participantIds:[user._id, currentUser._id], ...alignmentFields},
     })
     const conversationId = response.data.createConversation.data._id
-    history.push({pathname: `/inbox/${conversationId}`})
+    const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
+    history.push({pathname: `/inbox/${conversationId}`, ...search})
   }, [createConversation, user, currentUser, history]);
 
   if (currentUser) {
