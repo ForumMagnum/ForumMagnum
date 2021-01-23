@@ -34,12 +34,14 @@ addGraphQLResolvers({
               postId, 
               qualitativeScore, 
               comment, 
-              quadraticScore: newQuadraticScore,
               year,
               dummy,
-              reactions
+              reactions,
+              ...((typeof newQuadraticScore==='number') && {
+                quadraticScore: newQuadraticScore
+              })
             },
-            ...(quadraticChange && {$inc: {
+            ...(quadraticChange && !(typeof newQuadraticScore==='number') && {$inc: {
               quadraticScore: quadraticChange
             }})
           }
