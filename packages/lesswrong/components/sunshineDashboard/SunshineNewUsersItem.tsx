@@ -190,18 +190,36 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
               <hr className={classes.hr}/>
               <div className={classes.row}>
-                <div className={classes.bigDownvotes}>
-                  Big Downvotes: { user.bigDownvoteCount || 0 }
-                </div>
-                <div className={classes.downvotes}>
-                  Downvotes: { user.smallDownvoteCount || 0 }
-                </div>
-                <div className={classes.upvotes}>
-                  Upvotes: { user.smallUpvoteCount || 0 }
-                </div>
-                <div className={classes.bigUpvotes}>
-                  Big Upvotes: { user.bigUpvoteCount || 0 } 
-                </div>
+                {(user.maxCommentCount || user.maxPostCount) && <Button onClick={handleReview}>
+                  <DoneIcon /> Review
+                </Button>}
+                {<Button title="Snooze" onClick={handleSnooze}>
+                  <SnoozeIcon /> Snooze
+                </Button>}
+                {!user.reviewedByUserId && <LWTooltip title="(delete and ban)">
+                  <Button onClick={handlePurge}>
+                    <DeleteForeverIcon /> Purge
+                  </Button>
+                  </LWTooltip>
+                }
+                {user.reviewedByUserId && <Button onClick={handleBan}>
+                  <RemoveCircleOutlineIcon /> Ban
+                </Button>}
+              </div>
+              <hr className={classes.hr}/>
+              <div>
+                <p className={classes.bigUpvotes}>
+                  { user.bigUpvoteCount || 0 } Big Upvotes
+                </p>
+                <p className={classes.upvotes}>
+                  { user.smallUpvoteCount || 0 } Upvotes
+                </p>
+                <p className={classes.downvotes}>
+                  { user.smallDownvoteCount || 0 } Downvotes
+                </p>
+                <p className={classes.bigDownvotes}>
+                  { user.bigDownvoteCount || 0 } Big Downvotes
+                </p>
               </div>
               <hr className={classes.hr}/>
               <div>
@@ -245,21 +263,6 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             { user.email }
           </MetaInfo>}
         </div>
-        { hover && <SidebarActionMenu>
-          {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
-          {(user.maxCommentCount || user.maxPostCount) ? <SidebarAction title="Review" onClick={handleReview}>
-            <DoneIcon />
-          </SidebarAction> : null}
-          <SidebarAction title="Snooze" onClick={handleSnooze}>
-            <SnoozeIcon />
-          </SidebarAction>
-          {!user.reviewedByUserId && <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={handlePurge}>
-            <DeleteForeverIcon />
-          </SidebarAction>}
-          {user.reviewedByUserId && <SidebarAction warningHighlight={true} title="Ban User for 3 months" onClick={handleBan}>
-            <RemoveCircleOutlineIcon />
-          </SidebarAction>}
-        </SidebarActionMenu>}
       </SunshineListItem>
     </span>
   )
