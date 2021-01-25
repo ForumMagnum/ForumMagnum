@@ -1,7 +1,9 @@
 // see https://github.com/apollographql/graphql-tools/blob/master/docs/source/schema-directives.md#marking-strings-for-internationalization
 
 import { localeSetting } from '../../lib/publicSettings';
-import { debug } from '../../lib/vulcan-lib/debug';
+import { loggerConstructor } from '../../lib/utils/logging';
+
+const logger = loggerConstructor('intl')
 
 /*
 
@@ -46,7 +48,7 @@ export const getHeaderLocale = (headers, userLocale) => {
     localeMethod = 'setting';
   }
 
-  debug(`// locale: ${locale} (via ${localeMethod})`);
+  logger(`// locale: ${locale} (via ${localeMethod})`);
 
   return locale;
 };

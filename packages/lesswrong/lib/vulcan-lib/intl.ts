@@ -1,6 +1,8 @@
 import SimpleSchema from 'simpl-schema';
 import { localeSetting } from '../publicSettings';
-import { debug } from './debug';
+import { loggerConstructor } from '../utils/logging';
+
+const logger = loggerConstructor('intl')
 
 export const Strings = {};
 
@@ -25,12 +27,12 @@ export const getString = ({id, values, defaultMessage, locale}) => {
 
   // use default locale
   if(!message) {
-    debug(`\x1b[32m>> INTL: No string found for id "${id}" in locale "${locale}".\x1b[0m`);
+    logger(`\x1b[32m>> INTL: No string found for id "${id}" in locale "${locale}".\x1b[0m`);
     message = Strings[defaultLocale] && Strings[defaultLocale][id];
 
     // if default locale hasn't got the message too
     if(!message && locale !== defaultLocale)
-      debug(`\x1b[32m>> INTL: No string found for id "${id}" in the default locale ("${defaultLocale}").\x1b[0m`);
+      logger(`\x1b[32m>> INTL: No string found for id "${id}" in the default locale ("${defaultLocale}").\x1b[0m`);
   }
 
   if (message && values) {
