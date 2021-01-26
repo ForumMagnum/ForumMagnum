@@ -5,6 +5,8 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { gql, useMutation, DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
+import { getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
+import { useClientId } from '../../lib/abTestUtil';
 
 
 const styles = theme => ({
@@ -78,8 +80,8 @@ const loginMutation = gql`
 `
 
 const signupMutation = gql`
-  mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String) {
-    signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken) {
+  mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {
+    signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {
       token
     }
   }
@@ -118,11 +120,14 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(!['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get()))
   const [ mutate, { error } ] = useMutation(currentActionToMutation[currentAction], { errorPolicy: 'all' })
+  const clientId = useClientId();
 
   const submitFunction = async (e) => {
     e.preventDefault();
+    const signupAbTestKey = getUserABTestKey(null, clientId);
+    console.log("Signing up with A/B test key: "+signupAbTestKey);
     const variables = 
-      currentAction === "signup" ? { email, username, password, reCaptchaToken, subscribeToCurated } : (
+      currentAction === "signup" ? { email, username, password, reCaptchaToken, abTestKey: signupAbTestKey, subscribeToCurated } : (
       currentAction === "login" ? { username, password } :
       currentAction === "pwReset" ? { email } : {})
     const { data } = await mutate({ variables })
