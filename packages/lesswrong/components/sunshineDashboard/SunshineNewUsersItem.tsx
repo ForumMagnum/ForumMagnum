@@ -53,22 +53,47 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   row: {
     display: "flex",
-    justifyContent: "space-between",
     alignItems: "center"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: 3,
+    fontWeight: 600,
+    border: `solid 2px ${theme.palette.error.dark}`
   },
   downvotes: {
     color: theme.palette.error.dark,
-    opacity: .75
+    opacity: .75,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: 3,
+    border: `solid 1px ${theme.palette.error.dark}`
   },
   upvotes: {
     color: theme.palette.primary.dark,
-    opacity: .75
+    opacity: .75,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: 3,
+    border: `solid 1px ${theme.palette.primary.dark}`
   },
   bigUpvotes: {
-    color: theme.palette.primary.dark
+    color: theme.palette.primary.dark,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: 3,
+    fontWeight: 600,
+    border: `solid 2px ${theme.palette.primary.dark}`
   },
   hr: {
     height: 0,
@@ -190,36 +215,47 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
               <hr className={classes.hr}/>
               <div className={classes.row}>
-                {(user.maxCommentCount || user.maxPostCount) && <Button onClick={handleReview}>
-                  <DoneIcon /> Review
-                </Button>}
-                {<Button title="Snooze" onClick={handleSnooze}>
-                  <SnoozeIcon /> Snooze
-                </Button>}
-                {!user.reviewedByUserId && <LWTooltip title="(delete and ban)">
-                  <Button onClick={handlePurge}>
-                    <DeleteForeverIcon /> Purge
+                {!!(user.maxCommentCount || user.maxPostCount) && <LWTooltip title="Review">
+                  <Button onClick={handleReview}>
+                    <DoneIcon />
                   </Button>
-                  </LWTooltip>
-                }
+                </LWTooltip>}
+                <LWTooltip title="Snooze (approve all posts)">
+                  <Button title="Snooze" onClick={handleSnooze}>
+                    <SnoozeIcon />
+                  </Button>
+                </LWTooltip>
+                {!user.reviewedByUserId && <LWTooltip title="Purge (delete and ban)">
+                  <Button onClick={handlePurge}>
+                    <DeleteForeverIcon />
+                  </Button>
+                 </LWTooltip>}
                 {user.reviewedByUserId && <Button onClick={handleBan}>
                   <RemoveCircleOutlineIcon /> Ban
                 </Button>}
               </div>
               <hr className={classes.hr}/>
-              <div>
-                <p className={classes.bigUpvotes}>
-                  { user.bigUpvoteCount || 0 } Big Upvotes
-                </p>
-                <p className={classes.upvotes}>
-                  { user.smallUpvoteCount || 0 } Upvotes
-                </p>
-                <p className={classes.downvotes}>
-                  { user.smallDownvoteCount || 0 } Downvotes
-                </p>
-                <p className={classes.bigDownvotes}>
-                  { user.bigDownvoteCount || 0 } Big Downvotes
-                </p>
+              <div className={classes.row}>
+                <LWTooltip title="Big Upvotes">
+                  <div className={classes.bigUpvotes}>
+                    { user.bigUpvoteCount || 0 }
+                  </div>
+                </LWTooltip>
+                <LWTooltip title="Upvotes">
+                  <div className={classes.upvotes}>
+                    { user.smallUpvoteCount || 0 }
+                  </div>
+                </LWTooltip>
+                <LWTooltip title="Downvotes">
+                  <div className={classes.downvotes}>
+                    { user.smallDownvoteCount || 0 }
+                  </div>
+                </LWTooltip>
+                <LWTooltip title="Big Downvotes">
+                  <div className={classes.bigDownvotes}>
+                    { user.bigDownvoteCount || 0 }
+                  </div>
+                </LWTooltip>
               </div>
               <hr className={classes.hr}/>
               <div>
