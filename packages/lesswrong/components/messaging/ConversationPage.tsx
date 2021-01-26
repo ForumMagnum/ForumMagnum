@@ -68,7 +68,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     </div>
   }
 
-  if (loading || loadingTemplate) return <Loading />
+  if (loading || (loadingTemplate && query?.templateCommentId)) return <Loading />
   if (!conversation) return <Error404 />
 
   return (
