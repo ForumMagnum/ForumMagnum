@@ -53,6 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   row: {
     display: "flex",
+    justifyContent: "space-between",
     alignItems: "center"
   },
   bigDownvotes: {
@@ -61,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 3,
     paddingBottom: 3,
     marginRight:8,
-    borderRadius: 3,
+    borderRadius: "50%",
     fontWeight: 600,
     border: `solid 2px ${theme.palette.error.dark}`
   },
@@ -72,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 3,
     paddingBottom: 3,
     marginRight:8,
-    borderRadius: 3,
+    borderRadius: "50%",
     border: `solid 1px ${theme.palette.error.dark}`
   },
   upvotes: {
@@ -82,7 +83,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 3,
     paddingBottom: 3,
     marginRight:8,
-    borderRadius: 3,
+    borderRadius: "50%",
     border: `solid 1px ${theme.palette.primary.dark}`
   },
   bigUpvotes: {
@@ -91,7 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 3,
     paddingBottom: 3,
     marginRight:8,
-    borderRadius: 3,
+    borderRadius: "50%",
     fontWeight: 600,
     border: `solid 2px ${theme.palette.primary.dark}`
   },
@@ -235,29 +236,28 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                 </Button>}
               </div>
               <hr className={classes.hr}/>
-              <div className={classes.row}>
+              <div>
                 <LWTooltip title="Big Upvotes">
-                  <div className={classes.bigUpvotes}>
+                  <span className={classes.bigUpvotes}>
                     { user.bigUpvoteCount || 0 }
-                  </div>
+                  </span>
                 </LWTooltip>
                 <LWTooltip title="Upvotes">
-                  <div className={classes.upvotes}>
+                  <span className={classes.upvotes}>
                     { user.smallUpvoteCount || 0 }
-                  </div>
+                  </span>
                 </LWTooltip>
                 <LWTooltip title="Downvotes">
-                  <div className={classes.downvotes}>
+                  <span className={classes.downvotes}>
                     { user.smallDownvoteCount || 0 }
-                  </div>
+                  </span>
                 </LWTooltip>
                 <LWTooltip title="Big Downvotes">
-                  <div className={classes.bigDownvotes}>
+                  <span className={classes.bigDownvotes}>
                     { user.bigDownvoteCount || 0 }
-                  </div>
+                  </span>
                 </LWTooltip>
               </div>
-              <hr className={classes.hr}/>
               <div>
                 <LWTooltip title="Post count">
                   <span>
