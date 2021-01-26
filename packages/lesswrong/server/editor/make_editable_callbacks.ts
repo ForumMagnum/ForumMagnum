@@ -11,7 +11,7 @@ import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
 import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { editableCollections, editableCollectionsFields, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
+import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
@@ -492,7 +492,7 @@ export function addAllEditableCallbacks() {
   for (let collectionName of editableCollections) {
     for (let fieldName of editableCollectionsFields[collectionName]) {
       const collection = getCollection(collectionName);
-      const options = editableCollectionsFields[collectionName][fieldName];
+      const options = editableCollectionsFieldOptions[collectionName][fieldName];
       addEditableCallbacks({collection, options});
     }
   }

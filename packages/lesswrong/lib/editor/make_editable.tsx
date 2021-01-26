@@ -114,7 +114,11 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   ]
   editableCollectionsFieldOptions[collectionName] = {
     ...editableCollectionsFieldOptions[collectionName],
-    [fieldName || "contents"]: {...options, getLocalStorageId},
+    [fieldName || "contents"]: {
+      ...options,
+      fieldName: fieldName||"contents",
+      getLocalStorageId
+    },
   };
 
   addFieldsDict(collection, {
