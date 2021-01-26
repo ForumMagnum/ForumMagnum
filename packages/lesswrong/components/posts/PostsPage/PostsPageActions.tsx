@@ -7,6 +7,9 @@ import { withTracking } from '../../../lib/analyticsEvents';
 import ClickawayListener from '@material-ui/core/ClickAwayListener';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    cursor: "pointer"
+  },
   icon: {
     verticalAlign: 'middle'
   },
@@ -50,7 +53,7 @@ class PostsPageActions extends PureComponent<PostsPageActionsProps,PostsPageActi
     if (!currentUser) return null;
 
     return (
-        <div>
+        <div className={classes.root}>
           <Icon className={classes.icon} onClick={this.handleClick}/> 
           <PopperCard
             open={Boolean(anchorEl)}

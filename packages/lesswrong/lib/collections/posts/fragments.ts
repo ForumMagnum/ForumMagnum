@@ -395,6 +395,7 @@ registerFragment(`
       html
       htmlHighlight
       wordCount
+      version
     }
     
     user {
