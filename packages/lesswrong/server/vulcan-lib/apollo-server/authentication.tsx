@@ -209,7 +209,6 @@ const authenticationResolvers = {
       }
 
       const { req, res } = context
-      console.log("Signing up with A/B test key: "+abTestKey);
       const { data: user } = await createMutator({
         collection: Users,
         document: {

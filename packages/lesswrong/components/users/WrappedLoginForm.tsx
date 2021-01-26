@@ -125,7 +125,6 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
   const submitFunction = async (e) => {
     e.preventDefault();
     const signupAbTestKey = getUserABTestKey(null, clientId);
-    console.log("Signing up with A/B test key: "+signupAbTestKey);
     const variables = 
       currentAction === "signup" ? { email, username, password, reCaptchaToken, abTestKey: signupAbTestKey, subscribeToCurated } : (
       currentAction === "login" ? { username, password } :
