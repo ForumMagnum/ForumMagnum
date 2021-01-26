@@ -27,7 +27,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
     const conversationId = response.data.createConversation.data._id
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
     history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, currentUser, history]);
+  }, [createConversation, user, currentUser, history, templateCommentId]);
 
   if (currentUser) {
     return (
