@@ -96,6 +96,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     border: `solid 2px ${theme.palette.primary.dark}`
   },
+  votesRow: {
+    marginTop: 12,
+    marginBottom: 12
+  },
   hr: {
     height: 0,
     borderTop: "none",
@@ -207,36 +211,36 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             <MetaInfo>
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-              <div className={classes.row}>
-                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-                {currentUser && <NewConversationButton user={user} currentUser={currentUser} templateCommentId={templateId}>
-                  <Button variant="outlined">Message</Button>
-                </NewConversationButton>}
-              </div>
+              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
               <hr className={classes.hr}/>
               <div className={classes.row}>
                 {!!(user.maxCommentCount || user.maxPostCount) && <LWTooltip title="Review">
                   <Button onClick={handleReview}>
-                    <DoneIcon />
+                    <DoneIcon /> Review
                   </Button>
                 </LWTooltip>}
                 <LWTooltip title="Snooze (approve all posts)">
                   <Button title="Snooze" onClick={handleSnooze}>
-                    <SnoozeIcon />
+                    <SnoozeIcon /> Snooze
                   </Button>
                 </LWTooltip>
                 {!user.reviewedByUserId && <LWTooltip title="Purge (delete and ban)">
                   <Button onClick={handlePurge}>
-                    <DeleteForeverIcon />
+                    <DeleteForeverIcon /> Purge
                   </Button>
                  </LWTooltip>}
-                {user.reviewedByUserId && <Button onClick={handleBan}>
-                  <RemoveCircleOutlineIcon /> Ban
-                </Button>}
+                {user.reviewedByUserId && <LWTooltip title="">
+                  <Button onClick={handleBan}>
+                    <RemoveCircleOutlineIcon /> Ban
+                  </Button>
+                </LWTooltip>}
+                {currentUser && <NewConversationButton user={user} currentUser={currentUser} templateCommentId={templateId}>
+                  <Button>Message</Button>
+                </NewConversationButton>}
               </div>
               <hr className={classes.hr}/>
-              <div>
+              <div className={classes.votesRow}>
                 <LWTooltip title="Big Upvotes">
                   <span className={classes.bigUpvotes}>
                     { user.bigUpvoteCount || 0 }
