@@ -194,7 +194,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
 
-  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
 
   if (hidden) { return null }
 
@@ -202,7 +202,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
   const templateId = defaultModeratorComments.get()[0]
-  console.log(defaultModeratorComments.get(), templateId)
+
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
@@ -236,7 +236,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                   </Button>
                 </LWTooltip>}
                 {currentUser && <NewConversationButton user={user} currentUser={currentUser} templateCommentId={templateId}>
-                  <Button>Message</Button>
+                  <Button variant="outlined">Message</Button>
                 </NewConversationButton>}
               </div>
               <hr className={classes.hr}/>
