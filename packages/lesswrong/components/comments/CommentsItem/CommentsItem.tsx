@@ -6,11 +6,11 @@ import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
+import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -268,7 +268,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
 
-        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
+        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.post.title}</Link>}
         {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
         <div className={classes.body}>
