@@ -146,11 +146,11 @@ const GatherTown = ({classes}: {
   const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
     <div>
       Click to read more about this space
-      <div>{"password: the12thvirtue"}</div></div>
-    }>
-      <Link to="/walledGarden" className={classes.learn}>
-        Learn More
-      </Link>
+    </div>
+  }>
+    <Link to="/walledGarden" className={classes.learn}>
+      Learn More
+    </Link>
   </LWTooltip> : null
 
   return (
