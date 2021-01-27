@@ -48,7 +48,6 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
       </Typography>
       <p>
         <a href="https://gather.town/app/aPVfK3G76UukgiHx/lesswrong-campus"><strong>Link to the Garden</strong></a><br/>
-        <strong>Password:&nbsp;</strong> <i><strong>the12thvirtue</strong> (please don't share)</i> 
       </p>
       <p>
         There are many kinds of important social interactions; and not all of those can be achieved on a scheduled Zoom call or from behind a keyboard. Even before the pandemic, it was challenging to make all the worthwhile conversations happen.
