@@ -17,10 +17,12 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
+import EditIcon from '@material-ui/icons/Edit';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { Select, MenuItem } from '@material-ui/core';
 
-export const defaultModeratorComments = new DatabasePublicSetting<Array<string>>('defaultModeratorComments', ["yMHoNoYZdk5cKa3wQ"])
+export const defaultModeratorComments = new DatabasePublicSetting<Array<object>>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -104,6 +106,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 0,
     borderTop: "none",
     borderBottom: "1px solid #ccc"
+  },
+  editIcon: {
+    width: 20,
+    color: theme.palette.grey[400]
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
@@ -202,6 +208,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
   const templateId = defaultModeratorComments.get()[0]
+  console.log(defaultModeratorComments.get(), defaultModeratorComments.get()[0])
 
   return (
     <span {...eventHandlers}>
@@ -237,9 +244,17 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                     </Button>
                   </LWTooltip>}
                 </div>
-                {currentUser && <NewConversationButton user={user} currentUser={currentUser} templateCommentId={templateId}>
-                  <Button variant="outlined">Message</Button>
-                </NewConversationButton>}
+                <div className={classes.row}>
+                  {currentUser && <Select value={0} variant="outlined">
+                    <MenuItem value={0}>Start a message</MenuItem>
+                    {defaultModeratorComments.get().map((template, i) => <MenuItem value={10}>
+                      <NewConversationButton user={user} currentUser={currentUser} templateCommentId={template.id}>
+                        {template.label}
+                      </NewConversationButton>
+                    </MenuItem>)}
+                  </Select>}
+                  <Link to="/tag/moderator-default-responses/discussion"><EditIcon className={classes.editIcon}/></Link>
+                </div>
               </div>
               <hr className={classes.hr}/>
               <div className={classes.votesRow}>
