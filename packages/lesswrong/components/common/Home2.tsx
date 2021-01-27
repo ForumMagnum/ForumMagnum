@@ -9,14 +9,13 @@ const Home2 = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
           <BookFrontpageWidget />
-          <FrontpageReviewPhase />
+          <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
-              <HomeLatestPosts />
+            <HomeLatestPosts />
           </AnalyticsInViewTracker>
-          <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsContext pageSectionContext="recentDiscussion">
             <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
               <RecentDiscussionFeed
@@ -24,12 +23,6 @@ const Home2 = () => {
                 commentsLimit={4}
                 maxAgeHours={18}
               />
-              { /*<RecentDiscussionThreadsList
-                terms={{view: 'recentDiscussionThreadsList', limit:20}}
-                commentsLimit={4}
-                maxAgeHours={18}
-                af={false}
-              />*/ }
             </AnalyticsInViewTracker>
           </AnalyticsContext>
         </React.Fragment>
