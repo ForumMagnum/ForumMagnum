@@ -80,6 +80,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           comment={comment.item}
           childComments={comment.children}
           key={comment.item._id}
+          parentCommentId={parentCommentId}
           parentAnswerId={parentAnswerId}
           forceSingleLine={forceSingleLine}
           forceNotSingleLine={forceNotSingleLine}

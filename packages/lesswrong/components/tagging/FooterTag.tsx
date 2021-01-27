@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
-export const tagStyle = (theme: ThemeType) => ({
+export const tagStyle = (theme: ThemeType): JssStyles => ({
   marginRight: 3,
   padding: 5,
   paddingLeft: 6,
@@ -22,7 +22,7 @@ export const tagStyle = (theme: ThemeType) => ({
   cursor: "pointer"
 })
 
-const newTagStyle = (theme: ThemeType) => ({
+const newTagStyle = (theme: ThemeType): JssStyles => ({
   marginRight: 4,
   padding: 5,
   paddingLeft: 8,
@@ -33,6 +33,13 @@ const newTagStyle = (theme: ThemeType) => ({
   color: theme.palette.primary.main,
   fontSize: 15
 })
+
+export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
+  fontSize: 12,
+  paddingTop: 1,
+  paddingBottom: 2,
+  marginBottom: 0
+});
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -62,10 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   hovercard: {
   },
   smallText: {
-    fontSize: 12,
-    paddingTop: 1,
-    paddingBottom: 2,
-    marginBottom: 0
+    ...smallTagTextStyle(theme),
   }
 });
 
