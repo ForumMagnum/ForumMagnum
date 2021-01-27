@@ -35,9 +35,16 @@ GardenCodes.addDefaultView((terms: GardenCodesViewTerms) => {
   }
   if (terms?.code) {
     selector = {
+      ...selector,
       code: terms.code,
     }
+  } else {
+    selector = {
+      ...selector,
+      hidden: false,
+    }
   }
+  
   return {
     selector,
     options: {
