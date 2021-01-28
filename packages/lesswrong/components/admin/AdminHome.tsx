@@ -18,14 +18,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   adminHomeOrModerationLogPage: {
     fontFamily: theme.typography.fontFamily,
   
-    "& h3": {
-      fontSize: 20,
-      fontWeight: 600,
+    "& h2": {
+      ...theme.typography.display3,
     },
   
-    "& h2": {
-      margin: "1%",
-    }
+    "& h3": {
+      ...theme.typography.display2,
+    },
+    
+    "& h4": {
+      ...theme.typography.display1,
+    },
   },
   adminLogGroup: {
     border: "solid 1px rgba(0,0,0,.2)",
@@ -182,10 +185,8 @@ const AdminHome = ({ classes }: {
       <div className={classes.adminHomeLayout}>
         <h2>Admin Console</h2>
         <div>
-          <div>
-            <h3>Server Information</h3>
-            <Components.AdminMetadata/>
-          </div>
+          <Components.AdminMetadata/>
+          
           <div className={classNames(classes.adminLogGroup, classes.recentLogins)}>
             <h3>Recent Logins</h3>
             <Components.Datatable

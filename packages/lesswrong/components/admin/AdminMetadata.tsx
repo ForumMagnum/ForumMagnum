@@ -6,9 +6,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   indexesTable: {
     border: "1px solid black",
     padding: 5,
+    ...theme.typography.code,
   },
   indexRow: {
-    wordWrap: "break-word",
+    lineBreak: "anywhere",
     display: "block",
     width: 700,
     padding: 5,
@@ -16,10 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const adminMetadataQuery = gql`query AdminMetadataQuery {
-  AdminMetadata {
-    extraIndexes
-    missingIndexes
-  }
+  AdminMetadata
 }`;
 
 const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
@@ -27,11 +25,17 @@ const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
   if (loading)
     return <Components.Loading/>
   
-  const adminMetadata = data.AdminMetadata;
-  let missingIndexes = JSON.parse(adminMetadata.missingIndexes);
-  let extraIndexes = JSON.parse(adminMetadata.extraIndexes);
+  const adminMetadata = JSON.parse(data.AdminMetadata);
+  const {missingIndexes, extraIndexes, serverInfo} = adminMetadata;
   
   return (<div>
+    <h4>Server Information</h4>
+    <ul>
+      {Object.keys(serverInfo).map(key => <li key={key}>
+        {key}: {typeof serverInfo[key]==="string" ? serverInfo[key] : JSON.stringify(serverInfo[key])}
+      </li>)}
+    </ul>
+    
     <h4>Missing Indexes</h4>
     { missingIndexes.length === 0
       ? "No missing indexes"
