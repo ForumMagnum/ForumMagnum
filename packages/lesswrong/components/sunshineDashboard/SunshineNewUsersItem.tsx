@@ -22,7 +22,8 @@ import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Select, MenuItem } from '@material-ui/core';
 
-export const defaultModeratorComments = new DatabasePublicSetting<Array<Object>>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
+type ModeratorCommentRecord = {label: string, id: string}
+export const defaultModeratorComments = new DatabasePublicSetting<ModeratorCommentRecord[]>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -108,11 +109,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[400]
   }
 })
-const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
+const SunshineNewUsersItem = ({ user, classes, updateUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  updateUser?: any,
-  allowContentPreview?: boolean,
+  updateUser?: any
 }) => {
   const currentUser = useCurrentUser();
   const [hidden, setHidden] = useState(false)
