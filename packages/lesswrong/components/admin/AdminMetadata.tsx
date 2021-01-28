@@ -29,14 +29,14 @@ const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
   const {missingIndexes, extraIndexes, serverInfo} = adminMetadata;
   
   return (<div>
-    <h4>Server Information</h4>
+    <h2>Server Information</h2>
     <ul>
       {Object.keys(serverInfo).map(key => <li key={key}>
         {key}: {typeof serverInfo[key]==="string" ? serverInfo[key] : JSON.stringify(serverInfo[key])}
       </li>)}
     </ul>
     
-    <h4>Missing Indexes</h4>
+    <h2>Missing Indexes</h2>
     { missingIndexes.length === 0
       ? "No missing indexes"
       : <table className={classes.indexesTable}><tbody>
@@ -53,7 +53,7 @@ const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
         </tbody></table>
     }
     
-    <h4>Extra Indexes</h4>
+    <h2>Extra Indexes</h2>
     { extraIndexes.length === 0
       ? "No extra indexes"
       : <table className={classes.indexesTable}><tbody>

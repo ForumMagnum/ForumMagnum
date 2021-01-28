@@ -107,8 +107,9 @@ class ModerationLog extends PureComponent<any> {
 
   render() {
     const { classes } = this.props;
+    const { SingleColumnSection } = Components;
     return (
-      <div className={classes.adminHomeOrModerationLogPage}>
+      <SingleColumnSection className={classes.adminHomeOrModerationLogPage}>
         <h2>Moderation Log</h2>
         <div className={classes.adminLogGroup}>
           <h3>Deleted Comments</h3>
@@ -151,7 +152,7 @@ class ModerationLog extends PureComponent<any> {
             showNew={false}
           />
         </div>
-      </div>
+      </SingleColumnSection>
     )
   }
 }
