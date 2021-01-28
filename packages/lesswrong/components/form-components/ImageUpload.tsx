@@ -14,7 +14,6 @@ const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<str
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: theme.spacing.unit,
     "& img": {
       display: "block",
       marginBottom: 8,
