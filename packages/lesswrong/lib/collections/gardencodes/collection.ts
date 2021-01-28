@@ -20,12 +20,12 @@ function generateCode(length) {
 
 export const eventTypes = [
   {
-    value: "private",
-    label: "Displayed only to you",
-  },
-  {
     value: "public",
     label: "Displayed on the public Garden Calendar",
+  },
+  {
+    value: "private",
+    label: "Displayed only to you",
   }
 ]
 

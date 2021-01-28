@@ -6,6 +6,11 @@ import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  row: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
   post: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
@@ -29,7 +34,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions } = Components
  
   if (!posts) return null
 
@@ -38,15 +43,18 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   return (
     <div>
       {newPosts.map(post=><div className={classes.post} key={post._id}>
-        <div>
-          <Link to={`/posts/${post._id}`}>
-            <PostsTitle post={post} showIcons={false} wrap/> 
-            {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
-          </Link>
-          <span className={classes.meta}>
-            <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
-            <SmallSideVote document={post} collection={Posts}/>
-          </span>
+        <div className={classes.row}>
+          <div>
+            <Link to={`/posts/${post._id}`}>
+              <PostsTitle post={post} showIcons={false} wrap/> 
+              {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
+            </Link>
+            <span className={classes.meta}>
+              <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
+              <SmallSideVote document={post} collection={Posts}/>
+            </span>
+          </div>
+          <PostsPageActions post={post} />
         </div>
         <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />
       </div>)}

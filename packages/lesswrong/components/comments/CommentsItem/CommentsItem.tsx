@@ -241,7 +241,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle } = Components
 
   if (!comment) {
     return null;
@@ -268,7 +268,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
 
-        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.post.title}</Link>}
+        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.post.title}</Link>
+          </LWTooltip>}
         {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
         <div className={classes.body}>

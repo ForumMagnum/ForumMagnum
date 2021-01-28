@@ -215,26 +215,28 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
               <hr className={classes.hr}/>
               <div className={classes.row}>
-                {!!(user.maxCommentCount || user.maxPostCount) && <LWTooltip title="Review">
-                  <Button onClick={handleReview}>
-                    <DoneIcon /> Review
-                  </Button>
-                </LWTooltip>}
-                <LWTooltip title="Snooze (approve all posts)">
-                  <Button title="Snooze" onClick={handleSnooze}>
-                    <SnoozeIcon /> Snooze
-                  </Button>
-                </LWTooltip>
-                {!user.reviewedByUserId && <LWTooltip title="Purge (delete and ban)">
-                  <Button onClick={handlePurge}>
-                    <DeleteForeverIcon /> Purge
-                  </Button>
-                 </LWTooltip>}
-                {user.reviewedByUserId && <LWTooltip title="">
-                  <Button onClick={handleBan}>
-                    <RemoveCircleOutlineIcon /> Ban
-                  </Button>
-                </LWTooltip>}
+                <div className={classes.row}>
+                  {!!(user.maxCommentCount || user.maxPostCount) && <LWTooltip title="Approve">
+                    <Button onClick={handleReview}>
+                      <DoneIcon />
+                    </Button>
+                  </LWTooltip>}
+                  <LWTooltip title="Snooze (approve all posts)">
+                    <Button title="Snooze" onClick={handleSnooze}>
+                      <SnoozeIcon />
+                    </Button>
+                  </LWTooltip>
+                  <LWTooltip title="Ban for 3 months">
+                    <Button onClick={handleBan}>
+                      <RemoveCircleOutlineIcon />
+                    </Button>
+                  </LWTooltip>
+                  {!user.reviewedByUserId && <LWTooltip title="Purge (delete and ban)">
+                    <Button onClick={handlePurge}>
+                      <DeleteForeverIcon />
+                    </Button>
+                  </LWTooltip>}
+                </div>
                 {currentUser && <NewConversationButton user={user} currentUser={currentUser} templateCommentId={templateId}>
                   <Button variant="outlined">Message</Button>
                 </NewConversationButton>}
