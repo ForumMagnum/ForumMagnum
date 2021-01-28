@@ -10,8 +10,7 @@ import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
 import { wrapAsync } from '../executionEnvironment';
 import { meteorUsersCollection } from '../meteorAccounts';
-
-// import { debug } from './debug';
+import { loggerConstructor } from '../utils/logging'
 
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
@@ -120,7 +119,8 @@ export const createCollection = <
   // ------------------------------------- Parameters -------------------------------- //
 
   collection.getParameters = ((terms: ViewTermsByCollectionName[N] = {}, apolloClient?: any, context?: ResolverContext): MergedViewQueryAndOptions<N,T> => {
-    // console.log(terms);
+    const logger = loggerConstructor(`views-${collectionName.toLowerCase()}`)
+    logger('getParameters(), terms:', terms);
 
     let parameters: any = {
       selector: {},
@@ -132,6 +132,7 @@ export const createCollection = <
         parameters,
         collection.defaultView(terms, apolloClient, context)
       );
+      logger('getParameters(), parameters after defaultView:', parameters)
     }
 
     // handle view option
@@ -153,6 +154,7 @@ export const createCollection = <
         mergedParameters.options.sort = view.options.sort;
       }
       parameters = mergedParameters;
+      logger('getParameters(), parameters after defaultView and view:', parameters)
     }
 
     // sort using terms.orderBy (overwrite defaultView's sort)
@@ -195,8 +197,7 @@ export const createCollection = <
     const limit = terms.limit || parameters.options.limit;
     parameters.options.limit = !limit || limit < 1 || limit > maxDocuments ? maxDocuments : limit;
 
-    // console.log(parameters);
-
+    logger('getParameters(), final parameters:', parameters);
     return parameters;
   }) as any;
 

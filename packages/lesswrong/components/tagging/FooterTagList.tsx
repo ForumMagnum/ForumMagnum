@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { tagStyle } from './FooterTag';
+import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import Card from '@material-ui/core/Card';
@@ -39,6 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 450,
     padding: 16,
     paddingBottom: 8
+  },
+  smallText: {
+    ...smallTagTextStyle,
   }
 });
 
@@ -115,19 +118,19 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   let postType = post.curatedDate
     ? <Link to={contentTypeInfo.curated.linkTarget}>
         <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.curated.tooltipBody}</Card>} tooltip={false}>
-          <div className={classes.frontpageOrPersonal}>Curated</div>
+          <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Curated</div>
         </LWTooltip>
       </Link>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
           <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.frontpage.tooltipBody}</Card>} tooltip={false}>
-            <div className={classes.frontpageOrPersonal}>Frontpage</div>
+            <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Frontpage</div>
           </LWTooltip>
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget}>
             <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.personal.tooltipBody}</Card>} tooltip={false}>
-              <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
+              <div className={classNames(classes.tag, classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Personal Blog</div>
             </LWTooltip>
           </MaybeLink>
         : null
