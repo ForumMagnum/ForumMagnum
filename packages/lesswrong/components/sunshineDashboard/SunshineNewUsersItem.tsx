@@ -22,7 +22,7 @@ import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Select, MenuItem } from '@material-ui/core';
 
-export const defaultModeratorComments = new DatabasePublicSetting<Array<object>>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
+export const defaultModeratorComments = new DatabasePublicSetting<Array<Object>>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -33,10 +33,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
     wordBreak: "break-word",
     display: "inline-block"
-  },
-  truncated: {
-    maxHeight: 800,
-    overflow: "hidden"
   },
   icon: {
     height: 13,
@@ -120,7 +116,6 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
 }) => {
   const currentUser = useCurrentUser();
   const [hidden, setHidden] = useState(false)
-  const [truncated, setTruncated] = useState(true)
   const { eventHandlers, hover, anchorEl } = useHover();
 
   const handleReview = () => {
@@ -207,9 +202,6 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
-  const templateId = defaultModeratorComments.get()[0]
-  console.log(defaultModeratorComments.get(), defaultModeratorComments.get()[0])
-
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
@@ -247,7 +239,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                 <div className={classes.row}>
                   {currentUser && <Select value={0} variant="outlined">
                     <MenuItem value={0}>Start a message</MenuItem>
-                    {defaultModeratorComments.get().map((template, i) => <MenuItem value={10}>
+                    {defaultModeratorComments.get().map((template, i) => <MenuItem key={`template-${template.label}`}>
                       <NewConversationButton user={user} currentUser={currentUser} templateCommentId={template.id}>
                         {template.label}
                       </NewConversationButton>
