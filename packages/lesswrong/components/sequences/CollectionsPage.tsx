@@ -56,6 +56,7 @@ const CollectionsPage = ({ documentId, classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
+  const [addingBook, setAddingBook] = useState(false);
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Collections",
@@ -69,7 +70,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionButton, ContentItemBody, Typography } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -112,7 +113,13 @@ const CollectionsPage = ({ documentId, classes }: {
         {/* For each book, print a section with a grid of sequences */}
         {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
       </div>
-      {canEdit && <SingleColumnSection>
+      
+      {canEdit && <SectionFooter>
+        <SectionButton>
+          <a onClick={() => setAddingBook(true)}>Add Book</a>
+        </SectionButton>
+      </SectionFooter>}
+      {addingBook && <SingleColumnSection>
         <BooksNewForm prefilledProps={{collectionId: collection._id}} />
       </SingleColumnSection>}
     </div>);
