@@ -23,7 +23,7 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   
   const { results, loading, loadMoreProps } = useMulti({
     terms: {
-      userId: currentUser?._id,
+      ...(personal && {userId: currentUser?._id}),
       ...terms
     },
     enableTotal: true,

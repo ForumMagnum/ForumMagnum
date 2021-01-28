@@ -128,6 +128,15 @@ const schema: SchemaType<DbGardenCode> = {
     },
     order: 30,
   },
+  hidden: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    order: 32,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],
