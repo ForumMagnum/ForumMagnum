@@ -10,17 +10,20 @@ const SequencesGridWrapper = ({
   terms,
   className,
   classes,
+  itemsPerPage=10,
   showLoadMore = false,
   showAuthor = false,
 }: {
   terms: SequencesViewTerms,
   className?: string,
   classes: ClassesType,
+  itemsPerPage?: number,
   showLoadMore?: boolean,
   showAuthor?: boolean,
 }) => {
-  const { results, loading, count, totalCount, loadMore, loadingMore } = useMulti({
+  const { results, loading, loadMoreProps } = useMulti({
     terms,
+    itemsPerPage,
     collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
     enableTotal: showLoadMore,
@@ -29,9 +32,7 @@ const SequencesGridWrapper = ({
   if (results && results.length) {
     return (<div className={classNames(className, classes.gridWrapper)}>
       <Components.SequencesGrid sequences={results} showAuthor={showAuthor} />
-      { showLoadMore && totalCount! > count! &&
-          <Components.LoadMore loading={loadingMore} loadMore={loadMore} count={count} totalCount={totalCount} />
-      }
+      {showLoadMore && <Components.LoadMore {...loadMoreProps} />}
     </div>);
   } else if (loading) {
     return (<div className={classNames(className, classes.grid)}>

@@ -51,6 +51,7 @@ const SequencesHome = ({classes}: {
         <div className={classes.sequencesGridWrapperWrapper}>
           <Components.SequencesGridWrapper
             terms={{'view':'curatedSequences', limit:12}}
+            itemsPerPage={24}
             showAuthor={true}
             showLoadMore={true}
           />
@@ -64,6 +65,7 @@ const SequencesHome = ({classes}: {
         <div className={classes.sequencesGridWrapperWrapper}>
           <Components.SequencesGridWrapper
             terms={{'view':'communitySequences', limit:12}}
+            itemsPerPage={24}
             showAuthor={true}
             showLoadMore={true}
           />
