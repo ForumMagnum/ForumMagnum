@@ -392,6 +392,9 @@ export const pBodyStyle = {
   '&:first-child': {
     marginTop: 0,
   },
+  'style~&': {
+    marginTop: 0,
+  },
   '&:last-child': {
     marginBottom: 0,
   }
