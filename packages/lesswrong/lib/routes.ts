@@ -813,6 +813,12 @@ addRoute(
     title: "2019 Nominations",
   },
   {
+    name: 'nominationsYear',
+    path: '/nominations/:reviewYear',
+    componentName: 'NominationsYear',
+    title: "LW Nominations",
+  },
+  {
     name: 'userReviews',
     path:'/users/:slug/reviews',
     componentName: 'UserReviews',
@@ -823,6 +829,12 @@ addRoute(
     path: '/reviews2018',
     componentName: 'Reviews2018',
     title: "2018 Reviews",
+  },
+  {
+    name: 'reviewsYear',
+    path: '/reviews/:reviewYear',
+    componentName: 'ReviewsYear',
+    title: "LW Reviews",
   },
   {
     name: 'reviews',
