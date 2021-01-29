@@ -13,10 +13,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
+const SunshineNewUsersList = ({ classes, terms }: {
   terms: UsersViewTerms,
-  classes: ClassesType,
-  allowContentPreview?: boolean,
+  classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
   const { results, loadMore, count, totalCount, showLoadMore } = useMulti({
@@ -37,7 +36,7 @@ const SunshineNewUsersList = ({ classes, terms, allowContentPreview }: {
         </SunshineListTitle>
         {results.map(user =>
           <div key={user._id} >
-            <SunshineNewUsersItem user={user} allowContentPreview={allowContentPreview}/>
+            <SunshineNewUsersItem user={user}/>
           </div>
         )}
         <div className={classes.loadMore}>
