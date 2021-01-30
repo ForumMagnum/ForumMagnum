@@ -161,7 +161,7 @@ const SequencesPage = ({ documentId, classes }: {
         </div>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+            <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id, limit: 100}} canEdit={canEdit} />
           </AnalyticsContext>
           {canCreateChapter ? <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
         </div>

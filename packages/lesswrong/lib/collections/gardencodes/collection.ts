@@ -20,12 +20,12 @@ function generateCode(length) {
 
 export const eventTypes = [
   {
-    value: "private",
-    label: "Displayed only to you",
-  },
-  {
     value: "public",
     label: "Displayed on the public Garden Calendar",
+  },
+  {
+    value: "private",
+    label: "Displayed only to you",
   }
 ]
 
@@ -127,6 +127,15 @@ const schema: SchemaType<DbGardenCode> = {
       options: eventTypes
     },
     order: 30,
+  },
+  hidden: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    order: 32,
+    hidden: true,
+    ...schemaDefaultValue(false),
   },
   deleted: {
     type: Boolean,
