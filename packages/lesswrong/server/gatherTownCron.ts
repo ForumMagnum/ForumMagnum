@@ -190,8 +190,6 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
           });
         } else if (jsonResponse.event === "reload") {
           reloadRequested = true;
-        } else {
-          console.log("Unrecognized JSON message: "+JSON.stringify(jsonResponse));
         }
       }
     } else if (firstByte === 1) {
@@ -203,9 +201,6 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
           playerInfoByName[player.name] = player;
         }
       }
-    } else {
-      // Unrecognized message type
-      console.log("Unrecognized message metatype: "+firstByte);
     }
   });
 
@@ -331,7 +326,6 @@ function interpretBinaryMessage(data: any): {players: {map: string, name: string
       
       pos = playerIdStart+playerIdLen;
     } else {
-      console.log("Unrecognized message type: "+messageType);
       // Unrecognized message type. Return what we have so far.
       return {players};
     }
