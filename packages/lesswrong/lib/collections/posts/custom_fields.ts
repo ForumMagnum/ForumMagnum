@@ -496,7 +496,6 @@ addFieldsDict(Posts, {
           const prevPost = await context.loaders.Posts.load(prevPostID);
           const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
           if (prevPostFiltered) {
-            console.log(`prevPost = ${prevPostFiltered.slug}, from sequenceId`);
             return prevPostFiltered;
           }
         }
@@ -507,7 +506,6 @@ addFieldsDict(Posts, {
           const prevPost = await context.loaders.Posts.load(prevPostID);
           const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
           if (prevPostFiltered) {
-            console.log(`prevPost = ${prevPostFiltered.slug}, from canonicalSequenceId`);
             return prevPostFiltered;
           }
         }
@@ -516,7 +514,6 @@ addFieldsDict(Posts, {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
         const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
         if (prevPostFiltered) {
-          console.log(`prevPost = ${prevPostFiltered.slug}, from canonicalPrevPostSlug`);
           return prevPostFiltered;
         }
       }
