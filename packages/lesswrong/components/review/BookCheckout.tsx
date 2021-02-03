@@ -9,7 +9,11 @@ const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.pu
 
 const styles = theme => ({
   root: {
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 200,
+    },
   },
   checkoutButton: {
     ...theme.typography.commentStyle,
@@ -28,16 +32,25 @@ const styles = theme => ({
     boxShadow: '0px 4px 5.5px 0px rgba(0, 0, 0, 0.07)',
     '&:hover': {
       opacity: 0.8
-    }
+    },
+    
+    [theme.breakpoints.down('xs')]: {
+      width: 175,
+    },
   },
   buyUsButton: {
     minWidth: 140,
+    marginBottom: 8,
   },
   intlButton: {
     background: "white",
     marginLeft: 10,
     color: "#606060",
     border: "1px solid #ccc",
+    
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 0,
+    },
   },
 })
 
