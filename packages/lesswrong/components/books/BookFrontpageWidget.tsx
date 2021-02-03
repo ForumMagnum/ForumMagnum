@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 36,
     fontSize: '1.2rem',
     marginLeft: 16,
-    marginRight: 16
+    marginRight: 16,
     whiteSpace: "nowrap",
   },
   buttonRow: {
