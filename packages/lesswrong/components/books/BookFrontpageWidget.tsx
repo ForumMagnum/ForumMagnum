@@ -177,7 +177,7 @@ const BookFrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books">
               Learn More
             </Link>
-            <BookCheckout ignoreMessages text={"Buy Another Book"}/>
+            <BookCheckout ignoreMessages text={"Buy Another"}/>
           </>}
         />
       }>
