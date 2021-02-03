@@ -154,16 +154,17 @@ async function initiateRefresh() {
   if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
     return;
   }
-  refreshIsPending = true;
   
-  console.log("Initiated refresh; waiting for server to be ready");
-  await waitForServerReady();
-  console.log("Notifying connected browser windows to refresh");
-  for (let connection of openWebsocketConnections) {
-    connection.send(`{"latestBuildId": "${buildId}"}`);
+  if (openWebsocketConnections.length > 0) {
+    refreshIsPending = true;
+    console.log("Initiated refresh; waiting for server to be ready");
+    await waitForServerReady();
+    console.log("Notifying connected browser windows to refresh");
+    for (let connection of openWebsocketConnections) {
+      connection.send(`{"latestBuildId": "${buildId}"}`);
+    }
+    refreshIsPending = false;
   }
-  
-  refreshIsPending = false;
 }
 
 function startWebsocketServer() {
