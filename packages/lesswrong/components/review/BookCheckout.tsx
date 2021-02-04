@@ -3,12 +3,17 @@ import { loadStripe } from "@stripe/stripe-js";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
+import classNames from 'classnames';
 
 const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
 const styles = theme => ({
   root: {
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 200,
+    },
   },
   checkoutButton: {
     ...theme.typography.commentStyle,
@@ -27,20 +32,49 @@ const styles = theme => ({
     boxShadow: '0px 4px 5.5px 0px rgba(0, 0, 0, 0.07)',
     '&:hover': {
       opacity: 0.8
-    }
-  }
-
+    },
+    
+    [theme.breakpoints.down('xs')]: {
+      width: 175,
+    },
+  },
+  buyUsButton: {
+    minWidth: 140,
+    marginBottom: 8,
+  },
+  intlButton: {
+    background: "white",
+    marginLeft: 10,
+    color: "#606060",
+    border: "1px solid #ccc",
+    
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 0,
+    },
+  },
 })
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
 const stripePublicKey = stripePublicKeySetting.get()
 const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
-const ProductDisplay = ({ handleClick, classes, text = "Pre-Order – $29"}) => (
-  <button className={classes.checkoutButton} id="checkout-button" role="link" onClick={handleClick}>
-    {text}
-  </button>
-);
+const amazonLink = "https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"
+
+const ProductDisplay = ({ handleClickAmazon, handleClickStripe, text="Buy", classes }: {
+  handleClickAmazon: (event: any)=>void,
+  handleClickStripe: (event: any)=>void,
+  text?: string,
+  classes: ClassesType,
+}) => {
+  return <>
+    <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
+      {`${text} (US) - $29`}
+    </button>
+    <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
+      {`${text} (international) - $29`}
+    </button>
+  </>
+};
 const Message = ({ message, classes }) => (
   <section>
     <p className={classes.messageParagraph}>{message}</p>
@@ -49,6 +83,7 @@ const Message = ({ message, classes }) => (
 export default function BookCheckout({classes, ignoreMessages = false, text}: {classes: ClassesType, ignoreMessages?: boolean, text?: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
+  
   useEffect(() => {
     // Check to see if this is a redirect back from Checkout
     const query = new URLSearchParams(window.location.search);
@@ -56,7 +91,11 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
       setMessage("Order placed! You will receive an email confirmation.");
     }
   }, []);
-  const handleClick = async (event) => {
+  const handleClickAmazon = async (event) => {
+    captureEvent("preOrderButtonClicked")
+    window.location.assign(amazonLink);
+  }
+  const handleClickStripe = async (event) => {
     captureEvent("preOrderButtonClicked")
     const stripe = await stripePromise;
     if (stripe) {
@@ -80,7 +119,7 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
     { (message && !ignoreMessages) ? (
       <Message message={message} classes={classes} />
     ) : (
-      <ProductDisplay handleClick={handleClick} classes={classes} text={text}/>
+      <ProductDisplay handleClickAmazon={handleClickAmazon} handleClickStripe={handleClickStripe} text={text} classes={classes}/>
     ) }
   </div>
 }
