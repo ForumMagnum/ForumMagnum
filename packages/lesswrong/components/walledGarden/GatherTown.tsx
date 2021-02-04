@@ -13,6 +13,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
+export const gatherTownUserTrackingIsBroken = new DatabasePublicSetting<boolean>('gatherTownUserTrackingIsBroken', false)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -114,7 +115,9 @@ const GatherTown = ({classes}: {
     fragmentName: 'lastEventFragment',
     enableTotal: false,
   });
-  const users = results && results[0]?.properties?.gatherTownUsers
+  const lastCheckResults = results && results[0]?.properties;
+  const checkFailed = lastCheckResults?.checkFailed;
+  const users = lastCheckResults?.gatherTownUsers;
   const userList = users && Object.keys(users)
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
@@ -167,7 +170,9 @@ const GatherTown = ({classes}: {
         </div>}
         {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
-          No users currently online. Check back later or be the first to join!
+          {(gatherTownUserTrackingIsBroken.get() || checkFailed)
+            ? "Unable to autodetect whether users are currently online. Pop in to find out!"
+            : "No users currently online. Check back later or be the first to join!"}
           {tooltip}
         </div>}
         <div className={classes.gardenCodesList}>

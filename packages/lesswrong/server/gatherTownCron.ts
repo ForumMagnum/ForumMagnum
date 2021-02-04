@@ -27,9 +27,10 @@ const pollGatherTownUsers = async () => {
   const roomName = gatherTownRoomName.get();
   const roomId = gatherTownRoomId.get();
   if (!roomName || !roomId) return;
-  const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
+  const result = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
+  const {gatherTownUsers, checkFailed, failureReason} = result;
   // eslint-disable-next-line no-console
-  console.log(gatherTownUsers);
+  console.log(result);
   void createMutator({
     collection: LWEvents,
     document: {
@@ -37,7 +38,7 @@ const pollGatherTownUsers = async () => {
       important: false,
       properties: {
         time: new Date(),
-        gatherTownUsers
+        gatherTownUsers, checkFailed, failureReason
       }
     },
     validate: false,
@@ -46,8 +47,13 @@ const pollGatherTownUsers = async () => {
 Globals.pollGatherTownUsers = pollGatherTownUsers;
 
 type GatherTownPlayerInfo = any;
+interface GatherTownCheckResult {
+  gatherTownUsers: Record<string,GatherTownPlayerInfo>,
+  checkFailed: boolean,
+  failureReason: string|null,
+}
 
-const getGatherTownUsers = async (password: string|null, roomId: string, roomName: string): Promise<Record<string,GatherTownPlayerInfo>> => {
+const getGatherTownUsers = async (password: string|null, roomId: string, roomName: string): Promise<GatherTownCheckResult> => {
   // Register new user to Firebase
   const authResponse = await fetch("https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCifrUkqu11lgjkz2jtp4Fx_GJh58HDlFQ", {
     "headers": {
@@ -64,6 +70,14 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "body": "{\"returnSecureToken\":true}",
     "method": "POST"
   });
+  
+  if (!authResponse.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during OAuth signin step 1: "+authResponse.status,
+    }
+  }
 
   const parsedResponse = await authResponse.json();
   const token = parsedResponse.idToken;
@@ -88,12 +102,20 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "method": "POST",
   });
 
+  if (!userInformation.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during OAuth signin step 2: "+userInformation.status,
+    }
+  }
+
   const parsedUserInformation = await userInformation.json()
 
   const localId = parsedUserInformation.users[0].localId
 
   // Register user to Gather Town
-  await fetch(`https://gather.town/api/registerUser?roomId=${roomId}%5C${roomName}&authToken=${token}`, {
+  const registerUserResponse = await fetch(`https://gather.town/api/registerUser?roomId=${roomId}%5C${roomName}&authToken=${token}`, {
     "headers": {
       "accept": "application/json, text/plain, */*",
       "accept-language": "en-US,en;q=0.9,de-DE;q=0.8,de;q=0.7",
@@ -106,6 +128,15 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "body": undefined,
     "method": "GET",
   });
+  
+  if (!registerUserResponse.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during registerUser step: "+registerUserResponse.status,
+    }
+  }
+
 
   // Enter password
   await fetch("https://gather.town/api/submitPassword", {
@@ -122,10 +153,15 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "body": `{"roomId":"${roomId}\\\\${roomName}","password":"${password}","authUser":"${localId}"}`,
     "method": "POST"
   });
+  // Response NOT checked, because we removed the password and that makes this fail, but that's actually ok
 
   // Create WebSocket connection.
+  let socketConnectedSuccessfully = false;
+  let socketReceivedAnyMessage = false;
+  let reloadRequested = false;
   const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}`);
   socket.on('open', function (data) {
+    socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
       event: "init",
       token: token,
@@ -137,6 +173,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   let playerInfoByName: Record<string,GatherTownPlayerInfo> = {};
 
   socket.on('message', function (data: any) {
+    socketReceivedAnyMessage = true;
     const firstByte: any = data.readUInt8(0);
     if (firstByte === 0) {
       // A JSON message
@@ -151,6 +188,8 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
               space: `${roomId}\\${roomName}`
             }
           });
+        } else if (jsonResponse.event === "reload") {
+          reloadRequested = true;
         }
       }
     } else if (firstByte === 1) {
@@ -162,17 +201,42 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
           playerInfoByName[player.name] = player;
         }
       }
-    } else {
-      // Unrecognized message type
     }
   });
 
   // We wait 3s for any responses to arrive via the socket message
   await wait(3000);
 
-  socket.close();
-  const playerNames = _.values(playerNamesById);
-  return toDictionary(playerNames, name=>name, name=>playerInfoByName[name]);
+  if (reloadRequested) {
+    socket.close();
+    return {
+      checkFailed: true,
+      gatherTownUsers: [],
+      failureReason: "Server requested reload (probably due to version number mismatch)",
+    };
+  } else if (socketConnectedSuccessfully && socketReceivedAnyMessage) {
+    socket.close();
+    const playerNames = _.values(playerNamesById);
+    return {
+      checkFailed: false,
+      gatherTownUsers: toDictionary(playerNames, name=>name, name=>playerInfoByName[name]),
+      failureReason: null,
+    };
+  } else if (socketConnectedSuccessfully) {
+    socket.close();
+    return {
+      checkFailed: true,
+      gatherTownUsers: [],
+      failureReason: "WebSocket connected but did not receive any messages",
+    };
+  } else {
+    socket.close();
+    return {
+      checkFailed: true,
+      gatherTownUsers: [],
+      failureReason: "Websocket connection failed",
+    };
+  }
 }
 
 function stringToArrayBuffer(string) {
