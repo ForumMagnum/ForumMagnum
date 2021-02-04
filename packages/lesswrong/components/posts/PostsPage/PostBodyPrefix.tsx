@@ -41,6 +41,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     </div>}
 
     <AlignmentCrosspostMessage post={post} />
+    {/* ea-forum-look-here */}
     { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       Because this is your first post, this post is awaiting moderator approval.
       <LWTooltip title={<p>
