@@ -102,7 +102,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
-          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} allowContentPreview={false}/>
+          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} />
         </div>}
       </div>}
 
