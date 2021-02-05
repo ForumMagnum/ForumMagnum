@@ -1,5 +1,5 @@
 
-export type ThemeName = "default"|"dark"|"comicsans"|"longlines"|"terminal"
+export type ThemeName = "default"|"dark"
 
 export type ThemeMetadata = {
   name: ThemeName
@@ -14,18 +14,6 @@ export const themeMetadata: Array<ThemeMetadata> = [
   {
     name: "dark",
     label: "Dark Mode"
-  },
-  {
-    name: "comicsans",
-    label: "Comic Sans"
-  },
-  {
-    name: "longlines",
-    label: "Extra Long Lines"
-  },
-  {
-    name: "terminal",
-    label: "VT100 Mode"
   },
 ]
 
