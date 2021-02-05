@@ -48,7 +48,7 @@ const palette = {
   }
 }
 
-const theme = createLWTheme({
+export const getLwTheme = (themeName) => createLWTheme(themeName, {
   palette: palette,
   typography: {
     fontFamily: sansSerifStack,
@@ -135,4 +135,4 @@ const theme = createLWTheme({
   }
 });
 
-export default theme
+export default getLwTheme

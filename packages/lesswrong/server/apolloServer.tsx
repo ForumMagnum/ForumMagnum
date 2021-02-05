@@ -141,7 +141,7 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     const renderResult = await renderWithCache(request, response);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
+    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, themeName } = renderResult;
     const {bundleHash} = getClientBundle();
 
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
@@ -149,6 +149,7 @@ export function startWebserver() {
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
+    const themeNameHeader = embedAsGlobalVar("themeName", renderResult.themeName);
     
     // Finally send generated HTML with initial data to the client
     if (redirectUrl) {
@@ -162,6 +163,7 @@ export function startWebserver() {
           + clientScript
           + headers.join('\n')
           + instanceSettingsHeader
+          + themeNameHeader
           + jssSheets
         + '</head>\n'
         + '<body>\n'+ssrBody+'</body>\n'

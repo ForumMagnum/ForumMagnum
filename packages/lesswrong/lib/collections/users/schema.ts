@@ -265,7 +265,15 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
-  }
+  },
+  theme: {
+    type: String,
+    optional: true, 
+    canCreate: ownsOrIsAdmin,
+    canUpdate: ownsOrIsAdmin,
+    canRead: ownsOrIsAdmin,
+    hidden: true,
+  },
 };
 
 export default schema;

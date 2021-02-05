@@ -60,7 +60,7 @@ const basicText = {
 
 const defaultTheme = createMuiTheme()
 
-const theme = createLWTheme({
+export const getEaTheme = (themeName) => createLWTheme(themeName, {
   palette,
   typography: {
     fontDownloads: [
@@ -301,5 +301,4 @@ const theme = createLWTheme({
     }
   }
 });
-
-export default theme
+export default getEaTheme;

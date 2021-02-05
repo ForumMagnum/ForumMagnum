@@ -125,6 +125,8 @@ importComponent("HoverPreviewLink", () => require('../components/linkPreview/Hov
 importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
+importComponent("ThemePickerMenu", () => require('../components/themes/ThemePickerMenu'));
+
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));

@@ -10,8 +10,9 @@ import crypto from 'crypto'; //nodejs core library
 import datetimeStyles from '../styles/datetimeStyles';
 import draftjsStyles from '../styles/draftjsStyles';
 import miscStyles from '../styles/miscStyles';
+import { isValidThemeName, ThemeName } from '../themes/themeNames';
 
-const generateMergedStylesheet = (): string => {
+const generateMergedStylesheet = (theme: ThemeName): string => {
   importAllComponents();
   
   const context: any = {};
@@ -30,7 +31,7 @@ const generateMergedStylesheet = (): string => {
       return <StyledComponent key={componentName}/>
     })}
   </div>
-  const WrappedTree = wrapWithMuiTheme(DummyTree, context);
+  const WrappedTree = wrapWithMuiTheme(DummyTree, context, theme);
   
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
@@ -43,28 +44,44 @@ const generateMergedStylesheet = (): string => {
   ].join("\n");
 }
 
-let mergedStylesheet: string|null = null;
-let stylesheetHash: string|null = null;
+type StylesheetAndHash = {
+  css: string
+  hash: string
+}
 
-export const getMergedStylesheet = (): {css: string, url: string, hash: string} => {
-  if (!mergedStylesheet)
-    mergedStylesheet = generateMergedStylesheet();
-  if (!stylesheetHash)
-    stylesheetHash = crypto.createHash('sha256').update(mergedStylesheet, 'utf8').digest('hex');
+const generateMergedStylesheetAndHash = (theme: ThemeName): StylesheetAndHash => {
+  const stylesheet = generateMergedStylesheet(theme);
+  const hash = crypto.createHash('sha256').update(stylesheet, 'utf8').digest('hex');
   return {
-    css: mergedStylesheet,
-    url: `/allStyles?hash=${stylesheetHash}`,
-    hash: stylesheetHash,
+    css: stylesheet,
+    hash: hash,
+  }
+}
+
+const mergedStylesheets: Partial<Record<ThemeName, StylesheetAndHash>> = {};
+
+export const getMergedStylesheet = (theme: ThemeName): {css: string, url: string, hash: string} => {
+  if (!mergedStylesheets[theme]) {
+    mergedStylesheets[theme] = generateMergedStylesheetAndHash(theme);
+  }
+  const mergedStylesheet = mergedStylesheets[theme]!;
+  
+  return {
+    css: mergedStylesheet.css,
+    url: `/allStyles?hash=${mergedStylesheet.hash}&theme=${theme}`,
+    hash: mergedStylesheet.hash,
   };
 }
 
 addStaticRoute("/allStyles", ({query}, req, res, next) => {
   const expectedHash = query?.hash;
-  const {hash: stylesheetHash, css} = getMergedStylesheet();
+  const themeName = query?.theme ?? "default";
+  const validThemeName = isValidThemeName(themeName) ? themeName : "default";
+  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeName);
   
   if (!expectedHash || expectedHash === stylesheetHash) {
     res.writeHead(200, {
-      "Cache-Control": "public, max-age=604800, immutable",
+      "Cache-Control": expectedHash ? "public, max-age=604800, immutable" : "public, max-age=604800",
       "Content-Type": "text/css; charset=utf-8"
     });
     res.end(css);

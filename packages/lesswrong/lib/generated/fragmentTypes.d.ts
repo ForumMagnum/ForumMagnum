@@ -18,6 +18,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly slug: string,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
+  readonly theme: string,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
@@ -982,6 +983,7 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly endTime: Date,
   readonly fbLink: string,
   readonly type: string,
+  readonly hidden: boolean,
   readonly deleted: boolean,
 }
 

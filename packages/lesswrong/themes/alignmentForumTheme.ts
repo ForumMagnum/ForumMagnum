@@ -39,7 +39,7 @@ const palette = {
   headerType: "primary"
 }
 
-const theme = createLWTheme({
+export const getAlignmentForumTheme = (themeName) => createLWTheme(themeName, {
   palette: palette,
   typography: {
     fontFamily: sansSerifStack,
@@ -111,5 +111,4 @@ const theme = createLWTheme({
     }
   }
 });
-
-export default theme
+export default getAlignmentForumTheme;

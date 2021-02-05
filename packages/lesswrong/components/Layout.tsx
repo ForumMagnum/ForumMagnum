@@ -54,6 +54,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: theme.spacing.unit/2,
     },
   },
+  wrapper: {
+    ...(theme.themeName==="dark" ? {
+      filter: "invert(1)",
+    } : {}),
+  },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
@@ -265,7 +270,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>

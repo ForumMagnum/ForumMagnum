@@ -1,7 +1,7 @@
 import React from 'react';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
-import forumTheme from '../../themes/forumTheme'
+import { getForumTheme } from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssCleanup from '../../components/themes/JssCleanup';
 
@@ -10,7 +10,7 @@ const MuiThemeProviderWrapper = (props, context) => {
     {props.children}
   </MuiThemeProvider>
 }
-export function wrapWithMuiTheme (app, context) {
+export function wrapWithMuiTheme (app, context, themeName) {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({
@@ -19,7 +19,7 @@ export function wrapWithMuiTheme (app, context) {
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <MuiThemeProviderWrapper theme={forumTheme} sheetsManager={new Map()}>
+      <MuiThemeProviderWrapper theme={getForumTheme(themeName)} sheetsManager={new Map()}>
         {app}
         <JssCleanup/>
       </MuiThemeProviderWrapper>

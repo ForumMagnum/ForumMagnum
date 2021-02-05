@@ -10,7 +10,7 @@ import { CookiesProvider } from 'react-cookie';
 import { BrowserRouter } from 'react-router-dom';
 import { ABTestGroupsContext } from '../../lib/abTestImpl';
 
-const AppGenerator = ({ apolloClient, abTestGroups }) => {
+const AppGenerator = ({ apolloClient, abTestGroups, themeName }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
       <CookiesProvider>
@@ -22,6 +22,6 @@ const AppGenerator = ({ apolloClient, abTestGroups }) => {
       </CookiesProvider>
     </ApolloProvider>
   );
-  return wrapWithMuiTheme(App);
+  return wrapWithMuiTheme(App, themeName);
 };
 export default AppGenerator;

@@ -188,6 +188,7 @@ interface DbGardenCode extends DbObject {
   endTime: Date
   fbLink: string
   type: string
+  hidden: boolean
   deleted: boolean
   contents: EditableFieldContents
   pingbacks: any /*{"definitions":[{}]}*/
@@ -601,6 +602,7 @@ interface DbUser extends DbObject {
   slug: string
   groups: Array<string>
   lwWikiImport: boolean
+  theme: string
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string

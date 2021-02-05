@@ -23,6 +23,7 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { isValidThemeName, ThemeName } from '../../../themes/themeNames';
 import type { Request, Response } from 'express';
 
 type RenderTimings = {
@@ -39,6 +40,7 @@ export type RenderResult = {
   status: number|undefined,
   redirectUrl: string|undefined
   abTestGroups: RelevantTestGroupAllocation
+  themeName: ThemeName,
   timings: RenderTimings
 }
 
@@ -155,8 +157,10 @@ export const renderRequest = async ({req, user, startTime, res}: {
     abTestGroups={abTestGroups}
   />;
 
-  const WrappedApp = wrapWithMuiTheme(App, context);
+  const themeName = (user?.theme && isValidThemeName(user.theme)) ? user.theme : "default";
 
+  const WrappedApp = wrapWithMuiTheme(App, context, themeName);
+  
   let htmlContent = '';
   try {
     htmlContent = await renderToStringWithData(WrappedApp);
@@ -182,7 +186,7 @@ export const renderRequest = async ({req, user, startTime, res}: {
   const sheetsRegistry = context.sheetsRegistry;
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}">`
+    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet(themeName).url}">`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {
@@ -203,6 +207,7 @@ export const renderRequest = async ({req, user, startTime, res}: {
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
     abTestGroups,
+    themeName: themeName,
     timings,
   };
 }
