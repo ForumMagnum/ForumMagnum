@@ -170,7 +170,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser }: {
           deleteContent: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(12, 'months').toDate()
+          banned: moment().add(100, 'months').toDate()
         }
       })
     }
