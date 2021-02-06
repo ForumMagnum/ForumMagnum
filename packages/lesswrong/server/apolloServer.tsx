@@ -149,7 +149,7 @@ export function startWebserver() {
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
-    const themeNameHeader = embedAsGlobalVar("themeName", renderResult.themeName);
+    const themeNameHeader = embedAsGlobalVar("themeName", themeName);
     
     // Finally send generated HTML with initial data to the client
     if (redirectUrl) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ThemeName, ThemeMetadata, themeMetadata } from '../../themes/themeNames';
+import { ThemeMetadata, themeMetadata } from '../../themes/themeNames';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 
