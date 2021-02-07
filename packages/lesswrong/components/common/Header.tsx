@@ -226,11 +226,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
     </React.Fragment>
   }
 
-  const notificationTerms: NotificationsViewTerms = {
-    view: 'userNotifications',
-    userId: currentUser ? currentUser._id : "",
-    type: "newMessage"
-  }
   const hasLogo = forumTypeSetting.get() === 'EAForum'
 
   const {
@@ -283,7 +278,12 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                   </div>}
                 {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
                 {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
-                {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+                {currentUser && <NotificationsMenuButton
+                  color={getHeaderTextColor(theme)}
+                  toggle={handleNotificationToggle}
+                  open={notificationOpen}
+                  currentUser={currentUser}
+                />}
               </div>
             </Toolbar>
           </AppBar>
@@ -297,7 +297,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
         {currentUser && <NotificationsMenu
           open={notificationOpen}
           hasOpened={notificationHasOpened}
-          terms={notificationTerms}
           setIsOpen={handleSetNotificationDrawerOpen}
         />}
       </div>

@@ -5,7 +5,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import { useCurrentUser } from '../common/withUser';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -32,16 +31,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
-  terms: NotificationsViewTerms,
-  classes: ClassesType,
+const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: {
   open: boolean,
   color?: string,
   toggle: any,
+  currentUser: UsersCurrent,
+  classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
   const { results } = useMulti({
-    terms,
+    terms: {
+      view: 'userNotifications',
+      userId: currentUser._id
+    },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     pollInterval: 0,
