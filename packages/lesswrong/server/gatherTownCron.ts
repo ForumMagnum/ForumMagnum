@@ -11,7 +11,6 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
-const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
 
 if (isProduction && forumTypeSetting.get() === "LessWrong") {
   addCronJob({
@@ -157,13 +156,37 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   });
   // Response NOT checked, because we removed the password and that makes this fail, but that's actually ok
 
+  // Find out what websocket server we're supposed to connect to
+  const getGameServerResponse = await fetch("https://gather.town/api/getGameServer", {
+    "headers": {
+      "accept": "application/json, text/plain, */*",
+      "accept-language": "en-US,en;q=0.9,de-DE;q=0.8,de;q=0.7",
+      "cache-control": "no-cache",
+      "content-type": "application/json;charset=UTF-8",
+      "pragma": "no-cache",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+    },
+    "body": `{"room":"${roomId}\\\\${roomName}"}`,
+    method: "POST",
+  });
+  if (!getGameServerResponse.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during getGameServer step: "+registerUserResponse.status,
+    }
+  }
+  const websocketServerUrl = await getGameServerResponse.text();
+  
   // Create WebSocket connection.
   let socketConnectedSuccessfully = false;
   let socketReceivedAnyMessage = false;
   let reloadRequested = false;
   // eslint-disable-next-line no-console
-  console.log(`Connecting to websocket server ${gatherTownWebsocketServer.get()}`);
-  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}`);
+  console.log(`Connecting to websocket server ${websocketServerUrl}`);
+  const socket = new WebSocket(websocketServerUrl);
   socket.on('open', function (data) {
     socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
