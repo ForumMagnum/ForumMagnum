@@ -77,12 +77,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   siteLogo: {
     marginLeft: -theme.spacing.unit * 1.5,
   },
-  hideOnDesktop: {
+  hideLgUp: {
     [theme.breakpoints.up('lg')]: {
       display:"none"
     }
   },
-  hideOnMobile: {
+  hideMdDown: {
     [theme.breakpoints.down('md')]: {
       display:"none"
     }
@@ -192,30 +192,56 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
   }
 
   const renderNavigationMenuButton = () => {
+    // The navigation menu button either toggles a free floating sidebar, opens
+    // a drawer with site navigation, or a drawer with table of contents. (This
+    // is structured a little oddly because the hideSmDown/hideMdUp filters
+    // cause a misalignment if they're in the wrong part of the tree.)
     return <React.Fragment>
-      <IconButton
-        className={classNames(
-          classes.menuButton,
-          {[classes.hideOnDesktop]: standaloneNavigationPresent && unFixed}
-        )}
-        color="inherit"
-        aria-label="Menu"
-        onClick={()=>setNavigationOpen(true)}
-      >
-        {/* Show the ToC icon if there's a table of contents being displayed  */}
-        {toc?.sections ? <span>
-          <div className={classes.hideSmDown}>
-            <MenuIcon />
-          </div>
-          <div className={classes.hideMdUp}>
-            <TocIcon />
-          </div>
-        </span> : <MenuIcon />}
-      </IconButton>
+      {toc?.sections
+        ? <>
+            <div className={classes.hideSmDown}>
+              <IconButton
+                className={classNames(
+                  classes.menuButton,
+                  {[classes.hideLgUp]: standaloneNavigationPresent && unFixed}
+                )}
+                color="inherit"
+                aria-label="Menu"
+                onClick={()=>setNavigationOpen(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+            </div>
+            <div className={classes.hideMdUp}>
+              <IconButton
+                className={classNames(
+                  classes.menuButton,
+                  {[classes.hideLgUp]: standaloneNavigationPresent && unFixed}
+                )}
+                color="inherit"
+                aria-label="Menu"
+                onClick={()=>setNavigationOpen(true)}
+              >
+                <TocIcon />
+              </IconButton>
+            </div>
+          </>
+        : <IconButton
+            className={classNames(
+              classes.menuButton,
+              {[classes.hideLgUp]: standaloneNavigationPresent && unFixed}
+            )}
+            color="inherit"
+            aria-label="Menu"
+            onClick={()=>setNavigationOpen(true)}
+          >
+            <MenuIcon/>
+          </IconButton>
+      }
       {standaloneNavigationPresent && unFixed && <IconButton
         className={classNames(
           classes.menuButton,
-          classes.hideOnMobile
+          classes.hideMdDown
         )}
         color="inherit"
         aria-label="Menu"
@@ -271,7 +297,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                 <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
-                {currentUser && <div className={searchOpen ? classes.hideOnMobile : undefined}>
+                {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
                     <AnalyticsContext pageSectionContext="usersMenu">
                       <UsersMenu color={getHeaderTextColor(theme)} />
                     </AnalyticsContext>
