@@ -3,7 +3,6 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './ins
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
-import { looksLikeDbIdString } from './routeUtil';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -17,7 +16,7 @@ const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
-function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): PingbackDocument|null {
+async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
   if (!postId)
     return null;
 

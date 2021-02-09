@@ -1,6 +1,5 @@
 import Collections from "../../lib/collections/collections/collection";
 import Sequences from "../../lib/collections/sequences/collection";
-import { Books } from '../../lib/collections/books/collection'
 import { Posts } from "../../lib/collections/posts";
 import { runQuery } from '../vulcan-lib';
 import { getCollectionHooks } from '../mutationCallbacks';

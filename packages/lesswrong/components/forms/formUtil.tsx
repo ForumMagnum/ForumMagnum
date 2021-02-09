@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 
@@ -45,7 +45,7 @@ class Form<T> {
 }
 
 
-const useEditForm = <T extends any>({initialValue, fragmentName}: {
+export const useEditForm = <T extends any>({initialValue, fragmentName}: {
   initialValue: any,
   fragmentName: any
 }): {
@@ -58,7 +58,7 @@ const useEditForm = <T extends any>({initialValue, fragmentName}: {
   };
 }
 
-const useFormComponent = <T extends any>(form, fieldName): {
+export const useFormComponent = <T extends any>(form, fieldName): {
   value: any,
   setValue: (newValue: any)=>void,
   disabled: boolean,
@@ -71,13 +71,13 @@ const useFormComponent = <T extends any>(form, fieldName): {
   };
 }
 
-const FormContainer = <T extends any>({form}: {
+export const FormContainer = <T extends any>({form}: {
   form: Form<T>,
 }) => {
   // TODO
 }
 
-const FormCheckbox = <T extends any>({form, fieldName, label}: {
+export const FormCheckbox = <T extends any>({form, fieldName, label}: {
   form: Form<T>
   fieldName: keyof T,
   label: React.ReactNode,

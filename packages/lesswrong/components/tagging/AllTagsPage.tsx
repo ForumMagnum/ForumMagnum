@@ -63,7 +63,7 @@ const AllTagsPage = ({classes}: {
   const { query } = useLocation()
   const { openDialog } = useDialog()
   const wikiGrade = query?.tagFilter
-  const { results, loadMoreProps, totalCount, count } = useMulti({
+  const { results, loadMoreProps } = useMulti({
     terms: {
       view: "allTagsHierarchical",
       wikiGrade: reverseWikiGradeDescriptions[wikiGrade]
