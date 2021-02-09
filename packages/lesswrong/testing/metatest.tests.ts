@@ -7,10 +7,6 @@ import {
 
 testStartup();
 
-function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 describe('Utils', () => {
   describe('createDummyUser', () => {
     it('generates appropriate email', async () => {

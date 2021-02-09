@@ -21,7 +21,6 @@ import { formatError } from 'apollo-errors';
 import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
-import React from 'react';
 import path from 'path'
 import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';

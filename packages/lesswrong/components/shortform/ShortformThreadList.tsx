@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ShortformThreadList = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
+  const { LoadMore, CommentWithReplies, ShortformSubmitForm } = Components
   const { results, loadMoreProps, refetch } = useMulti({
     terms: {
       view: 'shortform',

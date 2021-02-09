@@ -8,7 +8,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     graphQLErrors.map(({ message, locations, path }) => {
       const locationStr = locations && locationsToStr([...locations])
       // eslint-disable-next-line no-console
-      console.log(`[GraphQL error]: Message: ${message}, Location: ${locationsToStr(locations)}, Path: ${path}`);
+      console.log(`[GraphQL error]: Message: ${message}, Location: ${locationStr}, Path: ${path}`);
     });
   if (networkError) {
     // eslint-disable-next-line no-console

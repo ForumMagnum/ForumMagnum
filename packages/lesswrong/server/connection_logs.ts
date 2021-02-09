@@ -1,6 +1,5 @@
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import { createMutator } from './vulcan-lib';
-import Users from '../lib/collections/users/collection';
 import { onServerConnect } from '../server/meteorServerSideFns';
 
 onServerConnect(async (connection) => {
