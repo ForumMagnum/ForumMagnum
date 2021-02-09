@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { shallowEqual } from '../../lib/utils/componentUtils';
 import { isClient } from '../../lib/executionEnvironment';
 
 interface ListeningComponentState {

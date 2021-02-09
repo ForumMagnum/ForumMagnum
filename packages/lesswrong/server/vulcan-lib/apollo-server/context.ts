@@ -14,9 +14,8 @@ import Sentry from '@sentry/node';
 import DataLoader from 'dataloader';
 import { Accounts } from '../../../lib/meteorAccounts';
 import Cookies from 'universal-cookie';
-import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
+import { userIdentifiedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
-import { getSchemaContextBase } from './initGraphQL';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
@@ -60,11 +59,11 @@ const getAuthToken = req => {
   return req.headers.authorization || new Cookies(req.cookies).get('meteor_login_token');
 };
 // @see https://www.apollographql.com/docs/react/recipes/meteor#Server
-const setupAuthToken = (user: DbUser|null, context: ResolverContext) => {
+const setupAuthToken = async (user: DbUser|null): Promise<{
+  userId: string|null,
+  currentUser: DbUser|null,
+}> => {
   if (user) {
-    context.userId = user._id;
-    context.currentUser = user;
-    
     Sentry.configureScope(scope => {
       scope.setUser({
         id: user._id,
@@ -74,13 +73,19 @@ const setupAuthToken = (user: DbUser|null, context: ResolverContext) => {
     });
     
     // identify user to any server-side analytics providers
-    runCallbacks({
-      name: 'events.identify',
-      iterator: user
+    await userIdentifiedCallback.runCallbacks({
+      iterator: user,
+      properties: [],
     });
+    return {
+      userId: user._id,
+      currentUser: user,
+    };
   } else {
-    context.userId = null;
-    context.currentUser = null;
+    return {
+      userId: null,
+      currentUser: null,
+    };
   }
 };
 
@@ -105,20 +110,15 @@ export const generateDataLoaders = (): {
 
 export const computeContextFromUser = async (user: DbUser|null, headers): Promise<ResolverContext> => {
   let context: ResolverContext = {
-    ...getSchemaContextBase(),
     ...getCollectionsByName(),
-    ...generateDataLoaders()
+    ...generateDataLoaders(),
+    headers,
+    locale: getHeaderLocale(headers, null),
+    ...await setupAuthToken(user),
   };
 
   if (user)
     context.loaders.Users.prime(user._id, user);
-
-  setupAuthToken(user, context);
-
-  //add the headers to the context
-  context.headers = headers;
-
-  context.locale = getHeaderLocale(headers, null);
 
   return context;
 }

@@ -12,6 +12,7 @@ import {
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import clone from 'lodash/clone';
 import { onStartup, wrapAsync } from '../../lib/executionEnvironment';
+import { getSchema } from '../../lib/utils/getSchema';
 import { Accounts } from '../../lib/meteorAccounts';
 import * as _ from 'underscore';
 
@@ -41,7 +42,7 @@ function onCreateUserCallback(options, user) {
 
   const hooks = getCollectionHooks("Users");
   const context = createAnonymousContext();
-  const schema = Users.simpleSchema()._schema;
+  const schema = getSchema(Users);
 
   delete options.password; // we don't need to store the password digest
   delete options.username; // username is already in user object
@@ -89,14 +90,15 @@ function onCreateUserCallback(options, user) {
   // run onCreate step
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
-    if (schema[fieldName].onCreate) {
+    const schemaField = schema[fieldName];
+    if (schemaField.onCreate) {
       const document = clone(user);
       // eslint-disable-next-line no-await-in-loop
-      autoValue = asyncWrapper(schema[fieldName].onCreate)({ document, newDocument: document, fieldName });
-    } else if (schema[fieldName].onInsert) {
+      autoValue = asyncWrapper(schemaField.onCreate)({ document, newDocument: document, fieldName });
+    } else if (schemaField.onInsert) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
-      autoValue = schema[fieldName].onInsert(clone(user));
+      autoValue = schemaField.onInsert(clone(user), user);
     }
     if (typeof autoValue !== 'undefined') {
       user[fieldName] = autoValue;

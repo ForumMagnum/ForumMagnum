@@ -1,6 +1,6 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, SchemaType } from '../../../lib/utils/schemaUtils';
-import { Posts } from '../posts/collection'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
+import { mongoFindOne } from '../../mongoQueries';
 import { commentGetPageUrl } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -208,7 +208,7 @@ const schema: SchemaType<DbComment> = {
     viewableBy: ['guests'],
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
-      const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
+      const params = Comments.getParameters({view:"shortformLatestChildren", topLevelCommentId: comment._id})
       return await Comments.find(params.selector, params.options).fetch()
     }
   }),
@@ -228,7 +228,7 @@ const schema: SchemaType<DbComment> = {
       needsUpdate: data => ('postId' in data),
       getValue: async (comment: DbComment): Promise<boolean> => {
         if (!comment.postId) return false;
-        const post = await Posts.findOne({_id: comment.postId});
+        const post = await mongoFindOne("Posts", {_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
       }
@@ -271,7 +271,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     onCreate: async ({newDocument}) => {
       if (!newDocument.postId) return "1.0.0";
-      const post = await Posts.findOne({_id: newDocument.postId})
+      const post = await mongoFindOne("Posts", {_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
   },
@@ -298,21 +298,21 @@ const schema: SchemaType<DbComment> = {
     hidden: true,
     onUpdate: async ({data, currentUser, document, oldDocument, context}: {
       data: Partial<DbComment>,
-      currentUser: DbUser,
+      currentUser: DbUser|null,
       document: DbComment,
       oldDocument: DbComment,
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
         Utils.updateMutator({
-          collection: Posts,
+          collection: context.Posts,
           context,
           selector: {_id:document.postId},
           data: { lastCommentPromotedAt: new Date() },
           currentUser,
           validate: false
         })
-        return currentUser._id
+        return currentUser!._id
       }
     }
   },
@@ -348,7 +348,7 @@ const schema: SchemaType<DbComment> = {
       needsUpdate: data => ('postId' in data),
       getValue: async comment => {
         if (!comment.postId) return false;
-        const post = await Posts.findOne({_id: comment.postId});
+        const post = await mongoFindOne("Posts", {_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
       }

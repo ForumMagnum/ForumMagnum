@@ -3,10 +3,10 @@ import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import { userIsAllowedToComment } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import type { AlgoliaDocument } from '../../../server/search/utils';
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 
-export const commentMutationOptions = {
+export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: (user: DbUser|null, document: DbComment|null) => {
     if (!user) return false;
 

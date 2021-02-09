@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
-import { metaculusBackground } from '../components/linkPreview/PostLinkPreview';
+
+export const metaculusBackground = "#2c3947"
 
 const hideSpoilers = {
   backgroundColor: 'black',
@@ -62,7 +63,7 @@ const metaculusPreviewStyles = () => ({
     backgroundColor: metaculusBackground,
     '& iframe': {
       width: '100%',
-      height: 250,
+      height: 400,
       border: 'none'
     }
   }
@@ -262,7 +263,18 @@ export const postBodyStyles = (theme: ThemeType) => {
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType) => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
+  // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
+
+  const pointerEvents = dontIncludePointerEvents ?
+    {} :
+    {
+      pointerEvents: 'none',
+      '& *': {
+        pointerEvents: 'auto'
+      },
+    }
+
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
@@ -289,10 +301,7 @@ export const commentBodyStyles = (theme: ThemeType) => {
     // spoiler styles
     // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
     // but it's the only way I was able to make this weird stuff work.
-    pointerEvents: 'none',
-    '& *': {
-      pointerEvents: 'auto'
-    },
+    ...pointerEvents,
     '& > *:hover ~ .spoiler': {
       color: 'black'
     },
@@ -340,8 +349,8 @@ export const emailBodyStyles = baseBodyStyles
 
 const smallPostStyles = (theme: ThemeType) => ({
   ...theme.typography.body2,
-  fontSize: "1.2rem",
-  lineHeight: "1.8rem",
+  fontSize: "1.28rem",
+  lineHeight: "1.75rem",
   ...theme.typography.postStyle,
   '& blockquote': {
     ...theme.typography.body2,
@@ -353,7 +362,7 @@ const smallPostStyles = (theme: ThemeType) => ({
   '& li': {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontSize: "1.2rem",
+    fontSize: "1.28rem",
     lineHeight: "1.8rem",
   },
 })
@@ -362,8 +371,9 @@ export const postHighlightStyles = (theme: ThemeType) => {
   const postHighlightStyles = {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
-      ...theme.typography.body2,
-      ...theme.typography.postStyle,
+      fontSize: "1.6rem",
+      // Cancel out a negative margin which would cause clipping
+      marginBlickStart: "0 !important",
     },
   }
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})

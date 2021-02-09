@@ -32,7 +32,6 @@ http@1.4.2
 id-map@1.1.0
 inter-process-messaging@0.1.1
 lesswrong@2.0.0
-littledata:synced-cron@1.5.1
 lmieulet:meteor-coverage@2.0.2
 localstorage@1.2.0
 logging@1.1.20

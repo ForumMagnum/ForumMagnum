@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
@@ -44,6 +43,7 @@ const PostsVote = ({ post, classes }: {
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts");
+  const {VoteButton, Typography} = Components;
 
   return (
       <div className={classes.voteBlock}>
@@ -53,7 +53,7 @@ const PostsVote = ({ post, classes }: {
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.upvote}>
-            <Components.VoteButton
+            <VoteButton
               orientation="up"
               color="secondary"
               voteType="Upvote"
@@ -67,7 +67,10 @@ const PostsVote = ({ post, classes }: {
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
-            <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
+            <div> 
+              {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
+              <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
+            </div>
           </Tooltip>
 
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
@@ -90,7 +93,7 @@ const PostsVote = ({ post, classes }: {
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.downvote}>
-            <Components.VoteButton
+            <VoteButton
               orientation="down"
               color="error"
               voteType="Downvote"

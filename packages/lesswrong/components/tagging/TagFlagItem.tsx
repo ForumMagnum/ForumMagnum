@@ -1,6 +1,4 @@
 import React from "react"
-import { TagFlags } from "../../lib";
-import { Tags } from "../../lib/collections/tags/collection";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
@@ -36,10 +34,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 
 const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
   documentId?: string,
-  itemType?: "tagFlagId" | "allPages" | "userPages" 
+  itemType?: ItemTypeName,
   showNumber?: boolean,
   style?: "white"|"grey"|"black",
   classes: ClassesType,
@@ -49,21 +48,21 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
     documentId,
-    collection: TagFlags,
+    collectionName: "TagFlags",
     fetchPolicy: "cache-first",
     fragmentName: "TagFlagFragment",
   })
   
   
-  const TagFlagItemTerms = { 
-      allPages: {view: "allPagesByNewest"},
-      userPages: {view: "userTags", userId: currentUser?._id},
-      tagFlagId: {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
-    }
-    
+  const TagFlagItemTerms: Record<ItemTypeName,TagsViewTerms> = {
+    allPages: {view: "allPagesByNewest"},
+    userPages: {view: "userTags", userId: currentUser?._id},
+    tagFlagId: {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
+  }
+  
   const { totalCount, loading } = useMulti({
     terms: TagFlagItemTerms[itemType],
-    collection: Tags,
+    collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
     limit: 0,
     skip: !showNumber,

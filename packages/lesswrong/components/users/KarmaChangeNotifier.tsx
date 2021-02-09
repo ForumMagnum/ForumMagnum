@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withSingle } from '../../lib/crud/withSingle';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -9,7 +9,6 @@ import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from '../../lib/collections/users/collection';
-import Typography from '@material-ui/core/Typography';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
@@ -51,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   votedItemScoreChange: {
     display: "inline-block",
-    width: 20,
+    minWidth: 20,
     textAlign: "right",
   },
   votedItemDescription: {
@@ -122,7 +121,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   const MenuItemUntyped = MenuItem as any;
   
   return (
-    <Typography variant="body2">
+    <Components.Typography variant="body2">
       {noKarmaChanges ?
         <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span>
         :
@@ -159,14 +158,14 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
       <Link to={`/account`} onClick={handleClose}>
         <span className={classes.settings}>Change Settings </span>
       </Link>
-    </Typography>
+    </Components.Typography>
   );
 }
 
 interface ExternalProps {
   documentId: string,
 }
-interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps, WithTrackingProps {
+interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithUpdateCurrentUserProps, WithStylesProps, WithTrackingProps {
   document: UserKarmaChanges
 }
 interface KarmaChangeNotifierState {
@@ -206,7 +205,7 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
   }
 
   handleClose = (e) => {
-    const { document, updateUser, currentUser } = this.props;
+    const { document, updateCurrentUser, currentUser } = this.props;
     const { anchorEl } = this.state
     if (e && anchorEl?.contains(e.target)) {
       return;
@@ -217,12 +216,9 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     });
     if (!currentUser) return;
     if (document?.karmaChanges) {
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          karmaChangeLastOpened: document.karmaChanges.endDate,
-          karmaChangeBatchStart: document.karmaChanges.startDate
-        }
+      void updateCurrentUser({
+        karmaChangeLastOpened: document.karmaChanges.endDate,
+        karmaChangeBatchStart: document.karmaChanges.startDate
       });
 
       if (document.karmaChanges.updateFrequency === "realtime") {
@@ -291,10 +287,7 @@ const KarmaChangeNotifierComponent = registerComponent<ExternalProps>('KarmaChan
       collection: Users,
       fragmentName: 'UserKarmaChanges'
     }),
-    withUpdate({
-      collection: Users,
-      fragmentName: 'UsersCurrent',
-    }),
+    withUpdateCurrentUser,
     withTracking
   ]
 });

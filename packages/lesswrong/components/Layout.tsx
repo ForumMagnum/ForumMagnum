@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdate } from '../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from './hooks/useUpdateCurrentUser';
 import React, { PureComponent } from 'react';
-import Users from '../lib/collections/users/collection';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
@@ -64,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       gridTemplateColumns: `
       minmax(0, min-content)
       minmax(0, 1fr)
-      minmax(0, 765px)
+      minmax(0, min-content)
       minmax(0, 1.4fr)
       minmax(0, min-content)
     `,
@@ -112,7 +111,7 @@ interface ExternalProps {
   messages: any,
   children?: React.ReactNode,
 }
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateUserProps {
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateCurrentUserProps {
   cookies: any,
   theme: ThemeType,
 }
@@ -159,14 +158,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   toggleStandaloneNavigation = () => {
-    const { updateUser, currentUser } = this.props
+    const { updateCurrentUser, currentUser } = this.props
     this.setState(prevState => {
       if (currentUser) {
-        void updateUser({
-          selector: { _id: currentUser._id},
-          data: {
-            hideNavigationSidebar: !prevState.hideNavigationSidebar
-          },
+        void updateCurrentUser({
+          hideNavigationSidebar: !prevState.hideNavigationSidebar
         })
       }
       return {
@@ -337,10 +333,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
     withLocation, withCookies,
-    withUpdate({
-      collection: Users,
-      fragmentName: 'UsersCurrent',
-    }),
+    withUpdateCurrentUser,
     withTheme()
   ]}
 );

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
@@ -12,7 +10,7 @@ import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import gql from 'graphql-tag';
-import { postHighlightStyles } from '../../themes/stylePiping';
+import { postHighlightStyles, metaculusBackground } from '../../themes/stylePiping';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -23,7 +21,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   const postID = targetLocation.params._id;
 
   const { document: post, error } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
@@ -43,7 +41,7 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
   const postID = targetLocation.params.postId;
 
   const { document: post, error } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
@@ -109,7 +107,7 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
   const commentId = targetLocation.params.commentId;
 
   const { document: post } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
@@ -175,7 +173,7 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}: {
 }) => {
 
   const { document: comment, error } = useSingle({
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: commentId,
@@ -424,8 +422,6 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
 const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', MozillaHubPreview, {
   styles: mozillaHubStyles
 })
-
-export const metaculusBackground = "#2c3947"
 
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {

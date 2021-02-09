@@ -2,7 +2,7 @@ import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
 import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import { Comments } from '../lib/collections/comments/collection'
-import { updateMutator, addCallback, runCallbacksAsync } from './vulcan-lib';
+import { updateMutator } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
@@ -71,7 +71,7 @@ client.verifyKey()
     console.log('Akismet key check failed: ' + err.message);
   });
 
-getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkismet(post, currentUser) {
+getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkismet(post: DbPost, currentUser: DbUser|null) {
   if (!currentUser) throw new Error("Submitted post has no associated user");
   
   if (akismetKeySetting.get()) {
@@ -95,7 +95,7 @@ getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkis
   return post
 });
 
-getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment, currentUser) {
+getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
     
     if (akismetKeySetting.get()) {
@@ -123,18 +123,16 @@ getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWi
     return comment
 });
 
-function runReportCloseCallbacks(newReport, oldReport) {
-  if (newReport.closedAt && !oldReport.closedAt) {
-    runCallbacksAsync({
-      name: 'reports.close.async',
-      properties: [newReport]
-    });
+getCollectionHooks("Reports").editAsync.add(
+  async function runReportCloseCallbacks(newReport: DbReport, oldReport: DbReport) {
+    if (newReport.closedAt && !oldReport.closedAt) {
+      await akismetReportSpamHam(newReport);
+    }
   }
-}
+);
 
-getCollectionHooks("Reports").editAsync.add(runReportCloseCallbacks)
 
-async function akismetReportSpamHam(report) {
+async function akismetReportSpamHam(report: DbReport) {
   if (report.reportedAsSpam) {
     let comment
     const post = await Posts.findOne(report.postId)
@@ -152,9 +150,8 @@ async function akismetReportSpamHam(report) {
   }
 }
 
-addCallback('reports.close.async', akismetReportSpamHam)
 
-async function postReportPurgeAsSpam(post) {
+export async function postReportPurgeAsSpam(post: DbPost) {
   const akismetReport = await constructAkismetReport({document: post, type: "post"})
   client.submitSpam(akismetReport, (err) => {
     // eslint-disable-next-line no-console
@@ -162,14 +159,10 @@ async function postReportPurgeAsSpam(post) {
   })
 }
 
-addCallback('posts.purge.async', postReportPurgeAsSpam)
-
-async function commentReportPurgeAsSpam(comment) {
+export async function commentReportPurgeAsSpam(comment: DbComment) {
   const akismetReport = await constructAkismetReport({document: comment, type: "comment"})
   client.submitSpam(akismetReport, (err) => {
     // eslint-disable-next-line no-console
     if (!err) { console.log("Reported Akismet false negative", akismetReport)}
   })
 }
-
-addCallback('comments.purge.async', commentReportPurgeAsSpam)

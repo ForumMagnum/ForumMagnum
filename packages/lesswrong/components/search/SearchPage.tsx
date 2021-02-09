@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements } from 'react-instantsearch-dom';
-import Typography from '@material-ui/core/Typography';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
@@ -109,7 +108,7 @@ const SearchPage = ({classes}:{
   classes: ClassesType
 }) => {
 
-  const { ErrorBoundary, SearchPagination, UsersSearchHit, PostsSearchHit, CommentsSearchHit, TagsSearchHit } = Components
+  const { ErrorBoundary, SearchPagination, UsersSearchHit, PostsSearchHit, CommentsSearchHit, TagsSearchHit, Typography } = Components
 
   const {query} = useLocation()
 

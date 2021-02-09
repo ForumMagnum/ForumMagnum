@@ -1,10 +1,8 @@
 import SimpleSchema from 'simpl-schema';
-import { getCollection } from '../../vulcan-lib';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { userGetProfileUrl } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
-import type { SchemaType } from '../../utils/schemaUtils';
+import { userGroups, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -23,7 +21,7 @@ import * as _ from 'underscore';
 // Anything else..
 ///////////////////////////////////////
 
-const createDisplayName = (user: DbUser): string => {
+const createDisplayName = (user: DbInsertion<DbUser>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
@@ -76,6 +74,18 @@ const schema: SchemaType<DbUser> = {
   emails: {
     type: Array,
     optional: true,
+    // This is dead code and doesn't actually run, but we do have to implement something like this in a post Meteor world
+    onCreate: ({document: user}) => {
+    
+      const oAuthEmail = getNestedProperty(user, 'services.facebook.email') |
+        getNestedProperty(user, 'services.google.email') | 
+        getNestedProperty(user, 'services.github.email') | 
+        getNestedProperty(user, 'services.linkedin.emailAddress')
+      
+      if (oAuthEmail) {
+        return [{address: oAuthEmail, verified: true}]
+      }
+    }
   },
   'emails.$': {
     type: Object,
@@ -198,7 +208,7 @@ const schema: SchemaType<DbUser> = {
     form: {
       options: function() {
         const groups = _.without(
-          _.keys(getCollection('Users').groups),
+          _.keys(userGroups),
           'guests',
           'members',
           'admins'

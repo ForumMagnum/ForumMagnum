@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import Typography from '@material-ui/core/Typography';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -48,18 +47,14 @@ const useFilterSettings = (currentUser: UsersCurrent|null) => {
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
-
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
-  const { captureEvent } = useTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
+  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton } = Components
+  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography } = Components
   const limit = parseInt(query.limit) || 13
   
   const now = moment().tz(timezone);
@@ -102,20 +97,26 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <TagFilterSettings
                   filterSettings={filterSettings} setFilterSettings={(newSettings) => {
                     setFilterSettings(newSettings)
-                    if (currentUser) {
-                      void updateUser({
-                        selector: { _id: currentUser._id},
-                        data: {
-                          frontpageFilterSettings: newSettings
-                        },
-                      })
-                    }
+                    void updateCurrentUser({
+                      frontpageFilterSettings: newSettings
+                    });
                   }}
                 />
               </span>
           </AnalyticsContext>
         </div>
         <AnalyticsContext listContext={"latestPosts"}>
+          <AnalyticsContext listContext={"curatedPosts"}>
+            <PostsList2
+              terms={{view:"curated", limit: currentUser ? 3 : 2}}
+              showNoResults={false}
+              showLoadMore={false}
+              hideLastUnread={true}
+              boxShadow={false}
+              curatedIconLeft={true}
+              showFinalBottomBorder={true}
+            />
+          </AnalyticsContext>
           <PostsList2 terms={recentPostsTerms}>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
           </PostsList2>

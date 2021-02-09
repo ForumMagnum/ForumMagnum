@@ -8,16 +8,17 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
+const collectionsThatAffectKarma = ["Posts", "Comments"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId) {
+  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
   }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId) {
+  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     Users.update({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
   }
 });

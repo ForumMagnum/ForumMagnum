@@ -1,5 +1,4 @@
 import React from 'react';
-import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useNavigation } from '../../lib/routeUtil';
@@ -8,13 +7,12 @@ import { useNavigation } from '../../lib/routeUtil';
 const NewShortformDialog = ({onClose}: {
   onClose: any,
 }) => {
-  const { ShortformSubmitForm } = Components;
+  const { ShortformSubmitForm, LWDialog } = Components;
   const { history } = useNavigation();
   return (
-    <Dialog open={true}
+    <LWDialog open={true}
       onClose={onClose}
       fullWidth maxWidth="sm"
-      disableEnforceFocus
     >
       <DialogContent>
         <ShortformSubmitForm
@@ -24,7 +22,7 @@ const NewShortformDialog = ({onClose}: {
           }}
         />
       </DialogContent>
-    </Dialog>
+    </LWDialog>
   );
 }
 

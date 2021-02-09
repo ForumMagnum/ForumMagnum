@@ -1,6 +1,6 @@
 import { Subscriptions } from './collection';
 import { subscriptionTypes } from './schema'
-import { runCallbacksAsync, Utils } from '../../vulcan-lib';
+import { Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
 
 export const defaultSubscriptionTypeTable = {
@@ -36,17 +36,5 @@ export const performSubscriptionAction = async (action, collection, itemId, user
       Users: Users,
     },
   })
-
-  if (action === 'subscribe') {
-    await runCallbacksAsync({
-      name: 'users.subscribe.async',
-      properties: [action, collection, itemId, user]
-    });
-  } else {
-    await runCallbacksAsync({
-      name: 'users.unsubscribe.async',
-      properties: [action, collection, itemId, user]
-    });
-  }
 };
 

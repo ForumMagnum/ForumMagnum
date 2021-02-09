@@ -52,7 +52,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
       }}
       clickable={clickable}
     >
-      <div className={classNames(classes.tooltip, {[classes.noMouseEvents]: !clickable})}>{title}</div>
+      <div className={tooltip ? classes.tooltip : null}>{title}</div>
     </LWPopper>}
     
     {children}

@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField, SchemaType } from '../../utils/schemaUtils'
+import { arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbBook> = {
 

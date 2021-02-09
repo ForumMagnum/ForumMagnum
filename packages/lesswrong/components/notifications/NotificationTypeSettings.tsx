@@ -4,7 +4,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
-import Typography from '@material-ui/core/Typography';
 import { defaultNotificationTypeSettings } from '../../lib/collections/users/custom_fields';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 
@@ -19,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
-  const { BatchTimePicker } = Components;
+  const { BatchTimePicker, Typography } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };
   const notificationType = getNotificationTypeByUserSetting(path);
   

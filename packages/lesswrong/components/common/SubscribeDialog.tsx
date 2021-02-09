@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -91,7 +90,7 @@ interface ExternalProps {
   onClose: any,
   open: boolean,
 }
-interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateUserProps {
+interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateCurrentUserProps {
 }
 
 interface SubscribeDialogState {
@@ -127,18 +126,17 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   }
 
   sendVerificationEmail() {
-    const { updateUser, currentUser } = this.props;
+    const { updateCurrentUser, currentUser } = this.props;
     if (!currentUser) return;
     
-    void updateUser({
-      selector: {_id: currentUser._id},
-      data: { whenConfirmationEmailSent: new Date() }
+    void updateCurrentUser({
+      whenConfirmationEmailSent: new Date()
     });
   }
 
   subscribeByEmail() {
-    let mutation: any = { emailSubscribedToCurated: true }
-    const { currentUser, updateUser, captureEvent } = this.props;
+    let mutation: Partial<DbUser> = { emailSubscribedToCurated: true }
+    const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
     if (!userEmailAddressIsVerified(currentUser)) {
@@ -146,13 +144,10 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
       // a bug, now it's just a performance optimization.)
-      mutation.whenConfirmationEmailSent = new Date();
+      mutation = {...mutation, whenConfirmationEmailSent: new Date()};
     }
 
-    void updateUser({
-      selector: {_id: currentUser._id},
-      data: mutation
-    })
+    void updateCurrentUser(mutation)
 
     this.setState({ subscribedByEmail: true });
     captureEvent("subscribedByEmail")
@@ -203,6 +198,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   render() {
     const { classes, fullScreen, onClose, open, currentUser } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
+    const { LWDialog } = Components;
 
     const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
       <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
@@ -220,7 +216,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     </FormControl>
 
     return (
-      <Dialog
+      <LWDialog
         fullScreen={fullScreen}
         open={open}
         onClose={onClose}
@@ -315,23 +311,18 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
           }
           <Button onClick={onClose}>Close</Button>
         </DialogActions>
-      </Dialog>
+      </LWDialog>
     );
   }
 }
-
-const withUpdateOptions = {
-  collectionName: "Users",
-  fragmentName: 'UsersCurrent',
-};
 
 const SubscribeDialogComponent = registerComponent<ExternalProps>("SubscribeDialog", SubscribeDialog, {
   styles,
   hocs: [
     withMobileDialog(),
     withUser,
+    withUpdateCurrentUser,
     withTracking,
-    withUpdate(withUpdateOptions),
   ]
 });
 

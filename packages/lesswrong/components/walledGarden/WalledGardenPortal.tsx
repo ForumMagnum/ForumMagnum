@@ -1,21 +1,26 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { useLocation } from "../../lib/routeUtil";
+import {useLocation, useNavigation} from "../../lib/routeUtil";
 import { postBodyStyles } from '../../themes/stylePiping'
-import { GardenCodes } from "../../lib/collections/gardencodes/collection";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
-import {useUpdate} from "../../lib/crud/withUpdate";
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { isMobile } from "../../lib/utils/isMobile";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import qs from 'qs'
+import {useTagBySlug} from "../tagging/useTag";
+
+const toggleEventsOffset = "330px"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  messageStyling: {
+  root: {
     ...postBodyStyles(theme),
-    marginTop: "100px"
+    marginTop: "50px",
+    display: "flex",
+    flexDirection: "column"
   },
   innerPortalPositioning: {
     position: "absolute",
@@ -34,50 +39,71 @@ const styles = (theme: ThemeType): JssStyles => ({
   toggleEvents: {
     position: "absolute",
     bottom: 0,
+    left: toggleEventsOffset,
     color: "rgba(255,255,255,.8)",
     ...theme.typography.commentStyle,
     display: "flex",
     alignItems: "center",
-    cursor: "pointer"
+    cursor: "pointer",
+    textShadow: "0 0 10px rgba(0,0,0,.8)"
   },
   closeIcon: {
     height: 48,
-    width:48,
+    width: 48,
   },
   iframeWrapper: {
     flex: 7,
     position: "relative",
+  },
+  eventDetails: {
+    marginTop: 20
+  },
+  enterButton: {
+    display: "flex",
+    justifyContent: "flex-end",
+    fontSize: "1.6rem",
+    padding: 20
+  },
+  buttonStyling: {
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 16,
+    paddingRight: 16
+  },
+  body: {
+    marginTop: 20
   }
 })
 
 
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar } = Components
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody } = Components
+  
   const currentUser = useCurrentUser();
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  })
+  const updateCurrentUser = useUpdateCurrentUser()
   const isOpenToPublic = gardenOpenToPublic.get()
 
   const { query } = useLocation();
-  const { code: inviteCodeQuery } = query;
+  const { history } = useNavigation();
+  const { code: inviteCodeQuery, entered } = query;
+  const enteredQuery = entered === "true"
 
   const [ hideBar, setHideBar ] = useState(false);
 
   const { results } = useMulti({
     terms: {
-      view: "gardenCodeByCode",
       code: inviteCodeQuery
     },
-    collection: GardenCodes,
+    collectionName: "GardenCodes",
     fragmentName: "GardenCodeFragment",
     limit: 1,
   });
 
   const gardenCode = (results && results.length > 0 && (results[0] as HasIdType)._id) ? results[0] as FragmentTypes["GardenCodeFragment"] | null : null
-
+  
+  const { tag: onboardingText } = useTagBySlug("garden-onboarding", "TagFragment")
+  
   const validateGardenCode = (gardenCode: GardenCodeFragment | null) => {
     return !gardenCode?.deleted && moment().isBetween(gardenCode?.startTime, gardenCode?.endTime)
   }
@@ -118,7 +144,8 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </WalledGardenMessage>
 
     if (codeNotYetValid) return <WalledGardenMessage>
-      <p>Your invite code is for an event that has yet started! Please come back at <strong>{moment(gardenCode?.startTime).format("dddd, MMMM Do, h:mma")}</strong></p>
+      <p>Your invite code is for an event that has not yet started! Please come back at the start time.</p>
+      {!!gardenCode && <GardenEventDetails gardenCode={gardenCode}/>}
     </WalledGardenMessage>
 
     if (codeExpiredBeforeSession) return <WalledGardenMessage>
@@ -133,50 +160,51 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
     </WalledGardenMessage>
 
     //Default Access Denied Message
-    return <SingleColumnSection className={classes.messageStyling}>
-      <p>The Walled Garden is a private virtual space managed by the LessWrong team.</p>
-      <p>It is closed right now. Please return on Sunday between noon and 4pm PT, when it is open to everyone. If you have a non-Sunday invite, you may need to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
+    return <SingleColumnSection className={classes.root}>
+      <p>The Walled Garden is a virtual space managed by the LessWrong team.</p>
+      <p>If you have an event invite link, please use that to enter. If you have been granted full-access, to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
     </SingleColumnSection>
   }
 
-  if (!onboarded) {
-    return <SingleColumnSection className={classes.messageStyling}>
+  const enterGardenButton = <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
+      <div className={classes.enterButton}>
+        <a className={classes.buttonStyling} onClick={ async () => {
+          setOnboarded(true)
+          history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
+          if (currentUser && !currentUser.walledGardenPortalOnboarded) {
+            void updateCurrentUser({
+              walledGardenPortalOnboarded: true
+            })
+          }
+        }}>
+          <b>ENTER THE GARDEN</b>
+        </a>
+      </div>
+    </AnalyticsTracker>
+  
+  if ((!!gardenCode && !enteredQuery) || (!!currentUser && !onboarded)){
+    return <SingleColumnSection className={classes.root}>
+      <h2><strong>Welcome to the Walled Garden, a curated space for truthseekers!</strong></h2>
       {!!gardenCode && <div>
-        <p>
-          Congratulations! Your invite code to <strong>{gardenCode.title}</strong> is valid (and will be for next many hours).
-          Please take a look at our guidelines below, then join the party!
-        </p>
-        <hr />
+        {codeIsValid ?
+          <p>Your invite code to <strong>{gardenCode.title}</strong> is valid (and will be for next many hours).</p> :
+          <p>You have reached the Garden via an invite code that is not currently valid.</p>
+        }
+        {currentUser?.walledGardenInvite && <p>Of course, as a Walled Garden member, you may enter anytime. :)</p>}
+        {!currentUser?.walledGardenInvite && isOpenToPublic && <p>However, the Garden is currently to the public, so you may enter anyway! :)</p>}
+      </div>}
+      {!!gardenCode && <div className={classes.eventDetails}>
+        <p><strong>EVENT DETAILS</strong> <em>May contain important instructions</em></p>
+        <GardenEventDetails gardenCode={gardenCode}/>
       </div>
       }
-      <p><strong>Welcome to the Walled Garden, a curated space for truthseekers!</strong></p>
-      <p>Here you can socialize, co-work, play games, and attend events. The Garden is open to everyone on Sundays from 12pm to 4pm PT. Otherwise, it is open by invite only.</p>
-      <ul>
-        <li>Please wear headphones, preferably with a microphone! Try to be in a low-background noise environment.</li>
-        <li>Ensure you grant the page access to your camera and microphone. Usually, there are pop-ups but sometimes you have to click an icon within your URL bar.</li>
-        <li>The Garden will not load from an incognito window or if 3rd-party cookies are blocked. (It is built on a 3rd-party platform.)</li>
-        <li>Technical Problems once you're in the Garden? Refresh the tab.</li>
-        <li>Lost or stuck? Respawn (<i>gear icon</i> &gt; <i>respawn</i>)</li>
-        <li>Interactions are voluntary. It's okay to leave conversations.</li>
-        <li>Please report any issues, both technical and social, to the LessWrong team via Intercom (bottom right) or
-          email (team@lesswrong.com).</li>
-      </ul>
-      <AnalyticsTracker eventType="walledGardenEnter" captureOnMount eventProps={{ isOpenToPublic, inviteCodeQuery, isMember: currentUser?.walledGardenInvite }}>
-        <a onClick={ async () => {
-          setOnboarded(true)
-          if (currentUser && !currentUser.walledGardenPortalOnboarded) {
-          void updateUser({
-            selector: {_id: currentUser._id},
-            data: {
-              walledGardenPortalOnboarded: true
-            }
-          })
-        }
-        }
-        }>
-          <b>Enter the Garden</b>
-        </a>
-      </AnalyticsTracker>
+      {enterGardenButton}
+      <ContentItemBody
+        className={classes.body}
+        dangerouslySetInnerHTML={{__html: onboardingText?.description?.html || ""}}
+        description={`tag ${onboardingText?.name}`}
+      />
+      {enterGardenButton}
     </SingleColumnSection>
   }
 

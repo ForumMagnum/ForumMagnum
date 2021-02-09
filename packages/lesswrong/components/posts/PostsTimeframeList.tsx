@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
@@ -130,7 +129,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
   render() {
     const { timezone, classes, postListParameters, displayShortform, reverse } = this.props
     const { timeframe, after, before, dim, displayedNumTimeBlocks } = this.state
-    const { PostsTimeBlock } = Components
+    const { PostsTimeBlock, Typography } = Components
 
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)

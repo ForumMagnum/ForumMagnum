@@ -1,9 +1,8 @@
-import React from 'react';
-
 // Commented out because these unit tests were based on a very brittle hack:
 // mocking Apollo with no backend. Under Apollo 2, you can't create an
 // ApolloClient without a link, so that doesn't work at all.
 /*
+import React from 'react';
 import { shallow, configure } from 'enzyme';
 import { expect } from 'meteor/practicalmeteor:chai';
 

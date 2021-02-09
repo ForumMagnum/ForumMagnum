@@ -12,6 +12,7 @@ export default withMutation({
 */
 
 import { graphql } from '@apollo/client/react/hoc';
+import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import { getFragment } from '../vulcan-lib';
 import * as _ from 'underscore';
@@ -19,9 +20,8 @@ import * as _ from 'underscore';
 export function withMutation({name, args, fragmentName}: {
   name: string,
   args: any,
-  fragmentName?: keyof FragmentTypes,
+  fragmentName?: FragmentName,
 }) {
-
   let mutation, fragment, fragmentBlock = '';
 
   if (fragmentName) {
@@ -57,6 +57,42 @@ export function withMutation({name, args, fragmentName}: {
       }
     }),
   });
+}
+
+export function useNamedMutation<ArgsType=any>({name, graphqlArgs, fragmentName}: {
+  name: string,
+  graphqlArgs: any,
+  fragmentName?: keyof FragmentTypes,
+}) {
+  let mutation, fragment, fragmentBlock = '';
+
+  if (fragmentName) {
+    fragment = getFragment(fragmentName);
+    fragmentBlock = `{
+      ...${fragmentName}
+    }`;
+  }
+  
+  if (graphqlArgs) {
+    const args1 = _.map(graphqlArgs, (type, name) => `$${name}: ${type}`); // e.g. $url: String
+    const args2 = _.map(graphqlArgs, (type, name) => `${name}: $${name}`); // e.g. $url: url
+    mutation = `
+      mutation ${name}(${args1}) {
+        ${name}(${args2})${fragmentBlock}
+      }
+    `;
+  } else {
+    mutation = `
+      mutation ${name} {
+        ${name}${fragmentBlock}
+      }
+    `;
+  }
+  
+  const [mutate] = useMutation(gql`${mutation}${fragmentName ? fragment : ''}`);
+  return {mutate: async (variables: ArgsType) => {
+    return await mutate({ variables });
+  }};
 }
 
 export default withMutation;

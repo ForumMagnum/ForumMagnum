@@ -24,6 +24,7 @@ import './server/scripts/hpmorImport';
 import './server/scripts/algoliaExport';
 import './server/scripts/algoliaConfigureIndexes';
 import './server/scripts/brokenLinksReport';
+import './server/scripts/convertImagesToCloudinary';
 import './server/scripts/fixBodyField';
 import './server/scripts/fixKarmaField';
 import './server/scripts/fixEmailField';
@@ -61,6 +62,7 @@ import './server/analyticsWriter';
 import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
+import './server/bookmarkMutation';
 import './server/rss';
 import './server/akismet';
 import './server/votingCron';
@@ -80,6 +82,7 @@ import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
+import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
 import './lib/collections/posts/validate';
@@ -100,6 +103,7 @@ import { hasEventsSetting } from './lib/instanceSettings'
 if (hasEventsSetting.get()) {
   import './server/callbacks/localgroupCallbacks';
 }
+import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
 import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
 import './server/callbacks/alignment-forum/alignmentPostCallbacks';

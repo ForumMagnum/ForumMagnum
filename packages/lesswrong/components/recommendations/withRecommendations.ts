@@ -1,33 +1,26 @@
 import gql from 'graphql-tag';
-import { graphql } from '@apollo/client/react/hoc';
-import { getFragment } from '../../lib/vulcan-lib';
+import { useQuery } from '@apollo/client';
+import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-export  const withRecommendations = component => {
-  const recommendationsQuery = gql`
+export const useRecommendations = (algorithm: RecommendationsAlgorithm) => {
+  const {data, loading} = useQuery(gql`
     query RecommendationsQuery($count: Int, $algorithm: JSON) {
       Recommendations(count: $count, algorithm: $algorithm) {
         ...PostsList
       }
     }
-    ${getFragment("PostsList")}
-  `;
-
-  return graphql(recommendationsQuery,
-    {
-      alias: "withRecommendations",
-      options: (props: any) => ({
-        variables: {
-          count: props.algorithm?.count || 10,
-          algorithm: props.algorithm || defaultAlgorithmSettings,
-        }
-      }),
-      props(props: any) {
-        return {
-          recommendationsLoading: props.data.loading,
-          recommendations: props.data.Recommendations,
-        }
-      }
-    }
-  )(component);
+    ${fragmentTextForQuery("PostsList")}
+  `, {
+    variables: {
+      count: algorithm?.count || 10,
+      algorithm: algorithm || defaultAlgorithmSettings,
+    },
+    ssr: true,
+  });
+  return {
+    recommendationsLoading: loading,
+    recommendations: data?.Recommendations,
+  };
 }

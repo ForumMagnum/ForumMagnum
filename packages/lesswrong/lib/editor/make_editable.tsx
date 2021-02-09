@@ -43,9 +43,9 @@ const defaultOptions = {
   revisionsHaveCommitMessages: false,
 }
 
-export const editableCollections = new Set<string>()
-export const editableCollectionsFields: Record<string,Array<string>> = {}
-export const editableCollectionsFieldOptions: Record<string,any> = {};
+export const editableCollections = new Set<CollectionNameString>()
+export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
+export const editableCollectionsFieldOptions: Record<CollectionNameString,any> = {} as any;
 
 export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
@@ -61,7 +61,8 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     fieldName,
     hintText,
     order,
-    pingbacks = false,
+    hideControls = false,
+    pingbacks = false
     //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
   } = options
 
@@ -81,6 +82,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       type: RevisionStorageType,
       inputType: 'UpdateRevisionDataInput',
       optional: true,
+      typescriptType: "EditableFieldContents",
       group: formGroup,
       ...permissions,
       order,
@@ -118,7 +120,8 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         collectionName,
         commentEditor,
         commentStyles,
-        getLocalStorageId,
+        hideControls,
+        getLocalStorageId
       },
     },
     
