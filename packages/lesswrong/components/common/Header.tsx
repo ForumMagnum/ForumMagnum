@@ -14,8 +14,7 @@ import grey from '@material-ui/core/colors/grey';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
 
 const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
