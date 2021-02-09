@@ -11,7 +11,6 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
-const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
 
 if (isProduction && forumTypeSetting.get() === "LessWrong") {
   addCronJob({
@@ -52,6 +51,8 @@ interface GatherTownCheckResult {
   checkFailed: boolean,
   failureReason: string|null,
 }
+
+const ignoredJsonMessages = ["message"];
 
 const getGatherTownUsers = async (password: string|null, roomId: string, roomName: string): Promise<GatherTownCheckResult> => {
   // Register new user to Firebase
@@ -155,17 +156,43 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   });
   // Response NOT checked, because we removed the password and that makes this fail, but that's actually ok
 
+  // Find out what websocket server we're supposed to connect to
+  const getGameServerResponse = await fetch("https://gather.town/api/getGameServer", {
+    "headers": {
+      "accept": "application/json, text/plain, */*",
+      "accept-language": "en-US,en;q=0.9,de-DE;q=0.8,de;q=0.7",
+      "cache-control": "no-cache",
+      "content-type": "application/json;charset=UTF-8",
+      "pragma": "no-cache",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+    },
+    "body": `{"room":"${roomId}\\\\${roomName}"}`,
+    method: "POST",
+  });
+  if (!getGameServerResponse.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during getGameServer step: "+registerUserResponse.status,
+    }
+  }
+  const websocketServerUrl = await getGameServerResponse.text();
+  
   // Create WebSocket connection.
   let socketConnectedSuccessfully = false;
   let socketReceivedAnyMessage = false;
   let reloadRequested = false;
-  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}`);
+  // eslint-disable-next-line no-console
+  console.log(`Connecting to websocket server ${websocketServerUrl}`);
+  const socket = new WebSocket(websocketServerUrl);
   socket.on('open', function (data) {
     socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
       event: "init",
       token: token,
-      version: 3,
+      version: 5,
     });
   });
 
@@ -188,8 +215,15 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
               space: `${roomId}\\${roomName}`
             }
           });
-        } else if (jsonResponse.event === "reload") {
-          reloadRequested = true;
+        } else {
+          if (jsonResponse.event === "reload") {
+            reloadRequested = true;
+          } else if (ignoredJsonMessages.indexOf(jsonResponse.event) >= 0) {
+            // Ignore this message
+          } else {
+            // eslint-disable-next-line no-console
+            console.log(`Unrecognized message type: ${jsonResponse.event}`);
+          }
         }
       }
     } else if (firstByte === 1) {
@@ -207,15 +241,14 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   // We wait 3s for any responses to arrive via the socket message
   await wait(3000);
 
+  socket.close();
   if (reloadRequested) {
-    socket.close();
     return {
       checkFailed: true,
       gatherTownUsers: [],
-      failureReason: "Server requested reload (probably due to version number mismatch)",
+      failureReason: "Version number mismatch",
     };
   } else if (socketConnectedSuccessfully && socketReceivedAnyMessage) {
-    socket.close();
     const playerNames = _.values(playerNamesById);
     return {
       checkFailed: false,
@@ -223,14 +256,12 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
       failureReason: null,
     };
   } else if (socketConnectedSuccessfully) {
-    socket.close();
     return {
       checkFailed: true,
       gatherTownUsers: [],
-      failureReason: "WebSocket connected but did not receive any messages",
+      failureReason: "WebSocket connected but did not receive any messages (check gatherTownWebsocketServer setting)",
     };
   } else {
-    socket.close();
     return {
       checkFailed: true,
       gatherTownUsers: [],
@@ -272,12 +303,12 @@ function isJson(str: string): boolean {
   return true;
 }
 
-const playerMessageHeaderLen = 29;
-const mapNameOffset = 17
-const playerNameOffset = 19
-const playerStatusOffset = 23
-const playerIconOffset = 25
-const playerIdOffset = 27;
+const playerMessageHeaderLen = 30;
+const mapNameOffset = 18
+const playerNameOffset = 20
+const playerStatusOffset = 24
+const playerIconOffset = 26
+const playerIdOffset = 28
 
 // Decoded using echo AS...<rest of base64 message> | base64 -d | hexdump -C
 
@@ -300,6 +331,8 @@ function interpretBinaryMessage(data: any): {players: {map: string, name: string
   while (pos < buf.length) {
     const messageType = buf.readUInt8(pos);
     if (messageType === 0) {
+      // eslint-disable-next-line no-console
+      console.log("Parsing players-list message");
       const mapNameLen = buf.readUInt8(pos+mapNameOffset);
       const playerNameLen = buf.readUInt8(pos+playerNameOffset);
       const playerStatusLen = buf.readUInt8(pos+playerStatusOffset)
