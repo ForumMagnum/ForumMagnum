@@ -514,10 +514,6 @@ const PostsItem2 = ({
                   
                 </LWTooltip>}
 
-                {(post.nominationCount2019 >= 2) && (new Date() > new Date("2020-12-14")) && <Link to={postGetPageUrl(post)}>
-                  <ReviewPostButton post={post} year="2019"/>
-                </Link>}
-
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}
