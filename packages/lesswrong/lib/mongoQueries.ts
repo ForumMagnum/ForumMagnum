@@ -6,12 +6,6 @@ export async function mongoFindOne<N extends CollectionNameString>(collectionNam
   return await collection.findOne(selector, options, projection) as ObjectsByCollectionName[N]|null;
 }
 
-export function mongoFindOneSync<N extends CollectionNameString>(collectionName: N, selector: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOneOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): ObjectsByCollectionName[N]|null
-{
-  const collection = getCollection(collectionName);
-  return (collection.findOne as any)(selector, options, projection) as ObjectsByCollectionName[N]|null;
-}
-
 export async function mongoFind<N extends CollectionNameString>(collectionName: N, selector?: MongoSelector<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]>, projection?: MongoProjection<ObjectsByCollectionName[N]>): Promise<Array<ObjectsByCollectionName[N]>>
 {
   const collection = getCollection(collectionName);
