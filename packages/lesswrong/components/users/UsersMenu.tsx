@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
@@ -131,14 +132,14 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
                 User Profile
               </MenuItem>
             </Link>}
-            <ThemePickerMenu>
+            {userHasThemePicker(currentUser) && <ThemePickerMenu>
               <MenuItem>
                 <ListItemIcon>
                   <ExtensionIcon className={classes.icon}/>
                 </ListItemIcon>
                   Theme
               </MenuItem>
-            </ThemePickerMenu>
+            </ThemePickerMenu>}
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
