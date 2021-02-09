@@ -9,10 +9,18 @@ export const eventRoot = theme => ({
   color: 'rgba(0,0,0,0.55)',
   display: "flex",
   width: 350,
+  [theme.breakpoints.down('xs')]: {
+    width: "100%",
+    flexWrap: "wrap",
+  }
 })
 
 export const eventName = theme => ({
   width: 230,
+  [theme.breakpoints.down('xs')]: {
+    width: "100%",
+    marginRight: 8,
+  },
   overflow: "hidden",
   textOverflow: "ellipsis",
   display: "inline-block",
@@ -22,7 +30,11 @@ export const eventName = theme => ({
 export const eventTime = theme => ({
   fontSize: ".9em",
   opacity: .75,
-  width: 120,
+  width: 150,
+  [theme.breakpoints.down('xs')]: {
+    width: "100%",
+    textAlign: "left"
+  },
   textAlign: "right",
   display: "inline-block"
 })

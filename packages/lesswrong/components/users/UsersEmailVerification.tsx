@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 interface ExternalProps {
   resend?: boolean,
 }
-interface UsersEmailVerificationProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps {
+interface UsersEmailVerificationProps extends ExternalProps, WithUserProps, WithUpdateCurrentUserProps, WithStylesProps {
 }
 interface UsersEmailVerificationState {
   emailSent: boolean,
@@ -35,11 +35,10 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
   }
 
   sendConfirmationEmail() {
-    const { updateUser, currentUser } = this.props;
+    const { updateCurrentUser, currentUser } = this.props;
     if (!currentUser) return;
-    void updateUser({
-      selector: {_id: currentUser._id},
-      data: { whenConfirmationEmailSent: new Date() }
+    void updateCurrentUser({
+      whenConfirmationEmailSent: new Date()
     });
     this.setState({
       emailSent: true
@@ -84,10 +83,7 @@ const UsersEmailVerificationComponent = registerComponent<ExternalProps>('UsersE
   hocs: [
     withErrorBoundary,
     withUser,
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'UsersCurrent',
-    }),
+    withUpdateCurrentUser,
   ]
 });
 

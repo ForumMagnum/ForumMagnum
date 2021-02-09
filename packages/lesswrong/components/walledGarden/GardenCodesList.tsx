@@ -1,28 +1,47 @@
 import React from 'react';
-import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 
-export const GardenCodesList = ({classes}:{classes:ClassesType}) => {
-  const { GardenCodesItem } = Components
+const styles = (theme: ThemeType): JssStyles => ({
+  loadMore: {
+    fontSize: "1rem"
+  }
+})
+
+export const GardenCodesList = ({classes, limit, personal=false}: {
+  classes:ClassesType,
+  limit?: number,
+  personal?: boolean
+}) => {
+  const { GardenCodesItem, Loading, LoadMore } = Components
   const currentUser = useCurrentUser()
-  const { results } = useMulti({
+  
+  const terms: GardenCodesViewTerms = personal ?
+    {view:"usersPrivateGardenCodes"} :
+    {view:"publicGardenCodes"}
+  
+  const { results, loading, loadMoreProps } = useMulti({
     terms: {
-      view: "userGardenCodes",
       userId: currentUser?._id,
-      enableTotal: false,
-      fetchPolicy: 'cache-and-network',
+      ...terms
     },
-    collection: GardenCodes,
-    fragmentName: 'GardenCodeFragment'
+    enableTotal: true,
+    fetchPolicy: 'cache-and-network',
+    collectionName: "GardenCodes",
+    fragmentName: 'GardenCodeFragment',
+    limit: limit || 5,
+    itemsPerPage: 10
   });
+  
+  
   return <div>
     {results?.map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
+    {loading ? <Loading/> : <LoadMore className={classes.loadMore} {...loadMoreProps}/>}
   </div>
 }
 
-const GardenCodesListComponent = registerComponent('GardenCodesList', GardenCodesList);
+const GardenCodesListComponent = registerComponent('GardenCodesList', GardenCodesList, {styles});
 
 declare global {
   interface ComponentTypes {

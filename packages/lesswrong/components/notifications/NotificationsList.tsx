@@ -3,7 +3,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import Notifications from '../../lib/collections/notifications/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,13 +27,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NotificationsList = ({ terms, currentUser, classes }: {
-  terms: any,
+  terms: NotificationsViewTerms,
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
   const { results, loadMore } = useMulti({
     terms,
-    collection: Notifications,
+    collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     limit: 20,
     enableTotal: false

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Comments } from '../../lib/collections/comments';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -35,7 +34,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
 }) => {
   const { document: comment, data, loading, error } = useSingle({
     documentId,
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentWithRepliesFragment',
   });
   const refetch = data?.refetch;

@@ -1,6 +1,6 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, } from '../../collectionUtils';
-import { resolverOnlyField, SchemaType } from '../../../lib/utils/schemaUtils';
+import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -30,6 +30,7 @@ const schema: SchemaType<DbVote> = {
   // The name of the collection the document belongs to
   collectionName: {
     type: String,
+    typescriptType: "CollectionNameString",
     canRead: ['guests'],
   },
 
@@ -115,6 +116,13 @@ const schema: SchemaType<DbVote> = {
     }
   }),
 
+  // This flag allows us to calculate the baseScore/karma of documents and users using nothing but the votes
+  // collection. Otherwise doing that calculation would require a lookup, which is pretty expensive
+  documentIsAf: {
+    type: Boolean,
+    canRead: ['guests'],
+    ...schemaDefaultValue(false)
+  }
 };
 
 export default schema;

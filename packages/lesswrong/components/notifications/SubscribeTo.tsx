@@ -18,6 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "center"
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: { //optimized for tag page
+      display: "none"
+    }
   }
 })
 
@@ -27,15 +32,17 @@ const SubscribeTo = ({
   subscribeMessage, unsubscribeMessage,
   className="",
   classes,
-  showIcon
+  showIcon,
+  hideLabelOnMobile = false
 }: {
   document: any,
   subscriptionType?: string,
-  subscribeMessage: string,
-  unsubscribeMessage: string,
+  subscribeMessage?: string,
+  unsubscribeMessage?: string,
   className?: string,
   classes: ClassesType,
   showIcon?: boolean,
+  hideLabelOnMobile?: boolean
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -61,7 +68,7 @@ const SubscribeTo = ({
       limit: 1
     },
     
-    collection: Subscriptions,
+    collectionName: "Subscriptions",
     fragmentName: 'SubscriptionState',
     enableTotal: false,
   });
@@ -114,7 +121,7 @@ const SubscribeTo = ({
 
   return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
     {showIcon && <ListItemIcon>{isSubscribed() ? <NotificationsIcon /> : <NotificationsNoneIcon /> }</ListItemIcon>}
-    { isSubscribed() ? unsubscribeMessage : subscribeMessage}
+    <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
   </a>
 }
 

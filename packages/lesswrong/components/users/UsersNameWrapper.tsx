@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import Users from '../../lib/collections/users/collection';
 import React from 'react';
 
 // Given a user ID (as documentId), load that user with a HoC, and display
@@ -13,7 +12,7 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false}: {
 }) => {
   const { document, loading } = useSingle({
     documentId,
-    collection: Users,
+    collectionName: "Users",
     fragmentName: 'UsersMinimumInfo',
   });
   if (!document && loading) {

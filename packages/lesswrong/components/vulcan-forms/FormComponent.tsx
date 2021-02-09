@@ -250,6 +250,9 @@ class FormComponent extends Component<any,any> {
         case 'checkboxgroup':
           return FormComponents.FormComponentCheckboxGroup;
 
+        case 'radiogroup':
+          return FormComponents.FormComponentRadioGroup
+
         case 'select':
           return FormComponents.FormComponentSelect;
 

@@ -6,7 +6,7 @@ import { defaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
-import { Posts } from '../posts/collection';
+import { postStatuses } from '../posts/constants';
 import Users from "./collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
@@ -309,6 +309,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
@@ -997,6 +998,18 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations
   },
 
+  hideFrontpageBookAd: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
@@ -1245,6 +1258,13 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVotesQuadratic2019: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
   petrovPressedButtonDate: {
     type: Date,
     optional: true,
@@ -1287,7 +1307,7 @@ addFieldsDict(Users, {
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
     order: 40,
-    onInsert: user => {
+    onInsert: (user: DbInsertion<DbUser>) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
@@ -1333,7 +1353,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
+      filterFn: (post) => (!post.draft && post.status===postStatuses.STATUS_APPROVED),
     }),
     viewableBy: ['guests'],
   },
@@ -1439,7 +1459,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-},
+  },
 });
 
 export const makeEditableOptionsModeration = {
@@ -1466,7 +1486,7 @@ makeEditable({
 addUniversalFields({collection: Users})
 
 // Copied over utility function from Vulcan
-const createDisplayName = (user: DbUser): string=> {
+const createDisplayName = (user: DbInsertion<DbUser>): string=> {
   const profileName = getNestedProperty(user, 'profile.name');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
   if (profileName) return profileName;

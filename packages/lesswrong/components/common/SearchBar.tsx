@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { registerComponent, Components, addCallback, removeCallback } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { routerOnUpdate } from './NavigationEventSender';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
@@ -134,12 +135,12 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     this.routerUpdateCallback = function closeSearchOnNavigate() {
       _this.closeSearch();
     };
-    addCallback('router.onUpdate', this.routerUpdateCallback);
+    routerOnUpdate.add(this.routerUpdateCallback);
   }
 
   componentWillUnmount() {
     if (this.routerUpdateCallback) {
-      removeCallback('router.onUpdate', this.routerUpdateCallback);
+      routerOnUpdate.remove(this.routerUpdateCallback);
       this.routerUpdateCallback = null;
     }
   }

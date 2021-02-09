@@ -1,20 +1,20 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { PopperPlacementType } from '@material-ui/core/Popper'
 
-const PostsItemKarma = ({post, hover, anchorEl, placement="left"}: {
+const PostsItemKarma = ({post, placement="left"}: {
   post: PostsBase,
-  hover?: any,
-  anchorEl?: any,
   placement?: PopperPlacementType
 }) => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
+  const { eventHandlers, hover, anchorEl } = useHover();
   const { LWPopper } = Components
+
   return (
-    <span>
+    <span {...eventHandlers}>
       <LWPopper open={hover} anchorEl={anchorEl} tooltip placement={placement}>
         <div>
           <div>{ baseScore || 0 } karma</div>
@@ -27,9 +27,7 @@ const PostsItemKarma = ({post, hover, anchorEl, placement="left"}: {
   )
 };
 
-const PostsItemKarmaComponent = registerComponent('PostsItemKarma', PostsItemKarma, {
-  hocs: [withHover()]
-});
+const PostsItemKarmaComponent = registerComponent('PostsItemKarma', PostsItemKarma);
 
 declare global {
   interface ComponentTypes {

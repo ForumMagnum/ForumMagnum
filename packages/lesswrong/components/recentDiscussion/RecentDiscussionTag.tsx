@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { useRecordTagView } from '../common/withRecordPostView';
+import type { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,7 +20,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     ...theme.typography.display2,
-    ...theme.typography.postStyle,
+    ...theme.typography.commentStyle,
+    fontVariant: "small-caps",
     marginTop: 0,
     marginBottom: 8,
     display: "block",
@@ -94,6 +96,15 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
     ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>(Read More)</a>")
     : descriptionHtml;
   
+  const commentTreeOptions: CommentTreeOptions = {
+    scrollOnExpand: true,
+    lastCommentId: lastCommentId,
+    markAsRead: markAsRead,
+    highlightDate: lastVisitedAt,
+    tag: tag,
+    condensed: true,
+  }
+  
   return <div className={classes.root}>
     <div className={classes.tag}>
       <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
@@ -121,19 +132,13 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
         {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
           <div key={comment.item._id}>
             <CommentsNode
+              treeOptions={commentTreeOptions}
               startThreadTruncated={true}
               expandAllThreads={initialExpandAllThreads || expandAllThreads}
-              scrollOnExpand
               nestingLevel={1}
-              lastCommentId={lastCommentId}
               comment={comment.item}
-              markAsRead={markAsRead}
-              highlightDate={lastVisitedAt}
               childComments={comment.children}
               key={comment.item._id}
-              tag={tag}
-              //refetch={refetch}
-              condensed
             />
           </div>
         )}

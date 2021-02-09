@@ -1,5 +1,5 @@
 import { schemaDefaultValue } from '../../collectionUtils'
-import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, SchemaType, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { getWithLoader } from '../../loaders';
@@ -123,7 +123,7 @@ export const schema: SchemaType<DbTag> = {
       type: "User",
       nullable: true,
     }),
-    onCreate: ({currentUser}) => currentUser._id,
+    onCreate: ({currentUser}) => currentUser!._id,
     viewableBy: ['guests'],
     optional: true
   },

@@ -1,15 +1,14 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { withUpdate } from '../../../lib/crud/withUpdate';
-import { withMutation } from '../../../lib/crud/withMutation';
+import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useNamedMutation } from '../../../lib/crud/withMutation';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userCanCollaborate } from '../../../lib/collections/users/helpers'
 import { userCanMakeAlignmentPost } from '../../../lib/alignment-forum/users/helpers'
-import withUser from '../../common/withUser'
-import { Posts } from '../../../lib/collections/posts/collection';
+import { useCurrentUser } from '../../common/withUser'
 import { postCanEdit } from '../../../lib/collections/posts/helpers';
-import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
-import { withItemsRead, ItemsReadContextType } from '../../common/withRecordPostView';
+import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
+import { useItemsRead } from '../../common/withRecordPostView';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -19,7 +18,7 @@ import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
-import { withDialog } from '../../common/withDialog';
+import { useDialog } from '../../common/withDialog';
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -44,36 +43,47 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+const PostActions = ({post, closeMenu, classes}: {
   post: PostsList,
-}
-interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps, ItemsReadContextType {
-  markAsReadOrUnread: any,
-  setAlignmentPostMutation: any,
-}
-
-class PostActions extends Component<PostActionsProps,{}> {
-
-  handleMarkAsRead = () => {
-    const {markAsReadOrUnread, post, setPostRead} = this.props;
-    markAsReadOrUnread({
+  closeMenu: ()=>void
+  classes: ClassesType
+}) => {
+  const currentUser = useCurrentUser();
+  const {postsRead, setPostRead} = useItemsRead();
+  const {openDialog} = useDialog();
+  const {mutate: updatePost} = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+  });
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'UsersCurrent',
+  });
+  const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
+  const {mutate: markAsReadOrUnread} = useNamedMutation<{
+    postId: string, isRead: boolean,
+  }>({
+    name: 'markAsReadOrUnread',
+    graphqlArgs: {postId: 'String', isRead: 'Boolean'},
+  });
+  
+  const handleMarkAsRead = () => {
+    void markAsReadOrUnread({
       postId: post._id,
       isRead: true,
     });
     setPostRead(post._id, true);
   }
 
-  handleMarkAsUnread = () => {
-    const {markAsReadOrUnread, post, setPostRead} = this.props;
-    markAsReadOrUnread({
+  const handleMarkAsUnread = () => {
+    void markAsReadOrUnread({
       postId: post._id,
       isRead: false,
     });
     setPostRead(post._id, false);
   }
 
-  handleMoveToMeta = () => {
-    const { post, updatePost, currentUser } = this.props
+  const handleMoveToMeta = () => {
     if (!currentUser) throw new Error("Cannot move to meta anonymously")
     void updatePost({
       selector: { _id: post._id},
@@ -88,8 +98,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     })
   }
 
-  handleMoveToFrontpage = () => {
-    const { post, updatePost, currentUser } = this.props
+  const handleMoveToFrontpage = () => {
     if (!currentUser) throw new Error("Cannot move to frontpage anonymously")
     void updatePost({
       selector: { _id: post._id},
@@ -102,8 +111,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     })
   }
 
-  handleMoveToPersonalBlog = () => {
-    const { post, updatePost, currentUser } = this.props
+  const handleMoveToPersonalBlog = () => {
     if (!currentUser) throw new Error("Cannot move to personal blog anonymously")
     void updatePost({
       selector: { _id: post._id},
@@ -116,8 +124,7 @@ class PostActions extends Component<PostActionsProps,{}> {
     })
   }
 
-  handleMakeShortform = () => {
-    const { post, updateUser } = this.props;
+  const handleMakeShortform = () => {
     void updateUser({
       selector: { _id: post.userId },
       data: {
@@ -126,32 +133,28 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
   }
 
-  handleMoveToAlignmentForum = () => {
-    const { post, setAlignmentPostMutation } = this.props
-    setAlignmentPostMutation({
+  const handleMoveToAlignmentForum = () => {
+    void setAlignmentPostMutation({
       postId: post._id,
       af: true,
     })
   }
 
-  handleRemoveFromAlignmentForum = () => {
-    const { post, setAlignmentPostMutation } = this.props
-    setAlignmentPostMutation({
+  const handleRemoveFromAlignmentForum = () => {
+    void setAlignmentPostMutation({
       postId: post._id,
       af: false,
     })
   }
 
-  handleApproveUser = async () => {
-    const { currentUser, post, updateUser } = this.props
+  const handleApproveUser = async () => {
     await updateUser({
       selector: {_id: post.userId},
       data: {reviewedByUserId: currentUser?._id}
     })
   }
 
-  handleOpenTagDialog = async () => {
-    const { post, openDialog } = this.props
+  const handleOpenTagDialog = async () => {
     openDialog({
       componentName: "EditTagsDialog",
       componentProps: {
@@ -160,16 +163,15 @@ class PostActions extends Component<PostActionsProps,{}> {
     });
   }
 
-  render() {
-    const { classes, post, postsRead, currentUser } = this.props
-    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
-    if (!post) return null;
-    const postAuthor = post.user;
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
+  if (!post) return null;
+  const postAuthor = post.user;
 
-    const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
+  const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
 
-    return (
+  return (
       <div className={classes.actions}>
+        {/* <NominatePostMenuItem post={post} closeMenu={closeMenu} /> */}
         { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -219,7 +221,7 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
-        <div onClick={this.handleOpenTagDialog}>
+        <div onClick={handleOpenTagDialog}>
           <MenuItem>
             <ListItemIcon>
               <LocalOfferOutlinedIcon />
@@ -228,12 +230,12 @@ class PostActions extends Component<PostActionsProps,{}> {
           </MenuItem>
         </div>
         { isRead
-          ? <div onClick={this.handleMarkAsUnread}>
+          ? <div onClick={handleMarkAsUnread}>
               <MenuItem>
                 Mark as Unread
               </MenuItem>
             </div>
-          : <div onClick={this.handleMarkAsRead}>
+          : <div onClick={handleMarkAsRead}>
               <MenuItem>
                 Mark as Read
               </MenuItem>
@@ -245,14 +247,14 @@ class PostActions extends Component<PostActionsProps,{}> {
         { userCanDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.meta &&
-              <div onClick={this.handleMoveToMeta}>
+              <div onClick={handleMoveToMeta}>
                 <MenuItem>
                   Move to Meta
                 </MenuItem>
               </div>
             }
             { !post.frontpageDate &&
-              <div onClick={this.handleMoveToFrontpage}>
+              <div onClick={handleMoveToFrontpage}>
                 <Tooltip placement="left" title={
                   post.submitToFrontpage ?
                     '' :
@@ -266,7 +268,7 @@ class PostActions extends Component<PostActionsProps,{}> {
               </div>
             }
             { (post.frontpageDate || post.meta || post.curatedDate) &&
-               <div onClick={this.handleMoveToPersonalBlog}>
+               <div onClick={handleMoveToPersonalBlog}>
                  <MenuItem>
                    Move to Personal Blog
                  </MenuItem>
@@ -274,7 +276,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             }
 
             { !post.shortform &&
-               <div onClick={this.handleMakeShortform}>
+               <div onClick={handleMakeShortform}>
                  <MenuItem>
                    Set as user's Shortform Post
                  </MenuItem>
@@ -282,7 +284,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             }
 
             { post.authorIsUnreviewed &&
-               <div onClick={this.handleApproveUser}>
+               <div onClick={handleApproveUser}>
                  <MenuItem>
                    Approve New User
                  </MenuItem>
@@ -292,46 +294,23 @@ class PostActions extends Component<PostActionsProps,{}> {
         }
         <SuggestAlignment post={post}/>
         { userCanMakeAlignmentPost(currentUser, post) &&
-          !post.af && <div onClick={this.handleMoveToAlignmentForum }>
+          !post.af && <div onClick={handleMoveToAlignmentForum }>
             <MenuItem>
               Ω Move to Alignment
             </MenuItem>
           </div>}
         { userCanMakeAlignmentPost(currentUser, post) && post.af &&
-          <div onClick={this.handleRemoveFromAlignmentForum}>
+          <div onClick={handleRemoveFromAlignmentForum}>
             <MenuItem>
               Ω Remove Alignment
             </MenuItem>
           </div>
         }
       </div>
-    )
-  }
+  )
 }
 
-const PostActionsComponent = registerComponent<ExternalProps>('PostActions', PostActions, {
-  styles,
-  hocs: [
-    withUser,
-    withDialog,
-    withUpdate({
-      collection: Posts,
-      fragmentName: 'PostsList',
-    }),
-    withMutation({
-      name: 'markAsReadOrUnread',
-      args: {postId: 'String', isRead: 'Boolean'},
-    }),
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'UsersCurrent'
-    }),
-    withSetAlignmentPost({
-      fragmentName: "PostsList"
-    }),
-    withItemsRead,
-  ]
-});
+const PostActionsComponent = registerComponent('PostActions', PostActions, {styles});
 
 declare global {
   interface ComponentTypes {

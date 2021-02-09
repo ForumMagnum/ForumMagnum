@@ -1,4 +1,4 @@
-import { foreignKeyField, SchemaType } from '../../utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbLWEvent> = {
   createdAt: {

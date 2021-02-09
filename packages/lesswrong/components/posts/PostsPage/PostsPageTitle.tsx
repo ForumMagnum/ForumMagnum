@@ -1,6 +1,5 @@
 import React from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
@@ -30,8 +29,8 @@ const PostsPageTitle = ({classes, post}: {
   post: PostsDetails,
 }) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
-
-
+  const { Typography } = Components;
+  
   return (
     <div>
       {post.question && !parentPost && <Typography variant="title">

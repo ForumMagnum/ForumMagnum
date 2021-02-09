@@ -15,7 +15,7 @@ export const EmailHistoryPage = () => {
 const EmailHistoryPageComponent = registerComponent('EmailHistoryPage', EmailHistoryPage);
 
 
-export const EmailHistory = ({terms}: {terms: any}) => {
+export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
   const { results } = useMulti({
     terms,
     collectionName: 'LWEvents',

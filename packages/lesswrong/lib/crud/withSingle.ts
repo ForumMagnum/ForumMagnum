@@ -1,12 +1,12 @@
 import { graphql } from '@apollo/client/react/hoc';
 import gql from 'graphql-tag';
-import { singleClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import { singleClientTemplate, extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
 import * as _ from 'underscore';
 import { WatchQueryFetchPolicy, useQuery } from '@apollo/client';
 
-export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName }) {
-  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName }) {
+  const collectionName = collection.collectionName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
   const typeName = collection.options.typeName;
 
@@ -24,8 +24,7 @@ export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, colle
   return query
 }
 
-export function getResolverNameFromOptions({ collectionName, collection }) {
-  ({ collection } = extractCollectionInfo({ collectionName, collection }))
+function getResolverNameFromOptions(collection) {
   const typeName = collection.options.typeName;
   return camelCaseify(typeName);
 }
@@ -47,8 +46,8 @@ export function withSingle({
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
 
-  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
-  const resolverName = getResolverNameFromOptions({ collectionName, collection })
+  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName })
+  const resolverName = getResolverNameFromOptions(collection)
   const typeName = collection.options.typeName
   
   return graphql(query, {
@@ -103,7 +102,7 @@ export function withSingle({
 }
 
 export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
-  collectionName, collection,
+  collectionName,
   fragmentName, fragment,
   extraVariables,
   fetchPolicy,
@@ -113,8 +112,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariablesValues,
   skip=false
 }: {
-  collectionName?: CollectionNameString,
-  collection?: CollectionBase<any>,
+  collectionName: CollectionNameString,
   fragmentName?: FragmentTypeName,
   fragment?: any,
   extraVariables?: Record<string,any>,
@@ -133,8 +131,9 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     refetch: any,
   },
 } {
-  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
-  const resolverName = getResolverNameFromOptions({ collectionName, collection })
+  const collection = getCollection(collectionName);
+  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, fragment, fragmentName })
+  const resolverName = getResolverNameFromOptions(collection)
   const { data, error, ...rest } = useQuery(query, {
     variables: {
       input: {

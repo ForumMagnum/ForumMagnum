@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Posts } from '../../lib/collections/posts';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import withUser from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -75,7 +74,7 @@ const SuggestCuratedComponent = registerComponent<ExternalProps>(
   'SuggestCurated', SuggestCurated, {
     hocs: [
       withUpdate({
-        collection: Posts,
+        collectionName: "Posts",
         fragmentName: 'PostsList',
       }),
       withUser

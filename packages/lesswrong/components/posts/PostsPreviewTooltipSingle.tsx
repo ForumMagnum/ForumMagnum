@@ -1,9 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { POST_PREVIEW_WIDTH } from './PostsPreviewTooltip';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -23,7 +20,7 @@ const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, postsLi
   const { Loading, PostsPreviewTooltip  } = Components
 
   const { document: post, loading: postLoading } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postId
@@ -47,14 +44,14 @@ const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, trun
   const { Loading, PostsPreviewTooltip  } = Components
 
   const { document: post, loading: postLoading } = useSingle({
-    collection: Posts,
+    collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postId
   });
 
   const { document: comment, loading: commentLoading } = useSingle({
-    collection: Comments,
+    collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: commentId,
@@ -78,7 +75,7 @@ const TaggedPostTooltipSingle = ({tagRelId, classes}:{
     classes: ClassesType
   }) => {
   const { document: tagRel, loading: tagRelLoading } = useSingle({
-    collection: TagRels,
+    collectionName: "TagRels",
     fragmentName: 'TagRelFragment',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: tagRelId,

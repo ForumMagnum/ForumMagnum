@@ -1,6 +1,26 @@
 import Users from "../users/collection";
 import { ensureIndex } from '../../collectionUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
+import pick from 'lodash/pick';
+import isNumber from 'lodash/isNumber';
+import mapValues from 'lodash/mapValues';
+
+declare global {
+  interface UsersViewTerms extends ViewTermsBase {
+    view?: UsersViewName
+    sort?: {
+      createdAt?: number,
+      karma?: number,
+      postCount?: number,
+      commentCount?: number,
+      afKarma?: number,
+      afPostCount?: number,
+      afCommentCount?: number,
+    },
+    userId?: string,
+    slug?: string,
+  }
+}
 
 // Auto-generated indexes from production
 ensureIndex(Users, {username:1}, {unique:true,sparse:1});
@@ -21,7 +41,20 @@ ensureIndex(Users, {isAdmin:1});
 ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {createdAt:-1,_id:-1});
 
-Users.addView('usersProfile', function(terms) {
+const termsToMongoSort = (terms: UsersViewTerms) => {
+  if (!terms.sort)
+    return undefined;
+  
+  const filteredSort = pick(terms.sort, [
+    "createdAt", "karma", "postCount", "commentCount",
+    "afKarma", "afPostCount", "afCommentCount",
+  ]);
+  return mapValues(filteredSort,
+    v => isNumber(v) ? v : 1
+  );
+}
+
+Users.addView('usersProfile', function(terms: UsersViewTerms) {
   if (terms.userId) {
     return {
       selector: {_id:terms.userId}
@@ -35,27 +68,27 @@ Users.addView('usersProfile', function(terms) {
 
 ensureIndex(Users, {oldSlugs:1});
 
-Users.addView('LWSunshinesList', function(terms) {
+Users.addView('LWSunshinesList', function(terms: UsersViewTerms) {
   return {
     selector: {groups:'sunshineRegiment'},
     options: {
-      sort: terms.sort
+      sort: termsToMongoSort(terms),
     }
   }
 });
 
-Users.addView('LWTrustLevel1List', function(terms) {
+Users.addView('LWTrustLevel1List', function(terms: UsersViewTerms) {
   return {
     selector: {groups:'trustLevel1'},
     options: {
-      sort: terms.sort
+      sort: termsToMongoSort(terms),
     }
   }
 });
 
-Users.addView('LWUsersAdmin', terms => ({
+Users.addView('LWUsersAdmin', (terms: UsersViewTerms) => ({
   options: {
-    sort: terms.sort
+    sort: termsToMongoSort(terms),
   }
 }));
 
@@ -67,7 +100,7 @@ Users.addView("usersWithBannedUsers", function () {
   }
 })
 
-Users.addView("sunshineNewUsers", function (terms) {
+Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
     selector: {
       needsReview: true,
@@ -86,10 +119,11 @@ Users.addView("sunshineNewUsers", function (terms) {
 })
 ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
 
-Users.addView("allUsers", function (terms) {
+Users.addView("allUsers", function (terms: UsersViewTerms) {
   return {
     options: {
       sort: {
+        ...termsToMongoSort(terms),
         reviewedAt: -1,
         createdAt: -1
       }
@@ -261,14 +295,14 @@ export const hashedPetrovLaunchCodes = [
   "e8MeSpVel0bfJCC+MQSD7vLgFVDrTbVOeMzREeCEb0c=",
 ]
 
-Users.addView("areWeNuked", function () {
+/*Users.addView("areWeNuked", function () {
   return {
     selector: {
       petrovCodesEnteredHashed: {$in: hashedPetrovLaunchCodes}
     },
   }
 })
-ensureIndex(Users, {petrovCodesEnteredHashed: 1})
+ensureIndex(Users, {petrovCodesEnteredHashed: 1})*/
 
 
 

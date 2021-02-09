@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMutation } from '@apollo/client';
 import { AnalyticsUtil } from '../../lib/analyticsEvents';
@@ -20,24 +20,26 @@ export const AnalyticsClient = () => {
     ignoreResults: true
   });
   
-  function flushEvents(events) {
+  const flushEvents = useCallback((events) => {
     void mutate({
       variables: {
         events,
         now: new Date(),
       }
     });
-  }
+  }, [mutate]);
  
-  React.useEffect(() => {
+  const currentUserId = currentUser?._id;
+  const clientId = cookies.cilentId;
+  useEffect(() => {
     AnalyticsUtil.clientWriteEvents = flushEvents;
-    AnalyticsUtil.clientContextVars.userId = currentUser?._id;
-    AnalyticsUtil.clientContextVars.clientId = cookies.clientId;
+    AnalyticsUtil.clientContextVars.userId = currentUserId;
+    AnalyticsUtil.clientContextVars.clientId = clientId;
     
     return function cleanup() {
       AnalyticsUtil.clientWriteEvents = null;
     }
-  });
+  }, [flushEvents, currentUserId, clientId]);
   
   return <div/>;
 }

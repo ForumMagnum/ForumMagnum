@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
+import { useMulti } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
@@ -21,24 +22,48 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     cursor: "pointer",
     color: theme.palette.grey[700]
+  },
+  discussionCount: {
+      [theme.breakpoints.down('sm')]: { 
+        alignSelf: "flex-start" //appears to low when there's no label
+      }
+    },
+  hideOnMobile: {
+    marginRight: 2,
+    [theme.breakpoints.down('sm')]: { //optimized or tag paye
+      display: "none"
+    }
   }
 });
 
 
-const TagDiscussionButton = ({tag, text = "Discussion", classes}: {
+const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = false, classes}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
+  hideLabelOnMobile?: boolean,
   classes: ClassesType,
 }) => {
   
   const { TagDiscussion, PopperCard } = Components
   const { hover, anchorEl, eventHandlers } = useHover()
+  const { totalCount } = useMulti({
+    terms: {
+      view: "commentsOnTag",
+      tagId: tag._id,
+      limit: 0,
+    },
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    enableTotal: true,
+  });
   
   return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
-      <CommentOutlinedIcon className={classes.discussionButtonIcon} /> {text}
-      <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
-        <TagDiscussion tag={tag}/>
-      </PopperCard>
+    <CommentOutlinedIcon className={classes.discussionButtonIcon} />
+    <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
+    <span className={classes.discussionCount}>{`(${totalCount || 0})`}</span>
+    <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
+      <TagDiscussion tag={tag}/>
+    </PopperCard>
   </Link>
 }
 

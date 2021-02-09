@@ -3,7 +3,7 @@ import { getOutgoingUrl, findWhere, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
-import { Posts, PostsMinimumForGetPageUrl } from './collection';
+import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 
 
@@ -40,22 +40,22 @@ export const postGetAuthorName = function (post: DbPost) {
 
 // Get default status for new posts.
 export const postGetDefaultStatus = function (user: DbUser): number {
-  return Posts.config.STATUS_APPROVED;
+  return postStatuses.STATUS_APPROVED;
 };
 
 // Get status name
 export const postGetStatusName = function (post: DbPost): string {
-  return findWhere(Posts.statuses, {value: post.status}).label;
+  return findWhere(postStatusLabels, {value: post.status}).label;
 };
 
 // Check if a post is approved
 export const postIsApproved = function (post: DbPost): boolean {
-  return post.status === Posts.config.STATUS_APPROVED;
+  return post.status === postStatuses.STATUS_APPROVED;
 };
 
 // Check if a post is pending
 export const postIsPending = function (post: DbPost): boolean {
-  return post.status === Posts.config.STATUS_PENDING;
+  return post.status === postStatuses.STATUS_PENDING;
 };
 
 
@@ -90,6 +90,15 @@ export const getSocialPreviewImage = (post: DbPost): string => {
   if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
+}
+
+// The set of fields required for calling postGetPageUrl. Could be supplied by
+// either a fragment or a DbPost.
+export interface PostsMinimumForGetPageUrl {
+  _id: string
+  slug: string
+  isEvent?: boolean
+  groupId?: string|undefined
 }
 
 // Get URL of a post page.

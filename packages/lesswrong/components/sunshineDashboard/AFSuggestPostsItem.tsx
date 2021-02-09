@@ -1,12 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
@@ -55,13 +53,13 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          <Typography variant="title">
+          <Components.Typography variant="title">
             <Link to={postGetPageUrl(post)}>
               { post.title }
             </Link>
-          </Typography>
+          </Components.Typography>
           <br/>
-          <Components.PostsHighlight post={post}/>
+          <Components.PostsHighlight post={post} maxLengthWords={600}/>
         </Components.SidebarHoverOver>
         <Link to={postGetPageUrl(post)}
           className="sunshine-sidebar-posts-title">
@@ -108,7 +106,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 const AFSuggestPostsItemComponent = registerComponent<ExternalProps>('AFSuggestPostsItem', AFSuggestPostsItem, {
   hocs: [
     withUpdate({
-      collection: Posts,
+      collectionName: "Posts",
       fragmentName: 'SuggestAlignmentPost',
     }),
     withUser,

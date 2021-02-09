@@ -4,37 +4,32 @@ Default list, single, and total resolvers
 
 */
 
-import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollectionName, } from '../vulcan-lib';
+import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 
-const defaultOptions = {
+interface DefaultResolverOptions {
+  cacheMaxAge: number
+}
+
+const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
 
-// note: for some reason changing resolverOptions to "options" throws error
-export function getDefaultResolvers<T extends DbObject>(options) {
-  let typeName, collectionName, resolverOptions;
-  if (typeof arguments[0] === 'object') {
-    // new single-argument API
-    typeName = arguments[0].typeName;
-    collectionName = arguments[0].collectionName || getCollectionName(typeName);
-    resolverOptions = { ...defaultOptions, ...arguments[0].options };
-  } else {
-    // OpenCRUD backwards compatibility
-    collectionName = arguments[0];
-    typeName = getTypeName(collectionName);
-    resolverOptions = { ...defaultOptions, ...arguments[1] };
-  }
-
+export function getDefaultResolvers<N extends CollectionNameString>(collectionName: N, options?: Partial<DefaultResolverOptions>) {
+  type T = ObjectsByCollectionName[N]
+  const typeName = getTypeName(collectionName);
+  const resolverOptions = {...defaultOptions, options};
+  
   return {
     // resolver for returning a list of documents based on a set of query terms
 
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root, { input = {} }, context: ResolverContext, { cacheControl }) {
-        const { terms = {}, enableCache = false, enableTotal = false } = input as any; //LESSWRONG: enableTotal defaults false
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean} }, context: ResolverContext, { cacheControl }) {
+        const input = args?.input || {};
+        const { terms={}, enableCache = false, enableTotal = false } = input;
 
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
@@ -45,7 +40,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         const { currentUser }: {currentUser: DbUser|null} = context;
 
         // get collection based on collectionName argument
-        const collection: CollectionBase<T> = context[collectionName];
+        const collection = getCollection(collectionName);
 
         // get selector and options from terms and perform Mongo query
         const parameters = await collection.getParameters(terms, {}, context);
@@ -109,7 +104,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
         }
 
         const { currentUser }: {currentUser: DbUser|null} = context;
-        const collection: CollectionBase<T> = context[collectionName];
+        const collection = getCollection(collectionName);
 
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
@@ -156,7 +151,7 @@ export function getDefaultResolvers<T extends DbObject>(options) {
   };
 }
 
-const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: any, parameters: any): Promise<Array<T>> => {
+const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
   const selector = parameters.selector;
   const options = {
     ...parameters.options,

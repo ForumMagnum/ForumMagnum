@@ -5,19 +5,26 @@ registerFragment(`
     _id
     name
     slug
-    oldSlugs
     core
     postCount
-    deleted
     adminOnly
-    defaultOrder
     suggestedAsFilter
     needsReview
-    reviewedByUserId
     descriptionTruncationCount
-    wikiGrade
     createdAt
     wikiOnly
+  }
+`);
+
+registerFragment(`
+  fragment TagDetailsFragment on Tag {
+    ...TagBasicInfo
+    deleted
+    oldSlugs
+    isRead
+    defaultOrder
+    reviewedByUserId
+    wikiGrade
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
   }
@@ -25,8 +32,8 @@ registerFragment(`
 
 registerFragment(`
   fragment TagFragment on Tag {
-    ...TagBasicInfo
-    isRead
+    ...TagDetailsFragment
+    
     description {
       _id
       html
@@ -60,7 +67,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagRevisionFragment on Tag {
-    ...TagBasicInfo
+    ...TagFragment
     isRead
     description(version: $version) {
       _id
@@ -82,7 +89,16 @@ registerFragment(`
     description {
       _id
       htmlHighlight
-      version
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagDetailedPreviewFragment on Tag {
+    ...TagDetailsFragment
+    description {
+      _id
+      htmlHighlight
     }
   }
 `);
@@ -90,6 +106,16 @@ registerFragment(`
 registerFragment(`
   fragment TagWithFlagsFragment on Tag {
     ...TagFragment
+    tagFlagsIds
+    tagFlags {
+      ...TagFlagFragment
+    } 
+  }
+`);
+
+registerFragment(`
+  fragment TagWithFlagsAndRevisionFragment on Tag {
+    ...TagRevisionFragment
     tagFlagsIds
     tagFlags {
       ...TagFlagFragment

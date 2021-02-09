@@ -47,6 +47,63 @@ async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
 
 const postBackground = "white"
 
+const lw18ReviewPosts = [
+  ['sketch', 'yeADMcScw8EW9yxpH', 'a-sketch-of-good-communication'],
+  ['babble', 'i42Dfoh4HtsCAfXxL', 'babble'],
+  ['babble2', 'wQACBmK5bioNCgDoG', 'more-babble'],
+  ['prune', 'rYJKvagRYeDM8E9Rf', 'prune'],
+  ['validity', 'WQFioaudEH8R7fyhm', 'local-validity-as-a-key-to-sanity-and-civilization'],
+  ['alarm', 'B2CfMNfay2P8f2yyc', 'the-loudest-alarm-is-probably-false'],
+  ['argument', 'NLBbCQeNLFvBJJkrt', 'varieties-of-argumentative-experience'],
+  ['toolbox', 'CPP2uLcaywEokFKQG', 'toolbox-thinking-and-law-thinking'],
+  ['technical', 'tKwJQbo6SfWF2ifKh', 'toward-a-new-technical-explanation-of-technical-explanation'],
+  ['nameless', '4ZwGqkMTyAvANYEDw', 'naming-the-nameless'],
+  ['lotus', 'KwdcMts8P8hacqwrX', 'noticing-the-taste-of-lotus'],
+  ['tails', 'asmZvCPHcB4SkSCMW', 'the-tails-coming-apart-as-metaphor-for-life'],
+  ['honesty', 'xdwbX9pFEr7Pomaxv', 'meta-honesty-firming-up-honesty-around-its-edge-cases'],
+  ['meditation', 'mELQFMi9egPn5EAjK', 'my-attempt-to-explain-looking-insight-meditation-and'],
+  ['robust', '2jfiMgKkh7qw9z8Do', 'being-a-robust-agent'],
+  ['punish', 'X5RyaEDHNq5qutSHK', 'anti-social-punishment'],
+  ['common', '9QxnfMYccz9QRgZ5z', 'the-costly-coordination-mechanism-of-common-knowledge'],
+  ['metacognition', 'K4eDzqS2rbcBDsCLZ', 'unrolling-social-metacognition-three-levels-of-meta-are-not'],
+  ['web', 'AqbWna2S85pFTsHH4', 'the-intelligent-social-web'],
+  ['market', 'a4jRN9nbD79PAhWTB', 'prediction-markets-when-do-they-work'],
+  ['spaghetti', 'NQgWL7tvAPgN2LTLn', 'spaghetti-towers'],
+  ['knowledge', 'nnNdz7XQrd5bWTgoP', 'on-the-loss-and-preservation-of-knowledge'],
+  ['voting', 'D6trAzh6DApKPhbv4', 'a-voting-theory-primer-for-rationalists'],
+  ['pavlov', '3rxMBRCYEmHCNDLhu', 'the-pavlov-strategy'],
+  ['commons', '2G8j8D5auZKKAjSfY', 'inadequate-equilibria-vs-governance-of-the-commons'],
+  ['science', 'v7c47vjta3mavY3QC', 'is-science-slowing-down'],
+  ['rescue', 'BhXA6pvAbsFz3gvn4', 'research-rescuers-during-the-holocaust'],
+  ['troll', 'CvKnhXTu9BPcdKE4W', 'an-untrollable-mathematician-illustrated'],
+  ['long1', 'mFqG58s4NE3EE68Lq', 'why-did-everything-take-so-long'],
+  ['long2', 'yxTP9FckrwoMjxPc4', 'why-everything-might-have-taken-so-long'],
+  ['clickbait', 'YicoiQurNBxSp7a65', 'is-clickbait-destroying-our-general-intelligence'],
+  ['active', 'XYYyzgyuRH5rFN64K', 'what-makes-people-intellectually-active'],
+  ['daemon', 'nyCHnY7T5PHPLjxmN', 'open-question-are-minimal-circuits-daemon-free'],
+  ['astro', 'Qz6w4GYZpgeDp6ATB', 'beyond-astronomical-waste'],
+  ['birthorder1', 'tj8QP2EFdP8p54z6i', 'historical-mathematicians-exhibit-a-birth-order-effect-too'],
+  ['birthorder2', 'QTLTic5nZ2DaBtoCv', 'birth-order-effect-found-in-nobel-laureates-in-physics'],
+  ['gaming', 'AanbbjYr5zckMKde7', 'specification-gaming-examples-in-ai-1'],
+  ['takeoff', 'AfGmsjGPXN97kNp57', 'arguments-about-fast-takeoff'],
+  ['rocket', 'Gg9a4y8reWKtLe3Tn', 'the-rocket-alignment-problem'],
+  ['agency', 'p7x32SEt43ZMC9r7r', 'embedded-agents'],
+  ['faq', 'Djs38EWYZG8o7JMWY', 'paul-s-research-agenda-faq'],
+  ['challenges', 'S7csET9CgBtpi7sCh', 'challenges-to-christiano-s-capability-amplification-proposal'],
+  ['response', 'Djs38EWYZG8o7JMWY', 'paul-s-research-agenda-faq?commentId=79jM2ecef73zupPR4'],
+  ['scale', 'bBdfbWfWxHN9Chjcq', 'robustness-to-scale'],
+  ['coherence', 'NxF5G6CJiof6cemTw', 'coherence-arguments-do-not-imply-goal-directed-behavior']
+]
+
+lw18ReviewPosts.forEach(
+  ([shortUrl, id, slug]) =>
+  addRoute({
+    name: `LessWrong 2018 Review ${id}/${slug}`,
+    path: `/2018/${shortUrl}`, 
+    redirect: () => `/posts/${id}/${slug}`
+  })
+)
+
 // User-profile routes
 addRoute(
   {
@@ -145,11 +202,11 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
   // disabled except during review voting phase
-  // {
-  //   name:'reviewVoting',
-  //   path: '/reviewVoting',
-  //   componentName: "ReviewVotingPage"
-  // },
+  {
+    name:'reviewVoting',
+    path: '/reviewVoting',
+    componentName: "ReviewVotingPage"
+  },
 
   // Sequences
   {
@@ -744,10 +801,16 @@ addRoute(
     componentName: 'EmailTokenPage',
   },
   {
-    name: 'nominations',
-    path: '/nominations',
+    name: 'nominations2018',
+    path: '/nominations2018',
     componentName: 'Nominations2018',
     title: "2018 Nominations",
+  },
+  {
+    name: 'nominations',
+    path: '/nominations',
+    componentName: 'Nominations2019',
+    title: "2019 Nominations",
   },
   {
     name: 'userReviews',
@@ -756,9 +819,22 @@ addRoute(
     title: "User Reviews",
   },
   {
-    name: 'reviews',
-    path: '/reviews',
+    name: 'reviews2018',
+    path: '/reviews2018',
     componentName: 'Reviews2018',
     title: "2018 Reviews",
+  },
+  {
+    name: 'reviews',
+    path: '/reviews',
+    componentName: 'Reviews2019',
+    title: "2019 Reviews",
+  },
+  {
+    name: 'bookLanding',
+    path: '/books',
+    componentName: 'BookLanding',
+    title: "A Map that Reflects the Territory",
+    background: "white"
   },
 );
