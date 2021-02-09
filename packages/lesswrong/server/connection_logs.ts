@@ -2,7 +2,6 @@ import { LWEvents } from '../lib/collections/lwevents/collection';
 import { createMutator } from './vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { onServerConnect } from '../server/meteorServerSideFns';
-import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 
 onServerConnect(async (connection) => {
   const ip = (connection.httpHeaders && connection.httpHeaders["x-real-ip"]) || connection.clientAddress;

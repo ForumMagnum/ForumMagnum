@@ -1,4 +1,3 @@
-import SimpleSchema from 'simpl-schema';
 import { localeSetting } from '../publicSettings';
 import { loggerConstructor } from '../utils/logging';
 

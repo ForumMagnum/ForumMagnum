@@ -25,7 +25,6 @@ interface AppProps extends ExternalProps {
   
   // From withCurrentUser HoC
   currentUser: UsersCurrent
-  currentUserLoading: boolean
 }
 
 class App extends PureComponent<AppProps,any> {
@@ -153,10 +152,6 @@ class App extends PureComponent<AppProps,any> {
     );
   }
 }
-
-(App as any).propTypes = {
-  currentUserLoading: PropTypes.bool,
-};
 
 (App as any).childContextTypes = {
   intl: intlShape,

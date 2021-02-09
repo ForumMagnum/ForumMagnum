@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from './vulcan-lib';
+import { addGraphQLResolvers, addGraphQLQuery } from './vulcan-lib';
 import { getUnrecognizedIndexes, getMissingIndexes } from './indexUtil';
 import process from 'process';
 import os from 'os';

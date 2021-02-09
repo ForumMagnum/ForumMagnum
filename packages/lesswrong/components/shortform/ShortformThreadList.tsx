@@ -12,7 +12,7 @@ const ShortformThreadList = ({ classes }: {
   classes: ClassesType,
 }) => {
   const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
-  const { results, loading, loadMoreProps, refetch } = useMulti({
+  const { results, loadMoreProps, refetch } = useMulti({
     terms: {
       view: 'shortform',
       limit:20

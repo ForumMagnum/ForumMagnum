@@ -51,12 +51,9 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
     fetchPolicy: 'cache-and-network',
   });
   
-  let filteredResults: Array<NotificationsList> = [];
-  if (currentUser) {
-    filteredResults = results && _.filter(results,
-      (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
-    );
-  }
+  let filteredResults: Array<NotificationsList> = results && _.filter(results,
+    (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
+  );
 
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   const notificationIconStyle = {

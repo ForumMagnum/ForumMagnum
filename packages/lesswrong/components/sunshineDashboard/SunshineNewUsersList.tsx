@@ -18,7 +18,7 @@ const SunshineNewUsersList = ({ classes, terms }: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const { results, loadMore, count, totalCount, loadMoreProps } = useMulti({
+  const { results, totalCount, loadMoreProps } = useMulti({
     terms,
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',

@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, isAnyTest, getInstanceSettings } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings } from '../lib/executionEnvironment';
 import { renderWithCache } from './vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
@@ -11,7 +11,7 @@ import getVoyagerConfig from './vulcan-lib/apollo-server/voyager';
 import { graphiqlMiddleware, getGraphiqlConfig } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
-import { initGraphQL, getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
+import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import { computeContextFromReq } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
