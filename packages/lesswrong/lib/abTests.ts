@@ -16,22 +16,3 @@ export const noEffectABTest = new ABTest({
     },
   }
 });
-
-export const numPostsOnHomePage = new ABTest({
-  name: "numPostsOnHomePage",
-  description: "Number of Posts in Latest Posts Section of Home Page",
-  groups: {
-    "10": {
-      description: "Ten posts",
-      weight: 1,
-    },
-    "13": {
-      description: "Thirteen posts",
-      weight: 4,
-    },
-    "16": {
-      description: "Sixteen posts",
-      weight: 1,
-    },
-  },
-});
