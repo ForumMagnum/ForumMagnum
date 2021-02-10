@@ -398,7 +398,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -513,10 +513,6 @@ const PostsItem2 = ({
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
-
-                {(post.nominationCount2019 >= 2) && (new Date() > new Date("2020-12-14")) && <Link to={postGetPageUrl(post)}>
-                  <ReviewPostButton post={post} year="2019"/>
-                </Link>}
 
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
