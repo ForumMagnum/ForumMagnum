@@ -1,6 +1,6 @@
 branch-defaults:
   expressNotMeteor:
-    environment: LessWrong2Express-dev4
+    environment: Lessestwrong
     group_suffix: null
   devel:
     environment: LessestWrong
