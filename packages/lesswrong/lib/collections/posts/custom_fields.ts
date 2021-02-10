@@ -454,18 +454,25 @@ addFieldsDict(Posts, {
         const nextPostID = await sequenceGetNextPostID(sequenceId, post._id);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          return await accessFilterSingle(currentUser, Posts, nextPost, context);
+          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+          if (nextPostFiltered)
+            return nextPostFiltered;
+        }
+      }
+      if(post.canonicalSequenceId) {
+        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
+        if (nextPostID) {
+          const nextPost = await context.loaders.Posts.load(nextPostID);
+          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+          if (nextPostFiltered)
+            return nextPostFiltered;
         }
       }
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
-        return await accessFilterSingle(currentUser, Posts, nextPost, context);
-      }
-      if(post.canonicalSequenceId) {
-        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
-        if (!nextPostID) return null;
-        const nextPost = await context.loaders.Posts.load(nextPostID);
-        return await accessFilterSingle(currentUser, Posts, nextPost, context);
+        const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+        if (nextPostFiltered)
+          return nextPostFiltered;
       }
 
       return null;
@@ -487,18 +494,28 @@ addFieldsDict(Posts, {
         const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          return await accessFilterSingle(currentUser, Posts, prevPost, context);
+          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+          if (prevPostFiltered) {
+            return prevPostFiltered;
+          }
+        }
+      }
+      if(post.canonicalSequenceId) {
+        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
+        if (prevPostID) {
+          const prevPost = await context.loaders.Posts.load(prevPostID);
+          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+          if (prevPostFiltered) {
+            return prevPostFiltered;
+          }
         }
       }
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
-        return await accessFilterSingle(currentUser, Posts, prevPost, context);
-      }
-      if(post.canonicalSequenceId) {
-        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
-        if (!prevPostID) return null;
-        const prevPost = await context.loaders.Posts.load(prevPostID);
-        return await accessFilterSingle(currentUser, Posts, prevPost, context);
+        const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+        if (prevPostFiltered) {
+          return prevPostFiltered;
+        }
       }
 
       return null;
