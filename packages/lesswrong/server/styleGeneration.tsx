@@ -10,7 +10,7 @@ import crypto from 'crypto'; //nodejs core library
 import datetimeStyles from '../styles/datetimeStyles';
 import draftjsStyles from '../styles/draftjsStyles';
 import miscStyles from '../styles/miscStyles';
-import { isValidSerializedThemeOptions, ThemeName, ThemeOptions } from '../themes/themeNames';
+import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const generateMergedStylesheet = (theme: ThemeOptions): string => {
@@ -66,7 +66,7 @@ export const getMergedStylesheet = (theme: ThemeOptions): {css: string, url: str
   const actualForumType = forumTypeSetting.get();
   const themeKey = JSON.stringify({
     name: theme.name,
-    forumTheme: (theme?.forumThemeOverride && theme.forumThemeOverride[actualForumType]) || actualForumType,
+    forumTheme: getForumType(theme),
   });
   
   if (!mergedStylesheets[themeKey]) {

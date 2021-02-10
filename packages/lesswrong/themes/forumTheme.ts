@@ -5,7 +5,6 @@ import getLwTheme from '../themes/lesswrongTheme'
 import { getForumType, ThemeOptions } from './themeNames';
 
 export const getForumTheme = (themeOptions: ThemeOptions) => {
-  const actualForumType = forumTypeSetting.get();
   const forumTypeTheme = getForumType(themeOptions);
   
   switch (forumTypeTheme) {
