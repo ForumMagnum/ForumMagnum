@@ -3,17 +3,18 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useAllABTests, useClientId } from '../../lib/abTestUtil';
 import { getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType) => ({
-  abTestKey: {
-    ...theme.typography.body1,
-  },
-  noAbTests: {
+  explanatoryText: {
     ...theme.typography.body1,
   },
   abTestsTable: {
     ...theme.typography.body1,
+    marginTop: 24,
     "& th": {
       textAlign: "left",
     },
@@ -28,6 +29,7 @@ const UsersViewABTests = ({classes}: {
 }) => {
   const { SingleColumnSection, SectionTitle } = Components;
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();
   const abTestsMetadata = getABTestsMetadata();
   const clientId = useClientId();
@@ -35,12 +37,18 @@ const UsersViewABTests = ({classes}: {
   return <SingleColumnSection>
     <SectionTitle title="A/B Tests"/>
     
-    <p className={classes.abTestKey}>
-      Your A/B test key is {getUserABTestKey(currentUser, clientId)}
-    </p>
+    <div className={classes.explanatoryText}>
+      <p>
+        Your A/B test key is {getUserABTestKey(currentUser, clientId)}. This is used to randomize your test group in future A/B tests. You can see which A/B tests are active and which group you are in below, and override your group allocation. (This may cause data you generate to not be counted in certain experiments.)
+      </p>
+      
+      {!currentUser && <p>
+        You need to log in to override your A/B test group allocation.
+      </p>}
+    </div>
     
     {Object.keys(allABtests).length===0
-      ? <p className={classes.noAbTests}>
+      ? <p className={classes.explanatoryText}>
           There aren't any A/B tests active right now
         </p>
       : <table className={classes.abTestsTable}>
@@ -51,7 +59,31 @@ const UsersViewABTests = ({classes}: {
           <tbody>
             {_.keys(allABtests).map(abTestName => <tr key={abTestName}>
               <td>{abTestsMetadata[abTestName].description}</td>
-              <td>{abTestsMetadata[abTestName].groups[allABtests[abTestName]].description}</td>
+              <td>
+                {currentUser &&
+                  <Select
+                    value={allABtests[abTestName]}
+                    onChange={(e) => {
+                      const newTestGroup = e.target.value;
+                      updateCurrentUser({
+                        abTestOverrides: {
+                          ...currentUser.abTestOverrides,
+                          [abTestName]: newTestGroup,
+                        },
+                      });
+                    }}
+                  >
+                    {Object.keys(abTestsMetadata[abTestName].groups).map(testGroup => 
+                      <MenuItem value={testGroup} key={testGroup}>
+                        {abTestsMetadata[abTestName].groups[testGroup].description}
+                      </MenuItem>
+                    )}
+                  </Select>
+                }
+                {!currentUser &&
+                  abTestsMetadata[abTestName].groups[allABtests[abTestName]].description
+                }
+              </td>
             </tr>)}
           </tbody>
         </table>

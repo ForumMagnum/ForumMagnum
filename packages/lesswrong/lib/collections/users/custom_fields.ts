@@ -1419,7 +1419,8 @@ addFieldsDict(Users, {
     type: GraphQLJSON, //Record<string,number>
     optional: true, hidden: true,
     canRead: [userOwns],
-    canUpdate: ['admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    blackbox: true,
   },
   reenableDraftJs: {
     type: Boolean,
