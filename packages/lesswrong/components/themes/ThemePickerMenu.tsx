@@ -7,6 +7,17 @@ import Check from '@material-ui/icons/Check';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 
+const styles = (theme: ThemeType): JssStyles => ({
+  check: {
+    width: 20,
+    marginRight: 8,
+  },
+  notChecked: {
+    width: 20,
+    marginRight: 8,
+  },
+})
+
 const removeStylesheetsMatching = (substring: string) => {
   const linkTags = document.getElementsByTagName("link");
   for (let i=0; i<linkTags.length; i++) {
@@ -32,8 +43,9 @@ const addStylesheet = (href: string, onFinish: (success: boolean)=>void) => {
   document.head.appendChild(styleNode);
 }
 
-const ThemePickerMenu = ({children}: {
-  children: React.ReactNode
+const ThemePickerMenu = ({children, classes}: {
+  children: React.ReactNode,
+  classes: ClassesType,
 }) => {
   const { LWTooltip } = Components;
   const [currentThemeOptions, setCurrentThemeOptions] = useState((window as any)?.themeOptions as ThemeOptions);
@@ -62,8 +74,8 @@ const ThemePickerMenu = ({children}: {
         })
       }}>
         {currentThemeOptions?.name === themeMetadata.name
-          ? <Check/>
-          : null
+          ? <Check className={classes.check}/>
+          : <div className={classes.notChecked}/>
         }
         {themeMetadata.label}
       </MenuItem>
@@ -81,7 +93,10 @@ const ThemePickerMenu = ({children}: {
           },
         })
       }}>
-        {selectedForumTheme === forumType && <Check/>}
+        {(selectedForumTheme === forumType)
+          ? <Check className={classes.check}/>
+          : <div className={classes.notChecked}/>
+        }
         {forumType}
       </MenuItem>
     )}
@@ -99,7 +114,7 @@ const ThemePickerMenu = ({children}: {
 }
 
 
-const ThemePickerMenuComponent = registerComponent('ThemePickerMenu', ThemePickerMenu);
+const ThemePickerMenuComponent = registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
 
 declare global {
   interface ComponentTypes {
