@@ -10,7 +10,7 @@ const MuiThemeProviderWrapper = (props, context) => {
     {props.children}
   </MuiThemeProvider>
 }
-export function wrapWithMuiTheme (app, context, themeName) {
+export function wrapWithMuiTheme (app, context, themeOptions) {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({
@@ -19,7 +19,7 @@ export function wrapWithMuiTheme (app, context, themeName) {
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <MuiThemeProviderWrapper theme={getForumTheme(themeName)} sheetsManager={new Map()}>
+      <MuiThemeProviderWrapper theme={getForumTheme(themeOptions)} sheetsManager={new Map()}>
         {app}
         <JssCleanup/>
       </MuiThemeProviderWrapper>

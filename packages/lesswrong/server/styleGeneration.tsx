@@ -10,9 +10,10 @@ import crypto from 'crypto'; //nodejs core library
 import datetimeStyles from '../styles/datetimeStyles';
 import draftjsStyles from '../styles/draftjsStyles';
 import miscStyles from '../styles/miscStyles';
-import { isValidThemeName, ThemeName } from '../themes/themeNames';
+import { isValidSerializedThemeOptions, ThemeName, ThemeOptions } from '../themes/themeNames';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
-const generateMergedStylesheet = (theme: ThemeName): string => {
+const generateMergedStylesheet = (theme: ThemeOptions): string => {
   importAllComponents();
   
   const context: any = {};
@@ -49,7 +50,7 @@ type StylesheetAndHash = {
   hash: string
 }
 
-const generateMergedStylesheetAndHash = (theme: ThemeName): StylesheetAndHash => {
+const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash => {
   const stylesheet = generateMergedStylesheet(theme);
   const hash = crypto.createHash('sha256').update(stylesheet, 'utf8').digest('hex');
   return {
@@ -58,26 +59,34 @@ const generateMergedStylesheetAndHash = (theme: ThemeName): StylesheetAndHash =>
   }
 }
 
-const mergedStylesheets: Partial<Record<ThemeName, StylesheetAndHash>> = {};
+// Serialized ThemeOptions (string) -> StylesheetAndHash
+const mergedStylesheets: Partial<Record<string, StylesheetAndHash>> = {};
 
-export const getMergedStylesheet = (theme: ThemeName): {css: string, url: string, hash: string} => {
-  if (!mergedStylesheets[theme]) {
-    mergedStylesheets[theme] = generateMergedStylesheetAndHash(theme);
+export const getMergedStylesheet = (theme: ThemeOptions): {css: string, url: string, hash: string} => {
+  const actualForumType = forumTypeSetting.get();
+  const themeKey = JSON.stringify({
+    name: theme.name,
+    forumTheme: (theme?.forumThemeOverride && theme.forumThemeOverride[actualForumType]) || actualForumType,
+  });
+  
+  if (!mergedStylesheets[themeKey]) {
+    mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);
   }
-  const mergedStylesheet = mergedStylesheets[theme]!;
+  const mergedStylesheet = mergedStylesheets[themeKey]!;
   
   return {
     css: mergedStylesheet.css,
-    url: `/allStyles?hash=${mergedStylesheet.hash}&theme=${theme}`,
+    url: `/allStyles?hash=${mergedStylesheet.hash}&theme=${encodeURIComponent(JSON.stringify(theme))}`,
     hash: mergedStylesheet.hash,
   };
 }
 
 addStaticRoute("/allStyles", ({query}, req, res, next) => {
   const expectedHash = query?.hash;
-  const themeName = query?.theme ?? "default";
-  const validThemeName = isValidThemeName(themeName) ? themeName : "default";
-  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeName);
+  const encodedThemeOptions = query?.theme;
+  const serializedThemeOptions = decodeURIComponent(encodedThemeOptions);
+  const validThemeOptions = isValidSerializedThemeOptions(serializedThemeOptions) ? JSON.parse(serializedThemeOptions) : {name:"default"}
+  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions);
   
   if (!expectedHash || expectedHash === stylesheetHash) {
     res.writeHead(200, {

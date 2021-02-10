@@ -1,6 +1,7 @@
 import createLWTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
+import type { ThemeOptions } from './themeNames';
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -48,7 +49,7 @@ const palette = {
   }
 }
 
-export const getLwTheme = (themeName) => createLWTheme(themeName, {
+export const getLwTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOptions, {
   palette: palette,
   typography: {
     fontFamily: sansSerifStack,

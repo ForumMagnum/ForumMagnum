@@ -2,6 +2,7 @@ import createLWTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import { createMuiTheme } from '@material-ui/core/styles';
+import type { ThemeOptions } from './themeNames';
 
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -60,7 +61,7 @@ const basicText = {
 
 const defaultTheme = createMuiTheme()
 
-export const getEaTheme = (themeName) => createLWTheme(themeName, {
+export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOptions, {
   palette,
   typography: {
     fontDownloads: [

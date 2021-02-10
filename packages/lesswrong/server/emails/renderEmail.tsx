@@ -157,7 +157,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-    <MuiThemeProvider theme={getForumTheme("default")} sheetsManager={new Map()}>
+    <MuiThemeProvider theme={getForumTheme({name: "default", forumThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}

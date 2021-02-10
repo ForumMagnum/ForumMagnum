@@ -2,15 +2,18 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import getAfTheme from '../themes/alignmentForumTheme'
 import getEaTheme from '../themes/eaTheme'
 import getLwTheme from '../themes/lesswrongTheme'
-import type { ThemeName } from '../themes/themeNames';
+import { getForumType, ThemeOptions } from './themeNames';
 
-export const getForumTheme = (themeName: ThemeName) => {
-  switch (forumTypeSetting.get()) {
+export const getForumTheme = (themeOptions: ThemeOptions) => {
+  const actualForumType = forumTypeSetting.get();
+  const forumTypeTheme = getForumType(themeOptions);
+  
+  switch (forumTypeTheme) {
     case 'AlignmentForum':
-      return getAfTheme(themeName);
+      return getAfTheme(themeOptions);
     case 'EAForum':
-      return getEaTheme(themeName);
+      return getEaTheme(themeOptions);
     default:
-      return getLwTheme(themeName);
+      return getLwTheme(themeOptions);
   }
 }

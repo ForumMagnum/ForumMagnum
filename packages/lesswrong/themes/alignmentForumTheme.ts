@@ -1,6 +1,7 @@
 import createLWTheme from './createThemeDefaults';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
+import type { ThemeOptions } from './themeNames';
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -39,7 +40,7 @@ const palette = {
   headerType: "primary"
 }
 
-export const getAlignmentForumTheme = (themeName) => createLWTheme(themeName, {
+export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOptions, {
   palette: palette,
   typography: {
     fontFamily: sansSerifStack,

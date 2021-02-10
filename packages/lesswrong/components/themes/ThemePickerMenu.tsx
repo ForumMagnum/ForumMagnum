@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ThemeMetadata, themeMetadata } from '../../themes/themeNames';
+import { ThemeMetadata, themeMetadata, getForumType, ThemeOptions } from '../../themes/themeNames';
+import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
+import Divider from '@material-ui/core/Divider';
+import Check from '@material-ui/icons/Check';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 
@@ -33,23 +36,55 @@ const ThemePickerMenu = ({children}: {
   children: React.ReactNode
 }) => {
   const { LWTooltip } = Components;
+  const [currentThemeOptions, setCurrentThemeOptions] = useState((window as any)?.themeOptions as ThemeOptions);
   
-  const pickTheme = async (theme: ThemeMetadata) => {
-    if ((window as any).themeName !== theme.name) {
-      const oldThemeName = (window as any).themeName;
-      (window as any).themeName = theme.name;
-      addStylesheet(`/allStyles?theme=${theme.name}`, (success: boolean) => {
+  const setTheme = async (themeOptions: ThemeOptions) => {
+    setCurrentThemeOptions(themeOptions);
+    if (JSON.stringify((window as any).themeOptions) !== JSON.stringify(themeOptions)) {
+      const oldThemeOptions = (window as any).themeOptions;
+      (window as any).themeOptions = themeOptions;
+      addStylesheet(`/allStyles?theme=${encodeURIComponent(JSON.stringify(themeOptions))}`, (success: boolean) => {
         if (success) {
-          removeStylesheetsMatching(oldThemeName);
+          removeStylesheetsMatching(encodeURIComponent(JSON.stringify(oldThemeOptions)));
         }
       });
     }
   }
   
+  const selectedForumTheme = getForumType(currentThemeOptions);
+  
   const submenu = <Paper>
-    {themeMetadata.map(theme => <MenuItem key={theme.name} onClick={(ev) => pickTheme(theme)}>
-      {theme.label}
-    </MenuItem>)}
+    {themeMetadata.map((themeMetadata: ThemeMetadata) =>
+      <MenuItem key={themeMetadata.name} onClick={(ev) => {
+        setTheme({
+          ...currentThemeOptions,
+          name: themeMetadata.name
+        })
+      }}>
+        {currentThemeOptions?.name === themeMetadata.name
+          ? <Check/>
+          : null
+        }
+        {themeMetadata.label}
+      </MenuItem>
+    )}
+    
+    <Divider/>
+    
+    {allForumTypes.map((forumType: ForumTypeString) =>
+      <MenuItem key={forumType} onClick={(ev) => {
+        setTheme({
+          ...currentThemeOptions,
+          forumThemeOverride: {
+            ...currentThemeOptions.forumThemeOverride,
+            [forumTypeSetting.get()]: forumType
+          },
+        })
+      }}>
+        {selectedForumTheme === forumType && <Check/>}
+        {forumType}
+      </MenuItem>
+    )}
   </Paper>
   
   
