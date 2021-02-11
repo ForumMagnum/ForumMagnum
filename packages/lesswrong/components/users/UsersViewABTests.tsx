@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useAllABTests, useClientId } from '../../lib/abTestUtil';
-import { getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
+import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
@@ -65,7 +64,7 @@ const UsersViewABTests = ({classes}: {
                     value={allABtests[abTestName]}
                     onChange={(e) => {
                       const newTestGroup = e.target.value;
-                      updateCurrentUser({
+                      void updateCurrentUser({
                         abTestOverrides: {
                           ...currentUser.abTestOverrides,
                           [abTestName]: newTestGroup,
