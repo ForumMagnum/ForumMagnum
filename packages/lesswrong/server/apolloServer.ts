@@ -29,6 +29,7 @@ import { addAuthMiddlewares } from './authenticationMiddlewares';
 import { addSentryMiddlewares } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
+import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
 
@@ -140,7 +141,7 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     const renderResult = await renderWithCache(request, response);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl } = renderResult;
+    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, allAbTestGroups} = renderResult;
     const {bundleHash} = getClientBundle();
 
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
@@ -163,7 +164,9 @@ export function startWebserver() {
           + instanceSettingsHeader
           + jssSheets
         + '</head>\n'
-        + '<body>\n'+ssrBody+'</body>\n'
+        + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
+          + ssrBody
+        +'</body>\n'
         + serializedApolloState)
     }
   })

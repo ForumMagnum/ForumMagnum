@@ -59,6 +59,10 @@ export class ABTest {
     
     registerABTest(this);
   }
+  
+  styleIfInGroup(groupName: string) {
+    return `.${this.name}_${groupName} &&`;
+  }
 }
 
 // CompleteTestGroupAllocation: A dictionary from the names of A/B tests, to
@@ -174,4 +178,10 @@ export function useAllABTests(): CompleteTestGroupAllocation {
     abTestGroups[abTestKey] = testGroups[abTestKey];
   
   return testGroups;
+}
+
+export function classesForAbTestGroups(groups: CompleteTestGroupAllocation) {
+  return Object.keys(groups)
+    .map((abTestName: string) => `${abTestName}_${groups[abTestName]}`)
+    .join(' ');
 }
