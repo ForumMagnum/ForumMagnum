@@ -11,7 +11,7 @@ import rng from './seedrandom';
 // in that group). A given user (or logged-out client) is in exactly one of the
 // groups.
 //
-// You can see what A/B test groups you're in by going to
+// As a user, you can see and override what A/B test groups you're in by going to
 //   /abTestGroups
 //
 // Logged-out users are assigned an A/B test group based on their ClientID. If
@@ -27,6 +27,29 @@ import rng from './seedrandom';
 // databaseMetadata collection. A/B tests can be overridden for an individual
 // user by settings the abTestOverrides field on the user object. The override
 // will only apply while they are logged in.
+//
+// To change JSS styles based on A/B test group, use the styleIfInGroup method,
+// nested inside the JSS for a className, similar to how you would make a
+// layout breakpoint. For example:
+//   submitButton: {
+//     width: 80,
+//     marginLeft: 10,
+//     [buttonColorABTest.styleIfInGroup("redButtonGroup")]: {
+//       color: "red",
+//     },
+//   },
+// Under the hood, what happens is that the <body> element has classes applied
+// for all of the user's A/B test groups, and this creates a CSS descendent
+// selector. A/B tests that only affect styles do not interfere with the page
+// cache.
+//
+// To change the behavior of a component based on the user's A/B test group,
+// use the useABTest hook. For example:
+//   const showButtonGroup = useABTest(showButtonABTest);
+//   return <div>
+//     {showButtonGroup==="visible" && <ButtonThatMightOrMightNotAppear/>
+//   </div>
+//
 //
 
 type ABTestGroup = {
@@ -60,6 +83,9 @@ export class ABTest {
     registerABTest(this);
   }
   
+  // JSS selector for if the current user is in the named A/B test group. Nest
+  // this inside the JSS for a className, similar to how you would make JSS for
+  // a breakpoint. For example:
   styleIfInGroup(groupName: string) {
     return `.${this.name}_${groupName} &&`;
   }
