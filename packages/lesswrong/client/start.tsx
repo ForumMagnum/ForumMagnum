@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AppGenerator from './vulcan-core/AppGenerator';
+import AppGenerator from './AppGenerator';
 import { onStartup } from '../lib/executionEnvironment';
 
-import { createApolloClient } from './vulcan-lib/apollo-client/apolloClient';
+import { createApolloClient } from './apolloClient';
 import { populateComponentsApp } from '../lib/vulcan-lib';
 
 onStartup(() => {

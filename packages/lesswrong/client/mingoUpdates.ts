@@ -2,7 +2,7 @@
  * Helpers to update watched mutations
  */
 import Mingo from 'mingo';
-import { Utils } from '../../../lib/vulcan-lib/utils';
+import { Utils } from '../lib/vulcan-lib/utils';
 
 /*
 

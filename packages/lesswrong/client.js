@@ -1,4 +1,5 @@
-import './client/vulcan-lib/main';
+import './client/mingoUpdates';
+import './client/apolloClient';
 import './lib/vulcan-lib';
 import './client/start';
 

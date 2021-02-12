@@ -3,12 +3,12 @@
  */
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
-import { Components } from '../../lib/vulcan-lib';
-import { wrapWithMuiTheme } from '../themeProvider';
+import { Components } from '../lib/vulcan-lib';
+import { wrapWithMuiTheme } from './themeProvider';
 import { CookiesProvider } from 'react-cookie';
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
-import { ABTestGroupsContext } from '../../lib/abTestImpl';
+import { ABTestGroupsContext } from '../lib/abTestImpl';
 
 const AppGenerator = ({ apolloClient, abTestGroups }) => {
   const App = (
