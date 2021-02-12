@@ -2,7 +2,6 @@ import './server/databaseSettings'
 
 import './server/vulcan-lib/index';
 
-import './server/vulcan-users/main';
 import './server/vulcan-core/start';
 
 import './server/startupSanityChecks';
