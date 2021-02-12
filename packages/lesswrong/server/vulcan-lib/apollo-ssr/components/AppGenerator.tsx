@@ -7,7 +7,7 @@ import { ApolloProvider } from '@apollo/client';
 import { StaticRouter } from 'react-router';
 import { Components } from '../../../../lib/vulcan-lib/components';
 import { CookiesProvider } from 'react-cookie';
-import { ABTestGroupsContext } from '../../../../lib/abTestImpl';
+import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import type { CompleteTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
@@ -16,20 +16,20 @@ import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 // see client-side vulcan:core/lib/client/start.jsx implementation
 // we do the same server side
 
-const AppGenerator = ({ req, apolloClient, serverRequestStatus, abTestGroups }: {
+const AppGenerator = ({ req, apolloClient, serverRequestStatus, abTestGroupsUsed }: {
   req: any
   apolloClient: any
   serverRequestStatus: ServerRequestStatusContextType,
-  abTestGroups: CompleteTestGroupAllocation,
+  abTestGroupsUsed: RelevantTestGroupAllocation,
 }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
       {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
       <StaticRouter location={req.url} context={{}}>
         <CookiesProvider cookies={getAllCookiesFromReq(req)}>
-          <ABTestGroupsContext.Provider value={abTestGroups}>
+          <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
             <Components.App apolloClient={apolloClient} serverRequestStatus={serverRequestStatus}/>
-          </ABTestGroupsContext.Provider>
+          </ABTestGroupsUsedContext.Provider>
         </CookiesProvider>
       </StaticRouter>
     </ApolloProvider>

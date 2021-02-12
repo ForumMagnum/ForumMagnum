@@ -101,7 +101,8 @@ export type CompleteTestGroupAllocation = Record<string,string>
 // a particular page render.
 export type RelevantTestGroupAllocation = Record<string,string>
 
-export const ABTestGroupsContext = React.createContext<RelevantTestGroupAllocation>({});
+// Used for tracking which A/B test groups were relevant to the page rendering
+export const ABTestGroupsUsedContext = React.createContext<RelevantTestGroupAllocation>({});
 
 let allABTests: Record<string,ABTest> = {};
 
@@ -165,10 +166,10 @@ function weightedRandomPick(options: Record<string,number>, seed: string): strin
 export function useABTest(abtest: ABTest): string {
   const currentUser = useCurrentUser();
   const clientId = useClientId();
-  const abTestGroups: RelevantTestGroupAllocation = useContext(ABTestGroupsContext);
+  const abTestGroupsUsed: RelevantTestGroupAllocation = useContext(ABTestGroupsUsedContext);
   const group = getUserABTestGroup(currentUser, clientId, abtest);
   
-  abTestGroups[abtest.name] = group;
+  abTestGroupsUsed[abtest.name] = group;
   return group;
 }
 
@@ -197,11 +198,11 @@ export function useAllABTests(): CompleteTestGroupAllocation {
   const currentUser = useCurrentUser();
   const clientId = useClientId();
   
-  const abTestGroups: CompleteTestGroupAllocation = useContext(ABTestGroupsContext);
+  const abTestGroupsUsed: CompleteTestGroupAllocation = useContext(ABTestGroupsUsedContext);
   
   const testGroups = getAllUserABTestGroups(currentUser, clientId);
   for (let abTestKey in testGroups)
-    abTestGroups[abTestKey] = testGroups[abTestKey];
+    abTestGroupsUsed[abTestKey] = testGroups[abTestKey];
   
   return testGroups;
 }

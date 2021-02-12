@@ -154,7 +154,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   const App = <AppGenerator
     req={req} apolloClient={client}
     serverRequestStatus={serverRequestStatus}
-    abTestGroups={abTestGroups}
+    abTestGroupsUsed={abTestGroups}
   />;
 
   const WrappedApp = wrapWithMuiTheme(App, context);

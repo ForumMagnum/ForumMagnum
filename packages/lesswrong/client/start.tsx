@@ -19,9 +19,8 @@ onStartup(() => {
     document.body.appendChild(rootElement);
   }
 
-  const abTestGroups = {};
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroups={abTestGroups} />
+    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} />
   );
 
   ReactDOM.hydrate(
