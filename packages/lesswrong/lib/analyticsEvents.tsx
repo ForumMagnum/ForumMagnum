@@ -67,6 +67,54 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
 
 const ReactTrackingContext = React.createContext({});
 
+
+/* HOW TO USE ANALYTICS CONTEXT WRAPPER COMPONENTS
+When you create a new feature (page, widget,button, etc.) or change the structure of a page, 
+you should wrap the relevant components in an <AnalyticsContext> component. These 
+components allow passing contextual information to the analytics event capture 
+that allow us to know where various events (e.g. clicks, postItem Mounts) occur.
+
+To use an AnalyticsContext component, you wrap the components you are adding context
+to in a <AnalyticsContext> component. Data is added to the context by using props, e.g.
+<AnalyticsContext contextLabelOne="foo" contextLabelTwo={bar.baz._id}>
+  <MyNewFeature/>
+</AnalyticsContext> 
+
+You can use analyticsContext to add whatever info you want to events captured in a section, however,
+there is a convention for how to track __where__ a tracking event occurs. Please use the
+following system of context labels for tracking event location:
+
+USE THIS CONVENTION FOR TRACKING EVENT LOCATION
+* pageContext={page name}> e.g. tagPage, postPage, homePage
+    - (only needs to defined once for each page)
+* pageSectionContext={sectionName}, e.g. recentDiscussion, gatherTownWidget, wikiSection, userDrafts
+    - use for larger sections of a page
+* pageElementContext={elementName}> e.g. hoverPreview, commentItem, answerItem
+    -use when wanting to mark where within a section something occurs
+* listContext is historical. Now just use pageSection.
+* pageSubSectionContext has been used in a couple of places, but is largely superceded by elementContext
+
+Also, context labels and their values should be camelCase, e.g. `pageSectionContext="fromTheArchives"`, 
+and *not* `page_section_context="From the Archives" or the like.
+
+The best ways to learn the convention are 1) look at current usages, 2) discuss with others
+
+WARNING! Once data has been recording with certain labels, it is difficult to change!
+Please ensure that your context labeling follows the convention so future analysis is
+easy for everyone.
+
+WARNING! Be careful. Nested AnalyticsContext context share one context object so 1) you don't need
+to repeat context labels, 2) they can overwrite each others – be carefule you don't
+accidentally reuse a context label like "pageSectionContext" twice nested because the second usage
+will overwrite the first.
+
+NOTE! AnalyticsContext components will only add context data to events that are already
+being tracked (e.g. linkClicks, navigate). If you've added a button or change of state, you
+will likely have to add tracking manually with a captureEvent call. (Search codebase for examples or consult others)
+The best way to ensure you are tracking correctly with is to insert a console.log statement 
+in captureEvent in this file, e.g. console.log({eventType: eventProps}).
+*/
+
 export const AnalyticsContext = ({children, ...props}) => {
   const existingContextData = useContext(ReactTrackingContext)
   
