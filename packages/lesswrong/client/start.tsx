@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AppGenerator from './AppGenerator';
-import { onStartup } from '../../lib/executionEnvironment';
+import AppGenerator from './vulcan-core/AppGenerator';
+import { onStartup } from '../lib/executionEnvironment';
 
-import { createApolloClient } from '../vulcan-lib/apollo-client/apolloClient';
-import { populateComponentsApp } from '../../lib/vulcan-lib';
+import { createApolloClient } from './vulcan-lib/apollo-client/apolloClient';
+import { populateComponentsApp } from '../lib/vulcan-lib';
 
 onStartup(() => {
   // init the application components and routes, including components & routes from 3rd-party packages

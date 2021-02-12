@@ -42,3 +42,7 @@ export function startSyncedCron() {
     SyncedCron.start();
   }
 }
+
+onStartup(function() {
+  startSyncedCron();
+});
