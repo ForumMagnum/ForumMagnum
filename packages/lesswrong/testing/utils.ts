@@ -259,7 +259,7 @@ export const clearDatabase = async () => {
 // Copied from here: https://stackoverflow.com/a/11233515/8083739
 
 // Jim's note: This will not work on objects that contain arrays that contain objects
-function stringifyObject(obj_from_json){
+function stringifyObject(obj_from_json: {}): string {
   if(typeof obj_from_json !== "object" || Array.isArray(obj_from_json) || obj_from_json instanceof Date){
       // not an object or is a Date, stringify using native function
       return JSON.stringify(obj_from_json);

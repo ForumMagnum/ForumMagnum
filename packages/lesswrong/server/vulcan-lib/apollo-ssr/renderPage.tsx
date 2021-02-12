@@ -93,7 +93,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
     };
   } else {
     const abTestGroups = getAllUserABTestGroups(user, clientId);
-    const rendered = await cachedPageRender(req, abTestGroups, (req) => renderRequest({
+    const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
       req, user: null, startTime, res, clientId,
     }));
     
@@ -111,7 +111,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      abTestGroups: rendered.abTestGroups,
+      abTestGroups: rendered.relevantAbTestGroups,
       cached: rendered.cached,
     });
     
