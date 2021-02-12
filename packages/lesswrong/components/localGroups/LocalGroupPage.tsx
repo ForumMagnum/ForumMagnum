@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import { Localgroups } from '../../lib/index';
+import { Localgroups } from '../../lib/collections/localgroups/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';

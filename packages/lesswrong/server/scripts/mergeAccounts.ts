@@ -1,6 +1,6 @@
 import Users from '../../lib/collections/users/collection';
 import { Vulcan, updateMutator, getCollection, Utils } from '../vulcan-lib';
-import { Revisions } from '../../lib/index';
+import { Revisions } from '../../lib/collections/revisions/collection';
 import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { Votes } from '../../lib/collections/votes/index';

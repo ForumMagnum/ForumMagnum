@@ -185,24 +185,3 @@ import './abTests';
 import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';
-
-export {
-  Conversations,
-  Messages,
-  Notifications,
-  RSSFeeds,
-  Chapters,
-  Sequences,
-  Collections,
-  LWEvents,
-  Reports,
-  Books,
-  Bans,
-  Localgroups,
-  Comments,
-  Revisions,
-  ReviewVotes,
-  PetrovDayLaunchs,
-  TagFlags,
-  GardenCodes
-}

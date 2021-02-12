@@ -1,6 +1,7 @@
 import './server/databaseSettings'
 
 import './server/vulcan-lib/index';
+import './lib/index';
 
 import './server/cronUtil';
 
