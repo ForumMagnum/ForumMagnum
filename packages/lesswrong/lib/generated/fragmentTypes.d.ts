@@ -982,6 +982,7 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly endTime: Date,
   readonly fbLink: string,
   readonly type: string,
+  readonly hidden: boolean,
   readonly deleted: boolean,
 }
 
@@ -1464,7 +1465,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly abTestKey: string,
-  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
