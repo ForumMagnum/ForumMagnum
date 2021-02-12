@@ -1,5 +1,5 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import NoSSR from 'react-no-ssr';
+import NoSSR from '@material-ui/core/NoSsr';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import NoSSR from 'react-no-ssr';
+import NoSSR from '@material-ui/core/NoSsr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';

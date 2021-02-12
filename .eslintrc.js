@@ -88,6 +88,7 @@ module.exports = {
       { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
       { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
+      { name: "@material-ui/core/Tooltip", message: "Don't use material-UI's Tooltip component; use Components.LWTooltip instead" },
       { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
       { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import NoSSR from 'react-no-ssr';
+import NoSSR from '@material-ui/core/NoSsr';
 import Headroom from '../../lib/react-headroom'
 import { withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
