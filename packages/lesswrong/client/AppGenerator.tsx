@@ -1,6 +1,4 @@
-/**
- * The App + relevant wrappers
- */
+// Client-side React wrapper/context provider
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';

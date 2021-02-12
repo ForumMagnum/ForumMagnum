@@ -1,9 +1,3 @@
-/*
-
-Default mutations
-
-*/
-
 import { Utils, getTypeName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
@@ -19,13 +13,6 @@ export interface MutationOptions<T extends DbObject> {
 }
 
 const defaultOptions = { create: true, update: true, upsert: true, delete: true };
-
-/**
- * Safe getter
- * Must returns null if the document is absent (eg in case of validation failure)
- * @param {*} mutation
- * @param {*} mutationName
- */
 
 const getCreateMutationName = (typeName: string): string => `create${typeName}`;
 const getUpdateMutationName = (typeName: string): string => `update${typeName}`;
