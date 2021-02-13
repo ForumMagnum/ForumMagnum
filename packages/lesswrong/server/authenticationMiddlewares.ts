@@ -50,7 +50,10 @@ async function deserializeUserPassport(id, done) {
   done(null, user)
 }
 
-passport.serializeUser((user, done) => done(null, user._id))
+// TODO: Passport annotates this a taking an Express.User, which doesn't have an _id.
+// But this seems to work with this (and other functions) assuming a DbUser. Marked
+// as 'any' to suppress the type error.
+passport.serializeUser((user: any, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
 
@@ -92,10 +95,11 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   //EAFORUM LOOK HERE - Figure out what to do with your oAuth strategies
   const googleClientId =  googleClientIdSetting.get()
-  if (googleClientId) {
+  const googleOAuthSecret = googleOAuthSecretSetting.get()
+  if (googleClientId && googleOAuthSecret) {
     passport.use(new GoogleOAuthStrategy({
-      clientID: googleClientIdSetting.get(),
-      clientSecret: googleOAuthSecretSetting.get(),
+      clientID: googleClientId,
+      clientSecret: googleOAuthSecret,
       callbackURL: `${getSiteUrl()}auth/google/callback`,
       proxy: true
     },
@@ -114,7 +118,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const facebookClientId = facebookClientIdSetting.get()
   if (facebookClientId) {
     passport.use(new FacebookOAuthStrategy({
-      clientID: facebookClientIdSetting.get(),
+      clientID: facebookClientId,
       clientSecret: facebookOAuthSecretSetting.get(),
       callbackURL: `${getSiteUrl()}auth/facebook/callback`,
       profileFields: ['id', 'emails', 'name', 'displayName'],
@@ -135,7 +139,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const githubClientId = githubClientIdSetting.get()
   if (githubClientId) {
     passport.use(new GithubOAuthStrategy({
-      clientID: githubClientIdSetting.get(),
+      clientID: githubClientId,
       clientSecret: githubOAuthSecretSetting.get(),
       callbackURL: `${getSiteUrl()}auth/github/callback`,
       scope: [ 'user:email' ], // fetches non-public emails as well
