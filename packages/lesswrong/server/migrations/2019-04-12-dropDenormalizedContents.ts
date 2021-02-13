@@ -8,7 +8,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections) {
-      for (let editableField of editableCollectionsFields[collectionName]) {
+      for (let editableField of editableCollectionsFields[collectionName]!) {
         // eslint-disable-next-line no-console
         console.log(`Dropping denormalized part of ${collectionName}.${editableField}...`);
         

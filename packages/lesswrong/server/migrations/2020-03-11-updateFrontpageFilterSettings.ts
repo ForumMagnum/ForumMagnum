@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { defaultFilterSettings } from '../../lib/filterSettings';
+import { getDefaultFilterSettings } from '../../lib/filterSettings';
 import Users from '../../lib/collections/users/collection';
 
 registerMigration({
@@ -22,7 +22,7 @@ registerMigration({
               update: {
                 $set: {
                   frontpageFilterSettings: {
-                    ...defaultFilterSettings,
+                    ...getDefaultFilterSettings(),
                     personalBlog: (user.currentFrontpageFilter === "frontpage") ? "Hidden" : "Default"
                   }
                 }

@@ -1,5 +1,4 @@
-import gql from 'graphql-tag';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import { getFragment } from '../../lib/vulcan-lib';
 
 export const useContinueReading = () => {

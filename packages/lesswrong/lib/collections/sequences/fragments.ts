@@ -20,7 +20,6 @@ registerFragment(`
     }
     gridImageId
     bannerImageId
-    color
     canonicalCollectionSlug
     draft
     isDeleted

@@ -15,6 +15,11 @@ interface ComponentOptions {
   // be passed as an extra prop named "classes".
   styles?: any
   
+  // Default is 0. If classes with overlapping attributes from two different
+  // components' styles wind up applied to the same node, the one with higher
+  // priority wins.
+  stylePriority?: number,
+  
   // Array of higher-order components that this component should be wrapped
   // with.
   hocs?: Array<any>
@@ -46,7 +51,9 @@ interface ComponentsTableEntry {
 
 const componentsProxyHandler = {
   get: function(obj, prop) {
-    if (prop in PreparedComponents) {
+    if (prop == "__isProxy") {
+      return true;
+    } else if (prop in PreparedComponents) {
       return PreparedComponents[prop];
     } else {
       return prepareComponent(prop);
@@ -318,9 +325,14 @@ export const instantiateComponent = (component, props) => {
 export const mergeWithComponents = myComponents => {
   if (!myComponents) return Components;
   
+  if (myComponents.__isProxy)
+    return myComponents;
+  
   const mergedComponentsProxyHandler = {
     get: function(obj, prop) {
-      if (prop in myComponents) {
+      if (prop === "__isProxy") {
+        return true;
+      } else if (prop in myComponents) {
         return myComponents[prop];
       } else if (prop in PreparedComponents) {
         return PreparedComponents[prop];

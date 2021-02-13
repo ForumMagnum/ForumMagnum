@@ -283,10 +283,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </Link>
             </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.PostsList2 hideAuthor terms={draftTerms}/>
-              <Components.PostsList2 hideAuthor terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+              <Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
+              <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {hasEventsSetting.get() && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
+            {hasEventsSetting.get() && <Components.LocalGroupsList
+              terms={{view: 'userInactiveGroups', userId: currentUser?._id}}
+              showNoResults={false}
+            />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>

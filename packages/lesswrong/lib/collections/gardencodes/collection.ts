@@ -77,8 +77,8 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: (gardenCode) => {
-      return Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
+    onInsert: async (gardenCode) => {
+      return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
   },
   startTime: {
@@ -187,18 +187,15 @@ export const GardenCodes: GardenCodesCollection = createCollection({
 
 addUniversalFields({collection: GardenCodes})
 
-export default GardenCodes;
-
-export const makeEditableOptions = {
-  pingbacks: true,
-  commentEditor: true,
-  commentStyles: true,
-  hideControls: true,
-  order: 20
-}
-
 makeEditable({
   collection: GardenCodes,
-  options: makeEditableOptions
+  options: {
+    pingbacks: true,
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    order: 20
+  }
 })
 
+export default GardenCodes;

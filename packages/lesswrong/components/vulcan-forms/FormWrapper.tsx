@@ -32,6 +32,7 @@ import { intlShape } from '../../lib/vulcan-i18n';
 // handling by string gluing, so it's hard to be sure this is safe.
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
+import { gql } from '@apollo/client';
 import { graphql, withApollo } from '@apollo/client/react/hoc';
 import compose from 'lodash/flowRight';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
@@ -42,7 +43,6 @@ import { withDelete } from '../../lib/crud/withDelete';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { getSchema } from '../../lib/utils/getSchema';
 import withUser from '../common/withUser';
-import gql from 'graphql-tag';
 import {
   getReadableFields,
   getCreateableFields,

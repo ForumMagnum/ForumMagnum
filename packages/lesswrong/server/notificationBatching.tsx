@@ -7,10 +7,9 @@ import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { getUser } from '../lib/vulcan-users/helpers';
 import { Posts } from '../lib/collections/posts';
-import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from './vulcan-lib';
-import { UnsubscribeAllToken } from './emails/emailTokens';
-import { generateEmail, sendEmail, logSentEmail } from './emails/renderEmail';
-import Sentry from '@sentry/node';
+import { Components } from '../lib/vulcan-lib/components';
+import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
+import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -34,9 +33,9 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
-  const user = getUser(userId);
+  const user = await getUser(userId);
   if (!user) throw new Error(`Missing user: ID ${userId}`);
-  Notifications.update(
+  await Notifications.update(
     { _id: {$in: notificationIds} },
     { $set: { waitingForBatch: false } },
     { multi: true }
@@ -75,28 +74,6 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   }
 }
 
-export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
-  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
-  return await generateEmail({
-    user,
-    subject: subject,
-    bodyComponent: <Components.EmailWrapper
-      user={user} unsubscribeAllLink={unsubscribeAllLink}
-    >
-      {body}
-    </Components.EmailWrapper>
-  });
-}
-
-export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}) => {
-  try {
-    const email = await wrapAndRenderEmail({ user, subject, body });
-    await sendEmail(email);
-    await logSentEmail(email, user);
-  } catch(e) {
-    Sentry.captureException(e);
-  }
-}
 
 addGraphQLResolvers({
   Query: {
@@ -123,7 +100,7 @@ addGraphQLResolvers({
         });
       }
       if (postId) {
-        const post = Posts.findOne(postId)
+        const post = await Posts.findOne(postId)
         if (post) {
           emails = [{
             user: currentUser,

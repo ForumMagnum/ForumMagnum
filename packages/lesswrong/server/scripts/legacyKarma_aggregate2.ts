@@ -2,7 +2,7 @@ import { Vulcan } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
 
 Vulcan.fixLegacyKarma = async () => {
-  const response = await Users.rawCollection().aggregate(
+  const response = await Users.aggregate(
     [
         {
             "$addFields" : {

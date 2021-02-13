@@ -12,7 +12,7 @@
             "type": "node",
             "request": "launch",
             "name": "Meteor: Node",
-            "runtimeExecutable": "npm",
+            "runtimeExecutable": "yarn",
             "runtimeArgs": ["run", "debug"],
             "outputCapture": "std",
             "port": 9229,

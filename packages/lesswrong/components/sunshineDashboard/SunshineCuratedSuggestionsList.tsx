@@ -2,11 +2,18 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
+const styles = (theme: ThemeType): JssStyles => ({
+  loadMorePadding: {
+    paddingLeft: 16,
+  },
+});
+
+const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
   terms: PostsViewTerms,
-  belowFold?: boolean
+  belowFold?: boolean,
+  classes: ClassesType,
 }) => {
-  const { results, count, totalCount, loadMore, showLoadMore } = useMulti({
+  const { results, loadMoreProps, showLoadMore } = useMulti({
     terms,
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -28,7 +35,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
     
   if (results && results.length) {
     return (
-      <div>
+      <div className={classes.root}>
         <SunshineListTitle>
           Suggestions for Curated
           <MetaInfo>
@@ -40,13 +47,9 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
             <SunshineCuratedSuggestionsItem post={post}/>
           </div>
         )}
-        {showLoadMore && <LoadMore
-          loadMore={() => {
-            loadMore();
-          }}
-          count={count}
-          totalCount={totalCount}
-        />}
+        {showLoadMore && <div className={classes.loadMorePadding}>
+          <LoadMore {...loadMoreProps}/>
+        </div>}
       </div>
     )
   } else {
@@ -54,7 +57,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold }:{
   }
 }
 
-const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList)
+const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles})
 
 declare global {
   interface ComponentTypes {

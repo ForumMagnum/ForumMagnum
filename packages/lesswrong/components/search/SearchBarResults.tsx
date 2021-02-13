@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
-import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -92,7 +92,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
         <CurrentRefinements />
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Users}>
+            <Index indexName={getAlgoliaIndexName("Users")}>
               <div className={classes.header}>
                 <Typography variant="body1">Users</Typography>
                 <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
@@ -106,7 +106,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Tags}>
+            <Index indexName={getAlgoliaIndexName("Tags")}>
               <div className={classes.header}>
                 <Typography variant="body1">Tags and Wiki</Typography>
               </div>
@@ -117,7 +117,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Posts}>
+            <Index indexName={getAlgoliaIndexName("Posts")}>
               <div className={classes.header}>
                 <Typography variant="body1">Posts</Typography>
               </div>
@@ -129,7 +129,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Comments}>
+            <Index indexName={getAlgoliaIndexName("Comments")}>
               <div className={classes.header}>
                 <Typography variant="body1">Comments</Typography>
               </div>

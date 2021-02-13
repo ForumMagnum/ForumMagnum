@@ -9,5 +9,4 @@ export * from './fragments';
 export * from './admin';
 export * from './errors';
 export * from './intl';
-export * from './graphql_templates';
 export * from './handleOptions';

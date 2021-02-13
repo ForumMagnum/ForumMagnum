@@ -28,19 +28,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   menu: {
     opacity:.35,
-    marginRight:-5
-  },
-  metaRight: {
-    float: "right"
-  },
-  outdatedWarning: {
+    marginRight:-5,
     float: "right",
-    position: 'relative',
-    [theme.breakpoints.down('xs')]: {
-      float: "none",
-      marginTop: 7,
-      display: 'block'
-    }
   },
   replyLink: {
     marginRight: 5,
@@ -176,17 +165,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const renderMenu = () => {
     const { CommentsMenu } = Components;
     return (
-      <span className={classes.metaRight}>
-        <span className={classes.menu}>
-          <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu
-              comment={comment}
-              post={post}
-              showEdit={setShowEdit}
-            />
-          </AnalyticsContext>
-        </span>
-      </span>
+      <AnalyticsContext pageElementContext="tripleDotMenu">
+        <CommentsMenu
+          className={classes.menu}
+          comment={comment}
+          post={post}
+          showEdit={setShowEdit}
+        />
+      </AnalyticsContext>
     )
   }
   
@@ -304,9 +290,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
-            <span className={classes.username}>
-              <CommentUserName comment={comment}/>
-            </span>
+            <CommentUserName comment={comment} className={classes.username}/>
             <CommentsItemDate
               comment={comment} post={post} tag={tag}
               scrollIntoView={scrollIntoView}
@@ -322,9 +306,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             />
 
             {!isParentComment && renderMenu()}
-            {post && <span className={classes.outdatedWarning}>
-              <Components.CommentOutdatedWarning comment={comment} post={post} />
-            </span>}
+            {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}

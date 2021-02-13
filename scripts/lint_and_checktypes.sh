@@ -6,11 +6,11 @@
 mkdir -p tmp
 
 # Run the linter in the background, redirected to a file, and get its pid
-npm run --silent eslint 2>&1 >tmp/lint_result.txt &
+yarn run --silent eslint 2>&1 >tmp/lint_result.txt &
 lint_pid=$!
 
 # Run the typechecker, not in the background
-npm run --silent tsc
+yarn run --silent tsc
 tsc_result=$?
 
 # Wait for the linter to finish

@@ -5,6 +5,16 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import * as _ from 'underscore';
 
+const styles = (theme: ThemeType): JssStyles => ({
+  sequencesListEditor: {
+    "& .sequences-list-editor-item": {
+      listStyle: "none",
+      position: "relative",
+      padding: 5,
+    },
+  },
+});
+
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
 const SortableItem = SortableElement(({sequenceId, currentUser, removeItem}) =>
@@ -91,7 +101,8 @@ class SequencesListEditor extends Component<any,any> {
   }
 
   render() {
-    return <div className="sequences-list-editor">
+    const { classes } = this.props;
+    return <div className={classes.sequencesListEditor}>
       <SortableList items={this.state.sequenceIds} onSortEnd={this.onSortEnd} currentUser={this.props.currentUser} removeItem={this.removeSequenceId} shouldCancelStart={this.shouldCancelStart}/>
       <Components.SequencesSearchAutoComplete clickAction={this.addSequenceId}/>
     </div>
@@ -106,6 +117,7 @@ class SequencesListEditor extends Component<any,any> {
 // TODO: Does not work in nested contexts because it doesn't use the
 // vulcan-forms APIs correctly.
 const SequencesListEditorComponent = registerComponent("SequencesListEditor", SequencesListEditor, {
+  styles,
   hocs: [withUser]
 });
 

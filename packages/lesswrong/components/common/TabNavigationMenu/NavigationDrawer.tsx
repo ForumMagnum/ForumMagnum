@@ -6,7 +6,7 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   paperWithoutToC: {
     width: 280,
-    overflowY: "scroll"
+    overflowY: "auto"
   },
   paperWithToC: {
     width: 280,
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tableOfContents: {
     padding: "16px 0 16px 16px",
     position:"absolute",
-    overflowY:"scroll",
+    overflowY:"auto",
     left:55,
     maxWidth: 247,
     height:"100%",

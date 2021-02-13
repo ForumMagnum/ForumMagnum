@@ -11,7 +11,7 @@ export interface FilterTag {
 }
 export type FilterMode = "Hidden"|"Default"|"Required"|number
 
-export const defaultFilterSettings: FilterSettings = {
+export const getDefaultFilterSettings = (): FilterSettings => ({
   personalBlog: "Hidden",
   tags: defaultVisibilityTags.get(),
-}
+})

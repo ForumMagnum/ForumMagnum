@@ -1,4 +1,4 @@
-let mjAPI = require('mathjax-node')
+import mjAPI from 'mathjax-node'
 
 export const trimLatexAndAddCSS = (dom, css) => {
   // Remove empty paragraphs

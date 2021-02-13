@@ -5,11 +5,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import gql from 'graphql-tag';
 import { postHighlightStyles, metaculusBackground } from '../../themes/stylePiping';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
@@ -291,7 +290,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   rel?: string
 }) => {
   const { LWPopper } = Components
-  const { eventHandlers, hover, anchorEl, stopHover } = useHover({
+  const { eventHandlers, hover, anchorEl } = useHover({
     pageElementContext: "linkPreview",
     hoverPreviewType: "DefaultPreview",
     href,
@@ -299,7 +298,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   });
   return (
     <span {...eventHandlers}>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" onMouseEnter={stopHover}>
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={false}>
         <Card>
           <div className={classes.hovercard}>
             {decodeURIComponent(href)}

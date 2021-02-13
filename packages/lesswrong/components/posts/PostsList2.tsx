@@ -65,6 +65,7 @@ const PostsList2 = ({
   enableTotal=false,
   showNominationCount,
   showReviewCount,
+  showDraftTag=true,
   tagId,
   classes,
   dense,
@@ -87,6 +88,7 @@ const PostsList2 = ({
   enableTotal?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
+  showDraftTag?: boolean,
   tagId?: string,
   classes: ClassesType,
   dense?: boolean,
@@ -105,7 +107,7 @@ const PostsList2 = ({
     },
     extraVariablesValues: { tagId }
   } : {}
-  const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
+  const { results, loading, error, loadMore, loadMoreProps, limit } = useMulti({
     terms: terms,
     collectionName: "Posts",
     fragmentName: !!tagId ? 'PostsListTag' : 'PostsList',
@@ -151,7 +153,7 @@ const PostsList2 = ({
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results && results.length && (results.length >= limit))
+  const maybeMorePosts = !!(results?.length && (results.length >= limit))
 
   let orderedResults = results
   if (defaultToShowUnreadComments) {
@@ -177,7 +179,7 @@ const PostsList2 = ({
           const props = {
             post,
             index: i,
-            terms, showNominationCount, showReviewCount, dense,
+            terms, showNominationCount, showReviewCount, showDraftTag, dense,
             curatedIconLeft: curatedIconLeft,
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
@@ -191,16 +193,15 @@ const PostsList2 = ({
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        { maybeMorePosts && <div className={classes.loadMore}>
+        { (maybeMorePosts||loading) && <div className={classes.loadMore}>
           <LoadMore
+            {...loadMoreProps}
             loadMore={() => {
               loadMore();
               setHaveLoadedMore(true);
             }}
-            count={count}
-            totalCount={totalCount}
+            hideLoading={dimWhenLoading || !showLoading}
           />
-          { !dimWhenLoading && showLoading && loading && <Loading />}
         </div>}
         { children }
       </SectionFooter>}

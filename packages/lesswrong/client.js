@@ -1,6 +1,7 @@
-import './client/vulcan-lib/main';
+import './client/mingoUpdates';
+import './client/apolloClient';
 import './lib/vulcan-lib';
-import './client/vulcan-core/start';
+import './client/start';
 
 // Make sure to register settings before everything else
 import './client/publicSettings'
@@ -13,9 +14,10 @@ import './client/reCaptcha'
 
 // Then do the rest
 import './client/autoRefresh';
+import './client/scrollRestoration';
 import './client/themeProvider';
 import './client/logging';
-export * from './lib/index';
+import './lib/index';
 
 // Polyfills:
 import 'element-closest'

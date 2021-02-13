@@ -15,16 +15,16 @@ registerMigration({
     },
     batchSize: 1000,
     migrate: async (users) => {
-      let updates = _.map(users, user => ({
+      let updates = Promise.all(_.map(users, async (user) => ({
         updateOne: {
           filter: { _id: user._id },
           update: {
             $set: {
-              slug: Utils.getUnusedSlugByCollectionName('Users', slugify(user.slug))
+              slug: await Utils.getUnusedSlugByCollectionName('Users', slugify(user.slug))
             }
           }
         }
-      }));
+      })));
       await Users.rawCollection().bulkWrite(updates, { ordered: false });
     },
   })

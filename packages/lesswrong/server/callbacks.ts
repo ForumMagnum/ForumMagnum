@@ -20,8 +20,8 @@ import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
   // Update latest Activity timestamp on conversation when new message is added
-  const user = Users.findOne(message.userId);
-  const conversation = Conversations.findOne(message.conversationId);
+  const user = await Users.findOne(message.userId);
+  const conversation = await Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
   await updateMutator({
     collection: Conversations,
@@ -52,9 +52,9 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
 });
 
 const reverseVote = async (vote: DbVote) => {
-  const collection = getCollection(vote.collectionName);
-  const document = collection.findOne({_id: vote.documentId});
-  const user = Users.findOne({_id: vote.userId});
+  const collection = getCollection(vote.collectionName as VoteableCollectionName);
+  const document = await collection.findOne({_id: vote.documentId});
+  const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
     await clearVotesServer({document, collection, user})
   } else {
@@ -70,7 +70,7 @@ export const nullifyVotesForUser = async (user: DbUser) => {
 }
 
 const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
-  const collectionName = capitalize(collection._name);
+  const collectionName = capitalize(collection.collectionName);
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -88,7 +88,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
 export async function userDeleteContent(user: DbUser) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
-  const posts = Posts.find({userId: user._id}).fetch();
+  const posts = await Posts.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);
   for (let post of posts) {
@@ -101,7 +101,7 @@ export async function userDeleteContent(user: DbUser) {
       validate: false,
     })
 
-    const notifications = Notifications.find({documentId: post._id}).fetch();
+    const notifications = await Notifications.find({documentId: post._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for post ${post._id}: `, notifications);
     for (let notification of notifications) {
@@ -112,7 +112,7 @@ export async function userDeleteContent(user: DbUser) {
       })
     }
 
-    const reports = Reports.find({postId: post._id}).fetch();
+    const reports = await Reports.find({postId: post._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for post ${post._id}: `, reports);
     for (let report of reports) {
@@ -129,7 +129,7 @@ export async function userDeleteContent(user: DbUser) {
     await postReportPurgeAsSpam(post);
   }
 
-  const comments = Comments.find({userId: user._id}).fetch();
+  const comments = await Comments.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting comments: ", comments);
   for (let comment of comments) {
@@ -144,7 +144,7 @@ export async function userDeleteContent(user: DbUser) {
       })
     }
 
-    const notifications = Notifications.find({documentId: comment._id}).fetch();
+    const notifications = await Notifications.find({documentId: comment._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for comment ${comment._id}: `, notifications);
     for (let notification of notifications) {
@@ -155,7 +155,7 @@ export async function userDeleteContent(user: DbUser) {
       })
     }
 
-    const reports = Reports.find({commentId: comment._id}).fetch();
+    const reports = await Reports.find({commentId: comment._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for comment ${comment._id}: `, reports);
     for (let report of reports) {
@@ -208,7 +208,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   }
 
   // Remove login tokens
-  Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
+  await Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 
 getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user: DbUser) {
@@ -218,20 +218,20 @@ getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user
   return user;
 });
 
-getCollectionHooks("Users").newSync.add(function fixUsernameOnGithubLogin(user: DbUser) {
+getCollectionHooks("Users").newSync.add(async function fixUsernameOnGithubLogin(user: DbUser) {
   if (user.services && user.services.github) {
     //eslint-disable-next-line no-console
     console.info("Github login detected, setting username and slug manually");
     user.username = user.services.github.username
     const basicSlug = slugify(user.services.github.username)
-    user.slug = Utils.getUnusedSlugByCollectionName('Users', basicSlug)
+    user.slug = await Utils.getUnusedSlugByCollectionName('Users', basicSlug)
   }
   return user;
 });
 
-getCollectionHooks("LWEvents").newSync.add(function updateReadStatus(event: DbLWEvent) {
+getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event: DbLWEvent) {
   if (event.userId && event.documentId) {
-    ReadStatuses.update({
+    await ReadStatuses.update({
       postId: event.documentId,
       userId: event.userId,
     }, {
@@ -243,4 +243,5 @@ getCollectionHooks("LWEvents").newSync.add(function updateReadStatus(event: DbLW
       upsert: true
     });
   }
+  return event;
 });

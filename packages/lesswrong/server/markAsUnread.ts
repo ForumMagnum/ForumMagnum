@@ -11,7 +11,7 @@ addGraphQLResolvers({
       
       // TODO: Create an entry in LWEvents
       
-      ReadStatuses.rawCollection().update({
+      await ReadStatuses.update({
         postId: postId,
         userId: currentUser._id,
       }, {

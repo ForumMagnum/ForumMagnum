@@ -3,12 +3,13 @@ import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
 import { createMutator, updateMutator } from '../vulcan-lib';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
 async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
     let rssPageImports: Array<any> = [];
-    let maybeRSSFeed = RSSFeeds.findOne({nickname: feedName});
+    let maybeRSSFeed = await RSSFeeds.findOne({nickname: feedName});
     if (!maybeRSSFeed) {
       maybeRSSFeed = (await createMutator({
         collection: RSSFeeds,
@@ -26,7 +27,7 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
       rssPageImports.push(i);
       //eslint-disable-next-line no-console
       console.log("RSS Pages Imported So far: ", rssPageImports.sort());
-      newPosts.forEach(function (newPost) {
+      await asyncForeachSequential(newPosts, async function (newPost: any) {
         var body;
         if (newPost['content:encoded'] && newPost.displayFullContent) {
           body = newPost['content:encoded'];
@@ -54,8 +55,8 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
           },
         };
 
-        const lwUser = Users.findOne({_id: userId});
-        const oldPost = Posts.findOne({title: post.title, userId: userId});
+        const lwUser = await Users.findOne({_id: userId});
+        const oldPost = await Posts.findOne({title: post.title, userId: userId});
 
         if (!oldPost){
           void createMutator({

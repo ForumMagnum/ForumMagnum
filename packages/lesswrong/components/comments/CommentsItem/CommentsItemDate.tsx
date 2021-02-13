@@ -15,6 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
         color: "rgba(0,0,0,0.3) !important",
       },
     },
+    
+    // Create a stacking context and set z-index to be higher than the vote
+    // buttoms, which are to the right of this and have a click-target that
+    // partially overlaps.
+    position: "relative",
+    zIndex: 1000,
   },
   answerDate: {},
   date: {
@@ -58,10 +64,10 @@ const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollInt
 
   const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, permalink})
 
-  const date = <span>
+  const date = <>
     <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
     <LinkIcon className={classes.icon}/>
-  </span>
+  </>
 
   return (
     <span className={classNames(classes.root, {

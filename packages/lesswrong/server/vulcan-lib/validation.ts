@@ -1,10 +1,10 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
-export const dataToModifier = data => ({ 
+export const dataToModifier = (data): {$set?: any, $unset?: any} => ({ 
   $set: pickBy(data, f => f !== null), 
   $unset: mapValues(pickBy(data, f => f === null), () => true),
 });
@@ -42,7 +42,7 @@ export const validateDocument = (document, collection, context: ResolverContext)
   });
 
   // 5. run SS validation
-  const validationContext = collection.simpleSchema().newContext();
+  const validationContext = getSimpleSchema(collection).newContext();
   validationContext.validate(document);
 
   if (!validationContext.isValid()) {
@@ -100,7 +100,7 @@ export const validateModifier = (modifier, document, collection, context: Resolv
   });
 
   // 2. run SS validation
-  const validationContext = collection.simpleSchema().newContext();
+  const validationContext = getSimpleSchema(collection).newContext();
   validationContext.validate({ $set: set, $unset: unset }, { modifier: true });
 
   if (!validationContext.isValid()) {

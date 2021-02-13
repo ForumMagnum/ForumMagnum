@@ -36,6 +36,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   removeIcon: {
     color: "rgba(0,0,0,0.3) !important"
   },
+  dragHandle: {
+    pointerEvents: "none",
+    position: "absolute",
+    display: "block !important",
+    color: "rgba(0,0,0,0.5)",
+    margin: "auto",
+    top: "0px",
+    bottom: "0px",
+    cursor: "pointer"
+  },
 });
 
 const SequencesListEditorItem = ({documentId, classes, ...props}) => {
@@ -47,7 +57,7 @@ const SequencesListEditorItem = ({documentId, classes, ...props}) => {
   
   if (document && !loading) {
     return <div>
-      <DragIcon className="drag-handle"/>
+      <DragIcon className={classes.dragHandle}/>
       <div className={classes.box}>
         <div className={classes.title}>
           {document.title || "Undefined Title"}

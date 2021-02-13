@@ -2,6 +2,7 @@ import { isServer, runAfterDelay, deferWithoutDelay } from '../executionEnvironm
 import * as _ from 'underscore';
 
 import { isPromise } from './utils';
+import { isAnyQueryPending } from '../mongoCollection';
 import { loggerConstructor } from '../utils/logging'
 
 // TODO: It would be nice if callbacks could be enabled or disabled by collection
@@ -328,9 +329,9 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 // should have been await'ed without the await, effectively spawning a new
 // thread which isn't tracked.
 export const waitUntilCallbacksFinished = () => {
-  return new Promise(resolve => {
+  return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending()) {
+      if (callbacksArePending() || isAnyQueryPending()) {
         runAfterDelay(finishOrWait, 20);
       } else {
         resolve();

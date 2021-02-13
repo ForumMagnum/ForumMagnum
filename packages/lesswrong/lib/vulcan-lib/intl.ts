@@ -1,4 +1,3 @@
-import SimpleSchema from 'simpl-schema';
 import { localeSetting } from '../publicSettings';
 import { loggerConstructor } from '../utils/logging';
 
@@ -41,26 +40,4 @@ export const getString = ({id, values, defaultMessage, locale}) => {
     });
   }
   return message || defaultMessage;
-};
-
-/*
-
-Generate custom IntlString SimpleSchema type
-
-*/
-export const getIntlString = () => {
-  const schema = {
-    locale: {
-      type: String,
-      optional: true
-    },
-    value: {
-      type: String,
-      optional: true
-    }
-  };
-
-  const IntlString = new SimpleSchema(schema);
-  IntlString.name = 'IntlString';
-  return IntlString;
 };

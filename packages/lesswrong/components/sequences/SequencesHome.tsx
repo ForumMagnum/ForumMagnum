@@ -50,7 +50,8 @@ const SequencesHome = ({classes}: {
         <SectionTitle title="Curated Sequences" />
         <div className={classes.sequencesGridWrapperWrapper}>
           <Components.SequencesGridWrapper
-            terms={{'view':'curatedSequences', limit:12}}
+            terms={{'view':'curatedSequences', limit:100}}
+            itemsPerPage={24}
             showAuthor={true}
             showLoadMore={true}
           />
@@ -64,6 +65,7 @@ const SequencesHome = ({classes}: {
         <div className={classes.sequencesGridWrapperWrapper}>
           <Components.SequencesGridWrapper
             terms={{'view':'communitySequences', limit:12}}
+            itemsPerPage={24}
             showAuthor={true}
             showLoadMore={true}
           />

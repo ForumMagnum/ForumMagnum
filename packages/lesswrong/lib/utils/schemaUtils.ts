@@ -177,7 +177,17 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
 // (in particular, resolvers, onCreate callbacks, etc) specific to server-side
 // code.
 export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
-  const schema = collection.simpleSchema()._schema;
+  collection._simpleSchema = null;
+  
+  for (let key in fieldsDict) {
+    if (key in collection._schemaFields) {
+      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
+    } else {
+      collection._schemaFields[key] = fieldsDict[key];
+    }
+  }
+  
+  /*const schema = collection.simpleSchema()._schema;
   const mergedSchema = {};
   
   // loop over fields and add them to schema (or extend existing fields)
@@ -191,7 +201,7 @@ export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>,
 
   // add field schema to collection schema
   const newSchema = collection.simpleSchema().extend(mergedSchema);
-  collection.simpleSchema = () => newSchema;
+  collection.simpleSchema = () => newSchema;*/
 }
 
 // For auto-generated database type definitions, provides a (string) definition
@@ -271,7 +281,6 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
       
       return newDoc;
     }
-    (createCallback as any).name = `${collectionName}_${fieldName}_countNew`;
     addCallback(`${foreignCollectionCallbackPrefix}.create.after`, createCallback);
     
     // When updating a document, we may need to decrement a count, we may
@@ -282,23 +291,31 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
         const countingCollection: any = getCollection(collectionName);
         if (filter(newDoc) && !filter(oldDocument)) {
           // The old doc didn't count, but the new doc does. Increment on the new doc.
-          await countingCollection.update(newDoc[foreignFieldName], {
-            $inc: { [fieldName]: 1 }
-          });
+          if (newDoc[foreignFieldName]) {
+            await countingCollection.update(newDoc[foreignFieldName], {
+              $inc: { [fieldName]: 1 }
+            });
+          }
         } else if (!filter(newDoc) && filter(oldDocument)) {
           // The old doc counted, but the new doc doesn't. Decrement on the old doc.
-          await countingCollection.update(oldDocument[foreignFieldName], {
-            $inc: { [fieldName]: -1 }
-          });
+          if (oldDocument[foreignFieldName]) {
+            await countingCollection.update(oldDocument[foreignFieldName], {
+              $inc: { [fieldName]: -1 }
+            });
+          }
         } else if(filter(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
           // The old and new doc both count, but the reference target has changed.
           // Decrement on one doc and increment on the other.
-          await countingCollection.update(oldDocument[foreignFieldName], {
-            $inc: { [fieldName]: -1 }
-          });
-          await countingCollection.update(newDoc[foreignFieldName], {
-            $inc: { [fieldName]: 1 }
-          });
+          if (oldDocument[foreignFieldName]) {
+            await countingCollection.update(oldDocument[foreignFieldName], {
+              $inc: { [fieldName]: -1 }
+            });
+          }
+          if (newDoc[foreignFieldName]) {
+            await countingCollection.update(newDoc[foreignFieldName], {
+              $inc: { [fieldName]: 1 }
+            });
+          }
         }
         return newDoc;
       }
@@ -324,7 +341,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     canAutoDenormalize: true,
     
     getValue: async (document: SourceType, context: ResolverContext): Promise<number> => {
-      const foreignCollection: CollectionBase<TargetType> = getCollection(foreignCollectionName);
+      const foreignCollection = getCollection(foreignCollectionName) as CollectionBase<TargetType>;
       const docsThatMayCount = await getWithLoader(
         context, foreignCollection,
         `denormalizedCount_${collectionName}.${fieldName}`,

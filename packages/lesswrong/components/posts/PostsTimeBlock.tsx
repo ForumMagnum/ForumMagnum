@@ -103,7 +103,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   }
 
   const render = () => {
-    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading, ContentType, Divider, Typography } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, ContentType, Divider, Typography } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -172,8 +172,6 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               {...loadMoreProps}
             />
           </div>}
-
-          { loading && <Loading /> }
           
           {displayShortform && <ShortformTimeBlock
             reportEmpty={reportEmptyShortform}

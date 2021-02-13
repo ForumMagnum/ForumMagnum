@@ -2,6 +2,7 @@ import { Posts } from './collections/posts/collection';
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
+import { onStartup } from './executionEnvironment';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -15,33 +16,30 @@ const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
-function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): PingbackDocument|null {
+async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
   if (!postId)
     return null;
 
-  if (parsedUrl.hash) {
-    // If the URL contains a hash, it leads to either a comment or a landmark
-    // within the post.
-    // Future work: If it's a comment ID, make a comment pingback; if it's not
-    // a comment ID, make it a post-pingback but do some special-case thing so
-    // that the preview excerpt starts in the section that's linked to.
-    return null;
-  } else {
-    return ({ collectionName: "Posts", documentId: postId })
-  }
+  // If the URL contains a hash, it leads to either a comment, a landmark within
+  // the post, or a builtin ID.
+  // TODO: In the case of a comment, we should generate a comment-specific
+  // pingback in addition to the pingback to the post the comment is on.
+  // TODO: In the case of a landmark, we want to customize the hover preview to
+  // reflect where in the post the link was to.
+  return ({ collectionName: "Posts", documentId: postId })
 }
 
 async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string) {
   const parsedId = parseInt(legacyId, 36);
-  const post = Posts.findOne({"legacyId": parsedId.toString()});
+  const post = await Posts.findOne({"legacyId": parsedId.toString()});
   if (!post) return null;
-  return getPostPingbackById(parsedUrl, post._id);
+  return await getPostPingbackById(parsedUrl, post._id);
 }
 
 async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: string) {
-  const post = Posts.findOne({slug: slug});
+  const post = await Posts.findOne({slug: slug});
   if (!post) return null;
-  return getPostPingbackById(parsedUrl, post._id);
+  return await getPostPingbackById(parsedUrl, post._id);
 }
 
 
@@ -199,7 +197,7 @@ addRoute(
     name: 'collaboratePost',
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
-    getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
+    getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
   // disabled except during review voting phase
   {
@@ -241,7 +239,7 @@ addRoute(
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
-    getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+    getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
     background: "white"
   },
 
@@ -343,29 +341,28 @@ addRoute(
   }
 );
 
-
-
-const legacyRouteAcronym = legacyRouteAcronymSetting.get()
-
-addRoute(
-  // Legacy (old-LW, also old-EAF) routes
-  // Note that there are also server-side-only routes in server/legacy-redirects/routes.js.
-  {
-    name: 'post.legacy',
-    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
-    componentName: "LegacyPostRedirect",
-    previewComponentName: "PostLinkPreviewLegacy",
-    getPingback: (parsedUrl) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id),
-  },
-  {
-    name: 'comment.legacy',
-    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
-    componentName: "LegacyCommentRedirect",
-    previewComponentName: "CommentLinkPreviewLegacy",
-    noIndex: true,
-    // TODO: Pingback comment
-  }
-);
+onStartup(() => {
+  const legacyRouteAcronym = legacyRouteAcronymSetting.get()
+  addRoute(
+    // Legacy (old-LW, also old-EAF) routes
+    // Note that there are also server-side-only routes in server/legacy-redirects/routes.js.
+    {
+      name: 'post.legacy',
+      path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
+      componentName: "LegacyPostRedirect",
+      previewComponentName: "PostLinkPreviewLegacy",
+      getPingback: (parsedUrl) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id),
+    },
+    {
+      name: 'comment.legacy',
+      path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
+      componentName: "LegacyCommentRedirect",
+      previewComponentName: "CommentLinkPreviewLegacy",
+      noIndex: true,
+      // TODO: Pingback comment
+    }
+  );
+});
 
 if (forumTypeSetting.get() !== 'EAForum') {
   addRoute(
@@ -520,7 +517,7 @@ if (hasEventsSetting.get()) {
       componentName: 'PostsSingle',
       previewComponentName: 'PostLinkPreview',
       ...communitySubtitle,
-      getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
       background: postBackground
     },
     {
@@ -530,7 +527,7 @@ if (hasEventsSetting.get()) {
       previewComponentName: 'PostLinkPreview',
       background: postBackground,
       ...communitySubtitle,
-      getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
   );
 }
@@ -561,7 +558,7 @@ addRoute(
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
-    getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+    getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground
   },
   {
@@ -675,7 +672,7 @@ switch (forumTypeSetting.get()) {
         path:'/about',
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
         background: postBackground
       },
       {
@@ -683,7 +680,7 @@ switch (forumTypeSetting.get()) {
         path: '/intro',
         componentName: 'PostsSingleRoute',
         _id: introPostIdSetting.get(),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, introPostIdSetting.get()),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, introPostIdSetting.get()),
         background: postBackground
       },
       {
@@ -691,7 +688,7 @@ switch (forumTypeSetting.get()) {
         path:'/contact',
         componentName: 'PostsSingleRoute',
         _id: contactPostIdSetting.get(),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
         background: postBackground
       },
       {
@@ -730,7 +727,7 @@ switch (forumTypeSetting.get()) {
         path: '/about',
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
         background: postBackground
       },
       {
@@ -738,7 +735,7 @@ switch (forumTypeSetting.get()) {
         path: '/faq',
         componentName: 'PostsSingleRoute',
         _id:"2rWKkWuPrgTMpLRbp",
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
         background: postBackground
       },
       {
@@ -746,7 +743,7 @@ switch (forumTypeSetting.get()) {
         path: '/donate',
         componentName: 'PostsSingleRoute',
         _id:"LcpQQvcpWfPXvW7R9",
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
         background: postBackground
       },
       {
@@ -799,6 +796,11 @@ addRoute(
     name: 'emailToken',
     path: '/emailToken/:token',
     componentName: 'EmailTokenPage',
+  },
+  {
+    name: 'password-reset',
+    path: '/resetPassword/:token',
+    componentName: 'PasswordResetPage',
   },
   {
     name: 'nominations2018',

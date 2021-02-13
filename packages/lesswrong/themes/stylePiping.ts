@@ -441,7 +441,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& .table table th': {
           ...tableHeadingStyles
         },
-        '.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
+        '& .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
           outline: "none"
         },
         '& .image>figcaption': {

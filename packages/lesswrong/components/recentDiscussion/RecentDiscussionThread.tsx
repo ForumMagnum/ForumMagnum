@@ -89,14 +89,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     marginBottom:4
   },
+  titleAndActions: {
+    display: "flex",
+  },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,
+    flexGrow: 1,
     marginTop: 0,
     marginBottom: 8,
     display: "block",
     fontSize: "1.75rem",
-  }
+  },
+  actions: {
+    "& .PostsPageActions-icon": {
+      fontSize: "1.5em",
+    },
+    opacity: 0.2,
+    "&:hover": {
+      opacity: 0.4,
+    },
+    marginRight: -8,
+    marginTop: -8,
+  },
 })
 
 const RecentDiscussionThread = ({
@@ -135,7 +150,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
 
-  const { PostsItemMeta, CommentsNode, PostsHighlight } = Components
+  const { PostsItemMeta, CommentsNode, PostsHighlight, PostsPageActions } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -167,9 +182,14 @@ const RecentDiscussionThread = ({
       <div className={classes.root}>
         <div className={classes.post}>
           <div className={classes.postItem}>
-            <Link to={postGetPageUrl(post)} className={classes.title}>
-              {post.title}
-            </Link>
+            <div className={classes.titleAndActions}>
+              <Link to={postGetPageUrl(post)} className={classes.title}>
+                {post.title}
+              </Link>
+              <div className={classes.actions}>
+                <PostsPageActions post={post} vertical />
+              </div>
+            </div>
             <div className={classes.threadMeta} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
             </div>
