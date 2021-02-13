@@ -4,6 +4,7 @@ import process from 'process';
 import os from 'os';
 import { execSync } from 'child_process';
 import { getCacheHitRate } from './vulcan-lib/apollo-ssr/pageCache';
+import { getPreloadedDatabaseId } from './loadDatabaseSettings';
 
 // Send this as stringified-JSON rather than as real JSON, because for Mongo
 // indexes the order of keys matters, and that ordering doesn't survive
@@ -21,6 +22,7 @@ const siteAdminMetadataResolvers = {
         extraIndexes: extraIndexes,
         serverInfo: {
           nodeVersion: process.versions.node,
+          databaseId: getPreloadedDatabaseId().databaseId,
           gitCommit: getGitCommit(),
           gitBranch: getGitBranch(),
           cpuCores: os.cpus()?.length,
