@@ -7,25 +7,37 @@ import { userGetDisplayName } from "../users/helpers";
 
 
 // Get a comment author's name
-export function commentGetAuthorName(comment: DbComment): string {
-  var user = mongoFindOne("Users", comment.userId);
+export async function commentGetAuthorName(comment: DbComment): Promise<string> {
+  var user = await mongoFindOne("Users", comment.userId);
   return user ? userGetDisplayName(user) : comment.author;
 };
 
 // Get URL of a comment page.
-export function commentGetPageUrl(comment: CommentsList|DbComment, isAbsolute = false): string {
+export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = false): Promise<string> {
   if (comment.postId) {
-    const post = mongoFindOne("Posts", comment.postId);
+    const post = await mongoFindOne("Posts", comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const tag = mongoFindOne("Tags", {_id:comment.tagId});
+    const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+    const tag = await mongoFindOne("Tags", {_id:comment.tagId});
     if (!tag) throw Error(`Unable to find tag for comment: ${comment}`)
-    return `/tag/${tag.slug}/discussion#${comment._id}`;
+    return `${prefix}/tag/${tag.slug}/discussion#${comment._id}`;
   } else {
     throw Error(`Unable to find document for comment: ${comment}`)
   }
 };
+
+export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbsolute = false): string {
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+  if (comment.post) {
+    return `${prefix}/${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
+  } else if (comment.tag) {
+    return `${prefix}/tag/${comment.tag.slug}/discussion#${comment._id}`;
+  } else {
+    throw new Error(`Unable to find document for comment: ${comment._id}`);
+  }
+}
 
 export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, permalink=true, isAbsolute=false}: {
   postId?: string,

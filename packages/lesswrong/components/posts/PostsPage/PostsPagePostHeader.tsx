@@ -51,7 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   actions: {
     display: 'inline-block',
-    cursor: "pointer",
     color: theme.palette.grey[600],
   },
   authors: {

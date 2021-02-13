@@ -2,9 +2,6 @@ import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbSequence> = {
-
-  // default properties
-
   createdAt: {
     type: Date,
     optional: true,
@@ -27,8 +24,6 @@ const schema: SchemaType<DbSequence> = {
     hidden:  true,
   },
 
-  // Custom Properties
-
   title: {
     type: String,
     optional: false,
@@ -38,52 +33,6 @@ const schema: SchemaType<DbSequence> = {
     order: 10,
     placeholder: "Sequence Title",
     control: 'EditSequenceTitle',
-  },
-
-  baseScore: {
-    type: Number,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-  },
-
-  score: {
-    type: Number,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-  },
-
-  color: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-  },
-
-  chaptersDummy: {
-    type: Array,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'chapters',
-      type: '[Chapter]',
-      resolver: (sequence: DbSequence, args: void, context: ResolverContext): Array<DbChapter> => {
-        const books = context.Chapters.find(
-          {sequenceId: sequence._id},
-        ).fetch();
-        return books;
-      }
-    }
-  },
-
-  'chaptersDummy.$': {
-    type: String,
-    foreignKey: "Chapters",
-    optional: true,
   },
 
   //Cloudinary image id for the grid Image
@@ -166,9 +115,9 @@ const schema: SchemaType<DbSequence> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (sequence: DbSequence, args: void, context: ResolverContext): DbCollection|null => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
-        return context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
+        return await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
       }
     }
   },

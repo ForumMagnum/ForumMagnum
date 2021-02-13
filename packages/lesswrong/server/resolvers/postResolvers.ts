@@ -14,7 +14,7 @@ addFieldsDict(Posts, {
       needsUpdate: (data) => ('startTime' in data || 'googleLocation' in data),
       getValue: async (post) => {
         if (!post.startTime) return null
-        const googleLocation = post.googleLocation || getDefaultPostLocationFields(post).googleLocation
+        const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation
         if (!googleLocation) return null
         return await getLocalTime(post.startTime, googleLocation)
       }
@@ -25,7 +25,7 @@ addFieldsDict(Posts, {
       needsUpdate: (data) => ('endTime' in data || 'googleLocation' in data),
       getValue: async (post) => {
         if (!post.endTime) return null
-        const googleLocation = post.googleLocation || getDefaultPostLocationFields(post).googleLocation
+        const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post)).googleLocation
         if (!googleLocation) return null
         return await getLocalTime(post.endTime, googleLocation)
       }

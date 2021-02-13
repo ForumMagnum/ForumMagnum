@@ -4,6 +4,9 @@
 --ignore-dir=.github
 --ignore-dir=.meteor
 --ignore-dir=node_modules
+--ignore-dir=node_modules.meteor
 --ignore-dir=.vscode
 --ignore-dir=.vulcan
 --ignore-file=is:.eslintcache
+--ignore-dir=webpack/src
+--ignore-dir=express/src

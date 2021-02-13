@@ -49,7 +49,7 @@ const TagsListItem = ({tag, classes, postCount=3}: {
       {tag.name} { tag.needsReview }
     </Link>
     <span className={classes.count}>
-      {tag.wikiOnly ? "(wiki)" : `(${tag.postCount})`}
+      {tag.wikiOnly ? "(wiki)" : `(${tag.postCount||0})`}
     </span>
   </div>;
 }

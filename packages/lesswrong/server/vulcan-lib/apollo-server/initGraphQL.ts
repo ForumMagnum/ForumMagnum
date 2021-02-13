@@ -25,7 +25,7 @@ import {
   updateMutationTemplate,
   upsertMutationTemplate,
   deleteMutationTemplate,
-} from '../../../lib/vulcan-lib/graphql_templates';
+} from './graphqlTemplates';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib/utils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';

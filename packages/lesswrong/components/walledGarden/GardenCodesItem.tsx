@@ -28,9 +28,6 @@ const styles = theme => ({
   root: {
     ...eventRoot(theme),
     width: 420,
-    '&:hover $icon': {
-      opacity: 1
-    },
   },
   highlight: {
     ...highlightSimplifiedStyles

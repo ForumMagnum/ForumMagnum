@@ -1,5 +1,8 @@
+import { testStartup } from './testMain';
+import chai from 'chai';
 import { diffHtml, trimHtmlDiff } from '../server/resolvers/diffResolvers';
-import { chai } from 'meteor/practicalmeteor:chai';
+
+testStartup();
 
 describe('diffHtml', () => {
   it('passes unchanged HTML through', () => {

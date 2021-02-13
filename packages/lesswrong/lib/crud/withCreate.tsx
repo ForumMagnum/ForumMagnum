@@ -1,42 +1,45 @@
-/*
-
-Generic mutation wrapper to insert a new document in a collection and update
-a related query on the client with the new item and a new total item count.
-
-Sample mutation:
-
-  mutation createMovie($data: CreateMovieData) {
-    createMovie(data: $data) {
-      data {
-        _id
-        name
-        __typename
-      }
-      __typename
-    }
-  }
-
-Arguments:
-
-  - data: the document to insert
-
-Child Props:
-
-  - createMovie({ data })
-
-*/
-
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
-import { useApolloClient } from '@apollo/client/react/hooks';
+import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
 import { withApollo } from '@apollo/client/react/hoc';
-import gql from 'graphql-tag';
-import { createClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
 import { updateCacheAfterCreate } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 
+// Create mutation query used on the client. Eg:
+//
+// mutation createMovie($data: CreateMovieDataInput!) {
+//   createMovie(data: $data) {
+//     data {
+//       _id
+//       name
+//       __typename
+//     }
+//     __typename
+//   }
+// }
+const createClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
+  typeName: string,
+  fragmentName: string,
+  extraVariablesString?: string,
+}) =>
+`mutation create${typeName}($data: Create${typeName}DataInput!, ${extraVariablesString || ''}) {
+  create${typeName}(data: $data) {
+    data {
+      ...${fragmentName}
+    }
+  }
+}`;
+
+// Generic mutation wrapper to insert a new document in a collection and update
+// a related query on the client with the new item and a new total item count.
+//
+// Arguments:
+//  - data: the document to insert
+// Child Props:
+//  - createMovie({ data })
 export const withCreate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);

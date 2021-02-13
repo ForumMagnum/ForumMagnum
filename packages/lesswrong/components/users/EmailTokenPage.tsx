@@ -1,55 +1,28 @@
-import React, {Component} from 'react';
+import React, { useEffect, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withMutation } from '../../lib/crud/withMutation';
-import { withLocation } from '../../lib/routeUtil';
+import { useNamedMutation } from '../../lib/crud/withMutation';
+import { useLocation } from '../../lib/routeUtil';
 
-type ComponentNameAndProps = { componentName: string, props: Record<string,any> };
-interface EmailTokenPageProps extends WithLocationProps {
-  useEmailToken: any,
-}
-interface EmailTokenPageState {
-  loading: boolean,
-  useTokenResult: ComponentNameAndProps|null,
-}
+const EmailTokenPage = () => {
+  const { Loading, SingleColumnSection } = Components
+  const [useTokenResult, setUseTokenResult] = useState<any>(null)
+  const { params: { token } } = useLocation()
+  const { mutate: emailTokenMutation, loading: emailTokenLoading } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String"}})
 
-class EmailTokenPage extends Component<EmailTokenPageProps,EmailTokenPageState>
-{
-  state: EmailTokenPageState = {
-    loading: true,
-    useTokenResult: null
-  };
-  
-  componentDidMount() {
-    const { params } = this.props.location;
-    const { token } = params;
-    this.props.useEmailToken({token}).then((mutationResult) => {
-      this.setState({
-        loading: false,
-        useTokenResult: mutationResult.data.useEmailToken,
-      });
-    });
-  }
-  
-  render = () => {
-    const { loading, useTokenResult } = this.state;
-    if (loading || useTokenResult===null) {
-      return <Components.Loading/>
-    } else {
-      const ResultComponent = Components[useTokenResult.componentName];
-      return <ResultComponent {...useTokenResult.props}/>
-    }
-  }
-}
-
-const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage, {
-  hocs: [
-    withLocation,
-    withMutation({
-      name: "useEmailToken",
-      args: {token: 'String'}
+  useEffect(() => {
+    void emailTokenMutation({token}).then(mutationResult => {
+      setUseTokenResult(mutationResult.data.useEmailToken)
     })
-  ]
-});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  
+  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName]
+  return <SingleColumnSection>
+    {(emailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...useTokenResult.props}/>}
+  </SingleColumnSection>
+}
+
+const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage);
 
 declare global {
   interface ComponentTypes {

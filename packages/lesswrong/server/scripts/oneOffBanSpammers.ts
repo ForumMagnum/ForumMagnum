@@ -41,8 +41,8 @@ Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(
       ]
     })
     // eslint-disable-next-line no-console
-    console.log('Spammer count', spammers.count())
-    for (const spammer of spammers.fetch()) {
+    console.log('Spammer count', await spammers.count())
+    for (const spammer of await spammers.fetch()) {
       await banUser(spammer)
     }
   }

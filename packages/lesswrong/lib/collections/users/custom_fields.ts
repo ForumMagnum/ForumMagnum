@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
-import { defaultFilterSettings } from '../../filterSettings';
+import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
@@ -334,7 +334,7 @@ addFieldsDict(Users, {
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: userOwns,
-    ...schemaDefaultValue(defaultFilterSettings),
+    ...schemaDefaultValue(getDefaultFilterSettings),
   },
   allPostsTimeframe: {
     type: String,
@@ -632,7 +632,7 @@ addFieldsDict(Users, {
     canRead: ['sunshineRegiment', 'admins'],
     resolver: async (user: DbUser, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
-      const events: Array<DbLWEvent> = LWEvents.find(
+      const events: Array<DbLWEvent> = await LWEvents.find(
         {userId: user._id, name: 'login'},
         {
           limit: 10,
@@ -1307,11 +1307,11 @@ addFieldsDict(Users, {
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
     order: 40,
-    onInsert: (user: DbInsertion<DbUser>) => {
+    onInsert: async (user: DbInsertion<DbUser>) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
-      return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
+      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug) {
@@ -1379,7 +1379,7 @@ addFieldsDict(Users, {
       resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
         const { limit } = args;
         const { currentUser, Posts } = context;
-        const posts = Posts.find({ userId: user._id }, { limit }).fetch();
+        const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts, context);
       }
     }
@@ -1419,7 +1419,8 @@ addFieldsDict(Users, {
     type: GraphQLJSON, //Record<string,number>
     optional: true, hidden: true,
     canRead: [userOwns],
-    canUpdate: ['admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    blackbox: true,
   },
   reenableDraftJs: {
     type: Boolean,
@@ -1462,25 +1463,22 @@ addFieldsDict(Users, {
   },
 });
 
-export const makeEditableOptionsModeration = {
-  // Determines whether to use the comment editor configuration (e.g. Toolbars)
-  commentEditor: true,
-  // Determines whether to use the comment editor styles (e.g. Fonts)
-  commentStyles: true,
-  formGroup: formGroups.moderationGroup,
-  adminFormGroup: formGroups.adminOptions,
-  order: 50,
-  fieldName: "moderationGuidelines",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userOwns, 'sunshineRegiment', 'admins']
-  }
-}
-
 makeEditable({
   collection: Users,
-  options: makeEditableOptionsModeration
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    }
+  }
 })
 
 addUniversalFields({collection: Users})

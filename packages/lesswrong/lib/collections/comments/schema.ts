@@ -1,7 +1,7 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../../lib/utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
-import { commentGetPageUrl } from './helpers';
+import { commentGetPageUrlFromDB } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
@@ -56,16 +56,16 @@ const schema: SchemaType<DbComment> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => {
+    onInsert: async (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
-        return userGetDisplayNameById(document.userId)
+        return await userGetDisplayNameById(document.userId)
       }
     },
-    onEdit: (modifier, document, currentUser) => {
+    onEdit: async (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },
@@ -151,16 +151,16 @@ const schema: SchemaType<DbComment> = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      return commentGetPageUrl(comment, true)
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      return await commentGetPageUrlFromDB(comment, true)
     },
   }),
 
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
-      return commentGetPageUrl(comment, false)
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      return await commentGetPageUrlFromDB(comment, false)
     },
   }),
 

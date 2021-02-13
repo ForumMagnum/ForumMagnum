@@ -1,7 +1,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { getCollection } from '../../lib/vulcan-lib';
-import { Revisions } from '../../lib/index';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markdown, htmlBody: html }: {
   content: any,
@@ -55,7 +55,7 @@ registerMigration({
           let collectionUpdates: Array<any> = []
           let newRevisions: Array<any> = []
           documents.forEach(doc => {
-            editableCollectionsFields[collectionName].forEach((fieldName) => {
+            editableCollectionsFields[collectionName]!.forEach((fieldName) => {
               let contentFields
               let newFieldName
               if (["Sequences", "Books", "Chapters", "Collections"].includes(collectionName)) { // Special case for sequences, books, collections and chapters

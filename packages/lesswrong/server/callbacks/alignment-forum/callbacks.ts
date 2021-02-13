@@ -18,18 +18,18 @@ export const recalculateAFBaseScore = async (document: VoteableType): Promise<nu
 
 async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: DbVote): Promise<VoteDocTuple> {
   // Update a
-  const voter = Users.findOne(vote.userId)
+  const voter = await Users.findOne(vote.userId)
   if (!voter) throw Error(`Can't find voter to update Alignment Karma for vote: ${vote}`)
 
   if (userCanDo(voter, "votes.alignment")) {
     const votePower = calculateVotePower(voter.afKarma, vote.voteType)
 
-    Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
+    await Votes.update({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
     const newAFBaseScore = await recalculateAFBaseScore(newDocument)
 
-    const collection = getCollection(vote.collectionName)
+    const collection = getCollection(vote.collectionName as VoteableCollectionName)
 
-    collection.update({_id: newDocument._id}, {$set: {afBaseScore: newAFBaseScore}});
+    await collection.update({_id: newDocument._id}, {$set: {afBaseScore: newAFBaseScore}});
 
     return {
       newDocument:{
@@ -57,16 +57,16 @@ voteCallbacks.castVoteSync.add(updateAlignmentKarmaServerCallback);
 
 async function updateAlignmentUserServer (newDocument: VoteableType, vote: DbVote, multiplier: number) {
   if (newDocument.af && (newDocument.userId != vote.userId)) {
-    const documentUser = Users.findOne({_id:newDocument.userId})
+    const documentUser = await Users.findOne({_id:newDocument.userId})
     if (!documentUser) throw Error("Can't find user to update Alignment Karma")
     const newAfKarma = (documentUser.afKarma || 0) + ((vote.afPower || 0) * multiplier)
     if (newAfKarma > 0) {
-      Users.update({_id:newDocument.userId}, {
+      await Users.update({_id:newDocument.userId}, {
         $set: {afKarma: newAfKarma },
         $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
-      Users.update({_id:newDocument.userId}, {
+      await Users.update({_id:newDocument.userId}, {
         $set: {afKarma: newAfKarma },
         $pull: {groups: 'alignmentVoters'}
       })
@@ -102,7 +102,7 @@ async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
       $set: {documentIsAf: true}
     }, {multi: true})
   } else if (!document.af && oldDocument.af) {
-    const documentUser = Users.findOne({_id:document.userId})
+    const documentUser = await Users.findOne({_id:document.userId})
     if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
     const newAfKarma = (documentUser.afKarma || 0) - (document.afBaseScore || 0)
     if (newAfKarma > 0) {

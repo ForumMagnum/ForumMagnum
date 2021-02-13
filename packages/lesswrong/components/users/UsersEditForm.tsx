@@ -4,10 +4,9 @@ import React from 'react';
 import Users from '../../lib/collections/users/collection';
 import { userCanEdit, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
-import { Accounts } from '../../lib/meteorAccounts';
 import { useCurrentUser } from '../common/withUser';
-import { withApollo } from '@apollo/client/react/hoc';
 import { useNavigation } from '../../lib/routeUtil';
+import { gql, useMutation, useApolloClient } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,15 +31,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const UsersEditForm = ({terms, client, classes}: {
+const passwordResetMutation = gql`
+  mutation resetPassword($email: String) {
+    resetPassword(email: $email)
+  }
+`
+
+const UsersEditForm = ({terms, classes}: {
   terms: {slug?: string, documentId?: string},
-  client?: any,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
+  const client = useApolloClient();
   const { Typography } = Components;
+  const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -59,15 +65,10 @@ const UsersEditForm = ({terms, client, classes}: {
   // user is an admin. This component does not have access to the user email at
   // all in admin mode unfortunately. In the fullness of time we could fix that,
   // currently we disable it below
-  const requestPasswordReset = () => Accounts.forgotPassword(
-    { email: currentUser?.email },
-    (error) => flash({
-      messageString: error ?
-      error.reason :
-      // TODO: This doesn't seem to display
-      "Sent password reset email to " + currentUser?.email
-    })
-  )
+  const requestPasswordReset = async () => {
+    const { data } = await mutate({variables: { email: currentUser?.emails[0]?.address }})
+    flash(data?.resetPassword)
+  } 
 
   // Since there are two urls from which this component can be rendered, with different terms, we have to
   // check both slug and documentId
@@ -88,9 +89,9 @@ const UsersEditForm = ({terms, client, classes}: {
       <Components.WrappedSmartForm
         collection={Users}
         {...terms}
-        successCallback={user => {
-          flash({ id: 'users.edit_success', properties: {name: userGetDisplayName(user)}, type: 'success'})
-          client.resetStore()
+        successCallback={async (user) => {
+          flash(`User "${userGetDisplayName(user)}" edited`);
+          await client.resetStore()
           history.push(userGetProfileUrl(user));
         }}
         queryFragment={getFragment('UsersEdit')}
@@ -102,10 +103,7 @@ const UsersEditForm = ({terms, client, classes}: {
 };
 
 
-const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {
-  styles,
-  hocs: [withApollo]
-});
+const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -5,7 +5,7 @@ const fixFrontpageCounts = false
 
 async function fixFrontpagePostCount() {
   try {
-    let frontpageCountsPromise = Posts.rawCollection().aggregate([
+    let frontpageCountsPromise = Posts.aggregate([
       {$match: {frontpage: true}},
       {$group: {_id: '$userId', count: {$sum: 1}}},
       {$sort: {count: -1}},

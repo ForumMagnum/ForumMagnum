@@ -13,6 +13,18 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 40,
     }
   },
+  wrapper: {
+    position: "absolute",
+    bottom: 10,
+    left: "50%",
+    zIndex: 1,
+    width: 0,
+    
+    [theme.breakpoints.down('sm')]: {
+      left: 0,
+      width: "100%",
+    }
+  },
   imageScrim: {
     ...sequencesImageScrim(theme)
   },
@@ -42,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}, context) => {
   return <div className={classes.root}>
     <div className={classes.imageScrim}/>
-    <div className="sequences-editor-title-wrapper">
+    <div className={classes.wrapper}>
       <Input
         className={classes.input}
         placeholder={placeholder}

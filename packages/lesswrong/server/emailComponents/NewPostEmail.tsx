@@ -1,6 +1,6 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Components, registerComponent } from '../vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import './EmailFormatDate';
 import './EmailPostAuthors';

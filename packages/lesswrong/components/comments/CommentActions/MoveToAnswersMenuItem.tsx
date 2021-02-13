@@ -5,15 +5,15 @@ import { useMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { withApollo } from '@apollo/client/react/hoc';
+import { useApolloClient } from '@apollo/client/react/hooks';
 
-const MoveToAnswersMenuItem = ({comment, post, client}: {
+const MoveToAnswersMenuItem = ({comment, post}: {
   comment: CommentsList,
   post: PostsBase,
-  client?: any, //From withApollo
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const client = useApolloClient();
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
     fragmentName: "CommentsList",
@@ -27,7 +27,7 @@ const MoveToAnswersMenuItem = ({comment, post, client}: {
       },
     })
     flash("Comment moved to the Answers section.")
-    client.resetStore()
+    await client.resetStore()
   }
 
   const handleMoveToComments = async () => {
@@ -38,7 +38,7 @@ const MoveToAnswersMenuItem = ({comment, post, client}: {
       },
     })
     flash("Answer moved to the Comments section.")
-    client.resetStore()
+    await client.resetStore()
   }
 
   if (!comment.topLevelCommentId && post.question &&
@@ -63,10 +63,7 @@ const MoveToAnswersMenuItem = ({comment, post, client}: {
 }
 
 const MoveToAnswersMenuItemComponent = registerComponent(
-  'MoveToAnswersMenuItem', MoveToAnswersMenuItem, {
-    hocs: [withApollo]
-  }
-);
+  'MoveToAnswersMenuItem', MoveToAnswersMenuItem);
 
 declare global {
   interface ComponentTypes {

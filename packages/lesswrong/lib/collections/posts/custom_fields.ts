@@ -13,7 +13,7 @@ import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 
 const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
 
@@ -385,9 +385,9 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post: DbPost, args: void, context: ResolverContext): DbCollection|null => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
     },
   },
@@ -991,7 +991,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
@@ -1008,7 +1008,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
@@ -1127,50 +1127,42 @@ addFieldsDict(Posts, {
   },
 });
 
-export const makeEditableOptions = {
-  formGroup: formGroups.content,
-  adminFormGroup: formGroups.adminOptions,
-  order: 25,
-  pingbacks: true,
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptions
+  options: {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+  }
 })
 
-export const makeEditableOptionsModeration = {
-  // Determines whether to use the comment editor configuration (e.g. Toolbars)
-  commentEditor: true,
-  // Determines whether to use the comment editor styles (e.g. Fonts)
-  commentStyles: true,
-  formGroup: formGroups.moderationGroup,
-  adminFormGroup: formGroups.adminOptions,
-  order: 50,
-  fieldName: "moderationGuidelines",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userHasModerationGuidelines]
-  },
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptionsModeration
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userHasModerationGuidelines]
+    },
+  }
 })
 
-export const makeEditableOptionsCustomHighlight = {
-  formGroup: formGroups.highlight,
-  fieldName: "customHighlight",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-  },
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptionsCustomHighlight
+  options: {
+    formGroup: formGroups.highlight,
+    fieldName: "customHighlight",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
+  }
 })

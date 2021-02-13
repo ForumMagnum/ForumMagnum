@@ -31,7 +31,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
-  const { results, loadMore } = useMulti({
+  const { results, loading, loadMore } = useMulti({
     terms,
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
@@ -42,7 +42,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
     ((currentUser?.lastNotificationsCheck) || ""),
   );
 
-  if (results && results.length) {
+  if (results?.length) {
     return (
       <List className={classes.root}>
         {results.map(notification =>
@@ -65,6 +65,8 @@ const NotificationsList = ({ terms, currentUser, classes }: {
           </ListItem>}
       </List>
     )
+  } else if (loading) {
+    return <Components.Loading/>
   } else {
     return <div className={classes.empty}> You don't have any notifications yet!</div>
   }

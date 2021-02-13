@@ -29,8 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     fontSize: "1rem",
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
     cursor: "pointer",
+    
+    "&:hover": {
+      color: theme.palette.grey[800],
+    },
   }
 })
 

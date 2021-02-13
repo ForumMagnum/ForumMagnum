@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -9,7 +9,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary';
 import Button from '@material-ui/core/Button';
-import gql from 'graphql-tag';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';

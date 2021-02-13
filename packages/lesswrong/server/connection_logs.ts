@@ -1,20 +1,8 @@
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import { createMutator } from './vulcan-lib';
-import Users from '../lib/collections/users/collection';
-import { ForwardedWhitelist } from './forwarded_whitelist';
-import { Accounts } from '../lib/meteorAccounts';
-import { Meteor } from 'meteor/meteor';
+import { onServerConnect } from '../server/meteorServerSideFns';
 
-let dummyUser: DbUser|null = null;
-async function getDummyUser(): Promise<DbUser> {
-  if (!dummyUser) dummyUser = Users.findOne();
-  if (!dummyUser) throw Error("No users in the database, can't get dummy user")
-  return dummyUser;
-}
-void getDummyUser();
-
-Meteor.onConnection(async (connection) => {
-  let currentUser = await getDummyUser();
+onServerConnect(async (connection) => {
   const ip = (connection.httpHeaders && connection.httpHeaders["x-real-ip"]) || connection.clientAddress;
   
   void createMutator({
@@ -27,7 +15,7 @@ Meteor.onConnection(async (connection) => {
         id: connection.id,
       }
     },
-    currentUser: currentUser,
+    currentUser: null,
     validate: false,
   })
   //eslint-disable-next-line no-console
@@ -46,29 +34,8 @@ Meteor.onConnection(async (connection) => {
           id: connection.id,
         }
       },
-      currentUser: currentUser,
+      currentUser: null,
       validate: false,
     })
-  })
-})
-
-Accounts.onLogin(async (login) => {
-  const document = {
-    name: 'login',
-    important: false,
-    userId: login.user && login.user._id,
-    properties: {
-      type: login.type,
-      id: login.connection && login.connection.id,
-      ip: login.connection && ForwardedWhitelist.getClientIP(login.connection),
-      userAgent: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['user-agent'],
-      referrer: login.connection && login.connection.httpHeaders && login.connection.httpHeaders['referer']
-    }
-  }
-  void createMutator({
-    collection: LWEvents,
-    document: document,
-    currentUser: await getDummyUser(),
-    validate: false,
   })
 })

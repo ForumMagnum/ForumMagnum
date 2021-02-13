@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import CKEditor from '../editor/ReactCKEditor';
-import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
+import { getCkEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings';
@@ -45,6 +45,8 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 
 
 const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }) => {
+  const { PostEditor, PostEditorCollaboration } = getCkEditor();
+  
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {

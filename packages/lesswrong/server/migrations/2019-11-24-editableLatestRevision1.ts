@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getCollection } from '../../lib/vulcan-lib';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
-import { Revisions } from '../../lib/index';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 // The upgrade procedure here is:
 //  1. Attach an instance to the database and run editableAddLatestRevisionField.
@@ -21,7 +21,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections)
-    for (let fieldName of editableCollectionsFields[collectionName])
+    for (let fieldName of editableCollectionsFields[collectionName]!)
     {
       const collection = getCollection(collectionName);
       // eslint-disable-next-line no-console
