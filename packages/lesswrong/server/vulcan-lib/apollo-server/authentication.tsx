@@ -251,7 +251,7 @@ const authenticationResolvers = {
             You requested a password reset. Follow the following link to reset your password: 
           </p>
           <p>
-            <a href={tokenLink}></a>
+            <a href={tokenLink}>{tokenLink}</a>
           </p>
         </div>
       });  
