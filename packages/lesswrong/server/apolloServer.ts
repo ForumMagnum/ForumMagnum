@@ -32,6 +32,7 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
+import { ckEditorTokenHandler } from './ckEditorToken';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -124,6 +125,8 @@ export function startWebserver() {
       res.end(bundleText);
     }
   });
+  // Setup CKEditor Token
+  app.use("/ckeditor-token", ckEditorTokenHandler)
   
   // Static files folder
   // eslint-disable-next-line no-console
@@ -137,6 +140,7 @@ export function startWebserver() {
   app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
   // Setup GraphiQL
   app.use("/graphiql", graphiqlMiddleware(getGraphiqlConfig(config)));
+  
 
   app.get('*', async (request, response) => {
     const renderResult = await renderWithCache(request, response);

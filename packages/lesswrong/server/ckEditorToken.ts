@@ -9,10 +9,10 @@ import { DatabaseServerSetting } from './databaseSettings';
 const ckEditorEnvironmentIdSetting = new DatabaseServerSetting<string | null>('ckEditor.environmentId', null)
 const ckEditorSecrretKeySetting = new DatabaseServerSetting<string | null>('ckEditor.secretKey', null)
 
-addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
+export async function ckEditorTokenHandler (req, res, next) {
   const environmentId = ckEditorEnvironmentIdSetting.get()
   const secretKey = ckEditorSecrretKeySetting.get()! // Assume nonnull; causes lack of encryption in development
-  
+
   const documentId = req.headers['document-id']
   const userId = req.headers['user-id']
   const formType = req.headers['form-type']
@@ -24,7 +24,7 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const ckEditorId = getCKEditorDocumentId(documentId, userId, formType)
 
   const user = await getUserFromReq(req)
-  const post = await Posts.findOne(documentId)
+  const post = documentId && await Posts.findOne(documentId)
   const canEdit = post && postCanEdit(user, post)  
   const canView = post && await Posts.checkAccess(user, post, null)
 
@@ -59,4 +59,4 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const result = jwt.sign( payload, secretKey, { algorithm: 'HS256' } );
   
   res.end( result );
-})
+}
