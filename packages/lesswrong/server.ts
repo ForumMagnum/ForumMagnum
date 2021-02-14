@@ -108,6 +108,7 @@ import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
+import './server/resolvers/arbitalPageData';
 import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';

@@ -50,7 +50,7 @@ mdi.use(markdownItSup)
 import { mjpage }  from 'mathjax-node-page'
 import { onStartup, isAnyTest } from '../../lib/executionEnvironment';
 
-function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
+export function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
