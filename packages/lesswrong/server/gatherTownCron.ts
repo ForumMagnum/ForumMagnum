@@ -192,7 +192,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     sendMessageOnSocket(socket, {
       event: "init",
       token: token,
-      version: 5,
+      version: 6,
     });
   });
 
