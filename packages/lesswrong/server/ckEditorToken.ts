@@ -1,4 +1,4 @@
-import { addStaticRoute, getUserFromReq } from './vulcan-lib';
+import { getUserFromReq } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts'
 import { postCanEdit } from '../lib/collections/posts/helpers'
 import { getCKEditorDocumentId } from '../lib/ckEditorUtils'
