@@ -53,7 +53,7 @@ LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
   return {
     selector: {
       name: "gatherTownUsersCheck",
-      checkFailed: false,
+      "properties.checkFailed": false,
       createdAt: {$gt: oneHourAgo},
     },
     options: {
