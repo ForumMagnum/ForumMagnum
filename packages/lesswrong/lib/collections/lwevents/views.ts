@@ -49,9 +49,12 @@ ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
 ensureIndex(LWEvents, {name:1, userId:1, createdAt:-1})
 
 LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
+  const oneHourAgo = new Date(new Date().getTime()-(60*60*1000));
   return {
     selector: {
-      name: "gatherTownUsersCheck"
+      name: "gatherTownUsersCheck",
+      checkFailed: false,
+      createdAt: {$gt: oneHourAgo},
     },
     options: {
       sort: {createdAt: -1}
