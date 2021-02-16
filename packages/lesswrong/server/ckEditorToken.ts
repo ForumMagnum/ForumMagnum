@@ -1,4 +1,4 @@
-import { getUserFromReq } from './vulcan-lib';
+import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import { Posts } from '../lib/collections/posts'
 import { postCanEdit } from '../lib/collections/posts/helpers'
 import { getCKEditorDocumentId } from '../lib/ckEditorUtils'
@@ -58,5 +58,8 @@ export async function ckEditorTokenHandler (req, res, next) {
   
   const result = jwt.sign( payload, secretKey, { algorithm: 'HS256' } );
   
+  res.writeHead(200, {
+    "Content-Type": "application/octet-stream"
+  });
   res.end( result );
 }
