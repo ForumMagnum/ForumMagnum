@@ -169,7 +169,7 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "path-to-regexp": "^6.2.0",
+    "path-to-regexp": "^1.2.0",
     "pg": "^8.5.1",
     "pg-promise": "^10.9.2",
     "prop-types": "^15.7.2",
