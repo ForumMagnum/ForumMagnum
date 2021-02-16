@@ -223,7 +223,7 @@ h3 {
 /* Deactivate intercom on smaller devices */
 
 /* theme.breakpoints.down('sm') */
-@media screen and (min-width: 600px) and (max-width: 959px) {
+@media screen and (max-width: 959px) {
   #intercom-container, .intercom-lightweight-app {
     display: none;
   }
