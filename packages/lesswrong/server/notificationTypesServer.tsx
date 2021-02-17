@@ -106,11 +106,11 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
   name: "newTagPosts",
   canCombineEmails: false,
   emailSubject: async ({user, notifications}) => {
-    const [documentId, documentType] = notifications[0]
+    const {documentId, documentType} = notifications[0]
     return await taggedPostMessage({documentId, documentType})
   },
   emailBody: async ({user, notifications}) => {
-    const [documentId, documentType] = notifications[0]
+    const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
       return <Components.NewPostEmail documentId={ tagRel.postId}/>
