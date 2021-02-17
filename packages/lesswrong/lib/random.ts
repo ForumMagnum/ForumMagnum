@@ -26,7 +26,7 @@ export const randomId = () => {
 
 export const randomSecret = () => {
   if (bundleIsServer) {
-    return crypto.randomBytes(15).toString('base64');
+    return crypto.randomBytes(15).toString('hex');
   } else {
     throw new Error("No CSPRNG available on the client");
   }
