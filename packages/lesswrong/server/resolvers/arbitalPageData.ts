@@ -28,13 +28,14 @@ async function getArbitalPageData(pageAlias = "hyperexistential_separation") {
 const arbitalPageResolvers = {
   Query: {
     async ArbitalPageData(root: void, { pageAlias }: { pageAlias:string }, context: ResolverContext) {
-      const rawRoomData:any = await getArbitalPageData()
+      const rawRoomData:any = await getArbitalPageData(pageAlias)
       if (!rawRoomData) return null
       const processedData = JSON.parse(rawRoomData)
       if (!processedData?.pages) return null;
       const page:any = Object.values(processedData.pages).find((page:any) => page?.alias === pageAlias)
       if (!page) return null
-      const fixedMarkdown = page.summaries?.Summary.replace(/\[([a-zA-Z0-9]+)?\s*([^\]]*)\]/g, (fullMatch, cg1, cg2, cg3) => {
+      const textField = page.summaries?.Summary || page.clickbait
+      const fixedMarkdown = textField.replace(/\[([a-zA-Z0-9]+)?\s*([^\]]*)\]/g, (fullMatch, cg1, cg2, cg3) => {
         const linkedPageAlias = processedData.pages[cg1]?.alias
         if (!cg1 || !linkedPageAlias) {
           return `[${cg2}](https://arbital.com/edit/)`
