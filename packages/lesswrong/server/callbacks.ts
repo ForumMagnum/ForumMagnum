@@ -39,9 +39,9 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
 });
 
 
-getCollectionHooks("Users").editAsync.add(function userEditDeleteContentCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.deleteContent && !oldUser.deleteContent) {
-    void userDeleteContent(user);
+getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser?.isAdmin) {
+    void userDeleteContent(newDocument, currentUser);
   }
 });
 
@@ -85,7 +85,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-export async function userDeleteContent(user: DbUser) {
+export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
@@ -97,7 +97,7 @@ export async function userDeleteContent(user: DbUser) {
       documentId: post._id,
       set: {status: 5},
       unset: {},
-      currentUser: user,
+      currentUser: deletingUser,
       validate: false,
     })
 
@@ -121,7 +121,7 @@ export async function userDeleteContent(user: DbUser) {
         documentId: report._id,
         set: {closedAt: new Date()},
         unset: {},
-        currentUser: user,
+        currentUser: deletingUser,
         validate: false,
       })
     }
@@ -134,21 +134,28 @@ export async function userDeleteContent(user: DbUser) {
   console.info("Deleting comments: ", comments);
   for (let comment of comments) {
     if (!comment.deleted) {
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        set: {deleted: true, deletedDate: new Date()},
-        unset: {},
-        currentUser: user,
-        validate: false,
-      })
+      try {
+        await updateMutator({
+          collection: Comments,
+          documentId: comment._id,
+          set: {deleted: true, deletedDate: new Date()},
+          unset: {},
+          currentUser: deletingUser,
+          validate: false,
+        })
+      } catch(err) {
+        //eslint-disable-next-line no-console
+        console.error("Failed to delete comment")
+        //eslint-disable-next-line no-console
+        console.error(err)
+      }
     }
 
     const notifications = await Notifications.find({documentId: comment._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for comment ${comment._id}: `, notifications);
     for (let notification of notifications) {
-      await deleteMutator({
+      await deleteMutator({ // TODO: This should be a soft-delete not a hard-delete
         collection: Notifications,
         documentId: notification._id,
         validate: false,
@@ -164,7 +171,7 @@ export async function userDeleteContent(user: DbUser) {
         documentId: report._id,
         set: {closedAt: new Date()},
         unset: {},
-        currentUser: user,
+        currentUser: deletingUser,
         validate: false,
       })
     }
