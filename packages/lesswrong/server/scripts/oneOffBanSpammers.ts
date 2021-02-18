@@ -4,7 +4,7 @@ import { userIPBanAndResetLoginTokens, userDeleteContent } from '../callbacks';
 import Users from '../../lib/collections/users/collection'
 import moment from 'moment'
 
-const banUser = async (user: DbUser) => {
+const banUser = async (user: DbUser, adminUser: DbUser) => {
   await Users.rawCollection().bulkWrite([{
     updateOne: {
       filter: {_id: user._id},
@@ -19,12 +19,12 @@ const banUser = async (user: DbUser) => {
     }
   }])
   void userIPBanAndResetLoginTokens(user);
-  void userDeleteContent(user);
+  void userDeleteContent(user, adminUser);
 }
 
 Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(
   'oneOffBanSpammers',
-  async () => {
+  async (adminId) => {
     const spammers = Users.find({
       // signUpReCaptchaRating: {$exists: false},
       reviewedByUserId: {$exists: false},
@@ -42,8 +42,9 @@ Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(
     })
     // eslint-disable-next-line no-console
     console.log('Spammer count', await spammers.count())
+    const adminUser = await Users.findOne({_id: adminId})
     for (const spammer of await spammers.fetch()) {
-      await banUser(spammer)
+      await banUser(spammer, adminUser)
     }
   }
 )
