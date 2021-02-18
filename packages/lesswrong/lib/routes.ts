@@ -406,9 +406,9 @@ if (forumTypeSetting.get() === 'LessWrong') {
   addRoute(
     {
       name: 'HPMOR',
-      path: '/hpmor',
+      path: '/harryPotter',
       componentName: 'HPMOR',
-      title: "Harry Potter and the Methods of Rationality",
+      title: "Harry Potter and the Mettypohods of Rationality",
       ...hpmorSubtitle,
     },
     {

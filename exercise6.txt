@@ -1,0 +1,7 @@
+
+6a. What is the ID of the user with slug "jimrandomh"?
+6b. How many posts are there in the database (including deleted posts)?
+6c. How many posts are in the database which pass the default view filter?
+6d. What page would you go to to find a list of options for the mongodb function
+    collection.findOneAndUpdate?
+

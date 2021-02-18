@@ -3,6 +3,8 @@ import React from 'react';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { PopperPlacementType } from '@material-ui/core/Popper'
 
+// EXERCISE1c: Make it so that if the karma on a post is negative, it turns red.
+
 const PostsItemKarma = ({post, placement="left"}: {
   post: PostsBase,
   placement?: PopperPlacementType

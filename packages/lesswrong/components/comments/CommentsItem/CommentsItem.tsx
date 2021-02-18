@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
@@ -104,6 +103,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600]
   }
 })
+
+// EXERCISE1d: Suppose that, due to a bug, some comment with a special property crashes during render.
+// Unfortunately, that comment breaks the entire post page! Modify this file so that if it crashes,
+// only the one bad comment is affected, and not the rest of the page.
 
 export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
@@ -328,7 +331,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
 const CommentsItemComponent = registerComponent(
   'CommentsItem', CommentsItem, {
-    styles, hocs: [withErrorBoundary],
+    styles,
     areEqual: {
       treeOptions: "shallow",
     },

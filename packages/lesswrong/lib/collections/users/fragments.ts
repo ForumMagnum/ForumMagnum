@@ -88,7 +88,6 @@ registerFragment(`
     }
     showHideKarmaOption
     markDownPostEditor
-    hideElicitPredictions
     commentSorting
     location
     googleLocation

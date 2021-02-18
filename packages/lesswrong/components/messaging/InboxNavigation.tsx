@@ -6,10 +6,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({terms, currentUser}: {
-  terms: ConversationsViewTerms,
-  currentUser: UsersCurrent,
-}) => {
+// EXERCISE2b: Fill in the type annotations for this component's props.
+const InboxNavigation = ({terms, currentUser}) => {
   const location = useLocation();
   const { query } = location;
   const { history } = useNavigation();

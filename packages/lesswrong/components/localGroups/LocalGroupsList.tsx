@@ -18,15 +18,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }))
 
-const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}: {
-  terms: LocalgroupsViewTerms,
-  children?: React.ReactNode,
-  classes: ClassesType,
-  showNoResults?: boolean,
-  showLoadMore?: boolean,
-  showLoading?: boolean,
-  dimWhenLoading?: boolean,
-}) => {
+// EXERCISE2d: Fill in the type annotations for this component.
+const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}: any) => {
   const { results, count, loadMore, totalCount, loading, loadingMore } = useMulti({
     terms,
     collectionName: "Localgroups",

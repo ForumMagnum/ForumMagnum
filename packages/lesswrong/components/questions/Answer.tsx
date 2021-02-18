@@ -8,6 +8,9 @@ import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
 import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 
+// EXERCISE1a: Answers on question-posts have a three-dots menu in the top right corner.
+// Make the icon smaller (about half its current size).
+
 const styles = (theme: ThemeType): JssStyles => ({
   postContent: {
     ...answerStyles(theme),
@@ -67,6 +70,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity:1
     },
+  },
+  menuIcon: {
   },
   deletedSection: {
     display: "flex",

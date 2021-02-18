@@ -1,0 +1,4 @@
+
+8. Read the documentation in abTestImpl. Then create an A/B test which makes it so
+that for half of users, negative karma scores on PostsItems are red. (Or some
+other styling-based A/B test that excites you.)

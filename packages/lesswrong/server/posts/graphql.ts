@@ -8,7 +8,8 @@ import { addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
 
 const specificResolvers = {
   Mutation: {
-    increasePostViewCount(root: void, {postId}: {postId: string}, context: ResolverContext) {
+    // EXERCISE4d: Fill in type annotations for this function
+    increasePostViewCount(root, {postId}, context) {
       return context.Posts.update({_id: postId}, { $inc: { viewCount: 1 }});
     }
   }

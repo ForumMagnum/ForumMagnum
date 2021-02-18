@@ -4,6 +4,9 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 
+// EXERCISE1b: This component is used on the URL /bookmarks. Style this component,
+// adding some padding above it to separate the list from the heading. (You might
+// have to log in and bookmark something to test.)
 const BookmarksList = ({limit=null}: {
   limit?: number|null
 }) => {

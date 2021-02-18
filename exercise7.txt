@@ -1,0 +1,17 @@
+
+Here is a MongoDB query. Assume that most widgets are red and are not deleted,
+and that there are a very large number of widgets in the database.
+    Widgets.find({
+      deleted: false,
+      red: true,
+    }).sort({
+      createdAt: -1
+    }).limit(10)
+
+7. Which of these indexes suffice to make this query fast? For each, answer yes or no.
+   7a. {createdAt:1}
+   7b. {deleted:1, red:1, blue:1, createdAt:1}
+   7c. {deleted:1, red:1, createdAt:1, blue:1}
+   7d. {createdAt:1, deleted:1, red:1, blue:1}
+   7e. {blue:1, createdAt:1, deleted:1, red:1}
+

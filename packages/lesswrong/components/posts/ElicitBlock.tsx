@@ -210,6 +210,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     (prediction: any) => prediction?.creator?.lwUser?._id === currentUser._id
   );
   const [revealed, setRevealed] = useState(false);
+  // EXERCISE3: currentUser doesn't seem to have a hideElicitPredictions field. Explain why, then fix it.
+  // @ts-ignore
   const predictionsHidden = currentUser?.hideElicitPredictions && !userHasPredicted && !revealed;
   
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length

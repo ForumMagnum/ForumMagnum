@@ -75,6 +75,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
  return {...post, ...votedPost} as DbPost;
 });
 
+// EXERCISE4a: Add type annotations to this function
 getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
@@ -83,6 +84,7 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatu
   return post;
 });
 
+// EXERCISE4b: Add type annotations to this function
 getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, properties)
 {
   if (properties && properties.context && properties.context.headers) {
