@@ -29,7 +29,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, LinkPostMessage, PostsRevisionMessage, HoverPreviewLink, ReviewPostButton, LWTooltip} = Components;
+  const { AlignmentCrosspostMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip} = Components;
   
   return <>
     {/* disabled except during Review */}
