@@ -43,6 +43,9 @@ Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(
     // eslint-disable-next-line no-console
     console.log('Spammer count', await spammers.count())
     const adminUser = await Users.findOne({_id: adminId})
+    if (!adminUser) {
+      throw Error("Can't find admin User with the given ID. Please provide valid admin user ID.")
+    }
     for (const spammer of await spammers.fetch()) {
       await banUser(spammer, adminUser)
     }
