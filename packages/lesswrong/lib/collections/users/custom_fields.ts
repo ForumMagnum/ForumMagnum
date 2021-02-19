@@ -11,54 +11,9 @@ import Users from "./collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
+import { formGroups } from './formGroups';
 
 export const MAX_NOTIFICATION_RADIUS = 300
-export const formGroups = {
-  default: {
-    name: "default",
-    order: 0,
-    paddingStyle: true
-  },
-  moderationGroup: {
-    order:60,
-    name: "moderation",
-    label: "Moderation & Moderation Guidelines",
-  },
-  siteCustomizations: {
-    order: 1,
-    label: "Site Customizations",
-    name: "siteCustomizations"
-  },
-  banUser: {
-    order:50,
-    name: "banUser",
-    label: "Ban & Purge User",
-    startCollapsed: true,
-  },
-  notifications: {
-    order: 10,
-    name: "notifications",
-    label: "Notifications"
-  },
-  emails: {
-    order: 15,
-    name: "emails",
-    label: "Emails"
-  },
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
-  },
-  truncationOptions: {
-    name: "truncationOptions",
-    order: 9,
-    label: "Comment Truncation Options",
-    startCollapsed: false,
-  },
-}
-
 export const karmaChangeNotifierDefaultSettings = {
   // One of the string keys in karmaNotificationTimingChocies
   updateFrequency: "daily",
@@ -176,25 +131,6 @@ const partiallyReadSequenceItem = new SimpleSchema({
 });
 
 addFieldsDict(Users, {
-  createdAt: {
-    type: Date,
-    onInsert: (user: DbUser, currentUser: DbUser) => {
-      return user.createdAt || new Date();
-    },
-    canRead: ["guests"]
-  },
-
-  // Emails (not to be confused with email). This field belongs to Meteor's
-  // accounts system; we should never write it, but we do need to read it to find
-  // out whether a user's email address is verified.
-  emails: {
-    hidden: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
-  },
-  'emails.$': {
-    type: Object,
-  },
-
   whenConfirmationEmailSent: {
     type: Date,
     optional: true,
@@ -302,12 +238,6 @@ addFieldsDict(Users, {
     control: 'checkbox',
     group: formGroups.siteCustomizations,
     label: "Hide other users' Elicit predictions until I have predicted myself",
-  },
-
-  email: {
-    order: 20,
-    group: formGroups.default,
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
   
   hideNavigationSidebar: {
@@ -783,17 +713,6 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
-  },
-
-  // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
-  displayName: {
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
-    group: formGroups.default,
-  },
-
-  username: {
-    hidden: true
   },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
@@ -1298,29 +1217,6 @@ addFieldsDict(Users, {
     type: Number,
     optional: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins']
-  },
-  // Unique user slug for URLs, copied over from Vulcan-Accounts
-  slug: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    group: formGroups.adminOptions,
-    order: 40,
-    onInsert: async (user: DbInsertion<DbUser>) => {
-      // create a basic slug from display name and then modify it if this slugs already exists;
-      const displayName = createDisplayName(user);
-      const basicSlug = slugify(displayName);
-      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
-    },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
-        if (slugIsUsed) {
-          throw Error(`Specified slug is already used: ${data.slug}`)
-        }
-      }
-    }
   },
   oldSlugs: {
     type: Array,

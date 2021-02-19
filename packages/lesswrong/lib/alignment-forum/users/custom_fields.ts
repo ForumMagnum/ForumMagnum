@@ -1,6 +1,6 @@
 import { Users } from '../../collections/users/collection';
 import { userOwns } from '../../vulcan-users/permissions';
-import { formGroups } from "../../collections/users/custom_fields"
+import { formGroups } from "../../collections/users/formGroups"
 import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { postStatuses } from '../../collections/posts/constants';
 

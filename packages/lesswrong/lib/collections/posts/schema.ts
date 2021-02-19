@@ -9,21 +9,7 @@ import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
-
-const formGroups = {
-  // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
-  },
-  visibleOptions: {
-    name: "visibleOptions",
-    order: 30,
-    defaultStyle: true,
-  }
-};
+import { formGroups } from './formGroups';
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post creation
@@ -74,14 +60,16 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: 'url',
-    order: 10,
+    control: 'EditUrl',
+    order: 12,
     query: `
       SiteData{
         logoUrl
         title
       }
     `,
+    placeholder: 'Add a linkpost URL',
+    group: formGroups.options,
   },
   // Title
   title: {
@@ -91,8 +79,10 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: 'text',
-    order: 20,
+    order: 10,
+    placeholder: "Title",
+    control: 'EditTitle',
+    group: formGroups.default,
   },
   // Slug
   slug: {
@@ -121,6 +111,8 @@ const schema: SchemaType<DbPost> = {
     denormalized: true,
     optional: true,
     viewableBy: ['guests'],
+    hidden: true,
+    onInsert: (post: DbPost) => post.postedAt || new Date(),
   },
   // Count of how many times the post's link was clicked
   clickCount: {
@@ -200,6 +192,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'checkbox',
+    order: 10,
     group: formGroups.adminOptions,
     onInsert: (post) => {
       if(!post.sticky) {
@@ -251,10 +244,13 @@ const schema: SchemaType<DbPost> = {
       nullable: true
     }),
     optional: true,
-    control: 'select',
+    control: 'text',
     viewableBy: ['guests'],
-    insertableBy: ['members'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
     hidden: true,
+    
+    group: formGroups.adminOptions,
   },
 
   // GraphQL-only fields
