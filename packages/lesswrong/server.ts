@@ -116,7 +116,6 @@ import './server/resolvers/elicitPredictions';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
-import './server/connection_logs';
 
 import './server/codegen/generateTypes';
 
