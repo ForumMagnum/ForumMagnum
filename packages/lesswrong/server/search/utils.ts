@@ -486,7 +486,7 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   collection: AlgoliaIndexedCollection<T>,
   updateFunction?: any,
 }) {
-  if (!collectionIsAlgoliaIndexed(collection as any)) {
+  if (!collectionIsAlgoliaIndexed(collection.collectionName)) {
     // If this is a collection that isn't Algolia-indexed, don't index it. (This
     // gets called from voting code, which tried to update Algolia indexes to
     // change baseScore. tagRels have voting, but aren't Algolia-indexed.)

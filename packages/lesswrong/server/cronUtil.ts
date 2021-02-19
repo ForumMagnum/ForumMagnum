@@ -37,6 +37,10 @@ export function addCronJob(options: {
   });
 }
 
+export function removeCronJob(name: string) {
+  SyncedCron.remove(name);
+}
+
 export function startSyncedCron() {
   if (typeof SyncedCron !== 'undefined') {
     SyncedCron.start();

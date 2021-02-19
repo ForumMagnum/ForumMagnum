@@ -1,28 +1,47 @@
-import { addCronJob } from './cronUtil';
+import { addCronJob, removeCronJob } from './cronUtil';
 import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
-import { isProduction } from '../lib/executionEnvironment';
+import { isProduction, onStartup } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
+// Version number of the GatherTown bot in this file. This matches the version
+// number field in the GatherTown connection header, ie it tracks their releases.
+// If this is a non-integer, the integer part is the GatherTown version number and
+// the fractional part is our internal iteration on the bot.
+const currentGatherTownTrackerVersion = 6;
+
+// Minimum version number of the GatherTown bot that should run. If this is higher
+// than the bot version in this file, then the cronjob shuts off so some other
+// server can update it instead.
+const minGatherTownTrackerVersion = new DatabaseServerSetting<number>("gatherTownTrackerVersion", currentGatherTownTrackerVersion);
+
 if (isProduction && forumTypeSetting.get() === "LessWrong") {
-  addCronJob({
-    name: 'gatherTownGetUsers',
-    interval: "every 3 minutes",
-    job() {
-      void pollGatherTownUsers();
+  onStartup(() => {
+    if (currentGatherTownTrackerVersion >= minGatherTownTrackerVersion.get()) {
+      addCronJob({
+        name: 'gatherTownBot',
+        interval: "every 3 minutes",
+        job() {
+          void pollGatherTownUsers();
+        }
+      });
     }
   });
 }
 
 const pollGatherTownUsers = async () => {
+  if (currentGatherTownTrackerVersion < minGatherTownTrackerVersion.get()) {
+    removeCronJob("gatherTownBot");
+  }
+  
   const roomName = gatherTownRoomName.get();
   const roomId = gatherTownRoomId.get();
   if (!roomName || !roomId) return;
@@ -37,6 +56,7 @@ const pollGatherTownUsers = async () => {
       important: false,
       properties: {
         time: new Date(),
+        trackerVersion: currentGatherTownTrackerVersion,
         gatherTownUsers, checkFailed, failureReason
       }
     },
@@ -192,7 +212,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     sendMessageOnSocket(socket, {
       event: "init",
       token: token,
-      version: 6,
+      version: Math.floor(currentGatherTownTrackerVersion),
     });
   });
 

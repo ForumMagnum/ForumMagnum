@@ -6,5 +6,6 @@
 COMMAND="$1"
 scripts/waitForServer.sh
 
+mkdir -p tmp/pendingShellCommands
 echo "$COMMAND" >tmp/pendingShellCommands/command$$.js
 
