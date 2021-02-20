@@ -471,6 +471,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         name,
         prefix: this.getLSKeyPrefix()
       });
+      this.hasUnsavedData = false;
     } else {
       const serialized = this.editorContentsToJson();
   
@@ -484,7 +485,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       if (success) {
         this.hasUnsavedData = false;
       }
-      return success;
     }
   }
 
