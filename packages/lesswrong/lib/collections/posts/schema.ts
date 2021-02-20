@@ -477,10 +477,10 @@ const schema: SchemaType<DbPost> = {
   canonicalSource: {
     type: String,
     optional: true,
-    hidden: true,
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
+    group: formGroups.adminOptions,
   },
 
   nominationCount2018: {
