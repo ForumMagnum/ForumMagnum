@@ -68,11 +68,12 @@ const SunshineNewPostsItem = ({post, classes}: {
     });
   }
   
-  const handleReview = () => {
+  const handlePersonal = () => {
     applyTags();
     void updatePost({
       selector: { _id: post._id},
       data: {
+        frontpageDate: null,
         reviewedByUserId: currentUser!._id,
         authorIsUnreviewed: false
       },
@@ -120,7 +121,7 @@ const SunshineNewPostsItem = ({post, classes}: {
           }}/>
           <FooterTagList post={post} />
           <div className={classes.buttonRow}>
-              <Button onClick={handleReview}>
+              <Button onClick={handlePersonal}>
                 <PersonIcon className={classes.icon} /> Personal
               </Button>
               {post.submitToFrontpage && <Button onClick={handlePromote}>
