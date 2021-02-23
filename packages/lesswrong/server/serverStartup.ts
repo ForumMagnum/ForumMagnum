@@ -148,8 +148,8 @@ const watchForShellCommands = () => {
     const fileContents = fs.readFileSync(path, 'utf8');
     // eslint-disable-next-line no-console
     console.log(`Running shell command: ${fileContents}`);
-    eval(fileContents);
     fs.unlinkSync(path);
+    eval(fileContents);
   });
 }
 
