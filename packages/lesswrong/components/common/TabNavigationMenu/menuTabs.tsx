@@ -13,6 +13,7 @@ import Home from '@material-ui/icons/Home'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
+import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
@@ -251,7 +252,7 @@ export default {
       link: '/allPosts',
       iconComponent: Sort,
       tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
-      showOnMobileStandalone: true,
+      showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
       id: 'tags',
@@ -262,6 +263,27 @@ export default {
       tooltip: 'See posts tagged by their subject matter',
       showOnMobileStandalone: true,
       showOnCompressed: true,
+    }, {
+      id: 'sequences',
+      title: 'Sequences',
+      link: '/sequences',
+      iconComponent: LocalLibrary,
+      tooltip: "Collections of posts building on a common theme",
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    // TODO: Once we get two sequences we want to share, add subitems
+    // }, {
+    //   id: 'fellowship-reading',
+    //   title: 'Fellowship Reading',
+    //   link: '/TODO:',
+    //   tooltip: "TODO: James is cool",
+    //   subItem: true,
+    // }, {
+    //   id: 'motivation',
+    //   title: 'Motivation',
+    //   link: '/TODO:',
+    //   tooltip: "TODO: Aaron's cool",
+    //   subItem: true,
     }, {
       id: 'groups',
       title: 'EA Groups',
