@@ -64,6 +64,7 @@ addFieldsDict(Posts, {
     label: "Sticky (Alignment)",
     ...schemaDefaultValue(false),
     group: formGroups.adminOptions,
+    hidden: false, // TODO;
     viewableBy: ['guests'],
     editableBy: ['alignmentForumAdmins', 'admins'],
     insertableBy: ['alignmentForumAdmins', 'admins'],
@@ -103,6 +104,7 @@ addFieldsDict(Posts, {
   reviewForAlignmentUserId: {
     type: String,
     optional: true,
+    hidden: false, // TODO;
     viewableBy: ['guests'],
     editableBy: ['alignmentForumAdmins', 'admins'],
     insertableBy: ['alignmentForumAdmins', 'admins'],

@@ -9,6 +9,14 @@ import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
+import SimpleSchema from 'simpl-schema'
+
+const STICKY_PRIORITIES = {
+  1: "Low",
+  2: "Normal",
+  3: "Elevated",
+  4: "Max",
+}
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -211,6 +219,28 @@ const schema: SchemaType<DbPost> = {
         return false;
       }
     }
+  },
+  // TODO;
+  stickyPriority: {
+    type: SimpleSchema.Integer,
+    ...schemaDefaultValue(2),
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    hidden: false, // TODO;
+    control: 'select',
+    options: () => Object.entries(STICKY_PRIORITIES).map(([level, name]) => {
+      console.log('🚀 ~ file: schema.ts ~ line 233 ~ options: ~ level, name', level, name)
+      const res = {
+        value: parseInt(level),
+        label: name
+      }
+      console.log('🚀 ~ file: schema.ts ~ line 237 ~ options: ~ res', res)
+      return res
+    }),
+    group: formGroups.adminOptions,
+    order: 11,
+    optional: true,
   },
   // Save info for later spam checking on a post. We will use this for the akismet package
   userIP: {

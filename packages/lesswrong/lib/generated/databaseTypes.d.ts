@@ -319,6 +319,7 @@ interface DbPost extends DbObject {
   status: number
   isFuture: boolean
   sticky: boolean
+  stickyPriority: number
   userIP: string
   userAgent: string
   referrer: string
