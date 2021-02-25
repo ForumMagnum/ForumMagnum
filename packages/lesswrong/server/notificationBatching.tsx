@@ -48,6 +48,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
     const emails: any = await notificationBatchToEmails({
       user, notifications: notificationsToEmail
     });
+    console.log('🚀 ~ file: notificationBatching.tsx ~ line 49 ~ sendNotificationBatch ~ emails', emails)
     
     for (let email of emails) {
       await wrapAndSendEmail(email);
@@ -62,12 +63,14 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   if (notificationTypeRenderer.canCombineEmails) {
     return [{
       user,
+      from: notificationTypeRenderer.from,
       subject: await notificationTypeRenderer.emailSubject({ user, notifications }),
       body: await notificationTypeRenderer.emailBody({ user, notifications }),
     }];
   } else {
     return await Promise.all(notifications.map(async (notification: DbNotification) => ({
       user,
+      from: notificationTypeRenderer.from,
       subject: await notificationTypeRenderer.emailSubject({ user, notifications:[notification] }),
       body: await notificationTypeRenderer.emailBody({ user, notifications:[notification] }),
     })));
@@ -98,6 +101,7 @@ addGraphQLResolvers({
           user: currentUser,
           notifications
         });
+        console.log('🚀 ~ file: notificationBatching.tsx ~ line 100 ~ EmailPreview ~ emails', emails)
       }
       if (postId) {
         const post = await Posts.findOne(postId)

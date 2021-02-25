@@ -129,8 +129,10 @@ function addEmailBoilerplate({ css, title, body }: {
 //
 
 const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
-export async function generateEmail({user, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
+
+export async function generateEmail({user, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
   user: DbUser,
+  from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css:string, title: string, body: string})=>string,
@@ -192,8 +194,8 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     wordwrap: plainTextWordWrap
   });
   
-  const from = defaultEmailSetting.get()
-  if (!from) {
+  const fromAddress = from || defaultEmailSetting.get()
+  if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
   
@@ -206,17 +208,18 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   return {
     user: user,
     to: user.email,
-    from: from,
+    from: fromAddress,
     subject: taggedSubject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
   }
 }
 
-export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
+export const wrapAndRenderEmail = async ({user, from, subject, body}: {user: DbUser, from?: string, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
   const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
   return await generateEmail({
     user,
+    from,
     subject: subject,
     bodyComponent: <Components.EmailWrapper
       user={user} unsubscribeAllLink={unsubscribeAllLink}
@@ -226,9 +229,9 @@ export const wrapAndRenderEmail = async ({user, subject, body}: {user: DbUser, s
   });
 }
 
-export const wrapAndSendEmail = async ({user, subject, body}: {user: DbUser, subject: string, body: React.ReactNode}): Promise<boolean> => {
+export const wrapAndSendEmail = async ({user, from, subject, body}: {user: DbUser, from?: string, subject: string, body: React.ReactNode}): Promise<boolean> => {
   try {
-    const email = await wrapAndRenderEmail({ user, subject, body });
+    const email = await wrapAndRenderEmail({ user, from, subject, body });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});
     return succeeded;
@@ -267,8 +270,9 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
+    console.log("from: " + renderedEmail.from); //eslint-disable-line
     console.log("//////// HTML version"); //eslint-disable-line
-    console.log(renderedEmail.html); //eslint-disable-line
+    // console.log(renderedEmail.html); //eslint-disable-line
     console.log("//////// Plain-text version"); //eslint-disable-line
     console.log(renderedEmail.text); //eslint-disable-line
     return false;

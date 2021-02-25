@@ -106,6 +106,7 @@ export class EventDebouncer<KeyType,ValueType>
     timing?: DebouncerTiming|null,
     af?: boolean,
   }) => {
+    console.log('🚀 ~ file: debouncer.ts ~ line 104 ~ timing', timing)
     const timingRule = timing || this.defaultTiming;
     if (!timingRule) {
       throw new Error("EventDebouncer.recordEvent: missing timing argument and no defaultTiming set.");
