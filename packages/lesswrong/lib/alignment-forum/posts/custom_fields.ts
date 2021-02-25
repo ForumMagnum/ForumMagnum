@@ -2,6 +2,7 @@ import { Posts } from "../../collections/posts";
 import { formGroups } from "../../collections/posts/custom_fields"
 import { arrayOfForeignKeysField, addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
+import { forumTypeSetting } from "../../instanceSettings";
 
 addFieldsDict(Posts, {
   af: {
@@ -64,7 +65,7 @@ addFieldsDict(Posts, {
     label: "Sticky (Alignment)",
     ...schemaDefaultValue(false),
     group: formGroups.adminOptions,
-    hidden: false, // TODO;
+    hidden: forumTypeSetting.get() === 'EAForum',
     viewableBy: ['guests'],
     editableBy: ['alignmentForumAdmins', 'admins'],
     insertableBy: ['alignmentForumAdmins', 'admins'],
@@ -104,7 +105,7 @@ addFieldsDict(Posts, {
   reviewForAlignmentUserId: {
     type: String,
     optional: true,
-    hidden: false, // TODO;
+    hidden: forumTypeSetting.get() === 'EAForum',
     viewableBy: ['guests'],
     editableBy: ['alignmentForumAdmins', 'admins'],
     insertableBy: ['alignmentForumAdmins', 'admins'],
