@@ -16,6 +16,7 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventInRadiusEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 interface ServerNotificationType {
   name: string,
@@ -204,9 +205,14 @@ export const NewUserNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }) => null,
 });
 
+const newMessageEmails = {
+  EAForum: 'forum-noreply@effectivealtruism.org'
+}
+const forumNewMessageEmail = newMessageEmails[forumTypeSetting.get()]
+
 export const NewMessageNotification = serverRegisterNotificationType({
   name: "newMessage",
-  from: "forum-noreply@effectivealtruism.org",  // TODO;
+  from: forumNewMessageEmail, // passing in undefined will lead to default behavior
   loadData: async function({ user, notifications }) {
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);

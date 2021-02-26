@@ -48,7 +48,6 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
     const emails: any = await notificationBatchToEmails({
       user, notifications: notificationsToEmail
     });
-    console.log('🚀 ~ file: notificationBatching.tsx ~ line 49 ~ sendNotificationBatch ~ emails', emails)
     
     for (let email of emails) {
       await wrapAndSendEmail(email);
@@ -101,7 +100,6 @@ addGraphQLResolvers({
           user: currentUser,
           notifications
         });
-        console.log('🚀 ~ file: notificationBatching.tsx ~ line 100 ~ EmailPreview ~ emails', emails)
       }
       if (postId) {
         const post = await Posts.findOne(postId)

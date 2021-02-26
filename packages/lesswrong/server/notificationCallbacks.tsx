@@ -131,10 +131,6 @@ const createNotification = async (userId: string, notificationType: string, docu
     type: notificationType,
     link: await getLink(notificationType, documentType, documentId),
   }
-  console.log('🚀 ~ file: notificationCallbacks.tsx ~ line 132 ~ createNotification ~ notificationData', notificationData)
-  console.log('🚀 ~ file: notificationCallbacks.tsx ~ line 133 ~ createNotification ~ notificationTypeSettings', notificationTypeSettings)
-
-  
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
   {

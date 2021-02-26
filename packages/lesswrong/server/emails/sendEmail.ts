@@ -15,7 +15,6 @@ const getMailUrl = () => {
 
 // Send an email. Returns true for success or false for failure.
 export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
-  console.log('🚀 ~ file: sendEmail.ts ~ line 18 ~ sendEmailSmtp ~ email', email)
   const mailUrl = getMailUrl();
   
   if (!mailUrl) {
