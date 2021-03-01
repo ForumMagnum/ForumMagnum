@@ -1,7 +1,7 @@
 import { onStartup } from '../lib/executionEnvironment';
 
 declare global {
-  var buildId; //Preprocessor-replaced with an ID in the bundle
+  var buildId: string; //Preprocessor-replaced with an ID in the bundle
 }
 
 // In development, make a websocket connection (on a different port) to get
@@ -14,7 +14,7 @@ function connectWebsocket() {
   if (connectedWebsocket) return;
   connectedWebsocket = new WebSocket(`ws://localhost:${websocketPort}`);
 
-  connectedWebsocket.addEventListener("message", (event) => {
+  connectedWebsocket.addEventListener("message", (event: MessageEvent) => {
     try {
       const data = JSON.parse(event.data);
       if (data.latestBuildId) {

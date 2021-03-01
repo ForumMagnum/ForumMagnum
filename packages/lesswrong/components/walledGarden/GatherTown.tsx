@@ -116,7 +116,7 @@ const GatherTown = ({classes}: {
     enableTotal: false,
   });
   const lastCheckResults = results && results[0]?.properties;
-  const checkFailed = lastCheckResults?.checkFailed;
+  const checkFailed = !lastCheckResults || lastCheckResults.checkFailed;
   const users = lastCheckResults?.gatherTownUsers;
   const userList = users && Object.keys(users)
   const currentUser = useCurrentUser()

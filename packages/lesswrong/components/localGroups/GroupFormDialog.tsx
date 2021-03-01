@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
-import { Localgroups } from '../../lib/index';
+import { Localgroups } from '../../lib/collections/localgroups/collection';
 import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
 import DialogContent from '@material-ui/core/DialogContent';

@@ -1,6 +1,7 @@
-import './client/vulcan-lib/main';
+import './client/mingoUpdates';
+import './client/apolloClient';
 import './lib/vulcan-lib';
-import './client/vulcan-core/start';
+import './client/start';
 
 // Make sure to register settings before everything else
 import './client/publicSettings'

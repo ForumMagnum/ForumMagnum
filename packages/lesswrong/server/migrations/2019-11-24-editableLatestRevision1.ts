@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getCollection } from '../../lib/vulcan-lib';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
-import { Revisions } from '../../lib/index';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 // The upgrade procedure here is:
 //  1. Attach an instance to the database and run editableAddLatestRevisionField.

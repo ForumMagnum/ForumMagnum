@@ -2,7 +2,7 @@ import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { getCollection } from '../../lib/vulcan-lib';
 import { dataToWordCount } from '../editor/make_editable_callbacks';
-import { Revisions } from '../../lib/index';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 registerMigration({
   name: "computeWordCounts",

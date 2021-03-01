@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AppGenerator from './AppGenerator';
-import { onStartup } from '../../lib/executionEnvironment';
+import { onStartup } from '../lib/executionEnvironment';
 
-import { createApolloClient } from '../vulcan-lib/apollo-client/apolloClient';
-import { populateComponentsApp } from '../../lib/vulcan-lib';
+import { createApolloClient } from './apolloClient';
+import { populateComponentsApp } from '../lib/vulcan-lib';
 
 onStartup(() => {
   // init the application components and routes, including components & routes from 3rd-party packages
@@ -19,9 +19,8 @@ onStartup(() => {
     document.body.appendChild(rootElement);
   }
 
-  const abTestGroups = {};
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroups={abTestGroups} themeOptions={(window as any).themeOptions} />
+    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} themeOptions={(window as any).themeOptions} />
   );
 
   ReactDOM.hydrate(

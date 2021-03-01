@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8
   },
   smallText: {
-    ...smallTagTextStyle,
+    ...smallTagTextStyle(theme),
   }
 });
 

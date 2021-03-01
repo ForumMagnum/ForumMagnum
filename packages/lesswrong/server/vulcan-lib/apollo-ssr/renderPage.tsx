@@ -13,7 +13,7 @@ import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
-import { getAllUserABTestGroups, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
+import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
 import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
@@ -39,7 +39,8 @@ export type RenderResult = {
   jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
-  abTestGroups: RelevantTestGroupAllocation
+  relevantAbTestGroups: RelevantTestGroupAllocation
+  allAbTestGroups: CompleteTestGroupAllocation
   themeOptions: ThemeOptions,
   timings: RenderTimings
 }
@@ -76,14 +77,14 @@ export const renderWithCache = async (req: Request, res: Response) => {
     recordCacheBypass();
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
-      req, user, startTime, res
+      req, user, startTime, res, clientId,
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
       userId: user._id,
       timings: rendered.timings,
       cached: false,
-      abTestGroups: rendered.abTestGroups,
+      abTestGroups: rendered.allAbTestGroups,
     });
     // eslint-disable-next-line no-console
     console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
@@ -94,8 +95,8 @@ export const renderWithCache = async (req: Request, res: Response) => {
     };
   } else {
     const abTestGroups = getAllUserABTestGroups(user, clientId);
-    const rendered = await cachedPageRender(req, abTestGroups, (req) => renderRequest({
-      req, user: null, startTime, res
+    const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
+      req, user: null, startTime, res, clientId,
     }));
     
     if (rendered.cached) {
@@ -112,7 +113,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      abTestGroups: rendered.abTestGroups,
+      abTestGroups: rendered.relevantAbTestGroups,
       cached: rendered.cached,
     });
     
@@ -123,11 +124,12 @@ export const renderWithCache = async (req: Request, res: Response) => {
   }
 };
 
-export const renderRequest = async ({req, user, startTime, res}: {
+export const renderRequest = async ({req, user, startTime, res, clientId}: {
   req: Request,
   user: DbUser|null,
   startTime: Date,
   res: Response,
+  clientId: string,
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   // according to the Apollo doc, client needs to be recreated on every request
@@ -154,7 +156,7 @@ export const renderRequest = async ({req, user, startTime, res}: {
   const App = <AppGenerator
     req={req} apolloClient={client}
     serverRequestStatus={serverRequestStatus}
-    abTestGroups={abTestGroups}
+    abTestGroupsUsed={abTestGroups}
   />;
 
   const serializedThemeOptions = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : '{"name":"default"}';
@@ -207,7 +209,8 @@ export const renderRequest = async ({req, user, startTime, res}: {
     serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
-    abTestGroups,
+    relevantAbTestGroups: abTestGroups,
+    allAbTestGroups: getAllUserABTestGroups(user, clientId),
     themeOptions: themeOptions,
     timings,
   };

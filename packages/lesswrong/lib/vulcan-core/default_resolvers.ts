@@ -1,9 +1,3 @@
-/*
-
-Default list, single, and total resolvers
-
-*/
-
 import { Utils, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
@@ -17,6 +11,8 @@ const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
 
+// Default resolvers. Provides `single` and `multi` resolvers, which power the
+// useSingle and useMulti hooks.
 export function getDefaultResolvers<N extends CollectionNameString>(collectionName: N, options?: Partial<DefaultResolverOptions>) {
   type T = ObjectsByCollectionName[N]
   const typeName = getTypeName(collectionName);

@@ -75,7 +75,7 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups, renderFn) => {
+export const cachedPageRender = async (req: Request, abTestGroups, renderFn: (req:Request)=>Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   //eslint-disable-next-line no-console
   const cacheKey = cacheKeyFromReq(req);
@@ -123,8 +123,8 @@ export const cachedPageRender = async (req: Request, abTestGroups, renderFn) => 
   
   const rendered = await renderPromise;
   // eslint-disable-next-line no-console
-  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.abTestGroups)}`);
-  cacheStore(cacheKey, rendered.abTestGroups, rendered);
+  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
+  cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
   
   inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
   if (!inProgressRenders[cacheKey].length)
@@ -161,7 +161,7 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
   return null;
 }
 
-const objIsSubset = (subset,superset): boolean => {
+const objIsSubset = (subset: {}, superset: {}): boolean => {
   for (let key in subset) {
     if (!(key in superset) || subset[key] !== superset[key])
       return false;

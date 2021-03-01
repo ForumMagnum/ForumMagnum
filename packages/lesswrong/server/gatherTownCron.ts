@@ -1,28 +1,47 @@
-import { addCronJob } from './cronUtil';
+import { addCronJob, removeCronJob } from './cronUtil';
 import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
-import { isProduction } from '../lib/executionEnvironment';
+import { isProduction, onStartup } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
+// Version number of the GatherTown bot in this file. This matches the version
+// number field in the GatherTown connection header, ie it tracks their releases.
+// If this is a non-integer, the integer part is the GatherTown version number and
+// the fractional part is our internal iteration on the bot.
+const currentGatherTownTrackerVersion = 7;
+
+// Minimum version number of the GatherTown bot that should run. If this is higher
+// than the bot version in this file, then the cronjob shuts off so some other
+// server can update it instead.
+const minGatherTownTrackerVersion = new DatabaseServerSetting<number>("gatherTownTrackerVersion", currentGatherTownTrackerVersion);
+
 if (isProduction && forumTypeSetting.get() === "LessWrong") {
-  addCronJob({
-    name: 'gatherTownGetUsers',
-    interval: "every 3 minutes",
-    job() {
-      void pollGatherTownUsers();
+  onStartup(() => {
+    if (currentGatherTownTrackerVersion >= minGatherTownTrackerVersion.get()) {
+      addCronJob({
+        name: 'gatherTownBot',
+        interval: "every 3 minutes",
+        job() {
+          void pollGatherTownUsers();
+        }
+      });
     }
   });
 }
 
 const pollGatherTownUsers = async () => {
+  if (currentGatherTownTrackerVersion < minGatherTownTrackerVersion.get()) {
+    removeCronJob("gatherTownBot");
+  }
+  
   const roomName = gatherTownRoomName.get();
   const roomId = gatherTownRoomId.get();
   if (!roomName || !roomId) return;
@@ -37,6 +56,7 @@ const pollGatherTownUsers = async () => {
       important: false,
       properties: {
         time: new Date(),
+        trackerVersion: currentGatherTownTrackerVersion,
         gatherTownUsers, checkFailed, failureReason
       }
     },
@@ -192,7 +212,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     sendMessageOnSocket(socket, {
       event: "init",
       token: token,
-      version: 5,
+      version: Math.floor(currentGatherTownTrackerVersion),
     });
   });
 
@@ -303,12 +323,13 @@ function isJson(str: string): boolean {
   return true;
 }
 
-const playerMessageHeaderLen = 30;
+const playerMessageHeaderLen = 32;
 const mapNameOffset = 18
 const playerNameOffset = 20
 const playerStatusOffset = 24
 const playerIconOffset = 26
-const playerIdOffset = 28
+const unknownStringFieldOffset = 28;
+const playerIdOffset = 30
 
 // Decoded using echo AS...<rest of base64 message> | base64 -d | hexdump -C
 
@@ -337,24 +358,28 @@ function interpretBinaryMessage(data: any): {players: {map: string, name: string
       const playerNameLen = buf.readUInt8(pos+playerNameOffset);
       const playerStatusLen = buf.readUInt8(pos+playerStatusOffset)
       const playerIconLen = buf.readUInt8(pos+playerIconOffset);
+      const unknownStringFieldLen = buf.readUInt8(pos+unknownStringFieldOffset);
       const playerIdLen = buf.readUInt8(pos+playerIdOffset);
       
       const mapNameStart = pos+playerMessageHeaderLen;
       const playerNameStart = mapNameStart+mapNameLen;
       const playerStatusStart = playerNameStart+playerNameLen;
       const playerIconStart = playerStatusStart+playerIconLen;
-      const playerIdStart = playerIconStart+playerStatusLen;
+      const unknownStringFieldStart = playerIconStart+unknownStringFieldLen;
+      const playerIdStart = unknownStringFieldStart+playerStatusLen;
       
       const mapName = buf.slice(mapNameStart, mapNameStart+mapNameLen).toString("utf8");
       const playerName = buf.slice(playerNameStart, playerNameStart+playerNameLen).toString("utf8");
       const playerstatus = buf.slice(playerStatusStart, playerStatusStart+playerStatusLen).toString("utf8");
+      const unknownField = buf.slice(unknownStringFieldStart, unknownStringFieldStart+unknownStringFieldLen).toString("utf8");
       const playerId = buf.slice(playerIdStart, playerIdStart+playerIdLen).toString("utf8");
       
       players.push({
         map: mapName,
         name: playerName,
         id: playerId,
-        status: playerstatus
+        status: playerstatus,
+        unknownField,
       });
       
       pos = playerIdStart+playerIdLen;

@@ -5,8 +5,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { gql, useMutation, DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
-import { getUserABTestKey } from '../../lib/abTestImpl';
-import { useClientId } from '../../lib/abTestUtil';
+import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 
 
 const styles = theme => ({
