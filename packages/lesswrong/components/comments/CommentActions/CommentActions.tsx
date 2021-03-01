@@ -14,7 +14,7 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
 }) => {
   const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment, Loading } = Components
   
-  const { document: postDetails, loading } = useSingle({
+  const { document: postDetails } = useSingle({
     skip: !post,
     documentId: post?._id,
     collectionName: "Posts",
@@ -50,7 +50,7 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
     {post && <ReportCommentMenuItem comment={comment}/>}
     {postDetails && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
-    {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails?.user && <Divider />}
+    {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
     {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <DeleteCommentMenuItem comment={comment} post={postDetails}/>}
     <RetractCommentMenuItem comment={comment}/>
