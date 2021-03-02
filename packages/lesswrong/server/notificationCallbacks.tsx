@@ -132,8 +132,6 @@ const createNotification = async (userId: string, notificationType: string, docu
     link: await getLink(notificationType, documentType, documentId),
   }
 
-  
-
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
   {
     const createdNotification = await createMutator({
