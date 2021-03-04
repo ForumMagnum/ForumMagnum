@@ -159,7 +159,7 @@ const embedConfig = {
 	extraProviders: [
 		{
 			name: 'Elicit',
-			url: /^(forecast.)elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
+			url: /^(forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
 			html: ([match, questionId]) => `
 				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
 					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
