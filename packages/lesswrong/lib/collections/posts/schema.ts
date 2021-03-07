@@ -9,6 +9,14 @@ import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
+import SimpleSchema from 'simpl-schema'
+
+const STICKY_PRIORITIES = {
+  1: "Low",
+  2: "Normal",
+  3: "Elevated",
+  4: "Max",
+}
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -211,6 +219,23 @@ const schema: SchemaType<DbPost> = {
         return false;
       }
     }
+  },
+  // Priority of the stickied post. Higher priorities will be sorted before
+  // lower priorities.
+  stickyPriority: {
+    type: SimpleSchema.Integer,
+    ...schemaDefaultValue(2),
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    control: 'select',
+    options: () => Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
+      value: parseInt(level),
+      label: name
+    })),
+    group: formGroups.adminOptions,
+    order: 11,
+    optional: true,
   },
   // Save info for later spam checking on a post. We will use this for the akismet package
   userIP: {

@@ -16,17 +16,27 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventInRadiusEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
-const notificationTypes = {};
+interface ServerNotificationType {
+  name: string,
+  from?: string,
+  canCombineEmails?: boolean,
+  loadData?: ({user, notifications}) => Promise<any>,
+  emailSubject: ({user, notifications}) => Promise<string>,
+  emailBody: ({user, notifications}) => Promise<React.ReactNode>,
+}
 
-export const getNotificationTypeByNameServer = (name) => {
+const notificationTypes: {string?: ServerNotificationType} = {};
+
+export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
   if (name in notificationTypes)
     return notificationTypes[name];
   else
     throw new Error(`Invalid notification type: ${name}`);
 }
 
-const serverRegisterNotificationType = (notificationTypeClass) => {
+const serverRegisterNotificationType = (notificationTypeClass: ServerNotificationType): ServerNotificationType => {
   const name = notificationTypeClass.name;
   notificationTypes[name] = notificationTypeClass;
   return notificationTypeClass;
@@ -53,8 +63,7 @@ export const PostApprovedNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }) => {
     return "LessWrong notification";
   },
-  emailBody: async ({ user, notifications }) => {
-  },
+  emailBody: async ({ user, notifications }) => null,
 });
 
 export const NewEventNotification = serverRegisterNotificationType({
@@ -193,12 +202,17 @@ export const NewUserNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }) => {
     return "LessWrong notification";
   },
-  emailBody: async ({ user, notifications }) => {
-  },
+  emailBody: async ({ user, notifications }) => null,
 });
+
+const newMessageEmails = {
+  EAForum: 'forum-noreply@effectivealtruism.org'
+}
+const forumNewMessageEmail = newMessageEmails[forumTypeSetting.get()]
 
 export const NewMessageNotification = serverRegisterNotificationType({
   name: "newMessage",
+  from: forumNewMessageEmail, // passing in undefined will lead to default behavior
   loadData: async function({ user, notifications }) {
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);
@@ -221,14 +235,14 @@ export const NewMessageNotification = serverRegisterNotificationType({
     return { conversations, messages, participantsById, otherParticipants };
   },
   emailSubject: async function({ user, notifications }) {
-    const { conversations, otherParticipants } = await this.loadData({ user, notifications });
+    const { conversations, otherParticipants } = await this.loadData!({ user, notifications });
     
     const otherParticipantNames = otherParticipants.map(u=>userGetDisplayName(u)).join(', ');
     
     return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
   },
   emailBody: async function({ user, notifications }) {
-    const { conversations, messages, participantsById } = await this.loadData({ user, notifications });
+    const { conversations, messages, participantsById } = await this.loadData!({ user, notifications });
     
     return <Components.PrivateMessagesEmail
       conversations={conversations}
@@ -300,4 +314,3 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
     />
   },
 });
-

@@ -23,6 +23,7 @@ registerFragment(`
     createdAt
     sticky
     metaSticky
+    stickyPriority
     status
     frontpageDate
     meta

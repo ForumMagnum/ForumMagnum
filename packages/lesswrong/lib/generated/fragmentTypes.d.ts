@@ -70,6 +70,59 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface PostRelationsDefaultFragment { // fragment on PostRelations
+  readonly createdAt: Date,
+  readonly type: string,
+  readonly sourcePostId: string,
+  readonly targetPostId: string,
+  readonly order: number,
+}
+
+interface TagRelsDefaultFragment { // fragment on TagRels
+  readonly createdAt: Date,
+  readonly tagId: string,
+  readonly postId: string,
+  readonly deleted: boolean,
+  readonly userId: string,
+  readonly afBaseScore: number,
+}
+
+interface PostsDefaultFragment { // fragment on Posts
+  readonly createdAt: Date,
+  readonly postedAt: Date,
+  readonly modifiedAt: Date,
+  readonly url: string,
+  readonly title: string,
+  readonly slug: string,
+  readonly viewCount: number,
+  readonly lastCommentedAt: Date,
+  readonly clickCount: number,
+  readonly deletedDraft: boolean,
+  readonly status: number,
+  readonly isFuture: boolean,
+  readonly sticky: boolean,
+  readonly stickyPriority: number,
+  readonly userIP: string,
+  readonly userAgent: string,
+  readonly referrer: string,
+  readonly author: string,
+  readonly userId: string,
+  readonly question: boolean,
+  readonly authorIsUnreviewed: boolean,
+  readonly submitToFrontpage: boolean,
+  readonly hiddenRelatedQuestion: boolean,
+  readonly originalPostRelationSourceId: string,
+  readonly shortform: boolean,
+  readonly canonicalSource: string,
+  readonly nominationCount2018: number,
+  readonly nominationCount2019: number,
+  readonly reviewCount2018: number,
+  readonly reviewCount2019: number,
+  readonly lastCommentPromotedAt: Date,
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly noIndex: boolean,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -110,58 +163,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly promotedByUserId: string,
   readonly promotedAt: Date,
   readonly hideKarma: boolean,
-}
-
-interface PostRelationsDefaultFragment { // fragment on PostRelations
-  readonly createdAt: Date,
-  readonly type: string,
-  readonly sourcePostId: string,
-  readonly targetPostId: string,
-  readonly order: number,
-}
-
-interface TagRelsDefaultFragment { // fragment on TagRels
-  readonly createdAt: Date,
-  readonly tagId: string,
-  readonly postId: string,
-  readonly deleted: boolean,
-  readonly userId: string,
-  readonly afBaseScore: number,
-}
-
-interface PostsDefaultFragment { // fragment on Posts
-  readonly createdAt: Date,
-  readonly postedAt: Date,
-  readonly modifiedAt: Date,
-  readonly url: string,
-  readonly title: string,
-  readonly slug: string,
-  readonly viewCount: number,
-  readonly lastCommentedAt: Date,
-  readonly clickCount: number,
-  readonly deletedDraft: boolean,
-  readonly status: number,
-  readonly isFuture: boolean,
-  readonly sticky: boolean,
-  readonly userIP: string,
-  readonly userAgent: string,
-  readonly referrer: string,
-  readonly author: string,
-  readonly userId: string,
-  readonly question: boolean,
-  readonly authorIsUnreviewed: boolean,
-  readonly submitToFrontpage: boolean,
-  readonly hiddenRelatedQuestion: boolean,
-  readonly originalPostRelationSourceId: string,
-  readonly shortform: boolean,
-  readonly canonicalSource: string,
-  readonly nominationCount2018: number,
-  readonly nominationCount2019: number,
-  readonly reviewCount2018: number,
-  readonly reviewCount2019: number,
-  readonly lastCommentPromotedAt: Date,
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
-  readonly noIndex: boolean,
 }
 
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
@@ -237,85 +238,6 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface TagRelVotes { // fragment on Votes
-  readonly _id: string,
-  readonly userId: string,
-  readonly voteType: string,
-  readonly power: number,
-  readonly documentId: string,
-  readonly votedAt: Date,
-  readonly isUnvote: boolean,
-  readonly tagRel: WithVoteTagRel|null,
-}
-
-interface TagVotingActivity extends TagRelVotes { // fragment on Votes
-  readonly tagRel: TagRelFragment|null,
-}
-
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly createdAt: Date,
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly archivedByIds: Array<string>,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly createdAt: Date,
-  readonly conversationId: string,
-}
-
-interface SubscriptionsDefaultFragment { // fragment on Subscriptions
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly state: string,
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly deleted: boolean,
-  readonly type: string,
-}
-
-interface NotificationsDefaultFragment { // fragment on Notifications
-  readonly userId: string,
-  readonly createdAt: Date,
-  readonly documentId: string,
-  readonly documentType: string,
-  readonly link: string,
-  readonly title: string,
-  readonly message: string,
-  readonly type: string,
-  readonly deleted: boolean,
-  readonly viewed: boolean,
-  readonly emailed: boolean,
-  readonly waitingForBatch: boolean,
-}
-
-interface ReportsDefaultFragment { // fragment on Reports
-  readonly userId: string,
-  readonly commentId: string,
-  readonly postId: string,
-  readonly link: string,
-  readonly claimedUserId: string,
-  readonly description: string,
-  readonly createdAt: Date,
-  readonly closedAt: Date,
-  readonly markedAsSpam: boolean,
-  readonly reportedAsSpam: boolean,
-}
-
-interface BansDefaultFragment { // fragment on Bans
-  readonly createdAt: Date,
-  readonly expirationDate: Date,
-  readonly userId: string,
-  readonly ip: string,
-  readonly reason: string,
-  readonly comment: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
 interface PostsMinimumInfo { // fragment on Posts
   readonly _id: string,
   readonly slug: string,
@@ -331,6 +253,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly createdAt: Date,
   readonly sticky: boolean,
   readonly metaSticky: boolean,
+  readonly stickyPriority: number,
   readonly status: number,
   readonly frontpageDate: Date,
   readonly meta: boolean,
@@ -784,6 +707,21 @@ interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revi
   readonly tag: TagBasicInfo|null,
 }
 
+interface NotificationsDefaultFragment { // fragment on Notifications
+  readonly userId: string,
+  readonly createdAt: Date,
+  readonly documentId: string,
+  readonly documentType: string,
+  readonly link: string,
+  readonly title: string,
+  readonly message: string,
+  readonly type: string,
+  readonly deleted: boolean,
+  readonly viewed: boolean,
+  readonly emailed: boolean,
+  readonly waitingForBatch: boolean,
+}
+
 interface NotificationsList { // fragment on Notifications
   readonly _id: string,
   readonly documentId: string,
@@ -795,6 +733,22 @@ interface NotificationsList { // fragment on Notifications
   readonly message: string,
   readonly type: string,
   readonly viewed: boolean,
+}
+
+interface ConversationsDefaultFragment { // fragment on Conversations
+  readonly createdAt: Date,
+  readonly title: string,
+  readonly participantIds: Array<string>,
+  readonly latestActivity: Date,
+  readonly af: boolean,
+  readonly messageCount: number,
+  readonly archivedByIds: Array<string>,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly createdAt: Date,
+  readonly conversationId: string,
 }
 
 interface messageListFragment { // fragment on Messages
@@ -855,6 +809,19 @@ interface RSSFeedMutationFragment { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
+}
+
+interface ReportsDefaultFragment { // fragment on Reports
+  readonly userId: string,
+  readonly commentId: string,
+  readonly postId: string,
+  readonly link: string,
+  readonly claimedUserId: string,
+  readonly description: string,
+  readonly createdAt: Date,
+  readonly closedAt: Date,
+  readonly markedAsSpam: boolean,
+  readonly reportedAsSpam: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -984,6 +951,16 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly type: string,
   readonly hidden: boolean,
   readonly deleted: boolean,
+}
+
+interface BansDefaultFragment { // fragment on Bans
+  readonly createdAt: Date,
+  readonly expirationDate: Date,
+  readonly userId: string,
+  readonly ip: string,
+  readonly reason: string,
+  readonly comment: string,
+  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface BansAdminPageFragment { // fragment on Bans
@@ -1343,6 +1320,16 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
 }
 
+interface SubscriptionsDefaultFragment { // fragment on Subscriptions
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly state: string,
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly deleted: boolean,
+  readonly type: string,
+}
+
 interface SubscriptionState { // fragment on Subscriptions
   readonly _id: string,
   readonly userId: string,
@@ -1609,6 +1596,21 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly launchCode: string,
 }
 
+interface TagRelVotes { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string,
+  readonly voteType: string,
+  readonly power: number,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly isUnvote: boolean,
+  readonly tagRel: WithVoteTagRel|null,
+}
+
+interface TagVotingActivity extends TagRelVotes { // fragment on Votes
+  readonly tagRel: TagRelFragment|null,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -1627,23 +1629,15 @@ interface FragmentTypes {
   lastEventFragment: lastEventFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
-  VotesDefaultFragment: VotesDefaultFragment
-  CommentsDefaultFragment: CommentsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  VotesDefaultFragment: VotesDefaultFragment
+  CommentsDefaultFragment: CommentsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   TagsDefaultFragment: TagsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
-  TagRelVotes: TagRelVotes
-  TagVotingActivity: TagVotingActivity
-  ConversationsDefaultFragment: ConversationsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
-  SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
-  NotificationsDefaultFragment: NotificationsDefaultFragment
-  ReportsDefaultFragment: ReportsDefaultFragment
-  BansDefaultFragment: BansDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
@@ -1680,13 +1674,17 @@ interface FragmentTypes {
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
   RevisionTagFragment: RevisionTagFragment
+  NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
+  ConversationsDefaultFragment: ConversationsDefaultFragment
+  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
   newConversationFragment: newConversationFragment
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   newRSSFeedFragment: newRSSFeedFragment
   RSSFeedMutationFragment: RSSFeedMutationFragment
+  ReportsDefaultFragment: ReportsDefaultFragment
   unclaimedReportsList: unclaimedReportsList
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
@@ -1694,6 +1692,7 @@ interface FragmentTypes {
   GardenCodeFragment: GardenCodeFragment
   GardenCodeFragmentEdit: GardenCodeFragmentEdit
   GardenCodesDefaultFragment: GardenCodesDefaultFragment
+  BansDefaultFragment: BansDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -1734,6 +1733,7 @@ interface FragmentTypes {
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
+  SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
@@ -1748,6 +1748,8 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
+  TagRelVotes: TagRelVotes
+  TagVotingActivity: TagVotingActivity
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -1758,23 +1760,15 @@ interface CollectionNamesByFragmentName {
   lastEventFragment: "LWEvents"
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
-  VotesDefaultFragment: "Votes"
-  CommentsDefaultFragment: "Comments"
   PostRelationsDefaultFragment: "PostRelations"
   TagRelsDefaultFragment: "TagRels"
   PostsDefaultFragment: "Posts"
+  VotesDefaultFragment: "Votes"
+  CommentsDefaultFragment: "Comments"
   RSSFeedsDefaultFragment: "RSSFeeds"
   SequencesDefaultFragment: "Sequences"
   TagsDefaultFragment: "Tags"
   RevisionsDefaultFragment: "Revisions"
-  TagRelVotes: "Votes"
-  TagVotingActivity: "Votes"
-  ConversationsDefaultFragment: "Conversations"
-  MessagesDefaultFragment: "Messages"
-  SubscriptionsDefaultFragment: "Subscriptions"
-  NotificationsDefaultFragment: "Notifications"
-  ReportsDefaultFragment: "Reports"
-  BansDefaultFragment: "Bans"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
@@ -1811,13 +1805,17 @@ interface CollectionNamesByFragmentName {
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
   RevisionTagFragment: "Revisions"
+  NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
+  ConversationsDefaultFragment: "Conversations"
+  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"
   newConversationFragment: "Conversations"
   RSSFeedMinimumInfo: "RSSFeeds"
   newRSSFeedFragment: "RSSFeeds"
   RSSFeedMutationFragment: "RSSFeeds"
+  ReportsDefaultFragment: "Reports"
   unclaimedReportsList: "Reports"
   TagFlagFragment: "TagFlags"
   TagFlagEditFragment: "TagFlags"
@@ -1825,6 +1823,7 @@ interface CollectionNamesByFragmentName {
   GardenCodeFragment: "GardenCodes"
   GardenCodeFragmentEdit: "GardenCodes"
   GardenCodesDefaultFragment: "GardenCodes"
+  BansDefaultFragment: "Bans"
   BansAdminPageFragment: "Bans"
   ChaptersDefaultFragment: "Chapters"
   BooksDefaultFragment: "Books"
@@ -1865,6 +1864,7 @@ interface CollectionNamesByFragmentName {
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
   SunshineTagFragment: "Tags"
+  SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
@@ -1879,6 +1879,8 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
+  TagRelVotes: "Votes"
+  TagVotingActivity: "Votes"
   SuggestAlignmentComment: "Comments"
 }
 
