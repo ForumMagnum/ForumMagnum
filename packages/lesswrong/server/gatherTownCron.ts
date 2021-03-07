@@ -27,7 +27,7 @@ if (isProduction && forumTypeSetting.get() === "LessWrong") {
   onStartup(() => {
     if (currentGatherTownTrackerVersion >= minGatherTownTrackerVersion.get()) {
       addCronJob({
-        name: 'gatherTownBot',
+        name: 'gatherTownBot'+currentGatherTownTrackerVersion,
         interval: "every 3 minutes",
         job() {
           void pollGatherTownUsers();
