@@ -24,7 +24,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
     const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
 
     const response = await createConversation({
-      data: {participantIds:[user._id, currentUser._id], ...alignmentFields},
+      data: {participantIds:[user._id, currentUser?._id], ...alignmentFields},
     })
     const conversationId = response.data.createConversation.data._id
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
@@ -35,7 +35,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   // would like to put this in an extra function, but useMulti is not accessible from there 
   let existingConversationObject;
   const terms: ConversationsViewTerms = {view: 'userConversations', userId: currentUser._id, showArchive: true};
-  const { results, loading } = useMulti({  
+  const { results } = useMulti({  
     terms,
     collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
