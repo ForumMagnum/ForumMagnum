@@ -34,7 +34,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   // Check for already existing Conversation
   // would like to put this in an extra function, but useMulti is not accessible from there 
   let existingConversationObject;
-  const terms: ConversationsViewTerms = {view: 'userConversations', userId: currentUser._id, showArchive: true};
+  const terms: ConversationsViewTerms = {view: 'userConversations', userId: currentUser?._id, showArchive: true};
   const { results } = useMulti({  
     terms,
     collectionName: "Conversations",
