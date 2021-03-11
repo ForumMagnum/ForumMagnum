@@ -252,6 +252,13 @@ export const postBodyStyles = (theme: ThemeType) => {
       '& li': {
         fontSize: '0.9em' // Overwriting default size setting for list items
       },
+      '& blockquote': {
+        fontSize: '0.9em',
+        lineHeight: '1.5em',
+        padding: 1,
+        paddingLeft: 3,
+        marginTop: -10,
+      },
     },
     // Hiding the footnote-separator that markdown-it adds by default
     '& .footnotes-sep': {
