@@ -37,7 +37,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
     collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 200,
+    limit: 1,
   });
   function existingConversationCheck(){
     let conversationExists = false;
