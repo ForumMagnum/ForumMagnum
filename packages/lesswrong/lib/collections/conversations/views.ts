@@ -33,5 +33,5 @@ Conversations.addView("userConversations", function (terms: ConversationsViewTer
 ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
 Conversations.addView("userUntitledConversations", function (terms: ConversationsViewTerms) {
-  return { selector: {participantIds: terms.userId, title: viewFieldNullOrMissing},};
+  return { selector: {participantIds: terms.userId, title: viewFieldNullOrMissing}, archivedByIds: {$ne: terms.userId}};
 });
