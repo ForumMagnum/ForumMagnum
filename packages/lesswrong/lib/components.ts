@@ -21,6 +21,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
+  importComponent("EAGBanner", () => require('../components/ea-forum/EAGBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 }
 
