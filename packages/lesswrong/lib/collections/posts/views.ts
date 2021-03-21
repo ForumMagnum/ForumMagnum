@@ -221,15 +221,18 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
       softFilter: []
     }
   } else {
+    const personalBonus = filterModeToKarmaModifier(filterSettings.personalBlog)
     return {
       filter: {},
-      softFilter: [
-        {$cond: {
-          if: "$frontpageDate",
-          then: 0,
-          else: filterModeToKarmaModifier(filterSettings.personalBlog)
-        }},
-      ]
+      softFilter: personalBonus ? [
+        {
+          $cond: {
+            if: "$frontpageDate",
+            then: 0,
+            else: personalBonus
+          }
+        },
+      ] : []
     }
   }
 }
@@ -241,7 +244,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
-  
+  console.log(frontpageSoftFilter)
   let tagsFilter = {};
   for (let tag of tagsRequired) {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$gte: 1};
@@ -252,7 +255,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   
   const tagsSoftFiltered = _.filter(filterSettings.tags, t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0));
   let scoreExpr: any = null;
-  if (tagsSoftFiltered.length > 0) {
+  if (tagsSoftFiltered.length > 0 || frontpageSoftFilter.length > 0) {
     scoreExpr = {
       syntheticFields: {
         score: {$divide:[
@@ -275,6 +278,8 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
       },
     };
   }
+
+  console.log(scoreExpr?.syntheticFields?.score)
   
   return {
     selector: {
