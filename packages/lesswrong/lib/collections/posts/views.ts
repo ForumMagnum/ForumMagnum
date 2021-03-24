@@ -244,7 +244,6 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
-  console.log(frontpageSoftFilter)
   let tagsFilter = {};
   for (let tag of tagsRequired) {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$gte: 1};
@@ -278,8 +277,6 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
       },
     };
   }
-
-  console.log(scoreExpr?.syntheticFields?.score)
   
   return {
     selector: {
