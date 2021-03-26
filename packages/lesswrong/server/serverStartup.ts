@@ -144,12 +144,21 @@ function initShell()
 // execution.
 const watchForShellCommands = () => {
   const watcher = chokidar.watch('./tmp/pendingShellCommands');
-  watcher.on('add', (path) => {
+  watcher.on('add', async (path) => {
     const fileContents = fs.readFileSync(path, 'utf8');
     // eslint-disable-next-line no-console
     console.log(`Running shell command: ${fileContents}`);
     fs.unlinkSync(path);
-    eval(fileContents);
+    try {
+      const result = await eval(fileContents);
+      // eslint-disable-next-line no-console
+      console.log("Finished. Result: ", result);
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Failed.");
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
   });
 }
 
