@@ -40,12 +40,24 @@ async function comparePasswords(password, hash) {
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
   if (!user) return done(null, false, { message: 'Incorrect username.' });
+  
+  // Load legacyData, if applicable. Needed because imported users had their
+  // passwords hashed differently.
+  // @ts-ignore -- legacyData isn't really handled right in our schemas.
+  const legacyData = user.legacyData ? user.legacyData : await LegacyData.findOne({ objectId: user._id })?.legacyData;
+  
+  if (legacyData?.password && legacyData.password===password) {
+    // For legacy accounts, the bcrypt-hashed password stored in user.services.password.bcrypt
+    // is a hash of the LW1-hash of their password. Don't accept an LW1-hash as a password.
+    // (If passwords from the DB were ever leaked, this prevents logging into legacy accounts
+    // that never changed their password.)
+    return done(null, false, { message: 'Incorrect password.' });
+  }
+  
   const match = await comparePasswords(password, user.services.password.bcrypt);
 
   // If no immediate match, we check whether we have a match with their legacy password
   if (!match) {
-    // @ts-ignore -- legacyData isn't really handled right in our schemas.
-    const legacyData = user.legacyData ? user.legacyData : await LegacyData.findOne({ objectId: user._id })?.legacyData;
     if (legacyData?.password) {
       const salt = legacyData.password.substring(0,3)
       const toHash = (`${salt}${user.username} ${password}`)
