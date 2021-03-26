@@ -45,9 +45,8 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
   // If no immediate match, we check whether we have a match with their legacy password
   if (!match) {
     // @ts-ignore -- legacyData isn't really handled right in our schemas.
-    const dbLegacyData = user.legacyData ? user.legacyData : LegacyData.findOne({ objectId: user._id });
-    if (dbLegacyData?.legacyData?.password) {
-      const legacyData = dbLegacyData.legacyData
+    const legacyData = user.legacyData ? user.legacyData : await LegacyData.findOne({ objectId: user._id })?.legacyData;
+    if (legacyData?.password) {
       const salt = legacyData.password.substring(0,3)
       const toHash = (`${salt}${user.username} ${password}`)
       const lw1PW = salt + sha1(toHash).toString();
