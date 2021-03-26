@@ -238,9 +238,17 @@ getCollectionHooks("Users").newSync.add(async function fixUsernameOnGithubLogin(
 
 getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event: DbLWEvent) {
   if (event.userId && event.documentId) {
+    // Upsert. This operation is subtle and fragile! We have a unique index on
+    // (postId,userId,tagId). If two copies of a page-view event fire at the
+    // same time, this creates a race condition. In order to not have this throw
+    // an exception, we need to meet the conditions in
+    //   https://docs.mongodb.com/manual/core/retryable-writes/#retryable-update-upsert
+    // In particular, this means the selector has to exactly match the unique
+    // index's keys.
     await ReadStatuses.update({
       postId: event.documentId,
       userId: event.userId,
+      tagId: null,
     }, {
       $set: {
         isRead: true,

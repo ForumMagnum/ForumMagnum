@@ -10,7 +10,7 @@ import filter from 'lodash/filter';
 // only one last-read-date for each user-post pair. Which doesn't work, because
 // we didn't have the unique index. @#$@#ing mongodb. So now we need to (a)
 // clear out all the duplicate entries, and (b) create the index.
-// 
+//
 // Unfortunately, if any dupilcate entries are created during the index build,
 // then the index build will fail. Fortunately the index build is quick and only
 // a small fraction of views cause duplicate entries, so this will probably
@@ -21,12 +21,16 @@ registerMigration({
   dateWritten: "2021-03-11",
   idempotent: true,
   action: async () => {
+    // Ensure that the tagId field is not missing (ie replace missing with null)
+    ReadStatuses.update({tagId: {$exists: false}}, {$set: {tagId: null}}, {multi: true})
+    
+    // Download all ReadStatuses, and identify the duplicates
     const allReadStatuses = await ReadStatuses.find().fetch();
     const idsToRemove: Array<string> = [];
     
     const postReadStatuses = filter(allReadStatuses, s => !!s.postId)
     
-    const postReadStatusesGrouped = groupBy(allReadStatuses, readStatus => `${readStatus.userId}_${readStatus.postId}}`);
+    const postReadStatusesGrouped = groupBy(postReadStatuses, readStatus => `${readStatus.userId}_${readStatus.postId}}`);
     for (let key of Object.keys(postReadStatusesGrouped)) {
       const group = postReadStatusesGrouped[key]!;
       if (group.length > 1) {
@@ -37,8 +41,10 @@ registerMigration({
       }
     }
     
+    // eslint-disable-next-line no-console
     console.log(`${idsToRemove.length} duplicate read status entries found`);
     
+    // Remove duplicate read statuses, then add index to prevent them in the future
     await ReadStatuses.remove({_id: {$in: idsToRemove}});
     await ensureIndexAsync(ReadStatuses, {userId:1, postId:1, tagId:1}, {unique: true})
   }
