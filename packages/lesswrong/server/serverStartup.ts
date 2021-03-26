@@ -156,6 +156,7 @@ const watchForShellCommands = () => {
     } catch(e) {
       // eslint-disable-next-line no-console
       console.log("Failed.");
+      // eslint-disable-next-line no-console
       console.log(e);
     }
   });
