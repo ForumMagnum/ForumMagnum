@@ -117,38 +117,6 @@ const AllTagsPage = ({classes}: {
             </div>
           </AnalyticsContext>
         </div>
-        <AnalyticsContext pageSectionContext="tagDetails">
-          <SectionTitle title={`Tag Details`}>
-            {forumTypeSetting.get() !== 'EAForum' && <Select
-              value={wikiGrade||"none"}
-              inputProps={{
-                name: 'Showing All Tags'
-              }}
-            >
-              <UntypedMenuItem value="none" component={QueryLink} query={{ tagFilter: undefined }}>
-                No Filters
-              </UntypedMenuItem>  
-              {Object.entries(wikiGradeDefinitions).reverse().map(([value, name]) => {
-                if(name === wikiGradeDefinitions[0]) return null
-                if(name === wikiGradeDefinitions[1]) return null
-                return <UntypedMenuItem key={value} value={name} component={QueryLink} query={{ tagFilter: name }}>
-                  {name}
-                </UntypedMenuItem>
-              })}
-            </Select>}
-          </SectionTitle>
-          <div>
-            {results && results.map(tag => {
-              return <TagsDetailsItem key={tag._id} tag={tag} />
-            })}
-            {results && !results.length && <div>
-              There aren't any tags yet.
-            </div>}
-          </div>
-          <SectionFooter>
-            <LoadMore {...loadMoreProps} />
-          </SectionFooter>
-        </AnalyticsContext>
         <AnalyticsContext pageSectionContext="allTagsAlphabetical">
           <AllTagsAlphabetical />
         </AnalyticsContext>
